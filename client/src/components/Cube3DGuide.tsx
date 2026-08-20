@@ -4,10 +4,10 @@ import { useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent }
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const color: Record<string, string> = { U: "#f7f3e9", R: "#d95743", F: "#1ba77a", D: "#e7c34f", L: "#ed8e42", B: "#3b6fc7" };
-const faceOffset: Record<"U" | "R" | "F", number> = { U: 0, R: 9, F: 18 };
+const faceOffset: Record<"U" | "R" | "F" | "D" | "L" | "B", number> = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
 const DEFAULT_VIEW = { pitch: -26, yaw: 34, zoom: 1 };
 
-function Face({ face, state }: { face: "U" | "R" | "F"; state: string }) {
+function Face({ face, state }: { face: "U" | "R" | "F" | "D" | "L" | "B"; state: string }) {
   return <div className={`cube3d-face cube3d-${face.toLowerCase()}`}>{Array.from({ length: 9 }, (_, index) => <span key={index} style={{ background: color[state[faceOffset[face] + index]] ?? "#777" }} />)}</div>;
 }
 
@@ -39,7 +39,7 @@ export function Cube3DGuide({ state, move, step }: { state: string; move?: strin
   return <div className="cube3d-guide rounded-xl border-2 border-[#17221d] bg-[#17221d] p-4 text-[#f4f0e8]">
     <div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#1ba77a]">3D CUBE</p><Rotate3D className="h-4 w-4 text-[#1ba77a]" /></div>
     <div className="cube3d-stage interactive-cube-stage" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
-      <div key={`${step}-${move}`} className="cube3d-model" style={{ transform: `rotateX(${view.pitch}deg) rotateY(${view.yaw}deg) scale(${view.zoom})` }}><Face face="F" state={state} /><Face face="R" state={state} /><Face face="U" state={state} /></div>
+      <div key={`${step}-${move}`} className="cube3d-model" style={{ transform: `rotateX(${view.pitch}deg) rotateY(${view.yaw}deg) scale(${view.zoom})` }}><Face face="F" state={state} /><Face face="R" state={state} /><Face face="U" state={state} /><Face face="B" state={state} /><Face face="L" state={state} /><Face face="D" state={state} /></div>
       {target && <span className="cube-turn-badge">{move}</span>}
     </div>
     <div className="mt-2 flex items-center justify-between border-t border-white/15 pt-2"><span className="max-w-[75%] text-xs text-[#f4f0e8]/65">{plain}</span><b className="rounded bg-[#1ba77a] px-2 py-1 font-mono text-sm text-[#17221d]">{move ?? "—"}</b></div>

@@ -337,6 +337,9 @@
   .cube3d-f { transform: translateZ(59px); }
   .cube3d-r { transform: rotateY(90deg) translateZ(59px); }
   .cube3d-u { transform: rotateX(90deg) translateZ(59px); }
+  .cube3d-b { transform: rotateY(180deg) translateZ(59px); }
+  .cube3d-l { transform: rotateY(-90deg) translateZ(59px); }
+  .cube3d-d { transform: rotateX(-90deg) translateZ(59px); }
 
   .cube3d-turn-r { animation: cube-turn-r 720ms cubic-bezier(0.23, 1, 0.32, 1); }
   .cube3d-turn-l { animation: cube-turn-l 720ms cubic-bezier(0.23, 1, 0.32, 1); }

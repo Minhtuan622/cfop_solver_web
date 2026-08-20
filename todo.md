@@ -22,6 +22,14 @@
 - [x] Kiểm tra handler pointer/cảm ứng, TypeScript và production build.
 - [ ] Lưu checkpoint bản vá sau khi xác minh không còn crash khi kéo cube.
 
+## Cube sáu mặt và preview scramble tức thì
+
+- [x] Dựng đủ 6 mặt U/R/F/D/L/B trong cube 3D, bao gồm backface và shading đồng nhất.
+- [x] Tạo bảng hoán vị facelet tĩnh và parser cho 18 move cơ bản để tạo state từ scramble trực tiếp ở frontend.
+- [x] Đồng bộ preview tức thì với ô nhập scramble, không chờ Pyodide/solver chạy.
+- [x] So sánh state engine frontend với solver Python bằng scramble `B L R B2 U2 R U2 L F2 R F2 D' R F U' R F L2 R`.
+- [x] Kiểm tra desktop/mobile, build production và lưu checkpoint.
+
 - [x] Thiết kế hướng dẫn quét sáu mặt cube, lấy mẫu 9 sticker mỗi mặt và kiểm tra state 54 ký tự.
 - [x] Tạo camera scanner chạy cục bộ bằng `getUserMedia`, canvas và phân loại màu dựa trên tâm mặt.
 - [x] Tạo Practice Lab cho OLL/PLL với chọn case, countdown/timer, kết quả đúng/sai và thống kê lưu cục bộ.

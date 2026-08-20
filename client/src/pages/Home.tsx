@@ -16,6 +16,7 @@ import { PdfExport } from "@/components/PdfExport";
 import { PracticeLab } from "@/components/PracticeLab";
 import { SolveTimer } from "@/components/SolveTimer";
 import { addSolveHistory } from "@/lib/solveHistory";
+import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { solveInBrowser, type SolverResult } from "@/lib/solverRuntime";
@@ -42,10 +43,14 @@ export default function Home() {
   const [error, setError] = useState("");
   const [savedSolve, setSavedSolve] = useState(false);
 
+  const previewState = useMemo(() => {
+    if (mode === "state") return value.length === 54 ? value : SOLVED_STATE;
+    try { return value.trim() ? stateFromScramble(value) : SOLVED_STATE; } catch { return SOLVED_STATE; }
+  }, [mode, value]);
   const currentState = useMemo(() => {
-    if (!result) return mode === "state" && value.length === 54 ? value : SOLVED_STATE;
+    if (!result) return previewState;
     return cursor === 0 ? result.initial_state : result.trace[cursor - 1]?.state ?? result.final_state;
-  }, [cursor, mode, result, value]);
+  }, [cursor, previewState, result]);
   const currentStep = result?.trace[cursor - 1];
   const activePhase = cursor > 0
     ? result?.phases.find((phase) => cursor > phase.start && cursor <= phase.end)
