@@ -1,0 +1,95 @@
+/** Xưởng Cơ Khí Tốc Độ — local-only six-face camera scanner with center-color calibration. */
+import { useEffect, useRef, useState } from "react";
+import { Camera, Check, RotateCcw, ScanLine, Square, X } from "lucide-react";
+
+const ORDER = ["U", "R", "F", "D", "L", "B"] as const;
+type Face = (typeof ORDER)[number];
+type RGB = [number, number, number];
+
+function distance(a: RGB, b: RGB) {
+  const normalize = ([r, g, b]: RGB) => {
+    const sum = Math.max(1, r + g + b);
+    return [r / sum, g / sum, b / sum] as RGB;
+  };
+  const [ar, ag, ab] = normalize(a);
+  const [br, bg, bb] = normalize(b);
+  return (ar - br) ** 2 + (ag - bg) ** 2 + (ab - bb) ** 2;
+}
+
+function css([r, g, b]: RGB) { return `rgb(${r}, ${g}, ${b})`; }
+
+export function CameraScanner({ onState }: { onState: (state: string) => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [active, setActive] = useState(false);
+  const [faceIndex, setFaceIndex] = useState(0);
+  const [captures, setCaptures] = useState<Partial<Record<Face, RGB[]>>>({});
+  const [message, setMessage] = useState("Mở camera, đặt một mặt vào khung 3 × 3 rồi chụp.");
+  const currentFace = ORDER[faceIndex];
+
+  useEffect(() => () => streamRef.current?.getTracks().forEach((track) => track.stop()), []);
+
+  async function start() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      streamRef.current = stream;
+      if (videoRef.current) { videoRef.current.srcObject = stream; await videoRef.current.play(); }
+      setActive(true);
+      setMessage(`Đang quét mặt ${currentFace}. Giữ sticker nằm trong ô lưới.`);
+    } catch {
+      setMessage("Không mở được camera. Kiểm tra quyền camera hoặc dùng State 54 để nhập thủ công.");
+    }
+  }
+
+  function stop() {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    setActive(false);
+  }
+
+  function capture() {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || video.videoWidth === 0) return;
+    const size = Math.min(video.videoWidth, video.videoHeight) * 0.62;
+    const sx = (video.videoWidth - size) / 2;
+    const sy = (video.videoHeight - size) / 2;
+    canvas.width = 300; canvas.height = 300;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    if (!context) return;
+    context.drawImage(video, sx, sy, size, size, 0, 0, 300, 300);
+    const points = [50, 150, 250];
+    const samples: RGB[] = [];
+    for (const y of points) for (const x of points) {
+      const image = context.getImageData(x - 12, y - 12, 24, 24).data;
+      let r = 0, g = 0, b = 0, count = 0;
+      for (let i = 0; i < image.length; i += 4) { r += image[i]; g += image[i + 1]; b += image[i + 2]; count += 1; }
+      samples.push([Math.round(r / count), Math.round(g / count), Math.round(b / count)]);
+    }
+    const updated = { ...captures, [currentFace]: samples };
+    setCaptures(updated);
+    if (faceIndex < ORDER.length - 1) {
+      setFaceIndex((value) => value + 1);
+      setMessage(`Đã lưu ${currentFace}. Xoay cube theo hướng dẫn và quét mặt ${ORDER[faceIndex + 1]}.`);
+      return;
+    }
+    const centers = Object.fromEntries(ORDER.map((face) => [face, updated[face]![4]])) as Record<Face, RGB>;
+    const state = ORDER.flatMap((face) => updated[face]!.map((sample) => ORDER.reduce((best, candidate) => distance(sample, centers[candidate]) < distance(sample, centers[best]) ? candidate : best, ORDER[0]))).join("");
+    onState(state);
+    setMessage("Đã tạo state 54 sticker từ sáu mặt. Hãy chạy solver để kiểm tra tính hợp lệ.");
+    stop();
+  }
+
+  function reset() { setCaptures({}); setFaceIndex(0); setMessage("Đã xóa lần quét. Bắt đầu lại từ mặt U."); }
+
+  return <div className="telemetry-panel scanner-plate rounded-[1rem] border-2 border-[#17221d] bg-[#e9e3d6] p-4">
+    <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">Camera scanner</p><p className="mt-1 text-sm font-bold">Quét 6 mặt · xử lý cục bộ</p></div><Camera className="h-4 w-4 text-[#1ba77a]" /></div>
+    {active && <div className="relative mt-3 aspect-video overflow-hidden rounded-lg bg-[#17221d]"><video ref={videoRef} muted playsInline className="h-full w-full object-cover" /><div className="pointer-events-none absolute inset-[18%] grid grid-cols-3 grid-rows-3 border-2 border-[#1ba77a]">{Array.from({ length: 9 }).map((_, index) => <span key={index} className="border border-[#1ba77a]/80" />)}</div><span className="absolute left-2 top-2 rounded bg-[#17221d]/80 px-2 py-1 font-mono text-xs font-bold text-[#f4f0e8]">FACE {currentFace}</span></div>}
+    <div className="mt-3 flex items-center gap-1.5">{ORDER.map((face) => <span key={face} className={`grid h-6 w-6 place-items-center rounded-sm border font-mono text-[10px] font-bold ${captures[face] ? "border-[#1ba77a] bg-[#1ba77a] text-[#17221d]" : face === currentFace ? "border-[#17221d] bg-white" : "border-[#17221d]/20 bg-white/40 text-[#17221d]/45"}`}>{captures[face] ? <Check className="h-3 w-3" /> : face}</span>)}</div>
+    <p className="mt-3 text-xs leading-5 text-[#17221d]/65">{message}</p>
+    <div className="mt-3 flex flex-wrap gap-2">{!active ? <button onClick={start} className="scanner-button"><Camera className="h-3.5 w-3.5" />Mở camera</button> : <><button onClick={capture} className="scanner-button"><ScanLine className="h-3.5 w-3.5" />Chụp mặt {currentFace}</button><button onClick={stop} className="scanner-button scanner-secondary"><X className="h-3.5 w-3.5" />Dừng</button></>}<button onClick={reset} className="scanner-button scanner-secondary"><RotateCcw className="h-3.5 w-3.5" />Quét lại</button></div>
+    {Object.values(captures).length > 0 && <div className="mt-3 flex gap-1">{ORDER.filter((face) => captures[face]).map((face) => <span key={face} className="h-3 flex-1 rounded-sm border border-black/15" style={{ background: css(captures[face]![4]) }} title={`Tâm ${face}`} />)}</div>}
+    <canvas ref={canvasRef} className="hidden" />
+  </div>;
+}

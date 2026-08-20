@@ -8,6 +8,9 @@ import {
   Cpu, Loader2, Play, RotateCcw, ShieldCheck, Sparkles,
 } from "lucide-react";
 import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
+import { CameraScanner } from "@/components/CameraScanner";
+import { PdfExport } from "@/components/PdfExport";
+import { PracticeLab } from "@/components/PracticeLab";
 import { cn } from "@/lib/utils";
 import { solveInBrowser, type SolverResult } from "@/lib/solverRuntime";
 
@@ -89,7 +92,7 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <img src="/manus-storage/cfop-studio-mark_62473f8e.png" alt="CFOP Solver Studio" className="h-14 w-14 rounded-xl bg-[#f4f0e8] p-1.5" />
               <div>
-                <p className="wordmark font-mono text-[10px] font-bold uppercase tracking-[0.29em] text-[#1ba77a]">CFOP Solver Studio</p>
+                <p className="wordmark font-mono text-[10px] font-bold uppercase tracking-[0.29em] text-[#1ba77a]"><span>CF</span><span className="wordmark-o">O</span><span>P</span><span className="ml-1 text-[#f4f0e8]/80">Solver Studio</span></p>
                 <h1 className="mt-1 text-2xl font-black tracking-[-0.065em] sm:text-3xl">Mở từng pha, không bỏ qua state.</h1>
               </div>
             </div>
@@ -103,7 +106,7 @@ export default function Home() {
         <section className="mt-7 grid gap-7 xl:grid-cols-[330px_minmax(0,1fr)_360px]">
           <aside className="space-y-5 xl:sticky xl:top-5 xl:h-fit">
             <div className="scorecard overflow-hidden rounded-[1rem] border-2 border-[#17221d] bg-white shadow-[6px_6px_0_#17221d]">
-              <img src="/manus-storage/cfop-hero-cube_823c9f74.png" alt="Speedcube trên bàn kỹ thuật" className="h-32 w-full object-cover" />
+              <img src="/manus-storage/cfop-hero-cube_823c9f74.png" alt="Speedcube trên bàn kỹ thuật" className="h-32 w-full object-cover contrast-90 saturate-[.8] mix-blend-multiply" />
               <div className="p-5">
                 <div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">Input workbench</p><Cpu className="h-4 w-4" /></div>
                 <div className="mt-4 grid grid-cols-2 rounded-lg border border-[#17221d]/15 p-1">
@@ -115,9 +118,11 @@ export default function Home() {
                 <button disabled={loading || !value.trim()} onClick={runSolver} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#1ba77a] px-4 py-3 text-sm font-bold text-[#10241c] transition hover:-translate-y-0.5 hover:bg-[#24bd8d] active:scale-[0.97] disabled:opacity-60">
                   {loading ? <><Loader2 className="h-4 w-4 animate-spin" />Nạp Python verifier…</> : <><Sparkles className="h-4 w-4" />Chạy full CFOP</>}
                 </button>
+                <div className="mt-3"><PdfExport result={result} input={value.trim()} inputKind={mode} /></div>
               </div>
             </div>
             <div className="scorecard rounded-[1rem] border-2 border-[#17221d] bg-[#e9e3d6] p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">Verifier</p><p className="mt-2 text-lg font-bold leading-tight">Python solver chạy cục bộ trong browser.</p><p className="mt-2 text-sm leading-5 text-[#17221d]/65">Không gửi scramble hoặc state tới server. Lần đầu nạp Python có thể mất một lúc; mỗi pha chỉ commit sau khi invariant và postcondition đạt.</p></div>
+            <CameraScanner onState={(state) => { setMode("state"); setValue(state); setResult(null); setCursor(0); setError(""); }} />
           </aside>
 
           <section className="min-w-0">
@@ -143,6 +148,17 @@ export default function Home() {
             <div className="telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-white p-4 shadow-[5px_5px_0_rgba(23,34,29,0.13)]"><div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">CFOP timeline</p><span className="font-mono text-[10px] text-[#1ba77a]">INVARIANT LOCK</span></div><div className="mt-4 space-y-2">{result ? result.phases.map((phase) => { const selected = activePhase?.name === phase.name || cursor === phase.end; return <button key={phase.name} onClick={() => updateCursor(phase.end)} className={cn("group flex w-full items-center gap-3 rounded-md border p-3 text-left transition", selected ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/10 hover:border-[#17221d] hover:bg-[#f4f0e8]")}><span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-sm font-mono text-[11px] font-bold", PHASE_COLORS[phase.name] ?? "bg-[#17221d] text-white")}>{phase.name === "oll" ? "O" : phase.name === "pll" ? "P" : phase.name.startsWith("f2l") ? "F" : "X"}</span><span className="min-w-0 flex-1"><span className="block text-sm font-bold">{displayPhase(phase.name)}</span><span className="block truncate font-mono text-[10px] text-[#17221d]/50">{phase.moves.length} moves {phase.case_id && phase.case_id !== "solved" ? `· case ${phase.case_id}` : ""}</span></span><Check className="h-4 w-4 text-[#1ba77a]" /></button>; }) : ["Cross", "F2L × 4", "OLL 57", "PLL 21"].map((label, index) => <div key={label} className="flex items-center gap-3 rounded-md border border-[#17221d]/10 bg-[#f4f0e8] p-3 text-[#17221d]/45"><span className="grid h-9 w-9 place-items-center rounded-sm bg-white font-mono text-xs">0{index + 1}</span><span className="text-sm font-bold">{label}</span></div>)}</div></div>
             <div className="telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-[#e9e3d6] p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">Database status</p><div className="mt-3 space-y-2 font-mono text-xs"><div className="flex justify-between border-b-2 border-[#17221d]/10 pb-2"><span>OLL fingerprint</span><b>57 / 57</b></div><div className="flex justify-between border-b-2 border-[#17221d]/10 pb-2"><span>PLL fingerprint</span><b>21 / 21</b></div><div className="flex justify-between"><span>AUF coverage</span><b className="text-[#1b7b5e]">4 × all cases</b></div></div></div>
           </aside>
+        </section>
+        <section className="mt-7 grid gap-7 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,.75fr)]">
+          <PracticeLab />
+          <section className="scorecard machine-zone rounded-[1rem] border-2 border-[#17221d] bg-[#17221d] p-6 text-[#f4f0e8]">
+            <div className="tick-ruler" />
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">Evidence sheet</p>
+            <h2 className="mt-2 text-2xl font-black tracking-[-0.05em]">Lưu lời giải như một move sheet.</h2>
+            <p className="mt-3 text-sm leading-6 text-[#f4f0e8]/65">PDF gồm input ban đầu, tổng move, timeline Cross → F2L → OLL → PLL, case nhận diện, algorithm và trạng thái invariant từng pha.</p>
+            <div className="mt-4 flex items-center justify-between border-y border-[#f4f0e8]/15 py-2 font-mono text-[10px] tracking-[0.12em] text-[#f4f0e8]/50"><span>TRACE STATUS</span><span className="text-[#1ba77a]">{result ? "VERIFIED / READY" : "AWAITING SOLVE"}</span></div>
+            <div className="mt-6"><PdfExport result={result} input={value.trim()} inputKind={mode} /></div>
+          </section>
         </section>
       </div>
     </main>
