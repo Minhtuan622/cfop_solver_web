@@ -1,6 +1,7 @@
 /** Xưởng Cơ Khí Tốc Độ — local-only six-face camera scanner with center-color calibration. */
 import { useEffect, useRef, useState } from "react";
 import { Camera, Check, RotateCcw, ScanLine, Square, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ORDER = ["U", "R", "F", "D", "L", "B"] as const;
 type Face = (typeof ORDER)[number];
@@ -19,6 +20,7 @@ function distance(a: RGB, b: RGB) {
 function css([r, g, b]: RGB) { return `rgb(${r}, ${g}, ${b})`; }
 
 export function CameraScanner({ onState }: { onState: (state: string) => void }) {
+  const { t, language } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -28,6 +30,12 @@ export function CameraScanner({ onState }: { onState: (state: string) => void })
   const [message, setMessage] = useState("Mở camera, đặt một mặt vào khung 3 × 3 rồi chụp.");
   const currentFace = ORDER[faceIndex];
 
+  useEffect(() => {
+    if (!active && Object.keys(captures).length === 0) {
+      setMessage(language === "vi" ? "Mở camera, đặt một mặt vào khung 3 × 3 rồi chụp." : "Open the camera, place one face in the 3 × 3 frame, then capture it.");
+    }
+  }, [active, captures, language]);
+
   useEffect(() => () => streamRef.current?.getTracks().forEach((track) => track.stop()), []);
 
   async function start() {
@@ -36,9 +44,9 @@ export function CameraScanner({ onState }: { onState: (state: string) => void })
       streamRef.current = stream;
       if (videoRef.current) { videoRef.current.srcObject = stream; await videoRef.current.play(); }
       setActive(true);
-      setMessage(`Đang quét mặt ${currentFace}. Giữ sticker nằm trong ô lưới.`);
+      setMessage(language === "vi" ? `Đang quét mặt ${currentFace}. Giữ sticker nằm trong ô lưới.` : `Scanning face ${currentFace}. Keep stickers inside the grid.`);
     } catch {
-      setMessage("Không mở được camera. Kiểm tra quyền camera hoặc dùng State 54 để nhập thủ công.");
+      setMessage(language === "vi" ? "Không mở được camera. Kiểm tra quyền camera hoặc nhập màu 6 mặt." : "Camera could not open. Check permission or enter the 6-face colors.");
     }
   }
 
@@ -71,24 +79,24 @@ export function CameraScanner({ onState }: { onState: (state: string) => void })
     setCaptures(updated);
     if (faceIndex < ORDER.length - 1) {
       setFaceIndex((value) => value + 1);
-      setMessage(`Đã lưu ${currentFace}. Xoay cube theo hướng dẫn và quét mặt ${ORDER[faceIndex + 1]}.`);
+      setMessage(language === "vi" ? `Đã lưu ${currentFace}. Xoay cube và quét mặt ${ORDER[faceIndex + 1]}.` : `Saved ${currentFace}. Turn the cube and scan face ${ORDER[faceIndex + 1]}.`);
       return;
     }
     const centers = Object.fromEntries(ORDER.map((face) => [face, updated[face]![4]])) as Record<Face, RGB>;
     const state = ORDER.flatMap((face) => updated[face]!.map((sample) => ORDER.reduce((best, candidate) => distance(sample, centers[candidate]) < distance(sample, centers[best]) ? candidate : best, ORDER[0]))).join("");
     onState(state);
-    setMessage("Đã tạo state 54 sticker từ sáu mặt. Hãy chạy solver để kiểm tra tính hợp lệ.");
+    setMessage(language === "vi" ? "Đã đọc đủ 6 mặt. Bấm Tạo hướng dẫn để kiểm tra." : "All 6 faces captured. Press Create guide to check it.");
     stop();
   }
 
-  function reset() { setCaptures({}); setFaceIndex(0); setMessage("Đã xóa lần quét. Bắt đầu lại từ mặt U."); }
+  function reset() { setCaptures({}); setFaceIndex(0); setMessage(language === "vi" ? "Đã xóa lần quét. Bắt đầu lại từ mặt U." : "Scan cleared. Start again with face U."); }
 
   return <div className="telemetry-panel scanner-plate rounded-[1rem] border-2 border-[#17221d] bg-[#e9e3d6] p-4">
-    <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">Camera scanner</p><p className="mt-1 text-sm font-bold">Quét 6 mặt · xử lý cục bộ</p></div><Camera className="h-4 w-4 text-[#1ba77a]" /></div>
+    <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("camera.title")}</p><p className="mt-1 text-sm font-bold">{t("camera.help")}</p></div><Camera className="h-4 w-4 text-[#1ba77a]" /></div>
     {active && <div className="relative mt-3 aspect-video overflow-hidden rounded-lg bg-[#17221d]"><video ref={videoRef} muted playsInline className="h-full w-full object-cover" /><div className="pointer-events-none absolute inset-[18%] grid grid-cols-3 grid-rows-3 border-2 border-[#1ba77a]">{Array.from({ length: 9 }).map((_, index) => <span key={index} className="border border-[#1ba77a]/80" />)}</div><span className="absolute left-2 top-2 rounded bg-[#17221d]/80 px-2 py-1 font-mono text-xs font-bold text-[#f4f0e8]">FACE {currentFace}</span></div>}
     <div className="mt-3 flex items-center gap-1.5">{ORDER.map((face) => <span key={face} className={`grid h-6 w-6 place-items-center rounded-sm border font-mono text-[10px] font-bold ${captures[face] ? "border-[#1ba77a] bg-[#1ba77a] text-[#17221d]" : face === currentFace ? "border-[#17221d] bg-white" : "border-[#17221d]/20 bg-white/40 text-[#17221d]/45"}`}>{captures[face] ? <Check className="h-3 w-3" /> : face}</span>)}</div>
     <p className="mt-3 text-xs leading-5 text-[#17221d]/65">{message}</p>
-    <div className="mt-3 flex flex-wrap gap-2">{!active ? <button onClick={start} className="scanner-button"><Camera className="h-3.5 w-3.5" />Mở camera</button> : <><button onClick={capture} className="scanner-button"><ScanLine className="h-3.5 w-3.5" />Chụp mặt {currentFace}</button><button onClick={stop} className="scanner-button scanner-secondary"><X className="h-3.5 w-3.5" />Dừng</button></>}<button onClick={reset} className="scanner-button scanner-secondary"><RotateCcw className="h-3.5 w-3.5" />Quét lại</button></div>
+    <div className="mt-3 flex flex-wrap gap-2">{!active ? <button onClick={start} className="scanner-button"><Camera className="h-3.5 w-3.5" />{t("camera.open")}</button> : <><button onClick={capture} className="scanner-button"><ScanLine className="h-3.5 w-3.5" />{t("camera.capture")} {currentFace}</button><button onClick={stop} className="scanner-button scanner-secondary"><X className="h-3.5 w-3.5" />{t("camera.stop")}</button></>}<button onClick={reset} className="scanner-button scanner-secondary"><RotateCcw className="h-3.5 w-3.5" />{t("camera.reset")}</button></div>
     {Object.values(captures).length > 0 && <div className="mt-3 flex gap-1">{ORDER.filter((face) => captures[face]).map((face) => <span key={face} className="h-3 flex-1 rounded-sm border border-black/15" style={{ background: css(captures[face]![4]) }} title={`Tâm ${face}`} />)}</div>}
     <canvas ref={canvasRef} className="hidden" />
   </div>;
