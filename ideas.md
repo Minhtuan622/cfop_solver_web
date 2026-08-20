@@ -1,0 +1,53 @@
+# Định hướng thiết kế — CFOP Solver Studio
+
+## Ba hướng tiếp cận
+
+### 1. Xưởng Cơ Khí Tốc Độ
+
+**Very Brief Intro:** Một bàn thao tác kỹ thuật lấy cảm hứng từ hồ sơ giải đấu speedcubing: nền giấy ngà, mực đen, màu sticker nguyên bản và các thước đo dữ liệu sắc gọn. Cảm giác là một công cụ chính xác, có nhịp độ và dễ đọc.
+
+**Probability:** 0.07
+
+### 2. Phòng Thí Nghiệm Trạng Thái
+
+**Very Brief Intro:** Giao diện dark-mode như một phòng quan sát thuật toán với khối cube phát sáng nhẹ và dữ liệu luân chuyển theo pha. Hướng này ưu tiên chiều sâu không gian và sự tập trung.
+
+**Probability:** 0.04
+
+### 3. Sổ Tay Nhìn Thấy Được
+
+**Very Brief Intro:** Một cuốn sổ giải Rubik tương tác, dùng các khối màu rõ nét, nhãn viết tay có kiểm soát và bố cục bất đối xứng. Hướng này thân thiện hơn, phù hợp cho người học.
+
+**Probability:** 0.09
+
+## Hướng được chọn: Xưởng Cơ Khí Tốc Độ
+
+**Design Movement:** Swiss editorial design kết hợp aesthetic của dụng cụ đo lường cơ khí và scorecard thi đấu speedcubing.
+
+**Core Principles:** Thứ nhất, dữ liệu và trạng thái cube phải luôn có hierarchy rõ ràng. Thứ hai, màu sticker chỉ được dùng như tín hiệu chức năng, không làm nền trang trí tràn lan. Thứ ba, từng thao tác có phản hồi có thể dự đoán và ưu tiên tốc độ đọc. Thứ tư, mọi section sử dụng đường chia, khoảng trắng và tỷ lệ như một bảng điều khiển vật lý.
+
+**Color Philosophy:** Nền giấy kỹ thuật #F4F0E8 và mực than #17221D tạo cảm giác đáng tin cậy, trong khi xanh mint #1BA77A là màu thương hiệu và trạng thái hợp lệ. Sáu màu Rubik chỉ xuất hiện trên stickers và legend để bảo toàn tính dễ đọc.
+
+**Layout Paradigm:** Bố cục workbench bất đối xứng: sidebar điều khiển hẹp ở trái, sân khấu cube lớn ở giữa, bảng timeline/telemetry cố định theo dòng ở phải. Trên màn hình nhỏ, ba vùng xếp thành các mô-đun theo thứ tự thao tác.
+
+**Signature Elements:** Thước đo move-count dạng dải khắc vạch; marker pha CFOP hình viên gạch màu; đường lưới kỹ thuật tinh tế 24px; cube isometric có sticker dạng tấm vật liệu.
+
+**Interaction Philosophy:** Người dùng thao tác như đang kiểm soát một thiết bị đo: bấm nấc bước, hover để xem trước phase và cuộn nhanh một chuỗi move. Không dùng chuyển động trang trí dài; mọi motion thông báo thay đổi state.
+
+**Animation:** Cube chuyển sticker trong 180ms với cubic-bezier(0.23, 1, 0.32, 1). Timeline trượt 160ms, button co 0.97 khi click, stage fade/translate 8px khi đổi phase. Toàn bộ animation không thiết yếu tắt khi `prefers-reduced-motion` bật.
+
+**Typography System:** Space Grotesk cho display/headline và IBM Plex Mono cho thuật toán, số liệu, state. Headline đậm, tracking hẹp; code/move dùng mono 14–16px và các token move bọc trong capsule vuông nhẹ.
+
+**Brand Essence:** CFOP Solver Studio là bàn thao tác trực quan giúp người học và lập trình viên kiểm chứng, xem và hiểu lời giải CFOP đầy đủ theo từng state. **Chính xác, hữu hình, tập trung.**
+
+**Brand Voice:** Headline ngắn, chủ động, mang tính kỹ thuật; CTA mô tả hành động thực thay vì lời mời chung chung. Ví dụ: “Mở từng pha, không bỏ qua state.” và “Chạy lại sequence với full OLL/PLL.”
+
+**Wordmark & Logo:** Mark là một khối 3×3 isometric tối giản với một sticker mint lệch ở góc trên-phải, gợi “state đã được nhận diện”; wordmark Space Grotesk Black với chữ O được cắt một rãnh vuông.
+
+**Signature Brand Color:** **Solver Mint #1BA77A**.
+
+## Style Decisions
+
+- Panels dùng các lớp giấy kỹ thuật, đường rule rõ và offset material shadow; tránh cảm giác card SaaS mềm.
+- Mọi khu vực chính phải mang ít nhất một cue đo lường: grid 24px, tick rail, phase brick hoặc telemetry mono.
+- Wordmark luôn đi cùng cube mark; phần chữ O được mô phỏng bằng cut-notch mint để tăng nhận diện.
