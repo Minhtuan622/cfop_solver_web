@@ -16,6 +16,12 @@
 - [x] Hiển thị sơ đồ top-layer của case OLL/PLL, chuỗi tạo case, cách giải và timer luyện case riêng.
 - [x] Kiểm tra toàn bộ tương tác desktop/mobile, build production và lưu checkpoint.
 
+## Bản vá cube 3D
+
+- [x] Chụp snapshot dữ liệu drag trước khi đưa vào state updater để tránh truy cập ref đã bị xóa.
+- [x] Kiểm tra handler pointer/cảm ứng, TypeScript và production build.
+- [ ] Lưu checkpoint bản vá sau khi xác minh không còn crash khi kéo cube.
+
 - [x] Thiết kế hướng dẫn quét sáu mặt cube, lấy mẫu 9 sticker mỗi mặt và kiểm tra state 54 ký tự.
 - [x] Tạo camera scanner chạy cục bộ bằng `getUserMedia`, canvas và phân loại màu dựa trên tâm mặt.
 - [x] Tạo Practice Lab cho OLL/PLL với chọn case, countdown/timer, kết quả đúng/sai và thống kê lưu cục bộ.

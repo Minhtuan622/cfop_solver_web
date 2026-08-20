@@ -20,7 +20,17 @@ export function Cube3DGuide({ state, move, step }: { state: string; move?: strin
   const plain = language === "vi" ? (move ? `Mặt ${target} vừa xoay theo ký hiệu ${move}` : "Kéo để xoay góc nhìn, cuộn để phóng to") : (move ? `Face ${target} just turned with ${move}` : "Drag to rotate the view; scroll to zoom");
   const changeZoom = (amount: number) => setView((previous) => ({ ...previous, zoom: Math.min(1.55, Math.max(0.7, Number((previous.zoom + amount).toFixed(2)))) }));
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => { event.currentTarget.setPointerCapture(event.pointerId); drag.current = { x: event.clientX, y: event.clientY, pitch: view.pitch, yaw: view.yaw }; };
-  const pointerMove = (event: PointerEvent<HTMLDivElement>) => { if (!drag.current) return; setView((previous) => ({ ...previous, yaw: drag.current!.yaw + (event.clientX - drag.current!.x) * 0.55, pitch: Math.min(35, Math.max(-70, drag.current!.pitch - (event.clientY - drag.current!.y) * 0.45)) })); };
+  const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const activeDrag = drag.current;
+    if (!activeDrag) return;
+    const pointerX = event.clientX;
+    const pointerY = event.clientY;
+    setView((previous) => ({
+      ...previous,
+      yaw: activeDrag.yaw + (pointerX - activeDrag.x) * 0.55,
+      pitch: Math.min(35, Math.max(-70, activeDrag.pitch - (pointerY - activeDrag.y) * 0.45)),
+    }));
+  };
   const pointerUp = () => { drag.current = null; };
   const wheel = (event: WheelEvent<HTMLDivElement>) => { event.preventDefault(); changeZoom(event.deltaY > 0 ? -0.08 : 0.08); };
   const touchStart = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length === 2) pinch.current = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); };
