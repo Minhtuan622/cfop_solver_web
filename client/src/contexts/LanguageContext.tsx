@@ -23,6 +23,7 @@ const words: Dictionary = {
   "timer.title": ["Timer giải Rubik", "Rubik solve timer"],
   "timer.help": ["Nhấn Space hoặc nút bên dưới để bắt đầu.", "Press Space or use the button below to start."],
   "timer.start": ["Bắt đầu", "Start"], "timer.stop": ["Dừng lại", "Stop"], "timer.reset": ["Đặt lại", "Reset"],
+  "timer.saveHint": ["Bấm Dừng để lưu lượt giải vào Lịch sử.", "Press Stop to save this solve to History."],
   "camera.title": ["Quét bằng camera", "Scan with camera"],
   "camera.help": ["Quét lần lượt 6 mặt theo ký hiệu hiển thị.", "Scan the 6 faces in the order shown."],
   "camera.open": ["Mở camera", "Open camera"], "camera.capture": ["Chụp mặt", "Capture face"],

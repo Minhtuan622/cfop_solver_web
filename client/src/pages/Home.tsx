@@ -7,12 +7,15 @@ import {
   ArrowLeft, ArrowRight, Braces, Check, ChevronRight, CircleGauge,
   Cpu, Loader2, Play, RotateCcw, ShieldCheck, Sparkles,
 } from "lucide-react";
+import { History } from "lucide-react";
+import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { CameraScanner } from "@/components/CameraScanner";
 import { PdfExport } from "@/components/PdfExport";
 import { PracticeLab } from "@/components/PracticeLab";
 import { SolveTimer } from "@/components/SolveTimer";
+import { addSolveHistory } from "@/lib/solveHistory";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { solveInBrowser, type SolverResult } from "@/lib/solverRuntime";
@@ -37,6 +40,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState("");
+  const [savedSolve, setSavedSolve] = useState(false);
 
   const currentState = useMemo(() => {
     if (!result) return mode === "state" && value.length === 54 ? value : SOLVED_STATE;
@@ -67,6 +71,7 @@ export default function Home() {
   async function runSolver() {
     setLoading(true);
     setPlaying(false);
+    setSavedSolve(false);
     setError("");
     try {
       const next = await solveInBrowser(mode, value.trim());
@@ -96,6 +101,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-2 rounded-full border border-[#f4f0e8]/20 bg-[#f4f0e8]/5 px-3 py-2 font-mono text-[11px]">
+              <Link href="/history" className="inline-flex items-center gap-1 rounded px-1.5 py-1 text-[#f4f0e8]/75 hover:bg-white/10 hover:text-[#f4f0e8]"><History className="h-3 w-3" />{language === "vi" ? "Lịch sử" : "History"}</Link>
               <span className="h-2 w-2 rounded-full bg-[#1ba77a] shadow-[0_0_0_4px_rgba(27,167,122,0.18)]" />
               <button onClick={() => setLanguage("vi")} className={cn("rounded px-1.5 py-1", language === "vi" ? "bg-[#1ba77a] text-[#17221d]" : "text-[#f4f0e8]/65")}>VI</button><button onClick={() => setLanguage("en")} className={cn("rounded px-1.5 py-1", language === "en" ? "bg-[#1ba77a] text-[#17221d]" : "text-[#f4f0e8]/65")}>EN</button>
             </div>
@@ -122,7 +128,8 @@ export default function Home() {
             </div>
             <div className="scorecard rounded-[1rem] border-2 border-[#17221d] bg-[#e9e3d6] p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("status.title")}</p><p className="mt-2 text-lg font-bold leading-tight">{t("simple.note")}</p><p className="mt-2 text-sm leading-5 text-[#17221d]/65">{language === "vi" ? "Tạo hướng dẫn, sau đó bấm Phát để xem từng nước xoay." : "Create a guide, then press Play to follow each move."}</p></div>
             <CameraScanner onState={(state) => { setMode("state"); setValue(state); setResult(null); setCursor(0); setError(""); }} />
-            <SolveTimer />
+            <SolveTimer canSave={Boolean(result)} onComplete={(elapsedMs) => { if (!result) return; addSolveHistory({ elapsedMs, input: value.trim(), inputKind: mode, moves: totalMoves }); setSavedSolve(true); }} />
+            {savedSolve && <p className="-mt-3 rounded-md bg-[#1ba77a]/15 p-2 text-xs font-bold text-[#1b7b5e]">{language === "vi" ? "Đã lưu vào Lịch sử." : "Saved to History."}</p>}
           </aside>
 
           <section className="min-w-0">

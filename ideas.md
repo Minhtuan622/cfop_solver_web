@@ -51,3 +51,5 @@
 - Panels dùng các lớp giấy kỹ thuật, đường rule rõ và offset material shadow; tránh cảm giác card SaaS mềm.
 - Mọi khu vực chính phải mang ít nhất một cue đo lường: grid 24px, tick rail, phase brick hoặc telemetry mono.
 - Wordmark luôn đi cùng cube mark; phần chữ O được mô phỏng bằng cut-notch mint để tăng nhận diện.
+- Mọi route phụ giữ full brand mark CFOP Solver Studio với cube mark và chữ O mint notched.
+- Lịch sử, log và empty states dùng scorecard có tick rail, telemetry và trạng thái thao tác, không dùng card trống tối giản.

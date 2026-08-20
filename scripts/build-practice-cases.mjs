@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,10 +20,21 @@ function readBlock(name) {
   return rows;
 }
 
+function inverseMove(move) {
+  if (move.endsWith("2")) return move;
+  if (move.endsWith("'")) return move.slice(0, -1);
+  return `${move}'`;
+}
+
+function makeSetup(algorithm) {
+  const moves = algorithm.replace(/[(),]/g, " ").split(/\s+/).filter(Boolean);
+  return moves.reverse().map(inverseMove).join(" ");
+}
+
 const oll = readBlock("OLL_ALGORITHMS");
 const pll = readBlock("PLL_ALGORITHMS");
 if (oll.length !== 57 || pll.length !== 21) throw new Error(`Expected 57/21; got ${oll.length}/${pll.length}`);
 
 mkdirSync(dirname(output), { recursive: true });
-writeFileSync(output, `/** Generated from verified full_database.py. */\nexport type PracticeCase = { id: string; group: string; algorithm: string; kind: \"OLL\" | \"PLL\" };\nexport const OLL_CASES: PracticeCase[] = ${JSON.stringify(oll.map((item) => ({ ...item, kind: "OLL" })), null, 2)};\nexport const PLL_CASES: PracticeCase[] = ${JSON.stringify(pll.map((item) => ({ ...item, kind: "PLL" })), null, 2)};\n`);
+writeFileSync(output, `/** Generated from verified full_database.py. setup is the inverse sequence used to make the case. */\nexport type PracticeCase = { id: string; group: string; algorithm: string; setup: string; kind: "OLL" | "PLL" };\nexport const OLL_CASES: PracticeCase[] = ${JSON.stringify(oll.map((item) => ({ ...item, setup: makeSetup(item.algorithm), kind: "OLL" })), null, 2)};\nexport const PLL_CASES: PracticeCase[] = ${JSON.stringify(pll.map((item) => ({ ...item, setup: makeSetup(item.algorithm), kind: "PLL" })), null, 2)};\n`);
 console.log(`Generated ${oll.length} OLL and ${pll.length} PLL practice cases.`);

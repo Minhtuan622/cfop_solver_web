@@ -5,7 +5,7 @@ export type SolverResult = { initial_state: string; final_state: string; algorit
 
 let worker: Worker | null = null;
 let nextId = 1;
-const pending = new Map<number, { resolve: (value: SolverResult) => void; reject: (reason: Error) => void }>();
+const pending = new Map<number, { resolve: (value: unknown) => void; reject: (reason: Error) => void }>();
 
 function getWorker() {
   if (!worker) {
@@ -14,7 +14,7 @@ function getWorker() {
       const task = pending.get(event.data.id);
       if (!task) return;
       pending.delete(event.data.id);
-      if (event.data.ok && event.data.output) task.resolve(JSON.parse(event.data.output) as SolverResult);
+      if (event.data.ok && event.data.output) task.resolve(JSON.parse(event.data.output));
       else task.reject(new Error(event.data.error ?? "Solver worker returned an empty response."));
     };
   }
@@ -23,6 +23,12 @@ function getWorker() {
 
 export function solveInBrowser(kind: "scramble" | "state", value: string): Promise<SolverResult> {
   const id = nextId++;
-  getWorker().postMessage({ id, kind, value });
-  return new Promise((resolve, reject) => pending.set(id, { resolve, reject }));
+  getWorker().postMessage({ id, command: "solve", kind, value });
+  return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve(result as SolverResult), reject }));
+}
+
+export function getCaseStateInBrowser(setup: string): Promise<string> {
+  const id = nextId++;
+  getWorker().postMessage({ id, command: "case", value: setup });
+  return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve((result as { state: string }).state), reject }));
 }

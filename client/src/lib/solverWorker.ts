@@ -25,11 +25,22 @@ async function getPyodide() {
   return pyodidePromise;
 }
 
-self.onmessage = async (event: MessageEvent<{ id: number; kind: string; value: string }>) => {
-  const { id, kind, value } = event.data;
+self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case"; kind?: string; value: string }>) => {
+  const { id, command = "solve", kind, value } = event.data;
   try {
     const runtime = await getPyodide();
     const request = JSON.stringify({ kind, value });
+    if (command === "case") {
+      const output = await runtime.runPythonAsync(`
+import json
+from cfop_solver import Cube, parse_moves
+request = json.loads(${JSON.stringify(request)})
+case_state = Cube().apply_many(parse_moves(request["value"]))
+json.dumps({"state": case_state.stickers})
+`);
+      self.postMessage({ id, ok: true, output: String(output) });
+      return;
+    }
     const output = await runtime.runPythonAsync(`
 import json
 from cfop_solver import Cube, parse_moves, solve
