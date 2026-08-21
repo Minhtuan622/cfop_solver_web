@@ -79,3 +79,14 @@
 - [x] Thay animation face turn bằng animation layer-turn theo hàng/cột sticker phù hợp từng move.
 - [x] Khắc phục CSS overflow, tỷ lệ, responsive và hierarchy ở Studio/Timer Lab.
 - [x] Kiểm tra typecheck, build, luồng browser và lưu checkpoint.
+
+## Inspection pre-solve và history backup mở rộng
+
+- [x] Khảo sát lỗi preview/animation và schema lịch sử để xác định điểm can thiệp.
+- [x] Đưa scramble lên đầu, timer phía dưới; thiết kế inspection pre-solve hiển thị cube đầy đủ với góc nhìn/phóng to/màu Cross.
+- [x] Ẩn composer solution mặc định; chuyển thành tùy chọn theo một solve trong lịch sử.
+- [x] Thay animation lỗi bằng layer-turn ổn định có face và các dải sticker kề quay cùng pivot.
+- [x] Bổ sung Ao50/Ao100 vào cards và chart tiến độ.
+- [x] Thêm ghi chú/tag theo từng solve trong form chỉnh sửa và danh sách history.
+- [x] Thêm export/import JSON có kiểm tra cấu trúc và tương thích dữ liệu cũ.
+- [x] Kiểm tra typecheck, build, browser flows, responsive và lưu checkpoint.

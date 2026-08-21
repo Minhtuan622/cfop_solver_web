@@ -58,3 +58,6 @@
 - Timer Lab ưu tiên stopwatch như cụm thiết bị chính; scramble và solution là telemetry hỗ trợ.
 - Wordmark phải luôn đọc đầy đủ CFOP Solver Studio, với O mint notched hiển thị rõ như một ký hiệu nhận diện.
 - Nhật ký và empty state dùng bố cục record sheet có ruled field, mono telemetry và trạng thái ghi nhận.
+- CFOP trong wordmark luôn đọc thành một từ liên tục; chỉ O mang notch mint, không tạo khoảng cách tách chữ.
+- Ở Timer Lab, scramble vẫn nằm trước để inspection theo luồng thao tác, nhưng stopwatch là readout lớn nhất và nặng nhất trong vùng timer.
+- Panel phụ, placeholder và trạng thái chờ ưu tiên ruled paper scorecard thay cho card bo mềm; dark ink chỉ dành cho cube, scramble và state thiết bị.
