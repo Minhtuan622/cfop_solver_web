@@ -253,3 +253,11 @@
 - [x] Bổ sung regression cho từng cấp opening, fallback tuần tự và trường hợp giới hạn depth.
 - [x] Thay hàng nút opening bằng dropdown; hiển thị telemetry fallback và tinh gọn control liên quan.
 - [x] Kiểm tra browser, responsive, TypeScript, production build và checkpoint.
+
+## Last Layer: OLL/PLL, ZBLL và 1LLL
+
+- [x] Khảo sát database OLL/PLL hiện có, nguồn ZBLL/1LLL và phạm vi case có thể kiểm chứng.
+- [x] Thiết kế option `oll_pll` / `zbll` / `1lll` / `auto`, luật chọn theo trạng thái OLL và fallback invariant.
+- [x] Triển khai matcher/solver Last Layer, metadata strategy và regression cho OLL solved/chưa solved.
+- [x] Tích hợp dropdown Last Layer, telemetry strategy, report và copy song ngữ Studio.
+- [x] Kiểm tra case, browser, responsive, TypeScript, production build và checkpoint.

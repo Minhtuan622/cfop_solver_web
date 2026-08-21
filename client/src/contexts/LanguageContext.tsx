@@ -85,6 +85,8 @@ export function simplePhase(name: string, language: Language) {
     f2l_FR: ["F2L 1", "F2L 1"], f2l_FL: ["F2L 2", "F2L 2"],
     f2l_BL: ["F2L 3", "F2L 3"], f2l_BR: ["F2L 4", "F2L 4"],
     oll: ["OLL", "OLL"], pll: ["PLL", "PLL"],
+    zbll: ["ZBLL · 1 look EO", "ZBLL · 1-look EO"],
+    "1lll": ["1LLL · 1 look", "1LLL · 1-look"],
   };
   return values[name]?.[language === "vi" ? 0 : 1] ?? name;
 }

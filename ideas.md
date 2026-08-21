@@ -86,3 +86,5 @@
 - Phase ladder là dải đo CFOP liên tục: mint rail dọc mạnh, phase brick rõ và connection trực tiếp với tiến độ solver; không đọc như stack card độc lập.
 - Header Studio giữ vai trò nameplate nén: O-notch mint vẫn rõ, nhưng shadow và chiều cao phải thấp hơn cube apparatus trung tâm.
 - Stage gắn cube, move-count, playback và phase như một cụm đo thống nhất; mint rail/strong tick dành cho cụm này, còn panel phụ chỉ giữ rule giấy mờ.
+- Studio dùng header như equipment nameplate nén; stage cube là vùng ink/shadow/grid cường độ cao duy nhất. Input, telemetry và log chỉ là record sheet phẳng với texture rất nhẹ.
+- Empty log dùng câu trạng thái telemetry như “Chưa ghi nhận move trong sequence”, không dùng lời nhắc ứng dụng chung chung.

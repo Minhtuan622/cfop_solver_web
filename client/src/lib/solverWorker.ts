@@ -25,11 +25,11 @@ async function getPyodide() {
   return pyodidePromise;
 }
 
-self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross"; preferredSlot?: string; excludedSlots?: string[] }>) => {
-  const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", preferredSlot, excludedSlots = [] } = event.data;
+self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross"; lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto"; preferredSlot?: string; excludedSlots?: string[] }>) => {
+  const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", lastLayer = "auto", preferredSlot, excludedSlots = [] } = event.data;
   try {
     const runtime = await getPyodide();
-    const request = JSON.stringify({ kind, value, crossColor, opening, preferredSlot, excludedSlots });
+    const request = JSON.stringify({ kind, value, crossColor, opening, lastLayer, preferredSlot, excludedSlots });
     if (command === "case") {
       const output = await runtime.runPythonAsync(`
 import json
@@ -63,7 +63,7 @@ request = json.loads(${JSON.stringify(request)})
 initial = Cube(request["value"]) if request["kind"] == "state" else Cube().apply_many(parse_moves(request["value"]))
 preferred = request.get("preferredSlot")
 excluded = tuple(slot for slot in request.get("excludedSlots", []) if slot in ("FR", "FL", "BL", "BR"))
-solution = solve(initial, last_layer="full", cross_color=request.get("crossColor", "U"), opening=request.get("opening", "cross"), xcross_preferred_slot=preferred, xcross_excluded_slots=excluded)
+solution = solve(initial, last_layer=request.get("lastLayer", "auto"), cross_color=request.get("crossColor", "U"), opening=request.get("opening", "cross"), xcross_preferred_slot=preferred, xcross_excluded_slots=excluded)
 current = initial
 trace, phases = [], []
 for record in solution.phases:
@@ -72,7 +72,7 @@ for record in solution.phases:
         current = current.apply(move)
         trace.append({"index": len(trace) + 1, "phase": record.name, "move": move, "state": current.stickers})
     phases.append({"name": record.name, "algorithm": record.algorithm, "moves": list(record.moves), "state_after": record.state_after, "valid_after": record.valid_after, "predicate_after": record.predicate_after, "case_id": record.case_id, "start": start, "end": len(trace)})
-json.dumps({"initial_state": initial.stickers, "final_state": solution.final_state, "algorithm": solution.algorithm, "opening": solution.opening_summary, "phases": phases, "trace": trace})
+json.dumps({"initial_state": initial.stickers, "final_state": solution.final_state, "algorithm": solution.algorithm, "opening": solution.opening_summary, "last_layer": solution.last_layer_summary, "phases": phases, "trace": trace})
 `);
     self.postMessage({ id, ok: true, output: String(output) });
   } catch (error) {

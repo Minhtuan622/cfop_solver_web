@@ -18,6 +18,7 @@ const files = [
   "phases.py",
   "solver.py",
   "full_database.py",
+  "one_look_database.py",
   "full_last_layer.py",
 ];
 
