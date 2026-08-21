@@ -7,12 +7,29 @@ const color: Record<string, string> = { U: "#f7f3e9", R: "#d95743", F: "#1ba77a"
 const faceOffset: Record<"U" | "R" | "F" | "D" | "L" | "B", number> = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
 const DEFAULT_VIEW = { pitch: -26, yaw: 34, zoom: 1 };
 
-function Face({ face, state, turning, turnAngle, inspectCross, crossColor }: { face: "U" | "R" | "F" | "D" | "L" | "B"; state: string; turning: boolean; turnAngle: string; inspectCross: boolean; crossColor: string }) {
+const LAYER_STRIPS: Record<"U" | "R" | "F" | "D" | "L" | "B", { face: "U" | "R" | "F" | "D" | "L" | "B"; cells: number[] }[]> = {
+  R: [{ face: "F", cells: [2, 5, 8] }, { face: "U", cells: [2, 5, 8] }, { face: "B", cells: [0, 3, 6] }, { face: "D", cells: [2, 5, 8] }],
+  L: [{ face: "F", cells: [0, 3, 6] }, { face: "U", cells: [0, 3, 6] }, { face: "B", cells: [2, 5, 8] }, { face: "D", cells: [0, 3, 6] }],
+  U: [{ face: "F", cells: [0, 1, 2] }, { face: "R", cells: [0, 1, 2] }, { face: "B", cells: [0, 1, 2] }, { face: "L", cells: [0, 1, 2] }],
+  D: [{ face: "F", cells: [6, 7, 8] }, { face: "R", cells: [6, 7, 8] }, { face: "B", cells: [6, 7, 8] }, { face: "L", cells: [6, 7, 8] }],
+  F: [{ face: "U", cells: [6, 7, 8] }, { face: "R", cells: [0, 3, 6] }, { face: "D", cells: [0, 1, 2] }, { face: "L", cells: [2, 5, 8] }],
+  B: [{ face: "U", cells: [0, 1, 2] }, { face: "R", cells: [2, 5, 8] }, { face: "D", cells: [6, 7, 8] }, { face: "L", cells: [0, 3, 6] }],
+};
+
+function Face({ face, state, inspectCross, crossColor }: { face: "U" | "R" | "F" | "D" | "L" | "B"; state: string; inspectCross: boolean; crossColor: string }) {
   const crossEdges = new Set([1, 3, 5, 7]);
-  return <div className={`cube3d-face cube3d-${face.toLowerCase()} ${turning ? "cube3d-face-turn" : ""}`} style={{ "--turn-angle": turnAngle } as React.CSSProperties}>{Array.from({ length: 9 }, (_, index) => {
+  return <div className={`cube3d-face cube3d-${face.toLowerCase()}`}>{Array.from({ length: 9 }, (_, index) => {
     const highlighted = inspectCross && crossEdges.has(index) && state[faceOffset[face] + index] === crossColor;
     return <span key={index} className={highlighted ? "cube3d-cross-sticker" : ""} style={{ background: color[state[faceOffset[face] + index]] ?? "#777" }} />;
   })}</div>;
+}
+
+function LayerTurn({ face, state, angle, step, move }: { face: "U" | "R" | "F" | "D" | "L" | "B"; state: string; angle: string; step: number; move?: string }) {
+  const sticker = (sourceFace: "U" | "R" | "F" | "D" | "L" | "B", index: number) => <span key={`${sourceFace}-${index}`} style={{ background: color[state[faceOffset[sourceFace] + index]] ?? "#777" }} />;
+  return <div key={`${step}-${move}`} className={`cube3d-layer cube3d-layer-${face.toLowerCase()}`} style={{ "--turn-angle": angle } as React.CSSProperties}>
+    <div className="cube3d-layer-main">{Array.from({ length: 9 }, (_, index) => sticker(face, index))}</div>
+    {LAYER_STRIPS[face].map((strip, index) => <div key={`${strip.face}-${index}`} className={`cube3d-layer-strip cube3d-layer-strip-${strip.face.toLowerCase()}`}>{strip.cells.map((cell) => sticker(strip.face, cell))}</div>)}
+  </div>;
 }
 
 export function Cube3DGuide({ state, move, step, crossColor = "U" }: { state: string; move?: string; step: number; crossColor?: string }) {
@@ -47,7 +64,7 @@ export function Cube3DGuide({ state, move, step, crossColor = "U" }: { state: st
   return <div className="cube3d-guide rounded-sm border-2 border-[#17221d] bg-[#17221d] p-4 text-[#f4f0e8]">
     <div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#1ba77a]">3D CUBE</p><button onClick={() => setInspectCross((value) => !value)} className="cube-mini-control" aria-pressed={inspectCross}>{inspectCross ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}<span className="text-[9px]">{language === "vi" ? "CROSS" : "CROSS"}</span></button></div>
     <div className="cube3d-stage interactive-cube-stage" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
-      <div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={state} turning={face === motionFace} turnAngle={turnAngle} inspectCross={inspectCross} crossColor={crossColor} />)}</div>
+      <div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={state} inspectCross={inspectCross} crossColor={crossColor} />)}{target && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={state} angle={turnAngle} step={step} move={move} />}</div>
       {target && <span className="cube-turn-badge">{move}</span>}
     </div>
     <div className="mt-2 flex items-center justify-between border-t border-white/15 pt-2"><span className="max-w-[75%] text-xs text-[#f4f0e8]/65">{inspectCross ? (language === "vi" ? "Đang làm nổi bốn sticker Cross của màu đã chọn." : "The four Cross stickers of the selected color are highlighted.") : plain}</span><b className="rounded bg-[#1ba77a] px-2 py-1 font-mono text-sm text-[#17221d]">{move ?? "—"}</b></div>

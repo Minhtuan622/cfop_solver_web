@@ -68,3 +68,14 @@
 - [x] Tạo nhập solution qua bàn phím move/chips, vẫn cho phép dán chuỗi notation.
 - [x] Bỏ khu vực hướng dẫn sử dụng timer.
 - [x] Kiểm tra typecheck, build, browser flows và lưu checkpoint.
+
+## Timer Lab competition log và layer-turn cube
+
+- [x] Khảo sát schema lịch sử, component chart và các vùng CSS đang cần sửa.
+- [x] Thêm trạng thái penalty +2/DNF, cập nhật thống kê và lưu cục bộ tương thích dữ liệu cũ.
+- [x] Thêm chỉnh sửa và xóa từng lượt lịch sử.
+- [x] Tính Ao5/Ao12 theo chuẩn loại best/worst, thêm biểu đồ tiến độ theo thời gian.
+- [x] Thêm inspection Timer trực quan trên trạng thái scramble.
+- [x] Thay animation face turn bằng animation layer-turn theo hàng/cột sticker phù hợp từng move.
+- [x] Khắc phục CSS overflow, tỷ lệ, responsive và hierarchy ở Studio/Timer Lab.
+- [x] Kiểm tra typecheck, build, luồng browser và lưu checkpoint.

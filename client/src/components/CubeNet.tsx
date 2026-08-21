@@ -30,7 +30,7 @@ const COLOR: Record<string, string> = {
   B: "#3B6FC7",
 };
 
-export function CubeNet({ state, compact = false }: { state: string; compact?: boolean }) {
+export function CubeNet({ state, compact = false, inspectCross = false, crossColor = "U" }: { state: string; compact?: boolean; inspectCross?: boolean; crossColor?: string }) {
   return (
     <div
       aria-label="Trạng thái Rubik dạng cube net"
@@ -47,10 +47,11 @@ export function CubeNet({ state, compact = false }: { state: string; compact?: b
           <div className="grid h-full grid-cols-3 gap-[2px] rounded-sm border border-white/15 bg-black/20 p-[2px]">
             {Array.from({ length: 9 }, (_, index) => {
               const sticker = state[FACE_OFFSET[face] + index] ?? "U";
+              const highlighted = inspectCross && [1, 3, 5, 7].includes(index) && sticker === crossColor;
               return (
                 <span
                   key={index}
-                  className="rounded-[2px] border border-black/20 shadow-[inset_0_-2px_0_rgba(0,0,0,0.14)]"
+                  className={cn("rounded-[2px] border border-black/20 shadow-[inset_0_-2px_0_rgba(0,0,0,0.14)]", highlighted && "z-10 ring-2 ring-white shadow-[0_0_0_3px_#1ba77a,0_0_12px_3px_rgba(27,167,122,.75)]")}
                   style={{ background: COLOR[sticker] ?? "#888" }}
                 />
               );
