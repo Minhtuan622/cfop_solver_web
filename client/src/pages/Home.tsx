@@ -16,7 +16,7 @@ import { CameraScanner } from "@/components/CameraScanner";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-import { solveInBrowser, validateStateInBrowser, type CrossColor, type CubeValidation, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
+import { solveInBrowser, validateStateInBrowser, type CrossColor, type CubeValidation, type F2LSlot, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const DEFAULT_SCRAMBLE = "R U R' U'";
@@ -41,6 +41,7 @@ const CROSS_COLORS: { value: CrossColor; vi: string; en: string; hex: string }[]
   { value: "R", vi: "Đỏ", en: "Red", hex: "#d95743" },
   { value: "L", vi: "Cam", en: "Orange", hex: "#ed8e42" },
 ];
+const F2L_SLOTS: F2LSlot[] = ["FR", "FL", "BL", "BR"];
 type RecentCubeState = { id: string; state: string; label: string; savedAt: string; crossColor: CrossColor };
 const RECENT_STATE_KEY = "cfop-studio-recent-states-v1";
 const PHASE_LESSON_URL: Record<string, string> = {
@@ -80,6 +81,8 @@ export default function Home() {
   const [mode, setMode] = useState<"scramble" | "state">("scramble");
   const [crossColor, setCrossColor] = useState<CrossColor>("U");
   const [opening, setOpening] = useState<OpeningMode>("cross");
+  const [preferredSlot, setPreferredSlot] = useState<F2LSlot | undefined>();
+  const [excludedSlots, setExcludedSlots] = useState<F2LSlot[]>([]);
   const [value, setValue] = useState(DEFAULT_SCRAMBLE);
   const [savedScramble, setSavedScramble] = useState(DEFAULT_SCRAMBLE);
   const [savedState, setSavedState] = useState(SOLVED_STATE);
@@ -119,6 +122,7 @@ export default function Home() {
     if (first.name.startsWith("xcross_")) return { kind: "xcross" as const, slot: first.name.slice("xcross_".length), moves: first.moves.length };
     return { kind: "cross" as const, slot: null, moves: first.moves.length };
   }, [result]);
+  const activeXCrossSlot = activePhase?.name.startsWith("xcross_") ? activePhase.name.slice("xcross_".length) : undefined;
 
   useEffect(() => {
     if (!playing || !result) return;
@@ -151,7 +155,7 @@ export default function Home() {
     setPlaying(false);
     setError("");
     try {
-      const next = await solveInBrowser(mode, value.trim(), crossColor, opening);
+      const next = await solveInBrowser(mode, value.trim(), crossColor, opening, { preferredSlot, excludedSlots });
       setResult(next);
       setCursor(0);
       if (mode === "state") rememberRecentState(value.trim(), crossColor);
@@ -254,6 +258,11 @@ export default function Home() {
                   <div className="mt-2 grid grid-cols-2 gap-1 rounded-sm border-2 border-[#17221d]/15 p-1"><button type="button" onClick={() => setOpening("cross")} className={cn("rounded-sm px-2 py-2 font-mono text-[10px] font-bold uppercase", opening === "cross" ? "bg-[#17221d] text-[#f4f0e8]" : "text-[#17221d]/55 hover:bg-[#f4f0e8]")}>Cross</button><button type="button" onClick={() => setOpening("auto")} className={cn("rounded-sm px-2 py-2 font-mono text-[10px] font-bold uppercase", opening === "auto" ? "bg-[#1ba77a] text-[#17221d]" : "text-[#17221d]/55 hover:bg-[#f4f0e8]")}>Auto XCross</button></div>
                   <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/50">{language === "vi" ? "Auto thử Cross + một F2L; quá budget sẽ tự dùng Cross chuẩn." : "Auto tries Cross + one F2L pair; it safely falls back to standard Cross when over budget."}</p>
                 </div>
+                {opening === "auto" && <div className="border-b border-[#17221d]/15 py-3">
+                  <div className="flex items-center justify-between gap-2"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#17221d]/60">{language === "vi" ? "ƯU TIÊN F2L" : "F2L PRIORITY"}</p><span className="font-mono text-[9px] text-[#17221d]/45">{preferredSlot ?? (language === "vi" ? "TỰ DO" : "ANY")}</span></div>
+                  <div className="mt-2 grid grid-cols-5 gap-1"><button type="button" onClick={() => setPreferredSlot(undefined)} className={cn("rounded-sm border px-1 py-2 font-mono text-[9px] font-bold", !preferredSlot ? "border-[#17221d] bg-[#17221d] text-[#f4f0e8]" : "border-[#17221d]/15 bg-white text-[#17221d]/55")}>{language === "vi" ? "TỰ" : "ANY"}</button>{F2L_SLOTS.map((slot) => <button key={slot} type="button" disabled={excludedSlots.includes(slot)} onClick={() => setPreferredSlot(preferredSlot === slot ? undefined : slot)} className={cn("rounded-sm border px-1 py-2 font-mono text-[9px] font-bold", preferredSlot === slot ? "border-[#1ba77a] bg-[#1ba77a] text-[#17221d]" : excludedSlots.includes(slot) ? "border-[#d95743]/25 bg-[#d95743]/5 text-[#9b3023] line-through" : "border-[#17221d]/15 bg-white text-[#17221d]/60")}>{slot}</button>)}</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-1"><span className="mr-1 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-[#17221d]/45">{language === "vi" ? "Loại trừ" : "Exclude"}</span>{F2L_SLOTS.map((slot) => <button key={`exclude-${slot}`} type="button" onClick={() => { setExcludedSlots((current) => current.includes(slot) ? current.filter((value) => value !== slot) : [...current, slot]); if (preferredSlot === slot) setPreferredSlot(undefined); }} className={cn("rounded-sm border px-1.5 py-1 font-mono text-[9px] font-bold transition", excludedSlots.includes(slot) ? "border-[#d95743] bg-[#d95743] text-white" : "border-[#17221d]/15 bg-[#f4f0e8] text-[#17221d]/55 hover:border-[#17221d]")}>{slot}</button>)}</div>
+                </div>}
                 <label className="mt-5 block font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#17221d]/60">{mode === "scramble" ? t("input.label") : language === "vi" ? "TÔ TRẠNG THÁI 6 MẶT" : "PAINT SIX-FACE STATE"}</label>
                 {mode === "scramble" ? <textarea value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); }} spellCheck={false} className="mt-2 min-h-28 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" /> : <><div className="mt-2"><CubeStateEditor state={value} onChange={applyStateEdit} disabled={loading} canUndo={stateHistory.current.past.length > 0} canRedo={stateHistory.current.future.length > 0} onUndo={undoStateEdit} onRedo={redoStateEdit} /></div><div className={cn("mt-3 border-2 p-3 font-mono text-[10px] leading-5", stateValidation?.valid ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/30 bg-[#d95743]/10 text-[#8b2d21]")}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div>{recentStates.length > 0 && <div className="mt-3 border-t border-[#17221d]/12 pt-3"><p className="flex items-center gap-1 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-[#17221d]/55"><History className="h-3 w-3" />{language === "vi" ? "STATE GẦN ĐÂY" : "RECENT STATES"}</p><div className="mt-2 space-y-1">{recentStates.map((item) => <div key={item.id} className="flex items-center gap-1 rounded-sm border border-[#17221d]/12 bg-[#f4f0e8] p-1"><button type="button" onClick={() => loadRecentState(item)} className="min-w-0 flex-1 truncate px-2 py-1 text-left font-mono text-[9px] font-bold hover:text-[#1b7b5e]">{item.label}</button><button type="button" onClick={() => removeRecentState(item.id)} aria-label={language === "vi" ? `Xóa ${item.label}` : `Remove ${item.label}`} className="rounded-sm p-1.5 text-[#17221d]/45 hover:bg-[#d95743]/10 hover:text-[#9b3023]"><Trash2 className="h-3 w-3" /></button></div>)}</div></div>}<details className="mt-3"><summary className="cursor-pointer font-mono text-[9px] font-bold tracking-[0.12em] text-[#17221d]/55">{language === "vi" ? "DÁN CHUỖI 54 STICKER" : "PASTE 54-STICKER STATE"}</summary><textarea value={value} onChange={(event) => applyStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())} spellCheck={false} className="mt-2 min-h-20 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-white p-3 font-mono text-xs outline-none transition focus:border-[#1ba77a]" /></details></>}
                 {error && <p className="mt-3 rounded-lg bg-[#d95743]/10 p-3 font-mono text-xs leading-5 text-[#9b3023]">{error}</p>}
@@ -262,7 +271,7 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <CameraScanner onState={(state) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(state); setSavedState(state); setResult(null); setCursor(0); setError(""); }} />
+            <details className="studio-camera-fold border border-[#17221d]/20 bg-[#f4f0e8] p-3"><summary className="cursor-pointer font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#17221d]/60">{language === "vi" ? "Quét camera · tùy chọn" : "Camera scan · optional"}</summary><div className="mt-3"><CameraScanner onState={(state) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(state); setSavedState(state); setResult(null); setCursor(0); setError(""); }} /></div></details>
           </aside>
 
           <section className="studio-stage-column min-w-0">
@@ -271,7 +280,7 @@ export default function Home() {
                 <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{t("guide.step")} · {String(cursor).padStart(2, "0")} / {String(totalMoves).padStart(2, "0")}</p><h2 className="mt-2 text-3xl font-bold tracking-[-0.055em] sm:text-4xl">{activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
                 <div className="rounded-sm border-2 border-[#17221d]/15 bg-[#f4f0e8] px-4 py-3 font-mono text-xs shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><p className="text-[#17221d]/45">{t("guide.move").toUpperCase()}</p><p className="mt-1 text-2xl font-bold text-[#1ba77a]">{currentStep?.move ?? "—"}</p></div>
               </div>
-              <div className="mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={currentState} /></div><Cube3DGuide state={currentState} previousState={previousState} move={currentStep?.move} step={cursor} crossColor={crossColor} alignCross /></div>
+              <div className="mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={currentState} /></div><Cube3DGuide state={currentState} previousState={previousState} move={currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlot={activeXCrossSlot} /></div>
               <div className="mt-7 flex flex-wrap items-center gap-3">
                 <button onClick={() => updateCursor(Math.max(0, cursor - 1))} disabled={cursor === 0} className="control-button"><ArrowLeft className="h-4 w-4" />{t("guide.previous")}</button>
                 <button onClick={() => setPlaying((value) => !value)} disabled={!result || cursor === totalMoves} className="flex items-center gap-2 rounded-lg bg-[#17221d] px-5 py-3 text-sm font-bold text-[#f4f0e8] transition hover:bg-[#26372e] active:scale-[0.97] disabled:opacity-40">{playing ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}{playing ? t("guide.pause") : t("guide.play")}</button>

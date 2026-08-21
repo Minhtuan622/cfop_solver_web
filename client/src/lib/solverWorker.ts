@@ -25,11 +25,11 @@ async function getPyodide() {
   return pyodidePromise;
 }
 
-self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" }>) => {
-  const { id, command = "solve", kind, value, crossColor = "U", opening = "cross" } = event.data;
+self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto"; preferredSlot?: string; excludedSlots?: string[] }>) => {
+  const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", preferredSlot, excludedSlots = [] } = event.data;
   try {
     const runtime = await getPyodide();
-    const request = JSON.stringify({ kind, value, crossColor, opening });
+    const request = JSON.stringify({ kind, value, crossColor, opening, preferredSlot, excludedSlots });
     if (command === "case") {
       const output = await runtime.runPythonAsync(`
 import json
@@ -61,7 +61,9 @@ import json
 from cfop_solver import Cube, parse_moves, solve
 request = json.loads(${JSON.stringify(request)})
 initial = Cube(request["value"]) if request["kind"] == "state" else Cube().apply_many(parse_moves(request["value"]))
-solution = solve(initial, last_layer="full", cross_color=request.get("crossColor", "U"), opening=request.get("opening", "cross"))
+preferred = request.get("preferredSlot")
+excluded = tuple(slot for slot in request.get("excludedSlots", []) if slot in ("FR", "FL", "BL", "BR"))
+solution = solve(initial, last_layer="full", cross_color=request.get("crossColor", "U"), opening=request.get("opening", "cross"), xcross_preferred_slot=preferred, xcross_excluded_slots=excluded)
 current = initial
 trace, phases = [], []
 for record in solution.phases:

@@ -206,3 +206,12 @@
 - [x] Hiển thị phase XCross, slot F2L được hoàn tất, fallback Cross và move count trong báo cáo.
 - [x] Đồng bộ playback Cube 3D và điều hướng phase với tên `xcross_<slot>`.
 - [x] Kiểm tra solve end-to-end qua web worker, responsive Studio, typecheck, build và checkpoint.
+
+## Auto XCross tùy biến slot và Studio tối giản
+
+- [x] Khảo sát selection XCross Python, mapping slot F2L lên sticker Cube 3D và hierarchy control hiện có.
+- [x] Mở rộng API `opening="auto"` với ưu tiên một slot và loại trừ nhiều slot, có fallback Cross an toàn.
+- [x] Thêm control Studio chọn Auto XCross tự do/slot ưu tiên và toggle loại trừ từng slot.
+- [x] Highlight rõ corner/edge thuộc slot F2L XCross đã hoàn tất trong 3D stage và báo cáo phase.
+- [x] Tối giản control/telemetry phụ giữ nguyên ngôn ngữ workbench, phase ladder và Solver Mint.
+- [x] Kiểm tra Python/worker/browser end-to-end, responsive, TypeScript, production build và checkpoint.

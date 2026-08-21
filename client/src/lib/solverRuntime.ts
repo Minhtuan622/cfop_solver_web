@@ -4,6 +4,8 @@ export type PhaseResult = { name: string; algorithm: string; moves: string[]; st
 export type SolverResult = { initial_state: string; final_state: string; algorithm: string; phases: PhaseResult[]; trace: TraceStep[] };
 export type CrossColor = "U" | "R" | "F" | "D" | "L" | "B";
 export type OpeningMode = "cross" | "auto";
+export type F2LSlot = "FR" | "FL" | "BL" | "BR";
+export type XCrossOptions = { preferredSlot?: F2LSlot; excludedSlots?: F2LSlot[] };
 export type CubeValidation = { valid: boolean; message: string };
 
 let worker: Worker | null = null;
@@ -24,9 +26,9 @@ function getWorker() {
   return worker;
 }
 
-export function solveInBrowser(kind: "scramble" | "state", value: string, crossColor: CrossColor = "U", opening: OpeningMode = "cross"): Promise<SolverResult> {
+export function solveInBrowser(kind: "scramble" | "state", value: string, crossColor: CrossColor = "U", opening: OpeningMode = "cross", xcross: XCrossOptions = {}): Promise<SolverResult> {
   const id = nextId++;
-  getWorker().postMessage({ id, command: "solve", kind, value, crossColor, opening });
+  getWorker().postMessage({ id, command: "solve", kind, value, crossColor, opening, preferredSlot: xcross.preferredSlot, excludedSlots: xcross.excludedSlots ?? [] });
   return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve(result as SolverResult), reject }));
 }
 
