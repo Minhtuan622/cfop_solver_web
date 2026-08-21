@@ -173,3 +173,11 @@
 - [x] Bổ sung tooltip song ngữ giải thích Cross/F2L/OLL/PLL, case và invariant.
 - [x] Xuất báo cáo CFOP dạng JSON có cấu trúc và ảnh PNG có thể chia sẻ.
 - [x] Kiểm tra keyboard/tooltip, responsive, TypeScript và production build; download dùng Blob client-side.
+
+## State gần đây, học liệu phase và PNG cá nhân hóa
+
+- [x] Khảo sát State Editor, tooltip phase và pipeline PNG export hiện có.
+- [x] Lưu danh sách state hợp lệ gần đây cục bộ, có nhãn nhận diện và thao tác nạp/xóa nhanh.
+- [x] Gắn liên kết trực tiếp từ tooltip Cross/F2L/OLL/PLL đến bài học hoặc công thức tóm tắt tương ứng.
+- [x] Cho phép đặt tên cá nhân và chọn màu nền trước khi tải PNG report.
+- [x] Kiểm tra local storage client-side, deep link, responsive, TypeScript và production build; export dùng Blob/Canvas trong trình duyệt.

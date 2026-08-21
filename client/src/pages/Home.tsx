@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft, ArrowRight, Braces, Check, ChevronRight, CircleGauge, ClipboardCopy,
-  Cpu, FileJson, ImageDown, Info, Loader2, Play, RotateCcw, ShieldCheck, Sparkles,
+  Cpu, ExternalLink, FileJson, History, ImageDown, Info, Loader2, Play, RotateCcw, ShieldCheck, Sparkles, Trash2,
 } from "lucide-react";
 import { Timer } from "lucide-react";
 import { Link } from "wouter";
@@ -37,6 +37,14 @@ const CROSS_COLORS: { value: CrossColor; vi: string; en: string; hex: string }[]
   { value: "R", vi: "Đỏ", en: "Red", hex: "#d95743" },
   { value: "L", vi: "Cam", en: "Orange", hex: "#ed8e42" },
 ];
+type RecentCubeState = { id: string; state: string; label: string; savedAt: string; crossColor: CrossColor };
+const RECENT_STATE_KEY = "cfop-studio-recent-states-v1";
+const PHASE_LESSON_URL: Record<string, string> = {
+  cross: "https://www.speedsolving.com/wiki/index.php?title=Cross",
+  f2l: "https://www.speedsolving.com/wiki/index.php?title=F2L",
+  oll: "https://www.speedsolving.com/wiki/index.php?title=OLL",
+  pll: "https://www.speedsolving.com/wiki/index.php?title=PLL",
+};
 
 function saveBlob(name: string, type: string, value: BlobPart) { const url = URL.createObjectURL(new Blob([value], { type })); const link = document.createElement("a"); link.href = url; link.download = name; link.click(); window.setTimeout(() => URL.revokeObjectURL(url), 0); }
 function phaseStudyNote(name: string, language: "vi" | "en") {
@@ -46,16 +54,17 @@ function phaseStudyNote(name: string, language: "vi" | "en") {
   if (name === "oll") return vi ? "OLL: định hướng tất cả sticker mặt cuối để cùng hướng lên. Invariant xác nhận orientation lớp cuối đã hoàn chỉnh, chưa cần hoán vị." : "OLL: orient every last-layer sticker to face up. The invariant confirms last-layer orientation is complete before permutation.";
   return vi ? "PLL: hoán vị các mảnh lớp cuối mà không phá hướng đã giải. Invariant xác nhận toàn bộ cube đã trở về trạng thái solved." : "PLL: permute last-layer pieces without breaking orientation. The invariant confirms the entire cube has returned to solved state.";
 }
+function phaseLessonUrl(name: string) { return name.startsWith("f2l") ? PHASE_LESSON_URL.f2l : PHASE_LESSON_URL[name] ?? "https://www.speedsolving.com/wiki/index.php/CFOP_method"; }
 function exportCFOPJson(result: SolverResult) { saveBlob("cfop-solution-report.json", "application/json", JSON.stringify({ format: "cfop-solver-studio/report@1", exportedAt: new Date().toISOString(), totalMoves: result.trace.length, algorithm: result.algorithm, phases: result.phases, trace: result.trace }, null, 2)); }
-function exportCFOPImage(result: SolverResult, language: "vi" | "en") {
+function exportCFOPImage(result: SolverResult, language: "vi" | "en", options: { ownerName: string; background: string }) {
   const vi = language === "vi";
   const width = 1400; const lineHeight = 42; const height = 220 + result.phases.length * 126;
   const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height;
   const ctx = canvas.getContext("2d"); if (!ctx) return;
-  ctx.fillStyle = "#f4f0e8"; ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = options.background; ctx.fillRect(0, 0, width, height);
   ctx.strokeStyle = "rgba(23,34,29,.12)"; ctx.lineWidth = 1; for (let x = 0; x < width; x += 24) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); } for (let y = 0; y < height; y += 24) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
   ctx.fillStyle = "#17221d"; ctx.fillRect(0, 0, width, 140); ctx.fillStyle = "#1ba77a"; ctx.fillRect(0, 132, width, 8);
-  ctx.fillStyle = "#f4f0e8"; ctx.font = "900 46px Space Grotesk, sans-serif"; ctx.fillText("CFOP SOLVER STUDIO", 58, 70); ctx.font = "700 22px IBM Plex Mono, monospace"; ctx.fillText(vi ? "BÁO CÁO LỜI GIẢI" : "SOLUTION REPORT", 58, 108);
+  ctx.fillStyle = "#f4f0e8"; ctx.font = "900 46px Space Grotesk, sans-serif"; ctx.fillText("CFOP SOLVER STUDIO", 58, 70); ctx.font = "700 22px IBM Plex Mono, monospace"; ctx.fillText(options.ownerName.trim() ? `${vi ? "BÁO CÁO CỦA" : "REPORT FOR"} ${options.ownerName.trim()}` : (vi ? "BÁO CÁO LỜI GIẢI" : "SOLUTION REPORT"), 58, 108);
   ctx.fillStyle = "#17221d"; ctx.font = "900 28px Space Grotesk, sans-serif"; ctx.fillText(`${result.trace.length} ${vi ? "nước xoay · CFOP verified" : "moves · CFOP verified"}`, 58, 188);
   result.phases.forEach((phase, index) => { const top = 220 + index * 126; ctx.fillStyle = index % 2 ? "#efe9dc" : "#ffffff"; ctx.fillRect(48, top, width - 96, 102); ctx.strokeStyle = "#17221d"; ctx.strokeRect(48, top, width - 96, 102); ctx.fillStyle = "#1ba77a"; ctx.fillRect(48, top, 8, 102); ctx.fillStyle = "#17221d"; ctx.font = "900 24px Space Grotesk, sans-serif"; ctx.fillText(`${String(index + 1).padStart(2, "0")}  ${simplePhase(phase.name, language)}`, 78, top + 34); ctx.font = "700 17px IBM Plex Mono, monospace"; ctx.fillText(`${phase.moves.length} ${vi ? "nước" : "moves"}${phase.case_id && phase.case_id !== "solved" ? ` · ${phase.case_id}` : ""} · ${phase.valid_after && phase.predicate_after ? "INVARIANT ✓" : "CHECK"}`, 78, top + 64); const notation = (phase.algorithm || phase.moves.join(" ") || "—").slice(0, 132); ctx.fillStyle = "#47534d"; ctx.font = "16px IBM Plex Mono, monospace"; ctx.fillText(notation, 78, top + 88); });
   canvas.toBlob((blob) => { if (blob) saveBlob("cfop-solution-report.png", "image/png", blob); }, "image/png");
@@ -75,6 +84,7 @@ export default function Home() {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [error, setError] = useState("");
   const [stateValidation, setStateValidation] = useState<CubeValidation | null>(null);
+  const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() => { try { const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is RecentCubeState => typeof item?.state === "string" && item.state.length === 54).slice(0, 8) : []; } catch { return []; } });
   const stateHistory = useRef<{ past: string[]; future: string[] }>({ past: [], future: [] });
   const [, setStateHistoryVersion] = useState(0);
 
@@ -132,6 +142,7 @@ export default function Home() {
       const next = await solveInBrowser(mode, value.trim(), crossColor);
       setResult(next);
       setCursor(0);
+      if (mode === "state") rememberRecentState(value.trim(), crossColor);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Không thể chạy solver với đầu vào này.");
     } finally {
@@ -140,6 +151,13 @@ export default function Home() {
   }
 
   const phaseCount = result?.phases.filter((phase) => phase.moves.length > 0).length ?? 0;
+  const rememberRecentState = (state: string, color: CrossColor) => {
+    if (state.length !== 54) return;
+    const next: RecentCubeState[] = [{ id: `${Date.now()}-${state.slice(0, 6)}`, state, crossColor: color, label: `${language === "vi" ? "State" : "State"} · ${new Intl.DateTimeFormat(language === "vi" ? "vi-VN" : "en-US", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date())}`, savedAt: new Date().toISOString() }, ...recentStates.filter((item) => item.state !== state)].slice(0, 8);
+    setRecentStates(next); localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(next));
+  };
+  const loadRecentState = (item: RecentCubeState) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(item.state); setSavedState(item.state); setCrossColor(item.crossColor); setResult(null); setCursor(0); setError(""); };
+  const removeRecentState = (id: string) => { const next = recentStates.filter((item) => item.id !== id); setRecentStates(next); localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(next)); };
   const updateCursor = (next: number) => { setPlaying(false); setCursor(next); };
   const applyStateEdit = (next: string) => {
     const current = value.length === 54 ? value : SOLVED_STATE;
@@ -208,7 +226,7 @@ export default function Home() {
         <section className="mt-7 grid gap-7 xl:grid-cols-[330px_minmax(0,1fr)_360px]">
           <aside className="space-y-5 xl:sticky xl:top-5 xl:h-fit">
             <div className="studio-support-panel scorecard overflow-hidden rounded-[3px] border-2 border-[#17221d] bg-white shadow-[7px_7px_0_#17221d]">
-              <img src="/manus-storage/cfop-hero-cube_823c9f74.png" alt="Speedcube trên bàn kỹ thuật" className="h-32 w-full object-cover contrast-90 saturate-[.8] mix-blend-multiply" />
+              <div className="studio-input-header flex h-28 items-center justify-between border-b-2 border-[#17221d]/15 px-5"><div><p className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">STATE INPUT</p><p className="mt-1 text-sm font-black tracking-[-0.03em]">54 STICKER · 6 FACES</p></div><img src="/manus-storage/cfop-studio-mark_62473f8e.png" alt="CFOP cube mark" className="h-16 w-16 rounded-xl border-2 border-[#17221d] bg-[#f4f0e8] p-1 shadow-[3px_3px_0_#1ba77a]" /></div>
               <div className="p-5">
                 <div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">{t("input.title")}</p><Cpu className="h-4 w-4" /></div>
                 <div className="mt-4 grid grid-cols-2 rounded-sm border-2 border-[#17221d]/15 p-1">
@@ -220,7 +238,7 @@ export default function Home() {
                   <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/50">{language === "vi" ? "Trắng là mặc định. Solver giữ các bước Cross → F2L → OLL → PLL theo màu đã chọn." : "White is the default. The solver keeps Cross → F2L → OLL → PLL for the selected color."}</p>
                 </div>
                 <label className="mt-5 block font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#17221d]/60">{mode === "scramble" ? t("input.label") : language === "vi" ? "TÔ TRẠNG THÁI 6 MẶT" : "PAINT SIX-FACE STATE"}</label>
-                {mode === "scramble" ? <textarea value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); }} spellCheck={false} className="mt-2 min-h-28 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" /> : <><div className="mt-2"><CubeStateEditor state={value} onChange={applyStateEdit} disabled={loading} canUndo={stateHistory.current.past.length > 0} canRedo={stateHistory.current.future.length > 0} onUndo={undoStateEdit} onRedo={redoStateEdit} /></div><div className={cn("mt-3 border-2 p-3 font-mono text-[10px] leading-5", stateValidation?.valid ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/30 bg-[#d95743]/10 text-[#8b2d21]")}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div><details className="mt-3"><summary className="cursor-pointer font-mono text-[9px] font-bold tracking-[0.12em] text-[#17221d]/55">{language === "vi" ? "DÁN CHUỖI 54 STICKER" : "PASTE 54-STICKER STATE"}</summary><textarea value={value} onChange={(event) => applyStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())} spellCheck={false} className="mt-2 min-h-20 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-white p-3 font-mono text-xs outline-none transition focus:border-[#1ba77a]" /></details></>}
+                {mode === "scramble" ? <textarea value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); }} spellCheck={false} className="mt-2 min-h-28 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" /> : <><div className="mt-2"><CubeStateEditor state={value} onChange={applyStateEdit} disabled={loading} canUndo={stateHistory.current.past.length > 0} canRedo={stateHistory.current.future.length > 0} onUndo={undoStateEdit} onRedo={redoStateEdit} /></div><div className={cn("mt-3 border-2 p-3 font-mono text-[10px] leading-5", stateValidation?.valid ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/30 bg-[#d95743]/10 text-[#8b2d21]")}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div>{recentStates.length > 0 && <div className="mt-3 border-t border-[#17221d]/12 pt-3"><p className="flex items-center gap-1 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-[#17221d]/55"><History className="h-3 w-3" />{language === "vi" ? "STATE GẦN ĐÂY" : "RECENT STATES"}</p><div className="mt-2 space-y-1">{recentStates.map((item) => <div key={item.id} className="flex items-center gap-1 rounded-sm border border-[#17221d]/12 bg-[#f4f0e8] p-1"><button type="button" onClick={() => loadRecentState(item)} className="min-w-0 flex-1 truncate px-2 py-1 text-left font-mono text-[9px] font-bold hover:text-[#1b7b5e]">{item.label}</button><button type="button" onClick={() => removeRecentState(item.id)} aria-label={language === "vi" ? `Xóa ${item.label}` : `Remove ${item.label}`} className="rounded-sm p-1.5 text-[#17221d]/45 hover:bg-[#d95743]/10 hover:text-[#9b3023]"><Trash2 className="h-3 w-3" /></button></div>)}</div></div>}<details className="mt-3"><summary className="cursor-pointer font-mono text-[9px] font-bold tracking-[0.12em] text-[#17221d]/55">{language === "vi" ? "DÁN CHUỖI 54 STICKER" : "PASTE 54-STICKER STATE"}</summary><textarea value={value} onChange={(event) => applyStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())} spellCheck={false} className="mt-2 min-h-20 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-white p-3 font-mono text-xs outline-none transition focus:border-[#1ba77a]" /></details></>}
                 {error && <p className="mt-3 rounded-lg bg-[#d95743]/10 p-3 font-mono text-xs leading-5 text-[#9b3023]">{error}</p>}
                 <button disabled={loading || !value.trim() || (mode === "state" && !stateValidation?.valid)} onClick={runSolver} className="mt-4 flex w-full items-center justify-center gap-2 rounded-sm border-2 border-[#17221d] bg-[#1ba77a] px-4 py-3 text-sm font-bold text-[#10241c] shadow-[3px_3px_0_#17221d] transition hover:-translate-y-0.5 hover:bg-[#24bd8d] active:scale-[0.97] disabled:opacity-60">
                   {loading ? <><Loader2 className="h-4 w-4 animate-spin" />{t("input.loading")}</> : <><Sparkles className="h-4 w-4" />{t("input.solve")}</>}
@@ -265,9 +283,60 @@ function Stat({ label, value, icon }: { label: string; value: string; icon: Reac
   return <div className="telemetry-panel rounded-md border-2 border-[#17221d] bg-white p-3 shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><div className="flex items-center justify-between text-[#17221d]/45">{icon}<span className="font-mono text-[8px] font-bold tracking-[0.12em]">{label}</span></div><p className="mt-2 font-mono text-xl font-bold tracking-[-0.08em]">{value}</p></div>;
 }
 
-/** Xưởng Cơ Khí Tốc Độ — phase report is a readable proof of the CFOP pipeline, not a timer metric. */
+/** Xưởng Cơ Khí Tốc Độ — report is a readable proof of the CFOP pipeline, not a timer metric. */
 function CFOPReport({ result, language, activePhase, onSelectPhase }: { result: SolverResult; language: "vi" | "en"; activePhase: string | null; onSelectPhase: (phase: SolverResult["phases"][number]) => void }) {
   const vi = language === "vi";
   const totalValid = result.phases.filter((phase) => phase.valid_after && phase.predicate_after).length;
-  return <section className="scorecard mt-7 border-2 border-[#17221d] bg-white p-5 shadow-[6px_6px_0_rgba(23,34,29,0.13)] sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#17221d]/10 pb-4"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">CFOP · {vi ? "BÁO CÁO LỜI GIẢI" : "SOLUTION REPORT"}</p><h3 className="mt-1 text-xl font-black tracking-[-0.05em]">{result.trace.length} {vi ? "nước xoay · 7 phase kiểm tra" : "moves · 7 verified phases"}</h3></div><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => exportCFOPJson(result)} className="inline-flex items-center gap-1 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2 py-2 font-mono text-[9px] font-bold hover:border-[#17221d]"><FileJson className="h-3.5 w-3.5" />JSON</button><button type="button" onClick={() => exportCFOPImage(result, language)} className="inline-flex items-center gap-1 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2 py-2 font-mono text-[9px] font-bold hover:border-[#17221d]"><ImageDown className="h-3.5 w-3.5" />PNG</button><span className="rounded-sm border border-[#1ba77a]/40 bg-[#1ba77a]/10 px-3 py-2 font-mono text-[10px] font-bold text-[#1b7b5e]">{totalValid} / {result.phases.length} {vi ? "INVARIANT OK" : "INVARIANTS OK"}</span></div></div><div className="mt-4 space-y-2">{result.phases.map((phase, index) => { const selected = activePhase === phase.name; const notation = phase.algorithm || phase.moves.join(" ") || "—"; const studyNote = phaseStudyNote(phase.name, language); return <article key={phase.name} className={cn("border-2 p-3 transition", selected ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/10 bg-[#f4f0e8]")}><div className="flex flex-wrap items-center gap-3"><button type="button" onClick={() => onSelectPhase(phase)} className="grid h-8 w-8 place-items-center rounded-sm bg-[#17221d] font-mono text-[10px] font-bold text-[#f4f0e8]">{String(index + 1).padStart(2, "0")}</button><button type="button" onClick={() => onSelectPhase(phase)} className="min-w-0 flex-1 text-left"><span className="flex items-center gap-1"><b className="block text-sm">{simplePhase(phase.name, language)}</b><Tooltip><TooltipTrigger asChild><span tabIndex={0} className="inline-flex cursor-help text-[#1b7b5e] outline-none focus:ring-2 focus:ring-[#1ba77a]"><Info className="h-3.5 w-3.5" /></span></TooltipTrigger><TooltipContent side="top" className="max-w-80 bg-[#17221d] p-3 text-xs leading-5 text-[#f4f0e8]">{studyNote}</TooltipContent></Tooltip></span><span className="font-mono text-[10px] text-[#17221d]/55">{phase.moves.length} {vi ? "nước" : "moves"}{phase.case_id && phase.case_id !== "solved" ? ` · ${phase.case_id}` : ""}</span></button><Tooltip><TooltipTrigger asChild><span tabIndex={0} className={cn("rounded-sm border px-2 py-1 font-mono text-[9px] font-bold outline-none focus:ring-2 focus:ring-[#1ba77a]", phase.valid_after && phase.predicate_after ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/40 bg-[#d95743]/10 text-[#8b2d21]")}>{phase.valid_after && phase.predicate_after ? "INVARIANT ✓" : "CHECK"}</span></TooltipTrigger><TooltipContent side="top" className="max-w-80 bg-[#17221d] p-3 text-xs leading-5 text-[#f4f0e8]">{studyNote}</TooltipContent></Tooltip><button type="button" onClick={() => navigator.clipboard?.writeText(notation)} className="rounded-sm border border-[#17221d]/15 bg-white p-2 text-[#17221d]/60 hover:text-[#17221d]" aria-label={vi ? `Sao chép thuật toán ${phase.name}` : `Copy ${phase.name} algorithm`}><ClipboardCopy className="h-3.5 w-3.5" /></button></div><code className="mt-3 block overflow-x-auto border-t border-[#17221d]/10 pt-3 font-mono text-[11px] leading-5 text-[#17221d]/70">{notation}</code></article>; })}</div></section>;
+  const [ownerName, setOwnerName] = useState(() => localStorage.getItem("cfop-report-owner") ?? "");
+  const [pngBackground, setPngBackground] = useState(() => localStorage.getItem("cfop-report-background") ?? "#f4f0e8");
+
+  useEffect(() => localStorage.setItem("cfop-report-owner", ownerName), [ownerName]);
+  useEffect(() => localStorage.setItem("cfop-report-background", pngBackground), [pngBackground]);
+
+  return (
+    <section className="scorecard mt-7 border-2 border-[#17221d] bg-white p-5 shadow-[6px_6px_0_rgba(23,34,29,0.13)] sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#17221d]/10 pb-4">
+        <div>
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">CFOP · {vi ? "BÁO CÁO LỜI GIẢI" : "SOLUTION REPORT"}</p>
+          <h3 className="mt-1 text-xl font-black tracking-[-0.05em]">{result.trace.length} {vi ? "nước xoay · 7 phase kiểm tra" : "moves · 7 verified phases"}</h3>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={() => exportCFOPJson(result)} className="inline-flex items-center gap-1 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2 py-2 font-mono text-[9px] font-bold hover:border-[#17221d]"><FileJson className="h-3.5 w-3.5" />JSON</button>
+          <button type="button" onClick={() => exportCFOPImage(result, language, { ownerName, background: pngBackground })} className="inline-flex items-center gap-1 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2 py-2 font-mono text-[9px] font-bold hover:border-[#17221d]"><ImageDown className="h-3.5 w-3.5" />PNG</button>
+          <span className="rounded-sm border border-[#1ba77a]/40 bg-[#1ba77a]/10 px-3 py-2 font-mono text-[10px] font-bold text-[#1b7b5e]">{totalValid} / {result.phases.length} {vi ? "INVARIANT OK" : "INVARIANTS OK"}</span>
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-3 rounded-sm border border-[#17221d]/12 bg-[#f4f0e8] p-2">
+        <label className="flex items-center gap-2 font-mono text-[9px] font-bold text-[#17221d]/60">{vi ? "TÊN TRÊN PNG" : "PNG NAME"}<input value={ownerName} onChange={(event) => setOwnerName(event.target.value.slice(0, 42))} placeholder={vi ? "Tùy chọn" : "Optional"} className="w-36 rounded-sm border border-[#17221d]/20 bg-white px-2 py-1 font-sans text-xs outline-none focus:border-[#1ba77a]" /></label>
+        <label className="flex items-center gap-2 font-mono text-[9px] font-bold text-[#17221d]/60">{vi ? "NỀN" : "BACKGROUND"}<input aria-label={vi ? "Màu nền PNG" : "PNG background color"} type="color" value={pngBackground} onChange={(event) => setPngBackground(event.target.value)} className="h-7 w-9 cursor-pointer rounded-sm border border-[#17221d]/20 bg-white p-1" /></label>
+      </div>
+      <div className="mt-4 space-y-2">
+        {result.phases.map((phase, index) => <CFOPPhaseRow key={phase.name} phase={phase} index={index} language={language} selected={activePhase === phase.name} onSelect={onSelectPhase} />)}
+      </div>
+    </section>
+  );
+}
+
+function CFOPPhaseRow({ phase, index, language, selected, onSelect }: { phase: SolverResult["phases"][number]; index: number; language: "vi" | "en"; selected: boolean; onSelect: (phase: SolverResult["phases"][number]) => void }) {
+  const vi = language === "vi";
+  const notation = phase.algorithm || phase.moves.join(" ") || "—";
+  const studyNote = phaseStudyNote(phase.name, language);
+  const lessonUrl = phaseLessonUrl(phase.name);
+  const invariantOK = phase.valid_after && phase.predicate_after;
+  return <article className={cn("border-2 p-3 transition", selected ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/10 bg-[#f4f0e8]")}>
+    <div className="flex flex-wrap items-center gap-3">
+      <button type="button" onClick={() => onSelect(phase)} className="grid h-8 w-8 place-items-center rounded-sm bg-[#17221d] font-mono text-[10px] font-bold text-[#f4f0e8]">{String(index + 1).padStart(2, "0")}</button>
+      <button type="button" onClick={() => onSelect(phase)} className="min-w-0 flex-1 text-left">
+        <span className="flex items-center gap-1"><b className="block text-sm">{simplePhase(phase.name, language)}</b><PhaseStudyTooltip studyNote={studyNote} lessonUrl={lessonUrl} vi={vi} /></span>
+        <span className="font-mono text-[10px] text-[#17221d]/55">{phase.moves.length} {vi ? "nước" : "moves"}{phase.case_id && phase.case_id !== "solved" ? " · " + phase.case_id : ""}</span>
+      </button>
+      <PhaseStudyTooltip studyNote={studyNote} lessonUrl={lessonUrl} vi={vi} trigger={<span tabIndex={0} className={cn("rounded-sm border px-2 py-1 font-mono text-[9px] font-bold outline-none focus:ring-2 focus:ring-[#1ba77a]", invariantOK ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/40 bg-[#d95743]/10 text-[#8b2d21]")}>{invariantOK ? "INVARIANT ✓" : "CHECK"}</span>} />
+      <button type="button" onClick={() => navigator.clipboard?.writeText(notation)} className="rounded-sm border border-[#17221d]/15 bg-white p-2 text-[#17221d]/60 hover:text-[#17221d]" aria-label={vi ? "Sao chép thuật toán" : "Copy algorithm"}><ClipboardCopy className="h-3.5 w-3.5" /></button>
+    </div>
+    <code className="mt-3 block overflow-x-auto border-t border-[#17221d]/10 pt-3 font-mono text-[11px] leading-5 text-[#17221d]/70">{notation}</code>
+  </article>;
+}
+
+function PhaseStudyTooltip({ studyNote, lessonUrl, vi, trigger }: { studyNote: string; lessonUrl: string; vi: boolean; trigger?: ReactNode }) {
+  return <Tooltip><TooltipTrigger asChild>{trigger ?? <span tabIndex={0} className="inline-flex cursor-help text-[#1b7b5e] outline-none focus:ring-2 focus:ring-[#1ba77a]"><Info className="h-3.5 w-3.5" /></span>}</TooltipTrigger><TooltipContent side="top" className="max-w-80 bg-[#17221d] p-3 text-xs leading-5 text-[#f4f0e8]"><p>{studyNote}</p><a href={lessonUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 font-mono text-[10px] font-bold text-[#4fe3af] underline">{vi ? "Mở bài học & công thức" : "Open lesson & algorithms"}<ExternalLink className="h-3 w-3" /></a></TooltipContent></Tooltip>;
 }

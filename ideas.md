@@ -74,3 +74,4 @@
 - Mỗi route chỉ có một apparatus cường độ tối đa: Timer Lab là stopwatch; tick rail, shadow và grid ở scorecard phụ chỉ xuất hiện như thước đo gắn với dữ liệu thời gian, move hoặc phase.
 - Studio đặt solver/cube stage làm apparatus duy nhất ở cường độ tối đa; input và phase sidebar dùng record-sheet nhạt hơn. Solver Mint chỉ báo state hiện hành, action hợp lệ và O-notch trong lockup.
 - Giọng Studio là vận hành kỹ thuật: “Kiểm tra trạng thái. Chạy chuỗi CFOP.”, “Kiểm tra & giải CFOP”, “Bàn giải sẵn sàng”; tránh lời hứa học tập chung chung. Rail/tick chỉ gắn với phase, state, move hoặc device status.
+- Studio không dùng ảnh cube stock ở panel nhập: cube mark isometric và state surface grid là hệ hình ảnh thống nhất. Move log là telemetry giấy nhạt; chỉ cube/solver stage được dùng dark-ink apparatus với shadow mạnh.
