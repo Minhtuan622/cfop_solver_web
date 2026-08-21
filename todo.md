@@ -215,3 +215,11 @@
 - [x] Highlight rõ corner/edge thuộc slot F2L XCross đã hoàn tất trong 3D stage và báo cáo phase.
 - [x] Tối giản control/telemetry phụ giữ nguyên ngôn ngữ workbench, phase ladder và Solver Mint.
 - [x] Kiểm tra Python/worker/browser end-to-end, responsive, TypeScript, production build và checkpoint.
+
+## XXCross: Cross cộng hai slot F2L
+
+- [x] Khảo sát predicate/coordinate Cross + hai slot và xác định budget khả thi cho tracked meet-in-the-middle.
+- [x] Thêm search XXCross cho sáu cặp F2L, ưu tiên/loại trừ slot và fallback Auto XXCross → XCross → Cross.
+- [x] Viết regression invariant XXCross, fallback, macro symmetry và benchmark mở đầu bằng fixture cố định.
+- [x] Mở rộng protocol Pyodide/Studio để chọn Auto XXCross, hiển thị hai slot và highlight kép trên Cube 3D.
+- [x] Kiểm tra end-to-end, responsive, TypeScript, production build và checkpoint.
