@@ -11,6 +11,8 @@ const files = [
   "notation.py",
   "validation.py",
   "predicates.py",
+  "f2l_macros.py",
+  "cross_table.py",
   "search.py",
   "phases.py",
   "solver.py",

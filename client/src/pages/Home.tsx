@@ -95,7 +95,7 @@ export default function Home() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#f4f0e8] text-[#17221d]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
       <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
-        <header className="relative overflow-hidden rounded-[1.15rem] border-2 border-[#17221d] bg-[#17221d] px-5 py-5 text-[#f4f0e8] shadow-[8px_8px_0_#1ba77a] sm:px-7">
+        <header className="relative overflow-hidden rounded-[3px] border-2 border-[#17221d] bg-[#17221d] px-5 py-5 text-[#f4f0e8] shadow-[10px_10px_0_#1ba77a] sm:px-7">
           <img src="/manus-storage/cfop-blueprint-detail_a81f8345.png" alt="" className="absolute inset-0 h-full w-full object-cover opacity-[0.14] mix-blend-screen" />
           <div className="relative flex flex-wrap items-center justify-between gap-5">
             <div className="flex items-center gap-4">
@@ -105,7 +105,7 @@ export default function Home() {
                 <h1 className="mt-1 text-2xl font-black tracking-[-0.065em] sm:text-3xl">{t("app.tagline")}</h1>
               </div>
             </div>
-            <div className="flex items-center gap-2 rounded-full border border-[#f4f0e8]/20 bg-[#f4f0e8]/5 px-3 py-2 font-mono text-[11px]">
+            <div className="flex items-center gap-2 rounded-sm border border-[#f4f0e8]/20 bg-[#f4f0e8]/5 px-3 py-2 font-mono text-[11px]">
               <Link href="/history" className="inline-flex items-center gap-1 rounded px-1.5 py-1 text-[#f4f0e8]/75 hover:bg-white/10 hover:text-[#f4f0e8]"><History className="h-3 w-3" />{language === "vi" ? "Lịch sử" : "History"}</Link>
               <span className="h-2 w-2 rounded-full bg-[#1ba77a] shadow-[0_0_0_4px_rgba(27,167,122,0.18)]" />
               <button onClick={() => setLanguage("vi")} className={cn("rounded px-1.5 py-1", language === "vi" ? "bg-[#1ba77a] text-[#17221d]" : "text-[#f4f0e8]/65")}>VI</button><button onClick={() => setLanguage("en")} className={cn("rounded px-1.5 py-1", language === "en" ? "bg-[#1ba77a] text-[#17221d]" : "text-[#f4f0e8]/65")}>EN</button>
@@ -115,35 +115,35 @@ export default function Home() {
 
         <section className="mt-7 grid gap-7 xl:grid-cols-[330px_minmax(0,1fr)_360px]">
           <aside className="space-y-5 xl:sticky xl:top-5 xl:h-fit">
-            <div className="scorecard overflow-hidden rounded-[1rem] border-2 border-[#17221d] bg-white shadow-[6px_6px_0_#17221d]">
+            <div className="scorecard overflow-hidden rounded-[3px] border-2 border-[#17221d] bg-white shadow-[7px_7px_0_#17221d]">
               <img src="/manus-storage/cfop-hero-cube_823c9f74.png" alt="Speedcube trên bàn kỹ thuật" className="h-32 w-full object-cover contrast-90 saturate-[.8] mix-blend-multiply" />
               <div className="p-5">
                 <div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">{t("input.title")}</p><Cpu className="h-4 w-4" /></div>
-                <div className="mt-4 grid grid-cols-2 rounded-lg border border-[#17221d]/15 p-1">
+                <div className="mt-4 grid grid-cols-2 rounded-sm border-2 border-[#17221d]/15 p-1">
                   {(["scramble", "state"] as const).map((item) => <button key={item} onClick={() => { setMode(item); setError(""); }} className={cn("rounded-md px-2 py-2 font-mono text-[11px] font-bold uppercase transition", mode === item ? "bg-[#17221d] text-[#f4f0e8]" : "text-[#17221d]/55 hover:bg-[#f4f0e8]")}>{item === "scramble" ? t("input.scramble") : t("input.state")}</button>)}
                 </div>
                 <label className="mt-5 block font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#17221d]/60">{mode === "scramble" ? t("input.label") : "U R F D L B · 54"}</label>
-                <textarea value={value} onChange={(event) => setValue(event.target.value)} spellCheck={false} className="mt-2 min-h-28 w-full resize-none rounded-lg border border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" />
+                <textarea value={value} onChange={(event) => setValue(event.target.value)} spellCheck={false} className="mt-2 min-h-28 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" />
                 {error && <p className="mt-3 rounded-lg bg-[#d95743]/10 p-3 font-mono text-xs leading-5 text-[#9b3023]">{error}</p>}
-                <button disabled={loading || !value.trim()} onClick={runSolver} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#1ba77a] px-4 py-3 text-sm font-bold text-[#10241c] transition hover:-translate-y-0.5 hover:bg-[#24bd8d] active:scale-[0.97] disabled:opacity-60">
+                <button disabled={loading || !value.trim()} onClick={runSolver} className="mt-4 flex w-full items-center justify-center gap-2 rounded-sm border-2 border-[#17221d] bg-[#1ba77a] px-4 py-3 text-sm font-bold text-[#10241c] shadow-[3px_3px_0_#17221d] transition hover:-translate-y-0.5 hover:bg-[#24bd8d] active:scale-[0.97] disabled:opacity-60">
                   {loading ? <><Loader2 className="h-4 w-4 animate-spin" />{t("input.loading")}</> : <><Sparkles className="h-4 w-4" />{t("input.solve")}</>}
                 </button>
                 <div className="mt-3"><PdfExport result={result} input={value.trim()} inputKind={mode} /></div>
               </div>
             </div>
-            <div className="scorecard rounded-[1rem] border-2 border-[#17221d] bg-[#e9e3d6] p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("status.title")}</p><p className="mt-2 text-lg font-bold leading-tight">{t("simple.note")}</p><p className="mt-2 text-sm leading-5 text-[#17221d]/65">{language === "vi" ? "Tạo hướng dẫn, sau đó bấm Phát để xem từng nước xoay." : "Create a guide, then press Play to follow each move."}</p></div>
+            <div className="scorecard rounded-[3px] border-2 border-[#17221d] bg-[#e9e3d6] p-5"><div className="tick-ruler tick-ruler-ink" /><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("status.title")} · LOCAL</p><p className="mt-2 text-lg font-bold leading-tight">{t("simple.note")}</p><p className="mt-2 text-sm leading-5 text-[#17221d]/65">{language === "vi" ? "Chạy hướng dẫn CFOP, rồi bấm Phát để kiểm tra từng nước xoay." : "Run the CFOP guide, then press Play to inspect each move."}</p></div>
             <CameraScanner onState={(state) => { setMode("state"); setValue(state); setResult(null); setCursor(0); setError(""); }} />
             <SolveTimer canSave={Boolean(result)} onComplete={(elapsedMs) => { if (!result) return; addSolveHistory({ elapsedMs, input: value.trim(), inputKind: mode, moves: totalMoves }); setSavedSolve(true); }} />
             {savedSolve && <p className="-mt-3 rounded-md bg-[#1ba77a]/15 p-2 text-xs font-bold text-[#1b7b5e]">{language === "vi" ? "Đã lưu vào Lịch sử." : "Saved to History."}</p>}
           </aside>
 
           <section className="min-w-0">
-            <div className="scorecard rounded-[1.15rem] border-2 border-[#17221d] bg-white p-5 shadow-[8px_8px_0_rgba(23,34,29,0.14)] sm:p-8">
+            <div className="scorecard rounded-[3px] border-2 border-[#17221d] bg-white p-5 shadow-[9px_9px_0_rgba(23,34,29,0.16)] sm:p-8">
               <div className="flex flex-wrap items-start justify-between gap-6">
                 <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{t("guide.step")} · {String(cursor).padStart(2, "0")} / {String(totalMoves).padStart(2, "0")}</p><h2 className="mt-2 text-3xl font-bold tracking-[-0.055em] sm:text-4xl">{activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
-                <div className="rounded-xl border border-[#17221d]/15 bg-[#f4f0e8] px-4 py-3 font-mono text-xs"><p className="text-[#17221d]/45">{t("guide.move").toUpperCase()}</p><p className="mt-1 text-2xl font-bold text-[#1ba77a]">{currentStep?.move ?? "—"}</p></div>
+                <div className="rounded-sm border-2 border-[#17221d]/15 bg-[#f4f0e8] px-4 py-3 font-mono text-xs shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><p className="text-[#17221d]/45">{t("guide.move").toUpperCase()}</p><p className="mt-1 text-2xl font-bold text-[#1ba77a]">{currentStep?.move ?? "—"}</p></div>
               </div>
-              <div className="mt-8 grid gap-5 rounded-[1.4rem] border border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={currentState} /></div><Cube3DGuide state={currentState} move={currentStep?.move} step={cursor} /></div>
+              <div className="mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={currentState} /></div><Cube3DGuide state={currentState} move={currentStep?.move} step={cursor} /></div>
               <div className="mt-7 flex flex-wrap items-center gap-3">
                 <button onClick={() => updateCursor(Math.max(0, cursor - 1))} disabled={cursor === 0} className="control-button"><ArrowLeft className="h-4 w-4" />{t("guide.previous")}</button>
                 <button onClick={() => setPlaying((value) => !value)} disabled={!result || cursor === totalMoves} className="flex items-center gap-2 rounded-lg bg-[#17221d] px-5 py-3 text-sm font-bold text-[#f4f0e8] transition hover:bg-[#26372e] active:scale-[0.97] disabled:opacity-40">{playing ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}{playing ? t("guide.pause") : t("guide.play")}</button>
