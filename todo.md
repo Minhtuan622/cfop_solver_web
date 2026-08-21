@@ -110,3 +110,12 @@
 - [x] Tính lại PB/Ao5/Ao12/Ao50/Ao100 và biểu đồ từ history đã lọc.
 - [x] Thêm checkbox từng lượt, chọn tất cả lượt đang lọc và xóa hàng loạt có xác nhận.
 - [x] Kiểm tra typecheck, build, browser interactions, responsive UI và lưu checkpoint.
+
+## Playback TPS theo pha và timer tối giản
+
+- [ ] Khảo sát layout Timer Lab, metadata solution và orbit control Cube3D hiện có.
+- [ ] Di chuyển readout timer vào panel scramble, loại bỏ nút bắt đầu và để Space là thao tác khởi động duy nhất.
+- [ ] Thêm công tắc bật/tắt âm cảnh báo inspection, lưu tùy chọn cục bộ.
+- [ ] Tính TPS Cross/F2L/OLL/PLL từ solution đã lưu và hiển thị biểu đồ playback theo pha.
+- [ ] Giữ drag orbit, zoom và reset góc của cube hoạt động trong dialog playback.
+- [ ] Kiểm tra TypeScript, build, luồng Space/audio/TPS/cube và lưu checkpoint.

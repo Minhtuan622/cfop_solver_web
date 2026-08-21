@@ -66,3 +66,5 @@
 - Lockup CFOP dùng nhịp chữ liền mạch, O mint-notched là điểm phân biệt duy nhất; không tạo cảm giác tách ba ký tự.
 - Timer Lab ưu tiên stopwatch toàn bề ngang làm thiết bị chính; scramble giữ ở phía trên nhưng dùng ruled-paper telemetry thay cho mảng dark ink cạnh tranh.
 - Mỗi route chỉ có một apparatus ở cường độ tối đa; panel phụ giảm shadow, grid và saturation để nhịp scorecard rõ hơn.
+- Trong Timer Lab, stopwatch là readout lớn nhất; cube là thiết bị quan sát duy nhất dùng dark ink còn scramble, metrics và log là giấy kỹ thuật hỗ trợ.
+- Empty-state phải đọc như record sheet đang chờ phép đo, dùng nhãn vận hành và telemetry rail thay vì lời nhắc app chung chung.
