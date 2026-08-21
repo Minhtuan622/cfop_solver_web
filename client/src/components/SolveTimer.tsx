@@ -1,13 +1,13 @@
 /** Xưởng Cơ Khí Tốc Độ — timer runs a deliberate pre-solve inspection before solve timing. */
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { SPLIT_PHASES, type SolvePhaseSplit } from "@/lib/solveHistory";
+import { SPLIT_PHASES, type SolvePhaseSplit, type SplitPhase } from "@/lib/solveHistory";
 
 function format(ms: number) { const total = Math.max(0, ms) / 1000; return `${Math.floor(total / 60).toString().padStart(2, "0")}:${Math.floor(total % 60).toString().padStart(2, "0")}.${Math.floor((total % 1) * 100).toString().padStart(2, "0")}`; }
 
 export type TimerCompletion = { elapsedMs: number; inspectionMs: number; automaticPenalty: "none" | "+2" | "DNF"; phaseSplits: SolvePhaseSplit[] };
 
-export function SolveTimer({ onComplete, soundEnabled = true, splitEnabled = false }: { onComplete?: (completion: TimerCompletion) => void; soundEnabled?: boolean; splitEnabled?: boolean }) {
+export function SolveTimer({ onComplete, soundEnabled = true, splitEnabled = false, splitPhases = SPLIT_PHASES }: { onComplete?: (completion: TimerCompletion) => void; soundEnabled?: boolean; splitEnabled?: boolean; splitPhases?: readonly SplitPhase[] }) {
   const { language } = useLanguage();
   const [mode, setMode] = useState<"ready" | "inspection" | "running" | "completed">("ready");
   const [elapsed, setElapsed] = useState(0);
@@ -28,7 +28,7 @@ export function SolveTimer({ onComplete, soundEnabled = true, splitEnabled = fal
   const stopSolve = (finalElapsed = carried.current + performance.now() - startedAt.current, splits = phaseSplits.current) => { carried.current = finalElapsed; setElapsed(finalElapsed); setMode("completed"); if (finalElapsed > 0) onComplete?.({ elapsedMs: finalElapsed, inspectionMs: inspectionDuration.current, automaticPenalty: penaltyForInspection(inspectionDuration.current), phaseSplits: splits }); };
   const markSplit = () => {
     const finalElapsed = carried.current + performance.now() - startedAt.current;
-    const phase = SPLIT_PHASES[splitIndex];
+    const phase = splitPhases[splitIndex];
     if (!phase) return stopSolve(finalElapsed);
     const previousMark = phaseSplits.current.at(-1)?.markedAtMs ?? 0;
     const nextSplits = [...phaseSplits.current, { phase, markedAtMs: finalElapsed, elapsedMs: finalElapsed - previousMark }];
@@ -44,5 +44,5 @@ export function SolveTimer({ onComplete, soundEnabled = true, splitEnabled = fal
   const readout = isInspection ? format(inspectionRemaining) : format(elapsed);
   const inspectionPenalty = penaltyForInspection(inspectionElapsed);
   const helper = isInspection ? (inspectionPenalty === "DNF" ? labels.inspectionDnf : inspectionPenalty === "+2" ? labels.inspectionPlusTwo : "") : "";
-  return <section className={`timer-card timer-readout-only rounded-sm border-2 border-[#17221d] bg-[#e9e3d6] px-5 py-4 ${isInspection ? "timer-inspection" : ""}`} aria-live="polite"><p className="font-mono text-5xl font-black leading-none tracking-[-0.1em] sm:text-6xl">{readout}</p>{splitEnabled && mode === "running" && <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#17221d]/15 pt-3 font-mono text-[10px] font-bold tracking-[0.1em]"><span className="text-[#1ba77a]">{labels.split}</span><span className="text-[#17221d]/50">{labels.next}</span><span className="rounded-sm bg-[#17221d] px-2 py-1 text-[#f4f0e8]">{SPLIT_PHASES[splitIndex] ?? "PLL"}</span><span className="text-[#17221d]/50">{phaseSplits.current.map((split) => split.phase).join(" · ") || "—"}</span></div>}{helper && <p className="mt-2 text-xs text-[#b23b2b]">{helper}</p>}</section>;
+  return <section className={`timer-card timer-readout-only rounded-sm border-2 border-[#17221d] bg-[#e9e3d6] px-5 py-4 ${isInspection ? "timer-inspection" : ""}`} aria-live="polite"><p className="font-mono text-5xl font-black leading-none tracking-[-0.1em] sm:text-6xl">{readout}</p>{splitEnabled && mode === "running" && <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#17221d]/15 pt-3 font-mono text-[10px] font-bold tracking-[0.1em]"><span className="text-[#1ba77a]">{labels.split}</span><span className="text-[#17221d]/50">{labels.next}</span><span className="rounded-sm bg-[#17221d] px-2 py-1 text-[#f4f0e8]">{splitPhases[splitIndex] ?? splitPhases.at(-1) ?? "—"}</span><span className="text-[#17221d]/50">{phaseSplits.current.map((split) => split.phase).join(" · ") || "—"}</span></div>}{helper && <p className="mt-2 text-xs text-[#b23b2b]">{helper}</p>}</section>;
 }

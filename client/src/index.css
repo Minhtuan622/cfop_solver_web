@@ -315,6 +315,20 @@
 
   .scanner-secondary:hover:not(:disabled) { background: white; }
 
+  .move-pad-key {
+    min-height: 2rem;
+    border-right: 1px solid rgb(23 34 29 / .12);
+    background: #f4f0e8;
+    color: #17221d;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .7rem;
+    font-weight: 700;
+    transition: background-color 140ms cubic-bezier(0.23, 1, 0.32, 1), color 140ms cubic-bezier(0.23, 1, 0.32, 1), transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .move-pad-key:last-child { border-right: 0; }
+  .move-pad-key:hover { background: #1ba77a; color: #10241c; }
+  .move-pad-key:active { transform: scale(.96); }
+
   .cube3d-stage {
     display: grid;
     min-height: 190px;
@@ -424,7 +438,7 @@
   }
 
   .interactive-cube-stage:active { cursor: grabbing; }
-  .cube3d-model { transition: transform 90ms linear; }
+  .cube3d-model { transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1); }
 
   .cube-turn-badge {
     position: absolute;
@@ -517,10 +531,13 @@
   .timer-lab .timer-readout-only > p:first-child { color: #10241c; font-size: clamp(6.3rem, 11.5vw, 9.5rem); }
   .timer-lab .inspection-cube-wrap { max-width: 300px; justify-self: end; }
   .timer-lab .inspection-cube-wrap .cube3d-guide { background: #1d2b25; box-shadow: 5px 5px 0 rgb(23 34 29 / .22); }
-  .timer-lab .inspection-cube-wrap .cube3d-stage { min-height: 172px; }
-  .timer-lab .inspection-cube-wrap .cube3d-model { transform: var(--cube-transform, rotateX(-26deg) rotateY(34deg)) scale(.9) !important; }
+  .timer-lab .inspection-cube-wrap .cube3d-stage { min-height: 205px; }
   .timer-lab .history-header .wordmark { font-size: clamp(.92rem, 1.35vw, 1.12rem); letter-spacing: .08em; }
   .timer-lab .history-header .wordmark-o { margin-inline: .02em; }
+  .wordmark { color: #f4f0e8 !important; font-family: "Space Grotesk", sans-serif !important; font-weight: 900 !important; letter-spacing: .055em; }
+  .wordmark .wordmark-o { color: #1ba77a !important; text-shadow: 1px 0 0 #1ba77a; }
+  .timer-lab .metrics-panel > .history-panel, .timer-lab-stack > .history-panel { box-shadow: 4px 4px 0 rgb(23 34 29 / .13); }
+  .timer-lab .metrics-panel > .history-panel { border-color: rgb(23 34 29 / .72); }
   .timer-lab-stack .timer-run-panel .timer-card::before { display: block; margin-bottom: .8rem; color: #1ba77a; content: "STOPWATCH / INSPECTION"; font-family: "IBM Plex Mono", monospace; font-size: .62rem; font-weight: 800; letter-spacing: .16em; }
   @media (max-width: 700px) {
     .timer-lab-stack .inspection-cube-wrap .cube3d-guide { min-height: 290px; }

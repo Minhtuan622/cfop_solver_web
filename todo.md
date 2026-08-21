@@ -129,3 +129,15 @@
 - [x] Tính trực tiếp duration Cross/F2L/OLL/PLL từ mốc timer; TPS theo pha vẫn dùng metadata solution khi người dùng có lưu notation.
 - [x] Hiển thị phân tích phase split trong lịch sử, CSV export và playback.
 - [x] Kiểm tra keyboard focus, TypeScript, production build và render giao diện Split bằng Space; cơ chế +2/DNF inspection được giữ nguyên.
+
+## Speedcubing analytics, practice modes và Cube 3D
+
+- [x] Khảo sát phase split hiện có, composer solution, lifecycle inspection và hành vi Cube3D sau đổi Cross/zoom.
+- [x] Lưu cấu hình mục tiêu thời gian Cross, F2L, OLL, PLL cục bộ và tương thích history hiện có.
+- [x] Thêm biểu đồ tiến bộ duration theo từng phase từ các lượt có split; phản ánh dữ liệu theo bộ lọc history.
+- [x] Hiển thị mục tiêu từng phase và cảnh báo màu khi split vượt ngưỡng đã đặt.
+- [x] Tạo hai practice mode riêng Cross và Last Layer, có timer/chỉ dẫn phase rõ ràng.
+- [x] Thay ô solution thủ công bằng composer move trực quan, hỗ trợ thêm/xóa move và dán notation.
+- [x] Sửa Cube3D: animation layer sau đổi Cross, zoom/pinch có giới hạn chính xác, và control inspect hoạt động hoặc được loại bỏ.
+- [x] Tách công tắc hiển thị highlight Cross khỏi inspection 15 giây để tắt highlight không tắt pre-solve timer.
+- [x] Kiểm tra keyboard/touch, inspection +2/DNF, responsive, TypeScript, production build và checkpoint.
