@@ -16,12 +16,16 @@ import { CameraScanner } from "@/components/CameraScanner";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-import { solveInBrowser, validateStateInBrowser, type CrossColor, type CubeValidation, type SolverResult } from "@/lib/solverRuntime";
+import { solveInBrowser, validateStateInBrowser, type CrossColor, type CubeValidation, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const DEFAULT_SCRAMBLE = "R U R' U'";
 const PHASE_COLORS: Record<string, string> = {
   cross: "bg-[#e7c34f] text-[#17221d]",
+  xcross_FR: "bg-[#1ba77a] text-[#17221d]",
+  xcross_FL: "bg-[#1ba77a] text-[#17221d]",
+  xcross_BL: "bg-[#1ba77a] text-[#17221d]",
+  xcross_BR: "bg-[#1ba77a] text-[#17221d]",
   f2l_FR: "bg-[#ed8e42] text-[#17221d]",
   f2l_FL: "bg-[#d95743] text-white",
   f2l_BL: "bg-[#3b6fc7] text-white",
@@ -49,12 +53,13 @@ const PHASE_LESSON_URL: Record<string, string> = {
 function saveBlob(name: string, type: string, value: BlobPart) { const url = URL.createObjectURL(new Blob([value], { type })); const link = document.createElement("a"); link.href = url; link.download = name; link.click(); window.setTimeout(() => URL.revokeObjectURL(url), 0); }
 function phaseStudyNote(name: string, language: "vi" | "en") {
   const vi = language === "vi";
+  if (name.startsWith("xcross")) return vi ? "XCross: tạo Cross và hoàn tất đồng thời một cặp F2L. Nếu không tìm được trong budget, chế độ Auto quay lại Cross chuẩn an toàn." : "XCross: build the Cross and finish one F2L pair simultaneously. If no candidate fits the budget, Auto safely falls back to a standard Cross.";
   if (name === "cross") return vi ? "Cross: ghép bốn cạnh màu Cross với tâm bên tương ứng. Invariant xác nhận bốn cạnh này đã đúng vị trí và hướng." : "Cross: align the four Cross edges with their adjacent centers. The invariant confirms each edge is correctly positioned and oriented.";
   if (name.startsWith("f2l")) return vi ? "F2L: ghép một góc và một cạnh, rồi đưa vào slot tương ứng. Invariant giữ nguyên mọi slot F2L đã hoàn thành trước đó." : "F2L: pair a corner with its edge and insert the pair into its slot. The invariant preserves every earlier completed F2L slot.";
   if (name === "oll") return vi ? "OLL: định hướng tất cả sticker mặt cuối để cùng hướng lên. Invariant xác nhận orientation lớp cuối đã hoàn chỉnh, chưa cần hoán vị." : "OLL: orient every last-layer sticker to face up. The invariant confirms last-layer orientation is complete before permutation.";
   return vi ? "PLL: hoán vị các mảnh lớp cuối mà không phá hướng đã giải. Invariant xác nhận toàn bộ cube đã trở về trạng thái solved." : "PLL: permute last-layer pieces without breaking orientation. The invariant confirms the entire cube has returned to solved state.";
 }
-function phaseLessonUrl(name: string) { return name.startsWith("f2l") ? PHASE_LESSON_URL.f2l : PHASE_LESSON_URL[name] ?? "https://www.speedsolving.com/wiki/index.php/CFOP_method"; }
+function phaseLessonUrl(name: string) { return name.startsWith("f2l") || name.startsWith("xcross") ? PHASE_LESSON_URL.f2l : PHASE_LESSON_URL[name] ?? "https://www.speedsolving.com/wiki/index.php/CFOP_method"; }
 function exportCFOPJson(result: SolverResult) { saveBlob("cfop-solution-report.json", "application/json", JSON.stringify({ format: "cfop-solver-studio/report@1", exportedAt: new Date().toISOString(), totalMoves: result.trace.length, algorithm: result.algorithm, phases: result.phases, trace: result.trace }, null, 2)); }
 function exportCFOPImage(result: SolverResult, language: "vi" | "en", options: { ownerName: string; background: string }) {
   const vi = language === "vi";
@@ -74,6 +79,7 @@ export default function Home() {
   const { language, setLanguage, t } = useLanguage();
   const [mode, setMode] = useState<"scramble" | "state">("scramble");
   const [crossColor, setCrossColor] = useState<CrossColor>("U");
+  const [opening, setOpening] = useState<OpeningMode>("cross");
   const [value, setValue] = useState(DEFAULT_SCRAMBLE);
   const [savedScramble, setSavedScramble] = useState(DEFAULT_SCRAMBLE);
   const [savedState, setSavedState] = useState(SOLVED_STATE);
@@ -107,6 +113,12 @@ export default function Home() {
       ?? null
     : null;
   const totalMoves = result?.trace.length ?? 0;
+  const openingOutcome = useMemo(() => {
+    const first = result?.phases[0];
+    if (!first) return null;
+    if (first.name.startsWith("xcross_")) return { kind: "xcross" as const, slot: first.name.slice("xcross_".length), moves: first.moves.length };
+    return { kind: "cross" as const, slot: null, moves: first.moves.length };
+  }, [result]);
 
   useEffect(() => {
     if (!playing || !result) return;
@@ -139,7 +151,7 @@ export default function Home() {
     setPlaying(false);
     setError("");
     try {
-      const next = await solveInBrowser(mode, value.trim(), crossColor);
+      const next = await solveInBrowser(mode, value.trim(), crossColor, opening);
       setResult(next);
       setCursor(0);
       if (mode === "state") rememberRecentState(value.trim(), crossColor);
@@ -223,8 +235,8 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="mt-7 grid gap-7 xl:grid-cols-[330px_minmax(0,1fr)_360px]">
-          <aside className="space-y-5 xl:sticky xl:top-5 xl:h-fit">
+        <section className="studio-workbench mt-7 grid gap-7 xl:grid-cols-[330px_minmax(0,1fr)_360px]">
+          <aside className="studio-control-stack space-y-5 xl:sticky xl:top-5 xl:h-fit">
             <div className="studio-support-panel scorecard overflow-hidden rounded-[3px] border-2 border-[#17221d] bg-white shadow-[7px_7px_0_#17221d]">
               <div className="studio-input-header flex h-28 items-center justify-between border-b-2 border-[#17221d]/15 px-5"><div><p className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">STATE INPUT</p><p className="mt-1 text-sm font-black tracking-[-0.03em]">54 STICKER · 6 FACES</p></div><img src="/manus-storage/cfop-studio-mark_62473f8e.png" alt="CFOP cube mark" className="h-16 w-16 rounded-xl border-2 border-[#17221d] bg-[#f4f0e8] p-1 shadow-[3px_3px_0_#1ba77a]" /></div>
               <div className="p-5">
@@ -237,6 +249,11 @@ export default function Home() {
                   <div className="mt-2 grid grid-cols-6 gap-1.5" role="radiogroup" aria-label={language === "vi" ? "Chọn màu Cross" : "Choose Cross color"}>{CROSS_COLORS.map((item) => <button key={item.value} type="button" role="radio" aria-checked={crossColor === item.value} aria-label={language === "vi" ? `Cross ${item.vi}` : `Cross ${item.en}`} onClick={() => setCrossColor(item.value)} className={cn("grid aspect-square place-items-center rounded-sm border-2 transition", crossColor === item.value ? "border-[#17221d] bg-[#17221d] shadow-[2px_2px_0_#1ba77a]" : "border-[#17221d]/20 bg-white hover:border-[#17221d]")}><span className="h-5 w-5 rounded-sm border border-[#17221d]/40" style={{ backgroundColor: item.hex }} /></button>)}</div>
                   <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/50">{language === "vi" ? "Trắng là mặc định. Solver giữ các bước Cross → F2L → OLL → PLL theo màu đã chọn." : "White is the default. The solver keeps Cross → F2L → OLL → PLL for the selected color."}</p>
                 </div>
+                <div className="border-b border-[#17221d]/15 py-3">
+                  <div className="flex items-center justify-between gap-3"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#17221d]/60">{language === "vi" ? "MỞ ĐẦU" : "OPENING"}</p><span className="font-mono text-[9px] font-bold text-[#1b7b5e]">{opening === "auto" ? "XCROSS AUTO" : "CROSS"}</span></div>
+                  <div className="mt-2 grid grid-cols-2 gap-1 rounded-sm border-2 border-[#17221d]/15 p-1"><button type="button" onClick={() => setOpening("cross")} className={cn("rounded-sm px-2 py-2 font-mono text-[10px] font-bold uppercase", opening === "cross" ? "bg-[#17221d] text-[#f4f0e8]" : "text-[#17221d]/55 hover:bg-[#f4f0e8]")}>Cross</button><button type="button" onClick={() => setOpening("auto")} className={cn("rounded-sm px-2 py-2 font-mono text-[10px] font-bold uppercase", opening === "auto" ? "bg-[#1ba77a] text-[#17221d]" : "text-[#17221d]/55 hover:bg-[#f4f0e8]")}>Auto XCross</button></div>
+                  <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/50">{language === "vi" ? "Auto thử Cross + một F2L; quá budget sẽ tự dùng Cross chuẩn." : "Auto tries Cross + one F2L pair; it safely falls back to standard Cross when over budget."}</p>
+                </div>
                 <label className="mt-5 block font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#17221d]/60">{mode === "scramble" ? t("input.label") : language === "vi" ? "TÔ TRẠNG THÁI 6 MẶT" : "PAINT SIX-FACE STATE"}</label>
                 {mode === "scramble" ? <textarea value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); }} spellCheck={false} className="mt-2 min-h-28 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" /> : <><div className="mt-2"><CubeStateEditor state={value} onChange={applyStateEdit} disabled={loading} canUndo={stateHistory.current.past.length > 0} canRedo={stateHistory.current.future.length > 0} onUndo={undoStateEdit} onRedo={redoStateEdit} /></div><div className={cn("mt-3 border-2 p-3 font-mono text-[10px] leading-5", stateValidation?.valid ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/30 bg-[#d95743]/10 text-[#8b2d21]")}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div>{recentStates.length > 0 && <div className="mt-3 border-t border-[#17221d]/12 pt-3"><p className="flex items-center gap-1 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-[#17221d]/55"><History className="h-3 w-3" />{language === "vi" ? "STATE GẦN ĐÂY" : "RECENT STATES"}</p><div className="mt-2 space-y-1">{recentStates.map((item) => <div key={item.id} className="flex items-center gap-1 rounded-sm border border-[#17221d]/12 bg-[#f4f0e8] p-1"><button type="button" onClick={() => loadRecentState(item)} className="min-w-0 flex-1 truncate px-2 py-1 text-left font-mono text-[9px] font-bold hover:text-[#1b7b5e]">{item.label}</button><button type="button" onClick={() => removeRecentState(item.id)} aria-label={language === "vi" ? `Xóa ${item.label}` : `Remove ${item.label}`} className="rounded-sm p-1.5 text-[#17221d]/45 hover:bg-[#d95743]/10 hover:text-[#9b3023]"><Trash2 className="h-3 w-3" /></button></div>)}</div></div>}<details className="mt-3"><summary className="cursor-pointer font-mono text-[9px] font-bold tracking-[0.12em] text-[#17221d]/55">{language === "vi" ? "DÁN CHUỖI 54 STICKER" : "PASTE 54-STICKER STATE"}</summary><textarea value={value} onChange={(event) => applyStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())} spellCheck={false} className="mt-2 min-h-20 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-white p-3 font-mono text-xs outline-none transition focus:border-[#1ba77a]" /></details></>}
                 {error && <p className="mt-3 rounded-lg bg-[#d95743]/10 p-3 font-mono text-xs leading-5 text-[#9b3023]">{error}</p>}
@@ -248,7 +265,7 @@ export default function Home() {
             <CameraScanner onState={(state) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(state); setSavedState(state); setResult(null); setCursor(0); setError(""); }} />
           </aside>
 
-          <section className="min-w-0">
+          <section className="studio-stage-column min-w-0">
             <div className="studio-solver-apparatus scorecard rounded-[3px] border-2 border-[#17221d] bg-white p-5 shadow-[9px_9px_0_rgba(23,34,29,0.16)] sm:p-8">
               <div className="flex flex-wrap items-start justify-between gap-6">
                 <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{t("guide.step")} · {String(cursor).padStart(2, "0")} / {String(totalMoves).padStart(2, "0")}</p><h2 className="mt-2 text-3xl font-bold tracking-[-0.055em] sm:text-4xl">{activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
@@ -261,6 +278,7 @@ export default function Home() {
                 <button onClick={() => updateCursor(Math.min(totalMoves, cursor + 1))} disabled={!result || cursor === totalMoves} className="control-button">{t("guide.next")}<ArrowRight className="h-4 w-4" /></button>
                 <button onClick={() => { setCursor(0); setPlaying(false); }} disabled={!result} className="ml-auto flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#17221d]/55 transition hover:text-[#17221d] disabled:opacity-40"><RotateCcw className="h-3.5 w-3.5" />{t("guide.reset")}</button>
               </div>
+              {openingOutcome && <div className={cn("mt-4 flex flex-wrap items-center justify-between gap-3 border-2 px-4 py-3", openingOutcome.kind === "xcross" ? "border-[#1ba77a]/50 bg-[#1ba77a]/10" : "border-[#17221d]/12 bg-[#f4f0e8]")}><div><p className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-[#17221d]/55">{language === "vi" ? "KẾT QUẢ OPENING" : "OPENING OUTCOME"}</p><p className="mt-1 text-sm font-black">{openingOutcome.kind === "xcross" ? `XCross · F2L ${openingOutcome.slot}` : "Cross chuẩn"}</p></div><span className={cn("font-mono text-[10px] font-bold", openingOutcome.kind === "xcross" ? "text-[#1b7b5e]" : "text-[#17221d]/55")}>{openingOutcome.kind === "xcross" ? `${openingOutcome.moves} ${language === "vi" ? "nước · Cross + pair" : "moves · Cross + pair"}` : opening === "auto" ? (language === "vi" ? "AUTO FALLBACK · CROSS" : "AUTO FALLBACK · CROSS") : `${openingOutcome.moves} ${t("guide.moves")}`}</span></div>}
               <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]"><div className="flex items-center gap-4"><input aria-label="Chọn move trong trace" type="range" min="0" max={Math.max(0, totalMoves)} value={cursor} onChange={(event) => updateCursor(Number(event.target.value))} className="min-w-0 flex-1 accent-[#1ba77a]" /><span className="min-w-16 text-right font-mono text-xs font-bold">{cursor} moves</span></div><label className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#17221d]/60">Speed {playbackSpeed.toFixed(2)}×<input aria-label="Playback speed" type="range" min="0.5" max="2" step="0.25" value={playbackSpeed} onChange={(event) => setPlaybackSpeed(Number(event.target.value))} className="w-24 accent-[#1ba77a]" /></label></div>
               {result && <div className="mt-4 flex flex-wrap gap-1.5 border-t border-[#17221d]/10 pt-4">{result.phases.map((phase) => <button key={phase.name} onClick={() => updateCursor(phase.end)} className={cn("rounded-sm border px-2 py-1 font-mono text-[10px] font-bold transition", activePhase?.name === phase.name ? "border-[#17221d] bg-[#1ba77a] text-[#17221d]" : "border-[#17221d]/15 bg-[#f4f0e8] hover:border-[#17221d]")}>{simplePhase(phase.name, language)}</button>)}</div>}
             </div>
@@ -268,9 +286,9 @@ export default function Home() {
             <div className="scorecard mt-7 rounded-[1rem] border-2 border-[#17221d] bg-[#17221d] p-5 text-[#f4f0e8] sm:p-6"><div className="tick-ruler" /><div className="flex items-center justify-between gap-4"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">{t("guide.list")}</p><p className="mt-1 text-lg font-bold">{language === "vi" ? "Chạm vào một nước xoay để xem lại." : "Tap a move to review it."}</p></div><Braces className="h-5 w-5 text-[#f4f0e8]/55" /></div><div className="mt-4 flex flex-wrap gap-1.5">{result ? result.trace.map((step, index) => <button key={`${step.index}-${step.move}`} onClick={() => updateCursor(index + 1)} className={cn("rounded-md px-2 py-1 font-mono text-xs transition", cursor === index + 1 ? "bg-[#1ba77a] font-bold text-[#17221d]" : "bg-white/10 text-[#f4f0e8]/75 hover:bg-white/20")}>{step.move}</button>) : <span className="font-mono text-xs text-[#f4f0e8]/45">{language === "vi" ? "Các nước xoay sẽ hiện ở đây." : "Moves will appear here."}</span>}</div></div>
           </section>
 
-          <aside className="space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2">
+          <aside className="studio-telemetry-column space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2">
             <div className="grid grid-cols-3 gap-2"><Stat label={t("status.moves")} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="h-4 w-4" />} /><Stat label={t("status.steps")} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="h-4 w-4" />} /><Stat label={t("status.ok")} value={result ? "✓" : "—"} icon={<ShieldCheck className="h-4 w-4" />} /></div>
-            <div className="studio-phase-telemetry telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-white p-4 shadow-[5px_5px_0_rgba(23,34,29,0.13)]"><div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("guide.title")}</p><span className="font-mono text-[10px] text-[#1ba77a]">{t("status.ready")}</span></div><div className="mt-4 space-y-2">{result ? result.phases.map((phase) => { const selected = activePhase?.name === phase.name || cursor === phase.end; return <button key={phase.name} onClick={() => updateCursor(phase.end)} className={cn("group flex w-full items-center gap-3 rounded-md border p-3 text-left transition", selected ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/10 hover:border-[#17221d] hover:bg-[#f4f0e8]")}><span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-sm font-mono text-[11px] font-bold", PHASE_COLORS[phase.name] ?? "bg-[#17221d] text-white")}>{phase.name === "oll" ? "O" : phase.name === "pll" ? "P" : phase.name.startsWith("f2l") ? "F" : "X"}</span><span className="min-w-0 flex-1"><span className="block text-sm font-bold">{simplePhase(phase.name, language)}</span><span className="block truncate font-mono text-[10px] text-[#17221d]/50">{phase.moves.length} {t("guide.moves")}{phase.case_id && phase.case_id !== "solved" ? ` · ${phase.case_id}` : ""}</span></span><Check className="h-4 w-4 text-[#1ba77a]" /></button>; }) : ["Cross", "F2L 1", "F2L 2", "F2L 3", "F2L 4", "OLL", "PLL"].map((label, index) => <div key={label} className="flex items-center gap-3 rounded-md border border-[#17221d]/10 bg-[#f4f0e8] p-3 text-[#17221d]/45"><span className="grid h-9 w-9 place-items-center rounded-sm border-l-4 border-[#17221d]/35 bg-white font-mono text-xs">{String(index + 1).padStart(2, "0")}</span><span className="text-sm font-bold">{label}</span></div>)}</div></div>
+            <div className="studio-phase-telemetry studio-phase-ladder telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-white p-4 shadow-[5px_5px_0_rgba(23,34,29,0.13)]"><div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("guide.title")}</p><span className="font-mono text-[10px] text-[#1ba77a]">{t("status.ready")}</span></div><div className="mt-4 space-y-2">{result ? result.phases.map((phase) => { const selected = activePhase?.name === phase.name || cursor === phase.end; return <button key={phase.name} onClick={() => updateCursor(phase.end)} className={cn("group flex w-full items-center gap-3 rounded-md border p-3 text-left transition", selected ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/10 hover:border-[#17221d] hover:bg-[#f4f0e8]")}><span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-sm font-mono text-[11px] font-bold", PHASE_COLORS[phase.name] ?? "bg-[#17221d] text-white")}>{phase.name === "oll" ? "O" : phase.name === "pll" ? "P" : phase.name.startsWith("f2l") ? "F" : "X"}</span><span className="min-w-0 flex-1"><span className="block text-sm font-bold">{simplePhase(phase.name, language)}</span><span className="block truncate font-mono text-[10px] text-[#17221d]/50">{phase.moves.length} {t("guide.moves")}{phase.case_id && phase.case_id !== "solved" ? ` · ${phase.case_id}` : ""}</span></span><Check className="h-4 w-4 text-[#1ba77a]" /></button>; }) : ["Cross", "F2L 1", "F2L 2", "F2L 3", "F2L 4", "OLL", "PLL"].map((label, index) => <div key={label} className="flex items-center gap-3 rounded-md border border-[#17221d]/10 bg-[#f4f0e8] p-3 text-[#17221d]/45"><span className="grid h-9 w-9 place-items-center rounded-sm border-l-4 border-[#17221d]/35 bg-white font-mono text-xs">{String(index + 1).padStart(2, "0")}</span><span className="text-sm font-bold">{label}</span></div>)}</div></div>
             <div className="telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-[#e9e3d6] p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("check.title")}</p><div className="mt-3 space-y-2 font-mono text-xs"><div className="flex justify-between border-b-2 border-[#17221d]/10 pb-2"><span>{t("check.oll")}</span><b>57 / 57</b></div><div className="flex justify-between border-b-2 border-[#17221d]/10 pb-2"><span>{t("check.pll")}</span><b>21 / 21</b></div><div className="flex justify-between"><span>{t("check.turns")}</span><b className="text-[#1b7b5e]">4 × 100%</b></div></div></div>
           </aside>
         </section>
@@ -289,6 +307,8 @@ function CFOPReport({ result, language, activePhase, onSelectPhase }: { result: 
   const totalValid = result.phases.filter((phase) => phase.valid_after && phase.predicate_after).length;
   const [ownerName, setOwnerName] = useState(() => localStorage.getItem("cfop-report-owner") ?? "");
   const [pngBackground, setPngBackground] = useState(() => localStorage.getItem("cfop-report-background") ?? "#f4f0e8");
+  const openingPhase = result.phases[0];
+  const xcrossSlot = openingPhase?.name.startsWith("xcross_") ? openingPhase.name.slice("xcross_".length) : null;
 
   useEffect(() => localStorage.setItem("cfop-report-owner", ownerName), [ownerName]);
   useEffect(() => localStorage.setItem("cfop-report-background", pngBackground), [pngBackground]);
@@ -298,7 +318,7 @@ function CFOPReport({ result, language, activePhase, onSelectPhase }: { result: 
       <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#17221d]/10 pb-4">
         <div>
           <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">CFOP · {vi ? "BÁO CÁO LỜI GIẢI" : "SOLUTION REPORT"}</p>
-          <h3 className="mt-1 text-xl font-black tracking-[-0.05em]">{result.trace.length} {vi ? "nước xoay · 7 phase kiểm tra" : "moves · 7 verified phases"}</h3>
+          <h3 className="mt-1 text-xl font-black tracking-[-0.05em]">{result.trace.length} {vi ? `nước xoay · ${result.phases.length} phase kiểm tra` : `moves · ${result.phases.length} verified phases`}</h3>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button type="button" onClick={() => exportCFOPJson(result)} className="inline-flex items-center gap-1 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2 py-2 font-mono text-[9px] font-bold hover:border-[#17221d]"><FileJson className="h-3.5 w-3.5" />JSON</button>
@@ -310,6 +330,7 @@ function CFOPReport({ result, language, activePhase, onSelectPhase }: { result: 
         <label className="flex items-center gap-2 font-mono text-[9px] font-bold text-[#17221d]/60">{vi ? "TÊN TRÊN PNG" : "PNG NAME"}<input value={ownerName} onChange={(event) => setOwnerName(event.target.value.slice(0, 42))} placeholder={vi ? "Tùy chọn" : "Optional"} className="w-36 rounded-sm border border-[#17221d]/20 bg-white px-2 py-1 font-sans text-xs outline-none focus:border-[#1ba77a]" /></label>
         <label className="flex items-center gap-2 font-mono text-[9px] font-bold text-[#17221d]/60">{vi ? "NỀN" : "BACKGROUND"}<input aria-label={vi ? "Màu nền PNG" : "PNG background color"} type="color" value={pngBackground} onChange={(event) => setPngBackground(event.target.value)} className="h-7 w-9 cursor-pointer rounded-sm border border-[#17221d]/20 bg-white p-1" /></label>
       </div>
+      {openingPhase && <div className={cn("mt-3 flex flex-wrap items-center justify-between gap-3 border-l-4 p-3", xcrossSlot ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/30 bg-[#f4f0e8]")}><div><p className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-[#17221d]/55">{vi ? "CHIẾN LƯỢC OPENING" : "OPENING STRATEGY"}</p><p className="mt-1 text-sm font-black">{xcrossSlot ? `XCross · ${xcrossSlot}` : "Cross"}</p></div><p className="max-w-md text-right font-mono text-[10px] leading-4 text-[#17221d]/60">{xcrossSlot ? (vi ? `Cross và cặp F2L ${xcrossSlot} đã hoàn tất cùng pha; ba slot còn lại tiếp tục theo invariant.` : `Cross and F2L ${xcrossSlot} were completed in one phase; the remaining three slots preserve that invariant.`) : (vi ? "Không có XCross trong budget; solver tiếp tục Cross chuẩn mà không giảm độ tin cậy." : "No XCross fit the budget; the solver continued with standard Cross without reducing reliability.")}</p></div>}
       <div className="mt-4 space-y-2">
         {result.phases.map((phase, index) => <CFOPPhaseRow key={phase.name} phase={phase} index={index} language={language} selected={activePhase === phase.name} onSelect={onSelectPhase} />)}
       </div>

@@ -64,6 +64,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 export function useLanguage() { return useContext(Context); }
 
 export function simplePhase(name: string, language: Language) {
+  if (name.startsWith("xcross_")) {
+    const slot = name.slice("xcross_".length);
+    return language === "vi" ? `XCross · F2L ${slot}` : `XCross · F2L ${slot}`;
+  }
   const values: Record<string, [string, string]> = {
     cross: ["Cross", "Cross"],
     f2l_FR: ["F2L 1", "F2L 1"], f2l_FL: ["F2L 2", "F2L 2"],

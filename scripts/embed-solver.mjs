@@ -12,6 +12,7 @@ const files = [
   "validation.py",
   "predicates.py",
   "f2l_macros.py",
+  "f2l_symmetry.py",
   "cross_table.py",
   "search.py",
   "phases.py",

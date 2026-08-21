@@ -75,3 +75,6 @@
 - Studio đặt solver/cube stage làm apparatus duy nhất ở cường độ tối đa; input và phase sidebar dùng record-sheet nhạt hơn. Solver Mint chỉ báo state hiện hành, action hợp lệ và O-notch trong lockup.
 - Giọng Studio là vận hành kỹ thuật: “Kiểm tra trạng thái. Chạy chuỗi CFOP.”, “Kiểm tra & giải CFOP”, “Bàn giải sẵn sàng”; tránh lời hứa học tập chung chung. Rail/tick chỉ gắn với phase, state, move hoặc device status.
 - Studio không dùng ảnh cube stock ở panel nhập: cube mark isometric và state surface grid là hệ hình ảnh thống nhất. Move log là telemetry giấy nhạt; chỉ cube/solver stage được dùng dark-ink apparatus với shadow mạnh.
+- Studio desktop luôn đọc thành workbench ba vùng bất đối xứng bằng CSS rõ ràng: control hẹp trái, solver/cube stage lớn giữa, phase ladder/telemetry hẹp phải; không để ba vùng dồn thành chuỗi card cùng trọng lượng.
+- Phase guide ở Studio là measurement ladder: rail dọc mint, phase brick, counter và trạng thái invariant được gắn trực tiếp với từng pha; mọi placeholder cũng giữ cấu trúc score strip này.
+- Wordmark Studio tăng cường độ như nhãn thiết bị; O-notch mint lớn vừa đủ để nhận diện ở lần đọc đầu mà không phá tính liên tục của CFOP.

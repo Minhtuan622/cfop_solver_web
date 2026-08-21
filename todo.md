@@ -181,3 +181,28 @@
 - [x] Gắn liên kết trực tiếp từ tooltip Cross/F2L/OLL/PLL đến bài học hoặc công thức tóm tắt tương ứng.
 - [x] Cho phép đặt tên cá nhân và chọn màu nền trước khi tải PNG report.
 - [x] Kiểm tra local storage client-side, deep link, responsive, TypeScript và production build; export dùng Blob/Canvas trong trình duyệt.
+
+## Nghiên cứu XCross và F2L bốn hướng
+
+- [x] Đọc search/cubie model hiện tại để xác định predicate Cross, XCross và các slot F2L.
+- [x] Thu thập nguồn kỹ thuật về XCross, slot orientation và heuristic/search F2L.
+- [x] Thiết kế state target, invariant, coordinate/heuristic và thứ tự fallback cho XCross.
+- [x] Đề xuất thuật toán giải bốn slot F2L theo orientation/cross color, có so sánh hiệu năng và lộ trình tích hợp.
+- [x] Viết báo cáo nghiên cứu có citation và danh sách thay đổi mã nguồn đề xuất.
+
+## Implementation XCross, opening auto và F2L bốn hướng
+
+- [x] Thiết kế API `opening`, budget search XCross, fallback Cross và bộ scramble benchmark cố định.
+- [x] Thêm predicate XCross, solver tracked-cubie Cross+slot và chọn candidate slot tốt nhất.
+- [x] Viết module sinh macro F2L `FR → FL/BL/BR` bằng y-conjugation được cube engine kiểm chứng.
+- [x] Tích hợp `opening="auto"` vào solve pipeline, commit XCross và chạy ba slot F2L còn lại.
+- [x] Viết test XCross, symmetry macro, six cross colors (2-look), fallback và regression 57 OLL/21 PLL.
+- [x] Chạy benchmark Cross thường/XCross trên cùng scramble, ghi latency/move count/fallback rate.
+
+## Tích hợp XCross vào CFOP Studio
+
+- [x] Đồng bộ source Python XCross/F2L symmetry vào Pyodide worker và mở rộng protocol `opening`.
+- [x] Thêm control Studio chọn Cross thường hoặc Auto XCross, giữ mặc định tương thích.
+- [x] Hiển thị phase XCross, slot F2L được hoàn tất, fallback Cross và move count trong báo cáo.
+- [x] Đồng bộ playback Cube 3D và điều hướng phase với tên `xcross_<slot>`.
+- [x] Kiểm tra solve end-to-end qua web worker, responsive Studio, typecheck, build và checkpoint.

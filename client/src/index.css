@@ -596,6 +596,61 @@
   .min-w-0 > .scorecard:last-child .tick-ruler { opacity: .2; }
   .min-w-0 > .scorecard:last-child p, .min-w-0 > .scorecard:last-child span { color: rgb(23 34 29 / .68) !important; }
   .min-w-0 > .scorecard:last-child p.mt-1 { color: #17221d !important; }
+  /* Studio workbench pass: only the center solver is a full-intensity device. */
+  .studio-control-stack .studio-support-panel,
+  .studio-control-stack .scanner-plate,
+  .studio-telemetry-column .telemetry-panel {
+    box-shadow: 2px 2px 0 rgb(23 34 29 / .10) !important;
+  }
+  .studio-control-stack .studio-support-panel {
+    border-color: rgb(23 34 29 / .58) !important;
+    background-image: linear-gradient(90deg, rgb(23 34 29 / .018) 1px, transparent 1px) !important;
+    background-size: 24px 24px !important;
+  }
+  .studio-solver-apparatus {
+    border-width: 3px !important;
+    box-shadow: 16px 16px 0 #17221d !important;
+  }
+  .studio-solver-apparatus > div:nth-child(2) {
+    min-height: 320px;
+    border-color: rgb(23 34 29 / .38) !important;
+  }
+  .studio-phase-ladder > div:nth-child(2) {
+    position: relative;
+    padding-left: .65rem;
+  }
+  .studio-phase-ladder > div:nth-child(2)::before {
+    position: absolute;
+    top: .35rem;
+    bottom: .35rem;
+    left: .1rem;
+    width: 3px;
+    background: repeating-linear-gradient(to bottom, #1ba77a 0 8px, transparent 8px 14px);
+    content: "";
+  }
+  .studio-phase-ladder > div:nth-child(2) > button,
+  .studio-phase-ladder > div:nth-child(2) > div {
+    min-height: 58px;
+    border-radius: 0 !important;
+    box-shadow: inset 3px 0 0 rgb(23 34 29 / .10);
+  }
+  .studio-wordmark {
+    font-size: clamp(.96rem, 1.25vw, 1.16rem) !important;
+    letter-spacing: .045em !important;
+  }
+  .studio-wordmark .wordmark-o::before {
+    width: .36em;
+    height: .16em;
+    bottom: -.01em;
+  }
+  @media (min-width: 1180px) {
+    .studio-workbench {
+      grid-template-columns: minmax(260px, 280px) minmax(0, 1fr) minmax(285px, 320px) !important;
+      align-items: start;
+    }
+    .studio-stage-column { min-width: 560px; }
+    .studio-control-stack .studio-input-header { height: 5.5rem; }
+  }
   .timer-lab-stack .timer-run-panel .timer-card::before { display: block; margin-bottom: .8rem; color: #1ba77a; content: "STOPWATCH / INSPECTION"; font-family: "IBM Plex Mono", monospace; font-size: .62rem; font-weight: 800; letter-spacing: .16em; }
   @media (max-width: 700px) {
     .timer-lab-stack .inspection-cube-wrap .cube3d-guide { min-height: 290px; }
