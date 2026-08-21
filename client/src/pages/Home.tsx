@@ -1,8 +1,9 @@
 /**
  * Xưởng Cơ Khí Tốc Độ — asymmetrical workbench, mono telemetry and cube-state
- * signals make the CFOP solution readable as an instrument panel.
+ * signals make the CFOP solution readable as an instrument panel; phase changes
+ * use a brief relay rather than a distracting full-cube spin.
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft, ArrowRight, Braces, Check, ChevronRight, CircleGauge, ClipboardCopy,
   Cpu, ExternalLink, FileJson, History, ImageDown, Info, Loader2, Play, RotateCcw, ShieldCheck, Sparkles, Trash2,
@@ -35,6 +36,8 @@ const PHASE_COLORS: Record<string, string> = {
   oll: "bg-[#f4f0e8] text-[#17221d]",
   pll: "bg-[#17221d] text-[#f4f0e8]",
 };
+type CubeMotionKind = "idle" | "move" | "seek" | "phase" | "reset";
+type CursorIntent = "step" | "playback" | "seek" | "phase" | "reset";
 const CROSS_COLORS: { value: CrossColor; vi: string; en: string; hex: string }[] = [
   { value: "U", vi: "Trắng", en: "White", hex: "#f7f3e9" },
   { value: "D", vi: "Vàng", en: "Yellow", hex: "#e7c34f" },
@@ -94,10 +97,13 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [cubeMotion, setCubeMotion] = useState<{ id: number; kind: CubeMotionKind; direction: "forward" | "backward"; phaseName?: string }>({ id: 0, kind: "idle", direction: "forward" });
   const [error, setError] = useState("");
   const [stateValidation, setStateValidation] = useState<CubeValidation | null>(null);
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() => { try { const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is RecentCubeState => typeof item?.state === "string" && item.state.length === 54).slice(0, 8) : []; } catch { return []; } });
   const stateHistory = useRef<{ past: string[]; future: string[] }>({ past: [], future: [] });
+  const cursorRef = useRef(0);
+  const motionIdRef = useRef(0);
   const [, setStateHistoryVersion] = useState(0);
 
   const previewState = useMemo(() => {
@@ -127,20 +133,35 @@ export default function Home() {
     return { kind: "cross" as const, slot: null, moves: first.moves.length };
   }, [result]);
   const activeXCrossSlots = activePhase?.name.startsWith("xxcross_") ? activePhase.name.slice("xxcross_".length).split("_") : activePhase?.name.startsWith("xcross_") ? [activePhase.name.slice("xcross_".length)] : undefined;
+  const phaseNameAt = useCallback((position: number) => {
+    if (!result || position <= 0) return undefined;
+    return result.phases.find((phase) => position > phase.start && position <= phase.end)?.name
+      ?? result.phases.find((phase) => phase.end === position)?.name;
+  }, [result]);
+  const updateCursor = useCallback((next: number, intent: CursorIntent = "seek") => {
+    const limit = result?.trace.length ?? 0;
+    const target = Math.max(0, Math.min(limit, next));
+    const previous = cursorRef.current;
+    if (target === previous) return;
+    const direction = target >= previous ? "forward" as const : "backward" as const;
+    const fromPhase = phaseNameAt(previous);
+    const toPhase = phaseNameAt(target);
+    const distance = Math.abs(target - previous);
+    const kind: CubeMotionKind = intent === "reset" || target === 0 ? "reset" : intent === "phase" || (distance > 1 && fromPhase !== toPhase) ? "phase" : distance === 1 ? "move" : "seek";
+    cursorRef.current = target;
+    setCubeMotion({ id: ++motionIdRef.current, kind, direction, phaseName: toPhase });
+    setCursor(target);
+  }, [phaseNameAt, result]);
 
   useEffect(() => {
     if (!playing || !result) return;
     const id = window.setInterval(() => {
-      setCursor((previous) => {
-        if (previous >= result.trace.length) {
-          setPlaying(false);
-          return previous;
-        }
-        return previous + 1;
-      });
+      const next = cursorRef.current + 1;
+      if (next > result.trace.length) { setPlaying(false); return; }
+      updateCursor(next, "playback");
     }, Math.max(100, Math.round(360 / playbackSpeed)));
     return () => window.clearInterval(id);
-  }, [playbackSpeed, playing, result]);
+  }, [playbackSpeed, playing, result, updateCursor]);
 
   useEffect(() => {
     if (mode !== "state") { setStateValidation(null); return; }
@@ -161,6 +182,8 @@ export default function Home() {
     try {
       const next = await solveInBrowser(mode, value.trim(), crossColor, opening, { preferredSlot, excludedSlots });
       setResult(next);
+      cursorRef.current = 0;
+      setCubeMotion({ id: ++motionIdRef.current, kind: "reset", direction: "forward" });
       setCursor(0);
       if (mode === "state") rememberRecentState(value.trim(), crossColor);
     } catch (reason) {
@@ -178,7 +201,7 @@ export default function Home() {
   };
   const loadRecentState = (item: RecentCubeState) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(item.state); setSavedState(item.state); setCrossColor(item.crossColor); setResult(null); setCursor(0); setError(""); };
   const removeRecentState = (id: string) => { const next = recentStates.filter((item) => item.id !== id); setRecentStates(next); localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(next)); };
-  const updateCursor = (next: number) => { setPlaying(false); setCursor(next); };
+  const selectCursor = (next: number, intent: CursorIntent = "seek") => { setPlaying(false); updateCursor(next, intent); };
   const applyStateEdit = (next: string) => {
     const current = value.length === 54 ? value : SOLVED_STATE;
     if (next === current) return;
@@ -225,14 +248,14 @@ export default function Home() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#f4f0e8] text-[#17221d]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
       <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
-        <header className="relative overflow-hidden rounded-[3px] border-2 border-[#17221d] bg-[#17221d] px-5 py-5 text-[#f4f0e8] shadow-[10px_10px_0_#1ba77a] sm:px-7">
+        <header className="studio-machine-header relative overflow-hidden rounded-[3px] border-2 border-[#17221d] bg-[#17221d] px-5 py-3.5 text-[#f4f0e8] shadow-[8px_8px_0_#1ba77a] sm:px-7">
           <img src="/manus-storage/cfop-blueprint-detail_a81f8345.png" alt="" className="absolute inset-0 h-full w-full object-cover opacity-[0.14] mix-blend-screen" />
           <div className="relative flex flex-wrap items-center justify-between gap-5">
             <div className="flex items-center gap-4">
-              <img src="/manus-storage/cfop-studio-mark_62473f8e.png" alt="CFOP Solver Studio" className="h-16 w-16 rounded-xl bg-[#f4f0e8] p-1.5 shadow-[3px_3px_0_#1ba77a]" />
+              <img src="/manus-storage/cfop-studio-mark_62473f8e.png" alt="CFOP Solver Studio" className="h-14 w-14 rounded-lg bg-[#f4f0e8] p-1.5 shadow-[3px_3px_0_#1ba77a]" />
               <div>
                 <p className="wordmark studio-wordmark font-mono text-[13px] font-bold uppercase text-[#1ba77a] sm:text-sm"><span>CF</span><span className="wordmark-o">O</span><span>P</span><span className="ml-2 text-[#f4f0e8]/80">Solver Studio</span></p>
-                <h1 className="mt-1 text-3xl font-black tracking-[-0.065em] sm:text-4xl">{t("app.tagline")}</h1>
+                <h1 className="mt-1 text-2xl font-black tracking-[-0.06em] sm:text-3xl">{t("app.tagline")}</h1>
               </div>
             </div>
             <div className="flex items-center gap-2 rounded-sm border border-[#f4f0e8]/20 bg-[#f4f0e8]/5 px-3 py-2 font-mono text-[11px]">
@@ -281,22 +304,22 @@ export default function Home() {
           <section className="studio-stage-column min-w-0">
             <div className="studio-solver-apparatus scorecard rounded-[3px] border-2 border-[#17221d] bg-white p-5 shadow-[9px_9px_0_rgba(23,34,29,0.16)] sm:p-8">
               <div className="flex flex-wrap items-start justify-between gap-6">
-                <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{t("guide.step")} · {String(cursor).padStart(2, "0")} / {String(totalMoves).padStart(2, "0")}</p><h2 className="mt-2 text-3xl font-bold tracking-[-0.055em] sm:text-4xl">{activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
+                <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{t("guide.step")} · {String(cursor).padStart(2, "0")} / {String(totalMoves).padStart(2, "0")}</p><h2 key={cubeMotion.kind === "phase" ? cubeMotion.id : activePhase?.name ?? "ready"} className={cn("studio-phase-title mt-2 text-3xl font-bold tracking-[-0.055em] sm:text-4xl", cubeMotion.kind === "phase" && "studio-phase-title-relay")}>{activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
                 <div className="rounded-sm border-2 border-[#17221d]/15 bg-[#f4f0e8] px-4 py-3 font-mono text-xs shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><p className="text-[#17221d]/45">{t("guide.move").toUpperCase()}</p><p className="mt-1 text-2xl font-bold text-[#1ba77a]">{currentStep?.move ?? "—"}</p></div>
               </div>
-              <div className="mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={currentState} /></div><Cube3DGuide state={currentState} previousState={previousState} move={currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} /></div>
+              <div className="mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={currentState} /></div><Cube3DGuide state={currentState} previousState={previousState} move={currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} /></div>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <button onClick={() => updateCursor(Math.max(0, cursor - 1))} disabled={cursor === 0} className="control-button"><ArrowLeft className="h-4 w-4" />{t("guide.previous")}</button>
+                <button onClick={() => selectCursor(Math.max(0, cursor - 1), "step")} disabled={cursor === 0} className="control-button"><ArrowLeft className="h-4 w-4" />{t("guide.previous")}</button>
                 <button onClick={() => setPlaying((value) => !value)} disabled={!result || cursor === totalMoves} className="flex items-center gap-2 rounded-lg bg-[#17221d] px-5 py-3 text-sm font-bold text-[#f4f0e8] transition hover:bg-[#26372e] active:scale-[0.97] disabled:opacity-40">{playing ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}{playing ? t("guide.pause") : t("guide.play")}</button>
-                <button onClick={() => updateCursor(Math.min(totalMoves, cursor + 1))} disabled={!result || cursor === totalMoves} className="control-button">{t("guide.next")}<ArrowRight className="h-4 w-4" /></button>
+                <button onClick={() => selectCursor(Math.min(totalMoves, cursor + 1), "step")} disabled={!result || cursor === totalMoves} className="control-button">{t("guide.next")}<ArrowRight className="h-4 w-4" /></button>
                 <button onClick={() => { setCursor(0); setPlaying(false); }} disabled={!result} className="ml-auto flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#17221d]/55 transition hover:text-[#17221d] disabled:opacity-40"><RotateCcw className="h-3.5 w-3.5" />{t("guide.reset")}</button>
               </div>
               {openingOutcome && <div className={cn("mt-4 flex flex-wrap items-center justify-between gap-3 border-2 px-4 py-3", openingOutcome.kind !== "cross" ? "border-[#1ba77a]/50 bg-[#1ba77a]/10" : "border-[#17221d]/12 bg-[#f4f0e8]")}><div><p className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-[#17221d]/55">{language === "vi" ? "KẾT QUẢ OPENING" : "OPENING OUTCOME"}</p><p className="mt-1 text-sm font-black">{openingOutcome.kind === "xxcross" ? `XXCross · F2L ${openingOutcome.slots.join(" + ")}` : openingOutcome.kind === "xcross" ? `XCross · F2L ${openingOutcome.slot}` : "Cross chuẩn"}</p></div><span className={cn("font-mono text-[10px] font-bold", openingOutcome.kind !== "cross" ? "text-[#1b7b5e]" : "text-[#17221d]/55")}>{openingOutcome.kind === "xxcross" ? `${openingOutcome.moves} ${language === "vi" ? "nước · Cross + 2 pair" : "moves · Cross + 2 pairs"}` : openingOutcome.kind === "xcross" ? `${openingOutcome.moves} ${language === "vi" ? "nước · Cross + pair" : "moves · Cross + pair"}` : opening !== "cross" ? "AUTO FALLBACK · CROSS" : `${openingOutcome.moves} ${t("guide.moves")}`}</span></div>}
-              <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]"><div className="flex items-center gap-4"><input aria-label="Chọn move trong trace" type="range" min="0" max={Math.max(0, totalMoves)} value={cursor} onChange={(event) => updateCursor(Number(event.target.value))} className="min-w-0 flex-1 accent-[#1ba77a]" /><span className="min-w-16 text-right font-mono text-xs font-bold">{cursor} moves</span></div><label className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#17221d]/60">Speed {playbackSpeed.toFixed(2)}×<input aria-label="Playback speed" type="range" min="0.5" max="2" step="0.25" value={playbackSpeed} onChange={(event) => setPlaybackSpeed(Number(event.target.value))} className="w-24 accent-[#1ba77a]" /></label></div>
-              {result && <div className="mt-4 flex flex-wrap gap-1.5 border-t border-[#17221d]/10 pt-4">{result.phases.map((phase) => <button key={phase.name} onClick={() => updateCursor(phase.end)} className={cn("rounded-sm border px-2 py-1 font-mono text-[10px] font-bold transition", activePhase?.name === phase.name ? "border-[#17221d] bg-[#1ba77a] text-[#17221d]" : "border-[#17221d]/15 bg-[#f4f0e8] hover:border-[#17221d]")}>{simplePhase(phase.name, language)}</button>)}</div>}
+              <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]"><div className="flex items-center gap-4"><input aria-label="Chọn move trong trace" type="range" min="0" max={Math.max(0, totalMoves)} value={cursor} onChange={(event) => selectCursor(Number(event.target.value), "seek")} className="min-w-0 flex-1 accent-[#1ba77a]" /><span className="min-w-16 text-right font-mono text-xs font-bold">{cursor} moves</span></div><label className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#17221d]/60">Speed {playbackSpeed.toFixed(2)}×<input aria-label="Playback speed" type="range" min="0.5" max="2" step="0.25" value={playbackSpeed} onChange={(event) => setPlaybackSpeed(Number(event.target.value))} className="w-24 accent-[#1ba77a]" /></label></div>
+              {result && <div className="mt-4 flex flex-wrap gap-1.5 border-t border-[#17221d]/10 pt-4">{result.phases.map((phase) => <button key={phase.name} onClick={() => selectCursor(phase.end, "phase")} className={cn("rounded-sm border px-2 py-1 font-mono text-[10px] font-bold transition", activePhase?.name === phase.name ? "border-[#17221d] bg-[#1ba77a] text-[#17221d]" : "border-[#17221d]/15 bg-[#f4f0e8] hover:border-[#17221d]")}>{simplePhase(phase.name, language)}</button>)}</div>}
             </div>
-            {result && <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} onSelectPhase={(phase) => updateCursor(phase.end)} />}
-            <div className="scorecard mt-7 rounded-[1rem] border-2 border-[#17221d] bg-[#17221d] p-5 text-[#f4f0e8] sm:p-6"><div className="tick-ruler" /><div className="flex items-center justify-between gap-4"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">{t("guide.list")}</p><p className="mt-1 text-lg font-bold">{language === "vi" ? "Chạm vào một nước xoay để xem lại." : "Tap a move to review it."}</p></div><Braces className="h-5 w-5 text-[#f4f0e8]/55" /></div><div className="mt-4 flex flex-wrap gap-1.5">{result ? result.trace.map((step, index) => <button key={`${step.index}-${step.move}`} onClick={() => updateCursor(index + 1)} className={cn("rounded-md px-2 py-1 font-mono text-xs transition", cursor === index + 1 ? "bg-[#1ba77a] font-bold text-[#17221d]" : "bg-white/10 text-[#f4f0e8]/75 hover:bg-white/20")}>{step.move}</button>) : <span className="font-mono text-xs text-[#f4f0e8]/45">{language === "vi" ? "Các nước xoay sẽ hiện ở đây." : "Moves will appear here."}</span>}</div></div>
+            {result && <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} />}
+            <div className="scorecard mt-7 rounded-[1rem] border-2 border-[#17221d] bg-[#17221d] p-5 text-[#f4f0e8] sm:p-6"><div className="tick-ruler" /><div className="flex items-center justify-between gap-4"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">{t("guide.list")}</p><p className="mt-1 text-lg font-bold">{language === "vi" ? "Chạm vào một nước xoay để xem lại." : "Tap a move to review it."}</p></div><Braces className="h-5 w-5 text-[#f4f0e8]/55" /></div><div className="mt-4 flex flex-wrap gap-1.5">{result ? result.trace.map((step, index) => <button key={`${step.index}-${step.move}`} onClick={() => selectCursor(index + 1, "seek")} className={cn("rounded-md px-2 py-1 font-mono text-xs transition", cursor === index + 1 ? "bg-[#1ba77a] font-bold text-[#17221d]" : "bg-white/10 text-[#f4f0e8]/75 hover:bg-white/20")}>{step.move}</button>) : <span className="font-mono text-xs text-[#f4f0e8]/45">{language === "vi" ? "Các nước xoay sẽ hiện ở đây." : "Moves will appear here."}</span>}</div></div>
           </section>
 
           <aside className="studio-telemetry-column space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2">

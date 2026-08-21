@@ -78,3 +78,6 @@
 - Studio desktop luôn đọc thành workbench ba vùng bất đối xứng bằng CSS rõ ràng: control hẹp trái, solver/cube stage lớn giữa, phase ladder/telemetry hẹp phải; không để ba vùng dồn thành chuỗi card cùng trọng lượng.
 - Phase guide ở Studio là measurement ladder: rail dọc mint, phase brick, counter và trạng thái invariant được gắn trực tiếp với từng pha; mọi placeholder cũng giữ cấu trúc score strip này.
 - Wordmark Studio tăng cường độ như nhãn thiết bị; O-notch mint lớn vừa đủ để nhận diện ở lần đọc đầu mà không phá tính liên tục của CFOP.
+- Header Studio là equipment label gọn, không cạnh tranh với solver/cube stage; dark ink lớn nhất luôn thuộc về apparatus trung tâm.
+- Input, phase guide, validation và move log dùng chung record-sheet giấy nhạt, border/shadow tiết chế; Solver Mint chỉ biểu đạt action, state hợp lệ và O-notch.
+- Lockup “CFOP Solver Studio” luôn đọc liền mạch; O-notch mint phải nhìn thấy ngay ở lần đọc đầu nhưng không tạo khoảng cách tách chữ.

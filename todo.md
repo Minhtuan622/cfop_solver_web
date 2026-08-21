@@ -223,3 +223,9 @@
 - [x] Viết regression invariant XXCross, fallback, macro symmetry và benchmark mở đầu bằng fixture cố định.
 - [x] Mở rộng protocol Pyodide/Studio để chọn Auto XXCross, hiển thị hai slot và highlight kép trên Cube 3D.
 - [x] Kiểm tra end-to-end, responsive, TypeScript, production build và checkpoint.
+
+## Chuyển bước Cube 3D mượt hơn
+
+- [x] Rà soát pipeline playback, layer-turn và điểm chuyển phase hiện có.
+- [x] Thêm hoạt ảnh chuyển nước xoay/phase mượt, có chỉ báo tiến trình dễ theo dõi và tôn trọng reduced motion.
+- [x] Kiểm tra điều khiển phát, bước trước/sau, chuyển phase, responsive, TypeScript, build và checkpoint.

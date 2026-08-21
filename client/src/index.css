@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Xưởng Cơ Khí Tốc Độ — cube motion is a restrained physical layer turn plus a mint phase relay. */
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -373,6 +375,18 @@
     overflow: hidden;
   }
 
+  .cube3d-motion-shell {
+    display: grid;
+    place-items: center;
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+  }
+  .cube3d-motion-move { animation: cube-move-settle 360ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .cube3d-motion-seek { animation: cube-seek-settle 260ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .cube3d-motion-phase { animation: cube-phase-relay 460ms cubic-bezier(0.77, 0, 0.175, 1) both; }
+  .cube3d-motion-reset { animation: cube-reset-settle 280ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .cube3d-motion-backward.cube3d-motion-move { animation-name: cube-move-settle-reverse; }
+
   .cube3d-model {
     position: relative;
     width: 118px;
@@ -409,7 +423,7 @@
     transform-origin: 59px 59px;
     transform-style: preserve-3d;
     pointer-events: none;
-    animation-duration: 520ms;
+    animation-duration: var(--turn-duration, 340ms);
     animation-fill-mode: both;
     animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
   }
@@ -493,6 +507,29 @@
     font-weight: 800;
     animation: badge-pop 420ms cubic-bezier(0.23, 1, 0.32, 1);
   }
+  .cube-turn-badge-phase { animation-duration: 260ms; }
+
+  .cube3d-phase-callout {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 6;
+    display: grid;
+    min-width: 128px;
+    gap: 2px;
+    border: 1px solid #17221d;
+    background: rgb(244 240 232 / .94);
+    padding: .5rem .65rem;
+    color: #17221d;
+    box-shadow: 4px 4px 0 #1ba77a;
+    font-family: "IBM Plex Mono", monospace;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: cube-phase-callout 620ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+  .cube3d-phase-callout span { color: #1b7b5e; font-size: .52rem; font-weight: 800; letter-spacing: .16em; }
+  .cube3d-phase-callout b { font-size: .72rem; line-height: 1.25; }
+  .studio-phase-title-relay { animation: studio-phase-title-relay 420ms cubic-bezier(0.23, 1, 0.32, 1) both; }
 
   .cube-mini-control, .history-back {
     display: inline-flex;
@@ -640,10 +677,38 @@
     letter-spacing: .045em !important;
   }
   .studio-wordmark .wordmark-o::before {
-    width: .36em;
-    height: .16em;
-    bottom: -.01em;
+    width: .48em;
+    height: .2em;
+    bottom: -.05em;
   }
+  .studio-machine-header::after {
+    position: absolute;
+    right: 1.1rem;
+    bottom: .7rem;
+    width: 72px;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, rgb(244 240 232 / .5) 0 1px, transparent 1px 7px);
+    content: "";
+    opacity: .55;
+  }
+  .studio-machine-header .wordmark { font-size: .78rem; letter-spacing: .06em !important; }
+  .studio-machine-header .wordmark-o { font-size: 1.06em; padding-bottom: .08em; }
+  .studio-machine-header h1 { max-width: 42rem; }
+  /* Supporting zones are record sheets; only the center solver owns a heavy apparatus silhouette. */
+  .studio-control-stack .studio-support-panel,
+  .studio-telemetry-column .studio-phase-telemetry,
+  .studio-telemetry-column > .telemetry-panel,
+  .studio-stage-column > .scorecard {
+    box-shadow: 2px 2px 0 rgb(23 34 29 / .09) !important;
+    border-color: rgb(23 34 29 / .52) !important;
+    background-color: #f8f5ed !important;
+  }
+  .studio-telemetry-column .studio-phase-telemetry,
+  .studio-telemetry-column > .telemetry-panel { background-image: linear-gradient(90deg, rgb(23 34 29 / .024) 1px, transparent 1px) !important; background-size: 24px 24px !important; }
+  .studio-control-stack .studio-input-header { border-bottom-color: rgb(23 34 29 / .12) !important; }
+  .studio-stage-column > .scorecard { color: #17221d !important; }
+  .studio-stage-column > .scorecard p, .studio-stage-column > .scorecard span { color: rgb(23 34 29 / .64) !important; }
+  .studio-stage-column > .scorecard p.mt-1 { color: #17221d !important; }
   @media (min-width: 1180px) {
     .studio-workbench {
       grid-template-columns: minmax(260px, 280px) minmax(0, 1fr) minmax(285px, 320px) !important;
@@ -750,9 +815,17 @@
     from { opacity: 0; transform: scale(.86) rotate(-8deg); }
     to { opacity: 1; transform: scale(1) rotate(0); }
   }
+  @keyframes cube-move-settle { 0% { opacity: .72; transform: translateY(4px) scale(.975); } 65% { opacity: 1; transform: translateY(-1px) scale(1.012); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes cube-move-settle-reverse { 0% { opacity: .72; transform: translateY(-4px) scale(.975); } 65% { opacity: 1; transform: translateY(1px) scale(1.012); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes cube-seek-settle { from { opacity: .58; transform: scale(.965); } to { opacity: 1; transform: scale(1); } }
+  @keyframes cube-phase-relay { 0% { opacity: .58; transform: translateX(-6px) scale(.94); } 54% { opacity: 1; transform: translateX(2px) scale(1.018); } 100% { opacity: 1; transform: translateX(0) scale(1); } }
+  @keyframes cube-reset-settle { from { opacity: .45; transform: scale(.94) rotateZ(-1deg); } to { opacity: 1; transform: scale(1) rotateZ(0); } }
+  @keyframes cube-phase-callout { 0% { opacity: 0; transform: translate(-50%, -42%) scale(.94); } 18%, 72% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -58%) scale(.98); } }
+  @keyframes studio-phase-title-relay { from { opacity: .2; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
 
   @media (prefers-reduced-motion: reduce) {
-    .cube3d-layer { animation: none; }
+    .cube3d-layer, .cube3d-motion-shell, .cube3d-phase-callout, .studio-phase-title-relay, .cube-turn-badge { animation: none !important; }
+    .cube3d-model { transition: none !important; }
   }
 
   @media (min-width: 640px) {
