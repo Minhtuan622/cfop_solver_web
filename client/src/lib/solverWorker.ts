@@ -25,7 +25,7 @@ async function getPyodide() {
   return pyodidePromise;
 }
 
-self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross"; preferredSlot?: string; excludedSlots?: string[] }>) => {
+self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross"; preferredSlot?: string; excludedSlots?: string[] }>) => {
   const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", preferredSlot, excludedSlots = [] } = event.data;
   try {
     const runtime = await getPyodide();

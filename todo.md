@@ -229,3 +229,11 @@
 - [x] Rà soát pipeline playback, layer-turn và điểm chuyển phase hiện có.
 - [x] Thêm hoạt ảnh chuyển nước xoay/phase mượt, có chỉ báo tiến trình dễ theo dõi và tôn trọng reduced motion.
 - [x] Kiểm tra điều khiển phát, bước trước/sau, chuyển phase, responsive, TypeScript, build và checkpoint.
+
+## XXXCross: Cross cộng ba slot F2L
+
+- [x] Khảo sát predicate, coordinate và benchmark budget cho Cross + ba slot F2L trong Python/Pyodide.
+- [x] Thiết kế search trên bốn bộ ba slot, ưu tiên/loại trừ slot và fallback XXXCross → XXCross → XCross → Cross.
+- [x] Triển khai solver, test invariant/regression sáu màu và benchmark latency/move count.
+- [x] Mở rộng protocol Pyodide/Studio, báo cáo phase và Cube 3D highlight ba slot F2L.
+- [x] Kiểm tra browser end-to-end, responsive, TypeScript, production build và checkpoint.

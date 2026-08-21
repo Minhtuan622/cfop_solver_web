@@ -64,6 +64,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 export function useLanguage() { return useContext(Context); }
 
 export function simplePhase(name: string, language: Language) {
+  if (name.startsWith("xxxcross_")) {
+    const slots = name.slice("xxxcross_".length).replaceAll("_", " + ");
+    return language === "vi" ? `XXXCross · F2L ${slots}` : `XXXCross · F2L ${slots}`;
+  }
   if (name.startsWith("xxcross_")) {
     const slots = name.slice("xxcross_".length).replaceAll("_", " + ");
     return language === "vi" ? `XXCross · F2L ${slots}` : `XXCross · F2L ${slots}`;
