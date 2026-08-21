@@ -90,3 +90,12 @@
 - [x] Thêm ghi chú/tag theo từng solve trong form chỉnh sửa và danh sách history.
 - [x] Thêm export/import JSON có kiểm tra cấu trúc và tương thích dữ liệu cũ.
 - [x] Kiểm tra typecheck, build, browser flows, responsive và lưu checkpoint.
+
+## Inspection penalty, history filter và solution playback
+
+- [x] Khảo sát luồng inspection, schema history và các helper cube playback hiện có.
+- [x] Tự gắn +2 nếu inspection vượt 15 giây và DNF nếu vượt 17 giây khi lượt solve được lưu.
+- [x] Tạo bộ lọc tag và ô tìm nội dung ghi chú cho solve log.
+- [x] Hiển thị trạng thái lọc, empty state và tổng lượt khớp trong scorecard history.
+- [x] Tạo playback cho solution đã lưu, dùng scramble của solve làm trạng thái đầu và điều khiển 3D theo move.
+- [x] Kiểm tra TypeScript, build và browser flow cho timer penalty/filter/playback, rồi lưu checkpoint.

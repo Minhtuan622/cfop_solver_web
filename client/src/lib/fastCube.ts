@@ -11,7 +11,11 @@ export function parseFastMoves(text: string): string[] {
 }
 
 export function stateFromScramble(text: string): string {
-  let state = SOLVED_FAST_STATE;
+  return applyFastMoves(SOLVED_FAST_STATE, text);
+}
+
+export function applyFastMoves(initialState: string, text: string): string {
+  let state = initialState;
   for (const move of parseFastMoves(text)) {
     const perm = FAST_MOVE_PERMS[move];
     if (!perm) throw new Error(`Unsupported move: ${move}`);
@@ -20,4 +24,19 @@ export function stateFromScramble(text: string): string {
     state = out.join("");
   }
   return state;
+}
+
+export type FastMoveTrace = { move: string; previousState: string; state: string };
+
+export function traceFastMoves(initialState: string, text: string): FastMoveTrace[] {
+  let state = initialState;
+  return parseFastMoves(text).map((move) => {
+    const perm = FAST_MOVE_PERMS[move];
+    if (!perm) throw new Error(`Unsupported move: ${move}`);
+    const previousState = state;
+    const out = Array(54);
+    for (let source = 0; source < 54; source += 1) out[perm[source]] = state[source];
+    state = out.join("");
+    return { move, previousState, state };
+  });
 }

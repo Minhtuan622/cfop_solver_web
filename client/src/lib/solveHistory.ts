@@ -3,6 +3,7 @@ export type SolveHistoryEntry = {
   id: string;
   createdAt: number;
   elapsedMs: number;
+  inspectionMs: number;
   input: string;
   inputKind: "scramble" | "state";
   moves: number;
@@ -23,6 +24,7 @@ function normalize(item: Imported): SolveHistoryEntry {
     id: typeof item.id === "string" && item.id ? item.id : crypto.randomUUID(),
     createdAt: typeof item.createdAt === "number" && Number.isFinite(item.createdAt) ? item.createdAt : Date.now(),
     elapsedMs: typeof item.elapsedMs === "number" && Number.isFinite(item.elapsedMs) && item.elapsedMs >= 0 ? Math.round(item.elapsedMs) : 0,
+    inspectionMs: typeof item.inspectionMs === "number" && Number.isFinite(item.inspectionMs) && item.inspectionMs >= 0 ? Math.round(item.inspectionMs) : 0,
     input: typeof item.input === "string" ? item.input : "",
     inputKind: item.inputKind === "state" ? "state" : "scramble",
     moves: typeof item.moves === "number" && Number.isFinite(item.moves) ? Math.max(0, Math.round(item.moves)) : 0,
@@ -40,7 +42,7 @@ export function readSolveHistory(): SolveHistoryEntry[] {
 export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags">>): SolveHistoryEntry {
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readSolveHistory()]); return item;
 }
-export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
+export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
 export function deleteSolveHistory(id: string): SolveHistoryEntry[] { const next = readSolveHistory().filter((entry) => entry.id !== id); write(next); return next; }
 export function clearSolveHistory() { localStorage.removeItem(KEY); }
 export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {

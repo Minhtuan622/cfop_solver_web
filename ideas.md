@@ -61,3 +61,6 @@
 - CFOP trong wordmark luôn đọc thành một từ liên tục; chỉ O mang notch mint, không tạo khoảng cách tách chữ.
 - Ở Timer Lab, scramble vẫn nằm trước để inspection theo luồng thao tác, nhưng stopwatch là readout lớn nhất và nặng nhất trong vùng timer.
 - Panel phụ, placeholder và trạng thái chờ ưu tiên ruled paper scorecard thay cho card bo mềm; dark ink chỉ dành cho cube, scramble và state thiết bị.
+- Vùng thiết bị chính dùng contrast và tỷ lệ lớn nhất; scorecard phụ giữ đường rule giấy kỹ thuật nhưng giảm shadow, grid và border cạnh tranh.
+- Stopwatch là đối tượng thị giác lớn nhất trong Timer Lab; scramble/cube vẫn xuất hiện trước theo flow inspection nhưng đóng vai trò telemetry thiết lập.
+- Lockup CFOP dùng nhịp chữ liền mạch, O mint-notched là điểm phân biệt duy nhất; không tạo cảm giác tách ba ký tự.
