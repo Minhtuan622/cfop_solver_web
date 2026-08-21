@@ -63,7 +63,7 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const motionFace = ({ M: "R", E: "U", S: "F", x: "R", y: "U", z: "F" } as Record<string, string>)[target] ?? target.toUpperCase();
   const plain = language === "vi" ? (move ? `Mặt ${target} vừa xoay theo ký hiệu ${move}` : "Kéo để xoay góc nhìn, cuộn để phóng to") : (move ? `Face ${target} just turned with ${move}` : "Drag to rotate the view; scroll to zoom");
   const animateLayer = Boolean(target) && transition === "move";
-  const openingLabel = xcrossSlots?.length === 3 ? "XXXCross" : xcrossSlots?.length === 2 ? "XXCross" : "XCross";
+  const openingLabel = xcrossSlots?.length === 4 ? "XXXXCross" : xcrossSlots?.length === 3 ? "XXXCross" : xcrossSlots?.length === 2 ? "XXCross" : "XCross";
   const changeZoom = (amount: number) => setView((previous) => ({ ...previous, zoom: Math.min(1.32, Math.max(0.78, Number((previous.zoom + amount).toFixed(2)))) }));
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => { event.currentTarget.setPointerCapture(event.pointerId); drag.current = { x: event.clientX, y: event.clientY, pitch: view.pitch, yaw: view.yaw }; };
   const pointerMove = (event: PointerEvent<HTMLDivElement>) => {

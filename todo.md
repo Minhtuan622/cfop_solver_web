@@ -237,3 +237,11 @@
 - [x] Triển khai solver, test invariant/regression sáu màu và benchmark latency/move count.
 - [x] Mở rộng protocol Pyodide/Studio, báo cáo phase và Cube 3D highlight ba slot F2L.
 - [x] Kiểm tra browser end-to-end, responsive, TypeScript, production build và checkpoint.
+
+## CSS audit và XXXXCross: Cross cộng đủ F2L
+
+- [x] Rà soát lỗi CSS desktop/mobile, overflow selector opening và hierarchy panel Studio.
+- [x] Khảo sát coordinate Cross + bốn F2L, chốt budget và fallback XXXXCross → XXXCross → XXCross → XCross → Cross.
+- [x] Triển khai solver XXXXCross, predicate, regression sáu màu và benchmark latency.
+- [x] Mở rộng Pyodide/Studio/report/Cube 3D để hiển thị XXXXCross và bốn slot F2L.
+- [x] Kiểm tra browser end-to-end, responsive, TypeScript, production build và checkpoint.

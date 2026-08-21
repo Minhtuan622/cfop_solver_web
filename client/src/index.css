@@ -655,22 +655,22 @@
   }
   .studio-phase-ladder > div:nth-child(2) {
     position: relative;
-    padding-left: .65rem;
+    padding-left: .82rem;
   }
   .studio-phase-ladder > div:nth-child(2)::before {
     position: absolute;
     top: .35rem;
     bottom: .35rem;
-    left: .1rem;
-    width: 3px;
-    background: repeating-linear-gradient(to bottom, #1ba77a 0 8px, transparent 8px 14px);
+    left: .15rem;
+    width: 4px;
+    background: repeating-linear-gradient(to bottom, #1ba77a 0 12px, transparent 12px 17px);
     content: "";
   }
   .studio-phase-ladder > div:nth-child(2) > button,
   .studio-phase-ladder > div:nth-child(2) > div {
     min-height: 58px;
     border-radius: 0 !important;
-    box-shadow: inset 3px 0 0 rgb(23 34 29 / .10);
+    box-shadow: inset 3px 0 0 rgb(27 167 122 / .42), inset 0 -1px 0 rgb(23 34 29 / .08);
   }
   .studio-wordmark {
     font-size: clamp(.96rem, 1.25vw, 1.16rem) !important;
@@ -681,6 +681,7 @@
     height: .2em;
     bottom: -.05em;
   }
+  .studio-machine-header { box-shadow: 5px 5px 0 rgb(27 167 122 / .82) !important; }
   .studio-machine-header::after {
     position: absolute;
     right: 1.1rem;
@@ -689,26 +690,29 @@
     height: 3px;
     background: repeating-linear-gradient(90deg, rgb(244 240 232 / .5) 0 1px, transparent 1px 7px);
     content: "";
-    opacity: .55;
+    opacity: .28;
   }
-  .studio-machine-header .wordmark { font-size: .78rem; letter-spacing: .06em !important; }
-  .studio-machine-header .wordmark-o { font-size: 1.06em; padding-bottom: .08em; }
-  .studio-machine-header h1 { max-width: 42rem; }
+  .studio-machine-header .wordmark { font-size: .74rem; letter-spacing: .045em !important; }
+  .studio-machine-header .wordmark-o { font-size: 1.1em; padding-bottom: .08em; }
+  .studio-machine-header h1 { max-width: 42rem; letter-spacing: -.045em; }
   /* Supporting zones are record sheets; only the center solver owns a heavy apparatus silhouette. */
   .studio-control-stack .studio-support-panel,
   .studio-telemetry-column .studio-phase-telemetry,
   .studio-telemetry-column > .telemetry-panel,
   .studio-stage-column > .scorecard {
-    box-shadow: 2px 2px 0 rgb(23 34 29 / .09) !important;
-    border-color: rgb(23 34 29 / .52) !important;
+    box-shadow: 1px 1px 0 rgb(23 34 29 / .08) !important;
+    border-color: rgb(23 34 29 / .42) !important;
     background-color: #f8f5ed !important;
   }
   .studio-telemetry-column .studio-phase-telemetry,
-  .studio-telemetry-column > .telemetry-panel { background-image: linear-gradient(90deg, rgb(23 34 29 / .024) 1px, transparent 1px) !important; background-size: 24px 24px !important; }
+  .studio-telemetry-column > .telemetry-panel { background-image: linear-gradient(90deg, rgb(23 34 29 / .014) 1px, transparent 1px) !important; background-size: 24px 24px !important; }
   .studio-control-stack .studio-input-header { border-bottom-color: rgb(23 34 29 / .12) !important; }
   .studio-stage-column > .scorecard { color: #17221d !important; }
-  .studio-stage-column > .scorecard p, .studio-stage-column > .scorecard span { color: rgb(23 34 29 / .64) !important; }
-  .studio-stage-column > .scorecard p.mt-1 { color: #17221d !important; }
+  .studio-control-stack .scorecard::before,
+  .studio-telemetry-column .scorecard::before { border-color: rgb(23 34 29 / .045); }
+  .studio-control-stack .tick-ruler,
+  .studio-telemetry-column .tick-ruler { opacity: .3; }
+  .studio-solver-apparatus .tick-ruler { opacity: .72; }
   @media (min-width: 1180px) {
     .studio-workbench {
       grid-template-columns: minmax(260px, 280px) minmax(0, 1fr) minmax(285px, 320px) !important;
@@ -716,6 +720,17 @@
     }
     .studio-stage-column { min-width: 560px; }
     .studio-control-stack .studio-input-header { height: 5.5rem; }
+  }
+  /* Opening grows to five modes; use a two-column control rail on small screens and keep long phase labels inside their records. */
+  .studio-phase-ladder button > span:nth-child(2) { overflow-wrap: anywhere; }
+  .cube3d-phase-callout { max-width: calc(100% - 1.5rem); min-width: 0; }
+  .cube3d-phase-callout b { overflow-wrap: anywhere; }
+  @media (max-width: 639px) {
+    .studio-opening-grid > button { min-height: 2.25rem; font-size: .61rem; }
+    .studio-opening-note { min-height: 2.5rem; }
+    .studio-opening-outcome { align-items: flex-start; }
+    .studio-opening-outcome > span { width: 100%; }
+    .studio-phase-ladder > div:nth-child(2) > button { min-height: 64px; }
   }
   .timer-lab-stack .timer-run-panel .timer-card::before { display: block; margin-bottom: .8rem; color: #1ba77a; content: "STOPWATCH / INSPECTION"; font-family: "IBM Plex Mono", monospace; font-size: .62rem; font-weight: 800; letter-spacing: .16em; }
   @media (max-width: 700px) {

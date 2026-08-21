@@ -81,3 +81,6 @@
 - Header Studio là equipment label gọn, không cạnh tranh với solver/cube stage; dark ink lớn nhất luôn thuộc về apparatus trung tâm.
 - Input, phase guide, validation và move log dùng chung record-sheet giấy nhạt, border/shadow tiết chế; Solver Mint chỉ biểu đạt action, state hợp lệ và O-notch.
 - Lockup “CFOP Solver Studio” luôn đọc liền mạch; O-notch mint phải nhìn thấy ngay ở lần đọc đầu nhưng không tạo khoảng cách tách chữ.
+- Studio chỉ giữ solver/cube stage ở cường độ thiết bị tối đa; header là equipment label gọn, còn input, telemetry và guide là record sheet nhạt hơn.
+- Grid, tick và rail chỉ nổi bật khi đo move, phase, validation hoặc device state; texture nền ở panel phụ phải gần như lùi vào giấy.
+- Phase ladder là dải đo CFOP liên tục: mint rail dọc mạnh, phase brick rõ và connection trực tiếp với tiến độ solver; không đọc như stack card độc lập.
