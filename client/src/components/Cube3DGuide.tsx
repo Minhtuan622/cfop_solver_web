@@ -17,6 +17,7 @@ export function Cube3DGuide({ state, move, step }: { state: string; move?: strin
   const drag = useRef<{ x: number; y: number; pitch: number; yaw: number } | null>(null);
   const pinch = useRef<number | null>(null);
   const target = move?.[0] ?? "";
+  const motionFace = ({ M: "R", E: "U", S: "F", x: "R", y: "U", z: "F" } as Record<string, string>)[target] ?? target.toUpperCase();
   const plain = language === "vi" ? (move ? `Mặt ${target} vừa xoay theo ký hiệu ${move}` : "Kéo để xoay góc nhìn, cuộn để phóng to") : (move ? `Face ${target} just turned with ${move}` : "Drag to rotate the view; scroll to zoom");
   const changeZoom = (amount: number) => setView((previous) => ({ ...previous, zoom: Math.min(1.55, Math.max(0.7, Number((previous.zoom + amount).toFixed(2)))) }));
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => { event.currentTarget.setPointerCapture(event.pointerId); drag.current = { x: event.clientX, y: event.clientY, pitch: view.pitch, yaw: view.yaw }; };
@@ -36,10 +37,12 @@ export function Cube3DGuide({ state, move, step }: { state: string; move?: strin
   const touchStart = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length === 2) pinch.current = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); };
   const touchMove = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length !== 2 || pinch.current === null) return; const distance = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); changeZoom((distance - pinch.current) / 240); pinch.current = distance; };
   const reset = () => setView(DEFAULT_VIEW);
-  return <div className="cube3d-guide rounded-xl border-2 border-[#17221d] bg-[#17221d] p-4 text-[#f4f0e8]">
+  const motionClass = target ? `cube3d-turn-${motionFace.toLowerCase()}` : "cube3d-idle";
+  const transform = `rotateX(${view.pitch}deg) rotateY(${view.yaw}deg) scale(${view.zoom})`;
+  return <div className="cube3d-guide rounded-sm border-2 border-[#17221d] bg-[#17221d] p-4 text-[#f4f0e8]">
     <div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#1ba77a]">3D CUBE</p><Rotate3D className="h-4 w-4 text-[#1ba77a]" /></div>
     <div className="cube3d-stage interactive-cube-stage" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
-      <div key={`${step}-${move}`} className="cube3d-model" style={{ transform: `rotateX(${view.pitch}deg) rotateY(${view.yaw}deg) scale(${view.zoom})` }}><Face face="F" state={state} /><Face face="R" state={state} /><Face face="U" state={state} /><Face face="B" state={state} /><Face face="L" state={state} /><Face face="D" state={state} /></div>
+      <div key={`${step}-${move}`} className={`cube3d-model ${motionClass}`} style={{ "--cube-transform": transform, transform } as React.CSSProperties}><Face face="F" state={state} /><Face face="R" state={state} /><Face face="U" state={state} /><Face face="B" state={state} /><Face face="L" state={state} /><Face face="D" state={state} /></div>
       {target && <span className="cube-turn-badge">{move}</span>}
     </div>
     <div className="mt-2 flex items-center justify-between border-t border-white/15 pt-2"><span className="max-w-[75%] text-xs text-[#f4f0e8]/65">{plain}</span><b className="rounded bg-[#1ba77a] px-2 py-1 font-mono text-sm text-[#17221d]">{move ?? "—"}</b></div>

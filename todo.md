@@ -43,3 +43,16 @@
 - [x] Tạo Practice Lab cho OLL/PLL với chọn case, countdown/timer, kết quả đúng/sai và thống kê lưu cục bộ.
 - [x] Tạo PDF exporter chứa scramble/state, move count, từng phase, case OLL/PLL và algorithm.
 - [x] Kiểm tra camera fallback, responsive mobile, interaction practice, PDF download và build production.
+
+## Tái cấu trúc Studio và Timer Lab
+
+- [x] Kiểm tra cấu trúc route, solver runtime, Cube3D và timer hiện tại.
+- [x] Thiết kế lựa chọn màu Cross, mặc định trắng, và quy tắc chuẩn hóa hướng cube khi giải.
+- [x] Thêm lựa chọn màu Cross vào pipeline solver và UI.
+- [x] Tạo route Timer Lab riêng, có scramble tạo mới và ô nhập solution của người chơi.
+- [x] Ghi nhận và đối chiếu solution người chơi trong Timer Lab.
+- [x] Loại bỏ Practice Lab OLL/PLL và toàn bộ PDF export khỏi giao diện.
+- [x] Loại bỏ panel Tình trạng · LOCAL và cập nhật điều hướng.
+- [x] Đổi nhãn hướng dẫn thành Cross, F2L 1–4, OLL, PLL.
+- [x] Nâng cấp animation cube 3D và kiểm tra reduced motion.
+- [x] Chạy typecheck, build, kiểm tra luồng browser và lưu checkpoint.

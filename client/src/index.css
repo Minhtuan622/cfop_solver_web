@@ -223,6 +223,7 @@
     gap: 0.12em;
     font-family: "IBM Plex Mono", monospace;
     text-shadow: 1px 0 0 #1ba77a;
+    letter-spacing: .18em;
   }
 
   .wordmark::first-letter {
@@ -233,19 +234,20 @@
     position: relative;
     display: inline-grid;
     place-items: center;
-    width: 1.05em;
+    width: 1.16em;
     color: #17221d;
     text-shadow: none;
   }
 
   .wordmark-o::before {
     position: absolute;
-    inset: -0.14em 0.07em;
+    inset: -0.18em 0.04em;
     z-index: -1;
-    border: 1px solid #1ba77a;
+    border: 2px solid #f4f0e8;
     border-radius: 1px;
     background: #1ba77a;
-    clip-path: polygon(0 0, 100% 0, 100% 62%, 66% 62%, 66% 100%, 0 100%);
+    box-shadow: 2px 2px 0 #17221d;
+    clip-path: polygon(0 0, 100% 0, 100% 60%, 60% 60%, 60% 100%, 0 100%);
     content: "";
   }
 
@@ -317,7 +319,7 @@
     position: relative;
     width: 118px;
     height: 118px;
-    transform: rotateX(-26deg) rotateY(34deg);
+    transform: var(--cube-transform, rotateX(-26deg) rotateY(34deg));
     transform-style: preserve-3d;
   }
 
@@ -341,26 +343,31 @@
   .cube3d-l { transform: rotateY(-90deg) translateZ(59px); }
   .cube3d-d { transform: rotateX(-90deg) translateZ(59px); }
 
-  .cube3d-turn-r { animation: cube-turn-r 720ms cubic-bezier(0.23, 1, 0.32, 1); }
-  .cube3d-turn-l { animation: cube-turn-l 720ms cubic-bezier(0.23, 1, 0.32, 1); }
-  .cube3d-turn-u, .cube3d-turn-d { animation: cube-turn-u 720ms cubic-bezier(0.23, 1, 0.32, 1); }
-  .cube3d-turn-f, .cube3d-turn-b { animation: cube-turn-f 720ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .cube3d-turn-r { animation: cube-turn-r 520ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .cube3d-turn-l { animation: cube-turn-l 520ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .cube3d-turn-u, .cube3d-turn-d { animation: cube-turn-u 520ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .cube3d-turn-f, .cube3d-turn-b { animation: cube-turn-f 520ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .cube3d-idle { animation: cube-idle 4.8s cubic-bezier(0.77, 0, 0.175, 1) infinite; }
 
   @keyframes cube-turn-r {
-    0%, 100% { transform: rotateX(-26deg) rotateY(34deg); }
-    48% { transform: rotateX(-26deg) rotateY(124deg); }
+    0%, 100% { transform: var(--cube-transform); }
+    48% { transform: var(--cube-transform) rotateY(90deg) scale(1.04); }
   }
   @keyframes cube-turn-l {
-    0%, 100% { transform: rotateX(-26deg) rotateY(34deg); }
-    48% { transform: rotateX(-26deg) rotateY(-56deg); }
+    0%, 100% { transform: var(--cube-transform); }
+    48% { transform: var(--cube-transform) rotateY(-90deg) scale(1.04); }
   }
   @keyframes cube-turn-u {
-    0%, 100% { transform: rotateX(-26deg) rotateY(34deg); }
-    48% { transform: rotateX(64deg) rotateY(34deg); }
+    0%, 100% { transform: var(--cube-transform); }
+    48% { transform: var(--cube-transform) rotateX(90deg) scale(1.04); }
   }
   @keyframes cube-turn-f {
-    0%, 100% { transform: rotateX(-26deg) rotateY(34deg); }
-    48% { transform: rotateX(-26deg) rotateY(34deg) rotateZ(90deg); }
+    0%, 100% { transform: var(--cube-transform); }
+    48% { transform: var(--cube-transform) rotateZ(90deg) scale(1.04); }
+  }
+  @keyframes cube-idle {
+    0%, 100% { transform: var(--cube-transform); }
+    50% { transform: var(--cube-transform) rotateY(12deg) rotateX(-4deg); }
   }
 
   .timer-card {
@@ -449,6 +456,31 @@
     font-weight: 700;
     letter-spacing: .08em;
   }
+  .history-empty-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .5rem;
+    margin-top: 1rem;
+  }
+  .history-empty-metrics > div {
+    border: 1px solid rgb(23 34 29 / .22);
+    background: rgb(244 240 232 / .7);
+    padding: .55rem .65rem;
+  }
+  .history-empty-metrics span {
+    display: block;
+    color: rgb(23 34 29 / .5);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .56rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+  }
+  .history-empty-metrics b {
+    display: block;
+    margin-top: .25rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: .9rem;
+  }
   .history-empty-gauge {
     display: grid;
     min-height: 128px;
@@ -484,7 +516,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cube3d-turn-r, .cube3d-turn-l, .cube3d-turn-u, .cube3d-turn-d, .cube3d-turn-f, .cube3d-turn-b { animation: none; }
+    .cube3d-turn-r, .cube3d-turn-l, .cube3d-turn-u, .cube3d-turn-d, .cube3d-turn-f, .cube3d-turn-b, .cube3d-idle { animation: none; }
   }
 
   @media (min-width: 640px) {

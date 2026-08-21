@@ -53,3 +53,5 @@
 - Wordmark luôn đi cùng cube mark; phần chữ O được mô phỏng bằng cut-notch mint để tăng nhận diện.
 - Mọi route phụ giữ full brand mark CFOP Solver Studio với cube mark và chữ O mint notched.
 - Lịch sử, log và empty states dùng scorecard có tick rail, telemetry và trạng thái thao tác, không dùng card trống tối giản.
+- Wordmark là một lockup nhận diện: cube mark kết hợp chữ O mint notched thấy rõ ở mọi header.
+- Tick rail, counter và phase brick chỉ dùng khi gắn với move, phase, timing hoặc trạng thái log; không dùng như trang trí rời rạc.

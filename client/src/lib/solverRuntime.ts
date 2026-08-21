@@ -2,6 +2,7 @@
 export type TraceStep = { index: number; phase: string; move: string; state: string };
 export type PhaseResult = { name: string; algorithm: string; moves: string[]; state_after: string; valid_after: boolean; predicate_after: boolean; case_id: string | null; start: number; end: number };
 export type SolverResult = { initial_state: string; final_state: string; algorithm: string; phases: PhaseResult[]; trace: TraceStep[] };
+export type CrossColor = "U" | "R" | "F" | "D" | "L" | "B";
 
 let worker: Worker | null = null;
 let nextId = 1;
@@ -21,9 +22,9 @@ function getWorker() {
   return worker;
 }
 
-export function solveInBrowser(kind: "scramble" | "state", value: string): Promise<SolverResult> {
+export function solveInBrowser(kind: "scramble" | "state", value: string, crossColor: CrossColor = "U"): Promise<SolverResult> {
   const id = nextId++;
-  getWorker().postMessage({ id, command: "solve", kind, value });
+  getWorker().postMessage({ id, command: "solve", kind, value, crossColor });
   return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve(result as SolverResult), reject }));
 }
 

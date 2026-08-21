@@ -25,11 +25,11 @@ async function getPyodide() {
   return pyodidePromise;
 }
 
-self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case"; kind?: string; value: string }>) => {
-  const { id, command = "solve", kind, value } = event.data;
+self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case"; kind?: string; value: string; crossColor?: string }>) => {
+  const { id, command = "solve", kind, value, crossColor = "U" } = event.data;
   try {
     const runtime = await getPyodide();
-    const request = JSON.stringify({ kind, value });
+    const request = JSON.stringify({ kind, value, crossColor });
     if (command === "case") {
       const output = await runtime.runPythonAsync(`
 import json
@@ -46,7 +46,7 @@ import json
 from cfop_solver import Cube, parse_moves, solve
 request = json.loads(${JSON.stringify(request)})
 initial = Cube(request["value"]) if request["kind"] == "state" else Cube().apply_many(parse_moves(request["value"]))
-solution = solve(initial, last_layer="full")
+solution = solve(initial, last_layer="full", cross_color=request.get("crossColor", "U"))
 current = initial
 trace, phases = [], []
 for record in solution.phases:

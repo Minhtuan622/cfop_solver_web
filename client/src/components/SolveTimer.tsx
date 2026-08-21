@@ -11,7 +11,7 @@ export function SolveTimer({ onComplete, canSave }: { onComplete?: (elapsedMs: n
   const [elapsed, setElapsed] = useState(0);
   const startedAt = useRef(0);
   const carried = useRef(0);
-  const toggle = () => { if (running) { const finalElapsed = carried.current + performance.now() - startedAt.current; carried.current = finalElapsed; setElapsed(finalElapsed); setRunning(false); if (canSave && finalElapsed > 200) onComplete?.(finalElapsed); } else { startedAt.current = performance.now(); setRunning(true); } };
+  const toggle = () => { if (running) { const finalElapsed = carried.current + performance.now() - startedAt.current; carried.current = finalElapsed; setElapsed(finalElapsed); setRunning(false); if (finalElapsed > 200) onComplete?.(finalElapsed); } else { startedAt.current = performance.now(); setRunning(true); } };
   const reset = () => { carried.current = 0; setElapsed(0); setRunning(false); };
   useEffect(() => { if (!running) return; const id = window.setInterval(() => setElapsed(carried.current + performance.now() - startedAt.current), 20); return () => window.clearInterval(id); }, [running]);
   useEffect(() => { const handler = (event: KeyboardEvent) => { const tag = (event.target as HTMLElement)?.tagName; if (event.code === "Space" && tag !== "INPUT" && tag !== "TEXTAREA") { event.preventDefault(); toggle(); } }; window.addEventListener("keydown", handler); return () => window.removeEventListener("keydown", handler); });

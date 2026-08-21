@@ -65,10 +65,10 @@ export function useLanguage() { return useContext(Context); }
 
 export function simplePhase(name: string, language: Language) {
   const values: Record<string, [string, string]> = {
-    cross: ["Tạo dấu cộng", "Make the cross"],
-    f2l_FR: ["Xong góc đầu", "Finish first corner"], f2l_FL: ["Xong góc thứ hai", "Finish second corner"],
-    f2l_BL: ["Xong góc thứ ba", "Finish third corner"], f2l_BR: ["Xong mặt đầu", "Finish first layer"],
-    oll: ["Đưa mặt trên cùng màu", "Make the top one color"], pll: ["Đặt đúng các mảnh cuối", "Place the final pieces"],
+    cross: ["Cross", "Cross"],
+    f2l_FR: ["F2L 1", "F2L 1"], f2l_FL: ["F2L 2", "F2L 2"],
+    f2l_BL: ["F2L 3", "F2L 3"], f2l_BR: ["F2L 4", "F2L 4"],
+    oll: ["OLL", "OLL"], pll: ["PLL", "PLL"],
   };
   return values[name]?.[language === "vi" ? 0 : 1] ?? name;
 }
