@@ -141,3 +141,12 @@
 - [x] Sửa Cube3D: animation layer sau đổi Cross, zoom/pinch có giới hạn chính xác, và control inspect hoạt động hoặc được loại bỏ.
 - [x] Tách công tắc hiển thị highlight Cross khỏi inspection 15 giây để tắt highlight không tắt pre-solve timer.
 - [x] Kiểm tra keyboard/touch, inspection +2/DNF, responsive, TypeScript, production build và checkpoint.
+
+## Phase averages, target presets và solution efficiency
+
+- [x] Khảo sát dữ liệu phase split đang lọc, rolling average và parser solution/move count.
+- [x] Tính Ao5/Ao12 Cross, F2L, OLL, PLL trên các lượt có split tương ứng.
+- [x] Thêm preset mục tiêu Beginner, Intermediate, Advanced và cập nhật nhanh toàn bộ ngưỡng phase.
+- [x] Tính move count, TPS tổng và đánh giá efficiency cho solution đã lưu.
+- [x] Hiển thị insight efficiency trong dashboard phase, giữ hierarchy stopwatch và scorecard phụ nhẹ hơn.
+- [x] Kiểm tra dữ liệu cũ, filter, responsive, TypeScript, production build và checkpoint.

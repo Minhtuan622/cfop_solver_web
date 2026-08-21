@@ -258,6 +258,42 @@
     content: "";
   }
 
+  /* Brand lockup: a continuous CFOP instrument label with one precise mint notch. */
+  .wordmark,
+  .timer-lab .history-header .wordmark {
+    gap: 0;
+    letter-spacing: .015em;
+    text-shadow: none;
+  }
+  .wordmark > span:first-child,
+  .wordmark > span:nth-child(3),
+  .wordmark > .wordmark-o,
+  .timer-lab .history-header .wordmark-o {
+    margin-inline: 0;
+    letter-spacing: 0;
+    transform: none;
+  }
+  .wordmark-o {
+    width: auto;
+    color: #1ba77a !important;
+    font-size: 1em;
+    line-height: 1;
+  }
+  .wordmark-o::before {
+    inset: auto;
+    bottom: .02em;
+    left: 50%;
+    z-index: 0;
+    width: .26em;
+    height: .12em;
+    border: 0;
+    border-radius: 0;
+    background: #1ba77a;
+    box-shadow: none;
+    clip-path: none;
+    transform: translateX(-50%);
+  }
+
   .tick-ruler {
     height: 6px;
     margin: -0.15rem 0 1rem;
@@ -538,6 +574,13 @@
   .wordmark .wordmark-o { color: #1ba77a !important; text-shadow: 1px 0 0 #1ba77a; }
   .timer-lab .metrics-panel > .history-panel, .timer-lab-stack > .history-panel { box-shadow: 4px 4px 0 rgb(23 34 29 / .13); }
   .timer-lab .metrics-panel > .history-panel { border-color: rgb(23 34 29 / .72); }
+  .timer-lab-stack > section:not(.inspection-panel) .history-panel {
+    box-shadow: 2px 2px 0 rgb(23 34 29 / .10);
+    background-image: linear-gradient(90deg, rgb(23 34 29 / .016) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .timer-lab-stack > section:not(.inspection-panel) .tick-ruler { height: 4px; opacity: .36; }
+  .timer-lab-stack > section:not(.inspection-panel) .metrics-panel .tick-ruler { opacity: .28; }
   .timer-lab-stack .timer-run-panel .timer-card::before { display: block; margin-bottom: .8rem; color: #1ba77a; content: "STOPWATCH / INSPECTION"; font-family: "IBM Plex Mono", monospace; font-size: .62rem; font-weight: 800; letter-spacing: .16em; }
   @media (max-width: 700px) {
     .timer-lab-stack .inspection-cube-wrap .cube3d-guide { min-height: 290px; }

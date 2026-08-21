@@ -71,3 +71,4 @@
 - Timer Lab chỉ để stopwatch làm visual apex; stage cube inspection giảm quy mô và saturation để trở thành thiết bị quan sát phụ trợ.
 - Wordmark CFOP Solver Studio được ưu tiên rõ ở header; Solver Mint chỉ đánh dấu O, trạng thái hiện hành và action hợp lệ.
 - CFOP lockup đọc như nhãn dụng cụ: CF và P dùng ink/paper tương phản cao, chỉ O có mint notch; telemetry phụ giảm shadow để nhường visual apex cho thiết bị chính.
+- Mỗi route chỉ có một apparatus cường độ tối đa: Timer Lab là stopwatch; tick rail, shadow và grid ở scorecard phụ chỉ xuất hiện như thước đo gắn với dữ liệu thời gian, move hoặc phase.
