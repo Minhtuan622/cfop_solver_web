@@ -72,7 +72,7 @@ for record in solution.phases:
         current = current.apply(move)
         trace.append({"index": len(trace) + 1, "phase": record.name, "move": move, "state": current.stickers})
     phases.append({"name": record.name, "algorithm": record.algorithm, "moves": list(record.moves), "state_after": record.state_after, "valid_after": record.valid_after, "predicate_after": record.predicate_after, "case_id": record.case_id, "start": start, "end": len(trace)})
-json.dumps({"initial_state": initial.stickers, "final_state": solution.final_state, "algorithm": solution.algorithm, "phases": phases, "trace": trace})
+json.dumps({"initial_state": initial.stickers, "final_state": solution.final_state, "algorithm": solution.algorithm, "opening": solution.opening_summary, "phases": phases, "trace": trace})
 `);
     self.postMessage({ id, ok: true, output: String(output) });
   } catch (error) {

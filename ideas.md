@@ -84,3 +84,5 @@
 - Studio chỉ giữ solver/cube stage ở cường độ thiết bị tối đa; header là equipment label gọn, còn input, telemetry và guide là record sheet nhạt hơn.
 - Grid, tick và rail chỉ nổi bật khi đo move, phase, validation hoặc device state; texture nền ở panel phụ phải gần như lùi vào giấy.
 - Phase ladder là dải đo CFOP liên tục: mint rail dọc mạnh, phase brick rõ và connection trực tiếp với tiến độ solver; không đọc như stack card độc lập.
+- Header Studio giữ vai trò nameplate nén: O-notch mint vẫn rõ, nhưng shadow và chiều cao phải thấp hơn cube apparatus trung tâm.
+- Stage gắn cube, move-count, playback và phase như một cụm đo thống nhất; mint rail/strong tick dành cho cụm này, còn panel phụ chỉ giữ rule giấy mờ.

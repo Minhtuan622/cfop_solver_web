@@ -245,3 +245,11 @@
 - [x] Triển khai solver XXXXCross, predicate, regression sáu màu và benchmark latency.
 - [x] Mở rộng Pyodide/Studio/report/Cube 3D để hiển thị XXXXCross và bốn slot F2L.
 - [x] Kiểm tra browser end-to-end, responsive, TypeScript, production build và checkpoint.
+
+## Opening fallback minh bạch và Studio gọn hơn
+
+- [x] Tái tạo lỗi XX/XXX/XXXXCross và truy vết pipeline chọn phase opening thực tế.
+- [x] Chuẩn hóa metadata requested/achieved/fallback để phân biệt rõ cấp solver đã đạt.
+- [x] Bổ sung regression cho từng cấp opening, fallback tuần tự và trường hợp giới hạn depth.
+- [x] Thay hàng nút opening bằng dropdown; hiển thị telemetry fallback và tinh gọn control liên quan.
+- [x] Kiểm tra browser, responsive, TypeScript, production build và checkpoint.
