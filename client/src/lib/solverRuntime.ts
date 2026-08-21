@@ -3,6 +3,7 @@ export type TraceStep = { index: number; phase: string; move: string; state: str
 export type PhaseResult = { name: string; algorithm: string; moves: string[]; state_after: string; valid_after: boolean; predicate_after: boolean; case_id: string | null; start: number; end: number };
 export type SolverResult = { initial_state: string; final_state: string; algorithm: string; phases: PhaseResult[]; trace: TraceStep[] };
 export type CrossColor = "U" | "R" | "F" | "D" | "L" | "B";
+export type CubeValidation = { valid: boolean; message: string };
 
 let worker: Worker | null = null;
 let nextId = 1;
@@ -32,4 +33,10 @@ export function getCaseStateInBrowser(setup: string): Promise<string> {
   const id = nextId++;
   getWorker().postMessage({ id, command: "case", value: setup });
   return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve((result as { state: string }).state), reject }));
+}
+
+export function validateStateInBrowser(value: string): Promise<CubeValidation> {
+  const id = nextId++;
+  getWorker().postMessage({ id, command: "validate", value });
+  return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve(result as CubeValidation), reject }));
 }

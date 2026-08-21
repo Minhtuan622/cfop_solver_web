@@ -150,3 +150,18 @@
 - [x] Tính move count, TPS tổng và đánh giá efficiency cho solution đã lưu.
 - [x] Hiển thị insight efficiency trong dashboard phase, giữ hierarchy stopwatch và scorecard phụ nhẹ hơn.
 - [x] Kiểm tra dữ liệu cũ, filter, responsive, TypeScript, production build và checkpoint.
+
+## Trọng tâm CFOP Studio
+
+- [x] Kiểm toán luồng nhập cube, solver Pyodide, kết quả Cross/F2L/OLL/PLL và Cube 3D ở Studio.
+- [x] Xác định các điểm nghẽn về phản hồi lỗi, trạng thái solver và khả năng theo dõi từng bước.
+- [x] Thiết kế ưu tiên cải tiến cho thao tác nhập, kết quả CFOP, playback và điều khiển Cube 3D.
+- [x] Triển khai các cải tiến Studio được ưu tiên thay vì mở rộng Timer Lab.
+- [x] Kiểm tra solver với scramble hợp lệ, nhập trạng thái, animation 3D, responsive, TypeScript và production build.
+
+### Thứ tự phát triển đã chốt
+
+- [x] Tạo Cube State Editor sáu mặt: palette màu, chọn sticker, khóa tâm, reset và fill từng face.
+- [x] Gọi validation khi state thay đổi, hiển thị lỗi sticker/cubie/parity rõ trước khi chạy solver.
+- [x] Trình bày báo cáo Cross/F2L/OLL/PLL: move count, case ID, thuật toán và invariant theo phase.
+- [x] Thêm điều khiển playback theo phase, chọn tốc độ và làm nổi phase đang phát trên Cube 3D.

@@ -4,8 +4,8 @@
  */
 import { cn } from "@/lib/utils";
 
-const FACE_ORDER = ["U", "R", "F", "D", "L", "B"] as const;
-const FACE_GRID: Record<(typeof FACE_ORDER)[number], string> = {
+export const FACE_ORDER = ["U", "R", "F", "D", "L", "B"] as const;
+export const FACE_GRID: Record<(typeof FACE_ORDER)[number], string> = {
   U: "col-start-2 row-start-1",
   L: "col-start-1 row-start-2",
   F: "col-start-2 row-start-2",
@@ -13,7 +13,7 @@ const FACE_GRID: Record<(typeof FACE_ORDER)[number], string> = {
   B: "col-start-4 row-start-2",
   D: "col-start-2 row-start-3",
 };
-const FACE_OFFSET: Record<(typeof FACE_ORDER)[number], number> = {
+export const FACE_OFFSET: Record<(typeof FACE_ORDER)[number], number> = {
   U: 0,
   R: 9,
   F: 18,
@@ -21,7 +21,7 @@ const FACE_OFFSET: Record<(typeof FACE_ORDER)[number], number> = {
   L: 36,
   B: 45,
 };
-const COLOR: Record<string, string> = {
+export const CUBE_COLOR: Record<string, string> = {
   U: "#F7F3E9",
   R: "#D95743",
   F: "#1BA77A",
@@ -52,7 +52,7 @@ export function CubeNet({ state, compact = false, inspectCross = false, crossCol
                 <span
                   key={index}
                   className={cn("rounded-[2px] border border-black/20 shadow-[inset_0_-2px_0_rgba(0,0,0,0.14)]", highlighted && "z-10 ring-2 ring-white shadow-[0_0_0_3px_#1ba77a,0_0_12px_3px_rgba(27,167,122,.75)]")}
-                  style={{ background: COLOR[sticker] ?? "#888" }}
+                  style={{ background: CUBE_COLOR[sticker] ?? "#888" }}
                 />
               );
             })}

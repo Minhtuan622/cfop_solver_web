@@ -25,7 +25,7 @@ async function getPyodide() {
   return pyodidePromise;
 }
 
-self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case"; kind?: string; value: string; crossColor?: string }>) => {
+self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate"; kind?: string; value: string; crossColor?: string }>) => {
   const { id, command = "solve", kind, value, crossColor = "U" } = event.data;
   try {
     const runtime = await getPyodide();
@@ -37,6 +37,21 @@ from cfop_solver import Cube, parse_moves
 request = json.loads(${JSON.stringify(request)})
 case_state = Cube().apply_many(parse_moves(request["value"]))
 json.dumps({"state": case_state.stickers})
+`);
+      self.postMessage({ id, ok: true, output: String(output) });
+      return;
+    }
+    if (command === "validate") {
+      const output = await runtime.runPythonAsync(`
+import json
+from cfop_solver import Cube, validate_cube
+request = json.loads(${JSON.stringify(request)})
+try:
+    validate_cube(Cube(request["value"]))
+    result = {"valid": True, "message": "State hợp lệ · 54 sticker · 9 mỗi màu"}
+except Exception as error:
+    result = {"valid": False, "message": str(error)}
+json.dumps(result)
 `);
       self.postMessage({ id, ok: true, output: String(output) });
       return;
