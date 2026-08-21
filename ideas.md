@@ -64,3 +64,5 @@
 - Vùng thiết bị chính dùng contrast và tỷ lệ lớn nhất; scorecard phụ giữ đường rule giấy kỹ thuật nhưng giảm shadow, grid và border cạnh tranh.
 - Stopwatch là đối tượng thị giác lớn nhất trong Timer Lab; scramble/cube vẫn xuất hiện trước theo flow inspection nhưng đóng vai trò telemetry thiết lập.
 - Lockup CFOP dùng nhịp chữ liền mạch, O mint-notched là điểm phân biệt duy nhất; không tạo cảm giác tách ba ký tự.
+- Timer Lab ưu tiên stopwatch toàn bề ngang làm thiết bị chính; scramble giữ ở phía trên nhưng dùng ruled-paper telemetry thay cho mảng dark ink cạnh tranh.
+- Mỗi route chỉ có một apparatus ở cường độ tối đa; panel phụ giảm shadow, grid và saturation để nhịp scorecard rõ hơn.

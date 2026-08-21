@@ -99,3 +99,14 @@
 - [x] Hiển thị trạng thái lọc, empty state và tổng lượt khớp trong scorecard history.
 - [x] Tạo playback cho solution đã lưu, dùng scramble của solve làm trạng thái đầu và điều khiển 3D theo move.
 - [x] Kiểm tra TypeScript, build và browser flow cho timer penalty/filter/playback, rồi lưu checkpoint.
+
+## Timer Lab speedcubing controls và history theo filter
+
+- [x] Khảo sát component timer, playback, Cube3D và thống kê theo filter hiện tại.
+- [x] Đưa timer vào ngay dưới scramble, bỏ phần hướng dẫn/reset/làm lại khỏi UI.
+- [x] Cài cảnh báo âm thanh inspection tại 8 và 12 giây, có fallback an toàn khi âm thanh bị chặn.
+- [x] Thêm điều chỉnh tốc độ playback và readout TPS theo solution đã lưu.
+- [x] Tự xoay hướng hiển thị cube để màu Cross đang chọn ở mặt D.
+- [x] Tính lại PB/Ao5/Ao12/Ao50/Ao100 và biểu đồ từ history đã lọc.
+- [x] Thêm checkbox từng lượt, chọn tất cả lượt đang lọc và xóa hàng loạt có xác nhận.
+- [x] Kiểm tra typecheck, build, browser interactions, responsive UI và lưu checkpoint.
