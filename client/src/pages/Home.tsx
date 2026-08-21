@@ -2,10 +2,10 @@
  * Xưởng Cơ Khí Tốc Độ — asymmetrical workbench, mono telemetry and cube-state
  * signals make the CFOP solution readable as an instrument panel.
  */
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft, ArrowRight, Braces, Check, ChevronRight, CircleGauge, ClipboardCopy,
-  Cpu, Loader2, Play, RotateCcw, ShieldCheck, Sparkles,
+  Cpu, FileJson, ImageDown, Info, Loader2, Play, RotateCcw, ShieldCheck, Sparkles,
 } from "lucide-react";
 import { Timer } from "lucide-react";
 import { Link } from "wouter";
@@ -17,6 +17,7 @@ import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { solveInBrowser, validateStateInBrowser, type CrossColor, type CubeValidation, type SolverResult } from "@/lib/solverRuntime";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const DEFAULT_SCRAMBLE = "R U R' U'";
 const PHASE_COLORS: Record<string, string> = {
@@ -37,6 +38,29 @@ const CROSS_COLORS: { value: CrossColor; vi: string; en: string; hex: string }[]
   { value: "L", vi: "Cam", en: "Orange", hex: "#ed8e42" },
 ];
 
+function saveBlob(name: string, type: string, value: BlobPart) { const url = URL.createObjectURL(new Blob([value], { type })); const link = document.createElement("a"); link.href = url; link.download = name; link.click(); window.setTimeout(() => URL.revokeObjectURL(url), 0); }
+function phaseStudyNote(name: string, language: "vi" | "en") {
+  const vi = language === "vi";
+  if (name === "cross") return vi ? "Cross: ghép bốn cạnh màu Cross với tâm bên tương ứng. Invariant xác nhận bốn cạnh này đã đúng vị trí và hướng." : "Cross: align the four Cross edges with their adjacent centers. The invariant confirms each edge is correctly positioned and oriented.";
+  if (name.startsWith("f2l")) return vi ? "F2L: ghép một góc và một cạnh, rồi đưa vào slot tương ứng. Invariant giữ nguyên mọi slot F2L đã hoàn thành trước đó." : "F2L: pair a corner with its edge and insert the pair into its slot. The invariant preserves every earlier completed F2L slot.";
+  if (name === "oll") return vi ? "OLL: định hướng tất cả sticker mặt cuối để cùng hướng lên. Invariant xác nhận orientation lớp cuối đã hoàn chỉnh, chưa cần hoán vị." : "OLL: orient every last-layer sticker to face up. The invariant confirms last-layer orientation is complete before permutation.";
+  return vi ? "PLL: hoán vị các mảnh lớp cuối mà không phá hướng đã giải. Invariant xác nhận toàn bộ cube đã trở về trạng thái solved." : "PLL: permute last-layer pieces without breaking orientation. The invariant confirms the entire cube has returned to solved state.";
+}
+function exportCFOPJson(result: SolverResult) { saveBlob("cfop-solution-report.json", "application/json", JSON.stringify({ format: "cfop-solver-studio/report@1", exportedAt: new Date().toISOString(), totalMoves: result.trace.length, algorithm: result.algorithm, phases: result.phases, trace: result.trace }, null, 2)); }
+function exportCFOPImage(result: SolverResult, language: "vi" | "en") {
+  const vi = language === "vi";
+  const width = 1400; const lineHeight = 42; const height = 220 + result.phases.length * 126;
+  const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext("2d"); if (!ctx) return;
+  ctx.fillStyle = "#f4f0e8"; ctx.fillRect(0, 0, width, height);
+  ctx.strokeStyle = "rgba(23,34,29,.12)"; ctx.lineWidth = 1; for (let x = 0; x < width; x += 24) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); } for (let y = 0; y < height; y += 24) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
+  ctx.fillStyle = "#17221d"; ctx.fillRect(0, 0, width, 140); ctx.fillStyle = "#1ba77a"; ctx.fillRect(0, 132, width, 8);
+  ctx.fillStyle = "#f4f0e8"; ctx.font = "900 46px Space Grotesk, sans-serif"; ctx.fillText("CFOP SOLVER STUDIO", 58, 70); ctx.font = "700 22px IBM Plex Mono, monospace"; ctx.fillText(vi ? "BÁO CÁO LỜI GIẢI" : "SOLUTION REPORT", 58, 108);
+  ctx.fillStyle = "#17221d"; ctx.font = "900 28px Space Grotesk, sans-serif"; ctx.fillText(`${result.trace.length} ${vi ? "nước xoay · CFOP verified" : "moves · CFOP verified"}`, 58, 188);
+  result.phases.forEach((phase, index) => { const top = 220 + index * 126; ctx.fillStyle = index % 2 ? "#efe9dc" : "#ffffff"; ctx.fillRect(48, top, width - 96, 102); ctx.strokeStyle = "#17221d"; ctx.strokeRect(48, top, width - 96, 102); ctx.fillStyle = "#1ba77a"; ctx.fillRect(48, top, 8, 102); ctx.fillStyle = "#17221d"; ctx.font = "900 24px Space Grotesk, sans-serif"; ctx.fillText(`${String(index + 1).padStart(2, "0")}  ${simplePhase(phase.name, language)}`, 78, top + 34); ctx.font = "700 17px IBM Plex Mono, monospace"; ctx.fillText(`${phase.moves.length} ${vi ? "nước" : "moves"}${phase.case_id && phase.case_id !== "solved" ? ` · ${phase.case_id}` : ""} · ${phase.valid_after && phase.predicate_after ? "INVARIANT ✓" : "CHECK"}`, 78, top + 64); const notation = (phase.algorithm || phase.moves.join(" ") || "—").slice(0, 132); ctx.fillStyle = "#47534d"; ctx.font = "16px IBM Plex Mono, monospace"; ctx.fillText(notation, 78, top + 88); });
+  canvas.toBlob((blob) => { if (blob) saveBlob("cfop-solution-report.png", "image/png", blob); }, "image/png");
+}
+
 export default function Home() {
   const { language, setLanguage, t } = useLanguage();
   const [mode, setMode] = useState<"scramble" | "state">("scramble");
@@ -51,6 +75,8 @@ export default function Home() {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [error, setError] = useState("");
   const [stateValidation, setStateValidation] = useState<CubeValidation | null>(null);
+  const stateHistory = useRef<{ past: string[]; future: string[] }>({ past: [], future: [] });
+  const [, setStateHistoryVersion] = useState(0);
 
   const previewState = useMemo(() => {
     if (mode === "state") return stateValidation?.valid ? value : SOLVED_STATE;
@@ -115,6 +141,38 @@ export default function Home() {
 
   const phaseCount = result?.phases.filter((phase) => phase.moves.length > 0).length ?? 0;
   const updateCursor = (next: number) => { setPlaying(false); setCursor(next); };
+  const applyStateEdit = (next: string) => {
+    const current = value.length === 54 ? value : SOLVED_STATE;
+    if (next === current) return;
+    stateHistory.current.past = [...stateHistory.current.past, current].slice(-80);
+    stateHistory.current.future = [];
+    setValue(next);
+    setSavedState(next);
+    setStateHistoryVersion((version) => version + 1);
+    setResult(null);
+    setCursor(0);
+    setError("");
+  };
+  const undoStateEdit = () => {
+    const previous = stateHistory.current.past.at(-1);
+    if (!previous) return;
+    const current = value.length === 54 ? value : SOLVED_STATE;
+    stateHistory.current.past = stateHistory.current.past.slice(0, -1);
+    stateHistory.current.future = [...stateHistory.current.future, current].slice(-80);
+    setValue(previous);
+    setSavedState(previous);
+    setStateHistoryVersion((version) => version + 1);
+  };
+  const redoStateEdit = () => {
+    const next = stateHistory.current.future.at(-1);
+    if (!next) return;
+    const current = value.length === 54 ? value : SOLVED_STATE;
+    stateHistory.current.future = stateHistory.current.future.slice(0, -1);
+    stateHistory.current.past = [...stateHistory.current.past, current].slice(-80);
+    setValue(next);
+    setSavedState(next);
+    setStateHistoryVersion((version) => version + 1);
+  };
   const switchInputMode = (next: "scramble" | "state") => {
     if (next === mode) return;
     if (mode === "scramble") setSavedScramble(value); else setSavedState(value);
@@ -162,14 +220,14 @@ export default function Home() {
                   <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/50">{language === "vi" ? "Trắng là mặc định. Solver giữ các bước Cross → F2L → OLL → PLL theo màu đã chọn." : "White is the default. The solver keeps Cross → F2L → OLL → PLL for the selected color."}</p>
                 </div>
                 <label className="mt-5 block font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#17221d]/60">{mode === "scramble" ? t("input.label") : language === "vi" ? "TÔ TRẠNG THÁI 6 MẶT" : "PAINT SIX-FACE STATE"}</label>
-                {mode === "scramble" ? <textarea value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); }} spellCheck={false} className="mt-2 min-h-28 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" /> : <><div className="mt-2"><CubeStateEditor state={value} onChange={(next) => { setValue(next); setSavedState(next); setResult(null); setCursor(0); setError(""); }} disabled={loading} /></div><div className={cn("mt-3 border-2 p-3 font-mono text-[10px] leading-5", stateValidation?.valid ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/30 bg-[#d95743]/10 text-[#8b2d21]")}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div><details className="mt-3"><summary className="cursor-pointer font-mono text-[9px] font-bold tracking-[0.12em] text-[#17221d]/55">{language === "vi" ? "DÁN CHUỖI 54 STICKER" : "PASTE 54-STICKER STATE"}</summary><textarea value={value} onChange={(event) => { const next = event.target.value.replaceAll(/\s/g, "").toUpperCase(); setValue(next); setSavedState(next); }} spellCheck={false} className="mt-2 min-h-20 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-white p-3 font-mono text-xs outline-none transition focus:border-[#1ba77a]" /></details></>}
+                {mode === "scramble" ? <textarea value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); }} spellCheck={false} className="mt-2 min-h-28 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" /> : <><div className="mt-2"><CubeStateEditor state={value} onChange={applyStateEdit} disabled={loading} canUndo={stateHistory.current.past.length > 0} canRedo={stateHistory.current.future.length > 0} onUndo={undoStateEdit} onRedo={redoStateEdit} /></div><div className={cn("mt-3 border-2 p-3 font-mono text-[10px] leading-5", stateValidation?.valid ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/30 bg-[#d95743]/10 text-[#8b2d21]")}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div><details className="mt-3"><summary className="cursor-pointer font-mono text-[9px] font-bold tracking-[0.12em] text-[#17221d]/55">{language === "vi" ? "DÁN CHUỖI 54 STICKER" : "PASTE 54-STICKER STATE"}</summary><textarea value={value} onChange={(event) => applyStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())} spellCheck={false} className="mt-2 min-h-20 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-white p-3 font-mono text-xs outline-none transition focus:border-[#1ba77a]" /></details></>}
                 {error && <p className="mt-3 rounded-lg bg-[#d95743]/10 p-3 font-mono text-xs leading-5 text-[#9b3023]">{error}</p>}
                 <button disabled={loading || !value.trim() || (mode === "state" && !stateValidation?.valid)} onClick={runSolver} className="mt-4 flex w-full items-center justify-center gap-2 rounded-sm border-2 border-[#17221d] bg-[#1ba77a] px-4 py-3 text-sm font-bold text-[#10241c] shadow-[3px_3px_0_#17221d] transition hover:-translate-y-0.5 hover:bg-[#24bd8d] active:scale-[0.97] disabled:opacity-60">
                   {loading ? <><Loader2 className="h-4 w-4 animate-spin" />{t("input.loading")}</> : <><Sparkles className="h-4 w-4" />{t("input.solve")}</>}
                 </button>
               </div>
             </div>
-            <CameraScanner onState={(state) => { setMode("state"); setValue(state); setSavedState(state); setResult(null); setCursor(0); setError(""); }} />
+            <CameraScanner onState={(state) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(state); setSavedState(state); setResult(null); setCursor(0); setError(""); }} />
           </aside>
 
           <section className="min-w-0">
@@ -211,5 +269,5 @@ function Stat({ label, value, icon }: { label: string; value: string; icon: Reac
 function CFOPReport({ result, language, activePhase, onSelectPhase }: { result: SolverResult; language: "vi" | "en"; activePhase: string | null; onSelectPhase: (phase: SolverResult["phases"][number]) => void }) {
   const vi = language === "vi";
   const totalValid = result.phases.filter((phase) => phase.valid_after && phase.predicate_after).length;
-  return <section className="scorecard mt-7 border-2 border-[#17221d] bg-white p-5 shadow-[6px_6px_0_rgba(23,34,29,0.13)] sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#17221d]/10 pb-4"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">CFOP · {vi ? "BÁO CÁO LỜI GIẢI" : "SOLUTION REPORT"}</p><h3 className="mt-1 text-xl font-black tracking-[-0.05em]">{result.trace.length} {vi ? "nước xoay · 7 phase kiểm tra" : "moves · 7 verified phases"}</h3></div><span className="rounded-sm border border-[#1ba77a]/40 bg-[#1ba77a]/10 px-3 py-2 font-mono text-[10px] font-bold text-[#1b7b5e]">{totalValid} / {result.phases.length} {vi ? "INVARIANT OK" : "INVARIANTS OK"}</span></div><div className="mt-4 space-y-2">{result.phases.map((phase, index) => { const selected = activePhase === phase.name; const notation = phase.algorithm || phase.moves.join(" ") || "—"; return <article key={phase.name} className={cn("border-2 p-3 transition", selected ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/10 bg-[#f4f0e8]")}><div className="flex flex-wrap items-center gap-3"><button type="button" onClick={() => onSelectPhase(phase)} className="grid h-8 w-8 place-items-center rounded-sm bg-[#17221d] font-mono text-[10px] font-bold text-[#f4f0e8]">{String(index + 1).padStart(2, "0")}</button><button type="button" onClick={() => onSelectPhase(phase)} className="min-w-0 flex-1 text-left"><b className="block text-sm">{simplePhase(phase.name, language)}</b><span className="font-mono text-[10px] text-[#17221d]/55">{phase.moves.length} {vi ? "nước" : "moves"}{phase.case_id && phase.case_id !== "solved" ? ` · ${phase.case_id}` : ""}</span></button><span className={cn("rounded-sm border px-2 py-1 font-mono text-[9px] font-bold", phase.valid_after && phase.predicate_after ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/40 bg-[#d95743]/10 text-[#8b2d21]")}>{phase.valid_after && phase.predicate_after ? "INVARIANT ✓" : "CHECK"}</span><button type="button" onClick={() => navigator.clipboard?.writeText(notation)} className="rounded-sm border border-[#17221d]/15 bg-white p-2 text-[#17221d]/60 hover:text-[#17221d]" aria-label={vi ? `Sao chép thuật toán ${phase.name}` : `Copy ${phase.name} algorithm`}><ClipboardCopy className="h-3.5 w-3.5" /></button></div><code className="mt-3 block overflow-x-auto border-t border-[#17221d]/10 pt-3 font-mono text-[11px] leading-5 text-[#17221d]/70">{notation}</code></article>; })}</div></section>;
+  return <section className="scorecard mt-7 border-2 border-[#17221d] bg-white p-5 shadow-[6px_6px_0_rgba(23,34,29,0.13)] sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#17221d]/10 pb-4"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">CFOP · {vi ? "BÁO CÁO LỜI GIẢI" : "SOLUTION REPORT"}</p><h3 className="mt-1 text-xl font-black tracking-[-0.05em]">{result.trace.length} {vi ? "nước xoay · 7 phase kiểm tra" : "moves · 7 verified phases"}</h3></div><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => exportCFOPJson(result)} className="inline-flex items-center gap-1 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2 py-2 font-mono text-[9px] font-bold hover:border-[#17221d]"><FileJson className="h-3.5 w-3.5" />JSON</button><button type="button" onClick={() => exportCFOPImage(result, language)} className="inline-flex items-center gap-1 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2 py-2 font-mono text-[9px] font-bold hover:border-[#17221d]"><ImageDown className="h-3.5 w-3.5" />PNG</button><span className="rounded-sm border border-[#1ba77a]/40 bg-[#1ba77a]/10 px-3 py-2 font-mono text-[10px] font-bold text-[#1b7b5e]">{totalValid} / {result.phases.length} {vi ? "INVARIANT OK" : "INVARIANTS OK"}</span></div></div><div className="mt-4 space-y-2">{result.phases.map((phase, index) => { const selected = activePhase === phase.name; const notation = phase.algorithm || phase.moves.join(" ") || "—"; const studyNote = phaseStudyNote(phase.name, language); return <article key={phase.name} className={cn("border-2 p-3 transition", selected ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/10 bg-[#f4f0e8]")}><div className="flex flex-wrap items-center gap-3"><button type="button" onClick={() => onSelectPhase(phase)} className="grid h-8 w-8 place-items-center rounded-sm bg-[#17221d] font-mono text-[10px] font-bold text-[#f4f0e8]">{String(index + 1).padStart(2, "0")}</button><button type="button" onClick={() => onSelectPhase(phase)} className="min-w-0 flex-1 text-left"><span className="flex items-center gap-1"><b className="block text-sm">{simplePhase(phase.name, language)}</b><Tooltip><TooltipTrigger asChild><span tabIndex={0} className="inline-flex cursor-help text-[#1b7b5e] outline-none focus:ring-2 focus:ring-[#1ba77a]"><Info className="h-3.5 w-3.5" /></span></TooltipTrigger><TooltipContent side="top" className="max-w-80 bg-[#17221d] p-3 text-xs leading-5 text-[#f4f0e8]">{studyNote}</TooltipContent></Tooltip></span><span className="font-mono text-[10px] text-[#17221d]/55">{phase.moves.length} {vi ? "nước" : "moves"}{phase.case_id && phase.case_id !== "solved" ? ` · ${phase.case_id}` : ""}</span></button><Tooltip><TooltipTrigger asChild><span tabIndex={0} className={cn("rounded-sm border px-2 py-1 font-mono text-[9px] font-bold outline-none focus:ring-2 focus:ring-[#1ba77a]", phase.valid_after && phase.predicate_after ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/40 bg-[#d95743]/10 text-[#8b2d21]")}>{phase.valid_after && phase.predicate_after ? "INVARIANT ✓" : "CHECK"}</span></TooltipTrigger><TooltipContent side="top" className="max-w-80 bg-[#17221d] p-3 text-xs leading-5 text-[#f4f0e8]">{studyNote}</TooltipContent></Tooltip><button type="button" onClick={() => navigator.clipboard?.writeText(notation)} className="rounded-sm border border-[#17221d]/15 bg-white p-2 text-[#17221d]/60 hover:text-[#17221d]" aria-label={vi ? `Sao chép thuật toán ${phase.name}` : `Copy ${phase.name} algorithm`}><ClipboardCopy className="h-3.5 w-3.5" /></button></div><code className="mt-3 block overflow-x-auto border-t border-[#17221d]/10 pt-3 font-mono text-[11px] leading-5 text-[#17221d]/70">{notation}</code></article>; })}</div></section>;
 }

@@ -73,3 +73,4 @@
 - CFOP lockup đọc như nhãn dụng cụ: CF và P dùng ink/paper tương phản cao, chỉ O có mint notch; telemetry phụ giảm shadow để nhường visual apex cho thiết bị chính.
 - Mỗi route chỉ có một apparatus cường độ tối đa: Timer Lab là stopwatch; tick rail, shadow và grid ở scorecard phụ chỉ xuất hiện như thước đo gắn với dữ liệu thời gian, move hoặc phase.
 - Studio đặt solver/cube stage làm apparatus duy nhất ở cường độ tối đa; input và phase sidebar dùng record-sheet nhạt hơn. Solver Mint chỉ báo state hiện hành, action hợp lệ và O-notch trong lockup.
+- Giọng Studio là vận hành kỹ thuật: “Kiểm tra trạng thái. Chạy chuỗi CFOP.”, “Kiểm tra & giải CFOP”, “Bàn giải sẵn sàng”; tránh lời hứa học tập chung chung. Rail/tick chỉ gắn với phase, state, move hoặc device status.

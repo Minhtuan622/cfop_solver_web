@@ -2,16 +2,27 @@
  * Xưởng Cơ Khí Tốc Độ — manual state entry stays tactile: one palette, six
  * calibrated faces and fixed centers make a valid CFOP input inspectable.
  */
-import { useState } from "react";
-import { RotateCcw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Redo2, RotateCcw, Undo2 } from "lucide-react";
 import { CUBE_COLOR, FACE_GRID, FACE_OFFSET, FACE_ORDER, SOLVED_STATE } from "@/components/CubeNet";
 import { cn } from "@/lib/utils";
 
 type Face = (typeof FACE_ORDER)[number];
 
-export function CubeStateEditor({ state, onChange, disabled = false }: { state: string; onChange: (state: string) => void; disabled?: boolean }) {
+export function CubeStateEditor({ state, onChange, disabled = false, canUndo = false, canRedo = false, onUndo, onRedo }: { state: string; onChange: (state: string) => void; disabled?: boolean; canUndo?: boolean; canRedo?: boolean; onUndo?: () => void; onRedo?: () => void }) {
   const safeState = state.length === 54 ? state : SOLVED_STATE;
   const [selectedColor, setSelectedColor] = useState<Face>("U");
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      const target = event.target;
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return;
+      if (event.key.toLowerCase() === "z" && !event.shiftKey && canUndo && !disabled) { event.preventDefault(); onUndo?.(); }
+      if ((event.key.toLowerCase() === "y" || (event.key.toLowerCase() === "z" && event.shiftKey)) && canRedo && !disabled) { event.preventDefault(); onRedo?.(); }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [canRedo, canUndo, disabled, onRedo, onUndo]);
   const paintSticker = (face: Face, stickerIndex: number, color: Face) => {
     if (stickerIndex === 4) return;
     const index = FACE_OFFSET[face] + stickerIndex;
@@ -24,12 +35,12 @@ export function CubeStateEditor({ state, onChange, disabled = false }: { state: 
   };
 
   return <div className="rounded-sm border-2 border-[#17221d]/20 bg-[#efe9dc] p-3">
-    <div className="flex flex-wrap items-center justify-between gap-2"><p className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#17221d]/60">BẢNG MÀU · CHẠM STICKER</p><button type="button" disabled={disabled} onClick={() => onChange(SOLVED_STATE)} className="inline-flex items-center gap-1 font-mono text-[9px] font-bold text-[#17221d]/60 hover:text-[#17221d] disabled:opacity-40"><RotateCcw className="h-3 w-3" />RESET</button></div>
+    <div className="flex flex-wrap items-center justify-between gap-2"><p className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#17221d]/60">BẢNG MÀU · CHẠM STICKER</p><div className="flex items-center gap-1"><button type="button" disabled={disabled || !canUndo} onClick={onUndo} className="rounded-sm border border-[#17221d]/20 bg-white p-1.5 text-[#17221d]/65 hover:text-[#17221d] disabled:opacity-30" aria-label="Undo sticker edit" title="Undo · Ctrl/Cmd + Z"><Undo2 className="h-3.5 w-3.5" /></button><button type="button" disabled={disabled || !canRedo} onClick={onRedo} className="rounded-sm border border-[#17221d]/20 bg-white p-1.5 text-[#17221d]/65 hover:text-[#17221d] disabled:opacity-30" aria-label="Redo sticker edit" title="Redo · Ctrl/Cmd + Shift + Z"><Redo2 className="h-3.5 w-3.5" /></button><button type="button" disabled={disabled} onClick={() => onChange(SOLVED_STATE)} className="ml-1 inline-flex items-center gap-1 font-mono text-[9px] font-bold text-[#17221d]/60 hover:text-[#17221d] disabled:opacity-40"><RotateCcw className="h-3 w-3" />RESET</button></div></div>
     <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Bảng màu sticker">{FACE_ORDER.map((face) => <PaletteButton key={face} face={face} selected={selectedColor === face} onSelect={setSelectedColor} disabled={disabled} />)}</div>
     <div className="mt-4 grid grid-cols-4 grid-rows-3 gap-1.5 rounded-sm bg-[#17221d] p-2.5">
       {FACE_ORDER.map((face) => <EditorFace key={face} face={face} state={safeState} selectedColor={selectedColor} disabled={disabled} onPaint={paintSticker} onFill={fillFace} />)}
     </div>
-    <p className="mt-3 font-mono text-[9px] leading-4 text-[#17221d]/55">Tâm mỗi mặt được khóa theo thứ tự U R F D L B. Chọn màu từ palette rồi chạm sticker; nhấn tên mặt để tô toàn bộ mặt đó.</p>
+    <p className="mt-3 font-mono text-[9px] leading-4 text-[#17221d]/55">Tâm mỗi mặt được khóa theo thứ tự U R F D L B. Chọn màu từ palette rồi chạm sticker; nhấn tên mặt để tô toàn bộ mặt đó. Undo/redo: Ctrl/Cmd + Z / Shift + Ctrl/Cmd + Z.</p>
   </div>;
 }
 

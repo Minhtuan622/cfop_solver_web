@@ -582,13 +582,14 @@
   .timer-lab-stack > section:not(.inspection-panel) .tick-ruler { height: 4px; opacity: .36; }
   .timer-lab-stack > section:not(.inspection-panel) .metrics-panel .tick-ruler { opacity: .28; }
   /* Studio hierarchy: solver stage is the single instrument apex; input and phase telemetry recede. */
-  .studio-solver-apparatus { box-shadow: 12px 12px 0 #17221d !important; }
+  .studio-solver-apparatus { box-shadow: 15px 15px 0 #17221d !important; }
   .studio-solver-apparatus .cube3d-guide { box-shadow: 8px 8px 0 rgb(27 167 122 / .55); }
-  .studio-support-panel { box-shadow: 3px 3px 0 rgb(23 34 29 / .20) !important; }
-  .studio-support-panel .tick-ruler { opacity: .32; }
-  .studio-phase-telemetry { box-shadow: 3px 3px 0 rgb(23 34 29 / .14) !important; background-image: linear-gradient(90deg, rgb(23 34 29 / .02) 1px, transparent 1px); background-size: 22px 22px; }
+  .studio-support-panel { box-shadow: 2px 2px 0 rgb(23 34 29 / .14) !important; border-color: rgb(23 34 29 / .72) !important; }
+  .studio-support-panel .tick-ruler { opacity: .18; }
+  .studio-phase-telemetry { border-color: rgb(23 34 29 / .7) !important; box-shadow: 2px 2px 0 rgb(23 34 29 / .10) !important; background-image: linear-gradient(90deg, rgb(23 34 29 / .018) 1px, transparent 1px); background-size: 22px 22px; }
   .studio-phase-telemetry > div > div > div { border-left-width: 3px; }
-  .studio-wordmark { letter-spacing: .025em; }
+  .studio-wordmark { letter-spacing: .035em; font-weight: 900; }
+  .studio-wordmark .wordmark-o { text-decoration-thickness: 3px; }
   .timer-lab-stack .timer-run-panel .timer-card::before { display: block; margin-bottom: .8rem; color: #1ba77a; content: "STOPWATCH / INSPECTION"; font-family: "IBM Plex Mono", monospace; font-size: .62rem; font-weight: 800; letter-spacing: .16em; }
   @media (max-width: 700px) {
     .timer-lab-stack .inspection-cube-wrap .cube3d-guide { min-height: 290px; }

@@ -165,3 +165,11 @@
 - [x] Gọi validation khi state thay đổi, hiển thị lỗi sticker/cubie/parity rõ trước khi chạy solver.
 - [x] Trình bày báo cáo Cross/F2L/OLL/PLL: move count, case ID, thuật toán và invariant theo phase.
 - [x] Thêm điều khiển playback theo phase, chọn tốc độ và làm nổi phase đang phát trên Cube 3D.
+
+## Hoàn thiện State Editor và báo cáo CFOP
+
+- [x] Khảo sát state editor, báo cáo CFOP và utility export hiện có để tái sử dụng an toàn.
+- [x] Thêm lịch sử thao tác sticker với undo/redo, phím tắt và giới hạn 80 trạng thái.
+- [x] Bổ sung tooltip song ngữ giải thích Cross/F2L/OLL/PLL, case và invariant.
+- [x] Xuất báo cáo CFOP dạng JSON có cấu trúc và ảnh PNG có thể chia sẻ.
+- [x] Kiểm tra keyboard/tooltip, responsive, TypeScript và production build; download dùng Blob client-side.
