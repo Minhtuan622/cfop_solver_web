@@ -1,4 +1,7 @@
 export type SolvePenalty = "none" | "+2" | "DNF";
+export const SPLIT_PHASES = ["Cross", "F2L", "OLL", "PLL"] as const;
+export type SplitPhase = (typeof SPLIT_PHASES)[number];
+export type SolvePhaseSplit = { phase: SplitPhase; markedAtMs: number; elapsedMs: number };
 export type SolveHistoryEntry = {
   id: string;
   createdAt: number;
@@ -11,6 +14,7 @@ export type SolveHistoryEntry = {
   solution: string;
   note: string;
   tags: string[];
+  phaseSplits: SolvePhaseSplit[];
 };
 
 const KEY = "cfop-solve-history-v1";
@@ -19,6 +23,23 @@ type Imported = Partial<SolveHistoryEntry> & Record<string, unknown>;
 
 function safePenalty(value: unknown): SolvePenalty { return value === "+2" || value === "DNF" ? value : "none"; }
 function safeTags(value: unknown): string[] { return Array.isArray(value) ? Array.from(new Set(value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean))).slice(0, 12) : []; }
+function safePhaseSplits(value: unknown): SolvePhaseSplit[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<SplitPhase>();
+  const splits: SolvePhaseSplit[] = [];
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const split = item as Partial<SolvePhaseSplit>;
+    if (!SPLIT_PHASES.includes(split.phase as SplitPhase) || seen.has(split.phase as SplitPhase)) continue;
+    if (typeof split.markedAtMs !== "number" || !Number.isFinite(split.markedAtMs) || split.markedAtMs < 0) continue;
+    if (typeof split.elapsedMs !== "number" || !Number.isFinite(split.elapsedMs) || split.elapsedMs < 0) continue;
+    const previous = splits.at(-1)?.markedAtMs ?? 0;
+    if (split.markedAtMs < previous) continue;
+    seen.add(split.phase as SplitPhase);
+    splits.push({ phase: split.phase as SplitPhase, markedAtMs: Math.round(split.markedAtMs), elapsedMs: Math.round(split.elapsedMs) });
+  }
+  return splits.slice(0, SPLIT_PHASES.length);
+}
 function normalize(item: Imported): SolveHistoryEntry {
   return {
     id: typeof item.id === "string" && item.id ? item.id : crypto.randomUUID(),
@@ -32,6 +53,7 @@ function normalize(item: Imported): SolveHistoryEntry {
     solution: typeof item.solution === "string" ? item.solution : "",
     note: typeof item.note === "string" ? item.note.slice(0, 500) : "",
     tags: safeTags(item.tags),
+    phaseSplits: safePhaseSplits(item.phaseSplits),
   };
 }
 function write(entries: SolveHistoryEntry[]) { localStorage.setItem(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); }
@@ -39,10 +61,10 @@ function write(entries: SolveHistoryEntry[]) { localStorage.setItem(KEY, JSON.st
 export function readSolveHistory(): SolveHistoryEntry[] {
   try { return (JSON.parse(localStorage.getItem(KEY) ?? "[]") as Imported[]).filter((item) => item && typeof item === "object").map(normalize); } catch { return []; }
 }
-export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags">>): SolveHistoryEntry {
+export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags" | "phaseSplits"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry {
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readSolveHistory()]); return item;
 }
-export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
+export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
 export function deleteSolveHistory(id: string): SolveHistoryEntry[] { const next = readSolveHistory().filter((entry) => entry.id !== id); write(next); return next; }
 export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry[] { const selected = new Set(ids); const next = readSolveHistory().filter((entry) => !selected.has(entry.id)); write(next); return next; }
 export function clearSolveHistory() { localStorage.removeItem(KEY); }

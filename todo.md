@@ -113,9 +113,19 @@
 
 ## Playback TPS theo pha và timer tối giản
 
-- [ ] Khảo sát layout Timer Lab, metadata solution và orbit control Cube3D hiện có.
-- [ ] Di chuyển readout timer vào panel scramble, loại bỏ nút bắt đầu và để Space là thao tác khởi động duy nhất.
-- [ ] Thêm công tắc bật/tắt âm cảnh báo inspection, lưu tùy chọn cục bộ.
-- [ ] Tính TPS Cross/F2L/OLL/PLL từ solution đã lưu và hiển thị biểu đồ playback theo pha.
-- [ ] Giữ drag orbit, zoom và reset góc của cube hoạt động trong dialog playback.
-- [ ] Kiểm tra TypeScript, build, luồng Space/audio/TPS/cube và lưu checkpoint.
+- [x] Khảo sát layout Timer Lab, metadata solution và orbit control Cube3D hiện có.
+- [x] Di chuyển readout timer vào panel scramble, loại bỏ nút bắt đầu và để Space là thao tác khởi động duy nhất.
+- [x] Thêm công tắc bật/tắt âm cảnh báo inspection, lưu tùy chọn cục bộ.
+- [x] Tính TPS Cross/F2L/OLL/PLL từ solution đã lưu và hiển thị biểu đồ playback theo pha.
+- [x] Giữ drag orbit, zoom và reset góc của cube hoạt động trong dialog playback.
+- [x] Kiểm tra TypeScript, build, luồng Space/audio/TPS/cube và lưu checkpoint.
+
+## Luyện speedcubing với bấm mốc pha
+
+- [x] Cài chế độ Split bằng Space sau inspection: Space khởi động inspection, Space tiếp bắt đầu solve; bốn Space tiếp theo chốt Cross, F2L, OLL và dừng solve/chốt PLL.
+- [x] Thêm công tắc bật/tắt Split bằng Space, khi tắt duy trì Space bắt đầu/dừng như timer hiện tại.
+- [x] Hiển thị pha sắp ghi và các mốc đã ghi trong khi solve; không thêm hoàn tác theo quyết định người dùng.
+- [x] Mở rộng schema history để lưu split từng pha, thời điểm mốc và tương thích dữ liệu cũ.
+- [x] Tính trực tiếp duration Cross/F2L/OLL/PLL từ mốc timer; TPS theo pha vẫn dùng metadata solution khi người dùng có lưu notation.
+- [x] Hiển thị phân tích phase split trong lịch sử, CSV export và playback.
+- [x] Kiểm tra keyboard focus, TypeScript, production build và render giao diện Split bằng Space; cơ chế +2/DNF inspection được giữ nguyên.

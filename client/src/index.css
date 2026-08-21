@@ -513,6 +513,14 @@
   .timer-lab .timer-readout-only { border-width: 3px; box-shadow: 8px 8px 0 rgb(23 34 29 / .18); }
   .timer-lab .timer-readout-only > p:first-child { font-size: clamp(5.8rem, 10vw, 8.6rem); letter-spacing: -.14em; }
   .timer-lab .metrics-panel .history-panel::before { display: block; width: 66px; height: 4px; margin-bottom: 1rem; background: repeating-linear-gradient(90deg, #1ba77a 0 2px, transparent 2px 8px); content: ""; }
+  .timer-lab .timer-readout-only { border-width: 4px; background-color: #f8f5ed; box-shadow: 12px 12px 0 #17221d; }
+  .timer-lab .timer-readout-only > p:first-child { color: #10241c; font-size: clamp(6.3rem, 11.5vw, 9.5rem); }
+  .timer-lab .inspection-cube-wrap { max-width: 300px; justify-self: end; }
+  .timer-lab .inspection-cube-wrap .cube3d-guide { background: #1d2b25; box-shadow: 5px 5px 0 rgb(23 34 29 / .22); }
+  .timer-lab .inspection-cube-wrap .cube3d-stage { min-height: 172px; }
+  .timer-lab .inspection-cube-wrap .cube3d-model { transform: var(--cube-transform, rotateX(-26deg) rotateY(34deg)) scale(.9) !important; }
+  .timer-lab .history-header .wordmark { font-size: clamp(.92rem, 1.35vw, 1.12rem); letter-spacing: .08em; }
+  .timer-lab .history-header .wordmark-o { margin-inline: .02em; }
   .timer-lab-stack .timer-run-panel .timer-card::before { display: block; margin-bottom: .8rem; color: #1ba77a; content: "STOPWATCH / INSPECTION"; font-family: "IBM Plex Mono", monospace; font-size: .62rem; font-weight: 800; letter-spacing: .16em; }
   @media (max-width: 700px) {
     .timer-lab-stack .inspection-cube-wrap .cube3d-guide { min-height: 290px; }

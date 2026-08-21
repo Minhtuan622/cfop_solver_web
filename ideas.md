@@ -68,3 +68,5 @@
 - Mỗi route chỉ có một apparatus ở cường độ tối đa; panel phụ giảm shadow, grid và saturation để nhịp scorecard rõ hơn.
 - Trong Timer Lab, stopwatch là readout lớn nhất; cube là thiết bị quan sát duy nhất dùng dark ink còn scramble, metrics và log là giấy kỹ thuật hỗ trợ.
 - Empty-state phải đọc như record sheet đang chờ phép đo, dùng nhãn vận hành và telemetry rail thay vì lời nhắc app chung chung.
+- Timer Lab chỉ để stopwatch làm visual apex; stage cube inspection giảm quy mô và saturation để trở thành thiết bị quan sát phụ trợ.
+- Wordmark CFOP Solver Studio được ưu tiên rõ ở header; Solver Mint chỉ đánh dấu O, trạng thái hiện hành và action hợp lệ.
