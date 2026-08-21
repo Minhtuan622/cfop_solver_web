@@ -7,7 +7,7 @@ import {
   ArrowLeft, ArrowRight, Braces, Check, ChevronRight, CircleGauge,
   Cpu, Loader2, Play, RotateCcw, ShieldCheck, Sparkles,
 } from "lucide-react";
-import { History, Timer } from "lucide-react";
+import { Timer } from "lucide-react";
 import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
@@ -110,7 +110,6 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2 rounded-sm border border-[#f4f0e8]/20 bg-[#f4f0e8]/5 px-3 py-2 font-mono text-[11px]">
               <Link href="/timer" className="inline-flex items-center gap-1 rounded px-1.5 py-1 text-[#f4f0e8]/75 hover:bg-white/10 hover:text-[#f4f0e8]"><Timer className="h-3 w-3" />Timer Lab</Link>
-              <Link href="/history" className="inline-flex items-center gap-1 rounded px-1.5 py-1 text-[#f4f0e8]/75 hover:bg-white/10 hover:text-[#f4f0e8]"><History className="h-3 w-3" />{language === "vi" ? "Lịch sử" : "History"}</Link>
               <span className="h-2 w-2 rounded-full bg-[#1ba77a] shadow-[0_0_0_4px_rgba(27,167,122,0.18)]" />
               <button onClick={() => setLanguage("vi")} className={cn("rounded px-1.5 py-1", language === "vi" ? "bg-[#1ba77a] text-[#17221d]" : "text-[#f4f0e8]/65")}>VI</button><button onClick={() => setLanguage("en")} className={cn("rounded px-1.5 py-1", language === "en" ? "bg-[#1ba77a] text-[#17221d]" : "text-[#f4f0e8]/65")}>EN</button>
             </div>
@@ -148,7 +147,7 @@ export default function Home() {
                 <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{t("guide.step")} · {String(cursor).padStart(2, "0")} / {String(totalMoves).padStart(2, "0")}</p><h2 className="mt-2 text-3xl font-bold tracking-[-0.055em] sm:text-4xl">{activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
                 <div className="rounded-sm border-2 border-[#17221d]/15 bg-[#f4f0e8] px-4 py-3 font-mono text-xs shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><p className="text-[#17221d]/45">{t("guide.move").toUpperCase()}</p><p className="mt-1 text-2xl font-bold text-[#1ba77a]">{currentStep?.move ?? "—"}</p></div>
               </div>
-              <div className="mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={currentState} /></div><Cube3DGuide state={currentState} move={currentStep?.move} step={cursor} /></div>
+              <div className="mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={currentState} /></div><Cube3DGuide state={currentState} move={currentStep?.move} step={cursor} crossColor={crossColor} /></div>
               <div className="mt-7 flex flex-wrap items-center gap-3">
                 <button onClick={() => updateCursor(Math.max(0, cursor - 1))} disabled={cursor === 0} className="control-button"><ArrowLeft className="h-4 w-4" />{t("guide.previous")}</button>
                 <button onClick={() => setPlaying((value) => !value)} disabled={!result || cursor === totalMoves} className="flex items-center gap-2 rounded-lg bg-[#17221d] px-5 py-3 text-sm font-bold text-[#f4f0e8] transition hover:bg-[#26372e] active:scale-[0.97] disabled:opacity-40">{playing ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}{playing ? t("guide.pause") : t("guide.play")}</button>

@@ -56,3 +56,15 @@
 - [x] Đổi nhãn hướng dẫn thành Cross, F2L 1–4, OLL, PLL.
 - [x] Nâng cấp animation cube 3D và kiểm tra reduced motion.
 - [x] Chạy typecheck, build, kiểm tra luồng browser và lưu checkpoint.
+
+## Timer Lab nâng cao và inspection Cross
+
+- [x] Khảo sát schema lịch sử timer, component Cube3D và luồng Timer Lab hiện có.
+- [x] Sửa animation để chỉ mặt/lớp theo move quay, không xoay cả khối.
+- [x] Thêm inspection làm nổi sticker/cubie thuộc màu Cross đang chọn trên cube 3D.
+- [x] Tự lưu lượt solve khi timer dừng, không phụ thuộc solution.
+- [x] Hiển thị lịch sử solve, PB và Ao5 ngay trong Timer Lab; bỏ route History độc lập.
+- [x] Thêm xuất CSV cho lịch sử Timer Lab.
+- [x] Tạo nhập solution qua bàn phím move/chips, vẫn cho phép dán chuỗi notation.
+- [x] Bỏ khu vực hướng dẫn sử dụng timer.
+- [x] Kiểm tra typecheck, build, browser flows và lưu checkpoint.
