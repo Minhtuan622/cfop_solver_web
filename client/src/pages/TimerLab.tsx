@@ -3,7 +3,7 @@
  * Competition giữ scramble/inspection/history; Study bay dùng score-strip, mint progress và case-first repetition.
  */
 import { ClipboardCheck, Download, Dices, FileDown, FileUp, Pause, Pencil, Play, RotateCcw, Search, Settings2, Tag, Trash2 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
@@ -90,7 +90,9 @@ export default function TimerLab() {
   const [replayStep, setReplayStep] = useState(0);
   const [replayPlaying, setReplayPlaying] = useState(false);
   const [replaySpeed, setReplaySpeed] = useState(1);
-  const [labTab, setLabTab] = useState<"timer" | "study">(() => window.location.pathname === "/study" || new URLSearchParams(window.location.search).get("tab") === "study" ? "study" : "timer");
+  const [location, navigate] = useLocation();
+  const labTab: "timer" | "study" = location.split("?")[0] === "/study" ? "study" : "timer";
+  const setLabTab = (next: "timer" | "study") => navigate(next === "study" ? "/study" : "/timer");
   const [timerSettingsOpen, setTimerSettingsOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 

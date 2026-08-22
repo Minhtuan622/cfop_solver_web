@@ -355,3 +355,11 @@
 - [x] Sửa Study mở đúng route và chỉ hiển thị nội dung/phân tích Split khi Speed split bật.
 - [x] Ẩn các tính năng Timer phụ thuộc split khi Speed split tắt, không ảnh hưởng solve thường.
 - [x] Kiểm tra route, language, split on/off, responsive, TypeScript, build và checkpoint.
+
+## Route Timer–Study và Settings gọn có tooltip
+
+- [x] Rà soát nguyên nhân Timer–Study không chuyển được và các heading/khối thừa ở Settings/Study.
+- [x] Chuyển route bằng điều hướng tin cậy, không phụ thuộc query hoặc state nội bộ cũ.
+- [x] Thu gọn Settings, thêm tooltip giải thích cho người mới.
+- [x] Bỏ heading thừa ở Settings/Study, giữ thông tin cần thiết ở vị trí gọn hơn.
+- [x] Kiểm tra điều hướng, tooltip, desktop/mobile, TypeScript, build và checkpoint.

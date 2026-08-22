@@ -104,3 +104,6 @@
 - Header Timer Lab và intro Study Bay là nameplate nén; right rail hiển thị mục tiêu, queue và trạng thái học qua tick/rule liên tục, không thành card thông tin độc lập.
 - Timer Competition có stopwatch là apparatus ink/shadow/grid cường độ cao duy nhất. Scramble, setup, analytics và nhật ký chỉ là record-sheet giấy nhạt; header luôn là nameplate nén.
 - Mark Timer Lab dùng dấu cube 3×3 vuông sắc như technical stamp; wordmark CFOP đọc liên tục và O mint-notch vẫn là điểm nhận diện duy nhất.
+- Lockup luôn đọc liền thành “CFOP Solver Studio” bên cạnh cube mark; chữ CFOP không được xuống dòng hoặc tách nhịp, chỉ O có notch Solver Mint.
+- Mỗi route chỉ có một apparatus dark-ink/shadow/grid ở cường độ tối đa; số liệu, log, empty state và khối điều khiển chuyển thành ruled-paper score sheet phẳng hơn.
+- Settings là tờ hiệu chuẩn: nhóm đánh số, mint rail dọc, ruled row, trạng thái mono; không sử dụng cảm giác card dashboard độc lập.
