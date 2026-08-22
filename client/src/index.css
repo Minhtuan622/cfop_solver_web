@@ -1017,6 +1017,13 @@
     }
   }
 
+  /* Studio/Timer compact pass — navigation is global; local surfaces begin with the active instrument. */
+  .timer-scramble-actions button { display: grid; width: 27px; height: 27px; place-items: center; border: 1px solid rgb(23 34 29 / .24); background: #f4f0e8; color: rgb(23 34 29 / .66); transition: color 160ms ease-out, background-color 160ms ease-out, transform 160ms ease-out; }
+  .timer-scramble-actions button:hover { border-color: #17221d; background: #1ba77a; color: #17221d; }.timer-scramble-actions button:active { transform: scale(.96); }
+  .studio-telemetry-column .studio-cfop-report { margin-top: 0; border-color: rgb(23 34 29 / .6); background-image: linear-gradient(90deg, rgb(23 34 29 / .015) 1px, transparent 1px); background-size: 24px 24px; }.studio-telemetry-column .studio-cfop-report .scorecard::before { border-color: transparent; }.studio-report-empty { position: relative; border-left: 4px solid #1ba77a; background-image: linear-gradient(90deg, rgb(23 34 29 / .012) 1px, transparent 1px); background-size: 24px 24px; }
+  .studio-telemetry-column .studio-cfop-report h3 { font-size: 1rem; line-height: 1.25; }.studio-report-phases summary::marker, .studio-report-options summary::marker { color: #1ba77a; }
+  .last-layer-explorer-study { position: relative; background-image: linear-gradient(90deg, rgb(23 34 29 / .014) 1px, transparent 1px); background-size: 24px 24px; box-shadow: 2px 2px 0 rgb(23 34 29 / .1); }.last-layer-explorer-study::before { position: absolute; top: .8rem; bottom: .8rem; left: .5rem; width: 2px; background: repeating-linear-gradient(to bottom, rgb(27 167 122 / .55) 0 6px, transparent 6px 12px); content: ""; }.last-layer-explorer-study > * { position: relative; }.study-action-rail { min-height: 34px; }
+
   /* Final hierarchy pass — one continuous nameplate and calibrated score sheets outside the active apparatus. */
   .app-shell-nav-inner { gap: .7rem; }
   .app-shell-brand { gap: .38rem; }
@@ -1024,14 +1031,14 @@
   .app-shell-brand b { display: inline-flex; align-items: baseline; font-size: 12px; font-weight: 900; letter-spacing: .055em; white-space: nowrap; }
   .app-shell-brand em { display: inline !important; color: rgb(23 34 29 / .58); font-family: "IBM Plex Mono", monospace; font-size: 8px; font-style: normal; font-weight: 800; letter-spacing: .12em; white-space: nowrap; }
   .app-shell-o { position: relative; display: inline-block; color: #1ba77a; }
-  .app-shell-o::after { position: absolute; right: .08em; bottom: .03em; width: .28em; height: .13em; background: #1ba77a; content: ""; }
+  .app-shell-o::after { position: absolute; right: .08em; bottom: .03em; width: .28em; height: .13em; background: #1ba77a; content: ""; }.app-shell-brand img { width: 28px; height: 28px; }.app-shell-brand b { font-size: 13px; }.app-shell-brand em { font-size: 8.5px; color: rgb(23 34 29 / .68); }
   .timer-lab .history-panel.bg-\[\#17221d\] { border-color: rgb(23 34 29 / .45) !important; background: #efe9dc !important; color: #17221d !important; box-shadow: 1px 1px 0 rgb(23 34 29 / .1) !important; }
   .timer-lab .history-panel.bg-\[\#17221d\] .tick-ruler { background: repeating-linear-gradient(90deg, #1ba77a 0 1px, transparent 1px 12px, #17221d 12px 13px, transparent 13px 24px) !important; opacity: .42; }
   .timer-lab .history-panel.bg-\[\#17221d\] p, .timer-lab .history-panel.bg-\[\#17221d\] span { color: rgb(23 34 29 / .62) !important; }
   .timer-lab .history-panel.bg-\[\#17221d\] p.font-mono { color: #1b7b5e !important; }
   .timer-lab .history-panel.bg-\[\#17221d\] .grid > div { border-color: rgb(23 34 29 / .2) !important; background: #f8f5ed !important; }
   .timer-lab .history-panel.bg-\[\#17221d\] .grid > div b { color: #17221d !important; }
-  .timer-lab .history-panel.bg-\[\#17221d\] > p { border-color: rgb(23 34 29 / .22) !important; color: rgb(23 34 29 / .58) !important; }
+  .timer-lab .history-panel.bg-\[\#17221d\] > p { border-color: rgb(23 34 29 / .22) !important; color: rgb(23 34 29 / .58) !important; }.timer-lab .timer-secondary-sheet, .timer-lab .history-panel:not(.timer-competition-apparatus) { border-color: rgb(23 34 29 / .34) !important; box-shadow: none !important; }.timer-lab .timer-secondary-sheet .history-panel { border-width: 1px !important; background-color: #f8f5ed !important; box-shadow: inset 2px 0 0 rgb(27 167 122 / .35) !important; }.timer-lab .timer-secondary-sheet .tick-ruler, .timer-lab .history-panel:not(.timer-competition-apparatus) .tick-ruler { height: 3px; opacity: .25; }.timer-lab .history-panel:not(.timer-competition-apparatus) { background-image: linear-gradient(90deg, rgb(23 34 29 / .01) 1px, transparent 1px) !important; background-size: 24px 24px !important; }
   .settings-workbench > .grid { position: relative; isolation: isolate; }
   .settings-workbench > .grid::before { position: absolute; z-index: -1; top: 1.35rem; bottom: 1.35rem; left: calc(50% - 1px); width: 2px; background: repeating-linear-gradient(to bottom, rgb(27 167 122 / .42) 0 7px, transparent 7px 14px); content: ""; }
   .settings-sheet { position: relative; border-color: rgb(23 34 29 / .66); background-image: linear-gradient(90deg, rgb(23 34 29 / .012) 1px, transparent 1px) !important; background-size: 28px 28px !important; box-shadow: 1px 1px 0 rgb(23 34 29 / .1); }

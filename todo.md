@@ -363,3 +363,11 @@
 - [x] Thu gọn Settings, thêm tooltip giải thích cho người mới.
 - [x] Bỏ heading thừa ở Settings/Study, giữ thông tin cần thiết ở vị trí gọn hơn.
 - [x] Kiểm tra điều hướng, tooltip, desktop/mobile, TypeScript, build và checkpoint.
+
+## Tinh gọn Studio, Timer và Last Layer Explorer
+
+- [x] Rà soát heading, scramble controls, CFOP report và Last Layer Explorer hiện có để xác định luồng dữ liệu cần giữ.
+- [x] Loại bỏ heading thừa ở Studio/Timer; đưa tạo scramble và copy thành icon nhỏ dưới chuỗi scramble.
+- [x] Dời Last Layer Explorer sang Study Bay, gom bộ lọc/case/progress/mastery và tránh trùng với SRS hiện có.
+- [x] Chuyển CFOP report vào vùng Explorer cũ ở Studio, đảm bảo report vẫn giữ phase, invariant, move và export cần thiết.
+- [x] Kiểm tra luồng solver, Study Explorer, Timer scramble, responsive, TypeScript, production build và checkpoint.

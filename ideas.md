@@ -107,3 +107,6 @@
 - Lockup luôn đọc liền thành “CFOP Solver Studio” bên cạnh cube mark; chữ CFOP không được xuống dòng hoặc tách nhịp, chỉ O có notch Solver Mint.
 - Mỗi route chỉ có một apparatus dark-ink/shadow/grid ở cường độ tối đa; số liệu, log, empty state và khối điều khiển chuyển thành ruled-paper score sheet phẳng hơn.
 - Settings là tờ hiệu chuẩn: nhóm đánh số, mint rail dọc, ruled row, trạng thái mono; không sử dụng cảm giác card dashboard độc lập.
+- Panel phụ luôn là ruled-paper record: border nhẹ, shadow tối thiểu; chỉ apparatus chính của route được dùng dark ink hoặc material shadow mạnh.
+- Vùng chờ và khoảng trống phải là field đo lường có rule/tick/telemetry, không là canvas trắng chưa hoàn tất.
+- Hệ cube dùng chung sticker-plane isometric sắc nét và controlled shadow; tránh glow trang trí hoặc phong cách render không thống nhất.
