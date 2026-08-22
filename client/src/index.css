@@ -891,6 +891,7 @@
   .studio-fallback-telemetry b { color: #17221d; }
   .studio-fallback-path { margin-left: auto; overflow-wrap: anywhere; }
   @media (max-width: 639px) { .studio-fallback-path { width: 100%; margin-left: 0; } }
+  .studio-route-detail { width: 100%; border-top: 1px dashed rgb(23 34 29 / .16); padding-top: .38rem; color: rgb(23 34 29 / .58); }.studio-route-detail summary { cursor: pointer; font-size: .53rem; font-weight: 800; letter-spacing: .13em; }.studio-route-detail p { margin-top: .3rem; overflow-wrap: anywhere; line-height: 1.45; }.studio-telemetry-column .studio-cfop-report h3 { overflow-wrap: anywhere; }.studio-telemetry-column .studio-cfop-report h3 span { display: inline-block; white-space: nowrap; }
   .timer-lab-stack .timer-run-panel .timer-card::before { display: block; margin-bottom: .8rem; color: #1ba77a; content: "STOPWATCH / INSPECTION"; font-family: "IBM Plex Mono", monospace; font-size: .62rem; font-weight: 800; letter-spacing: .16em; }
   @media (max-width: 700px) {
     .timer-lab-stack .inspection-cube-wrap .cube3d-guide { min-height: 290px; }

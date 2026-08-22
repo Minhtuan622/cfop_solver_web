@@ -379,3 +379,11 @@
 - [x] Điều chỉnh search/macro/depth hoặc metadata fallback để XXXXCross có cơ hội tìm nghiệm đúng thay vì luôn dừng XCross.
 - [x] Đổi scramble mặc định Studio thành scramble ngẫu nhiên hợp lệ, không cố định R U R' U'.
 - [x] Chạy regression solver, nhúng lại Pyodide worker, kiểm tra giao diện opening và build production trước checkpoint.
+
+## Strict opening, Last Layer direct và report gọn
+
+- [x] Rà soát staged opening vừa thêm để bảo đảm không ghi nhận Cross → F2L tuần tự là XX/XXX/XXXXCross.
+- [x] Benchmark scramble D2 B' R' F2 D2 L' B L B' D2 B' F L' R' U2 F' D U' L F và kiểm tra phase/invariant thực tế.
+- [x] Truy vết điều kiện nhận diện ZBLL/1LLL, catalog lookup và telemetry fallback trước khi sửa router Last Layer.
+- [x] Chỉnh typography/bố cục CFOP report để label dài không tràn hoặc vỡ nhịp cột hẹp.
+- [x] Bổ sung regression strict opening/Last Layer, nhúng worker, kiểm tra browser và production build trước checkpoint.
