@@ -431,3 +431,10 @@
 - [x] Thêm drag dọc, reset hai trục và copy hướng dẫn thao tác ngắn gọn.
 - [x] Kiểm thử yaw 360°, pitch trên/dưới, Cross U/R/F/D/L/B, desktop/mobile và build.
 - [x] Checkpoint sau khi xác minh Cube 3D hai trục ổn định.
+
+## Camera tự do không auto-reset
+
+- [x] Rà soát lifecycle camera khi đổi Cross/state/phase để xác định nguyên nhân góc drag bị trả về gốc.
+- [x] Tách camera người dùng khỏi orientation state và chỉ reset khi bấm nút reset.
+- [x] Giữ pitch anti-flip nhưng không clamp/wrap theo cách làm nhảy góc khi kéo liên tục.
+- [x] Kiểm thử kéo tự do dài, click/tap, chuyển phase, TypeScript/build và checkpoint.

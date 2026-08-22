@@ -34,11 +34,11 @@ for (const orbit of [-125, 0, 125]) {
   console.log(`orbit ${orbit}: U/R/F/D/L/B all share ${reference}`);
 }
 
-const wrapOrbit = (degrees) => ((degrees + 180) % 360 + 360) % 360 - 180;
-for (const [input, expected] of [[0, 0], [360, 0], [720, 0], [540, -180], [-540, -180], [361, 1]]) {
-  if (wrapOrbit(input) !== expected) throw new Error(`Orbit wrap mismatch: ${input} -> ${wrapOrbit(input)}, expected ${expected}`);
+const freeOrbit = (start, deltaX) => start + deltaX * 0.42;
+for (const [start, deltaX, expected] of [[0, 360 / 0.42, 360], [360, 360 / 0.42, 720], [-360, -360 / 0.42, -720]]) {
+  if (freeOrbit(start, deltaX) !== expected) throw new Error(`Free orbit mismatch: ${start} + ${deltaX} -> ${freeOrbit(start, deltaX)}, expected ${expected}`);
 }
-console.log("orbit wrap: 360° continuous");
+console.log("orbit: free 360° / 720° with no automatic wrap or reset");
 
 const clampPitch = (degrees) => Math.max(-72, Math.min(64, degrees));
 for (const [input, expected] of [[-200, -72], [-72, -72], [0, 0], [64, 64], [200, 64]]) {
