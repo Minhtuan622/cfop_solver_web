@@ -57,3 +57,9 @@
 - Cube3DGuide chỉ thay đổi yaw/pitch sau khi pointer di chuyển ít nhất 7px; một click/tap không thể cập nhật camera. Pointer capture được giải phóng khi kết thúc thao tác.
 - Stopwatch và Cube 3D hiện cùng một apparatus nền ink; desktop đặt cạnh nhau, mobile xếp dọc vẫn giữ bề mặt chạm/readout lớn. Cài đặt timer và Cài đặt Solver được gom dưới details, còn analytics/history nằm ở record-sheet phụ.
 - TypeScript và production build pass; desktop và mobile render không tràn layout.
+
+## Xác minh sửa dứt điểm Settings và tương tác Cube
+
+- Pointer mouse chỉ orbit khi giữ nút trái, kéo quá 7px; touch phải nhấn giữ 180ms và kéo quá 14px. Click/tap ngắn không thể cập nhật camera; pinch/scroll/reset vẫn hoạt động.
+- Timer Competition có nút Cài đặt mở Settings panel thật bên phải, gom Cross color, inspection, practice, split input và mục tiêu pha. Accordion setup cũ bị loại khỏi bố cục; analytics là record-sheet mở cố định, history riêng biệt.
+- Screenshot desktop/mobile xác nhận apparatus Timer–Cube, Settings trigger và không có tràn layout. TypeScript và production build pass.

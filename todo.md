@@ -331,3 +331,11 @@
 - [x] Đặt Cube 3D cạnh stopwatch trong cùng apparatus tối, vẫn có preview/zoom cần thiết.
 - [x] Gom control Competition thành Cài đặt rõ ràng, giữ lịch sử và analytics truy cập có chủ đích.
 - [x] Kiểm tra click/drag, timer, settings, desktop/mobile, TypeScript, build và checkpoint.
+
+## Sửa dứt điểm Timer Lab Settings và Cube 3D
+
+- [x] Phân tích lại pointer/touch của Cube3DGuide và tất cả accordion Timer Competition.
+- [x] Chuyển camera Cube sang chế độ kéo có chủ ý, click/tap tuyệt đối không xoay.
+- [x] Xây dựng Settings panel thật cho Timer Competition, không dùng dropdown để giấu thao tác cốt lõi.
+- [x] Đưa analytics/history vào record-sheet rõ ràng, bỏ accordion không cần thiết.
+- [x] Kiểm tra click/tap/drag, Settings, desktop/mobile, TypeScript, build và checkpoint.
