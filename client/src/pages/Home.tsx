@@ -509,14 +509,15 @@ function CFOPPhaseRow({ phase, index, language, selected, cursor, onSelect, onSe
   const studyNote = phaseStudyNote(phase.name, language);
   const lessonUrl = phaseLessonUrl(phase.name);
   const invariantOK = phase.valid_after && phase.predicate_after;
+  const compactName = phase.name.startsWith("xxxxcross") ? "XXXXCross" : phase.name.startsWith("xxxcross") ? "XXXCross" : phase.name.startsWith("xxcross") ? "XXCross" : phase.name.startsWith("xcross") ? "XCross" : phase.name.startsWith("f2l_") ? `F2L · ${phase.name.slice(4)}` : phase.name.toUpperCase();
   return <article className={cn("border-2 p-3 transition", selected ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/10 bg-[#f4f0e8]")}>
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="grid min-w-0 grid-cols-[2rem_minmax(0,1fr)_auto_auto] items-center gap-2">
       <button type="button" onClick={() => onSelect(phase)} className="grid h-8 w-8 place-items-center rounded-sm bg-[#17221d] font-mono text-[10px] font-bold text-[#f4f0e8]">{String(index + 1).padStart(2, "0")}</button>
       <button type="button" onClick={() => onSelect(phase)} className="min-w-0 flex-1 text-left">
-        <span className="flex min-w-0 items-start gap-1"><b className="block min-w-0 break-words text-sm">{simplePhase(phase.name, language)}</b><PhaseStudyTooltip studyNote={studyNote} lessonUrl={lessonUrl} vi={vi} /></span>
-        <span className="font-mono text-[10px] text-[#17221d]/55">{phase.moves.length} {vi ? "nước" : "moves"}{phase.case_id && phase.case_id !== "solved" ? " · " + phase.case_id : ""}</span>
+        <span className="flex min-w-0 items-center gap-1"><b title={simplePhase(phase.name, language)} className="block min-w-0 truncate text-sm">{compactName}</b><PhaseStudyTooltip studyNote={studyNote} lessonUrl={lessonUrl} vi={vi} /></span>
+        <span className="block truncate font-mono text-[10px] text-[#17221d]/55">{phase.moves.length} {vi ? "nước" : "moves"}{phase.case_id && phase.case_id !== "solved" ? " · " + phase.case_id : ""}</span>
       </button>
-      <PhaseStudyTooltip studyNote={studyNote} lessonUrl={lessonUrl} vi={vi} trigger={<span tabIndex={0} className={cn("rounded-sm border px-2 py-1 font-mono text-[9px] font-bold outline-none focus:ring-2 focus:ring-[#1ba77a]", invariantOK ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/40 bg-[#d95743]/10 text-[#8b2d21]")}>{invariantOK ? "INVARIANT ✓" : "CHECK"}</span>} />
+      <PhaseStudyTooltip studyNote={studyNote} lessonUrl={lessonUrl} vi={vi} trigger={<span tabIndex={0} title={invariantOK ? "Invariant verified" : "Check invariant"} className={cn("rounded-sm border px-1.5 py-1 font-mono text-[8px] font-bold outline-none focus:ring-2 focus:ring-[#1ba77a]", invariantOK ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/40 bg-[#d95743]/10 text-[#8b2d21]")}>{invariantOK ? "✓" : "!"}</span>} />
       <button type="button" onClick={() => navigator.clipboard?.writeText(notation)} className="rounded-sm border border-[#17221d]/15 bg-white p-2 text-[#17221d]/60 hover:text-[#17221d]" aria-label={vi ? "Sao chép thuật toán" : "Copy algorithm"}><ClipboardCopy className="h-3.5 w-3.5" /></button>
     </div>
     <code className="mt-3 block overflow-x-auto border-t border-[#17221d]/10 pt-3 font-mono text-[11px] leading-5 text-[#17221d]/70">{notation}</code>

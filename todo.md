@@ -395,3 +395,11 @@
 - [x] Rà soát Cube 3D input và orientation để click/tap không spin, đồng thời căn Cross đã chọn cố định về D.
 - [x] Bổ sung regression case ID/depth và kiểm thử click-drag, đổi Cross màu, desktop/mobile, TypeScript/build.
 - [x] Checkpoint sau khi xác minh solver worker, Settings và camera hoạt động nhất quán.
+
+## Phase title và drag theo Cross
+
+- [x] Rà soát typography của title trong danh sách phase/report ở cột hẹp và mobile.
+- [x] Rà soát mapping drag Cube 3D để loại bỏ giả định trục vàng/D khi Cross là màu khác.
+- [x] Áp dụng title phase compact không tràn và phép drag tương đối theo preset Cross-down.
+- [x] Kiểm tra report có 6+ phase, drag/click theo nhiều Cross, desktop/mobile, TypeScript/build.
+- [x] Checkpoint sau khi xác minh report và điều khiển Cube 3D nhất quán.

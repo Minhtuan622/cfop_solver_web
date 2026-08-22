@@ -21,6 +21,9 @@ const CROSS_DOWN_VIEW: Record<string, typeof DEFAULT_VIEW> = {
   L: { pitch: -26, yaw: 34, roll: 90, zoom: 1 },
 };
 const lockedCrossView = (crossColor: string) => CROSS_DOWN_VIEW[crossColor] ?? DEFAULT_VIEW;
+type OrbitAxis = "pitch" | "yaw" | "roll";
+const CROSS_ORBIT_AXIS: Record<string, OrbitAxis> = { U: "yaw", D: "yaw", F: "roll", B: "roll", R: "pitch", L: "pitch" };
+const CROSS_ORBIT_SIGN: Record<string, number> = { U: 1, D: 1, F: 1, B: -1, R: -1, L: 1 };
 
 const LAYER_STRIPS: Record<"U" | "R" | "F" | "D" | "L" | "B", { face: "U" | "R" | "F" | "D" | "L" | "B"; cells: number[] }[]> = {
   R: [{ face: "F", cells: [2, 5, 8] }, { face: "U", cells: [2, 5, 8] }, { face: "B", cells: [0, 3, 6] }, { face: "D", cells: [2, 5, 8] }],
@@ -64,7 +67,7 @@ function LayerTurn({ face, state, angle, step, move, duration }: { face: "U" | "
 export function Cube3DGuide({ state, previousState, move, step, crossColor = "U", inspection = false, alignCross = false, highlightCross = true, xcrossSlots, lastLayerCase, transition = "idle", transitionDirection = "forward", transitionId = 0, phaseLabel, turnDurationMs = 340 }: { state: string; previousState?: string; move?: string; step: number; crossColor?: string; inspection?: boolean; alignCross?: boolean; highlightCross?: boolean; xcrossSlots?: string[]; lastLayerCase?: { family: string; id: string }; transition?: "idle" | "move" | "seek" | "phase" | "reset"; transitionDirection?: "forward" | "backward"; transitionId?: number; phaseLabel?: string; turnDurationMs?: number }) {
   const { language } = useLanguage();
   const [view, setView] = useState(() => alignCross ? lockedCrossView(crossColor) : DEFAULT_VIEW);
-  const drag = useRef<{ x: number; y: number; pitch: number; yaw: number; moved: boolean; startedAt: number; pointerType: string } | null>(null);
+  const drag = useRef<{ x: number; y: number; pitch: number; yaw: number; roll: number; moved: boolean; startedAt: number; pointerType: string } | null>(null);
   const pinch = useRef<number | null>(null);
   const activeInspection = highlightCross && inspection;
   useEffect(() => { if (alignCross) { drag.current = null; setView(lockedCrossView(crossColor)); } }, [alignCross, crossColor]);
@@ -75,7 +78,7 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     event.preventDefault();
-    drag.current = { x: event.clientX, y: event.clientY, pitch: view.pitch, yaw: view.yaw, moved: false, startedAt: performance.now(), pointerType: event.pointerType };
+    drag.current = { x: event.clientX, y: event.clientY, pitch: view.pitch, yaw: view.yaw, roll: view.roll, moved: false, startedAt: performance.now(), pointerType: event.pointerType };
   };
   const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const activeDrag = drag.current;
@@ -90,12 +93,8 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
     if (!activeDrag.moved && (!heldLongEnough || Math.hypot(deltaX, deltaY) < threshold)) return;
     activeDrag.moved = true;
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.setPointerCapture(event.pointerId);
-    const locked = lockedCrossView(crossColor);
     setView((previous) => ({
-      ...previous,
-      yaw: alignCross ? Math.max(locked.yaw - 42, Math.min(locked.yaw + 42, activeDrag.yaw + deltaX * 0.42)) : activeDrag.yaw + deltaX * 0.55,
-      pitch: alignCross ? locked.pitch : Math.min(35, Math.max(-70, activeDrag.pitch - deltaY * 0.45)),
-      roll: alignCross ? locked.roll : previous.roll,
+      ...(alignCross ? (() => { const locked = lockedCrossView(crossColor); const axis = CROSS_ORBIT_AXIS[crossColor] ?? "yaw"; const start = activeDrag[axis]; const signedDelta = deltaX * 0.42 * (CROSS_ORBIT_SIGN[crossColor] ?? 1); return { ...locked, zoom: previous.zoom, [axis]: Math.max(locked[axis] - 42, Math.min(locked[axis] + 42, start + signedDelta)) }; })() : { ...previous, yaw: activeDrag.yaw + deltaX * 0.55, pitch: Math.min(35, Math.max(-70, activeDrag.pitch - deltaY * 0.45)) }),
     }));
   };
   const pointerUp = (event: PointerEvent<HTMLDivElement>) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); drag.current = null; };
