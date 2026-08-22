@@ -39,3 +39,9 @@ for (const [input, expected] of [[0, 0], [360, 0], [720, 0], [540, -180], [-540,
   if (wrapOrbit(input) !== expected) throw new Error(`Orbit wrap mismatch: ${input} -> ${wrapOrbit(input)}, expected ${expected}`);
 }
 console.log("orbit wrap: 360° continuous");
+
+const clampPitch = (degrees) => Math.max(-72, Math.min(64, degrees));
+for (const [input, expected] of [[-200, -72], [-72, -72], [0, 0], [64, 64], [200, 64]]) {
+  if (clampPitch(input) !== expected) throw new Error(`Pitch clamp mismatch: ${input} -> ${clampPitch(input)}, expected ${expected}`);
+}
+console.log("vertical pitch: -72° to +64° for top/bottom viewing");

@@ -424,3 +424,10 @@
 - [x] Bỏ giới hạn orbit, giữ phép chuẩn hóa state Cross-to-D và camera thẳng.
 - [x] Kiểm thử kéo qua nhiều vòng, reset, click/tap và six-cross orientation.
 - [x] Chạy TypeScript, production build và checkpoint sau khi xác minh 360°.
+
+## Quan sát mặt trên/dưới
+
+- [x] Rà soát camera hiện tại và xác định pitch range không làm lật hoặc méo Cube 3D.
+- [x] Thêm drag dọc, reset hai trục và copy hướng dẫn thao tác ngắn gọn.
+- [x] Kiểm thử yaw 360°, pitch trên/dưới, Cross U/R/F/D/L/B, desktop/mobile và build.
+- [x] Checkpoint sau khi xác minh Cube 3D hai trục ổn định.
