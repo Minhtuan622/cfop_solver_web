@@ -67,8 +67,8 @@ export default function TimerLab() {
   const [entries, setEntries] = useState<SolveHistoryEntry[]>(() => readSolveHistory());
   const [timerVersion, setTimerVersion] = useState(0);
   const [saved, setSaved] = useState(false);
-  const [inspectionColor, setInspectionColor] = useState<(typeof FACES)[number]>("U");
-  const [crossHighlight, setCrossHighlight] = useState(true);
+  const [inspectionColor, setInspectionColor] = useState<(typeof FACES)[number]>(() => { const saved = localStorage.getItem("cfop-inspection-color"); return FACES.includes(saved as (typeof FACES)[number]) ? saved as (typeof FACES)[number] : "U"; });
+  const [crossHighlight, setCrossHighlight] = useState(() => localStorage.getItem("cfop-cross-highlight") !== "off");
   const [inspectionSound, setInspectionSound] = useState(() => localStorage.getItem("cfop-inspection-sound") !== "off");
   const [spaceSplits, setSpaceSplits] = useState(() => localStorage.getItem("cfop-space-splits") !== "off");
   const [phaseTargets, setPhaseTargets] = useState<Record<SplitPhase, number>>(readPhaseTargets);
@@ -115,6 +115,8 @@ export default function TimerLab() {
   useEffect(() => { if (replayStep >= replayTrace.length) setReplayPlaying(false); }, [replayStep, replayTrace.length]);
   useEffect(() => { localStorage.setItem("cfop-inspection-sound", inspectionSound ? "on" : "off"); }, [inspectionSound]);
   useEffect(() => { localStorage.setItem("cfop-space-splits", spaceSplits ? "on" : "off"); }, [spaceSplits]);
+  useEffect(() => { localStorage.setItem("cfop-cross-highlight", crossHighlight ? "on" : "off"); }, [crossHighlight]);
+  useEffect(() => { localStorage.setItem("cfop-inspection-color", inspectionColor); }, [inspectionColor]);
   useEffect(() => { localStorage.setItem("cfop-phase-targets", JSON.stringify(phaseTargets)); }, [phaseTargets]);
   useEffect(() => { const url = new URL(window.location.href); if (labTab === "study") url.searchParams.set("tab", "study"); else url.searchParams.delete("tab"); window.history.replaceState({}, "", `${url.pathname}${url.search}`); }, [labTab]);
   useEffect(() => { document.querySelectorAll<HTMLDetailsElement>(".timer-secondary-sheet").forEach((sheet) => { sheet.open = true; }); }, []);

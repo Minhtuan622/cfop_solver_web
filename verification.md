@@ -63,3 +63,9 @@
 - Pointer mouse chỉ orbit khi giữ nút trái, kéo quá 7px; touch phải nhấn giữ 180ms và kéo quá 14px. Click/tap ngắn không thể cập nhật camera; pinch/scroll/reset vẫn hoạt động.
 - Timer Competition có nút Cài đặt mở Settings panel thật bên phải, gom Cross color, inspection, practice, split input và mục tiêu pha. Accordion setup cũ bị loại khỏi bố cục; analytics là record-sheet mở cố định, history riêng biệt.
 - Screenshot desktop/mobile xác nhận apparatus Timer–Cube, Settings trigger và không có tràn layout. TypeScript và production build pass.
+
+## Xác minh navigation gọn và Cài đặt hợp nhất
+
+- App shell chung có bốn route Studio, Timer, Study và Cài đặt; header cũ ở Studio/Timer cùng tab nội bộ Timer đã bị loại bỏ để không lặp navigation.
+- Cài đặt tập trung Cross, opening, last layer, ưu tiên/loại trừ F2L, inspection, split, highlight, mục tiêu pha và mục tiêu Study. Solver/Timer đọc lại preference đã lưu sau điều hướng.
+- Screenshot desktop/mobile xác nhận nav ở một dòng nhỏ, surfaces làm việc không còn accordion setup; TypeScript và production build pass.

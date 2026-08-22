@@ -339,3 +339,11 @@
 - [x] Xây dựng Settings panel thật cho Timer Competition, không dùng dropdown để giấu thao tác cốt lõi.
 - [x] Đưa analytics/history vào record-sheet rõ ràng, bỏ accordion không cần thiết.
 - [x] Kiểm tra click/tap/drag, Settings, desktop/mobile, TypeScript, build và checkpoint.
+
+## Navigation gọn và Cài đặt hợp nhất
+
+- [x] Rà soát header/navigation cùng mọi control thiết lập hiện có trên Studio, Timer và Study.
+- [x] Thiết kế app shell nén với route Studio, Timer, Study và Cài đặt ở cùng một navigation.
+- [x] Tạo Settings hub một nơi duy nhất, có nhóm Solver, Timer và hiển thị Cube 3D.
+- [x] Di chuyển hoặc loại bỏ control/accordion thiết lập rải rác sau khi có Settings hub.
+- [x] Kiểm tra routes, persistence, desktop/mobile, TypeScript, build và checkpoint.

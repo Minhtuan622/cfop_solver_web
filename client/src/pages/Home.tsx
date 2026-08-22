@@ -17,6 +17,7 @@ import { CameraScanner } from "@/components/CameraScanner";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { readSolverSettings, writeSolverSettings } from "@/lib/appSettings";
 import { listLastLayerCasesInBrowser, solveInBrowser, validateStateInBrowser, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerCatalogCase, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -125,11 +126,11 @@ function exportCFOPImage(result: SolverResult, language: "vi" | "en", options: {
 export default function Home() {
   const { language, setLanguage, t } = useLanguage();
   const [mode, setMode] = useState<"scramble" | "state">("scramble");
-  const [crossColor, setCrossColor] = useState<CrossColor>("U");
-  const [opening, setOpening] = useState<OpeningMode>("cross");
-  const [lastLayer, setLastLayer] = useState<LastLayerMode>("auto");
-  const [preferredSlot, setPreferredSlot] = useState<F2LSlot | undefined>();
-  const [excludedSlots, setExcludedSlots] = useState<F2LSlot[]>([]);
+  const [crossColor, setCrossColor] = useState<CrossColor>(() => readSolverSettings().crossColor);
+  const [opening, setOpening] = useState<OpeningMode>(() => readSolverSettings().opening);
+  const [lastLayer, setLastLayer] = useState<LastLayerMode>(() => readSolverSettings().lastLayer);
+  const [preferredSlot, setPreferredSlot] = useState<F2LSlot | undefined>(() => readSolverSettings().preferredSlot);
+  const [excludedSlots, setExcludedSlots] = useState<F2LSlot[]>(() => readSolverSettings().excludedSlots);
   const [value, setValue] = useState(DEFAULT_SCRAMBLE);
   const [savedScramble, setSavedScramble] = useState(DEFAULT_SCRAMBLE);
   const [savedState, setSavedState] = useState(SOLVED_STATE);
@@ -152,6 +153,7 @@ export default function Home() {
   const [paintColor, setPaintColor] = useState<CrossColor>("U");
   const [masteredCaseKeys, setMasteredCaseKeys] = useState<string[]>(() => { try { const stored = JSON.parse(localStorage.getItem(MASTERED_LAST_LAYER_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is string => typeof item === "string").slice(-1800) : []; } catch { return []; } });
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() => { try { const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is RecentCubeState => typeof item?.state === "string" && item.state.length === 54).slice(0, 8) : []; } catch { return []; } });
+  useEffect(() => { writeSolverSettings({ crossColor, opening, lastLayer, preferredSlot, excludedSlots }); }, [crossColor, opening, lastLayer, preferredSlot, excludedSlots]);
   const stateHistory = useRef<{ past: string[]; future: string[] }>({ past: [], future: [] });
   const cursorRef = useRef(0);
   const motionIdRef = useRef(0);

@@ -5,7 +5,9 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { AppNav } from "./components/AppNav";
 import Home from "./pages/Home";
+import Settings from "./pages/Settings";
 import TimerLab from "./pages/TimerLab";
 
 
@@ -14,6 +16,7 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/timer"} component={TimerLab} />
+      <Route path={"/settings"} component={Settings} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -36,6 +39,7 @@ function App() {
       >
         <TooltipProvider>
           <Toaster />
+          <AppNav />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
