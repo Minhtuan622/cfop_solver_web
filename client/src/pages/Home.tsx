@@ -5,8 +5,8 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
-  ArrowLeft, ArrowRight, Braces, Check, ChevronRight, CircleGauge, ClipboardCopy,
-  Cpu, ExternalLink, FileJson, History, ImageDown, Info, Loader2, Play, RotateCcw, ShieldCheck, Sparkles, Trash2,
+  ArrowLeft, ArrowRight, Check, ChevronRight, CircleGauge, ClipboardCopy,
+  Cpu, ExternalLink, FileJson, History, ImageDown, Info, Layers3, Loader2, Play, RotateCcw, Search, ShieldCheck, Sparkles, Trash2,
 } from "lucide-react";
 import { Timer } from "lucide-react";
 import { Link } from "wouter";
@@ -17,7 +17,7 @@ import { CameraScanner } from "@/components/CameraScanner";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-import { solveInBrowser, validateStateInBrowser, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
+import { listLastLayerCasesInBrowser, solveInBrowser, validateStateInBrowser, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerCatalogCase, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -140,6 +140,12 @@ export default function Home() {
   const [cubeMotion, setCubeMotion] = useState<{ id: number; kind: CubeMotionKind; direction: "forward" | "backward"; phaseName?: string }>({ id: 0, kind: "idle", direction: "forward" });
   const [error, setError] = useState("");
   const [stateValidation, setStateValidation] = useState<CubeValidation | null>(null);
+  const [catalogFamily, setCatalogFamily] = useState<"all" | "zbll" | "1lll">("zbll");
+  const [catalogGroup, setCatalogGroup] = useState("all");
+  const [catalogQuery, setCatalogQuery] = useState("");
+  const [catalogCases, setCatalogCases] = useState<LastLayerCatalogCase[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [selectedCatalogCase, setSelectedCatalogCase] = useState<LastLayerCatalogCase | null>(null);
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() => { try { const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is RecentCubeState => typeof item?.state === "string" && item.state.length === 54).slice(0, 8) : []; } catch { return []; } });
   const stateHistory = useRef<{ past: string[]; future: string[] }>({ past: [], future: [] });
   const cursorRef = useRef(0);
@@ -177,6 +183,8 @@ export default function Home() {
     return { kind: "cross" as const, slot: null, moves: first.moves.length };
   }, [result]);
   const activeXCrossSlots = activePhase?.name.startsWith("xxxxcross_") ? activePhase.name.slice("xxxxcross_".length).split("_") : activePhase?.name.startsWith("xxxcross_") ? activePhase.name.slice("xxxcross_".length).split("_") : activePhase?.name.startsWith("xxcross_") ? activePhase.name.slice("xxcross_".length).split("_") : activePhase?.name.startsWith("xcross_") ? [activePhase.name.slice("xcross_".length)] : undefined;
+  const activeLastLayerCase = selectedCatalogCase ?? (activePhase && (activePhase.name === "zbll" || activePhase.name === "1lll") && activePhase.case_id ? { family: activePhase.name, id: activePhase.case_id } : undefined);
+  const catalogGroups = useMemo(() => Array.from(new Set(catalogCases.map((catalogCase) => catalogCase.group))).sort((a, b) => a.localeCompare(b)), [catalogCases]);
   const chooseOpening = (nextOpening: OpeningMode) => {
     setOpening(nextOpening);
     if (nextOpening === "xxxxcross") { setPreferredSlot(undefined); setExcludedSlots([]); }
@@ -222,6 +230,18 @@ export default function Home() {
     return () => { active = false; window.clearTimeout(timer); };
   }, [language, mode, value]);
 
+  useEffect(() => {
+    let active = true;
+    const timer = window.setTimeout(() => {
+      setCatalogLoading(true);
+      listLastLayerCasesInBrowser({ family: catalogFamily, group: catalogGroup, query: catalogQuery, limit: 2000 })
+        .then((cases) => { if (active) setCatalogCases(cases); })
+        .catch(() => { if (active) setCatalogCases([]); })
+        .finally(() => { if (active) setCatalogLoading(false); });
+    }, 170);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [catalogFamily, catalogGroup, catalogQuery]);
+
   async function runSolver() {
     if (mode === "state" && !stateValidation?.valid) { setError(stateValidation?.message ?? (language === "vi" ? "Đang kiểm tra trạng thái cube." : "Validating cube state.")); return; }
     setLoading(true);
@@ -248,6 +268,19 @@ export default function Home() {
     setRecentStates(next); localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(next));
   };
   const loadRecentState = (item: RecentCubeState) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(item.state); setSavedState(item.state); setCrossColor(item.crossColor); setResult(null); setCursor(0); setError(""); };
+  const loadCatalogCase = (catalogCase: LastLayerCatalogCase) => {
+    stateHistory.current = { past: [], future: [] };
+    setStateHistoryVersion((version) => version + 1);
+    setMode("state");
+    setValue(catalogCase.state);
+    setSavedState(catalogCase.state);
+    setCrossColor("D");
+    setLastLayer(catalogCase.family);
+    setSelectedCatalogCase(catalogCase);
+    setResult(null);
+    setCursor(0);
+    setError("");
+  };
   const removeRecentState = (id: string) => { const next = recentStates.filter((item) => item.id !== id); setRecentStates(next); localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(next)); };
   const selectCursor = (next: number, intent: CursorIntent = "seek") => { setPlaying(false); updateCursor(next, intent); };
   const applyStateEdit = (next: string) => {
@@ -356,12 +389,12 @@ export default function Home() {
 
           <section className="studio-stage-column min-w-0">
             <div className="studio-solver-apparatus scorecard rounded-[3px] border-2 border-[#17221d] bg-white p-5 shadow-[9px_9px_0_rgba(23,34,29,0.16)] sm:p-8">
-              <div className="flex flex-wrap items-start justify-between gap-6">
+              <div className="studio-apparatus-readout flex flex-wrap items-start justify-between gap-6">
                 <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{t("guide.step")} · {String(cursor).padStart(2, "0")} / {String(totalMoves).padStart(2, "0")}</p><h2 key={cubeMotion.kind === "phase" ? cubeMotion.id : activePhase?.name ?? "ready"} className={cn("studio-phase-title mt-2 text-3xl font-bold tracking-[-0.055em] sm:text-4xl", cubeMotion.kind === "phase" && "studio-phase-title-relay")}>{activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
-                <div className="rounded-sm border-2 border-[#17221d]/15 bg-[#f4f0e8] px-4 py-3 font-mono text-xs shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><p className="text-[#17221d]/45">{t("guide.move").toUpperCase()}</p><p className="mt-1 text-2xl font-bold text-[#1ba77a]">{currentStep?.move ?? "—"}</p></div>
+                <div className="studio-apparatus-readout-card rounded-sm border-2 border-[#17221d]/15 bg-[#f4f0e8] px-4 py-3 font-mono text-xs shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><p className="text-[#17221d]/45">{t("guide.move").toUpperCase()}</p><p className="mt-1 text-2xl font-bold text-[#1ba77a]">{currentStep?.move ?? "—"}</p></div>
               </div>
-              <div className="mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={currentState} /></div><Cube3DGuide state={currentState} previousState={previousState} move={currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} /></div>
-              <div className="mt-7 flex flex-wrap items-center gap-3">
+              <div className={cn("studio-apparatus-viewport mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:p-7", mode === "state" ? "sm:grid-cols-1" : "sm:grid-cols-[minmax(0,1fr)_250px]")} style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}>{mode !== "state" && <div className="grid place-items-center"><CubeNet state={currentState} /></div>}<div className={cn(mode === "state" && "mx-auto w-full max-w-[330px]")}><Cube3DGuide state={currentState} previousState={previousState} move={currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} lastLayerCase={activeLastLayerCase} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} /></div></div>
+              <div className="studio-apparatus-controls mt-7 flex flex-wrap items-center gap-3">
                 <button onClick={() => selectCursor(Math.max(0, cursor - 1), "step")} disabled={cursor === 0} className="control-button"><ArrowLeft className="h-4 w-4" />{t("guide.previous")}</button>
                 <button onClick={() => setPlaying((value) => !value)} disabled={!result || cursor === totalMoves} className="flex items-center gap-2 rounded-lg bg-[#17221d] px-5 py-3 text-sm font-bold text-[#f4f0e8] transition hover:bg-[#26372e] active:scale-[0.97] disabled:opacity-40">{playing ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}{playing ? t("guide.pause") : t("guide.play")}</button>
                 <button onClick={() => selectCursor(Math.min(totalMoves, cursor + 1), "step")} disabled={!result || cursor === totalMoves} className="control-button">{t("guide.next")}<ArrowRight className="h-4 w-4" /></button>
@@ -369,16 +402,14 @@ export default function Home() {
               </div>
               {openingOutcome && <div className={cn("studio-opening-outcome mt-4 border-2", openingOutcome.kind !== "cross" ? "border-[#1ba77a]/50 bg-[#1ba77a]/10" : "border-[#17221d]/12 bg-[#f4f0e8]")}><div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"><div className="min-w-0"><p className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-[#17221d]/55">{language === "vi" ? "KẾT QUẢ OPENING" : "OPENING OUTCOME"}</p><p className="mt-1 break-words text-sm font-black">{openingOutcome.kind === "xxxxcross" ? `XXXXCross · Full F2L` : openingOutcome.kind === "xxxcross" ? `XXXCross · F2L ${openingOutcome.slots.join(" + ")}` : openingOutcome.kind === "xxcross" ? `XXCross · F2L ${openingOutcome.slots.join(" + ")}` : openingOutcome.kind === "xcross" ? `XCross · F2L ${openingOutcome.slot}` : "Cross chuẩn"}</p></div><span className={cn("break-words font-mono text-[10px] font-bold", openingOutcome.kind !== "cross" ? "text-[#1b7b5e]" : "text-[#17221d]/55")}>{openingOutcome.kind === "xxxxcross" ? `${openingOutcome.moves} ${language === "vi" ? "nước · Cross + full F2L" : "moves · Cross + full F2L"}` : openingOutcome.kind === "xxxcross" ? `${openingOutcome.moves} ${language === "vi" ? "nước · Cross + 3 pair" : "moves · Cross + 3 pairs"}` : openingOutcome.kind === "xxcross" ? `${openingOutcome.moves} ${language === "vi" ? "nước · Cross + 2 pair" : "moves · Cross + 2 pairs"}` : openingOutcome.kind === "xcross" ? `${openingOutcome.moves} ${language === "vi" ? "nước · Cross + pair" : "moves · Cross + pair"}` : `${openingOutcome.moves} ${t("guide.moves")}`}</span></div>{openingTelemetry && <div className="studio-fallback-telemetry border-t border-[#17221d]/12 px-4 py-2 font-mono text-[9px]"><span>{language === "vi" ? "YÊU CẦU" : "REQUEST"} <b>{openingModeLabel(openingTelemetry.requested, language)}</b></span><span>→</span><span>{language === "vi" ? "ĐẠT" : "ACHIEVED"} <b>{openingModeLabel(openingTelemetry.achieved, language)}</b></span><span className={openingTelemetry.did_fallback ? "text-[#b64b31]" : "text-[#1b7b5e]"}>{openingTelemetry.did_fallback ? (language === "vi" ? `LÙI ${openingTelemetry.fallback_count} CẤP` : `${openingTelemetry.fallback_count} FALLBACKS`) : (language === "vi" ? "ĐÚNG CẤP" : "TARGET MET")}</span><span className="studio-fallback-path">{language === "vi" ? "THỬ" : "TRIED"}: {openingTelemetry.attempts.map((attempt) => openingModeLabel(attempt, language)).join(" → ")}</span></div>}</div>}
               {lastLayerTelemetry && <div className={cn("studio-opening-outcome mt-3 border-2", lastLayerTelemetry.did_fallback ? "border-[#e7c34f]/60 bg-[#e7c34f]/10" : "border-[#1ba77a]/50 bg-[#1ba77a]/10")}><div className="flex flex-wrap items-center gap-2 px-4 py-2.5 font-mono text-[9px]"><span className="font-bold tracking-[0.14em] text-[#17221d]/55">{language === "vi" ? "LAST LAYER" : "LAST LAYER"}</span><span>{language === "vi" ? "YÊU CẦU" : "REQUEST"} <b>{lastLayerModeLabel(lastLayerTelemetry.requested, language)}</b></span><span>→</span><span>{language === "vi" ? "ĐẠT" : "ACHIEVED"} <b>{lastLayerModeLabel(lastLayerTelemetry.achieved, language)}</b></span><span className={lastLayerTelemetry.did_fallback ? "text-[#9b6b00]" : "text-[#1b7b5e]"}>{lastLayerTelemetry.did_fallback ? (language === "vi" ? `LÙI ${lastLayerTelemetry.fallback_count} CẤP` : `${lastLayerTelemetry.fallback_count} FALLBACKS`) : (language === "vi" ? "DIRECT" : "DIRECT")}</span><span className="studio-fallback-path">{language === "vi" ? "THỬ" : "TRIED"}: {lastLayerTelemetry.attempts.map((attempt) => lastLayerModeLabel(attempt, language)).join(" → ")}</span></div></div>}
-              <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]"><div className="flex items-center gap-4"><input aria-label="Chọn move trong trace" type="range" min="0" max={Math.max(0, totalMoves)} value={cursor} onChange={(event) => selectCursor(Number(event.target.value), "seek")} className="min-w-0 flex-1 accent-[#1ba77a]" /><span className="min-w-16 text-right font-mono text-xs font-bold">{cursor} moves</span></div><label className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#17221d]/60">Speed {playbackSpeed.toFixed(2)}×<input aria-label="Playback speed" type="range" min="0.5" max="2" step="0.25" value={playbackSpeed} onChange={(event) => setPlaybackSpeed(Number(event.target.value))} className="w-24 accent-[#1ba77a]" /></label></div>
+              <div className="studio-apparatus-rail mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]"><div className="flex items-center gap-4"><input aria-label="Chọn move trong trace" type="range" min="0" max={Math.max(0, totalMoves)} value={cursor} onChange={(event) => selectCursor(Number(event.target.value), "seek")} className="min-w-0 flex-1 accent-[#1ba77a]" /><span className="min-w-16 text-right font-mono text-xs font-bold">{cursor} moves</span></div><label className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#17221d]/60">Speed {playbackSpeed.toFixed(2)}×<input aria-label="Playback speed" type="range" min="0.5" max="2" step="0.25" value={playbackSpeed} onChange={(event) => setPlaybackSpeed(Number(event.target.value))} className="w-24 accent-[#1ba77a]" /></label></div>
             </div>
-            {result && <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} />}
-            <div className="scorecard mt-7 rounded-[1rem] border-2 border-[#17221d] bg-[#17221d] p-5 text-[#f4f0e8] sm:p-6"><div className="tick-ruler" /><div className="flex items-center justify-between gap-4"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">{t("guide.list")}</p><p className="mt-1 text-lg font-bold">{language === "vi" ? "Chạm vào một nước xoay để xem lại." : "Tap a move to review it."}</p></div><Braces className="h-5 w-5 text-[#f4f0e8]/55" /></div><div className="mt-4 flex flex-wrap gap-1.5">{result ? result.trace.map((step, index) => <button key={`${step.index}-${step.move}`} onClick={() => selectCursor(index + 1, "seek")} className={cn("rounded-md px-2 py-1 font-mono text-xs transition", cursor === index + 1 ? "bg-[#1ba77a] font-bold text-[#17221d]" : "bg-white/10 text-[#f4f0e8]/75 hover:bg-white/20")}>{step.move}</button>) : <span className="font-mono text-xs text-[#f4f0e8]/45">{language === "vi" ? "CHƯA GHI NHẬN MOVE TRONG SEQUENCE." : "NO MOVES RECORDED IN THIS SEQUENCE."}</span>}</div></div>
+            {result && <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} />}
           </section>
 
           <aside className="studio-telemetry-column space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2">
-            <div className="grid grid-cols-3 gap-2"><Stat label={t("status.moves")} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="h-4 w-4" />} /><Stat label={t("status.steps")} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="h-4 w-4" />} /><Stat label={t("status.ok")} value={result ? "✓" : "—"} icon={<ShieldCheck className="h-4 w-4" />} /></div>
-            <div className="studio-phase-telemetry studio-phase-ladder telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-white p-4 shadow-[5px_5px_0_rgba(23,34,29,0.13)]"><div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("guide.title")}</p><span className="font-mono text-[10px] text-[#1ba77a]">{t("status.ready")}</span></div><div className="mt-4 space-y-2">{result ? result.phases.map((phase) => { const selected = activePhase?.name === phase.name || cursor === phase.end; return <button key={phase.name} onClick={() => selectCursor(phase.end, "phase")} className={cn("group flex w-full items-center gap-3 rounded-md border p-3 text-left transition", selected ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/10 hover:border-[#17221d] hover:bg-[#f4f0e8]")}><span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-sm font-mono text-[11px] font-bold", PHASE_COLORS[phase.name] ?? "bg-[#17221d] text-white")}>{phase.name === "oll" ? "O" : phase.name === "pll" ? "P" : phase.name === "zbll" ? "Z" : phase.name === "1lll" ? "1" : phase.name.startsWith("f2l") ? "F" : "X"}</span><span className="min-w-0 flex-1"><span className="block text-sm font-bold">{simplePhase(phase.name, language)}</span><span className="block truncate font-mono text-[10px] text-[#17221d]/50">{phase.moves.length} {t("guide.moves")}{phase.case_id && phase.case_id !== "solved" ? ` · ${phase.case_id}` : ""}</span></span><Check className="h-4 w-4 text-[#1ba77a]" /></button>; }) : ["Cross", "F2L 1", "F2L 2", "F2L 3", "F2L 4", "OLL", "PLL"].map((label, index) => <div key={label} className="flex items-center gap-3 rounded-md border border-[#17221d]/10 bg-[#f4f0e8] p-3 text-[#17221d]/45"><span className="grid h-9 w-9 place-items-center rounded-sm border-l-4 border-[#17221d]/35 bg-white font-mono text-xs">{String(index + 1).padStart(2, "0")}</span><span className="text-sm font-bold">{label}</span></div>)}</div></div>
-            <div className="telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-[#e9e3d6] p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("check.title")}</p><div className="mt-3 space-y-2 font-mono text-xs"><div className="flex justify-between border-b-2 border-[#17221d]/10 pb-2"><span>{t("check.oll")}</span><b>57 / 57</b></div><div className="flex justify-between border-b-2 border-[#17221d]/10 pb-2"><span>{t("check.pll")}</span><b>21 / 21</b></div><div className="flex justify-between"><span>{t("check.turns")}</span><b className="text-[#1b7b5e]">4 × 100%</b></div></div></div>
+            <div className="studio-telemetry-strip grid grid-cols-3 gap-2"><Stat label={t("status.moves")} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="h-4 w-4" />} /><Stat label={t("status.steps")} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="h-4 w-4" />} /><Stat label={t("status.ok")} value={result ? "✓" : "—"} icon={<ShieldCheck className="h-4 w-4" />} /></div>
+            <LastLayerExplorer language={language} family={catalogFamily} group={catalogGroup} query={catalogQuery} groups={catalogGroups} cases={catalogCases} loading={catalogLoading} selectedCase={selectedCatalogCase} onFamily={(next) => { setCatalogFamily(next); setCatalogGroup("all"); }} onGroup={setCatalogGroup} onQuery={setCatalogQuery} onSelect={loadCatalogCase} />
           </aside>
         </section>
       </div>
@@ -390,8 +421,34 @@ function Stat({ label, value, icon }: { label: string; value: string; icon: Reac
   return <div className="telemetry-panel rounded-md border-2 border-[#17221d] bg-white p-3 shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><div className="flex items-center justify-between text-[#17221d]/45">{icon}<span className="font-mono text-[8px] font-bold tracking-[0.12em]">{label}</span></div><p className="mt-2 font-mono text-xl font-bold tracking-[-0.08em]">{value}</p></div>;
 }
 
+/** Xưởng Cơ Khí Tốc Độ — a searchable record drawer for verified one-look cases. */
+function LastLayerExplorer({ language, family, group, query, groups, cases, loading, selectedCase, onFamily, onGroup, onQuery, onSelect }: {
+  language: "vi" | "en";
+  family: "all" | "zbll" | "1lll";
+  group: string;
+  query: string;
+  groups: string[];
+  cases: LastLayerCatalogCase[];
+  loading: boolean;
+  selectedCase: LastLayerCatalogCase | null;
+  onFamily: (family: "all" | "zbll" | "1lll") => void;
+  onGroup: (group: string) => void;
+  onQuery: (query: string) => void;
+  onSelect: (catalogCase: LastLayerCatalogCase) => void;
+}) {
+  const vi = language === "vi";
+  return <section className="last-layer-explorer telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-white p-4">
+    <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#1ba77a]">LAST LAYER EXPLORER</p><h3 className="mt-1 text-base font-black tracking-[-0.04em]">{vi ? "Tra cứu case direct" : "Browse direct cases"}</h3></div><span className="rounded-sm bg-[#17221d] px-2 py-1 font-mono text-[9px] font-bold text-[#f4f0e8]">{cases.length}</span></div>
+    <div className="mt-4 grid grid-cols-2 gap-2"><Select value={family} onValueChange={(value) => onFamily(value as "all" | "zbll" | "1lll")}><SelectTrigger aria-label={vi ? "Loại Last Layer" : "Last Layer family"} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[10px] font-bold"><SelectValue /></SelectTrigger><SelectContent className="border-2 border-[#17221d] bg-[#f8f5ed] font-mono text-xs"><SelectItem value="all">ALL · ZBLL + 1LLL</SelectItem><SelectItem value="zbll">ZBLL</SelectItem><SelectItem value="1lll">1LLL</SelectItem></SelectContent></Select><Select value={group} onValueChange={onGroup}><SelectTrigger aria-label={vi ? "Nhóm case" : "Case group"} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[10px] font-bold"><SelectValue /></SelectTrigger><SelectContent className="border-2 border-[#17221d] bg-[#f8f5ed] font-mono text-xs"><SelectItem value="all">{vi ? "NHÓM · TẤT CẢ" : "GROUP · ALL"}</SelectItem>{groups.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent></Select></div>
+    <label className="mt-2 flex items-center gap-2 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2"><Search className="h-3.5 w-3.5 text-[#17221d]/45" /><input value={query} onChange={(event) => onQuery(event.target.value.slice(0, 80))} placeholder={vi ? "Tìm ID, nhóm hoặc notation" : "Search ID, group or notation"} className="h-9 min-w-0 flex-1 bg-transparent font-mono text-[10px] outline-none placeholder:text-[#17221d]/40" /></label>
+    <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{vi ? "Chọn case để nạp state F2L-complete và đánh dấu lớp cuối trên Cube 3D." : "Choose a case to load its F2L-complete state and highlight its Last Layer in 3D."}</p>
+    <div className="mt-3 max-h-[440px] space-y-1 overflow-y-auto pr-1">{loading ? <div className="py-6 text-center font-mono text-[10px] text-[#17221d]/45">{vi ? "ĐANG NẠP CATALOG…" : "LOADING CATALOG…"}</div> : cases.length ? cases.slice(0, 48).map((catalogCase) => <button key={catalogCase.id} type="button" onClick={() => onSelect(catalogCase)} className={cn("w-full border p-2 text-left transition", selectedCase?.id === catalogCase.id ? "border-[#1ba77a] bg-[#1ba77a]/10 shadow-[inset_3px_0_0_#1ba77a]" : "border-[#17221d]/12 bg-[#f4f0e8] hover:border-[#17221d]/45 hover:bg-white")}><span className="flex items-center justify-between gap-2"><span className={cn("rounded-sm px-1.5 py-0.5 font-mono text-[8px] font-bold", catalogCase.family === "zbll" ? "bg-[#1ba77a] text-[#17221d]" : "bg-[#17221d] text-[#f4f0e8]")}>{catalogCase.family.toUpperCase()}</span><span className="font-mono text-[9px] text-[#17221d]/50">{catalogCase.group}</span></span><b className="mt-1 block font-mono text-[10px] text-[#17221d]">{catalogCase.id}</b><span className="mt-1 block truncate font-mono text-[9px] text-[#17221d]/55">{catalogCase.algorithm}</span></button>) : <div className="border border-dashed border-[#17221d]/25 p-4 font-mono text-[10px] leading-5 text-[#17221d]/55">{vi ? "Không có case khớp bộ lọc hiện tại." : "No cases match the current filters."}</div>}</div>
+    {cases.length > 48 && <p className="mt-2 font-mono text-[9px] text-[#17221d]/45">{vi ? `Hiển thị 48 / ${cases.length} case. Thu hẹp bằng nhóm hoặc tìm kiếm.` : `Showing 48 / ${cases.length} cases. Narrow with group or search.`}</p>}
+  </section>;
+}
+
 /** Xưởng Cơ Khí Tốc Độ — report is a readable proof of the CFOP pipeline, not a timer metric. */
-function CFOPReport({ result, language, activePhase, onSelectPhase }: { result: SolverResult; language: "vi" | "en"; activePhase: string | null; onSelectPhase: (phase: SolverResult["phases"][number]) => void }) {
+function CFOPReport({ result, language, activePhase, cursor, onSelectPhase, onSelectMove }: { result: SolverResult; language: "vi" | "en"; activePhase: string | null; cursor: number; onSelectPhase: (phase: SolverResult["phases"][number]) => void; onSelectMove: (moveIndex: number) => void }) {
   const vi = language === "vi";
   const totalValid = result.phases.filter((phase) => phase.valid_after && phase.predicate_after).length;
   const [ownerName, setOwnerName] = useState(() => localStorage.getItem("cfop-report-owner") ?? "");
@@ -424,13 +481,13 @@ function CFOPReport({ result, language, activePhase, onSelectPhase }: { result: 
       </div>
       {openingPhase && <div className={cn("mt-3 flex flex-wrap items-center justify-between gap-3 border-l-4 p-3", xxxxcrossSlots || xxxcrossSlots || xxcrossSlots || xcrossSlot ? "border-[#1ba77a] bg-[#1ba77a]/10" : "border-[#17221d]/30 bg-[#f4f0e8]")}><div className="min-w-0"><p className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-[#17221d]/55">{vi ? "CHIẾN LƯỢC OPENING" : "OPENING STRATEGY"}</p><p className="mt-1 break-words text-sm font-black">{xxxxcrossSlots ? "XXXXCross · Full F2L" : xxxcrossSlots ? `XXXCross · ${xxxcrossSlots.join(" + ")}` : xxcrossSlots ? `XXCross · ${xxcrossSlots.join(" + ")}` : xcrossSlot ? `XCross · ${xcrossSlot}` : "Cross"}</p></div><p className="max-w-md break-words text-left font-mono text-[10px] leading-4 text-[#17221d]/60 sm:text-right">{xxxxcrossSlots ? (vi ? "Cross và toàn bộ bốn cặp F2L đã hoàn tất cùng pha; chỉ còn OLL và PLL, invariant là full F2L." : "Cross and all four F2L pairs were completed in one phase; only OLL and PLL remain, with full F2L as the invariant.") : xxxcrossSlots ? (vi ? `Cross và ba cặp F2L ${xxxcrossSlots.join(" + ")} đã hoàn tất cùng pha; slot cuối tiếp tục theo invariant.` : `Cross and F2L ${xxxcrossSlots.join(" + ")} were completed in one phase; the final slot preserves that invariant.`) : xxcrossSlots ? (vi ? `Cross và hai cặp F2L ${xxcrossSlots.join(" + ")} đã hoàn tất cùng pha; hai slot còn lại tiếp tục theo invariant.` : `Cross and F2L ${xxcrossSlots.join(" + ")} were completed in one phase; the remaining two slots preserve that invariant.`) : xcrossSlot ? (vi ? `Cross và cặp F2L ${xcrossSlot} đã hoàn tất cùng pha; ba slot còn lại tiếp tục theo invariant.` : `Cross and F2L ${xcrossSlot} were completed in one phase; the remaining three slots preserve that invariant.`) : (vi ? "Không có nghiệm XXXXCross/XXXCross/XXCross/XCross trong budget; solver tiếp tục Cross chuẩn mà không giảm độ tin cậy." : "No XXXXCross/XXXCross/XXCross/XCross fit the budget; the solver continued with standard Cross without reducing reliability.")}</p></div>}
       <div className="mt-4 space-y-2">
-        {result.phases.map((phase, index) => <CFOPPhaseRow key={phase.name} phase={phase} index={index} language={language} selected={activePhase === phase.name} onSelect={onSelectPhase} />)}
+        {result.phases.map((phase, index) => <CFOPPhaseRow key={phase.name} phase={phase} index={index} language={language} selected={activePhase === phase.name} cursor={cursor} onSelect={onSelectPhase} onSelectMove={onSelectMove} />)}
       </div>
     </section>
   );
 }
 
-function CFOPPhaseRow({ phase, index, language, selected, onSelect }: { phase: SolverResult["phases"][number]; index: number; language: "vi" | "en"; selected: boolean; onSelect: (phase: SolverResult["phases"][number]) => void }) {
+function CFOPPhaseRow({ phase, index, language, selected, cursor, onSelect, onSelectMove }: { phase: SolverResult["phases"][number]; index: number; language: "vi" | "en"; selected: boolean; cursor: number; onSelect: (phase: SolverResult["phases"][number]) => void; onSelectMove: (moveIndex: number) => void }) {
   const vi = language === "vi";
   const notation = phase.algorithm || phase.moves.join(" ") || "—";
   const studyNote = phaseStudyNote(phase.name, language);
@@ -447,6 +504,7 @@ function CFOPPhaseRow({ phase, index, language, selected, onSelect }: { phase: S
       <button type="button" onClick={() => navigator.clipboard?.writeText(notation)} className="rounded-sm border border-[#17221d]/15 bg-white p-2 text-[#17221d]/60 hover:text-[#17221d]" aria-label={vi ? "Sao chép thuật toán" : "Copy algorithm"}><ClipboardCopy className="h-3.5 w-3.5" /></button>
     </div>
     <code className="mt-3 block overflow-x-auto border-t border-[#17221d]/10 pt-3 font-mono text-[11px] leading-5 text-[#17221d]/70">{notation}</code>
+    {phase.moves.length > 0 && <div className="mt-3 border-t border-dashed border-[#17221d]/12 pt-3"><p className="font-mono text-[8px] font-bold uppercase tracking-[0.14em] text-[#17221d]/45">{vi ? "SEQUENCE · CHẠM MOVE ĐỂ XEM" : "SEQUENCE · TAP A MOVE TO REVIEW"}</p><div className="mt-2 flex flex-wrap gap-1">{phase.moves.map((move, moveIndex) => { const movePosition = phase.start + moveIndex + 1; return <button key={`${phase.name}-${movePosition}-${move}`} type="button" onClick={() => onSelectMove(movePosition)} className={cn("rounded-sm px-1.5 py-1 font-mono text-[10px] font-bold transition", cursor === movePosition ? "bg-[#1ba77a] text-[#17221d]" : "border border-[#17221d]/12 bg-white text-[#17221d]/65 hover:border-[#17221d]/40")}>{move}</button>; })}</div></div>}
   </article>;
 }
 

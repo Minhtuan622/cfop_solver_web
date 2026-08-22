@@ -472,6 +472,7 @@
   .cube3d-layer-b { animation-name: cube-layer-turn-z; }
   .cube3d-cross-sticker { box-shadow: inset 0 0 0 3px #f4f0e8, 0 0 0 3px #1ba77a, 0 0 15px 3px rgb(27 167 122 / .7) !important; z-index: 2; }
   .cube3d-xcross-sticker { box-shadow: inset 0 0 0 2px #17221d, 0 0 0 3px #1ba77a, 0 0 17px 3px rgb(27 167 122 / .9) !important; z-index: 3; }
+  .cube3d-last-layer-sticker { box-shadow: inset 0 0 0 2px #17221d, 0 0 0 3px #e7c34f, 0 0 15px 2px rgb(231 195 79 / .82) !important; z-index: 3; }
   @keyframes cube-layer-turn-x { 0% { opacity: 1; transform: rotateX(0); } 86% { opacity: 1; transform: rotateX(var(--turn-angle)); } 100% { opacity: 0; transform: rotateX(var(--turn-angle)); } }
   @keyframes cube-layer-turn-y { 0% { opacity: 1; transform: rotateY(0); } 86% { opacity: 1; transform: rotateY(var(--turn-angle)); } 100% { opacity: 0; transform: rotateY(var(--turn-angle)); } }
   @keyframes cube-layer-turn-z { 0% { opacity: 1; transform: rotateZ(0); } 86% { opacity: 1; transform: rotateZ(var(--turn-angle)); } 100% { opacity: 0; transform: rotateZ(var(--turn-angle)); } }
@@ -681,20 +682,20 @@
     height: .2em;
     bottom: -.05em;
   }
-  .studio-machine-header { min-height: 4.7rem !important; padding-block: .58rem !important; background-color: #25332c !important; box-shadow: 3px 3px 0 rgb(27 167 122 / .5) !important; }
+  .studio-machine-header { min-height: 4.15rem !important; padding-block: .42rem !important; background-color: #344038 !important; box-shadow: 2px 2px 0 rgb(27 167 122 / .38) !important; }
   .studio-machine-header::after {
     position: absolute;
     right: 1.1rem;
     bottom: .7rem;
-    width: 72px;
-    height: 3px;
+    width: 54px;
+    height: 2px;
     background: repeating-linear-gradient(90deg, rgb(244 240 232 / .5) 0 1px, transparent 1px 7px);
     content: "";
-    opacity: .28;
+    opacity: .16;
   }
   .studio-machine-header .wordmark { font-size: .76rem; letter-spacing: .04em !important; }
   .studio-machine-header .wordmark-o { font-size: 1.15em; padding-bottom: .08em; }
-  .studio-machine-header h1 { max-width: 42rem; font-size: clamp(1.28rem, 1.9vw, 1.72rem) !important; letter-spacing: -.045em; }
+  .studio-machine-header h1 { max-width: 42rem; font-size: clamp(1.18rem, 1.65vw, 1.5rem) !important; letter-spacing: -.045em; }
   /* Supporting zones are record sheets; only the center solver owns a heavy apparatus silhouette. */
   .studio-control-stack .studio-support-panel,
   .studio-telemetry-column .studio-phase-telemetry,
@@ -719,6 +720,22 @@
   .studio-phase-ladder > div:nth-child(2) > div { border-inline-start-color: rgb(27 167 122 / .38); }
   .studio-telemetry-column .telemetry-panel:not(.studio-phase-ladder) { border-width: 1px !important; background-image: none !important; }
   .studio-opening-outcome { box-shadow: inset 3px 0 0 rgb(27 167 122 / .62); }
+  /* The solver viewport, motion rail and current move share one calibrated instrument language. */
+  .studio-apparatus-readout { position: relative; padding-bottom: 1rem; border-bottom: 1px solid rgb(23 34 29 / .12); }
+  .studio-apparatus-readout::after { position: absolute; right: 0; bottom: -2px; width: clamp(5rem, 18%, 9rem); height: 3px; background: repeating-linear-gradient(90deg, #1ba77a 0 2px, transparent 2px 9px); content: ""; }
+  .studio-apparatus-readout-card { position: relative; box-shadow: inset 3px 0 0 #1ba77a, 2px 2px 0 rgb(23 34 29 / .11) !important; }
+  .studio-apparatus-viewport { position: relative; box-shadow: inset 0 4px 0 rgb(27 167 122 / .85), inset 0 -1px 0 rgb(23 34 29 / .16); }
+  .studio-apparatus-viewport::before { position: absolute; top: 1rem; left: 1rem; width: 4px; height: calc(100% - 2rem); background: repeating-linear-gradient(to bottom, rgb(27 167 122 / .72) 0 8px, transparent 8px 14px); content: ""; opacity: .62; pointer-events: none; }
+  .studio-apparatus-controls { padding-top: .9rem; border-top: 1px solid rgb(23 34 29 / .12); }
+  .studio-apparatus-rail { position: relative; padding: .8rem .75rem .2rem; border-top: 3px solid #17221d; background: linear-gradient(90deg, rgb(27 167 122 / .09), transparent 42%); }
+  .studio-apparatus-rail::before { position: absolute; top: -.3rem; left: .75rem; width: 7px; height: 7px; border: 1px solid #17221d; background: #1ba77a; content: ""; transform: rotate(45deg); }
+  /* Explorer is a measurement drawer attached to the right rail, not an independent database card. */
+  .studio-telemetry-strip { position: relative; padding-left: .65rem; }
+  .studio-telemetry-strip::before { position: absolute; top: .2rem; bottom: .2rem; left: 0; width: 3px; background: repeating-linear-gradient(to bottom, #1ba77a 0 9px, transparent 9px 14px); content: ""; }
+  .last-layer-explorer { position: relative; border-inline-start: 4px solid #1ba77a !important; box-shadow: none !important; }
+  .last-layer-explorer::before { position: absolute; top: 4.7rem; bottom: .8rem; left: .42rem; width: 2px; background: repeating-linear-gradient(to bottom, rgb(27 167 122 / .62) 0 7px, transparent 7px 12px); content: ""; pointer-events: none; }
+  .last-layer-explorer > * { position: relative; z-index: 1; }
+  .last-layer-explorer button { border-radius: 1px !important; }
   @media (min-width: 1180px) {
     .studio-workbench {
       grid-template-columns: minmax(260px, 280px) minmax(0, 1fr) minmax(285px, 320px) !important;
@@ -737,6 +754,8 @@
     .studio-opening-outcome { align-items: flex-start; }
     .studio-opening-outcome > span { width: 100%; }
     .studio-phase-ladder > div:nth-child(2) > button { min-height: 64px; }
+    .studio-apparatus-viewport::before { display: none; }
+    .studio-apparatus-rail { padding-inline: .35rem; }
   }
   .studio-fallback-telemetry { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .65rem; background: rgb(244 240 232 / .72); color: rgb(23 34 29 / .64); }
   .studio-fallback-telemetry b { color: #17221d; }

@@ -25,11 +25,21 @@ async function getPyodide() {
   return pyodidePromise;
 }
 
-self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross"; lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto"; preferredSlot?: string; excludedSlots?: string[] }>) => {
-  const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", lastLayer = "auto", preferredSlot, excludedSlots = [] } = event.data;
+self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate" | "catalog"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross"; lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto"; preferredSlot?: string; excludedSlots?: string[]; family?: string; group?: string; query?: string; limit?: number }>) => {
+  const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", lastLayer = "auto", preferredSlot, excludedSlots = [], family = "all", group = "all", query = "", limit = 120 } = event.data;
   try {
     const runtime = await getPyodide();
-    const request = JSON.stringify({ kind, value, crossColor, opening, lastLayer, preferredSlot, excludedSlots });
+    const request = JSON.stringify({ kind, value, crossColor, opening, lastLayer, preferredSlot, excludedSlots, family, group, query, limit });
+    if (command === "catalog") {
+      const output = await runtime.runPythonAsync(`
+import json
+from cfop_solver.full_last_layer import list_direct_one_look_cases
+request = json.loads(${JSON.stringify(request)})
+json.dumps({"cases": list_direct_one_look_cases(request.get("family", "all"), request.get("query", ""), request.get("group", "all"), request.get("limit", 120))})
+`);
+      self.postMessage({ id, ok: true, output: String(output) });
+      return;
+    }
     if (command === "case") {
       const output = await runtime.runPythonAsync(`
 import json

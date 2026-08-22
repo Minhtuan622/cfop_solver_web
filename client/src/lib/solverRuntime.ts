@@ -10,6 +10,7 @@ export type OpeningMode = "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross
 export type F2LSlot = "FR" | "FL" | "BL" | "BR";
 export type XCrossOptions = { preferredSlot?: F2LSlot; excludedSlots?: F2LSlot[] };
 export type CubeValidation = { valid: boolean; message: string };
+export type LastLayerCatalogCase = { id: string; family: "zbll" | "1lll"; group: string; algorithm: string; state: string };
 
 let worker: Worker | null = null;
 let nextId = 1;
@@ -45,4 +46,10 @@ export function validateStateInBrowser(value: string): Promise<CubeValidation> {
   const id = nextId++;
   getWorker().postMessage({ id, command: "validate", value });
   return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve(result as CubeValidation), reject }));
+}
+
+export function listLastLayerCasesInBrowser(filters: { family?: "all" | "zbll" | "1lll"; group?: string; query?: string; limit?: number } = {}): Promise<LastLayerCatalogCase[]> {
+  const id = nextId++;
+  getWorker().postMessage({ id, command: "catalog", value: "", family: filters.family ?? "all", group: filters.group ?? "all", query: filters.query ?? "", limit: filters.limit ?? 120 });
+  return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve((result as { cases: LastLayerCatalogCase[] }).cases), reject }));
 }

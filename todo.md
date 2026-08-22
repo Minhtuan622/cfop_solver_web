@@ -261,3 +261,11 @@
 - [x] Triển khai matcher/solver Last Layer, metadata strategy và regression cho OLL solved/chưa solved.
 - [x] Tích hợp dropdown Last Layer, telemetry strategy, report và copy song ngữ Studio.
 - [x] Kiểm tra case, browser, responsive, TypeScript, production build và checkpoint.
+
+## Last Layer Explorer và Studio tối giản
+
+- [x] Rà soát catalog ZBLL/1LLL, component Cube 3D, report/move list và editor 6 mặt hiện có.
+- [x] Thêm tra cứu theo loại, nhóm và ID; nạp case vào Studio cùng highlight sticker tương ứng trên Cube 3D.
+- [x] Hợp nhất report CFOP và danh sách move thành một record; bỏ panel Kiểm tra lời giải riêng.
+- [x] Tối giản chế độ Màu 6 mặt thành sơ đồ 2D có thể tô sticker trực tiếp, không lặp ảnh minh họa cube.
+- [x] Kiểm tra browser, responsive, TypeScript, production build và checkpoint.

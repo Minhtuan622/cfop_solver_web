@@ -88,3 +88,6 @@
 - Stage gắn cube, move-count, playback và phase như một cụm đo thống nhất; mint rail/strong tick dành cho cụm này, còn panel phụ chỉ giữ rule giấy mờ.
 - Studio dùng header như equipment nameplate nén; stage cube là vùng ink/shadow/grid cường độ cao duy nhất. Input, telemetry và log chỉ là record sheet phẳng với texture rất nhẹ.
 - Empty log dùng câu trạng thái telemetry như “Chưa ghi nhận move trong sequence”, không dùng lời nhắc ứng dụng chung chung.
+- Header Studio là nameplate nén: chỉ giữ lockup CFOP liền mạch và O-notch mint, giảm dark mass/grid để không cạnh tranh với apparatus trung tâm.
+- Solver stage gắn readout, viewport cube, playback và move rail thành một cụm đo cơ khí; central apparatus là nơi duy nhất có rail/grid/shadow ở cường độ tối đa.
+- Explorer, case list và telemetry phải bám cùng measurement rail dọc, dùng score-strip/case ID mono thay cho các card dashboard tách rời.
