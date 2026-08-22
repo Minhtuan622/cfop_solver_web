@@ -23,3 +23,16 @@
 - Bảng tiến độ hiển thị từng nhóm ZBLL với phần trăm, ví dụ AS là 1/57 tương ứng 2%.
 - Chuyển sang 1LLL vẫn giữ filter chưa thuộc, hiển thị 1.163 case chưa thuộc và 49 nhóm với thanh/tỷ lệ riêng; xác nhận cùng luồng áp dụng cho hai catalog.
 - Screenshot desktop và mobile xác nhận Explorer vẫn giữ rail/score-strip gọn, controls luyện tập không tràn layout, và progress được thu gọn mặc định để không che danh sách case.
+
+## Xác minh phòng luyện Last Layer
+
+- Timer Lab mở tab ZBLL / 1LLL Study riêng, không làm thay đổi tab timer competition hiện hữu.
+- Catalog tải được case queue đầu tiên (ZBLL · AS · ZBLLAS-003), hiển thị song song CubeNet 2D và Cube 3D với lớp cuối được làm nổi bật.
+- Stopwatch Study chạy ở chế độ không inspection; thêm trigger Bắt đầu/Dừng hiển thị để đảm bảo thao tác timer rõ ràng bên cạnh phím Space.
+- Tab Study hiển thị đúng nhãn Space, readout và nút Bắt đầu cạnh stopwatch, không chồng lên công cụ visual case.
+- Catalog và layout Study vẫn ổn định sau HMR; stopwatch được gắn với case queue hiện tại, tách biệt hoàn toàn với inspection của competition timer.
+- Khi preview tự cập nhật DOM, thao tác browser theo snapshot cũ bị từ chối an toàn; kiểm thử sẽ tiếp tục trên snapshot mới để không đánh giá sai trạng thái timer.
+- Nút **Bắt đầu** đã chuyển sang **Dừng** và readout tăng từ 00:00.38 lên 00:01.16, xác nhận stopwatch Study chạy trực tiếp, không có inspection.
+- Dừng timer tại 00:19.79 mở đủ bốn mức tự đánh giá. Chấm **Nhớ** chuyển queue từ ZBLLAS-003 sang ZBLLAS-004, tăng mục tiêu ngày thành 1/12 và giảm pool ưu tiên còn 1.681 case.
+- Sau khi loại các marker chưa có lần chấm khỏi queue yếu, **Lấy case cần ôn** đã chọn lại ZBLLAS-003 — case có dữ liệu 00:19.79 — thay vì case chỉ được đánh dấu thuộc.
+- Production build và screenshot desktop/mobile xác nhận Study Bay mở trực tiếp qua `/timer?tab=study`, active case trainer là apparatus chính và right rail xếp dọc không tràn ở mobile.

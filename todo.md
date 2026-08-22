@@ -293,3 +293,11 @@
 - [x] Thêm phiên luyện ngẫu nhiên, chỉ nạp case chưa thuộc theo family/nhóm/bộ lọc đang chọn.
 - [x] Hiển thị thanh tiến độ và phần trăm đã thuộc cho từng nhóm ZBLL/1LLL.
 - [x] Kiểm tra filter, random, persistence, responsive, TypeScript, build và checkpoint.
+
+## Phòng luyện ZBLL/1LLL trong Timer Lab
+
+- [x] Rà soát Timer Lab, case catalog, history timer và master marker hiện có.
+- [x] Thiết kế lặp lại ngắt quãng, xếp hạng case yếu và backup tiến độ có version.
+- [x] Tạo khu vực luyện riêng trong Timer Lab, có timer, case queue và chấm mức độ nhớ case.
+- [x] Thêm xuất/nhập tiến độ, mục tiêu số case mỗi ngày và thông báo hoàn thành.
+- [x] Kiểm tra queue, timer, backup/import, localStorage, responsive, TypeScript, build và checkpoint.

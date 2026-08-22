@@ -100,3 +100,5 @@
 - Case Explorer hiển thị như sổ record có các dòng score-strip; tránh cảm giác danh sách dashboard hoặc thẻ độc lập.
 - Nameplate giảm chiều cao, contrast và shadow để stage là visual apex duy nhất; các panel nhập chỉ là record sheet nền giấy phẳng.
 - Copy tiêu đề ưu tiên ngắn, chủ động và mang sắc thái thiết bị đo/solver bench; tránh cách gọi chung chung kiểu dashboard ứng dụng.
+- Study Bay chọn active case trainer làm apparatus cường độ cao duy nhất; CubeNet là lõi, Cube 3D và stopwatch là telemetry hỗ trợ cho lượt đang luyện.
+- Header Timer Lab và intro Study Bay là nameplate nén; right rail hiển thị mục tiêu, queue và trạng thái học qua tick/rule liên tục, không thành card thông tin độc lập.

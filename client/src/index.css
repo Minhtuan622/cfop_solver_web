@@ -781,6 +781,24 @@
   .last-layer-study-controls { border-top: 1px solid rgb(23 34 29 / .14); border-bottom: 1px solid rgb(23 34 29 / .14); padding-block: .42rem; }
   .last-layer-group-progress { background: repeating-linear-gradient(to bottom, transparent 0 23px, rgb(23 34 29 / .035) 23px 24px); }
   .last-layer-group-progress summary { color: rgb(23 34 29 / .72); }
+  /* Study Bay hierarchy: active case trainer is the one high-intensity instrument on the route. */
+  .timer-lab .history-header { min-height: 0 !important; padding: 1rem 1.2rem !important; background: #1b2420; box-shadow: 4px 4px 0 #1ba77a !important; }
+  .timer-lab .history-header h1 { font-size: clamp(1.65rem, 3vw, 2.2rem) !important; }
+  .timer-lab .history-header .wordmark { position: relative; font-size: .76rem !important; letter-spacing: .055em !important; }
+  .timer-lab .history-header .wordmark-o { position: relative; color: #1ba77a !important; }
+  .timer-lab .history-header .wordmark-o::after { position: absolute; right: .04em; bottom: .08em; width: .23em; height: .23em; background: #1b2420; content: ""; }
+  .last-layer-study > section:first-child { padding: 1.15rem 1.45rem !important; box-shadow: 4px 4px 0 #1ba77a !important; }
+  .last-layer-study > section:first-child h2 { font-size: clamp(1.55rem, 2.5vw, 2.05rem) !important; }
+  .last-layer-study > section:first-child > div > div:first-child > p:last-child { font-size: .78rem; line-height: 1.35; }
+  .last-layer-study .study-apparatus { position: relative; border-width: 3px; box-shadow: 11px 11px 0 #17221d; }
+  .last-layer-study .study-apparatus::before { position: absolute; top: 0; right: -3px; bottom: 0; width: 5px; background: repeating-linear-gradient(to bottom, #1ba77a 0 3px, transparent 3px 10px); content: ""; }
+  .last-layer-study .study-cube-stage { border-width: 3px; box-shadow: 7px 7px 0 #1ba77a; }
+  .last-layer-study .timer-readout-only { border-width: 2px; box-shadow: 3px 3px 0 rgb(23 34 29 / .25); }
+  .last-layer-study .timer-readout-only > div > p { font-size: clamp(3.2rem, 5.8vw, 5.4rem) !important; }
+  .last-layer-study .study-record-sheet { position: relative; overflow: hidden; border-left: 5px solid #1ba77a; box-shadow: none; background-image: repeating-linear-gradient(to bottom, transparent 0 30px, rgb(23 34 29 / .07) 30px 31px); }
+  .last-layer-study .study-record-sheet::before { position: absolute; top: 1.1rem; right: .8rem; bottom: 1.1rem; width: 3px; background: repeating-linear-gradient(to bottom, rgb(27 167 122 / .7) 0 4px, transparent 4px 11px); content: ""; }
+  .last-layer-study .study-record-sheet > * { position: relative; z-index: 1; }
+  .last-layer-study .study-record-sheet .h-2 { border: 1px solid rgb(23 34 29 / .13); background: rgb(23 34 29 / .06); }
   @media (min-width: 1180px) {
     .studio-workbench {
       grid-template-columns: minmax(260px, 280px) minmax(0, 1fr) minmax(285px, 320px) !important;
