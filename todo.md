@@ -371,3 +371,11 @@
 - [x] Dời Last Layer Explorer sang Study Bay, gom bộ lọc/case/progress/mastery và tránh trùng với SRS hiện có.
 - [x] Chuyển CFOP report vào vùng Explorer cũ ở Studio, đảm bảo report vẫn giữ phase, invariant, move và export cần thiết.
 - [x] Kiểm tra luồng solver, Study Explorer, Timer scramble, responsive, TypeScript, production build và checkpoint.
+
+## Benchmark XXXXCross và scramble mặc định
+
+- [x] Rà soát pipeline opening Cross/XCross/XXCross/XXXCross/XXXXCross và telemetry fallback với scramble kiểm thử mới.
+- [x] Benchmark từng cấp opening, xác minh slot F2L thực tế đạt được và truy vết nguyên nhân nếu lùi cấp.
+- [x] Điều chỉnh search/macro/depth hoặc metadata fallback để XXXXCross có cơ hội tìm nghiệm đúng thay vì luôn dừng XCross.
+- [x] Đổi scramble mặc định Studio thành scramble ngẫu nhiên hợp lệ, không cố định R U R' U'.
+- [x] Chạy regression solver, nhúng lại Pyodide worker, kiểm tra giao diện opening và build production trước checkpoint.
