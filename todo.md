@@ -491,3 +491,10 @@
 - [x] Thiết kế chế độ Light/Dark/System cùng palette accent có độ tương phản phù hợp trên hai theme.
 - [x] Triển khai đồng bộ system preference, accent cục bộ và token/override cho các surface Dark Mode còn sáng.
 - [x] Kiểm thử live switch, system change, accent, contrast các route, TypeScript/build và checkpoint.
+
+## Custom accent picker và preview
+
+- [x] Rà display settings, accent token và Display Settings để xác định schema custom color tương thích profile hiện có.
+- [x] Thiết kế color picker có validation/contrast guard và preview workbench cho Light, Dark, System.
+- [x] Triển khai custom accent, persistence, reset và áp dụng token màu toàn ứng dụng.
+- [x] Kiểm thử preview, persistence, theme modes, TypeScript/build và checkpoint.
