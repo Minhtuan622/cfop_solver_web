@@ -403,3 +403,10 @@
 - [x] Áp dụng title phase compact không tràn và phép drag tương đối theo preset Cross-down.
 - [x] Kiểm tra report có 6+ phase, drag/click theo nhiều Cross, desktop/mobile, TypeScript/build.
 - [x] Checkpoint sau khi xác minh report và điều khiển Cube 3D nhất quán.
+
+## Kiểm thử Cube 3D sáu màu
+
+- [x] Lập ma trận kiểm thử Cross U/R/F/D/L/B cho mount, click, drag ngang/dọc, reset và đổi màu liên tiếp.
+- [x] Thay preset/trục đặc biệt bằng orientation xác định từ mặt Cross nếu ma trận phát hiện bất nhất.
+- [x] Bảo đảm Cross luôn ở D khi orbit, click/tap không thay camera và drag theo cùng quy ước trực quan ở sáu màu.
+- [x] Kiểm tra desktop/mobile, TypeScript, production build và ghi bằng chứng kiểm thử trước checkpoint.
