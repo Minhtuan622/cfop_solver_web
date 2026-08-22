@@ -12,13 +12,14 @@ import { Timer } from "lucide-react";
 import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
+import { BldReport } from "@/components/BldReport";
 import { CubeStateEditor } from "@/components/CubeStateEditor";
 import { CameraScanner } from "@/components/CameraScanner";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { readSolverSettings, writeSolverSettings } from "@/lib/appSettings";
-import { listLastLayerCasesInBrowser, solveInBrowser, validateStateInBrowser, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerCatalogCase, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
+import { analyzeBldInBrowser, listLastLayerCasesInBrowser, solveInBrowser, validateStateInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerCatalogCase, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -128,6 +129,7 @@ function exportCFOPImage(result: SolverResult, language: "vi" | "en", options: {
 export default function Home() {
   const { language, setLanguage, t } = useLanguage();
   const [mode, setMode] = useState<"scramble" | "state">("scramble");
+  const [solverKind, setSolverKind] = useState<"cfop" | "bld">("cfop");
   const [crossColor, setCrossColor] = useState<CrossColor>(() => readSolverSettings().crossColor);
   const [opening, setOpening] = useState<OpeningMode>(() => readSolverSettings().opening);
   const [openingDepth, setOpeningDepth] = useState(() => readSolverSettings().openingDepth);
@@ -139,6 +141,7 @@ export default function Home() {
   const [savedScramble, setSavedScramble] = useState(initialScramble);
   const [savedState, setSavedState] = useState(SOLVED_STATE);
   const [result, setResult] = useState<SolverResult | null>(null);
+  const [bldResult, setBldResult] = useState<BldResult | null>(null);
   const [cursor, setCursor] = useState(0);
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -271,8 +274,19 @@ export default function Home() {
     setPlaying(false);
     setError("");
     try {
+      if (solverKind === "bld") {
+        const next = await analyzeBldInBrowser(mode, value.trim());
+        setBldResult(next);
+        setResult(null);
+        cursorRef.current = 0;
+        setCubeMotion({ id: ++motionIdRef.current, kind: "reset", direction: "forward" });
+        setCursor(0);
+        if (mode === "state") rememberRecentState(value.trim(), crossColor);
+        return;
+      }
       const next = await solveInBrowser(mode, value.trim(), crossColor, opening, { preferredSlot, excludedSlots }, lastLayer, openingDepth);
       setResult(next);
+      setBldResult(null);
       cursorRef.current = 0;
       setCubeMotion({ id: ++motionIdRef.current, kind: "reset", direction: "forward" });
       setCursor(0);
@@ -290,7 +304,7 @@ export default function Home() {
     const next: RecentCubeState[] = [{ id: `${Date.now()}-${state.slice(0, 6)}`, state, crossColor: color, label: `${language === "vi" ? "State" : "State"} · ${new Intl.DateTimeFormat(language === "vi" ? "vi-VN" : "en-US", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date())}`, savedAt: new Date().toISOString() }, ...recentStates.filter((item) => item.state !== state)].slice(0, 8);
     setRecentStates(next); localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(next));
   };
-  const loadRecentState = (item: RecentCubeState) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(item.state); setSavedState(item.state); setCrossColor(item.crossColor); setSelectedCatalogCase(null); setResult(null); setCursor(0); setError(""); };
+  const loadRecentState = (item: RecentCubeState) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(item.state); setSavedState(item.state); setCrossColor(item.crossColor); setSelectedCatalogCase(null); setResult(null); setBldResult(null); setCursor(0); setError(""); };
   const loadCatalogCase = (catalogCase: LastLayerCatalogCase) => {
     stateHistory.current = { past: [], future: [] };
     setStateHistoryVersion((version) => version + 1);
@@ -300,6 +314,7 @@ export default function Home() {
     setLastLayer(catalogCase.family);
     setSelectedCatalogCase(catalogCase);
     setResult(null);
+    setBldResult(null);
     setCursor(0);
     setError("");
   };
@@ -317,6 +332,7 @@ export default function Home() {
     setSelectedCatalogCase(null);
     setStateHistoryVersion((version) => version + 1);
     setResult(null);
+    setBldResult(null);
     setCursor(0);
     setError("");
   };
@@ -328,6 +344,7 @@ export default function Home() {
     stateHistory.current.future = [...stateHistory.current.future, current].slice(-80);
     setValue(previous);
     setSavedState(previous);
+    setBldResult(null);
     setStateHistoryVersion((version) => version + 1);
   };
   const redoStateEdit = () => {
@@ -338,6 +355,7 @@ export default function Home() {
     stateHistory.current.past = [...stateHistory.current.past, current].slice(-80);
     setValue(next);
     setSavedState(next);
+    setBldResult(null);
     setStateHistoryVersion((version) => version + 1);
   };
   const switchInputMode = (next: "scramble" | "state") => {
@@ -347,6 +365,7 @@ export default function Home() {
     setValue(next === "scramble" ? savedScramble : savedState);
     if (next === "scramble") setSelectedCatalogCase(null);
     setResult(null);
+    setBldResult(null);
     setCursor(0);
     setPlaying(false);
     setError("");
@@ -360,9 +379,13 @@ export default function Home() {
             <div className="studio-support-panel scorecard overflow-hidden rounded-[3px] border-2 border-[#17221d] bg-white shadow-[7px_7px_0_#17221d]">
               <div className="studio-input-header flex h-20 items-center justify-between border-b-2 border-[#17221d]/15 px-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">CUBE INPUT</p><img src="/manus-storage/cfop-studio-mark_62473f8e.png" alt="CFOP cube mark" className="h-12 w-12 rounded-lg border-2 border-[#17221d] bg-[#f4f0e8] p-1 shadow-[3px_3px_0_#1ba77a]" /></div>
               <div className="p-5">
-                <div className="mt-4 grid grid-cols-2 rounded-sm border-2 border-[#17221d]/15 p-1">
+                <div className="grid grid-cols-2 rounded-sm border-2 border-[#17221d]/15 p-1">
+                  {(["cfop", "bld"] as const).map((item) => <button key={item} onClick={() => { setSolverKind(item); setResult(null); setBldResult(null); setCursor(0); setPlaying(false); setError(""); }} className={cn("rounded-md px-2 py-2 font-mono text-[10px] font-bold uppercase transition", solverKind === item ? "bg-[#1ba77a] text-[#17221d]" : "text-[#17221d]/55 hover:bg-[#f4f0e8]")}>{item === "cfop" ? "CFOP" : "3-STYLE BLD"}</button>)}
+                </div>
+                <div className="mt-3 grid grid-cols-2 rounded-sm border-2 border-[#17221d]/15 p-1">
                   {(["scramble", "state"] as const).map((item) => <button key={item} onClick={() => switchInputMode(item)} className={cn("rounded-md px-2 py-2 font-mono text-[11px] font-bold uppercase transition", mode === item ? "bg-[#17221d] text-[#f4f0e8]" : "text-[#17221d]/55 hover:bg-[#f4f0e8]")}>{item === "scramble" ? t("input.scramble") : t("input.state")}</button>)}
                 </div>
+                {solverKind === "bld" && <div className="mt-3 border-y border-[#17221d]/15 py-3"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b7b5e]">3-STYLE BLD · SPEFFZ</p><p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{language === "vi" ? "Buffer edge UF (C), corner UBL (A). Studio trace memo, cycle break, parity/flip/twist rồi đối chiếu execution key với BLDDB." : "Edge buffer UF (C), corner buffer UBL (A). Studio traces memo, cycle breaks, parity/flip/twist, then resolves execution keys against BLDDB."}</p></div>}
                 <details className="mt-4 border-y border-[#17221d]/15 py-3">
                   <summary className="cursor-pointer font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-[#17221d]/60">{language === "vi" ? "CÀI ĐẶT SOLVER" : "SOLVER SETTINGS"}</summary><div className="pt-3">
                   <div className="flex items-center justify-between gap-3"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#17221d]/60">{language === "vi" ? "MÀU CROSS" : "CROSS COLOR"}</p><span className="font-mono text-[10px] font-bold text-[#1b7b5e]">{language === "vi" ? CROSS_COLORS.find((item) => item.value === crossColor)?.vi : CROSS_COLORS.find((item) => item.value === crossColor)?.en}</span></div>
@@ -384,14 +407,14 @@ export default function Home() {
                   <div className="mt-2 grid grid-cols-5 gap-1"><button type="button" onClick={() => setPreferredSlot(undefined)} className={cn("rounded-sm border px-1 py-2 font-mono text-[9px] font-bold", !preferredSlot ? "border-[#17221d] bg-[#17221d] text-[#f4f0e8]" : "border-[#17221d]/15 bg-white text-[#17221d]/55")}>{language === "vi" ? "TỰ" : "ANY"}</button>{F2L_SLOTS.map((slot) => <button key={slot} type="button" disabled={excludedSlots.includes(slot)} onClick={() => setPreferredSlot(preferredSlot === slot ? undefined : slot)} className={cn("rounded-sm border px-1 py-2 font-mono text-[9px] font-bold", preferredSlot === slot ? "border-[#1ba77a] bg-[#1ba77a] text-[#17221d]" : excludedSlots.includes(slot) ? "border-[#d95743]/25 bg-[#d95743]/5 text-[#9b3023] line-through" : "border-[#17221d]/15 bg-white text-[#17221d]/60")}>{slot}</button>)}</div>
                   <div className="mt-2 flex flex-wrap items-center gap-1"><span className="mr-1 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-[#17221d]/45">{language === "vi" ? "Loại trừ" : "Exclude"}</span>{F2L_SLOTS.map((slot) => <button key={`exclude-${slot}`} type="button" onClick={() => { setExcludedSlots((current) => current.includes(slot) ? current.filter((value) => value !== slot) : [...current, slot]); if (preferredSlot === slot) setPreferredSlot(undefined); }} className={cn("rounded-sm border px-1.5 py-1 font-mono text-[9px] font-bold transition", excludedSlots.includes(slot) ? "border-[#d95743] bg-[#d95743] text-white" : "border-[#17221d]/15 bg-[#f4f0e8] text-[#17221d]/55 hover:border-[#17221d]")}>{slot}</button>)}</div>
                 </div></details>}</details>
-                {mode === "scramble" ? <textarea aria-label={t("input.label")} value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); }} placeholder={language === "vi" ? "Nhập scramble · R U R' U'" : "Enter scramble · R U R' U'"} spellCheck={false} className="mt-4 min-h-28 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" /> : <><div className="mt-4"><CubeStateEditor state={value} onChange={applyStateEdit} disabled={loading} canUndo={stateHistory.current.past.length > 0} canRedo={stateHistory.current.future.length > 0} onUndo={undoStateEdit} onRedo={redoStateEdit} selectedColor={paintColor} onSelectedColorChange={setPaintColor} controlsOnly /></div><p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{language === "vi" ? "Tô trực tiếp trên sơ đồ 2D lớn cạnh Cube 3D." : "Paint directly on the large 2D net beside the 3D cube."}</p><div className={cn("mt-3 border-2 p-3 font-mono text-[10px] leading-5", stateValidation?.valid ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/30 bg-[#d95743]/10 text-[#8b2d21]")}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div>{recentStates.length > 0 && <div className="mt-3 border-t border-[#17221d]/12 pt-3"><p className="flex items-center gap-1 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-[#17221d]/55"><History className="h-3 w-3" />{language === "vi" ? "STATE GẦN ĐÂY" : "RECENT STATES"}</p><div className="mt-2 space-y-1">{recentStates.map((item) => <div key={item.id} className="flex items-center gap-1 rounded-sm border border-[#17221d]/12 bg-[#f4f0e8] p-1"><button type="button" onClick={() => loadRecentState(item)} className="min-w-0 flex-1 truncate px-2 py-1 text-left font-mono text-[9px] font-bold hover:text-[#1b7b5e]">{item.label}</button><button type="button" onClick={() => removeRecentState(item.id)} aria-label={language === "vi" ? `Xóa ${item.label}` : `Remove ${item.label}`} className="rounded-sm p-1.5 text-[#17221d]/45 hover:bg-[#d95743]/10 hover:text-[#9b3023]"><Trash2 className="h-3 w-3" /></button></div>)}</div></div>}<details className="mt-3"><summary className="cursor-pointer font-mono text-[9px] font-bold tracking-[0.12em] text-[#17221d]/55">{language === "vi" ? "DÁN CHUỖI 54 STICKER" : "PASTE 54-STICKER STATE"}</summary><textarea value={value} onChange={(event) => applyStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())} spellCheck={false} className="mt-2 min-h-20 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-white p-3 font-mono text-xs outline-none transition focus:border-[#1ba77a]" /></details></>}
+                {mode === "scramble" ? <textarea aria-label={t("input.label")} value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); setBldResult(null); }} placeholder={language === "vi" ? "Nhập scramble · R U R' U'" : "Enter scramble · R U R' U'"} spellCheck={false} className="mt-4 min-h-28 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-[#f4f0e8] p-3 font-mono text-sm leading-6 outline-none transition focus:border-[#1ba77a] focus:ring-4 focus:ring-[#1ba77a]/15" /> : <><div className="mt-4"><CubeStateEditor state={value} onChange={applyStateEdit} disabled={loading} canUndo={stateHistory.current.past.length > 0} canRedo={stateHistory.current.future.length > 0} onUndo={undoStateEdit} onRedo={redoStateEdit} selectedColor={paintColor} onSelectedColorChange={setPaintColor} controlsOnly /></div><p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{language === "vi" ? "Tô trực tiếp trên sơ đồ 2D lớn cạnh Cube 3D." : "Paint directly on the large 2D net beside the 3D cube."}</p><div className={cn("mt-3 border-2 p-3 font-mono text-[10px] leading-5", stateValidation?.valid ? "border-[#1ba77a]/50 bg-[#1ba77a]/10 text-[#1b7b5e]" : "border-[#d95743]/30 bg-[#d95743]/10 text-[#8b2d21]")}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div>{recentStates.length > 0 && <div className="mt-3 border-t border-[#17221d]/12 pt-3"><p className="flex items-center gap-1 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-[#17221d]/55"><History className="h-3 w-3" />{language === "vi" ? "STATE GẦN ĐÂY" : "RECENT STATES"}</p><div className="mt-2 space-y-1">{recentStates.map((item) => <div key={item.id} className="flex items-center gap-1 rounded-sm border border-[#17221d]/12 bg-[#f4f0e8] p-1"><button type="button" onClick={() => loadRecentState(item)} className="min-w-0 flex-1 truncate px-2 py-1 text-left font-mono text-[9px] font-bold hover:text-[#1b7b5e]">{item.label}</button><button type="button" onClick={() => removeRecentState(item.id)} aria-label={language === "vi" ? `Xóa ${item.label}` : `Remove ${item.label}`} className="rounded-sm p-1.5 text-[#17221d]/45 hover:bg-[#d95743]/10 hover:text-[#9b3023]"><Trash2 className="h-3 w-3" /></button></div>)}</div></div>}<details className="mt-3"><summary className="cursor-pointer font-mono text-[9px] font-bold tracking-[0.12em] text-[#17221d]/55">{language === "vi" ? "DÁN CHUỖI 54 STICKER" : "PASTE 54-STICKER STATE"}</summary><textarea value={value} onChange={(event) => applyStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())} spellCheck={false} className="mt-2 min-h-20 w-full resize-none rounded-sm border-2 border-[#17221d]/20 bg-white p-3 font-mono text-xs outline-none transition focus:border-[#1ba77a]" /></details></>}
                 {error && <p className="mt-3 rounded-lg bg-[#d95743]/10 p-3 font-mono text-xs leading-5 text-[#9b3023]">{error}</p>}
                 <button disabled={loading || !value.trim() || (mode === "state" && !stateValidation?.valid)} onClick={runSolver} className="mt-4 flex w-full items-center justify-center gap-2 rounded-sm border-2 border-[#17221d] bg-[#1ba77a] px-4 py-3 text-sm font-bold text-[#10241c] shadow-[3px_3px_0_#17221d] transition hover:-translate-y-0.5 hover:bg-[#24bd8d] active:scale-[0.97] disabled:opacity-60">
-                  {loading ? <><Loader2 className="h-4 w-4 animate-spin" />{t("input.loading")}</> : <><Sparkles className="h-4 w-4" />{t("input.solve")}</>}
+                  {loading ? <><Loader2 className="h-4 w-4 animate-spin" />{t("input.loading")}</> : <><Sparkles className="h-4 w-4" />{solverKind === "bld" ? (language === "vi" ? "TẠO MEMO 3-STYLE" : "BUILD 3-STYLE MEMO") : t("input.solve")}</>}
                 </button>
               </div>
             </div>
-            <details className="studio-camera-fold border border-[#17221d]/20 bg-[#f4f0e8] p-3"><summary className="cursor-pointer font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#17221d]/60">{language === "vi" ? "Quét camera · tùy chọn" : "Camera scan · optional"}</summary><div className="mt-3"><CameraScanner onState={(state) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(state); setSavedState(state); setResult(null); setCursor(0); setError(""); }} /></div></details>
+            <details className="studio-camera-fold border border-[#17221d]/20 bg-[#f4f0e8] p-3"><summary className="cursor-pointer font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#17221d]/60">{language === "vi" ? "Quét camera · tùy chọn" : "Camera scan · optional"}</summary><div className="mt-3"><CameraScanner onState={(state) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(state); setSavedState(state); setResult(null); setBldResult(null); setCursor(0); setError(""); }} /></div></details>
           </aside>
 
           <section className="studio-stage-column min-w-0">
@@ -414,8 +437,8 @@ export default function Home() {
           </section>
 
           <aside className="studio-telemetry-column space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2">
-            <div className="studio-telemetry-strip studio-record-strip grid grid-cols-3 gap-2"><Stat label={t("status.moves")} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="h-4 w-4" />} /><Stat label={t("status.steps")} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="h-4 w-4" />} /><Stat label={t("status.ok")} value={result ? "✓" : "—"} icon={<ShieldCheck className="h-4 w-4" />} /></div>
-            {result ? <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <section className="studio-report-empty border-2 border-[#17221d]/25 bg-[#f8f5ed] p-4"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#1b7b5e]">CFOP · {language === "vi" ? "BÁO CÁO" : "REPORT"}</p><p className="mt-2 font-mono text-[10px] leading-5 text-[#17221d]/60">{language === "vi" ? "Chạy solver để ghi phase, invariant, algorithm và xuất báo cáo tại đây." : "Run the solver to record phases, invariants, algorithms, and exports here."}</p></section>}
+            <div className="studio-telemetry-strip studio-record-strip grid grid-cols-3 gap-2"><Stat label={solverKind === "bld" ? "EDGE" : t("status.moves")} value={solverKind === "bld" ? String(bldResult?.analysis.edges.memo.length ?? "—") : (result ? String(totalMoves) : "—")} icon={<CircleGauge className="h-4 w-4" />} /><Stat label={solverKind === "bld" ? "CORNER" : t("status.steps")} value={solverKind === "bld" ? String(bldResult?.analysis.corners.memo.length ?? "—") : (result ? String(phaseCount) : "—")} icon={<ChevronRight className="h-4 w-4" />} /><Stat label={solverKind === "bld" ? "PARITY" : t("status.ok")} value={solverKind === "bld" ? (bldResult?.analysis.special.parity ? "!" : "✓") : (result ? "✓" : "—")} icon={<ShieldCheck className="h-4 w-4" />} /></div>
+            {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} /> : result ? <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <section className="studio-report-empty border-2 border-[#17221d]/25 bg-[#f8f5ed] p-4"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#1b7b5e]">{solverKind === "bld" ? "3-STYLE BLD · MEMO" : `CFOP · ${language === "vi" ? "BÁO CÁO" : "REPORT"}`}</p><p className="mt-2 font-mono text-[10px] leading-5 text-[#17221d]/60">{solverKind === "bld" ? (language === "vi" ? "Tạo memo để xem edge/corner cycle, execution key và parity/flip/twist tại đây." : "Build memo to view edge/corner cycles, execution keys, and parity/flip/twist here.") : (language === "vi" ? "Chạy solver để ghi phase, invariant, algorithm và xuất báo cáo tại đây." : "Run the solver to record phases, invariants, algorithms, and exports here.")}</p></section>}
           </aside>
         </section>
       </div>

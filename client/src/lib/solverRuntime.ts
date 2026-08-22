@@ -11,6 +11,8 @@ export type F2LSlot = "FR" | "FL" | "BL" | "BR";
 export type XCrossOptions = { preferredSlot?: F2LSlot; excludedSlots?: F2LSlot[] };
 export type CubeValidation = { valid: boolean; message: string };
 export type LastLayerCatalogCase = { id: string; family: "zbll" | "1lll"; group: string; algorithm: string; state: string };
+export type BldCycle = { buffer: string; targets: string[]; cycle_break: boolean; memo: string; execution_keys: string[] };
+export type BldResult = { initial_state: string; analysis: { method: "3style-speffz"; buffers: { edge: { letter: string; position: string }; corner: { letter: string; position: string } }; edges: { cycles: BldCycle[]; memo: string[]; execution_keys: string[] }; corners: { cycles: BldCycle[]; memo: string[]; execution_keys: string[] }; special: { parity: boolean; edge_flips: string[]; corner_twists: string[]; edge_orientation_sum: number; corner_orientation_sum: number }; solved: boolean; catalog: { provider: string; source: string; note: string } } };
 
 let worker: Worker | null = null;
 let nextId = 1;
@@ -34,6 +36,12 @@ export function solveInBrowser(kind: "scramble" | "state", value: string, crossC
   const id = nextId++;
   getWorker().postMessage({ id, command: "solve", kind, value, crossColor, opening, lastLayer, openingDepth, preferredSlot: xcross.preferredSlot, excludedSlots: xcross.excludedSlots ?? [] });
   return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve(result as SolverResult), reject }));
+}
+
+export function analyzeBldInBrowser(kind: "scramble" | "state", value: string): Promise<BldResult> {
+  const id = nextId++;
+  getWorker().postMessage({ id, command: "bld", kind, value });
+  return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve(result as BldResult), reject }));
 }
 
 export function getCaseStateInBrowser(setup: string): Promise<string> {

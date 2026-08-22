@@ -110,3 +110,6 @@
 - Panel phụ luôn là ruled-paper record: border nhẹ, shadow tối thiểu; chỉ apparatus chính của route được dùng dark ink hoặc material shadow mạnh.
 - Vùng chờ và khoảng trống phải là field đo lường có rule/tick/telemetry, không là canvas trắng chưa hoàn tất.
 - Hệ cube dùng chung sticker-plane isometric sắc nét và controlled shadow; tránh glow trang trí hoặc phong cách render không thống nhất.
+- Study Bay chỉ dùng CubeNet/case trainer làm apparatus đậm; Cube 3D và stopwatch chuyển thành telemetry giấy kỹ thuật có rail đo liên kết.
+- Right rail của Study nối mục tiêu, lịch ôn và catalog thành một measurement ladder liên tục bằng mint rail, ruled row, counter và case ID mono.
+- Nameplate toàn cục tăng nhận diện bằng cube stamp vuông, wordmark CFOP liền mạch và O-notch mint/đường tick nhỏ; không tăng chiều cao header.

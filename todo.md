@@ -445,3 +445,11 @@
 - [x] Đặt góc camera gốc thẳng theo D và thêm inertia hai trục có suy giảm.
 - [x] Hủy inertia khi pointer down/reset/reduced motion, giữ drag click-safe và pitch anti-flip.
 - [x] Kiểm thử default alignment, inertia, drag/reset, TypeScript/build và checkpoint.
+
+## 3-Style BLD và highlight Last Layer
+
+- [x] Rà soát CubieView, permutation/memo hiện có và xác định data contract Speffz với UF/UBL buffer.
+- [x] Thiết kế 3-Style BLD: edge/corner cycle breaks, letter-pair memo, parity, flip/twist và execution commutator catalog.
+- [x] Tích hợp chế độ BLD vào Studio/worker/report mà không làm thay đổi pipeline CFOP hiện có.
+- [x] Sửa highlight Last Layer Study để lớp OLL nằm ở mặt đối diện Cross sau orientation Cross-to-D.
+- [x] Thêm regression BLD/CFOP và xác minh memo, report, highlight, TypeScript/build trước checkpoint.

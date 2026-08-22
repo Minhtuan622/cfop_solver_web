@@ -54,3 +54,18 @@ for (let frame = 0; frame < 24; frame += 1) {
 }
 if (!(inertialAngle > 0 && velocity > 0 && velocity < 1)) throw new Error("Inertia should decay forward without resetting the angle");
 console.log(`inertia: decays smoothly and retains ${inertialAngle.toFixed(3)}° of free orbit`);
+
+const oppositeFace = { U: "D", D: "U", F: "B", B: "F", R: "L", L: "R" };
+const displayFace = {
+  U: { U: "D", R: "L", F: "B", D: "U", L: "R", B: "F" },
+  D: { U: "U", R: "R", F: "F", D: "D", L: "L", B: "B" },
+  F: { U: "F", R: "R", F: "D", D: "B", L: "L", B: "U" },
+  B: { U: "B", R: "R", F: "U", D: "F", L: "L", B: "D" },
+  R: { U: "R", R: "D", F: "F", D: "L", L: "U", B: "B" },
+  L: { U: "L", R: "U", F: "F", D: "R", L: "D", B: "B" },
+};
+for (const cross of Object.keys(oppositeFace)) {
+  const layer = displayFace[cross][oppositeFace[cross]];
+  if (layer !== "U") throw new Error(`Last Layer display mismatch for Cross ${cross}: expected U, got ${layer}`);
+}
+console.log("last layer: opposite Cross maps to display U for U/R/F/D/L/B Cross");

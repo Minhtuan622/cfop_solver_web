@@ -55,17 +55,19 @@ const F2L_SLOT_STICKERS: Record<string, Partial<Record<"U" | "R" | "F" | "D" | "
   BR: { D: [8], B: [3, 6], R: [5, 8] },
 };
 
-const LAST_LAYER_STICKERS: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>> = {
-  U: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-  F: [0, 1, 2], R: [0, 1, 2], B: [0, 1, 2], L: [0, 1, 2],
-};
+const OPPOSITE_FACE: Record<string, "U" | "R" | "F" | "D" | "L" | "B"> = { U: "D", D: "U", F: "B", B: "F", R: "L", L: "R" };
+function lastLayerStickerMap(layer: "U" | "R" | "F" | "D" | "L" | "B") {
+  const stickers: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>> = { [layer]: [0, 1, 2, 3, 4, 5, 6, 7, 8] };
+  for (const strip of LAYER_STRIPS[layer]) stickers[strip.face] = strip.cells;
+  return stickers;
+}
 
-function Face({ face, state, inspectCross, crossColor, xcrossSlots, lastLayerCase }: { face: "U" | "R" | "F" | "D" | "L" | "B"; state: string; inspectCross: boolean; crossColor: string; xcrossSlots?: string[]; lastLayerCase?: { family: string; id: string } }) {
+function Face({ face, state, inspectCross, crossColor, xcrossSlots, lastLayerCase, lastLayerStickers }: { face: "U" | "R" | "F" | "D" | "L" | "B"; state: string; inspectCross: boolean; crossColor: string; xcrossSlots?: string[]; lastLayerCase?: { family: string; id: string }; lastLayerStickers?: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>> }) {
   const crossEdges = new Set([1, 3, 5, 7]);
   return <div className={`cube3d-face cube3d-${face.toLowerCase()}`}>{Array.from({ length: 9 }, (_, index) => {
     const highlighted = inspectCross && crossEdges.has(index) && state[faceOffset[face] + index] === crossColor;
     const slotHighlighted = Boolean(xcrossSlots?.some((slot) => F2L_SLOT_STICKERS[slot]?.[face]?.includes(index)));
-    const lastLayerHighlighted = Boolean(lastLayerCase && LAST_LAYER_STICKERS[face]?.includes(index));
+    const lastLayerHighlighted = Boolean(lastLayerCase && lastLayerStickers?.[face]?.includes(index));
     return <span key={index} className={highlighted ? "cube3d-cross-sticker" : lastLayerHighlighted ? "cube3d-last-layer-sticker" : slotHighlighted ? "cube3d-xcross-sticker" : ""} style={{ background: color[state[faceOffset[face] + index]] ?? "#777" }} />;
   })}</div>;
 }
@@ -92,6 +94,9 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const animateLayer = Boolean(target) && transition === "move";
   const renderedState = displayState(state, crossColor, alignCross);
   const renderedPreviousState = displayState(previousState ?? state, crossColor, alignCross);
+  const originalLastLayerFace = OPPOSITE_FACE[crossColor] ?? "U";
+  const displayLastLayerFace = alignCross ? (DISPLAY_FACE[crossColor]?.[originalLastLayerFace] ?? originalLastLayerFace) : originalLastLayerFace;
+  const lastLayerStickers = lastLayerCase ? lastLayerStickerMap(displayLastLayerFace as "U" | "R" | "F" | "D" | "L" | "B") : undefined;
   const cancelInertia = () => { if (inertiaFrame.current !== null) cancelAnimationFrame(inertiaFrame.current); inertiaFrame.current = null; inertiaVelocity.current = { orbit: 0, pitch: 0 }; };
   const startInertia = () => {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
@@ -145,7 +150,7 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const turnAngle = move?.endsWith("2") ? "180deg" : move?.endsWith("'") ? "-90deg" : "90deg";
   return <div className="cube3d-guide rounded-sm border-2 border-[#17221d] bg-[#17221d] p-3 text-[#f4f0e8]">
     <div className={`cube3d-stage interactive-cube-stage cube3d-transition-${transition}`} aria-label={language === "vi" ? "Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to" : "3D Rubik model, drag horizontally for 360° orbit and vertically to view top or bottom; pinch or scroll to zoom"} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onPointerLeave={pointerLeave} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
-      <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={renderedState} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} />)}{animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={renderedPreviousState} angle={turnAngle} step={step} move={move} duration={turnDurationMs} />}</div></div>
+      <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={renderedState} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} lastLayerStickers={lastLayerStickers} />)}{animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={renderedPreviousState} angle={turnAngle} step={step} move={move} duration={turnDurationMs} />}</div></div>
       {transition === "phase" && phaseLabel && <div key={transitionId} className="cube3d-phase-callout" aria-live="polite"><span>{language === "vi" ? "CHUYỂN PHA" : "PHASE SHIFT"}</span><b>{phaseLabel}</b></div>}
     </div>
     <div className="mt-1 flex justify-end"><button type="button" onClick={reset} className="cube-mini-control" aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><Rotate3D className="h-3.5 w-3.5" /></button></div>

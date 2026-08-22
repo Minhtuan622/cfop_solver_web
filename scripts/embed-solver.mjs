@@ -10,6 +10,7 @@ const files = [
   "cube.py",
   "notation.py",
   "validation.py",
+  "bld.py",
   "predicates.py",
   "f2l_macros.py",
   "f2l_symmetry.py",

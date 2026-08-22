@@ -1049,4 +1049,23 @@
   .settings-chip-grid, .settings-number, .settings-toggle { margin-left: .42rem; }
   .settings-toggle { box-shadow: none !important; }
   @media (max-width: 640px) { .app-shell-brand span em { display: inline !important; font-size: 7px; letter-spacing: .06em; }.app-shell-brand img { width: 22px; height: 22px; }.settings-workbench > .grid::before { display: none; }.settings-sheet::before { left: .35rem; } }
+  /* Review refinement: Study has one case apparatus; timer/cube are calibrated support instruments and its rail is a single record ladder. */
+  .study-support-instruments { position: relative; gap: .7rem !important; border-left: 3px solid #1ba77a; background: repeating-linear-gradient(to bottom, transparent 0 34px, rgb(23 34 29 / .055) 34px 35px); padding: .6rem .55rem .7rem .8rem; }
+  .study-support-instruments::before { position: absolute; top: .75rem; bottom: .75rem; left: -.45rem; width: 2px; background: repeating-linear-gradient(to bottom, rgb(27 167 122 / .72) 0 6px, transparent 6px 12px); content: ""; }
+  .study-support-instruments .cube3d-guide { min-height: 164px !important; border: 1px solid rgb(23 34 29 / .38) !important; background: #efe9dc !important; box-shadow: none !important; }
+  .study-support-instruments .cube3d-stage { min-height: 145px !important; }
+  .study-support-instruments .cube-mini-control { border-color: rgb(23 34 29 / .26); color: #17221d; }
+  .study-support-instruments .cube-mini-control:hover { background: rgb(23 34 29 / .06); }
+  .study-support-instruments .timer-readout-only { min-height: 132px !important; border: 1px solid rgb(23 34 29 / .38) !important; background: #f8f5ed !important; box-shadow: none !important; }
+  .study-support-instruments .timer-readout-only > div > p, .study-support-instruments .timer-readout-only > p:first-child { color: #17221d !important; font-size: clamp(2.7rem, 5vw, 4.25rem) !important; text-shadow: none !important; }
+  .study-measurement-rail { position: relative; padding-left: .75rem; }
+  .study-measurement-rail::before { position: absolute; top: .65rem; bottom: .7rem; left: .2rem; width: 3px; background: repeating-linear-gradient(to bottom, #1ba77a 0 8px, transparent 8px 14px); content: ""; }
+  .study-measurement-rail > * { position: relative; margin-top: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+  .study-measurement-rail > * + * { border-top-width: 0 !important; }
+  .study-measurement-rail .study-record-sheet { border-left-width: 2px; background-color: #f8f5ed; }
+  .study-measurement-rail .last-layer-explorer-study { border-left-width: 2px; background-color: #f8f5ed; }
+  .app-shell-brand img { border: 2px solid #17221d; box-shadow: 2px 2px 0 #1ba77a; }
+  .app-shell-brand b { position: relative; font-size: 14px; letter-spacing: .08em; }
+  .app-shell-brand b::after { position: absolute; right: 0; bottom: -.34rem; width: 44%; height: 2px; background: repeating-linear-gradient(90deg, #1ba77a 0 2px, transparent 2px 6px); content: ""; }
+  @media (max-width: 640px) { .study-measurement-rail { padding-left: .55rem; }.study-support-instruments { padding-left: .65rem; }.app-shell-brand b { font-size: 12px; } }
 }

@@ -25,7 +25,7 @@ async function getPyodide() {
   return pyodidePromise;
 }
 
-self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "case" | "validate" | "catalog"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross"; lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto"; openingDepth?: number; preferredSlot?: string; excludedSlots?: string[]; family?: string; group?: string; query?: string; limit?: number }>) => {
+self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "bld" | "case" | "validate" | "catalog"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross"; lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto"; openingDepth?: number; preferredSlot?: string; excludedSlots?: string[]; family?: string; group?: string; query?: string; limit?: number }>) => {
   const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", lastLayer = "auto", openingDepth = 8, preferredSlot, excludedSlots = [], family = "all", group = "all", query = "", limit = 120 } = event.data;
   try {
     const runtime = await getPyodide();
@@ -62,6 +62,18 @@ try:
 except Exception as error:
     result = {"valid": False, "message": str(error)}
 json.dumps(result)
+`);
+      self.postMessage({ id, ok: true, output: String(output) });
+      return;
+    }
+    if (command === "bld") {
+      const output = await runtime.runPythonAsync(`
+import json
+from cfop_solver import Cube, parse_moves, analyze_3style, validate_cube
+request = json.loads(${JSON.stringify(request)})
+initial = Cube(request["value"]) if request["kind"] == "state" else Cube().apply_many(parse_moves(request["value"]))
+validate_cube(initial)
+json.dumps({"initial_state": initial.stickers, "analysis": analyze_3style(initial)})
 `);
       self.postMessage({ id, ok: true, output: String(output) });
       return;
