@@ -3,17 +3,21 @@
  * short mechanical turns for adjacent moves and a mint relay slate for phase jumps.
  */
 import { Rotate3D } from "lucide-react";
-import { useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const color: Record<string, string> = { U: "#f7f3e9", R: "#d95743", F: "#1ba77a", D: "#e7c34f", L: "#ed8e42", B: "#3b6fc7" };
 const faceOffset: Record<"U" | "R" | "F" | "D" | "L" | "B", number> = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
 const DEFAULT_CAMERA = { orbit: 0, pitch: 0, zoom: 1 };
-const DEFAULT_ORIENTATION = "rotateX(-26deg) rotateY(34deg)";
+// The display state already places the selected Cross on D. Keep the camera
+// square to that axis at rest; users can reveal depth with their own drag.
+const DEFAULT_ORIENTATION = "rotateX(0deg) rotateY(0deg)";
 const DRAG_THRESHOLD_PX = 7;
 const TOUCH_DRAG_THRESHOLD_PX = 14;
 const TOUCH_HOLD_TO_ORBIT_MS = 180;
 const clampPitch = (degrees: number) => Math.max(-72, Math.min(64, degrees));
+const INERTIA_DECAY = 0.92;
+const INERTIA_STOP = 0.025;
 // These permutations come directly from the solver's whole-cube x/z moves.
 // We rotate stickers into Cross=D display space, never the CSS cube itself.
 const WHOLE_CUBE_PERM: Record<string, number[]> = {
@@ -77,8 +81,10 @@ function LayerTurn({ face, state, angle, step, move, duration }: { face: "U" | "
 export function Cube3DGuide({ state, previousState, move, step, crossColor = "U", inspection = false, alignCross = false, highlightCross = true, xcrossSlots, lastLayerCase, transition = "idle", transitionDirection = "forward", transitionId = 0, phaseLabel, turnDurationMs = 340 }: { state: string; previousState?: string; move?: string; step: number; crossColor?: string; inspection?: boolean; alignCross?: boolean; highlightCross?: boolean; xcrossSlots?: string[]; lastLayerCase?: { family: string; id: string }; transition?: "idle" | "move" | "seek" | "phase" | "reset"; transitionDirection?: "forward" | "backward"; transitionId?: number; phaseLabel?: string; turnDurationMs?: number }) {
   const { language } = useLanguage();
   const [camera, setCamera] = useState(DEFAULT_CAMERA);
-  const drag = useRef<{ x: number; y: number; orbit: number; pitch: number; moved: boolean; startedAt: number; pointerType: string } | null>(null);
+  const drag = useRef<{ x: number; y: number; orbit: number; pitch: number; lastX: number; lastY: number; lastAt: number; moved: boolean; startedAt: number; pointerType: string } | null>(null);
   const pinch = useRef<number | null>(null);
+  const inertiaFrame = useRef<number | null>(null);
+  const inertiaVelocity = useRef({ orbit: 0, pitch: 0 });
   const activeInspection = highlightCross && inspection;
   const target = move?.[0] ?? "";
   const sourceMotionFace = ({ M: "R", E: "U", S: "F", x: "R", y: "U", z: "F" } as Record<string, string>)[target] ?? target.toUpperCase();
@@ -86,11 +92,27 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const animateLayer = Boolean(target) && transition === "move";
   const renderedState = displayState(state, crossColor, alignCross);
   const renderedPreviousState = displayState(previousState ?? state, crossColor, alignCross);
+  const cancelInertia = () => { if (inertiaFrame.current !== null) cancelAnimationFrame(inertiaFrame.current); inertiaFrame.current = null; inertiaVelocity.current = { orbit: 0, pitch: 0 }; };
+  const startInertia = () => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const advance = () => {
+      const velocity = inertiaVelocity.current;
+      velocity.orbit *= INERTIA_DECAY;
+      velocity.pitch *= INERTIA_DECAY;
+      if (Math.abs(velocity.orbit) < INERTIA_STOP && Math.abs(velocity.pitch) < INERTIA_STOP) { cancelInertia(); return; }
+      setCamera((previous) => ({ ...previous, orbit: previous.orbit + velocity.orbit, pitch: clampPitch(previous.pitch + velocity.pitch) }));
+      inertiaFrame.current = requestAnimationFrame(advance);
+    };
+    inertiaFrame.current = requestAnimationFrame(advance);
+  };
+  useEffect(() => () => { if (inertiaFrame.current !== null) cancelAnimationFrame(inertiaFrame.current); }, []);
   const changeZoom = (amount: number) => setCamera((previous) => ({ ...previous, zoom: Math.min(1.42, Math.max(0.78, Number((previous.zoom + amount).toFixed(2)))) }));
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     event.preventDefault();
-    drag.current = { x: event.clientX, y: event.clientY, orbit: camera.orbit, pitch: camera.pitch, moved: false, startedAt: performance.now(), pointerType: event.pointerType };
+    cancelInertia();
+    const now = performance.now();
+    drag.current = { x: event.clientX, y: event.clientY, orbit: camera.orbit, pitch: camera.pitch, lastX: event.clientX, lastY: event.clientY, lastAt: now, moved: false, startedAt: now, pointerType: event.pointerType };
   };
   const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const activeDrag = drag.current;
@@ -105,14 +127,20 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
     if (!activeDrag.moved && (!heldLongEnough || Math.hypot(deltaX, deltaY) < threshold)) return;
     activeDrag.moved = true;
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.setPointerCapture(event.pointerId);
+    const now = performance.now();
+    const elapsed = Math.max(8, now - activeDrag.lastAt);
+    inertiaVelocity.current = { orbit: ((pointerX - activeDrag.lastX) * 0.42 * 16) / elapsed, pitch: ((activeDrag.lastY - pointerY) * 0.38 * 16) / elapsed };
+    activeDrag.lastX = pointerX;
+    activeDrag.lastY = pointerY;
+    activeDrag.lastAt = now;
     setCamera((previous) => ({ ...previous, orbit: activeDrag.orbit + deltaX * 0.42, pitch: clampPitch(activeDrag.pitch - deltaY * 0.38) }));
   };
-  const pointerUp = (event: PointerEvent<HTMLDivElement>) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); drag.current = null; };
+  const pointerUp = (event: PointerEvent<HTMLDivElement>) => { const wasDragged = drag.current?.moved; if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); drag.current = null; if (wasDragged) startInertia(); };
   const pointerLeave = (event: PointerEvent<HTMLDivElement>) => { if (event.pointerType === "mouse" && event.buttons === 0) drag.current = null; };
   const wheel = (event: WheelEvent<HTMLDivElement>) => { event.preventDefault(); changeZoom(event.deltaY > 0 ? -0.08 : 0.08); };
   const touchStart = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length === 2) pinch.current = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); };
   const touchMove = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length !== 2 || pinch.current === null) return; const distance = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); changeZoom((distance - pinch.current) / 240); pinch.current = distance; };
-  const reset = () => setCamera((previous) => ({ ...previous, orbit: 0, pitch: 0 }));
+  const reset = () => { cancelInertia(); setCamera((previous) => ({ ...previous, orbit: 0, pitch: 0 })); };
   const transform = `rotateX(${camera.pitch}deg) rotateY(${camera.orbit}deg) ${DEFAULT_ORIENTATION} scale3d(${camera.zoom}, ${camera.zoom}, ${camera.zoom})`;
   const turnAngle = move?.endsWith("2") ? "180deg" : move?.endsWith("'") ? "-90deg" : "90deg";
   return <div className="cube3d-guide rounded-sm border-2 border-[#17221d] bg-[#17221d] p-3 text-[#f4f0e8]">

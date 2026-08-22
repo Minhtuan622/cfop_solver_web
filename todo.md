@@ -438,3 +438,10 @@
 - [x] Tách camera người dùng khỏi orientation state và chỉ reset khi bấm nút reset.
 - [x] Giữ pitch anti-flip nhưng không clamp/wrap theo cách làm nhảy góc khi kéo liên tục.
 - [x] Kiểm thử kéo tự do dài, click/tap, chuyển phase, TypeScript/build và checkpoint.
+
+## Camera mặt D thẳng và inertia
+
+- [x] Rà soát base transform khiến Cube 3D lệch so với mặt D ở góc mặc định.
+- [x] Đặt góc camera gốc thẳng theo D và thêm inertia hai trục có suy giảm.
+- [x] Hủy inertia khi pointer down/reset/reduced motion, giữ drag click-safe và pitch anti-flip.
+- [x] Kiểm thử default alignment, inertia, drag/reset, TypeScript/build và checkpoint.

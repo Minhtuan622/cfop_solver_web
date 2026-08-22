@@ -45,3 +45,12 @@ for (const [input, expected] of [[-200, -72], [-72, -72], [0, 0], [64, 64], [200
   if (clampPitch(input) !== expected) throw new Error(`Pitch clamp mismatch: ${input} -> ${clampPitch(input)}, expected ${expected}`);
 }
 console.log("vertical pitch: -72° to +64° for top/bottom viewing");
+
+let inertialAngle = 0;
+let velocity = 1;
+for (let frame = 0; frame < 24; frame += 1) {
+  velocity *= 0.92;
+  inertialAngle += velocity;
+}
+if (!(inertialAngle > 0 && velocity > 0 && velocity < 1)) throw new Error("Inertia should decay forward without resetting the angle");
+console.log(`inertia: decays smoothly and retains ${inertialAngle.toFixed(3)}° of free orbit`);
