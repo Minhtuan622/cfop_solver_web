@@ -477,3 +477,10 @@
 - [x] Hiển thị Cube 3D cho parity, 2-flip và corner twist đang drill mà không ngụ ý cube state/algorithm sai.
 - [x] Thêm timer, kết quả từng lượt và bảng accuracy/duration theo loại Drill Mode, lưu cùng profile.
 - [x] Kiểm thử thẻ, Cube 3D, timer/analytics, persistence, TypeScript/build và checkpoint.
+
+## Dark Mode
+
+- [x] Rà display settings, global CSS tokens và bề mặt workbench cần đổi màu.
+- [x] Thiết kế palette tối vẫn giữ mint rails, giấy kỹ thuật và độ tương phản chữ/formula.
+- [x] Thêm toggle Dark Mode vào Settings, persistence local và áp dụng theme toàn trang từ startup.
+- [x] Kiểm thử Studio, Timer, Study, Settings, responsive, TypeScript/build và checkpoint.

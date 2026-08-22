@@ -1008,6 +1008,46 @@ html[data-font-size="large"] { font-size: 18px; }
     .cube3d-model { transition: none !important; }
   }
 
+  /* Dark Mode keeps the speedcubing workbench tactile: charcoal instrument panels, warm graphite record sheets and unchanged solver mint. */
+  .dark body, .dark .studio-workbench, .dark .timer-lab, .dark .last-layer-study, .dark .settings-page { background: #111815 !important; color: #e7ebe3 !important; }
+  .dark .app-shell-nav { border-color: #7ee4c1; background: rgb(17 24 21 / .94); }
+  .dark .app-shell-brand, .dark .app-shell-brand b, .dark .app-shell-link:hover { color: #eef3ec; }
+  .dark .app-shell-brand img { border-color: #7ee4c1; background: #17221d; }
+  .dark .app-shell-brand em, .dark .app-shell-link { color: rgb(231 235 227 / .62); }
+  .dark .app-shell-link-active { border-color: #7ee4c1; background: #1ba77a; color: #102018; }
+  .dark .studio-control-stack .studio-support-panel, .dark .studio-stage-column > .scorecard, .dark .studio-telemetry-column .studio-phase-telemetry, .dark .studio-telemetry-column > .telemetry-panel, .dark .last-layer-explorer, .dark .min-w-0 > .scorecard:last-child { background-color: #17221d !important; border-color: rgb(231 235 227 / .24) !important; color: #e7ebe3 !important; }
+  .dark .studio-telemetry-strip > *, .dark .studio-telemetry-strip > * > * { background-color: #17221d !important; color: #e7ebe3 !important; border-color: rgb(231 235 227 / .22) !important; }
+  .dark .studio-telemetry-strip [class*="text-[#17221d]"], .dark .studio-telemetry-strip [class*="text-[#1b7b5e]"] { color: inherit !important; }
+  .dark .studio-control-stack .studio-input-header, .dark .studio-fallback-telemetry { background: rgb(23 34 29 / .82) !important; }
+  .dark .studio-stage-column > .scorecard, .dark .min-w-0 > .scorecard:last-child .mt-1, .dark .studio-fallback-telemetry b { color: #edf2eb !important; }
+  .dark .studio-control-stack .studio-support-panel *, .dark .studio-telemetry-column .telemetry-panel *, .dark .min-w-0 > .scorecard:last-child p, .dark .min-w-0 > .scorecard:last-child span, .dark .studio-fallback-telemetry { border-color: rgb(231 235 227 / .16); }
+  .dark .studio-solver-apparatus { box-shadow: 16px 16px 0 #050806 !important; }
+  .dark .studio-solver-apparatus > div:nth-child(2) { border-color: rgb(126 228 193 / .42) !important; background: #101712 !important; }
+  .dark .last-layer-case-list { border-color: rgb(231 235 227 / .18); background: repeating-linear-gradient(to bottom, transparent 0 38px, rgb(231 235 227 / .06) 38px 39px); }
+  .dark .last-layer-case-list > button:hover { background: rgb(126 228 193 / .10) !important; }
+  .dark .settings-page { min-height: 100vh; }
+  .dark .settings-strip { border-color: #dfe8df; color: #7ee4c1; }
+  .dark .settings-strip small, .dark .settings-label, .dark .settings-heading span, .dark .settings-hint, .dark .settings-number em { color: rgb(231 235 227 / .58); }
+  .dark .settings-sheet { border-color: #dfe8df; background-color: #17221d; background-image: linear-gradient(90deg, rgb(231 235 227 / .055) 1px, transparent 1px); box-shadow: 4px 4px 0 #050806; color: #e7ebe3; }
+  .dark .settings-card-title { border-color: rgb(231 235 227 / .16); }
+  .dark .settings-color, .dark .settings-chip-grid button, .dark .settings-toggle, .dark .settings-reset { border-color: rgb(231 235 227 / .32); background: #1c2821; color: #e7ebe3; }
+  .dark .settings-color.active, .dark .settings-chip-grid button.active, .dark .settings-toggle.active, .dark .settings-save { border-color: #7ee4c1; background: #1ba77a; color: #102018; box-shadow: 3px 3px 0 #050806; }
+  .dark .settings-number { border-color: rgb(231 235 227 / .18); }.dark .settings-number input { border-color: rgb(231 235 227 / .38); color: #edf2eb; }
+  .dark .timer-competition-apparatus, .dark .timer-secondary-sheet, .dark .history-panel, .dark .history-metric, .dark .history-empty, .dark .last-layer-study .study-record-sheet { background-color: #17221d !important; border-color: rgb(231 235 227 / .24) !important; color: #e7ebe3 !important; box-shadow: 5px 5px 0 #050806; }
+  .dark .timer-lab [class*="bg-white"], .dark .timer-lab [class*="bg-[#f4"], .dark .timer-lab [class*="bg-[#f8"], .dark .timer-lab [class*="bg-[#efe"], .dark .last-layer-study [class*="bg-white"], .dark .last-layer-study [class*="bg-[#f4"], .dark .last-layer-study [class*="bg-[#f8"], .dark .last-layer-study [class*="bg-[#efe"] { background-color: #17221d !important; color: #e7ebe3 !important; border-color: rgb(231 235 227 / .22) !important; }
+  .dark .timer-competition-apparatus { background-image: linear-gradient(90deg, rgb(231 235 227 / .055) 1px, transparent 1px); }
+  .dark .timer-scramble, .dark .history-readout, .dark .study-week-day b, .dark .study-week-day-due strong { color: #edf2eb !important; border-color: rgb(231 235 227 / .25); }
+  .dark .study-week-day, .dark .history-empty-metrics > div { border-color: rgb(231 235 227 / .22); background: #1c2821; }.dark .study-week-day span, .dark .history-empty-metrics span { color: rgb(231 235 227 / .56); }
+  .dark .cube3d-guide, .dark .cube3d-stage { border-color: #7ee4c1; }.dark .cube3d-guide { background: #080d0a; }
+  .dark textarea, .dark input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), .dark select { border-color: rgb(231 235 227 / .32) !important; background-color: #1c2821 !important; color: #edf2eb !important; }
+  .dark textarea::placeholder, .dark input::placeholder { color: rgb(231 235 227 / .42) !important; }
+  .dark .studio-workbench [class*="text-[#17221d]"], .dark .timer-lab [class*="text-[#17221d]"], .dark .last-layer-study [class*="text-[#17221d]"], .dark .settings-page [class*="text-[#17221d]"] { color: #e7ebe3 !important; }
+  .dark .studio-workbench [class*="text-[#1b7b5e]"], .dark .timer-lab [class*="text-[#1b7b5e]"], .dark .last-layer-study [class*="text-[#1b7b5e]"], .dark .settings-page [class*="text-[#1b7b5e]"] { color: #7ee4c1 !important; }
+  .dark .studio-bld-training, .dark .studio-bld-training > div, .dark .studio-bld-training section, .dark .studio-bld-training pre, .dark .studio-bld-training .bg-white, .dark .studio-bld-training [class*="bg-white"] { background-color: #17221d !important; color: #e7ebe3 !important; border-color: rgb(231 235 227 / .2) !important; }
+  .dark .studio-bld-training [class*="bg-[#f8f5ed]"], .dark .studio-bld-training [class*="bg-[#efe9dc]"] { background-color: #1c2821 !important; color: #e7ebe3 !important; }
+  .dark .studio-bld-training input { color: #edf2eb; border-color: rgb(231 235 227 / .28); }
+  .dark .telemetry-panel, .dark .scorecard, .dark .scanner-plate, .dark .cube-state-editor { border-color: rgb(231 235 227 / .24) !important; }
+
   @media (min-width: 640px) {
     .container {
       padding-left: 1.5rem; /* 24px - tablet padding */

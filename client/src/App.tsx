@@ -36,7 +36,7 @@ function App() {
       <LanguageProvider>
       <ThemeProvider
         defaultTheme="light"
-        // switchable
+        switchable
       >
         <TooltipProvider>
           <Toaster />
