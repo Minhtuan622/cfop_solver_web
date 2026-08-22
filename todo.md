@@ -285,3 +285,11 @@
 - [x] Thêm bộ đếm sáu màu cạnh palette, nêu rõ chênh lệch với mục tiêu 9 sticker mỗi màu.
 - [x] Tối giản control trong Cube 3D, sửa zoom để scale đồng đều ba chiều và gom các UI Studio trùng lặp.
 - [x] Kiểm tra interaction, localStorage, zoom, responsive, TypeScript, build và checkpoint.
+
+## Last Layer học theo tiến độ
+
+- [x] Rà soát catalog ZBLL/1LLL, master marker và cấu trúc Explorer hiện tại.
+- [x] Bổ sung bộ lọc chỉ hiển thị case chưa thuộc.
+- [x] Thêm phiên luyện ngẫu nhiên, chỉ nạp case chưa thuộc theo family/nhóm/bộ lọc đang chọn.
+- [x] Hiển thị thanh tiến độ và phần trăm đã thuộc cho từng nhóm ZBLL/1LLL.
+- [x] Kiểm tra filter, random, persistence, responsive, TypeScript, build và checkpoint.

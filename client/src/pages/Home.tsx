@@ -145,8 +145,10 @@ export default function Home() {
   const [catalogGroup, setCatalogGroup] = useState("all");
   const [catalogQuery, setCatalogQuery] = useState("");
   const [catalogCases, setCatalogCases] = useState<LastLayerCatalogCase[]>([]);
+  const [catalogInventory, setCatalogInventory] = useState<LastLayerCatalogCase[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [selectedCatalogCase, setSelectedCatalogCase] = useState<LastLayerCatalogCase | null>(null);
+  const [onlyUnmasteredCases, setOnlyUnmasteredCases] = useState(false);
   const [paintColor, setPaintColor] = useState<CrossColor>("U");
   const [masteredCaseKeys, setMasteredCaseKeys] = useState<string[]>(() => { try { const stored = JSON.parse(localStorage.getItem(MASTERED_LAST_LAYER_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is string => typeof item === "string").slice(-1800) : []; } catch { return []; } });
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() => { try { const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is RecentCubeState => typeof item?.state === "string" && item.state.length === 54).slice(0, 8) : []; } catch { return []; } });
@@ -190,6 +192,9 @@ export default function Home() {
   const catalogGroups = useMemo(() => Array.from(new Set(catalogCases.map((catalogCase) => catalogCase.group))).sort((a, b) => a.localeCompare(b)), [catalogCases]);
   const masteredCaseSet = useMemo(() => new Set(masteredCaseKeys), [masteredCaseKeys]);
   const masteredVisibleCount = useMemo(() => catalogCases.filter((catalogCase) => masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`)).length, [catalogCases, masteredCaseSet]);
+  const visibleCatalogCases = useMemo(() => onlyUnmasteredCases ? catalogCases.filter((catalogCase) => !masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`)) : catalogCases, [catalogCases, masteredCaseSet, onlyUnmasteredCases]);
+  const unmasteredVisibleCount = useMemo(() => catalogCases.filter((catalogCase) => !masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`)).length, [catalogCases, masteredCaseSet]);
+  const groupProgress = useMemo(() => Array.from(catalogInventory.reduce((accumulator, catalogCase) => { const key = `${catalogCase.family}:${catalogCase.group}`; const current = accumulator.get(key) ?? { family: catalogCase.family, group: catalogCase.group, mastered: 0, total: 0 }; current.total += 1; if (masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`)) current.mastered += 1; accumulator.set(key, current); return accumulator; }, new Map<string, { family: "zbll" | "1lll"; group: string; mastered: number; total: number }>()).values()).sort((left, right) => left.family.localeCompare(right.family) || left.group.localeCompare(right.group)), [catalogInventory, masteredCaseSet]);
   useEffect(() => { localStorage.setItem(MASTERED_LAST_LAYER_KEY, JSON.stringify(masteredCaseKeys)); }, [masteredCaseKeys]);
   const chooseOpening = (nextOpening: OpeningMode) => {
     setOpening(nextOpening);
@@ -248,6 +253,12 @@ export default function Home() {
     return () => { active = false; window.clearTimeout(timer); };
   }, [catalogFamily, catalogGroup, catalogQuery]);
 
+  useEffect(() => {
+    let active = true;
+    listLastLayerCasesInBrowser({ family: catalogFamily, limit: 2000 }).then((cases) => { if (active) setCatalogInventory(cases); }).catch(() => { if (active) setCatalogInventory([]); });
+    return () => { active = false; };
+  }, [catalogFamily]);
+
   async function runSolver() {
     if (mode === "state" && !stateValidation?.valid) { setError(stateValidation?.message ?? (language === "vi" ? "Đang kiểm tra trạng thái cube." : "Validating cube state.")); return; }
     setLoading(true);
@@ -289,6 +300,7 @@ export default function Home() {
   };
   const removeRecentState = (id: string) => { const next = recentStates.filter((item) => item.id !== id); setRecentStates(next); localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(next)); };
   const toggleMasteredCase = (catalogCase: LastLayerCatalogCase) => { const key = `${catalogCase.family}:${catalogCase.id}`; setMasteredCaseKeys((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key]); };
+  const startUnmasteredPractice = () => { const candidates = catalogCases.filter((catalogCase) => !masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`)); if (!candidates.length) return; loadCatalogCase(candidates[Math.floor(Math.random() * candidates.length)]); };
   const selectCursor = (next: number, intent: CursorIntent = "seek") => { setPlaying(false); updateCursor(next, intent); };
   const applyStateEdit = (next: string) => {
     const current = value.length === 54 ? value : SOLVED_STATE;
@@ -417,7 +429,7 @@ export default function Home() {
 
           <aside className="studio-telemetry-column space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2">
             <div className="studio-telemetry-strip studio-record-strip grid grid-cols-3 gap-2"><Stat label={t("status.moves")} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="h-4 w-4" />} /><Stat label={t("status.steps")} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="h-4 w-4" />} /><Stat label={t("status.ok")} value={result ? "✓" : "—"} icon={<ShieldCheck className="h-4 w-4" />} /></div>
-            <LastLayerExplorer language={language} family={catalogFamily} group={catalogGroup} query={catalogQuery} groups={catalogGroups} cases={catalogCases} loading={catalogLoading} selectedCase={selectedCatalogCase} masteredCaseSet={masteredCaseSet} masteredCount={masteredVisibleCount} onFamily={(next) => { setCatalogFamily(next); setCatalogGroup("all"); }} onGroup={setCatalogGroup} onQuery={setCatalogQuery} onSelect={loadCatalogCase} />
+            <LastLayerExplorer language={language} family={catalogFamily} group={catalogGroup} query={catalogQuery} groups={catalogGroups} cases={visibleCatalogCases} unfilteredCount={catalogCases.length} loading={catalogLoading} selectedCase={selectedCatalogCase} masteredCaseSet={masteredCaseSet} masteredCount={masteredVisibleCount} unmasteredCount={unmasteredVisibleCount} onlyUnmastered={onlyUnmasteredCases} groupProgress={groupProgress} onFamily={(next) => { setCatalogFamily(next); setCatalogGroup("all"); }} onGroup={setCatalogGroup} onQuery={setCatalogQuery} onSelect={loadCatalogCase} onToggleUnmastered={() => setOnlyUnmasteredCases((value) => !value)} onRandomPractice={startUnmasteredPractice} />
           </aside>
         </section>
       </div>
@@ -430,29 +442,37 @@ function Stat({ label, value, icon }: { label: string; value: string; icon: Reac
 }
 
 /** Xưởng Cơ Khí Tốc Độ — a searchable record drawer for verified one-look cases. */
-function LastLayerExplorer({ language, family, group, query, groups, cases, loading, selectedCase, masteredCaseSet, masteredCount, onFamily, onGroup, onQuery, onSelect }: {
+function LastLayerExplorer({ language, family, group, query, groups, cases, unfilteredCount, loading, selectedCase, masteredCaseSet, masteredCount, unmasteredCount, onlyUnmastered, groupProgress, onFamily, onGroup, onQuery, onSelect, onToggleUnmastered, onRandomPractice }: {
   language: "vi" | "en";
   family: "all" | "zbll" | "1lll";
   group: string;
   query: string;
   groups: string[];
   cases: LastLayerCatalogCase[];
+  unfilteredCount: number;
   loading: boolean;
   selectedCase: LastLayerCatalogCase | null;
   masteredCaseSet: Set<string>;
   masteredCount: number;
+  unmasteredCount: number;
+  onlyUnmastered: boolean;
+  groupProgress: { family: "zbll" | "1lll"; group: string; mastered: number; total: number }[];
   onFamily: (family: "all" | "zbll" | "1lll") => void;
   onGroup: (group: string) => void;
   onQuery: (query: string) => void;
   onSelect: (catalogCase: LastLayerCatalogCase) => void;
+  onToggleUnmastered: () => void;
+  onRandomPractice: () => void;
 }) {
   const vi = language === "vi";
   return <section className="last-layer-explorer telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-white p-4">
-    <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#1ba77a]">LAST LAYER EXPLORER</p><h3 className="mt-1 text-base font-black tracking-[-0.04em]">{vi ? "Tra cứu case direct" : "Browse direct cases"}</h3></div><span className="rounded-sm bg-[#17221d] px-2 py-1 font-mono text-[9px] font-bold text-[#f4f0e8]">{masteredCount}/{cases.length} ✓</span></div>
+    <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#1ba77a]">LAST LAYER EXPLORER</p><h3 className="mt-1 text-base font-black tracking-[-0.04em]">{vi ? "Tra cứu case direct" : "Browse direct cases"}</h3></div><span className="rounded-sm bg-[#17221d] px-2 py-1 font-mono text-[9px] font-bold text-[#f4f0e8]">{masteredCount}/{unfilteredCount} ✓</span></div>
     <div className="mt-4 grid grid-cols-2 gap-2"><Select value={family} onValueChange={(value) => onFamily(value as "all" | "zbll" | "1lll")}><SelectTrigger aria-label={vi ? "Loại Last Layer" : "Last Layer family"} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[10px] font-bold"><SelectValue /></SelectTrigger><SelectContent className="border-2 border-[#17221d] bg-[#f8f5ed] font-mono text-xs"><SelectItem value="all">ALL · ZBLL + 1LLL</SelectItem><SelectItem value="zbll">ZBLL</SelectItem><SelectItem value="1lll">1LLL</SelectItem></SelectContent></Select><Select value={group} onValueChange={onGroup}><SelectTrigger aria-label={vi ? "Nhóm case" : "Case group"} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[10px] font-bold"><SelectValue /></SelectTrigger><SelectContent className="border-2 border-[#17221d] bg-[#f8f5ed] font-mono text-xs"><SelectItem value="all">{vi ? "NHÓM · TẤT CẢ" : "GROUP · ALL"}</SelectItem>{groups.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent></Select></div>
     <label className="mt-2 flex items-center gap-2 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2"><Search className="h-3.5 w-3.5 text-[#17221d]/45" /><input value={query} onChange={(event) => onQuery(event.target.value.slice(0, 80))} placeholder={vi ? "Tìm ID, nhóm hoặc notation" : "Search ID, group or notation"} className="h-9 min-w-0 flex-1 bg-transparent font-mono text-[10px] outline-none placeholder:text-[#17221d]/40" /></label>
-    <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{vi ? "Chọn case để nạp state và đọc công thức lớn trên CubeNet 2D." : "Choose a case to load its state and read the large formula above the 2D CubeNet."}</p>
-    <div className="last-layer-case-list mt-3 max-h-[440px] overflow-y-auto pr-1">{loading ? <div className="py-6 text-center font-mono text-[10px] text-[#17221d]/45">{vi ? "ĐANG NẠP CATALOG…" : "LOADING CATALOG…"}</div> : cases.length ? cases.slice(0, 48).map((catalogCase) => { const mastered = masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`); return <button key={catalogCase.id} type="button" onClick={() => onSelect(catalogCase)} className={cn("w-full border p-2 text-left transition", selectedCase?.id === catalogCase.id ? "border-[#1ba77a] bg-[#1ba77a]/10 shadow-[inset_3px_0_0_#1ba77a]" : "border-[#17221d]/12 bg-[#f4f0e8] hover:border-[#17221d]/45 hover:bg-white")}><span className="flex items-center justify-between gap-2"><span className={cn("rounded-sm px-1.5 py-0.5 font-mono text-[8px] font-bold", catalogCase.family === "zbll" ? "bg-[#1ba77a] text-[#17221d]" : "bg-[#17221d] text-[#f4f0e8]")}>{catalogCase.family.toUpperCase()}</span><span className="font-mono text-[9px] text-[#17221d]/50">{mastered ? "✓ " : ""}{catalogCase.group}</span></span><b className="mt-1 block font-mono text-[10px] text-[#17221d]">{catalogCase.id}</b></button>; }) : <div className="border border-dashed border-[#17221d]/25 p-4 font-mono text-[10px] leading-5 text-[#17221d]/55">{vi ? "Không có case khớp bộ lọc hiện tại." : "No cases match the current filters."}</div>}</div>
+    <div className="last-layer-study-controls mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-2"><button type="button" onClick={onToggleUnmastered} className={cn("rounded-sm border px-2 py-2 text-left font-mono text-[9px] font-bold transition", onlyUnmastered ? "border-[#1ba77a] bg-[#1ba77a]/15 text-[#1b7b5e]" : "border-[#17221d]/20 bg-white text-[#17221d]/60 hover:border-[#17221d]")}><span className="block tracking-[0.1em]">{onlyUnmastered ? (vi ? "CHỈ CHƯA THUỘC" : "UNMASTERED ONLY") : (vi ? "TẤT CẢ CASE" : "ALL CASES")}</span><span className="mt-0.5 block text-[#17221d]/45">{unmasteredCount} {vi ? "case chưa thuộc" : "unmastered cases"}</span></button><button type="button" onClick={onRandomPractice} disabled={unmasteredCount === 0} className="inline-flex min-w-20 flex-col items-center justify-center gap-1 rounded-sm border-2 border-[#17221d] bg-[#17221d] px-2 py-1 font-mono text-[9px] font-bold text-[#f4f0e8] transition hover:bg-[#26372e] disabled:opacity-35"><Sparkles className="h-3.5 w-3.5 text-[#1ba77a]" />{vi ? "LUYỆN NGẪU NHIÊN" : "RANDOM PRACTICE"}</button></div>
+    <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{vi ? "Luyện ngẫu nhiên luôn chọn một case chưa thuộc trong family, nhóm và tìm kiếm hiện tại." : "Random practice always selects an unmastered case within the current family, group, and search."}</p>
+    <details className="last-layer-group-progress mt-3 border-y border-[#17221d]/14 py-2"><summary className="cursor-pointer font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-[#17221d]/60">{vi ? `TIẾN ĐỘ THEO NHÓM · ${groupProgress.length}` : `PROGRESS BY GROUP · ${groupProgress.length}`}</summary><div className="mt-3 max-h-52 space-y-2 overflow-y-auto pr-1">{groupProgress.map((item) => { const percentage = item.total ? Math.round((item.mastered / item.total) * 100) : 0; return <div key={`${item.family}:${item.group}`} className="group-progress-row"><div className="flex items-center justify-between gap-2 font-mono text-[9px]"><span><b className={item.family === "zbll" ? "text-[#1b7b5e]" : "text-[#17221d]"}>{item.family.toUpperCase()}</b> · {item.group}</span><b>{percentage}%</b></div><div className="mt-1 h-1.5 overflow-hidden bg-[#17221d]/10"><span className="block h-full bg-[#1ba77a] transition-[width] duration-200" style={{ width: `${percentage}%` }} /></div><p className="mt-1 text-right font-mono text-[8px] text-[#17221d]/50">{item.mastered} / {item.total}</p></div>; })}</div></details>
+    <div className="last-layer-case-list mt-3 max-h-[440px] overflow-y-auto pr-1">{loading ? <div className="py-6 text-center font-mono text-[10px] text-[#17221d]/45">{vi ? "ĐANG NẠP CATALOG…" : "LOADING CATALOG…"}</div> : cases.length ? cases.slice(0, 48).map((catalogCase) => { const mastered = masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`); return <button key={catalogCase.id} type="button" onClick={() => onSelect(catalogCase)} className={cn("w-full border p-2 text-left transition", selectedCase?.id === catalogCase.id ? "border-[#1ba77a] bg-[#1ba77a]/10 shadow-[inset_3px_0_0_#1ba77a]" : "border-[#17221d]/12 bg-[#f4f0e8] hover:border-[#17221d]/45 hover:bg-white")}><span className="flex items-center justify-between gap-2"><span className={cn("rounded-sm px-1.5 py-0.5 font-mono text-[8px] font-bold", catalogCase.family === "zbll" ? "bg-[#1ba77a] text-[#17221d]" : "bg-[#17221d] text-[#f4f0e8]")}>{catalogCase.family.toUpperCase()}</span><span className="font-mono text-[9px] text-[#17221d]/50">{mastered ? "✓ " : ""}{catalogCase.group}</span></span><b className="mt-1 block font-mono text-[10px] text-[#17221d]">{catalogCase.id}</b></button>; }) : <div className="border border-dashed border-[#17221d]/25 p-4 font-mono text-[10px] leading-5 text-[#17221d]/55">{onlyUnmastered ? (vi ? "Các case trong bộ lọc hiện tại đều đã thuộc." : "Every case in the current filter is mastered.") : (vi ? "Không có case khớp bộ lọc hiện tại." : "No cases match the current filters.")}</div>}</div>
     {cases.length > 48 && <p className="mt-2 font-mono text-[9px] text-[#17221d]/45">{vi ? `Hiển thị 48 / ${cases.length} case. Thu hẹp bằng nhóm hoặc tìm kiếm.` : `Showing 48 / ${cases.length} cases. Narrow with group or search.`}</p>}
   </section>;
 }

@@ -767,6 +767,20 @@
   .studio-machine-header h1 { font-size: clamp(.88rem, 1.35vw, 1.08rem) !important; letter-spacing: -.035em; }
   .studio-brand-mark { border-radius: 0 !important; box-shadow: inset 0 0 0 1px rgb(244 240 232 / .5), 2px 2px 0 #1ba77a !important; }
   .studio-machine-header .wordmark-o::before { width: .6em; height: .18em; bottom: -.04em; }
+  /* Visual review pass: stage retains material authority; header and sheets stay subordinate. */
+  .studio-machine-header { min-height: 2.75rem !important; padding-block: .2rem !important; background-color: #1b2420 !important; }
+  .studio-machine-header .studio-brand-mark { width: 2rem !important; height: 2rem !important; padding: .18rem !important; box-shadow: inset 0 0 0 1px rgb(244 240 232 / .4), 1px 1px 0 #1ba77a !important; }
+  .studio-machine-header .studio-nameplate-tagline { max-width: 33rem; font-size: .86rem !important; line-height: 1.1; }
+  .studio-machine-header .studio-nameplate-controls { padding: .15rem .3rem; border-color: rgb(244 240 232 / .1); }
+  .studio-control-stack .studio-support-panel { box-shadow: 3px 3px 0 rgb(23 34 29 / .09) !important; border-color: rgb(23 34 29 / .28) !important; }
+  .studio-control-stack .studio-input-header { height: 4.35rem; background: rgb(248 245 237 / .64); }
+  .studio-control-stack .studio-input-header img { box-shadow: 2px 2px 0 #1ba77a !important; }
+  .studio-telemetry-column::after { position: absolute; top: 5.2rem; right: 0; left: .22rem; height: 1px; background: repeating-linear-gradient(90deg, rgb(27 167 122 / .45) 0 4px, transparent 4px 10px); content: ""; pointer-events: none; }
+  .studio-telemetry-strip > * { min-height: 5.4rem; border-color: rgb(23 34 29 / .32) !important; box-shadow: inset 2px 0 0 rgb(27 167 122 / .66) !important; }
+  .last-layer-explorer { border-radius: 0 0 .65rem .65rem !important; border-top-width: 1px !important; box-shadow: none !important; }
+  .last-layer-study-controls { border-top: 1px solid rgb(23 34 29 / .14); border-bottom: 1px solid rgb(23 34 29 / .14); padding-block: .42rem; }
+  .last-layer-group-progress { background: repeating-linear-gradient(to bottom, transparent 0 23px, rgb(23 34 29 / .035) 23px 24px); }
+  .last-layer-group-progress summary { color: rgb(23 34 29 / .72); }
   @media (min-width: 1180px) {
     .studio-workbench {
       grid-template-columns: minmax(260px, 280px) minmax(0, 1fr) minmax(285px, 320px) !important;

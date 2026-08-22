@@ -98,3 +98,5 @@
 - Header là nameplate nén tối đa: wordmark, route và trạng thái được phép hiện diện, còn dark mass/grid/shadow đậm chỉ thuộc về apparatus trung tâm.
 - Right rail nối phase status, case ID, counter và Explorer thành một measurement ladder liên tục bằng mint rail, ruled row và mono telemetry.
 - Case Explorer hiển thị như sổ record có các dòng score-strip; tránh cảm giác danh sách dashboard hoặc thẻ độc lập.
+- Nameplate giảm chiều cao, contrast và shadow để stage là visual apex duy nhất; các panel nhập chỉ là record sheet nền giấy phẳng.
+- Copy tiêu đề ưu tiên ngắn, chủ động và mang sắc thái thiết bị đo/solver bench; tránh cách gọi chung chung kiểu dashboard ứng dụng.

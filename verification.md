@@ -13,3 +13,13 @@
 - Palette sáu màu hiển thị số sticker hiện tại trên mục tiêu 9, giúp phát hiện lệch màu trước khi solve.
 - Cube 3D chỉ còn kéo/pinch/cuộn và một nút đặt lại góc; zoom dùng scale3d đồng đều theo ba trục.
 - Render desktop và mobile giữ bố cục workbench, công thức/Explorer không làm tràn layout, và control Cube 3D đã giảm về thao tác quan sát thiết yếu.
+
+## Xác minh Last Layer học theo tiến độ
+
+- Explorer tải đúng tổng case theo family, tính số case chưa thuộc từ master marker cục bộ và hiển thị số nhóm có tiến độ.
+- Với ZBLL đã đánh dấu một case, UI hiện 1/519 đã thuộc và 518 case chưa thuộc, sẵn sàng cho filter hoặc random practice.
+- Khi bật **Chỉ chưa thuộc**, case đã đánh dấu biến mất khỏi list và tổng hiển thị giảm còn 518.
+- **Luyện ngẫu nhiên** đã nạp một case ZBLL chưa thuộc khác (ZBLLPi-079) lên CubeNet cùng công thức lớn, không chọn lại case đã đánh dấu.
+- Bảng tiến độ hiển thị từng nhóm ZBLL với phần trăm, ví dụ AS là 1/57 tương ứng 2%.
+- Chuyển sang 1LLL vẫn giữ filter chưa thuộc, hiển thị 1.163 case chưa thuộc và 49 nhóm với thanh/tỷ lệ riêng; xác nhận cùng luồng áp dụng cho hai catalog.
+- Screenshot desktop và mobile xác nhận Explorer vẫn giữ rail/score-strip gọn, controls luyện tập không tràn layout, và progress được thu gọn mặc định để không che danh sách case.
