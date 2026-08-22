@@ -15,6 +15,7 @@ import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { BldReport } from "@/components/BldReport";
 import { BldProfilePanel } from "@/components/BldProfilePanel";
 import { BldMemoLab } from "@/components/BldMemoLab";
+import { BldTrainingLab } from "@/components/BldTrainingLab";
 import { CubeStateEditor } from "@/components/CubeStateEditor";
 import { CameraScanner } from "@/components/CameraScanner";
 import { stateFromScramble } from "@/lib/fastCube";
@@ -446,6 +447,7 @@ export default function Home() {
             {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <section className="studio-report-empty border-2 border-[#17221d]/25 bg-[#f8f5ed] p-4"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#1b7b5e]">{solverKind === "bld" ? "3-STYLE BLD · MEMO" : `CFOP · ${language === "vi" ? "BÁO CÁO" : "REPORT"}`}</p><p className="mt-2 font-mono text-[10px] leading-5 text-[#17221d]/60">{solverKind === "bld" ? (language === "vi" ? "Tạo memo để xem edge/corner cycle, execution key và parity/flip/twist tại đây." : "Build memo to view edge/corner cycles, execution keys, and parity/flip/twist here.") : (language === "vi" ? "Chạy solver để ghi phase, invariant, algorithm và xuất báo cáo tại đây." : "Run the solver to record phases, invariants, algorithms, and exports here.")}</p></section>}
             {solverKind === "bld" && <BldProfilePanel profile={bldProfile} onProfile={setBldProfile} language={language} />}
             {solverKind === "bld" && <BldMemoLab result={bldResult} profile={bldProfile} onProfile={setBldProfile} language={language} />}
+            {solverKind === "bld" && <BldTrainingLab result={bldResult} profile={bldProfile} onProfile={setBldProfile} language={language} />}
           </aside>
         </section>
       </div>

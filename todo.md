@@ -461,3 +461,11 @@
 - [x] Tạo profile memo BLD lưu local, nhập/xuất JSON có validation và tương thích dữ liệu cũ.
 - [x] Tạo BLD Memo Lab có prompt chữ cái hoặc Web Speech, chấm recall và lịch lặp lại ngắt quãng theo từng memo item.
 - [x] Kiểm thử exact-match, special-key direction, profile import/export, SRS due queue, TypeScript/build và checkpoint.
+
+## Drill Mode, học 3-Style và cỡ chữ
+
+- [x] Rà contract special-case BLDDB, Memo Lab, Study và app settings để tái sử dụng data/SRS không tạo bản sao rời rạc.
+- [x] Thiết kế Drill Mode parity, 2-flip, corner twist; queue chỉ nhận exact case và chấm SRS theo loại.
+- [x] Tạo luồng học 3-Style theo memo → cycle/execution key → algorithm exact match → recall, có tiếp tục từ profile.
+- [x] Thêm cài đặt cỡ chữ nhỏ/vừa/lớn, lưu local và áp dụng nhất quán toàn website.
+- [x] Kiểm thử queue drill, profile/SRS, luồng học, cỡ chữ, TypeScript/build và checkpoint.

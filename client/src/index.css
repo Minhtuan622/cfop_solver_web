@@ -80,6 +80,10 @@
   --sidebar-ring: oklch(0.623 0.214 259.815);
 }
 
+html[data-font-size="small"] { font-size: 14px; }
+html[data-font-size="medium"] { font-size: 16px; }
+html[data-font-size="large"] { font-size: 18px; }
+
 .dark {
   --primary: var(--color-blue-700);
   --primary-foreground: var(--color-blue-50);
