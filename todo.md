@@ -453,3 +453,11 @@
 - [x] Tích hợp chế độ BLD vào Studio/worker/report mà không làm thay đổi pipeline CFOP hiện có.
 - [x] Sửa highlight Last Layer Study để lớp OLL nằm ở mặt đối diện Cross sau orientation Cross-to-D.
 - [x] Thêm regression BLD/CFOP và xác minh memo, report, highlight, TypeScript/build trước checkpoint.
+
+## BLD special catalog, Memo SRS và profile cá nhân
+
+- [x] Rà soát BLDDB parity/flip/twist catalog, định nghĩa exact key direction-safe và contract profile thuật toán ưa thích.
+- [x] Mở rộng report BLD để chỉ gợi ý algorithm special-case khi exact match; cho phép override bằng preferred algorithm trong profile.
+- [x] Tạo profile memo BLD lưu local, nhập/xuất JSON có validation và tương thích dữ liệu cũ.
+- [x] Tạo BLD Memo Lab có prompt chữ cái hoặc Web Speech, chấm recall và lịch lặp lại ngắt quãng theo từng memo item.
+- [x] Kiểm thử exact-match, special-key direction, profile import/export, SRS due queue, TypeScript/build và checkpoint.

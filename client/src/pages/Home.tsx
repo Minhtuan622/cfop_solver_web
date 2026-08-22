@@ -13,12 +13,15 @@ import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { BldReport } from "@/components/BldReport";
+import { BldProfilePanel } from "@/components/BldProfilePanel";
+import { BldMemoLab } from "@/components/BldMemoLab";
 import { CubeStateEditor } from "@/components/CubeStateEditor";
 import { CameraScanner } from "@/components/CameraScanner";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { readSolverSettings, writeSolverSettings } from "@/lib/appSettings";
+import { readBldProfile, writeBldProfile } from "@/lib/bldProfile";
 import { analyzeBldInBrowser, listLastLayerCasesInBrowser, solveInBrowser, validateStateInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerCatalogCase, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -142,6 +145,7 @@ export default function Home() {
   const [savedState, setSavedState] = useState(SOLVED_STATE);
   const [result, setResult] = useState<SolverResult | null>(null);
   const [bldResult, setBldResult] = useState<BldResult | null>(null);
+  const [bldProfile, setBldProfile] = useState(() => readBldProfile());
   const [cursor, setCursor] = useState(0);
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -161,6 +165,7 @@ export default function Home() {
   const [masteredCaseKeys, setMasteredCaseKeys] = useState<string[]>(() => { try { const stored = JSON.parse(localStorage.getItem(MASTERED_LAST_LAYER_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is string => typeof item === "string").slice(-1800) : []; } catch { return []; } });
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() => { try { const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is RecentCubeState => typeof item?.state === "string" && item.state.length === 54).slice(0, 8) : []; } catch { return []; } });
   useEffect(() => { writeSolverSettings({ crossColor, opening, openingDepth, lastLayer, preferredSlot, excludedSlots }); }, [crossColor, opening, openingDepth, lastLayer, preferredSlot, excludedSlots]);
+  useEffect(() => { writeBldProfile(bldProfile); }, [bldProfile]);
   const stateHistory = useRef<{ past: string[]; future: string[] }>({ past: [], future: [] });
   const cursorRef = useRef(0);
   const motionIdRef = useRef(0);
@@ -438,7 +443,9 @@ export default function Home() {
 
           <aside className="studio-telemetry-column space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2">
             <div className="studio-telemetry-strip studio-record-strip grid grid-cols-3 gap-2"><Stat label={solverKind === "bld" ? "EDGE" : t("status.moves")} value={solverKind === "bld" ? String(bldResult?.analysis.edges.memo.length ?? "—") : (result ? String(totalMoves) : "—")} icon={<CircleGauge className="h-4 w-4" />} /><Stat label={solverKind === "bld" ? "CORNER" : t("status.steps")} value={solverKind === "bld" ? String(bldResult?.analysis.corners.memo.length ?? "—") : (result ? String(phaseCount) : "—")} icon={<ChevronRight className="h-4 w-4" />} /><Stat label={solverKind === "bld" ? "PARITY" : t("status.ok")} value={solverKind === "bld" ? (bldResult?.analysis.special.parity ? "!" : "✓") : (result ? "✓" : "—")} icon={<ShieldCheck className="h-4 w-4" />} /></div>
-            {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} /> : result ? <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <section className="studio-report-empty border-2 border-[#17221d]/25 bg-[#f8f5ed] p-4"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#1b7b5e]">{solverKind === "bld" ? "3-STYLE BLD · MEMO" : `CFOP · ${language === "vi" ? "BÁO CÁO" : "REPORT"}`}</p><p className="mt-2 font-mono text-[10px] leading-5 text-[#17221d]/60">{solverKind === "bld" ? (language === "vi" ? "Tạo memo để xem edge/corner cycle, execution key và parity/flip/twist tại đây." : "Build memo to view edge/corner cycles, execution keys, and parity/flip/twist here.") : (language === "vi" ? "Chạy solver để ghi phase, invariant, algorithm và xuất báo cáo tại đây." : "Run the solver to record phases, invariants, algorithms, and exports here.")}</p></section>}
+            {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <section className="studio-report-empty border-2 border-[#17221d]/25 bg-[#f8f5ed] p-4"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#1b7b5e]">{solverKind === "bld" ? "3-STYLE BLD · MEMO" : `CFOP · ${language === "vi" ? "BÁO CÁO" : "REPORT"}`}</p><p className="mt-2 font-mono text-[10px] leading-5 text-[#17221d]/60">{solverKind === "bld" ? (language === "vi" ? "Tạo memo để xem edge/corner cycle, execution key và parity/flip/twist tại đây." : "Build memo to view edge/corner cycles, execution keys, and parity/flip/twist here.") : (language === "vi" ? "Chạy solver để ghi phase, invariant, algorithm và xuất báo cáo tại đây." : "Run the solver to record phases, invariants, algorithms, and exports here.")}</p></section>}
+            {solverKind === "bld" && <BldProfilePanel profile={bldProfile} onProfile={setBldProfile} language={language} />}
+            {solverKind === "bld" && <BldMemoLab result={bldResult} profile={bldProfile} onProfile={setBldProfile} language={language} />}
           </aside>
         </section>
       </div>
