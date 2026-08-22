@@ -102,3 +102,5 @@
 - Copy tiêu đề ưu tiên ngắn, chủ động và mang sắc thái thiết bị đo/solver bench; tránh cách gọi chung chung kiểu dashboard ứng dụng.
 - Study Bay chọn active case trainer làm apparatus cường độ cao duy nhất; CubeNet là lõi, Cube 3D và stopwatch là telemetry hỗ trợ cho lượt đang luyện.
 - Header Timer Lab và intro Study Bay là nameplate nén; right rail hiển thị mục tiêu, queue và trạng thái học qua tick/rule liên tục, không thành card thông tin độc lập.
+- Timer Competition có stopwatch là apparatus ink/shadow/grid cường độ cao duy nhất. Scramble, setup, analytics và nhật ký chỉ là record-sheet giấy nhạt; header luôn là nameplate nén.
+- Mark Timer Lab dùng dấu cube 3×3 vuông sắc như technical stamp; wordmark CFOP đọc liên tục và O mint-notch vẫn là điểm nhận diện duy nhất.

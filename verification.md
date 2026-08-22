@@ -46,3 +46,8 @@
 
 - SolveTimer là điểm timer dùng chung cho Competition và Study Bay. Khi ở ready/completed/inspection, keydown Space chỉ đặt state `armed`; keyup Space mới khởi động inspection hoặc solve trực tiếp.
 - Khi timer đang chạy, keydown Space vẫn chốt solve hoặc split tức thì; input, textarea, select, button và link được loại khỏi handler. Click fallback vẫn dùng toggle trực tiếp. TypeScript và production build đã pass.
+
+## Xác minh Timer Competition đa nền tảng
+
+- SolveTimer nhận Space hoặc Enter với cùng state arm–release; `pointerdown`/`pointerup` loại touch trên mặt timer dùng cùng state machine. Khi đang chạy, Enter hoặc chạm cũng chốt solve/split; click trên nút Start ở Study Bay không bị bubble thành touch timer.
+- Screenshot desktop/mobile xác nhận scramble và stopwatch là hai bề mặt chính; setup, preview cube và analytics được thu gọn bằng details, còn log vẫn truy cập trực tiếp. TypeScript và production build pass.

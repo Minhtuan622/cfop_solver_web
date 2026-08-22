@@ -315,3 +315,11 @@
 - [x] Thiết kế state machine giữ Space để arm, thả Space để bắt đầu, giữ nguyên stop/split an toàn.
 - [x] Áp dụng feedback visual arm cho toàn bộ timer, giữ click fallback hoạt động.
 - [x] Kiểm tra inspection, start/stop, split, Study Bay, input focus, TypeScript, build và checkpoint.
+
+## Timer Competition tối giản và input đa nền tảng
+
+- [x] Nghiên cứu interaction webtimer phổ biến, rà soát SolveTimer và layout Competition hiện tại.
+- [x] Bổ sung Enter và touch arm–release cho mọi SolveTimer, giữ Space/inspection/split/click fallback.
+- [x] Tái thiết kế Competition để scramble + stopwatch là visual apex, gom control phụ.
+- [x] Chuyển thống kê/cấu hình/history thành panel thứ cấp hoặc details theo nhu cầu.
+- [x] Kiểm tra keyboard, touch, inspection, split, desktop/mobile, TypeScript, build và checkpoint.
