@@ -20,6 +20,7 @@ const CROSS_DOWN_VIEW: Record<string, typeof DEFAULT_VIEW> = {
   R: { pitch: -26, yaw: 34, roll: -90, zoom: 1 },
   L: { pitch: -26, yaw: 34, roll: 90, zoom: 1 },
 };
+const lockedCrossView = (crossColor: string) => CROSS_DOWN_VIEW[crossColor] ?? DEFAULT_VIEW;
 
 const LAYER_STRIPS: Record<"U" | "R" | "F" | "D" | "L" | "B", { face: "U" | "R" | "F" | "D" | "L" | "B"; cells: number[] }[]> = {
   R: [{ face: "F", cells: [2, 5, 8] }, { face: "U", cells: [2, 5, 8] }, { face: "B", cells: [0, 3, 6] }, { face: "D", cells: [2, 5, 8] }],
@@ -62,24 +63,24 @@ function LayerTurn({ face, state, angle, step, move, duration }: { face: "U" | "
 
 export function Cube3DGuide({ state, previousState, move, step, crossColor = "U", inspection = false, alignCross = false, highlightCross = true, xcrossSlots, lastLayerCase, transition = "idle", transitionDirection = "forward", transitionId = 0, phaseLabel, turnDurationMs = 340 }: { state: string; previousState?: string; move?: string; step: number; crossColor?: string; inspection?: boolean; alignCross?: boolean; highlightCross?: boolean; xcrossSlots?: string[]; lastLayerCase?: { family: string; id: string }; transition?: "idle" | "move" | "seek" | "phase" | "reset"; transitionDirection?: "forward" | "backward"; transitionId?: number; phaseLabel?: string; turnDurationMs?: number }) {
   const { language } = useLanguage();
-  const [view, setView] = useState(DEFAULT_VIEW);
+  const [view, setView] = useState(() => alignCross ? lockedCrossView(crossColor) : DEFAULT_VIEW);
   const drag = useRef<{ x: number; y: number; pitch: number; yaw: number; moved: boolean; startedAt: number; pointerType: string } | null>(null);
   const pinch = useRef<number | null>(null);
   const activeInspection = highlightCross && inspection;
-  useEffect(() => { if (alignCross) { drag.current = null; setView(CROSS_DOWN_VIEW[crossColor] ?? DEFAULT_VIEW); } }, [alignCross, crossColor]);
+  useEffect(() => { if (alignCross) { drag.current = null; setView(lockedCrossView(crossColor)); } }, [alignCross, crossColor]);
   const target = move?.[0] ?? "";
   const motionFace = ({ M: "R", E: "U", S: "F", x: "R", y: "U", z: "F" } as Record<string, string>)[target] ?? target.toUpperCase();
   const animateLayer = Boolean(target) && transition === "move";
   const changeZoom = (amount: number) => setView((previous) => ({ ...previous, zoom: Math.min(1.42, Math.max(0.78, Number((previous.zoom + amount).toFixed(2)))) }));
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
     drag.current = { x: event.clientX, y: event.clientY, pitch: view.pitch, yaw: view.yaw, moved: false, startedAt: performance.now(), pointerType: event.pointerType };
   };
   const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const activeDrag = drag.current;
     if (!activeDrag) return;
-    if (activeDrag.pointerType === "mouse" && event.buttons === 0) return;
+    if (activeDrag.pointerType === "mouse" && event.buttons === 0) { drag.current = null; return; }
     const pointerX = event.clientX;
     const pointerY = event.clientY;
     const deltaX = pointerX - activeDrag.x;
@@ -88,21 +89,25 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
     const heldLongEnough = activeDrag.pointerType !== "touch" || performance.now() - activeDrag.startedAt >= TOUCH_HOLD_TO_ORBIT_MS;
     if (!activeDrag.moved && (!heldLongEnough || Math.hypot(deltaX, deltaY) < threshold)) return;
     activeDrag.moved = true;
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.setPointerCapture(event.pointerId);
+    const locked = lockedCrossView(crossColor);
     setView((previous) => ({
       ...previous,
-      yaw: activeDrag.yaw + deltaX * 0.55,
-      pitch: Math.min(35, Math.max(-70, activeDrag.pitch - deltaY * 0.45)),
+      yaw: alignCross ? Math.max(locked.yaw - 42, Math.min(locked.yaw + 42, activeDrag.yaw + deltaX * 0.42)) : activeDrag.yaw + deltaX * 0.55,
+      pitch: alignCross ? locked.pitch : Math.min(35, Math.max(-70, activeDrag.pitch - deltaY * 0.45)),
+      roll: alignCross ? locked.roll : previous.roll,
     }));
   };
   const pointerUp = (event: PointerEvent<HTMLDivElement>) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); drag.current = null; };
+  const pointerLeave = (event: PointerEvent<HTMLDivElement>) => { if (event.pointerType === "mouse" && event.buttons === 0) drag.current = null; };
   const wheel = (event: WheelEvent<HTMLDivElement>) => { event.preventDefault(); changeZoom(event.deltaY > 0 ? -0.08 : 0.08); };
   const touchStart = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length === 2) pinch.current = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); };
   const touchMove = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length !== 2 || pinch.current === null) return; const distance = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); changeZoom((distance - pinch.current) / 240); pinch.current = distance; };
-  const reset = () => setView(alignCross ? CROSS_DOWN_VIEW[crossColor] ?? DEFAULT_VIEW : DEFAULT_VIEW);
+  const reset = () => setView(alignCross ? lockedCrossView(crossColor) : DEFAULT_VIEW);
   const transform = `rotateZ(${view.roll}deg) rotateX(${view.pitch}deg) rotateY(${view.yaw}deg) scale3d(${view.zoom}, ${view.zoom}, ${view.zoom})`;
   const turnAngle = move?.endsWith("2") ? "180deg" : move?.endsWith("'") ? "-90deg" : "90deg";
   return <div className="cube3d-guide rounded-sm border-2 border-[#17221d] bg-[#17221d] p-3 text-[#f4f0e8]">
-    <div className={`cube3d-stage interactive-cube-stage cube3d-transition-${transition}`} aria-label={language === "vi" ? "Mô hình Rubik 3D, kéo để xoay và pinch hoặc cuộn để phóng to" : "3D Rubik model, drag to orbit and pinch or scroll to zoom"} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
+    <div className={`cube3d-stage interactive-cube-stage cube3d-transition-${transition}`} aria-label={language === "vi" ? "Mô hình Rubik 3D, kéo để xoay và pinch hoặc cuộn để phóng to" : "3D Rubik model, drag to orbit and pinch or scroll to zoom"} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onPointerLeave={pointerLeave} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
       <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={state} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} />)}{animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={previousState ?? state} angle={turnAngle} step={step} move={move} duration={turnDurationMs} />}</div></div>
       {transition === "phase" && phaseLabel && <div key={transitionId} className="cube3d-phase-callout" aria-live="polite"><span>{language === "vi" ? "CHUYỂN PHA" : "PHASE SHIFT"}</span><b>{phaseLabel}</b></div>}
     </div>

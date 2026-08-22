@@ -130,6 +130,7 @@ export default function Home() {
   const [mode, setMode] = useState<"scramble" | "state">("scramble");
   const [crossColor, setCrossColor] = useState<CrossColor>(() => readSolverSettings().crossColor);
   const [opening, setOpening] = useState<OpeningMode>(() => readSolverSettings().opening);
+  const [openingDepth, setOpeningDepth] = useState(() => readSolverSettings().openingDepth);
   const [lastLayer, setLastLayer] = useState<LastLayerMode>(() => readSolverSettings().lastLayer);
   const [preferredSlot, setPreferredSlot] = useState<F2LSlot | undefined>(() => readSolverSettings().preferredSlot);
   const [excludedSlots, setExcludedSlots] = useState<F2LSlot[]>(() => readSolverSettings().excludedSlots);
@@ -156,7 +157,7 @@ export default function Home() {
   const [paintColor, setPaintColor] = useState<CrossColor>("U");
   const [masteredCaseKeys, setMasteredCaseKeys] = useState<string[]>(() => { try { const stored = JSON.parse(localStorage.getItem(MASTERED_LAST_LAYER_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is string => typeof item === "string").slice(-1800) : []; } catch { return []; } });
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() => { try { const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is RecentCubeState => typeof item?.state === "string" && item.state.length === 54).slice(0, 8) : []; } catch { return []; } });
-  useEffect(() => { writeSolverSettings({ crossColor, opening, lastLayer, preferredSlot, excludedSlots }); }, [crossColor, opening, lastLayer, preferredSlot, excludedSlots]);
+  useEffect(() => { writeSolverSettings({ crossColor, opening, openingDepth, lastLayer, preferredSlot, excludedSlots }); }, [crossColor, opening, openingDepth, lastLayer, preferredSlot, excludedSlots]);
   const stateHistory = useRef<{ past: string[]; future: string[] }>({ past: [], future: [] });
   const cursorRef = useRef(0);
   const motionIdRef = useRef(0);
@@ -270,7 +271,7 @@ export default function Home() {
     setPlaying(false);
     setError("");
     try {
-      const next = await solveInBrowser(mode, value.trim(), crossColor, opening, { preferredSlot, excludedSlots }, lastLayer);
+      const next = await solveInBrowser(mode, value.trim(), crossColor, opening, { preferredSlot, excludedSlots }, lastLayer, openingDepth);
       setResult(next);
       cursorRef.current = 0;
       setCubeMotion({ id: ++motionIdRef.current, kind: "reset", direction: "forward" });
@@ -296,7 +297,6 @@ export default function Home() {
     setMode("state");
     setValue(catalogCase.state);
     setSavedState(catalogCase.state);
-    setCrossColor("D");
     setLastLayer(catalogCase.family);
     setSelectedCatalogCase(catalogCase);
     setResult(null);
@@ -408,7 +408,7 @@ export default function Home() {
                 <button onClick={() => selectCursor(0, "reset")} disabled={!result} className="ml-auto flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#17221d]/55 transition hover:text-[#17221d] disabled:opacity-40"><RotateCcw className="h-3.5 w-3.5" />{t("guide.reset")}</button>
               </div>
               {openingOutcome && <div className={cn("studio-opening-outcome mt-4 border-2", openingOutcome.kind !== "cross" ? "border-[#1ba77a]/50 bg-[#1ba77a]/10" : "border-[#17221d]/12 bg-[#f4f0e8]")}><div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"><div className="min-w-0"><p className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-[#17221d]/55">{language === "vi" ? "KẾT QUẢ OPENING" : "OPENING OUTCOME"}</p><p className="mt-1 break-words text-sm font-black">{openingOutcome.kind === "xxxxcross" ? "XXXXCross · Full F2L" : openingOutcome.kind === "xxxcross" ? `XXXCross · ${openingOutcome.slots.join("+")}` : openingOutcome.kind === "xxcross" ? `XXCross · ${openingOutcome.slots.join("+")}` : openingOutcome.kind === "xcross" ? `XCross · ${openingOutcome.slot}` : "Cross chuẩn"}</p></div><span className={cn("font-mono text-[10px] font-bold", openingOutcome.kind !== "cross" ? "text-[#1b7b5e]" : "text-[#17221d]/55")}>{openingOutcome.moves} {language === "vi" ? "nước" : "moves"}</span></div>{openingTelemetry && <div className="studio-fallback-telemetry border-t border-[#17221d]/12 px-4 py-2 font-mono text-[9px]"><span>{language === "vi" ? "YÊU CẦU" : "REQUEST"} <b>{openingModeLabel(openingTelemetry.requested, language)}</b></span><span>→</span><span>{language === "vi" ? "ĐẠT" : "ACHIEVED"} <b>{openingModeLabel(openingTelemetry.achieved, language)}</b></span><span className={openingTelemetry.did_fallback ? "text-[#b64b31]" : "text-[#1b7b5e]"}>{openingTelemetry.did_fallback ? (language === "vi" ? `LÙI ${openingTelemetry.fallback_count} CẤP` : `${openingTelemetry.fallback_count} FALLBACKS`) : (language === "vi" ? "ĐÚNG CẤP" : "TARGET MET")}</span><details className="studio-route-detail"><summary>{language === "vi" ? "LỘ TRÌNH" : "ROUTE"}</summary><p>{openingTelemetry.attempts.map((attempt) => openingModeLabel(attempt, language)).join(" → ")}</p></details></div>}</div>}
-              {lastLayerTelemetry && <div className={cn("studio-opening-outcome mt-3 border-2", lastLayerTelemetry.did_fallback ? "border-[#e7c34f]/60 bg-[#e7c34f]/10" : "border-[#1ba77a]/50 bg-[#1ba77a]/10")}><div className="studio-fallback-telemetry px-4 py-2.5 font-mono text-[9px]"><span className="font-bold tracking-[0.14em] text-[#17221d]/55">LAST LAYER</span><span>{language === "vi" ? "ĐẠT" : "ACHIEVED"} <b>{lastLayerModeLabel(lastLayerTelemetry.achieved, language)}</b></span><span className={lastLayerTelemetry.did_fallback ? "text-[#9b6b00]" : "text-[#1b7b5e]"}>{lastLayerTelemetry.did_fallback ? (language === "vi" ? "CATALOG MISS → OLL/PLL" : "CATALOG MISS → OLL/PLL") : "DIRECT MATCH"}</span><details className="studio-route-detail"><summary>{language === "vi" ? "LỘ TRÌNH" : "ROUTE"}</summary><p>{lastLayerTelemetry.attempts.map((attempt) => lastLayerModeLabel(attempt, language)).join(" → ")}</p></details></div></div>}
+              {lastLayerTelemetry && <div className={cn("studio-opening-outcome mt-3 border-2", lastLayerTelemetry.did_fallback ? "border-[#e7c34f]/60 bg-[#e7c34f]/10" : "border-[#1ba77a]/50 bg-[#1ba77a]/10")}><div className="studio-fallback-telemetry px-4 py-2.5 font-mono text-[9px]"><span className="font-bold tracking-[0.14em] text-[#17221d]/55">LAST LAYER</span><span>{language === "vi" ? "ĐẠT" : "ACHIEVED"} <b>{lastLayerModeLabel(lastLayerTelemetry.achieved, language)}</b></span>{lastLayerTelemetry.case_id && <span className="text-[#1b7b5e]">CASE <b>{lastLayerTelemetry.case_id}</b></span>}<span className={lastLayerTelemetry.did_fallback ? "text-[#9b6b00]" : "text-[#1b7b5e]"}>{lastLayerTelemetry.did_fallback ? (language === "vi" ? "CATALOG MISS → OLL/PLL" : "CATALOG MISS → OLL/PLL") : "DIRECT MATCH"}</span><details className="studio-route-detail"><summary>{language === "vi" ? "LỘ TRÌNH" : "ROUTE"}</summary><p>{lastLayerTelemetry.attempts.map((attempt) => lastLayerModeLabel(attempt, language)).join(" → ")}</p></details></div></div>}
               <div className="studio-apparatus-rail mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]"><div className="flex items-center gap-4"><input aria-label="Chọn move trong trace" type="range" min="0" max={Math.max(0, totalMoves)} value={cursor} onChange={(event) => selectCursor(Number(event.target.value), "seek")} className="min-w-0 flex-1 accent-[#1ba77a]" /><span className="min-w-16 text-right font-mono text-xs font-bold">{cursor} moves</span></div><label className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#17221d]/60">Speed {playbackSpeed.toFixed(2)}×<input aria-label="Playback speed" type="range" min="0.5" max="2" step="0.25" value={playbackSpeed} onChange={(event) => setPlaybackSpeed(Number(event.target.value))} className="w-24 accent-[#1ba77a]" /></label></div>
             </div>
           </section>

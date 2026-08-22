@@ -387,3 +387,11 @@
 - [x] Truy vết điều kiện nhận diện ZBLL/1LLL, catalog lookup và telemetry fallback trước khi sửa router Last Layer.
 - [x] Chỉnh typography/bố cục CFOP report để label dài không tràn hoặc vỡ nhịp cột hẹp.
 - [x] Bổ sung regression strict opening/Last Layer, nhúng worker, kiểm tra browser và production build trước checkpoint.
+
+## Case direct, opening depth và orientation Cross
+
+- [x] Rà soát payload telemetry Last Layer để bổ sung mã case direct cụ thể khi ZBLL/1LLL nhận diện thành công.
+- [x] Thêm cài đặt depth cho direct opening, truyền từ Settings qua Studio/worker đến solver với giới hạn hợp lý.
+- [x] Rà soát Cube 3D input và orientation để click/tap không spin, đồng thời căn Cross đã chọn cố định về D.
+- [x] Bổ sung regression case ID/depth và kiểm thử click-drag, đổi Cross màu, desktop/mobile, TypeScript/build.
+- [x] Checkpoint sau khi xác minh solver worker, Settings và camera hoạt động nhất quán.
