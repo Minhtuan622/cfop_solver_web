@@ -269,3 +269,11 @@
 - [x] Hợp nhất report CFOP và danh sách move thành một record; bỏ panel Kiểm tra lời giải riêng.
 - [x] Tối giản chế độ Màu 6 mặt thành sơ đồ 2D có thể tô sticker trực tiếp, không lặp ảnh minh họa cube.
 - [x] Kiểm tra browser, responsive, TypeScript, production build và checkpoint.
+
+## CubeNet 2D trực tiếp và UI tối giản
+
+- [x] Rà soát layout Màu 6 mặt, editor sticker và mật độ control/label ở Studio.
+- [x] Khôi phục CubeNet 2D lớn cạnh Cube 3D trong Màu 6 mặt, cho tô sticker trực tiếp ngay trên đó.
+- [x] Tối giản tab Chuỗi xoay: giữ input, lựa chọn cốt lõi và CTA; gom/giảm control, label phụ.
+- [x] Áp dụng nguyên tắc tối giản tương tự cho các panel Studio liên quan.
+- [x] Kiểm tra browser, responsive, TypeScript, production build và checkpoint.

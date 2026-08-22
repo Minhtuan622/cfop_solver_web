@@ -91,3 +91,7 @@
 - Header Studio là nameplate nén: chỉ giữ lockup CFOP liền mạch và O-notch mint, giảm dark mass/grid để không cạnh tranh với apparatus trung tâm.
 - Solver stage gắn readout, viewport cube, playback và move rail thành một cụm đo cơ khí; central apparatus là nơi duy nhất có rail/grid/shadow ở cường độ tối đa.
 - Explorer, case list và telemetry phải bám cùng measurement rail dọc, dùng score-strip/case ID mono thay cho các card dashboard tách rời.
+- Header Studio là equipment nameplate nén: dark ink, grid và shadow luôn nhẹ hơn central apparatus; chỉ giữ lockup, trạng thái route và điều khiển ngôn ngữ.
+- Cube mark Studio là dấu kỹ thuật 3×3 isometric vuông sắc, không dùng silhouette app-icon mềm; wordmark CFOP đọc liền mạch và chỉ O mang Solver Mint notch.
+- Input, Explorer và telemetry là record-sheet phẳng có rule/tick rất nhẹ; strong rail chỉ dùng khi nối trực tiếp với state, move, phase hoặc case telemetry.
+- Readout, move rail, playback và case list phải đọc như các bộ phận của một dụng cụ đo liên kết, không phải các dashboard card độc lập.
