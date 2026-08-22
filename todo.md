@@ -498,3 +498,10 @@
 - [x] Thiết kế color picker có validation/contrast guard và preview workbench cho Light, Dark, System.
 - [x] Triển khai custom accent, persistence, reset và áp dụng token màu toàn ứng dụng.
 - [x] Kiểm thử preview, persistence, theme modes, TypeScript/build và checkpoint.
+
+## Theme consistency audit
+
+- [x] Lập inventory colors hard-code và các component/route có surface hoặc text dễ lẫn Light/Dark.
+- [x] Chuẩn hóa token semantic cho nền, sheet, control, chữ chính/phụ, border và trạng thái active.
+- [x] Sửa Studio, Timer, BLD panels, Study và Settings để không còn surface lẫn theme.
+- [x] Kiểm tra desktop/mobile ở Light, Dark, System; TypeScript/build và checkpoint.
