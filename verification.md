@@ -51,3 +51,9 @@
 
 - SolveTimer nhận Space hoặc Enter với cùng state arm–release; `pointerdown`/`pointerup` loại touch trên mặt timer dùng cùng state machine. Khi đang chạy, Enter hoặc chạm cũng chốt solve/split; click trên nút Start ở Study Bay không bị bubble thành touch timer.
 - Screenshot desktop/mobile xác nhận scramble và stopwatch là hai bề mặt chính; setup, preview cube và analytics được thu gọn bằng details, còn log vẫn truy cập trực tiếp. TypeScript và production build pass.
+
+## Xác minh Cube 3D click-safe và Timer Lab gọn
+
+- Cube3DGuide chỉ thay đổi yaw/pitch sau khi pointer di chuyển ít nhất 7px; một click/tap không thể cập nhật camera. Pointer capture được giải phóng khi kết thúc thao tác.
+- Stopwatch và Cube 3D hiện cùng một apparatus nền ink; desktop đặt cạnh nhau, mobile xếp dọc vẫn giữ bề mặt chạm/readout lớn. Cài đặt timer và Cài đặt Solver được gom dưới details, còn analytics/history nằm ở record-sheet phụ.
+- TypeScript và production build pass; desktop và mobile render không tràn layout.

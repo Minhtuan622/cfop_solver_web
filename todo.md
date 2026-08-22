@@ -323,3 +323,11 @@
 - [x] Tái thiết kế Competition để scramble + stopwatch là visual apex, gom control phụ.
 - [x] Chuyển thống kê/cấu hình/history thành panel thứ cấp hoặc details theo nhu cầu.
 - [x] Kiểm tra keyboard, touch, inspection, split, desktop/mobile, TypeScript, build và checkpoint.
+
+## Timer Lab gọn và Cube 3D click-safe
+
+- [x] Rà soát pointer handler Cube3DGuide và các control Timer Lab đang rải rác.
+- [x] Thêm ngưỡng drag để click/tap không làm camera Cube 3D xoay ngoài ý muốn.
+- [x] Đặt Cube 3D cạnh stopwatch trong cùng apparatus tối, vẫn có preview/zoom cần thiết.
+- [x] Gom control Competition thành Cài đặt rõ ràng, giữ lịch sử và analytics truy cập có chủ đích.
+- [x] Kiểm tra click/drag, timer, settings, desktop/mobile, TypeScript, build và checkpoint.

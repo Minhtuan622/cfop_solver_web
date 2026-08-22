@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const color: Record<string, string> = { U: "#f7f3e9", R: "#d95743", F: "#1ba77a", D: "#e7c34f", L: "#ed8e42", B: "#3b6fc7" };
 const faceOffset: Record<"U" | "R" | "F" | "D" | "L" | "B", number> = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
 const DEFAULT_VIEW = { pitch: -26, yaw: 34, roll: 0, zoom: 1 };
+const DRAG_THRESHOLD_PX = 7;
 const CROSS_DOWN_VIEW: Record<string, typeof DEFAULT_VIEW> = {
   U: { pitch: 154, yaw: 34, roll: 0, zoom: 1 },
   D: DEFAULT_VIEW,
@@ -60,7 +61,7 @@ function LayerTurn({ face, state, angle, step, move, duration }: { face: "U" | "
 export function Cube3DGuide({ state, previousState, move, step, crossColor = "U", inspection = false, alignCross = false, highlightCross = true, xcrossSlots, lastLayerCase, transition = "idle", transitionDirection = "forward", transitionId = 0, phaseLabel, turnDurationMs = 340 }: { state: string; previousState?: string; move?: string; step: number; crossColor?: string; inspection?: boolean; alignCross?: boolean; highlightCross?: boolean; xcrossSlots?: string[]; lastLayerCase?: { family: string; id: string }; transition?: "idle" | "move" | "seek" | "phase" | "reset"; transitionDirection?: "forward" | "backward"; transitionId?: number; phaseLabel?: string; turnDurationMs?: number }) {
   const { language } = useLanguage();
   const [view, setView] = useState(DEFAULT_VIEW);
-  const drag = useRef<{ x: number; y: number; pitch: number; yaw: number } | null>(null);
+  const drag = useRef<{ x: number; y: number; pitch: number; yaw: number; moved: boolean } | null>(null);
   const pinch = useRef<number | null>(null);
   const activeInspection = highlightCross && inspection;
   useEffect(() => { if (alignCross) { drag.current = null; setView(CROSS_DOWN_VIEW[crossColor] ?? DEFAULT_VIEW); } }, [alignCross, crossColor]);
@@ -68,19 +69,23 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const motionFace = ({ M: "R", E: "U", S: "F", x: "R", y: "U", z: "F" } as Record<string, string>)[target] ?? target.toUpperCase();
   const animateLayer = Boolean(target) && transition === "move";
   const changeZoom = (amount: number) => setView((previous) => ({ ...previous, zoom: Math.min(1.42, Math.max(0.78, Number((previous.zoom + amount).toFixed(2)))) }));
-  const pointerDown = (event: PointerEvent<HTMLDivElement>) => { event.currentTarget.setPointerCapture(event.pointerId); drag.current = { x: event.clientX, y: event.clientY, pitch: view.pitch, yaw: view.yaw }; };
+  const pointerDown = (event: PointerEvent<HTMLDivElement>) => { event.currentTarget.setPointerCapture(event.pointerId); drag.current = { x: event.clientX, y: event.clientY, pitch: view.pitch, yaw: view.yaw, moved: false }; };
   const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const activeDrag = drag.current;
     if (!activeDrag) return;
     const pointerX = event.clientX;
     const pointerY = event.clientY;
+    const deltaX = pointerX - activeDrag.x;
+    const deltaY = pointerY - activeDrag.y;
+    if (!activeDrag.moved && Math.hypot(deltaX, deltaY) < DRAG_THRESHOLD_PX) return;
+    activeDrag.moved = true;
     setView((previous) => ({
       ...previous,
-      yaw: activeDrag.yaw + (pointerX - activeDrag.x) * 0.55,
-      pitch: Math.min(35, Math.max(-70, activeDrag.pitch - (pointerY - activeDrag.y) * 0.45)),
+      yaw: activeDrag.yaw + deltaX * 0.55,
+      pitch: Math.min(35, Math.max(-70, activeDrag.pitch - deltaY * 0.45)),
     }));
   };
-  const pointerUp = () => { drag.current = null; };
+  const pointerUp = (event: PointerEvent<HTMLDivElement>) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); drag.current = null; };
   const wheel = (event: WheelEvent<HTMLDivElement>) => { event.preventDefault(); changeZoom(event.deltaY > 0 ? -0.08 : 0.08); };
   const touchStart = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length === 2) pinch.current = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); };
   const touchMove = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length !== 2 || pinch.current === null) return; const distance = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); changeZoom((distance - pinch.current) / 240); pinch.current = distance; };
