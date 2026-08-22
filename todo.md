@@ -347,3 +347,11 @@
 - [x] Tạo Settings hub một nơi duy nhất, có nhóm Solver, Timer và hiển thị Cube 3D.
 - [x] Di chuyển hoặc loại bỏ control/accordion thiết lập rải rác sau khi có Settings hub.
 - [x] Kiểm tra routes, persistence, desktop/mobile, TypeScript, build và checkpoint.
+
+## Điều hướng Study, ngôn ngữ và Speed split phụ thuộc
+
+- [x] Rà soát route query Study, navigation chung và control ngôn ngữ hiện tại.
+- [x] Chuyển lựa chọn ngôn ngữ vào Cài đặt duy nhất.
+- [x] Sửa Study mở đúng route và chỉ hiển thị nội dung/phân tích Split khi Speed split bật.
+- [x] Ẩn các tính năng Timer phụ thuộc split khi Speed split tắt, không ảnh hưởng solve thường.
+- [x] Kiểm tra route, language, split on/off, responsive, TypeScript, build và checkpoint.

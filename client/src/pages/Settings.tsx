@@ -18,7 +18,7 @@ type Phase = keyof typeof defaultTargets;
 function readTargets() { try { const raw = JSON.parse(localStorage.getItem("cfop-phase-targets") ?? "{}") as Partial<Record<Phase, number>>; return { Cross: raw.Cross ?? 4, F2L: raw.F2L ?? 12, OLL: raw.OLL ?? 4, PLL: raw.PLL ?? 5 }; } catch { return defaultTargets; } }
 
 export default function Settings() {
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const vi = language === "vi";
   const [solver, setSolver] = useState<SolverSettings>(readSolverSettings);
   const [sound, setSound] = useState(() => localStorage.getItem("cfop-inspection-sound") !== "off");
@@ -45,8 +45,9 @@ export default function Settings() {
         <button onClick={() => setSplits(!splits)} className={splits ? "settings-toggle active" : "settings-toggle"}><span>{vi ? "Speed split" : "Speed splits"}</span><b>{splits ? "ON" : "OFF"}</b></button>
         <button onClick={() => setHighlight(!highlight)} className={highlight ? "settings-toggle active" : "settings-toggle"}><span>{vi ? "Highlight Cross" : "Cross highlight"}</span><b>{highlight ? "ON" : "OFF"}</b></button>
       </div><p className="settings-hint">{vi ? "Timer luôn dùng giữ–thả Space/Enter hoặc chạm để bắt đầu." : "Timer always uses hold–release Space/Enter or touch to start."}</p></section>
-      <section className="settings-sheet"><p className="settings-kicker">03 · MỤC TIÊU TIMER</p><h2>{vi ? "Ngưỡng pha · giây" : "Phase targets · seconds"}</h2><div className="mt-4 space-y-3">{(Object.keys(targets) as Phase[]).map((phase) => <label key={phase} className="settings-number"><span>{phase}</span><input type="number" min="0.1" max="120" step="0.1" value={targets[phase]} onChange={(event) => setTarget(phase, Number(event.target.value))} /><em>s</em></label>)}</div></section>
+      {splits && <section className="settings-sheet"><p className="settings-kicker">03 · MỤC TIÊU TIMER</p><h2>{vi ? "Ngưỡng pha · giây" : "Phase targets · seconds"}</h2><div className="mt-4 space-y-3">{(Object.keys(targets) as Phase[]).map((phase) => <label key={phase} className="settings-number"><span>{phase}</span><input type="number" min="0.1" max="120" step="0.1" value={targets[phase]} onChange={(event) => setTarget(phase, Number(event.target.value))} /><em>s</em></label>)}</div></section>}
       <section className="settings-sheet"><p className="settings-kicker">04 · ZBLL / 1LLL STUDY</p><h2>{vi ? "Mục tiêu học hằng ngày" : "Daily study goal"}</h2><label className="settings-number mt-4"><span>{vi ? "Số case" : "Cases"}</span><input type="number" min="1" max="200" value={dailyGoal} onChange={(event) => setDailyGoal(Math.max(1, Math.min(200, Number(event.target.value) || 1)))} /><em>{vi ? "/ ngày" : "/ day"}</em></label><p className="settings-hint">{vi ? "Study Bay dùng mục tiêu này để tính tiến độ và thông báo hoàn thành." : "Study Bay uses this goal for progress and completion feedback."}</p></section>
+      <section className="settings-sheet"><p className="settings-kicker">05 · LANGUAGE</p><h2>{vi ? "Ngôn ngữ giao diện" : "Interface language"}</h2><div className="settings-chip-grid mt-4"><button onClick={() => setLanguage("vi")} className={vi ? "active" : ""}>Tiếng Việt</button><button onClick={() => setLanguage("en")} className={!vi ? "active" : ""}>English</button></div><p className="settings-hint">{vi ? "Thay đổi áp dụng tức thì trên toàn ứng dụng." : "The change applies immediately across the app."}</p></section>
     </div><div className="settings-actions"><button onClick={reset} className="settings-reset"><RotateCcw />{vi ? "Khôi phục mặc định" : "Reset defaults"}</button><button onClick={save} className="settings-save">{saved ? <Check /> : null}{saved ? (vi ? "Đã lưu" : "Saved") : (vi ? "Lưu cài đặt" : "Save settings")}</button></div>
   </div></main>;
 }

@@ -69,3 +69,10 @@
 - App shell chung có bốn route Studio, Timer, Study và Cài đặt; header cũ ở Studio/Timer cùng tab nội bộ Timer đã bị loại bỏ để không lặp navigation.
 - Cài đặt tập trung Cross, opening, last layer, ưu tiên/loại trừ F2L, inspection, split, highlight, mục tiêu pha và mục tiêu Study. Solver/Timer đọc lại preference đã lưu sau điều hướng.
 - Screenshot desktop/mobile xác nhận nav ở một dòng nhỏ, surfaces làm việc không còn accordion setup; TypeScript và production build pass.
+
+## Xác minh route Study, ngôn ngữ và Speed split
+
+- `/study` mở trực tiếp Study Bay với catalog, timer luyện và lịch ôn; navigation cũng đánh dấu đúng Study thay vì Timer Competition.
+- Khi Speed split đang tắt, Cài đặt không hiển thị thẻ mục tiêu pha và Timer chỉ giữ metrics solve tổng; mục tiêu/biểu đồ/Ao theo Cross–F2L–OLL–PLL đã được ẩn.
+- Lựa chọn ngôn ngữ đã được chuyển khỏi navbar và nằm trong Settings hub.
+- Khi Speed split bật, route Timer vẫn hiển thị các panel mục tiêu, biểu đồ và Ao theo pha; khi tắt, chỉ giữ analytics solve tổng và lịch sử. Render desktop cho Timer, Study và Cài đặt ổn định sau build.

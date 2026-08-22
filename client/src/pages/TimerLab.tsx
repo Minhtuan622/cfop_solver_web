@@ -90,7 +90,7 @@ export default function TimerLab() {
   const [replayStep, setReplayStep] = useState(0);
   const [replayPlaying, setReplayPlaying] = useState(false);
   const [replaySpeed, setReplaySpeed] = useState(1);
-  const [labTab, setLabTab] = useState<"timer" | "study">(() => new URLSearchParams(window.location.search).get("tab") === "study" ? "study" : "timer");
+  const [labTab, setLabTab] = useState<"timer" | "study">(() => window.location.pathname === "/study" || new URLSearchParams(window.location.search).get("tab") === "study" ? "study" : "timer");
   const [timerSettingsOpen, setTimerSettingsOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -118,7 +118,7 @@ export default function TimerLab() {
   useEffect(() => { localStorage.setItem("cfop-cross-highlight", crossHighlight ? "on" : "off"); }, [crossHighlight]);
   useEffect(() => { localStorage.setItem("cfop-inspection-color", inspectionColor); }, [inspectionColor]);
   useEffect(() => { localStorage.setItem("cfop-phase-targets", JSON.stringify(phaseTargets)); }, [phaseTargets]);
-  useEffect(() => { const url = new URL(window.location.href); if (labTab === "study") url.searchParams.set("tab", "study"); else url.searchParams.delete("tab"); window.history.replaceState({}, "", `${url.pathname}${url.search}`); }, [labTab]);
+  useEffect(() => { document.documentElement.dataset.speedSplit = spaceSplits ? "on" : "off"; return () => { delete document.documentElement.dataset.speedSplit; }; }, [spaceSplits]);
   useEffect(() => { document.querySelectorAll<HTMLDetailsElement>(".timer-secondary-sheet").forEach((sheet) => { sheet.open = true; }); }, []);
 
   const copy = vi ? {
