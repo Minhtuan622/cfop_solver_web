@@ -13,6 +13,7 @@ const DEFAULT_ORIENTATION = "rotateX(-26deg) rotateY(34deg)";
 const DRAG_THRESHOLD_PX = 7;
 const TOUCH_DRAG_THRESHOLD_PX = 14;
 const TOUCH_HOLD_TO_ORBIT_MS = 180;
+const wrapOrbit = (degrees: number) => ((degrees + 180) % 360 + 360) % 360 - 180;
 // These permutations come directly from the solver's whole-cube x/z moves.
 // We rotate stickers into Cross=D display space, never the CSS cube itself.
 const WHOLE_CUBE_PERM: Record<string, number[]> = {
@@ -104,7 +105,7 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
     if (!activeDrag.moved && (!heldLongEnough || Math.hypot(deltaX, deltaY) < threshold)) return;
     activeDrag.moved = true;
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.setPointerCapture(event.pointerId);
-    setCamera((previous) => ({ ...previous, orbit: Math.max(-125, Math.min(125, activeDrag.orbit + deltaX * 0.42)) }));
+    setCamera((previous) => ({ ...previous, orbit: wrapOrbit(activeDrag.orbit + deltaX * 0.42) }));
   };
   const pointerUp = (event: PointerEvent<HTMLDivElement>) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); drag.current = null; };
   const pointerLeave = (event: PointerEvent<HTMLDivElement>) => { if (event.pointerType === "mouse" && event.buttons === 0) drag.current = null; };

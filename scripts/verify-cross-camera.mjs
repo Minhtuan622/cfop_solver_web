@@ -33,3 +33,9 @@ for (const orbit of [-125, 0, 125]) {
   if (Object.values(results).some((result) => JSON.stringify(result) !== reference)) throw new Error(`Cross camera mismatch at orbit ${orbit}: ${JSON.stringify(results)}`);
   console.log(`orbit ${orbit}: U/R/F/D/L/B all share ${reference}`);
 }
+
+const wrapOrbit = (degrees) => ((degrees + 180) % 360 + 360) % 360 - 180;
+for (const [input, expected] of [[0, 0], [360, 0], [720, 0], [540, -180], [-540, -180], [361, 1]]) {
+  if (wrapOrbit(input) !== expected) throw new Error(`Orbit wrap mismatch: ${input} -> ${wrapOrbit(input)}, expected ${expected}`);
+}
+console.log("orbit wrap: 360° continuous");

@@ -417,3 +417,10 @@
 - [x] Chuyển việc đặt Cross về D từ transform mô hình sang adapter state, giữ camera thẳng mặc định.
 - [x] Giới hạn drag chỉ orbit quanh trục đứng, không làm lật/xoắn geometry sticker.
 - [x] Kiểm thử sáu màu bằng state thật, screenshot desktop/mobile, TypeScript và production build trước checkpoint.
+
+## Orbit 360° quanh Cross
+
+- [x] Rà soát giới hạn góc drag hiện tại và cơ chế reset camera.
+- [x] Bỏ giới hạn orbit, giữ phép chuẩn hóa state Cross-to-D và camera thẳng.
+- [x] Kiểm thử kéo qua nhiều vòng, reset, click/tap và six-cross orientation.
+- [x] Chạy TypeScript, production build và checkpoint sau khi xác minh 360°.
