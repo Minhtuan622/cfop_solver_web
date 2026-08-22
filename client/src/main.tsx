@@ -1,8 +1,9 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { applyAppFontSize, applyAppTheme, readAppFontSize, readAppTheme } from "./lib/displaySettings";
+import { applyAppAccent, applyAppFontSize, applyAppThemeMode, readAppAccent, readAppFontSize, readAppThemeMode } from "./lib/displaySettings";
 
 applyAppFontSize(readAppFontSize());
-applyAppTheme(readAppTheme());
+applyAppAccent(readAppAccent());
+applyAppThemeMode(readAppThemeMode());
 createRoot(document.getElementById("root")!).render(<App />);

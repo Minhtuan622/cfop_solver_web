@@ -1113,4 +1113,26 @@ html[data-font-size="large"] { font-size: 18px; }
   .app-shell-brand b { position: relative; font-size: 14px; letter-spacing: .08em; }
   .app-shell-brand b::after { position: absolute; right: 0; bottom: -.34rem; width: 44%; height: 2px; background: repeating-linear-gradient(90deg, #1ba77a 0 2px, transparent 2px 6px); content: ""; }
   @media (max-width: 640px) { .study-measurement-rail { padding-left: .55rem; }.study-support-instruments { padding-left: .65rem; }.app-shell-brand b { font-size: 12px; } }
+
+  /* Display personalization is intentionally late: it overrides the calibrated light workbench rules above. */
+  :root { --workbench-accent: #1ba77a; --workbench-accent-ink: #102018; --workbench-accent-soft: rgb(27 167 122 / .16); }
+  html[data-accent="sky"] { --workbench-accent: #4aa3ff; --workbench-accent-ink: #081a2f; --workbench-accent-soft: rgb(74 163 255 / .16); }
+  html[data-accent="violet"] { --workbench-accent: #a78bfa; --workbench-accent-ink: #1c1038; --workbench-accent-soft: rgb(167 139 250 / .16); }
+  html[data-accent="coral"] { --workbench-accent: #ff7a67; --workbench-accent-ink: #32110c; --workbench-accent-soft: rgb(255 122 103 / .16); }
+  [data-accent] .app-shell-o, [data-accent] .settings-strip, [data-accent] .settings-card-title p, [data-accent] .settings-help, [data-accent] .studio-wordmark .wordmark-o { color: var(--workbench-accent) !important; }
+  [data-accent] .app-shell-o::after, [data-accent] .app-shell-brand b::after, [data-accent] .settings-card-title, [data-accent] .studio-phase-ladder > div:nth-child(2)::before, [data-accent] .study-measurement-rail::before { background-color: var(--workbench-accent) !important; box-shadow: inset 3px 0 0 var(--workbench-accent); }
+  [data-accent] .app-shell-link-active, [data-accent] .settings-chip-grid button.active, [data-accent] .settings-toggle.active, [data-accent] .settings-save { border-color: var(--workbench-accent) !important; background-color: var(--workbench-accent) !important; color: var(--workbench-accent-ink) !important; }
+  [data-accent] input[type="range"], [data-accent] input[type="checkbox"], [data-accent] input[type="radio"] { accent-color: var(--workbench-accent); }
+  [data-accent] .studio-solver-apparatus .tick-ruler, [data-accent] .studio-apparatus-readout::after, [data-accent] .timer-card.timer-armed::after { background-color: var(--workbench-accent) !important; }
+  [data-accent] .timer-card.timer-armed { border-color: var(--workbench-accent) !important; box-shadow: 0 0 0 3px var(--workbench-accent-soft), 6px 6px 0 var(--workbench-accent) !important; }
+
+  .dark .timer-lab .timer-secondary-sheet, .dark .timer-lab .timer-secondary-sheet .history-panel, .dark .timer-lab .history-panel:not(.timer-competition-apparatus), .dark .timer-lab .history-panel.bg-\[\#17221d\], .dark .last-layer-study .study-measurement-rail .study-record-sheet, .dark .last-layer-study .study-measurement-rail .last-layer-explorer-study { background-color: #17221d !important; background-image: linear-gradient(90deg, rgb(231 235 227 / .04) 1px, transparent 1px) !important; color: #e7ebe3 !important; border-color: rgb(231 235 227 / .24) !important; box-shadow: none !important; }
+  .dark .timer-lab .history-panel.bg-\[\#17221d\] p, .dark .timer-lab .history-panel.bg-\[\#17221d\] span, .dark .timer-lab .history-panel.bg-\[\#17221d\] .grid > div b { color: #e7ebe3 !important; }
+  .dark .timer-lab .history-panel.bg-\[\#17221d\] .grid > div, .dark .timer-lab .history-panel:not(.timer-competition-apparatus) .bg-white, .dark .timer-lab .history-panel:not(.timer-competition-apparatus) .bg-\[\#f4f0e8\] { background-color: #1c2821 !important; border-color: rgb(231 235 227 / .22) !important; }
+  .dark .study-support-instruments { background: repeating-linear-gradient(to bottom, transparent 0 34px, rgb(231 235 227 / .06) 34px 35px) !important; }
+  .dark .study-support-instruments .cube3d-guide, .dark .study-support-instruments .timer-readout-only { border-color: rgb(231 235 227 / .28) !important; background: #17221d !important; }
+  .dark .study-support-instruments .timer-readout-only > div > p, .dark .study-support-instruments .timer-readout-only > p:first-child, .dark .study-support-instruments .cube-mini-control { color: #edf2eb !important; }
+  .dark .studio-telemetry-column .studio-cfop-report, .dark .studio-telemetry-column .studio-cfop-report .scorecard, .dark .studio-report-empty { background-color: #17221d !important; background-image: linear-gradient(90deg, rgb(231 235 227 / .04) 1px, transparent 1px) !important; color: #e7ebe3 !important; border-color: rgb(231 235 227 / .24) !important; }
+  .dark .studio-telemetry-column .studio-cfop-report [class*="text-[#17221d]"], .dark .studio-report-empty [class*="text-[#17221d]"] { color: #e7ebe3 !important; }
+  .dark .studio-solver-apparatus [class*="bg-white"], .dark .studio-solver-apparatus [class*="bg-[#f4"], .dark .studio-solver-apparatus [class*="bg-[#f8"], .dark .studio-solver-apparatus [class*="bg-[#efe"] { background-color: #17221d !important; color: #e7ebe3 !important; border-color: rgb(231 235 227 / .24) !important; }
 }

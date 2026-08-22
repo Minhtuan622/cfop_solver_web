@@ -484,3 +484,10 @@
 - [x] Thiết kế palette tối vẫn giữ mint rails, giấy kỹ thuật và độ tương phản chữ/formula.
 - [x] Thêm toggle Dark Mode vào Settings, persistence local và áp dụng theme toàn trang từ startup.
 - [x] Kiểm thử Studio, Timer, Study, Settings, responsive, TypeScript/build và checkpoint.
+
+## System theme, accent color và Dark Mode hoàn thiện
+
+- [x] Rà persistence theme/accent, ThemeProvider và tất cả bề mặt còn sáng trong Studio, Timer, Study, Settings, BLD.
+- [x] Thiết kế chế độ Light/Dark/System cùng palette accent có độ tương phản phù hợp trên hai theme.
+- [x] Triển khai đồng bộ system preference, accent cục bộ và token/override cho các surface Dark Mode còn sáng.
+- [x] Kiểm thử live switch, system change, accent, contrast các route, TypeScript/build và checkpoint.
