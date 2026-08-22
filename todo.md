@@ -277,3 +277,11 @@
 - [x] Tối giản tab Chuỗi xoay: giữ input, lựa chọn cốt lõi và CTA; gom/giảm control, label phụ.
 - [x] Áp dụng nguyên tắc tối giản tương tự cho các panel Studio liên quan.
 - [x] Kiểm tra browser, responsive, TypeScript, production build và checkpoint.
+
+## Last Layer Explorer, sticker counter và Cube 3D gọn hơn
+
+- [x] Rà soát component Explorer, CubeNet, Cube3DGuide và các panel Studio có hành động/copy trùng lặp.
+- [x] Hiển thị case ZBLL/1LLL đang chọn với notation lớn phía trên CubeNet 2D; lưu trạng thái đã thuộc cục bộ.
+- [x] Thêm bộ đếm sáu màu cạnh palette, nêu rõ chênh lệch với mục tiêu 9 sticker mỗi màu.
+- [x] Tối giản control trong Cube 3D, sửa zoom để scale đồng đều ba chiều và gom các UI Studio trùng lặp.
+- [x] Kiểm tra interaction, localStorage, zoom, responsive, TypeScript, build và checkpoint.

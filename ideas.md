@@ -95,3 +95,6 @@
 - Cube mark Studio là dấu kỹ thuật 3×3 isometric vuông sắc, không dùng silhouette app-icon mềm; wordmark CFOP đọc liền mạch và chỉ O mang Solver Mint notch.
 - Input, Explorer và telemetry là record-sheet phẳng có rule/tick rất nhẹ; strong rail chỉ dùng khi nối trực tiếp với state, move, phase hoặc case telemetry.
 - Readout, move rail, playback và case list phải đọc như các bộ phận của một dụng cụ đo liên kết, không phải các dashboard card độc lập.
+- Header là nameplate nén tối đa: wordmark, route và trạng thái được phép hiện diện, còn dark mass/grid/shadow đậm chỉ thuộc về apparatus trung tâm.
+- Right rail nối phase status, case ID, counter và Explorer thành một measurement ladder liên tục bằng mint rail, ruled row và mono telemetry.
+- Case Explorer hiển thị như sổ record có các dòng score-strip; tránh cảm giác danh sách dashboard hoặc thẻ độc lập.

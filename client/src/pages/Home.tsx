@@ -67,6 +67,7 @@ const LAST_LAYER_OPTIONS: { value: LastLayerMode; vi: string; en: string; compac
 ];
 type RecentCubeState = { id: string; state: string; label: string; savedAt: string; crossColor: CrossColor };
 const RECENT_STATE_KEY = "cfop-studio-recent-states-v1";
+const MASTERED_LAST_LAYER_KEY = "cfop-studio-mastered-last-layer-v1";
 const PHASE_LESSON_URL: Record<string, string> = {
   cross: "https://www.speedsolving.com/wiki/index.php?title=Cross",
   f2l: "https://www.speedsolving.com/wiki/index.php?title=F2L",
@@ -147,6 +148,7 @@ export default function Home() {
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [selectedCatalogCase, setSelectedCatalogCase] = useState<LastLayerCatalogCase | null>(null);
   const [paintColor, setPaintColor] = useState<CrossColor>("U");
+  const [masteredCaseKeys, setMasteredCaseKeys] = useState<string[]>(() => { try { const stored = JSON.parse(localStorage.getItem(MASTERED_LAST_LAYER_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is string => typeof item === "string").slice(-1800) : []; } catch { return []; } });
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() => { try { const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is RecentCubeState => typeof item?.state === "string" && item.state.length === 54).slice(0, 8) : []; } catch { return []; } });
   const stateHistory = useRef<{ past: string[]; future: string[] }>({ past: [], future: [] });
   const cursorRef = useRef(0);
@@ -186,6 +188,9 @@ export default function Home() {
   const activeXCrossSlots = activePhase?.name.startsWith("xxxxcross_") ? activePhase.name.slice("xxxxcross_".length).split("_") : activePhase?.name.startsWith("xxxcross_") ? activePhase.name.slice("xxxcross_".length).split("_") : activePhase?.name.startsWith("xxcross_") ? activePhase.name.slice("xxcross_".length).split("_") : activePhase?.name.startsWith("xcross_") ? [activePhase.name.slice("xcross_".length)] : undefined;
   const activeLastLayerCase = selectedCatalogCase ?? (activePhase && (activePhase.name === "zbll" || activePhase.name === "1lll") && activePhase.case_id ? { family: activePhase.name, id: activePhase.case_id } : undefined);
   const catalogGroups = useMemo(() => Array.from(new Set(catalogCases.map((catalogCase) => catalogCase.group))).sort((a, b) => a.localeCompare(b)), [catalogCases]);
+  const masteredCaseSet = useMemo(() => new Set(masteredCaseKeys), [masteredCaseKeys]);
+  const masteredVisibleCount = useMemo(() => catalogCases.filter((catalogCase) => masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`)).length, [catalogCases, masteredCaseSet]);
+  useEffect(() => { localStorage.setItem(MASTERED_LAST_LAYER_KEY, JSON.stringify(masteredCaseKeys)); }, [masteredCaseKeys]);
   const chooseOpening = (nextOpening: OpeningMode) => {
     setOpening(nextOpening);
     if (nextOpening === "xxxxcross") { setPreferredSlot(undefined); setExcludedSlots([]); }
@@ -268,7 +273,7 @@ export default function Home() {
     const next: RecentCubeState[] = [{ id: `${Date.now()}-${state.slice(0, 6)}`, state, crossColor: color, label: `${language === "vi" ? "State" : "State"} · ${new Intl.DateTimeFormat(language === "vi" ? "vi-VN" : "en-US", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date())}`, savedAt: new Date().toISOString() }, ...recentStates.filter((item) => item.state !== state)].slice(0, 8);
     setRecentStates(next); localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(next));
   };
-  const loadRecentState = (item: RecentCubeState) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(item.state); setSavedState(item.state); setCrossColor(item.crossColor); setResult(null); setCursor(0); setError(""); };
+  const loadRecentState = (item: RecentCubeState) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(item.state); setSavedState(item.state); setCrossColor(item.crossColor); setSelectedCatalogCase(null); setResult(null); setCursor(0); setError(""); };
   const loadCatalogCase = (catalogCase: LastLayerCatalogCase) => {
     stateHistory.current = { past: [], future: [] };
     setStateHistoryVersion((version) => version + 1);
@@ -283,6 +288,7 @@ export default function Home() {
     setError("");
   };
   const removeRecentState = (id: string) => { const next = recentStates.filter((item) => item.id !== id); setRecentStates(next); localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(next)); };
+  const toggleMasteredCase = (catalogCase: LastLayerCatalogCase) => { const key = `${catalogCase.family}:${catalogCase.id}`; setMasteredCaseKeys((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key]); };
   const selectCursor = (next: number, intent: CursorIntent = "seek") => { setPlaying(false); updateCursor(next, intent); };
   const applyStateEdit = (next: string) => {
     const current = value.length === 54 ? value : SOLVED_STATE;
@@ -291,6 +297,7 @@ export default function Home() {
     stateHistory.current.future = [];
     setValue(next);
     setSavedState(next);
+    setSelectedCatalogCase(null);
     setStateHistoryVersion((version) => version + 1);
     setResult(null);
     setCursor(0);
@@ -321,6 +328,7 @@ export default function Home() {
     if (mode === "scramble") setSavedScramble(value); else setSavedState(value);
     setMode(next);
     setValue(next === "scramble" ? savedScramble : savedState);
+    if (next === "scramble") setSelectedCatalogCase(null);
     setResult(null);
     setCursor(0);
     setPlaying(false);
@@ -393,7 +401,7 @@ export default function Home() {
                 <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{t("guide.step")} · {String(cursor).padStart(2, "0")} / {String(totalMoves).padStart(2, "0")}</p><h2 key={cubeMotion.kind === "phase" ? cubeMotion.id : activePhase?.name ?? "ready"} className={cn("studio-phase-title mt-2 text-3xl font-bold tracking-[-0.055em] sm:text-4xl", cubeMotion.kind === "phase" && "studio-phase-title-relay")}>{activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</h2><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
                 <div className="studio-apparatus-readout-card rounded-sm border-2 border-[#17221d]/15 bg-[#f4f0e8] px-4 py-3 font-mono text-xs shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><p className="text-[#17221d]/45">{t("guide.move").toUpperCase()}</p><p className="mt-1 text-2xl font-bold text-[#1ba77a]">{currentStep?.move ?? "—"}</p></div>
               </div>
-              <div className="studio-apparatus-viewport mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid place-items-center"><CubeNet state={mode === "state" ? (value.length === 54 ? value : SOLVED_STATE) : currentState} editable={mode === "state"} selectedColor={paintColor} onStateChange={applyStateEdit} disabled={loading} /></div><div className="mx-auto w-full max-w-[330px]"><Cube3DGuide state={currentState} previousState={previousState} move={currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} lastLayerCase={activeLastLayerCase} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} /></div></div>
+              <div className="studio-apparatus-viewport mt-8 grid gap-5 rounded-[3px] border-2 border-dashed border-[#17221d]/25 bg-[#efe9dc] p-5 sm:grid-cols-[minmax(0,1fr)_250px] sm:p-7" style={{ backgroundImage: "linear-gradient(rgba(23,34,29,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23,34,29,.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }}><div className="grid min-w-0 place-items-center gap-4">{selectedCatalogCase && <LastLayerFormulaStrip catalogCase={selectedCatalogCase} mastered={masteredCaseSet.has(`${selectedCatalogCase.family}:${selectedCatalogCase.id}`)} language={language} onToggleMastered={() => toggleMasteredCase(selectedCatalogCase)} />}<CubeNet state={mode === "state" ? (value.length === 54 ? value : SOLVED_STATE) : currentState} editable={mode === "state"} selectedColor={paintColor} onStateChange={applyStateEdit} disabled={loading} /></div><div className="mx-auto w-full max-w-[330px]"><Cube3DGuide state={currentState} previousState={previousState} move={currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} lastLayerCase={activeLastLayerCase} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} /></div></div>
               <div className="studio-apparatus-controls mt-7 flex flex-wrap items-center gap-3">
                 <button onClick={() => selectCursor(Math.max(0, cursor - 1), "step")} disabled={cursor === 0} className="control-button"><ArrowLeft className="h-4 w-4" />{t("guide.previous")}</button>
                 <button onClick={() => setPlaying((value) => !value)} disabled={!result || cursor === totalMoves} className="flex items-center gap-2 rounded-lg bg-[#17221d] px-5 py-3 text-sm font-bold text-[#f4f0e8] transition hover:bg-[#26372e] active:scale-[0.97] disabled:opacity-40">{playing ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}{playing ? t("guide.pause") : t("guide.play")}</button>
@@ -409,7 +417,7 @@ export default function Home() {
 
           <aside className="studio-telemetry-column space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2">
             <div className="studio-telemetry-strip studio-record-strip grid grid-cols-3 gap-2"><Stat label={t("status.moves")} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="h-4 w-4" />} /><Stat label={t("status.steps")} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="h-4 w-4" />} /><Stat label={t("status.ok")} value={result ? "✓" : "—"} icon={<ShieldCheck className="h-4 w-4" />} /></div>
-            <LastLayerExplorer language={language} family={catalogFamily} group={catalogGroup} query={catalogQuery} groups={catalogGroups} cases={catalogCases} loading={catalogLoading} selectedCase={selectedCatalogCase} onFamily={(next) => { setCatalogFamily(next); setCatalogGroup("all"); }} onGroup={setCatalogGroup} onQuery={setCatalogQuery} onSelect={loadCatalogCase} />
+            <LastLayerExplorer language={language} family={catalogFamily} group={catalogGroup} query={catalogQuery} groups={catalogGroups} cases={catalogCases} loading={catalogLoading} selectedCase={selectedCatalogCase} masteredCaseSet={masteredCaseSet} masteredCount={masteredVisibleCount} onFamily={(next) => { setCatalogFamily(next); setCatalogGroup("all"); }} onGroup={setCatalogGroup} onQuery={setCatalogQuery} onSelect={loadCatalogCase} />
           </aside>
         </section>
       </div>
@@ -422,7 +430,7 @@ function Stat({ label, value, icon }: { label: string; value: string; icon: Reac
 }
 
 /** Xưởng Cơ Khí Tốc Độ — a searchable record drawer for verified one-look cases. */
-function LastLayerExplorer({ language, family, group, query, groups, cases, loading, selectedCase, onFamily, onGroup, onQuery, onSelect }: {
+function LastLayerExplorer({ language, family, group, query, groups, cases, loading, selectedCase, masteredCaseSet, masteredCount, onFamily, onGroup, onQuery, onSelect }: {
   language: "vi" | "en";
   family: "all" | "zbll" | "1lll";
   group: string;
@@ -431,6 +439,8 @@ function LastLayerExplorer({ language, family, group, query, groups, cases, load
   cases: LastLayerCatalogCase[];
   loading: boolean;
   selectedCase: LastLayerCatalogCase | null;
+  masteredCaseSet: Set<string>;
+  masteredCount: number;
   onFamily: (family: "all" | "zbll" | "1lll") => void;
   onGroup: (group: string) => void;
   onQuery: (query: string) => void;
@@ -438,13 +448,18 @@ function LastLayerExplorer({ language, family, group, query, groups, cases, load
 }) {
   const vi = language === "vi";
   return <section className="last-layer-explorer telemetry-panel rounded-[1rem] border-2 border-[#17221d] bg-white p-4">
-    <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#1ba77a]">LAST LAYER EXPLORER</p><h3 className="mt-1 text-base font-black tracking-[-0.04em]">{vi ? "Tra cứu case direct" : "Browse direct cases"}</h3></div><span className="rounded-sm bg-[#17221d] px-2 py-1 font-mono text-[9px] font-bold text-[#f4f0e8]">{cases.length}</span></div>
+    <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#1ba77a]">LAST LAYER EXPLORER</p><h3 className="mt-1 text-base font-black tracking-[-0.04em]">{vi ? "Tra cứu case direct" : "Browse direct cases"}</h3></div><span className="rounded-sm bg-[#17221d] px-2 py-1 font-mono text-[9px] font-bold text-[#f4f0e8]">{masteredCount}/{cases.length} ✓</span></div>
     <div className="mt-4 grid grid-cols-2 gap-2"><Select value={family} onValueChange={(value) => onFamily(value as "all" | "zbll" | "1lll")}><SelectTrigger aria-label={vi ? "Loại Last Layer" : "Last Layer family"} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[10px] font-bold"><SelectValue /></SelectTrigger><SelectContent className="border-2 border-[#17221d] bg-[#f8f5ed] font-mono text-xs"><SelectItem value="all">ALL · ZBLL + 1LLL</SelectItem><SelectItem value="zbll">ZBLL</SelectItem><SelectItem value="1lll">1LLL</SelectItem></SelectContent></Select><Select value={group} onValueChange={onGroup}><SelectTrigger aria-label={vi ? "Nhóm case" : "Case group"} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[10px] font-bold"><SelectValue /></SelectTrigger><SelectContent className="border-2 border-[#17221d] bg-[#f8f5ed] font-mono text-xs"><SelectItem value="all">{vi ? "NHÓM · TẤT CẢ" : "GROUP · ALL"}</SelectItem>{groups.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent></Select></div>
     <label className="mt-2 flex items-center gap-2 rounded-sm border border-[#17221d]/20 bg-[#f4f0e8] px-2"><Search className="h-3.5 w-3.5 text-[#17221d]/45" /><input value={query} onChange={(event) => onQuery(event.target.value.slice(0, 80))} placeholder={vi ? "Tìm ID, nhóm hoặc notation" : "Search ID, group or notation"} className="h-9 min-w-0 flex-1 bg-transparent font-mono text-[10px] outline-none placeholder:text-[#17221d]/40" /></label>
-    <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{vi ? "Chọn case để nạp state F2L-complete và đánh dấu lớp cuối trên Cube 3D." : "Choose a case to load its F2L-complete state and highlight its Last Layer in 3D."}</p>
-    <div className="mt-3 max-h-[440px] space-y-1 overflow-y-auto pr-1">{loading ? <div className="py-6 text-center font-mono text-[10px] text-[#17221d]/45">{vi ? "ĐANG NẠP CATALOG…" : "LOADING CATALOG…"}</div> : cases.length ? cases.slice(0, 48).map((catalogCase) => <button key={catalogCase.id} type="button" onClick={() => onSelect(catalogCase)} className={cn("w-full border p-2 text-left transition", selectedCase?.id === catalogCase.id ? "border-[#1ba77a] bg-[#1ba77a]/10 shadow-[inset_3px_0_0_#1ba77a]" : "border-[#17221d]/12 bg-[#f4f0e8] hover:border-[#17221d]/45 hover:bg-white")}><span className="flex items-center justify-between gap-2"><span className={cn("rounded-sm px-1.5 py-0.5 font-mono text-[8px] font-bold", catalogCase.family === "zbll" ? "bg-[#1ba77a] text-[#17221d]" : "bg-[#17221d] text-[#f4f0e8]")}>{catalogCase.family.toUpperCase()}</span><span className="font-mono text-[9px] text-[#17221d]/50">{catalogCase.group}</span></span><b className="mt-1 block font-mono text-[10px] text-[#17221d]">{catalogCase.id}</b><span className="mt-1 block truncate font-mono text-[9px] text-[#17221d]/55">{catalogCase.algorithm}</span></button>) : <div className="border border-dashed border-[#17221d]/25 p-4 font-mono text-[10px] leading-5 text-[#17221d]/55">{vi ? "Không có case khớp bộ lọc hiện tại." : "No cases match the current filters."}</div>}</div>
+    <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{vi ? "Chọn case để nạp state và đọc công thức lớn trên CubeNet 2D." : "Choose a case to load its state and read the large formula above the 2D CubeNet."}</p>
+    <div className="last-layer-case-list mt-3 max-h-[440px] overflow-y-auto pr-1">{loading ? <div className="py-6 text-center font-mono text-[10px] text-[#17221d]/45">{vi ? "ĐANG NẠP CATALOG…" : "LOADING CATALOG…"}</div> : cases.length ? cases.slice(0, 48).map((catalogCase) => { const mastered = masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`); return <button key={catalogCase.id} type="button" onClick={() => onSelect(catalogCase)} className={cn("w-full border p-2 text-left transition", selectedCase?.id === catalogCase.id ? "border-[#1ba77a] bg-[#1ba77a]/10 shadow-[inset_3px_0_0_#1ba77a]" : "border-[#17221d]/12 bg-[#f4f0e8] hover:border-[#17221d]/45 hover:bg-white")}><span className="flex items-center justify-between gap-2"><span className={cn("rounded-sm px-1.5 py-0.5 font-mono text-[8px] font-bold", catalogCase.family === "zbll" ? "bg-[#1ba77a] text-[#17221d]" : "bg-[#17221d] text-[#f4f0e8]")}>{catalogCase.family.toUpperCase()}</span><span className="font-mono text-[9px] text-[#17221d]/50">{mastered ? "✓ " : ""}{catalogCase.group}</span></span><b className="mt-1 block font-mono text-[10px] text-[#17221d]">{catalogCase.id}</b></button>; }) : <div className="border border-dashed border-[#17221d]/25 p-4 font-mono text-[10px] leading-5 text-[#17221d]/55">{vi ? "Không có case khớp bộ lọc hiện tại." : "No cases match the current filters."}</div>}</div>
     {cases.length > 48 && <p className="mt-2 font-mono text-[9px] text-[#17221d]/45">{vi ? `Hiển thị 48 / ${cases.length} case. Thu hẹp bằng nhóm hoặc tìm kiếm.` : `Showing 48 / ${cases.length} cases. Narrow with group or search.`}</p>}
   </section>;
+}
+
+function LastLayerFormulaStrip({ catalogCase, mastered, language, onToggleMastered }: { catalogCase: LastLayerCatalogCase; mastered: boolean; language: "vi" | "en"; onToggleMastered: () => void }) {
+  const vi = language === "vi";
+  return <section className="last-layer-formula-strip w-full max-w-[530px] border-2 border-[#17221d] bg-[#f8f5ed] p-3 shadow-[4px_4px_0_rgba(23,34,29,0.18)]"><div className="flex flex-wrap items-start justify-between gap-2"><div><p className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#1ba77a]">{catalogCase.family.toUpperCase()} · {catalogCase.group}</p><h3 className="mt-0.5 font-mono text-sm font-black text-[#17221d]">{catalogCase.id}</h3></div><button type="button" onClick={onToggleMastered} className={cn("inline-flex items-center gap-1 rounded-sm border px-2 py-1 font-mono text-[9px] font-bold", mastered ? "border-[#1ba77a] bg-[#1ba77a] text-[#17221d]" : "border-[#17221d]/20 bg-white text-[#17221d]/60 hover:border-[#17221d]")}><Check className="h-3.5 w-3.5" />{mastered ? (vi ? "ĐÃ THUỘC" : "MASTERED") : (vi ? "ĐÁNH DẤU ĐÃ THUỘC" : "MARK MASTERED")}</button></div><pre className="mt-3 whitespace-pre-wrap break-words border-y border-[#17221d]/12 py-3 font-mono text-sm font-bold leading-6 text-[#17221d] sm:text-base">{catalogCase.algorithm}</pre><p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{vi ? "Công thức này khớp với state trên CubeNet bên dưới." : "This formula matches the CubeNet state below."}</p></section>;
 }
 
 /** Xưởng Cơ Khí Tốc Độ — report is a readable proof of the CFOP pipeline, not a timer metric. */

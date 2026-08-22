@@ -2,7 +2,7 @@
  * Xưởng Cơ Khí Tốc Độ — manual state entry stays tactile: one palette, six
  * calibrated faces and fixed centers make a valid CFOP input inspectable.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Redo2, RotateCcw, Undo2 } from "lucide-react";
 import { CUBE_COLOR, FACE_GRID, FACE_OFFSET, FACE_ORDER, SOLVED_STATE } from "@/components/CubeNet";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ export function CubeStateEditor({ state, onChange, disabled = false, canUndo = f
   const [localColor, setLocalColor] = useState<Face>("U");
   const selectedColor = controlledColor ?? localColor;
   const setSelectedColor = onSelectedColorChange ?? setLocalColor;
+  const stickerCounts = useMemo(() => Object.fromEntries(FACE_ORDER.map((face) => [face, Array.from(safeState).filter((sticker) => sticker === face).length])) as Record<Face, number>, [safeState]);
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
@@ -38,15 +39,15 @@ export function CubeStateEditor({ state, onChange, disabled = false, canUndo = f
 
   return <div className="rounded-sm border-2 border-[#17221d]/20 bg-[#f8f5ed] p-3">
     <div className="flex flex-wrap items-center justify-between gap-2"><p className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#17221d]/60">MÀU TÔ</p><div className="flex items-center gap-1"><button type="button" disabled={disabled || !canUndo} onClick={onUndo} className="rounded-sm border border-[#17221d]/20 bg-white p-1.5 text-[#17221d]/65 hover:text-[#17221d] disabled:opacity-30" aria-label="Undo sticker edit" title="Undo · Ctrl/Cmd + Z"><Undo2 className="h-3.5 w-3.5" /></button><button type="button" disabled={disabled || !canRedo} onClick={onRedo} className="rounded-sm border border-[#17221d]/20 bg-white p-1.5 text-[#17221d]/65 hover:text-[#17221d] disabled:opacity-30" aria-label="Redo sticker edit" title="Redo · Ctrl/Cmd + Shift + Z"><Redo2 className="h-3.5 w-3.5" /></button><button type="button" disabled={disabled} onClick={() => onChange(SOLVED_STATE)} className="ml-1 inline-flex items-center gap-1 font-mono text-[9px] font-bold text-[#17221d]/60 hover:text-[#17221d] disabled:opacity-40"><RotateCcw className="h-3 w-3" />RESET</button></div></div>
-    <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Bảng màu sticker">{FACE_ORDER.map((face) => <PaletteButton key={face} face={face} selected={selectedColor === face} onSelect={setSelectedColor} disabled={disabled} />)}</div>
+    <div className="mt-3 grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Bảng màu và số lượng sticker">{FACE_ORDER.map((face) => <PaletteButton key={face} face={face} count={stickerCounts[face]} selected={selectedColor === face} onSelect={setSelectedColor} disabled={disabled} />)}</div>
     {!controlsOnly && <><div className="mt-4 grid grid-cols-4 grid-rows-3 gap-1.5 rounded-sm border border-[#17221d]/18 bg-white p-2.5 shadow-[inset_0_0_0_1px_rgba(23,34,29,0.04)]">
       {FACE_ORDER.map((face) => <EditorFace key={face} face={face} state={safeState} selectedColor={selectedColor} disabled={disabled} onPaint={paintSticker} onFill={fillFace} />)}
     </div><p className="mt-3 font-mono text-[9px] leading-4 text-[#17221d]/55">Chọn màu rồi tô sticker; nhấn tên mặt để tô cả mặt. Tâm mỗi mặt luôn khóa.</p></>}
   </div>;
 }
 
-function PaletteButton({ face, selected, onSelect, disabled }: { face: Face; selected: boolean; onSelect: (color: Face) => void; disabled: boolean }) {
-  return <button type="button" disabled={disabled} role="radio" aria-checked={selected} onClick={() => onSelect(face)} className={cn("grid h-7 w-7 place-items-center rounded-sm border font-mono text-[9px] font-bold text-[#17221d] disabled:opacity-40", selected ? "border-[#17221d] ring-2 ring-[#1ba77a]" : "border-[#17221d]/30")} style={{ background: CUBE_COLOR[face] }} aria-label={`Chọn màu ${face}`}>{face}</button>;
+function PaletteButton({ face, count, selected, onSelect, disabled }: { face: Face; count: number; selected: boolean; onSelect: (color: Face) => void; disabled: boolean }) {
+  return <button type="button" disabled={disabled} role="radio" aria-checked={selected} onClick={() => onSelect(face)} className={cn("flex h-9 items-center justify-between gap-1 rounded-sm border bg-white px-1.5 font-mono text-[9px] font-bold text-[#17221d] disabled:opacity-40", selected ? "border-[#17221d] ring-2 ring-[#1ba77a]" : "border-[#17221d]/30")} aria-label={`Chọn màu ${face}: ${count} trên 9 sticker`}><span className="grid h-5 w-5 place-items-center rounded-[2px] border border-black/20" style={{ background: CUBE_COLOR[face] }}>{face}</span><span className={cn("tabular-nums", count === 9 ? "text-[#1b7b5e]" : "text-[#b64b31]")}>{count}<span className="text-[#17221d]/40">/9</span></span></button>;
 }
 
 function EditorFace({ face, state, selectedColor, disabled, onPaint, onFill }: { face: Face; state: string; selectedColor: Face; disabled: boolean; onPaint: (face: Face, index: number, color: Face) => void; onFill: (face: Face, color: Face) => void }) {

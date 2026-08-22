@@ -2,7 +2,7 @@
  * Xưởng Cơ Khí Tốc Độ — the cube moves like a physical layer-turn instrument:
  * short mechanical turns for adjacent moves and a mint relay slate for phase jumps.
  */
-import { Eye, EyeOff, Minus, Move3D, Plus, Rotate3D } from "lucide-react";
+import { Rotate3D } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -62,15 +62,12 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const [view, setView] = useState(DEFAULT_VIEW);
   const drag = useRef<{ x: number; y: number; pitch: number; yaw: number } | null>(null);
   const pinch = useRef<number | null>(null);
-  const [inspectCross, setInspectCross] = useState(false);
-  const activeInspection = highlightCross && (inspection || inspectCross);
+  const activeInspection = highlightCross && inspection;
   useEffect(() => { if (alignCross) { drag.current = null; setView(CROSS_DOWN_VIEW[crossColor] ?? DEFAULT_VIEW); } }, [alignCross, crossColor]);
   const target = move?.[0] ?? "";
   const motionFace = ({ M: "R", E: "U", S: "F", x: "R", y: "U", z: "F" } as Record<string, string>)[target] ?? target.toUpperCase();
-  const plain = language === "vi" ? (move ? `Mặt ${target} vừa xoay theo ký hiệu ${move}` : "Kéo để xoay góc nhìn, cuộn để phóng to") : (move ? `Face ${target} just turned with ${move}` : "Drag to rotate the view; scroll to zoom");
   const animateLayer = Boolean(target) && transition === "move";
-  const openingLabel = xcrossSlots?.length === 4 ? "XXXXCross" : xcrossSlots?.length === 3 ? "XXXCross" : xcrossSlots?.length === 2 ? "XXCross" : "XCross";
-  const changeZoom = (amount: number) => setView((previous) => ({ ...previous, zoom: Math.min(1.32, Math.max(0.78, Number((previous.zoom + amount).toFixed(2)))) }));
+  const changeZoom = (amount: number) => setView((previous) => ({ ...previous, zoom: Math.min(1.42, Math.max(0.78, Number((previous.zoom + amount).toFixed(2)))) }));
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => { event.currentTarget.setPointerCapture(event.pointerId); drag.current = { x: event.clientX, y: event.clientY, pitch: view.pitch, yaw: view.yaw }; };
   const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const activeDrag = drag.current;
@@ -88,16 +85,13 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const touchStart = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length === 2) pinch.current = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); };
   const touchMove = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length !== 2 || pinch.current === null) return; const distance = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); changeZoom((distance - pinch.current) / 240); pinch.current = distance; };
   const reset = () => setView(alignCross ? CROSS_DOWN_VIEW[crossColor] ?? DEFAULT_VIEW : DEFAULT_VIEW);
-  const transform = `rotateZ(${view.roll}deg) rotateX(${view.pitch}deg) rotateY(${view.yaw}deg) scale(${view.zoom})`;
+  const transform = `rotateZ(${view.roll}deg) rotateX(${view.pitch}deg) rotateY(${view.yaw}deg) scale3d(${view.zoom}, ${view.zoom}, ${view.zoom})`;
   const turnAngle = move?.endsWith("2") ? "180deg" : move?.endsWith("'") ? "-90deg" : "90deg";
-  return <div className="cube3d-guide rounded-sm border-2 border-[#17221d] bg-[#17221d] p-4 text-[#f4f0e8]">
-    <div className="flex items-center justify-between"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#1ba77a]">3D CUBE</p>{inspection ? <span className="font-mono text-[9px] text-[#f4f0e8]/55">{activeInspection ? "CROSS · ON" : "CROSS · OFF"}</span> : <button type="button" onClick={() => setInspectCross((value) => !value)} className="cube-mini-control" aria-label={language === "vi" ? "Bật hoặc tắt highlight Cross" : "Toggle Cross highlight"} aria-pressed={inspectCross}>{inspectCross ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}<span className="text-[9px]">{language === "vi" ? "CROSS" : "CROSS"}</span></button>}</div>
-    <div className={`cube3d-stage interactive-cube-stage cube3d-transition-${transition}`} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
+  return <div className="cube3d-guide rounded-sm border-2 border-[#17221d] bg-[#17221d] p-3 text-[#f4f0e8]">
+    <div className={`cube3d-stage interactive-cube-stage cube3d-transition-${transition}`} aria-label={language === "vi" ? "Mô hình Rubik 3D, kéo để xoay và pinch hoặc cuộn để phóng to" : "3D Rubik model, drag to orbit and pinch or scroll to zoom"} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
       <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={state} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} />)}{animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={previousState ?? state} angle={turnAngle} step={step} move={move} duration={turnDurationMs} />}</div></div>
       {transition === "phase" && phaseLabel && <div key={transitionId} className="cube3d-phase-callout" aria-live="polite"><span>{language === "vi" ? "CHUYỂN PHA" : "PHASE SHIFT"}</span><b>{phaseLabel}</b></div>}
-      {target && <span key={`${transitionId}-${move}`} className={`cube-turn-badge cube-turn-badge-${transition}`}>{move}</span>}
     </div>
-    <div className="mt-2 flex items-center justify-between border-t border-white/15 pt-2"><span className="max-w-[75%] text-xs text-[#f4f0e8]/65">{activeInspection ? (language === "vi" ? "Đang làm nổi bốn sticker Cross của màu đã chọn." : "The four Cross stickers of the selected color are highlighted.") : lastLayerCase ? (language === "vi" ? `Lớp cuối của ${lastLayerCase.family.toUpperCase()} ${lastLayerCase.id} đang được đánh dấu.` : `The Last Layer for ${lastLayerCase.family.toUpperCase()} ${lastLayerCase.id} is highlighted.`) : xcrossSlots?.length ? (language === "vi" ? `Slot F2L ${xcrossSlots.join(" + ")} của ${openingLabel} đang được đánh dấu.` : `The ${openingLabel} F2L ${xcrossSlots.join(" + ")} slot is highlighted.`) : plain}</span><b className="rounded bg-[#1ba77a] px-2 py-1 font-mono text-sm text-[#17221d]">{move ?? "—"}</b></div>
-    <div className="mt-3 flex items-center justify-between gap-2"><span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.12em] text-[#f4f0e8]/55"><Move3D className="h-3.5 w-3.5" />{language === "vi" ? "Kéo / pinch" : "Drag / pinch"}</span><div className="flex gap-1"><button onClick={() => changeZoom(-0.1)} className="cube-mini-control" aria-label="Zoom out"><Minus className="h-3.5 w-3.5" /></button><button onClick={reset} className="cube-mini-control text-[10px]">{language === "vi" ? "Góc gốc" : "Reset"}</button><button onClick={() => changeZoom(0.1)} className="cube-mini-control" aria-label="Zoom in"><Plus className="h-3.5 w-3.5" /></button></div></div>
+    <div className="mt-1 flex justify-end"><button type="button" onClick={reset} className="cube-mini-control" aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><Rotate3D className="h-3.5 w-3.5" /></button></div>
   </div>;
 }
