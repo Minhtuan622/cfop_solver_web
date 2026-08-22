@@ -807,6 +807,9 @@
   .study-week-day i { display: block; margin-top: .13rem; color: #b23b2b; font-size: .46rem; font-style: normal; font-weight: 800; }
   .study-week-day-today { border-color: #1ba77a; box-shadow: inset 0 3px 0 #1ba77a; }
   .study-week-day-due strong { color: #17221d; }
+  /* Timer arm state is a functional cue: mint appears only while Space is held before release. */
+  .timer-card.timer-armed { border-color: #1ba77a !important; box-shadow: 0 0 0 3px rgb(27 167 122 / .16), 6px 6px 0 #1ba77a !important; }
+  .timer-card.timer-armed::after { background: repeating-linear-gradient(90deg, #1ba77a 0 2px, transparent 2px 7px); opacity: 1; }
   @media (min-width: 1180px) {
     .studio-workbench {
       grid-template-columns: minmax(260px, 280px) minmax(0, 1fr) minmax(285px, 320px) !important;

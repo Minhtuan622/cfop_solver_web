@@ -308,3 +308,10 @@
 - [x] Tính số case đến hạn cho bảy ngày, gồm case quá hạn trong ngày hiện tại.
 - [x] Hiển thị lịch tuần dạng record-sheet, nhấn ngày hiện tại và số case cần ôn.
 - [x] Kiểm tra số liệu, responsive, TypeScript, build và checkpoint.
+
+## Timer arm–release theo thao tác Space
+
+- [x] Rà soát SolveTimer và mọi điểm dùng keyboard timer trong Competition/Study Bay.
+- [x] Thiết kế state machine giữ Space để arm, thả Space để bắt đầu, giữ nguyên stop/split an toàn.
+- [x] Áp dụng feedback visual arm cho toàn bộ timer, giữ click fallback hoạt động.
+- [x] Kiểm tra inspection, start/stop, split, Study Bay, input focus, TypeScript, build và checkpoint.

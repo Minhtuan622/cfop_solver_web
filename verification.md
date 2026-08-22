@@ -41,3 +41,8 @@
 
 - Lịch bảy ngày dùng `dueAt` từ StudyRecord; ngày hiện tại tính cả case quá hạn, các ngày tương lai tính theo khoảng due date địa phương.
 - Trạng thái đã luyện xác nhận một case đến hạn vào CN 23, hiển thị tổng 1 case cần ôn trong tuần; screenshot desktop và mobile giữ đủ bảy ô ngày, nhấn rõ ngày hiện tại và không tràn right rail.
+
+## Xác minh timer arm–release
+
+- SolveTimer là điểm timer dùng chung cho Competition và Study Bay. Khi ở ready/completed/inspection, keydown Space chỉ đặt state `armed`; keyup Space mới khởi động inspection hoặc solve trực tiếp.
+- Khi timer đang chạy, keydown Space vẫn chốt solve hoặc split tức thì; input, textarea, select, button và link được loại khỏi handler. Click fallback vẫn dùng toggle trực tiếp. TypeScript và production build đã pass.
