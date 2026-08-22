@@ -3,7 +3,7 @@
  * short mechanical turns for adjacent moves and a mint relay slate for phase jumps.
  */
 import { Rotate3D } from "lucide-react";
-import { useEffect, useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent } from "react";
+import { useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const color: Record<string, string> = { U: "#f7f3e9", R: "#d95743", F: "#1ba77a", D: "#e7c34f", L: "#ed8e42", B: "#3b6fc7" };
@@ -13,10 +13,26 @@ const DEFAULT_ORIENTATION = "rotateX(-26deg) rotateY(34deg)";
 const DRAG_THRESHOLD_PX = 7;
 const TOUCH_DRAG_THRESHOLD_PX = 14;
 const TOUCH_HOLD_TO_ORBIT_MS = 180;
-// Transform functions run right-to-left: first put selected Cross on D, then
-// apply one shared view. The outer Y orbit always preserves the Cross-down axis.
-const CROSS_TO_DOWN: Record<string, string> = { U: "rotateX(180deg)", D: "", F: "rotateX(90deg)", B: "rotateX(-90deg)", R: "rotateZ(-90deg)", L: "rotateZ(90deg)" };
-const crossDownOrientation = (crossColor: string) => `${DEFAULT_ORIENTATION} ${CROSS_TO_DOWN[crossColor] ?? ""}`.trim();
+// These permutations come directly from the solver's whole-cube x/z moves.
+// We rotate stickers into Cross=D display space, never the CSS cube itself.
+const WHOLE_CUBE_PERM: Record<string, number[]> = {
+  x: [53,52,51,50,49,48,47,46,45,11,14,17,10,13,16,9,12,15,0,1,2,3,4,5,6,7,8,18,19,20,21,22,23,24,25,26,42,39,36,43,40,37,44,41,38,35,34,33,32,31,30,29,28,27],
+  "x'": [18,19,20,21,22,23,24,25,26,15,12,9,16,13,10,17,14,11,27,28,29,30,31,32,33,34,35,53,52,51,50,49,48,47,46,45,38,41,44,37,40,43,36,39,42,8,7,6,5,4,3,2,1,0],
+  x2: [27,28,29,30,31,32,33,34,35,17,16,15,14,13,12,11,10,9,53,52,51,50,49,48,47,46,45,0,1,2,3,4,5,6,7,8,44,43,42,41,40,39,38,37,36,26,25,24,23,22,21,20,19,18],
+  z: [11,14,17,10,13,16,9,12,15,29,32,35,28,31,34,27,30,33,20,23,26,19,22,25,18,21,24,38,41,44,37,40,43,36,39,42,2,5,8,1,4,7,0,3,6,51,48,45,52,49,46,53,50,47],
+  "z'": [42,39,36,43,40,37,44,41,38,6,3,0,7,4,1,8,5,2,24,21,18,25,22,19,26,23,20,15,12,9,16,13,10,17,14,11,33,30,27,34,31,28,35,32,29,47,50,53,46,49,52,45,48,51],
+};
+const CROSS_TO_DOWN_MOVES: Record<string, string[]> = { U: ["x2"], D: [], F: ["x'"], B: ["x"], R: ["z"], L: ["z'"] };
+const DISPLAY_FACE: Record<string, Record<string, string>> = {
+  U: { U: "D", R: "L", F: "B", D: "U", L: "R", B: "F" },
+  D: { U: "U", R: "R", F: "F", D: "D", L: "L", B: "B" },
+  F: { U: "F", R: "R", F: "D", D: "B", L: "L", B: "U" },
+  B: { U: "B", R: "R", F: "U", D: "F", L: "L", B: "D" },
+  R: { U: "R", R: "D", F: "F", D: "L", L: "U", B: "B" },
+  L: { U: "L", R: "U", F: "F", D: "R", L: "D", B: "B" },
+};
+function permuteState(state: string, permutation: number[]) { const out = Array.from({ length: 54 }, () => "?"); for (let source = 0; source < 54; source += 1) out[permutation[source]] = state[source]; return out.join(""); }
+function displayState(state: string, crossColor: string, alignCross: boolean) { return alignCross ? (CROSS_TO_DOWN_MOVES[crossColor] ?? []).reduce((current, move) => permuteState(current, WHOLE_CUBE_PERM[move]), state) : state; }
 
 const LAYER_STRIPS: Record<"U" | "R" | "F" | "D" | "L" | "B", { face: "U" | "R" | "F" | "D" | "L" | "B"; cells: number[] }[]> = {
   R: [{ face: "F", cells: [2, 5, 8] }, { face: "U", cells: [2, 5, 8] }, { face: "B", cells: [0, 3, 6] }, { face: "D", cells: [2, 5, 8] }],
@@ -63,10 +79,12 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const drag = useRef<{ x: number; y: number; orbit: number; moved: boolean; startedAt: number; pointerType: string } | null>(null);
   const pinch = useRef<number | null>(null);
   const activeInspection = highlightCross && inspection;
-  useEffect(() => { drag.current = null; setCamera((previous) => ({ ...previous, orbit: 0 })); }, [alignCross, crossColor]);
   const target = move?.[0] ?? "";
-  const motionFace = ({ M: "R", E: "U", S: "F", x: "R", y: "U", z: "F" } as Record<string, string>)[target] ?? target.toUpperCase();
+  const sourceMotionFace = ({ M: "R", E: "U", S: "F", x: "R", y: "U", z: "F" } as Record<string, string>)[target] ?? target.toUpperCase();
+  const motionFace = alignCross ? (DISPLAY_FACE[crossColor]?.[sourceMotionFace] ?? sourceMotionFace) : sourceMotionFace;
   const animateLayer = Boolean(target) && transition === "move";
+  const renderedState = displayState(state, crossColor, alignCross);
+  const renderedPreviousState = displayState(previousState ?? state, crossColor, alignCross);
   const changeZoom = (amount: number) => setCamera((previous) => ({ ...previous, zoom: Math.min(1.42, Math.max(0.78, Number((previous.zoom + amount).toFixed(2)))) }));
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -94,11 +112,11 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const touchStart = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length === 2) pinch.current = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); };
   const touchMove = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length !== 2 || pinch.current === null) return; const distance = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); changeZoom((distance - pinch.current) / 240); pinch.current = distance; };
   const reset = () => setCamera((previous) => ({ ...previous, orbit: 0 }));
-  const transform = `rotateY(${camera.orbit}deg) ${alignCross ? crossDownOrientation(crossColor) : DEFAULT_ORIENTATION} scale3d(${camera.zoom}, ${camera.zoom}, ${camera.zoom})`;
+  const transform = `rotateY(${camera.orbit}deg) ${DEFAULT_ORIENTATION} scale3d(${camera.zoom}, ${camera.zoom}, ${camera.zoom})`;
   const turnAngle = move?.endsWith("2") ? "180deg" : move?.endsWith("'") ? "-90deg" : "90deg";
   return <div className="cube3d-guide rounded-sm border-2 border-[#17221d] bg-[#17221d] p-3 text-[#f4f0e8]">
     <div className={`cube3d-stage interactive-cube-stage cube3d-transition-${transition}`} aria-label={language === "vi" ? "Mô hình Rubik 3D, kéo ngang để orbit quanh Cross ở mặt D; pinch hoặc cuộn để phóng to" : "3D Rubik model, drag horizontally to orbit around the Cross on D; pinch or scroll to zoom"} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onPointerLeave={pointerLeave} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
-      <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={state} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} />)}{animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={previousState ?? state} angle={turnAngle} step={step} move={move} duration={turnDurationMs} />}</div></div>
+      <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={renderedState} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} />)}{animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={renderedPreviousState} angle={turnAngle} step={step} move={move} duration={turnDurationMs} />}</div></div>
       {transition === "phase" && phaseLabel && <div key={transitionId} className="cube3d-phase-callout" aria-live="polite"><span>{language === "vi" ? "CHUYỂN PHA" : "PHASE SHIFT"}</span><b>{phaseLabel}</b></div>}
     </div>
     <div className="mt-1 flex justify-end"><button type="button" onClick={reset} className="cube-mini-control" aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><Rotate3D className="h-3.5 w-3.5" /></button></div>

@@ -410,3 +410,10 @@
 - [x] Thay preset/trục đặc biệt bằng orientation xác định từ mặt Cross nếu ma trận phát hiện bất nhất.
 - [x] Bảo đảm Cross luôn ở D khi orbit, click/tap không thay camera và drag theo cùng quy ước trực quan ở sáu màu.
 - [x] Kiểm tra desktop/mobile, TypeScript, production build và ghi bằng chứng kiểm thử trước checkpoint.
+
+## Cube 3D thẳng theo Cross
+
+- [x] Rà soát phép quay CSS hiện tại và mapping state sticker cần dùng cho Cross U/R/F/D/L/B.
+- [x] Chuyển việc đặt Cross về D từ transform mô hình sang adapter state, giữ camera thẳng mặc định.
+- [x] Giới hạn drag chỉ orbit quanh trục đứng, không làm lật/xoắn geometry sticker.
+- [x] Kiểm thử sáu màu bằng state thật, screenshot desktop/mobile, TypeScript và production build trước checkpoint.
