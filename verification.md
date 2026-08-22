@@ -36,3 +36,8 @@
 - Dừng timer tại 00:19.79 mở đủ bốn mức tự đánh giá. Chấm **Nhớ** chuyển queue từ ZBLLAS-003 sang ZBLLAS-004, tăng mục tiêu ngày thành 1/12 và giảm pool ưu tiên còn 1.681 case.
 - Sau khi loại các marker chưa có lần chấm khỏi queue yếu, **Lấy case cần ôn** đã chọn lại ZBLLAS-003 — case có dữ liệu 00:19.79 — thay vì case chỉ được đánh dấu thuộc.
 - Production build và screenshot desktop/mobile xác nhận Study Bay mở trực tiếp qua `/timer?tab=study`, active case trainer là apparatus chính và right rail xếp dọc không tràn ở mobile.
+
+## Xác minh lịch ôn tuần
+
+- Lịch bảy ngày dùng `dueAt` từ StudyRecord; ngày hiện tại tính cả case quá hạn, các ngày tương lai tính theo khoảng due date địa phương.
+- Trạng thái đã luyện xác nhận một case đến hạn vào CN 23, hiển thị tổng 1 case cần ôn trong tuần; screenshot desktop và mobile giữ đủ bảy ô ngày, nhấn rõ ngày hiện tại và không tràn right rail.

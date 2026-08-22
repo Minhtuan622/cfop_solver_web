@@ -301,3 +301,10 @@
 - [x] Tạo khu vực luyện riêng trong Timer Lab, có timer, case queue và chấm mức độ nhớ case.
 - [x] Thêm xuất/nhập tiến độ, mục tiêu số case mỗi ngày và thông báo hoàn thành.
 - [x] Kiểm tra queue, timer, backup/import, localStorage, responsive, TypeScript, build và checkpoint.
+
+## Lịch ôn tập tuần của Study Bay
+
+- [x] Rà soát StudyRecord/dueAt và bố cục right rail của Study Bay.
+- [x] Tính số case đến hạn cho bảy ngày, gồm case quá hạn trong ngày hiện tại.
+- [x] Hiển thị lịch tuần dạng record-sheet, nhấn ngày hiện tại và số case cần ôn.
+- [x] Kiểm tra số liệu, responsive, TypeScript, build và checkpoint.

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { CubeNet } from "@/components/CubeNet";
 import { SolveTimer, type TimerCompletion } from "@/components/SolveTimer";
-import { caseKey, dueAndWeakCases, exportLastLayerStudy, gradeCase, importLastLayerStudy, prioritizeStudyQueue, readLastLayerStudy, readMasteredCaseKeys, todayReviewCount, writeLastLayerStudy, writeMasteredCaseKeys, type StudyGrade, type StudyState } from "@/lib/lastLayerStudy";
+import { caseKey, dueAndWeakCases, exportLastLayerStudy, gradeCase, importLastLayerStudy, prioritizeStudyQueue, readLastLayerStudy, readMasteredCaseKeys, todayReviewCount, weeklyReviewSchedule, writeLastLayerStudy, writeMasteredCaseKeys, type StudyGrade, type StudyState } from "@/lib/lastLayerStudy";
 import { listLastLayerCasesInBrowser, type LastLayerCatalogCase } from "@/lib/solverRuntime";
 
 function format(ms: number) { const seconds = Math.max(0, ms) / 1000; return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${Math.floor(seconds % 60).toString().padStart(2, "0")}.${Math.floor((seconds % 1) * 100).toString().padStart(2, "0")}`; }
@@ -38,6 +38,8 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const ranked = useMemo(() => prioritizeStudyQueue(scope, study.records, masteredKeys), [scope, study.records, masteredKeys]);
   const reviewedToday = todayReviewCount(study.records);
   const dailyPercent = Math.min(100, Math.round((reviewedToday / study.dailyGoal) * 100));
+  const weeklySchedule = useMemo(() => weeklyReviewSchedule(study.records), [study.records]);
+  const weeklyTotal = weeklySchedule.reduce((sum, day) => sum + day.dueCount, 0);
   const weakest = ranked.filter((item) => masteredKeys.has(caseKey(item)) && (study.records[caseKey(item)]?.attempts ?? 0) > 0).slice(0, 5);
   const queueLabel = queue.length ? (masteredKeys.has(caseKey(queue[0])) ? (vi ? "ÔN LẠI ĐẾN HẠN / CASE YẾU" : "DUE REVIEW / WEAK CASE") : (vi ? "CASE CHƯA THUỘC" : "UNMASTERED CASE")) : (vi ? "ĐÃ XỬ LÝ HÀNG ĐỢI" : "QUEUE CLEARED");
 
@@ -81,6 +83,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
         </div>
         <div className="mt-3 h-2 overflow-hidden bg-[#17221d]/10"><span className="block h-full bg-[#1ba77a] transition-[width] duration-200" style={{ width: `${dailyPercent}%` }} /></div>
         <p className="mt-2 font-mono text-[9px] text-[#17221d]/55">{dailyPercent}% · {queue.length} {vi ? "case ưu tiên" : "priority cases"}</p>
+        <div className="study-week-calendar mt-5 border-y border-[#17221d]/12 py-4"><div className="flex items-baseline justify-between gap-3"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#17221d]/55">{vi ? "LỊCH ÔN · 7 NGÀY" : "REVIEW · 7 DAYS"}</p><p className="font-mono text-[9px] text-[#1b7b5e]">{weeklyTotal} {vi ? "cần ôn" : "due"}</p></div><div className="mt-3 grid grid-cols-7 gap-1" role="list" aria-label={vi ? "Lịch ôn tập tuần" : "Weekly review schedule"}>{weeklySchedule.map((day) => { const weekday = day.date.toLocaleDateString(vi ? "vi-VN" : "en-US", { weekday: "short" }).replace(".", ""); return <div key={day.date.toISOString()} role="listitem" className={`study-week-day ${day.isToday ? "study-week-day-today" : ""} ${day.dueCount > 0 ? "study-week-day-due" : ""}`}><span>{weekday}</span><b>{day.date.getDate()}</b><strong>{day.dueCount}</strong>{day.overdueCount > 0 && <i title={vi ? `${day.overdueCount} case quá hạn` : `${day.overdueCount} overdue cases`}>+{day.overdueCount}</i>}</div>; })}</div><p className="mt-3 font-mono text-[9px] leading-4 text-[#17221d]/55">{vi ? "Hôm nay gồm case đến hạn và quá hạn; các ngày sau hiển thị theo due date." : "Today includes due and overdue cases; future days follow each case due date."}</p></div>
         {celebrated && <div className="mt-4 border-2 border-[#1ba77a] bg-[#1ba77a]/15 p-3"><p className="flex items-center gap-2 font-mono text-[10px] font-bold text-[#1b7b5e]"><Sparkles className="h-4 w-4" />{vi ? "HOÀN THÀNH MỤC TIÊU HÔM NAY" : "DAILY GOAL COMPLETE"}</p><button onClick={() => setCelebrated(false)} className="mt-2 font-mono text-[9px] underline text-[#17221d]/55">{vi ? "Đóng" : "Dismiss"}</button></div>}
         <div className="mt-5 border-t border-[#17221d]/12 pt-4"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#17221d]/55">{vi ? "ÔN TẬP THÔNG MINH" : "SMART REVIEW"}</p><p className="mt-2 font-mono text-[10px] leading-5 text-[#17221d]/70">{vi ? "Hàng đợi ưu tiên case đến hạn, bị quên, hoặc có trung bình thời gian cao." : "The queue prioritizes due cases, recent misses, and slow average times."}</p><button onClick={() => chooseNext(true)} disabled={!weakest.length} className="mt-3 inline-flex items-center gap-2 font-mono text-[10px] font-bold text-[#1b7b5e] disabled:opacity-40"><TimerReset className="h-4 w-4" />{vi ? "LẤY CASE CẦN ÔN" : "PICK WEAK CASE"}</button></div>
       </aside>

@@ -17,6 +17,7 @@ export type StudyRecord = {
 };
 
 export type StudyState = { records: Record<string, StudyRecord>; dailyGoal: number };
+export type WeeklyReviewDay = { date: Date; dueCount: number; overdueCount: number; isToday: boolean };
 
 const STORE = "cfop-last-layer-study-v1";
 const MASTERED_STORE = "cfop-studio-mastered-last-layer-v1";
@@ -79,6 +80,19 @@ export function prioritizeStudyQueue(cases: LastLayerCatalogCase[], records: Rec
 export function dueAndWeakCases(cases: LastLayerCatalogCase[], records: Record<string, StudyRecord>, masteredKeys: Set<string>, now = Date.now()) { return prioritizeStudyQueue(cases, records, masteredKeys).filter((item) => { const record = records[caseKey(item)]; return !masteredKeys.has(caseKey(item)) || !record || record.dueAt <= now || record.lastGrade === "again" || record.lapses > 0; }); }
 
 export function todayReviewCount(records: Record<string, StudyRecord>, now = new Date()) { const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); return Object.values(records).filter((record) => record.lastReviewedAt >= start).length; }
+
+export function weeklyReviewSchedule(records: Record<string, StudyRecord>, now = new Date()): WeeklyReviewDay[] {
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const dayMs = 86_400_000;
+  const values = Object.values(records).filter((record) => record.attempts > 0 && record.dueAt > 0);
+  return Array.from({ length: 7 }, (_, index) => {
+    const dayStart = start + index * dayMs;
+    const dayEnd = dayStart + dayMs;
+    const dueCount = values.filter((record) => index === 0 ? record.dueAt < dayEnd : record.dueAt >= dayStart && record.dueAt < dayEnd).length;
+    const overdueCount = index === 0 ? values.filter((record) => record.dueAt < start).length : 0;
+    return { date: new Date(dayStart), dueCount, overdueCount, isToday: index === 0 };
+  });
+}
 
 export function exportLastLayerStudy(state: StudyState, masteredKeys: Set<string>) { return { schema: "cfop-last-layer-study", version: 1, exportedAt: new Date().toISOString(), study: state, masteredCaseKeys: Array.from(masteredKeys) }; }
 
