@@ -469,3 +469,11 @@
 - [x] Tạo luồng học 3-Style theo memo → cycle/execution key → algorithm exact match → recall, có tiếp tục từ profile.
 - [x] Thêm cài đặt cỡ chữ nhỏ/vừa/lớn, lưu local và áp dụng nhất quán toàn website.
 - [x] Kiểm thử queue drill, profile/SRS, luồng học, cỡ chữ, TypeScript/build và checkpoint.
+
+## Drill Mode trực quan và Speffz cá nhân
+
+- [x] Rà profile BLD, Training Rack, Cube3DGuide và persistence hiện tại để khóa contract keyword/image/analytics.
+- [x] Thêm thẻ Speffz cho từng letter-pair với keyword, URL hình ảnh an toàn, validation và import/export profile.
+- [x] Hiển thị Cube 3D cho parity, 2-flip và corner twist đang drill mà không ngụ ý cube state/algorithm sai.
+- [x] Thêm timer, kết quả từng lượt và bảng accuracy/duration theo loại Drill Mode, lưu cùng profile.
+- [x] Kiểm thử thẻ, Cube 3D, timer/analytics, persistence, TypeScript/build và checkpoint.
