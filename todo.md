@@ -512,3 +512,10 @@
 - [x] Thiết kế transition background, color, border, shadow an toàn; reduced-motion không animate.
 - [x] Thêm transition theme toàn app và override Studio Dark cho report, input, rail, playback, BLD controls.
 - [x] Kiểm thử chuyển Light/Dark/System, Studio desktop/mobile, TypeScript/build và checkpoint.
+
+## Font scale dạng số
+
+- [x] Rà display settings, CSS font token và Display Settings hiện dùng preset nhỏ/vừa/lớn.
+- [x] Thiết kế scale phần trăm, giới hạn accessibility, preview và migration preference preset cũ.
+- [x] Thay preset bằng input số/range và nút tăng giảm/reset; lưu giá trị phần trăm toàn app.
+- [x] Kiểm thử persistence, Light/Dark/System, desktop/mobile nhiều mức chữ, TypeScript/build và checkpoint.

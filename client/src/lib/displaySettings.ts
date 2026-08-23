@@ -1,17 +1,30 @@
 export type AppFontSize = "small" | "medium" | "large";
+export type AppFontScale = number;
 export type AppTheme = "light" | "dark";
 export type AppThemeMode = AppTheme | "system";
 export type AppAccent = "mint" | "sky" | "violet" | "coral" | "custom";
 
-const FONT_SIZE_KEY = "cfop-app-font-size-v1";
+const FONT_SCALE_KEY = "cfop-app-font-scale-v2";
+const LEGACY_FONT_SIZE_KEY = "cfop-app-font-size-v1";
 const THEME_KEY = "theme";
 const ACCENT_KEY = "cfop-app-accent-v1";
 const CUSTOM_ACCENT_KEY = "cfop-app-custom-accent-v1";
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
-export function readAppFontSize(): AppFontSize { try { const stored = localStorage.getItem(FONT_SIZE_KEY); return stored === "small" || stored === "large" ? stored : "medium"; } catch { return "medium"; } }
-export function applyAppFontSize(size: AppFontSize) { document.documentElement.dataset.fontSize = size; }
-export function writeAppFontSize(size: AppFontSize) { localStorage.setItem(FONT_SIZE_KEY, size); applyAppFontSize(size); }
+export const MIN_FONT_SCALE = 80;
+export const MAX_FONT_SCALE = 140;
+export const DEFAULT_FONT_SCALE = 100;
+export function clampAppFontScale(value: number) { return Math.round(Math.min(MAX_FONT_SCALE, Math.max(MIN_FONT_SCALE, Number.isFinite(value) ? value : DEFAULT_FONT_SCALE))); }
+export function readAppFontScale(): AppFontScale {
+  try {
+    const stored = Number(localStorage.getItem(FONT_SCALE_KEY));
+    if (Number.isFinite(stored) && stored > 0) return clampAppFontScale(stored);
+    const legacy = localStorage.getItem(LEGACY_FONT_SIZE_KEY);
+    return legacy === "small" ? 88 : legacy === "large" ? 112 : DEFAULT_FONT_SCALE;
+  } catch { return DEFAULT_FONT_SCALE; }
+}
+export function applyAppFontScale(scale: AppFontScale) { const normalized = clampAppFontScale(scale); document.documentElement.dataset.fontScale = String(normalized); document.documentElement.style.fontSize = `${normalized}%`; }
+export function writeAppFontScale(scale: AppFontScale) { const normalized = clampAppFontScale(scale); localStorage.setItem(FONT_SCALE_KEY, String(normalized)); applyAppFontScale(normalized); return normalized; }
 
 export function readAppThemeMode(): AppThemeMode { try { const stored = localStorage.getItem(THEME_KEY); return stored === "dark" || stored === "system" ? stored : "light"; } catch { return "light"; } }
 export function resolveAppTheme(mode: AppThemeMode): AppTheme { return mode === "system" ? (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light") : mode; }
