@@ -526,3 +526,11 @@
 - [x] Thiết kế phạm vi scale công thức, persistence độc lập và preset 100/120/140% cho tỷ lệ giao diện chung.
 - [x] Thêm slider scale công thức, áp dụng CSS semantic và preset nhanh cạnh thanh trượt chính.
 - [x] Kiểm thử Studio, Study, BLD, Light/Dark/System, TypeScript/build và checkpoint.
+
+## Typography dễ đọc, Study và Timer gọn hơn
+
+- [x] Kiểm toán các nhãn telemetry, helper text và control đang quá nhỏ ở global scale 100–140%.
+- [x] Chuẩn hóa typography tối thiểu, wrapping/overflow và formula scale để nội dung phóng to vẫn đọc được.
+- [x] Tái cấu trúc Study thành layout ưu tiên case trainer, rail thông tin dễ quét và catalog không bị dồn hẹp.
+- [x] Tái cấu trúc Timer để stopwatch/scramble nổi bật, loại giảm mật độ UI thừa và giữ thao tác nhanh.
+- [x] Kiểm thử Light/Dark/System, global/formula scale lớn, desktop/mobile, TypeScript/build và checkpoint.

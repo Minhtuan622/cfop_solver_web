@@ -115,3 +115,4 @@
 - Nameplate toàn cục tăng nhận diện bằng cube stamp vuông, wordmark CFOP liền mạch và O-notch mint/đường tick nhỏ; không tăng chiều cao header.
 - Settings là calibration record sheet phẳng: rail dọc, numbered rule và status mono mang hierarchy; Solver Mint chỉ đánh dấu lựa chọn, action hợp lệ hoặc phép đo, không phủ nền tiêu đề/row chung.
 - Right rail nối case, counter, lịch và catalog bằng ruled ladder liên tục; khoảng trống giữ grid/rule rất nhẹ để đọc như bàn đo đã chuẩn bị.
+- Apparatus chính dùng geometry instrument-plate sắc hoặc chỉ chamfer rất nhẹ; không dùng khối card bo mềm. Space Grotesk là nameplate/command/headline, IBM Plex Mono dành cho move, counter, case ID và telemetry.

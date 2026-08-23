@@ -1184,6 +1184,44 @@ html[data-font-scale] { font-size: inherit; }
   .study-measurement-rail > * { z-index: 1; }
   .app-shell-brand b { letter-spacing: .095em; }
 
+  /* Readability rebuild: no operational label drops below the compact-but-readable UI floor. */
+  :where(.studio-workbench, .timer-lab, .last-layer-study, .settings-page) :is(.text-\[8px\], .text-\[9px\]) { font-size: .75rem !important; line-height: 1.35 !important; }
+  :where(.studio-workbench, .timer-lab, .last-layer-study, .settings-page) .text-\[10px\] { font-size: .8125rem !important; line-height: 1.42 !important; }
+  :where(.studio-workbench, .timer-lab, .last-layer-study, .settings-page) :is(button, input, select, textarea) { max-width: 100%; }
+  .formula-content { max-width: 100%; overflow-wrap: anywhere; }
+  .app-shell-link { font-size: .75rem; }
+  .history-readout { font-size: .8125rem; }.history-empty-metrics span { font-size: .75rem; }.history-empty-metrics b { font-size: 1rem; }
+
+  /* Study becomes a two-deck bench: case training owns row one; overview and catalog occupy a readable wide row. */
+  .study-workspace { grid-template-columns: minmax(0, 1fr) !important; }
+  .study-workspace .study-apparatus { min-width: 0; }
+  .study-workspace .study-measurement-rail { display: grid; grid-template-columns: minmax(280px, .36fr) minmax(0, 1fr); gap: 1rem; padding-left: 0; }
+  .study-workspace .study-measurement-rail::before, .study-workspace .study-measurement-rail::after { display: none; }
+  .study-workspace .study-measurement-rail > * { min-width: 0; border-top-width: 2px !important; }
+  .study-workspace .study-measurement-rail .study-record-sheet { border-left-width: 4px; }
+  .study-workspace .study-measurement-rail .last-layer-explorer-study { border-left-width: 4px; }
+  .last-layer-explorer-wide { display: grid; grid-template-columns: minmax(210px, .6fr) minmax(240px, .8fr) minmax(270px, 1fr); gap: .85rem 1rem; padding: 1.1rem !important; }
+  .last-layer-explorer-wide > * { min-width: 0; margin-top: 0 !important; }
+  .last-layer-explorer-header { grid-column: 1 / -1; }.last-layer-explorer-filters { grid-column: 1; align-self: end; }.last-layer-explorer-search { grid-column: 2; align-self: end; }.last-layer-explorer-actions { grid-column: 3; }.last-layer-explorer-progress { grid-column: 1 / -1; }.last-layer-explorer-wide .last-layer-case-list { grid-column: 1 / -1; max-height: 330px; }
+  .last-layer-explorer-wide .last-layer-case-list > button { padding: .65rem .8rem; }.last-layer-explorer-wide .last-layer-case-list > button > span:first-child > b { font-size: .875rem !important; }.last-layer-explorer-wide .last-layer-case-list > button > span:first-child > span { font-size: .75rem !important; }
+  .last-layer-study .study-apparatus .formula-content { font-size: clamp(1rem, .92rem + .35vw, 1.25rem); line-height: 1.65; }
+  .last-layer-study .study-apparatus > .mt-5.grid { grid-template-columns: minmax(0, 1fr) minmax(320px, .36fr) !important; }
+  .study-support-instruments .timer-readout-only { min-width: 0; overflow: hidden; }
+  .study-support-instruments .timer-readout-only > div > p, .study-support-instruments .timer-readout-only > p:first-child { max-width: 100%; overflow: hidden; font-size: clamp(1.5rem, 2.4vw, 2.2rem) !important; line-height: .94 !important; letter-spacing: -.11em !important; text-overflow: clip; white-space: nowrap; }
+  .study-support-instruments .timer-readout-only .timer-value { display: block; max-width: 100%; overflow: visible; font-size: clamp(26px, 2.2vw, 32px) !important; letter-spacing: -.1em !important; white-space: nowrap; }
+
+  /* Timer starts with only scramble, stopwatch, cube and log; expensive analytics stay one deliberate disclosure away. */
+  .timer-competition-apparatus { padding: clamp(1rem, 2vw, 1.5rem) !important; }.timer-device-grid { margin-top: 1rem !important; }.timer-secondary-sheet.timer-analytics-sheet { padding: 0 !important; overflow: hidden; }.timer-analytics-sheet > summary { display: flex !important; align-items: center; min-height: 3.2rem; padding: .8rem 1rem; color: var(--wb-ink); font-size: .8125rem !important; }.timer-analytics-sheet > summary::after { margin-left: auto; color: var(--workbench-accent); content: "+"; font-size: 1.25rem; }.timer-analytics-sheet[open] > summary { border-bottom: 1px solid var(--wb-line); }.timer-analytics-sheet[open] > summary::after { content: "−"; }.timer-analytics-sheet > div { display: none !important; }.timer-analytics-sheet[open] > div { display: block !important; padding: 0 1rem 1rem; }.timer-lab .timer-readout-only { min-height: 180px !important; }.timer-lab .timer-readout-only > div > p, .timer-lab .timer-readout-only > p:first-child { font-size: clamp(3.7rem, 7vw, 6.6rem) !important; }.timer-lab .timer-scramble-actions button { width: 32px; height: 32px; }
+
+  /* Equipment-label pass: nameplate, apparatus geometry and type roles remain sharp and state-driven. */
+  .app-shell-brand img { width: 32px; height: 32px; }.app-shell-brand b { font-family: "Space Grotesk", sans-serif; font-size: 15px; letter-spacing: .105em; }.app-shell-brand em { font-size: 9px; }
+  .study-cube-stage, .study-cube-stage .cube-net { border-radius: 0 !important; }.study-cube-stage .cube-net { box-shadow: 10px 10px 0 var(--workbench-accent) !important; }.study-cube-stage { position: relative; }.study-cube-stage::before { position: absolute; inset: .55rem; border: 1px solid rgb(23 34 29 / .18); content: ""; pointer-events: none; }.dark .study-cube-stage::before { border-color: rgb(231 235 227 / .18); }
+  .study-apparatus h3, .last-layer-explorer-header > div > p:last-child, .timer-analytics-sheet > summary { font-family: "Space Grotesk", sans-serif; font-weight: 800; }.study-record-sheet > p:first-child, .last-layer-explorer-wide > * > summary { font-family: "IBM Plex Mono", monospace; }
+  .study-workspace .study-measurement-rail { position: relative; }.study-workspace .study-measurement-rail::after { position: absolute; top: .7rem; bottom: .7rem; left: calc(36% + .4rem); width: 2px; background: repeating-linear-gradient(to bottom, var(--workbench-accent) 0 6px, transparent 6px 12px); content: ""; opacity: .6; pointer-events: none; }.study-workspace .study-measurement-rail > * { z-index: 1; }
+  @media (max-width: 760px) { .app-shell-brand img { width: 24px; height: 24px; }.app-shell-brand b { font-size: 12px; }.study-workspace .study-measurement-rail::after { display: none; } }
+  @media (max-width: 900px) { .last-layer-study .study-apparatus > .mt-5.grid { grid-template-columns: 1fr !important; } }
+  @media (max-width: 760px) { .study-workspace .study-measurement-rail { grid-template-columns: 1fr; gap: .85rem; }.last-layer-explorer-wide { grid-template-columns: 1fr; gap: .7rem; }.last-layer-explorer-header, .last-layer-explorer-filters, .last-layer-explorer-search, .last-layer-explorer-actions, .last-layer-explorer-progress, .last-layer-explorer-wide .last-layer-case-list { grid-column: 1; }.last-layer-explorer-wide .last-layer-case-list { max-height: 360px; }.timer-device-grid { padding: .55rem; }.timer-lab .timer-readout-only { min-height: 158px !important; } }
+
   /* Theme transition runs only while the root flag is present; it cannot affect continuous cube/playback motion. */
   @media (prefers-reduced-motion: no-preference) {
     html[data-theme-transition="true"] body, html[data-theme-transition="true"] body *, html[data-theme-transition="true"] body *::before, html[data-theme-transition="true"] body *::after { transition-property: background-color, color, border-color, box-shadow, fill, stroke !important; transition-duration: 220ms !important; transition-timing-function: cubic-bezier(.23, 1, .32, 1) !important; }
