@@ -211,3 +211,9 @@
 **Color Balance:** Nền pearl ấm, surface trắng ngà, inset sage-grey nhẹ và Sage Teal chỉ dành cho action/trạng thái hợp lệ. Dark Mode dùng charcoal dịu, không dùng outline sáng hoặc shadow đen.
 
 **Elevation & Hover:** Không dùng shadow, viền đen, offset hoặc glow trên UI. Surface được phân tầng bằng color. Thành phần có thể tương tác chỉ đổi background nhẹ, chữ/icon sang ink/accent và dịch `translateY(-1px)` trong 140ms; reduced-motion tắt translate.
+
+## Studio View & Study Focus
+
+**Studio View Toggle:** Một segmented control nhỏ đặt ngay trong viewport, chỉ có `2D` và `3D`. Mỗi thời điểm chỉ hiển thị một mô hình; lựa chọn giữ trong phiên để Canvas bớt dày đặc mà controls playback không đổi.
+
+**Study Hierarchy:** Trainer case là apparatus chính. Timer và model tham chiếu nằm trong cùng một support stack; mục tiêu ngày, lịch SRS và catalog trở thành hai record sheet ở hàng sau. Filter catalog nằm trên một hàng có thể quét, danh sách case là vùng cuộn chủ động thay vì kéo dài bề mặt.

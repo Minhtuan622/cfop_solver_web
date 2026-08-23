@@ -1670,9 +1670,48 @@ html { font-size: 100% !important; }
 .studio-page .studio-apparatus-viewport .cube-net--studio { width: min(100%, 360px) !important; max-width: 360px !important; padding: .9rem !important; gap: .5rem !important; }
 .studio-page .studio-apparatus-viewport .cube-net--studio > div { min-width: 0; }
 @media (min-width: 1024px) {
-  .studio-page .studio-apparatus-viewport { grid-template-columns: minmax(0, 1fr) !important; min-height: 0; padding: 1.5rem !important; }
+  .studio-page .studio-apparatus-viewport { min-height: 0; padding: 1.5rem !important; }
   .studio-page .studio-apparatus-viewport .cube-net--studio { width: min(100%, 380px) !important; max-width: 380px !important; padding: .95rem !important; gap: .55rem !important; }
-  .studio-page .studio-apparatus-viewport > div:last-child { max-width: 240px !important; margin-inline: auto; }
+}
+
+/* Studio uses one deliberate cube view at a time; the toggle reduces visual density without changing solver playback. */
+.studio-page .studio-apparatus-viewport { position: relative; overflow: hidden; }
+.studio-page .studio-cube-view-toggle { position: absolute; z-index: 2; top: 1rem; right: 1rem; display: inline-flex; gap: .2rem; padding: .2rem; border-radius: var(--soft-radius-control); background: color-mix(in srgb, var(--soft-surface-quiet) 86%, transparent); }
+.studio-page .studio-cube-view-toggle button { min-width: 2.8rem; border: 0 !important; border-radius: 8px !important; background: transparent; padding: .38rem .55rem; color: var(--soft-muted); font-family: ui-monospace, monospace; font-size: .7rem; font-weight: 800; letter-spacing: .08em; }
+.studio-page .studio-cube-view-toggle button.is-active { background: var(--soft-surface); color: var(--soft-accent-strong); }
+.studio-page .studio-cube-view-panel { display: grid; min-height: 440px; place-items: center; padding: 2.25rem 1rem 1rem; }
+.studio-page .studio-cube-view-panel--2d { padding-top: 2rem; }
+.studio-page .studio-cube-view-panel--2d .cube-net--studio { width: min(100%, 420px) !important; max-width: 420px !important; }
+.last-layer-study { max-width: 1360px; margin-inline: auto; padding: .5rem 1rem 2.5rem; }
+.last-layer-study .study-action-rail { justify-content: flex-start; margin-bottom: .25rem; }
+.last-layer-study .study-workspace { gap: 1.5rem !important; }
+.last-layer-study .study-apparatus { padding: 1.5rem !important; }
+.last-layer-study .study-apparatus > .mt-5.grid { gap: 1.5rem !important; }
+.last-layer-study .study-support-instruments { gap: 1rem !important; }
+.last-layer-study .study-cube-stage { background: var(--soft-surface-quiet) !important; padding: 1.25rem !important; }
+.last-layer-study .study-measurement-rail { display: grid !important; grid-template-columns: minmax(250px, .34fr) minmax(0, 1fr); align-items: start; gap: 1.5rem; }
+.last-layer-study .study-measurement-rail > :first-child { grid-column: 1; }
+.last-layer-study .study-measurement-rail > :last-child { grid-column: 2; min-width: 0; }
+.last-layer-study .study-record-sheet { background: var(--soft-surface) !important; padding: 1.25rem !important; }
+.last-layer-study .last-layer-explorer { background: var(--soft-surface) !important; }
+.last-layer-study .study-workspace .study-measurement-rail::after,
+.last-layer-study .study-measurement-rail::before { display: none !important; }
+.last-layer-study .study-cube-stage .cube-net,
+.last-layer-study .study-cube-stage .cube-net-editable { box-shadow: none !important; }
+.last-layer-study .study-cube-stage::before { display: none !important; }
+.last-layer-study .study-week-calendar,
+.last-layer-study .last-layer-case-list { background: var(--soft-surface-quiet); border-radius: var(--soft-radius-sm); }
+.timer-lab button:not(:disabled) { transition: transform 150ms cubic-bezier(.23, 1, .32, 1), background-color 150ms cubic-bezier(.23, 1, .32, 1), color 150ms cubic-bezier(.23, 1, .32, 1), filter 150ms cubic-bezier(.23, 1, .32, 1); }
+@media (hover: hover) {
+  .timer-lab button:not(:disabled):hover { transform: translateY(-1px); filter: brightness(1.025) saturate(1.03); }
+  .timer-lab :is(.timer-scramble-actions button, .metric-drilldown:not(:disabled), .scanner-button, .timer-setup-sheet button):hover { background-color: color-mix(in srgb, var(--soft-accent) 12%, var(--soft-surface-quiet)) !important; color: var(--soft-ink) !important; }
+}
+@media (max-width: 900px) {
+  .last-layer-study { padding-inline: 0; }
+  .last-layer-study .study-measurement-rail { grid-template-columns: 1fr; gap: 1rem; }
+  .last-layer-study .study-measurement-rail > :first-child,
+  .last-layer-study .study-measurement-rail > :last-child { grid-column: 1; }
+  .studio-page .studio-cube-view-panel { min-height: 340px; }
 }
 .timer-lab .timer-scramble { display: block; border-radius: var(--soft-radius-sm); background: var(--soft-surface-quiet); padding: .85rem 1rem; }
 .timer-lab .timer-scramble-actions { margin-left: .25rem; }

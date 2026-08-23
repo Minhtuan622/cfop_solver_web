@@ -636,3 +636,10 @@
 - [x] Chốt kích thước CubeNet desktop-first và corner radius nhất quán cho scramble/surface Timer.
 - [x] Tăng CubeNet, sửa corner scramble và tinh chỉnh tiếp UI Timer.
 - [x] Kiểm thử Studio/Timer desktop/mobile, TypeScript/build và checkpoint.
+
+## Studio 2D/3D, hover Timer và Study
+
+- [x] Kiểm tra viewport Studio, hover button Timer và cấu trúc Study hiện có.
+- [x] Thiết kế chuyển 2D/3D, hover mềm nhất quán và hierarchy Study tối giản.
+- [x] Triển khai toggle Studio, motion hover Timer và Study surface mới.
+- [x] Kiểm thử Studio/Timer/Study desktop/mobile, TypeScript/build và checkpoint.
