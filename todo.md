@@ -534,3 +534,11 @@
 - [x] Tái cấu trúc Study thành layout ưu tiên case trainer, rail thông tin dễ quét và catalog không bị dồn hẹp.
 - [x] Tái cấu trúc Timer để stopwatch/scramble nổi bật, loại giảm mật độ UI thừa và giữ thao tác nhanh.
 - [x] Kiểm thử Light/Dark/System, global/formula scale lớn, desktop/mobile, TypeScript/build và checkpoint.
+
+## Timer density và scramble kế tiếp
+
+- [x] Rà persistence display/timer, luồng timer complete và API sinh scramble đang dùng.
+- [x] Thiết kế cài đặt mật độ Compact/Standard cùng hành vi đổi scramble sau solve không làm mất history.
+- [x] Thêm control Compact/Standard, persistence và class layout cho Timer.
+- [x] Tự tạo scramble mới ngay khi solve hoàn thành, đồng thời giữ kết quả vừa lưu trong lịch sử.
+- [x] Kiểm thử interaction, persistence, desktop/mobile, TypeScript/build và checkpoint.
