@@ -1,30 +1,10 @@
 /* Xưởng Cơ Khí Tốc Độ — Display keeps navigation calibrated while semantic formula/memo surfaces have an independent readable scale. */
-import { useState, type CSSProperties, type ReactNode } from "react";
-import { Check, CircleHelp, Minus, Moon, Plus, RotateCcw, Sun } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Check, CircleHelp, Moon, RotateCcw, Sun } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readLastLayerStudy, writeLastLayerStudy } from "@/lib/lastLayerStudy";
-import {
-  clampAppFontScale,
-  clampFormulaScale,
-  DEFAULT_FONT_SCALE,
-  DEFAULT_FORMULA_SCALE,
-  isValidAccentColor,
-  MAX_FONT_SCALE,
-  MAX_FORMULA_SCALE,
-  MIN_FONT_SCALE,
-  MIN_FORMULA_SCALE,
-  readAppAccent,
-  readAppFontScale,
-  readCustomAppAccent,
-  readFormulaScale,
-  writeAppAccent,
-  writeAppFontScale,
-  writeCustomAppAccent,
-  writeFormulaScale,
-  type AppAccent,
-} from "@/lib/displaySettings";
 
 const colors: { value: SolverSettings["crossColor"]; hex: string; vi: string; en: string }[] = [
   { value: "U", hex: "#f7f3e9", vi: "Trắng", en: "White" },
@@ -41,10 +21,6 @@ const lastLayers: { value: SolverSettings["lastLayer"]; label: string }[] = [
   { value: "auto", label: "Auto" }, { value: "oll_pll", label: "OLL + PLL" }, { value: "zbll", label: "ZBLL" }, { value: "1lll", label: "1LLL" },
 ];
 const f2lSlots = ["FR", "FL", "BL", "BR"] as const;
-const quickFontScales = [100, 120, 140] as const;
-const accents: { value: Exclude<AppAccent, "custom">; vi: string; en: string; color: string }[] = [
-  { value: "mint", vi: "Mint", en: "Mint", color: "#1ba77a" }, { value: "sky", vi: "Trời", en: "Sky", color: "#4aa3ff" }, { value: "violet", vi: "Tím", en: "Violet", color: "#a78bfa" }, { value: "coral", vi: "San hô", en: "Coral", color: "#ff7a67" },
-];
 const defaultTargets = { Cross: 4, F2L: 12, OLL: 4, PLL: 5 };
 type Phase = keyof typeof defaultTargets;
 
@@ -71,27 +47,10 @@ export default function Settings() {
   const [highlight, setHighlight] = useState(() => localStorage.getItem("cfop-cross-highlight") !== "off");
   const [targets, setTargets] = useState(readTargets);
   const [dailyGoal, setDailyGoal] = useState(() => readLastLayerStudy().dailyGoal);
-  const [fontScale, setFontScale] = useState(readAppFontScale);
-  const [formulaScale, setFormulaScale] = useState(readFormulaScale);
-  const [accent, setAccent] = useState<AppAccent>(readAppAccent);
-  const [customAccent, setCustomAccent] = useState(readCustomAppAccent);
   const [saved, setSaved] = useState(false);
 
-  const setScale = (value: number) => {
-    const next = clampAppFontScale(value);
-    setFontScale(next);
-    writeAppFontScale(next);
-  };
-  const setFormulaTextScale = (value: number) => {
-    const next = clampFormulaScale(value);
-    setFormulaScale(next);
-    writeFormulaScale(next);
-  };
   const save = () => {
     writeSolverSettings(solver);
-    writeAppFontScale(fontScale);
-    writeFormulaScale(formulaScale);
-    if (accent !== "custom") writeAppAccent(accent);
     localStorage.setItem("cfop-inspection-color", solver.crossColor);
     localStorage.setItem("cfop-inspection-sound", sound ? "on" : "off");
     localStorage.setItem("cfop-space-splits", splits ? "on" : "off");
@@ -108,11 +67,6 @@ export default function Settings() {
     setHighlight(true);
     setTargets(defaultTargets);
     setDailyGoal(12);
-    setScale(DEFAULT_FONT_SCALE);
-    setFormulaTextScale(DEFAULT_FORMULA_SCALE);
-    setAccent("mint");
-    setCustomAccent("#1ba77a");
-    writeAppAccent("mint");
     setThemeMode("light");
   };
   const setTarget = (phase: Phase, value: number) => {
@@ -149,33 +103,12 @@ export default function Settings() {
           <div className="settings-chip-grid mt-4"><button onClick={() => setLanguage("vi")} className={vi ? "active" : ""}>Tiếng Việt</button><button onClick={() => setLanguage("en")} className={!vi ? "active" : ""}>English</button></div>
         </SettingCard>
 
-        <SettingCard index="05 · DISPLAY" title={label("Hiển thị, theme & cỡ chữ", "Display, theme & text size")} tip={label("Theme theo hệ điều hành; màu nhấn, tỷ lệ giao diện và tỷ lệ công thức/memo được lưu riêng trên thiết bị này.", "Theme can follow the operating system; accent, UI scale, and formula/memo scale are stored separately on this device.")}>
+        <SettingCard index="05 · DISPLAY" title={label("Giao diện", "Appearance")} tip={label("Chỉ giữ tùy chọn Sáng, Tối hoặc theo hệ điều hành. Màu nhấn và cỡ chữ được thống nhất để giao diện luôn dễ đọc.", "Keep Light, Dark, or System appearance. Accent and text scale are fixed for a consistent readable interface.")}>
           <label className="settings-label mt-3">{label("Chế độ màu", "Color mode")}</label>
           <div className="settings-chip-grid"><button onClick={() => setThemeMode("light")} className={themeMode === "light" ? "active" : ""}><Sun className="mr-1 inline h-3.5 w-3.5" />{label("Sáng", "Light")}</button><button onClick={() => setThemeMode("dark")} className={themeMode === "dark" ? "active" : ""}><Moon className="mr-1 inline h-3.5 w-3.5" />Dark</button><button onClick={() => setThemeMode("system")} className={themeMode === "system" ? "active" : ""}>{label("Hệ điều hành", "System")}</button></div>
           <p className="mt-2 font-mono text-[8px] text-[#17221d]/55">{themeMode === "system" ? (theme === "dark" ? label("Hệ điều hành hiện đang dùng Dark.", "System is currently using Dark.") : label("Hệ điều hành hiện đang dùng Sáng.", "System is currently using Light.")) : label("Lựa chọn này ghi đè giao diện hệ điều hành.", "This choice overrides the system appearance.")}</p>
 
-          <label className="settings-label mt-4">{label("Màu nhấn", "Accent color")}</label>
-          <div className="settings-accent-grid">{accents.map((option) => <button key={option.value} onClick={() => { setAccent(option.value); writeAppAccent(option.value); }} className={accent === option.value ? "active" : ""} title={label(option.vi, option.en)}><span style={{ background: option.color }} />{label(option.vi, option.en)}</button>)}</div>
-          <div className="settings-custom-accent"><div><label htmlFor="custom-accent" className="settings-label mt-4">{label("Màu tùy chỉnh", "Custom color")}</label><div className="settings-custom-accent-input"><input id="custom-accent" aria-label={label("Chọn màu nhấn tùy chỉnh", "Choose custom accent color")} type="color" value={customAccent} onChange={(event) => setCustomAccent(event.target.value)} /><code>{customAccent.toUpperCase()}</code><button type="button" disabled={!isValidAccentColor(customAccent)} onClick={() => { if (writeCustomAppAccent(customAccent)) setAccent("custom"); }}>{label("Áp dụng", "Apply")}</button></div></div><div className="accent-preview" style={{ "--preview-accent": customAccent } as CSSProperties}><div className="accent-preview-nav"><i /><b>CFOP</b><span>{label("Studio", "Studio")}</span></div><div className="accent-preview-stage"><small>{label("XEM TRƯỚC", "PREVIEW")}</small><strong>{label("Nước xoay", "Move")}</strong><button>{label("Giải", "Solve")}</button></div><p>{label("Preview chỉ dùng màu draft; chọn Áp dụng để đổi giao diện.", "Preview uses the draft color only; choose Apply to change the interface.")}</p></div></div>
-
-          <label className="settings-label mt-4 flex items-center justify-between"><span>{label("Tỷ lệ chữ toàn trang", "Whole-app text scale")}</span><b className="font-mono text-[#1b7b5e]">{fontScale}%</b></label>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <button type="button" aria-label={label("Giảm tỷ lệ chữ", "Decrease text scale")} onClick={() => setScale(fontScale - 1)} disabled={fontScale <= MIN_FONT_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Minus className="h-4 w-4" /></button>
-            <input aria-label={label("Tỷ lệ chữ toàn trang theo phần trăm", "Whole-app text scale percentage")} type="range" min={MIN_FONT_SCALE} max={MAX_FONT_SCALE} step="1" value={fontScale} onChange={(event) => setScale(Number(event.target.value))} className="min-w-36 flex-1 accent-[#1ba77a]" />
-            <button type="button" aria-label={label("Tăng tỷ lệ chữ", "Increase text scale")} onClick={() => setScale(fontScale + 1)} disabled={fontScale >= MAX_FONT_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Plus className="h-4 w-4" /></button>
-            <div className="settings-scale-presets" aria-label={label("Preset tỷ lệ chữ", "Text scale presets")}>{quickFontScales.map((scale) => <button key={scale} type="button" onClick={() => setScale(scale)} className={fontScale === scale ? "active" : ""}>{scale}%</button>)}</div>
-          </div>
-          <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2"><input aria-label={label("Nhập tỷ lệ chữ phần trăm", "Enter text scale percentage")} type="number" min={MIN_FONT_SCALE} max={MAX_FONT_SCALE} step="1" value={fontScale} onChange={(event) => { if (event.target.value !== "") setScale(Number(event.target.value)); }} className="h-9 min-w-0 rounded-sm border border-[#17221d]/25 bg-white px-2 text-right font-mono text-sm font-bold outline-none focus:border-[#1ba77a]" /><span className="font-mono text-[10px] text-[#17221d]/55">%</span><button type="button" onClick={() => setScale(DEFAULT_FONT_SCALE)} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[9px] font-bold hover:border-[#17221d]">{label("100% MẶC ĐỊNH", "RESET 100%")}</button></div>
-          <div className="mt-3 border-y border-[#17221d]/12 py-2"><p style={{ fontSize: `${Math.round((16 * fontScale) / 100)}px` }} className="font-sans font-bold leading-snug">{label("Xem trước kích thước chữ trong giao diện.", "Preview of interface text size.")}</p><p className="mt-1 font-mono text-[9px] text-[#17221d]/55">{MIN_FONT_SCALE}%–{MAX_FONT_SCALE}% · {label("thay đổi từng 1% và áp dụng ngay.", "changes in 1% steps and applies immediately.")}</p></div>
-
-          <div className="mt-5 border-y border-[#17221d]/16 py-4">
-            <label className="settings-label flex items-center justify-between"><span>{label("Công thức & memo", "Formula & memo text")}</span><b className="font-mono text-[#1b7b5e]">{formulaScale}%</b></label>
-            <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{label("Chỉ phóng to notation CFOP, công thức Last Layer, 3-Style algorithm và memo letter pair. Navbar, nút và UI điều hướng không đổi kích thước.", "Only enlarges CFOP notation, Last Layer formulas, 3-Style algorithms, and memo letter pairs. Navigation, buttons, and UI chrome stay the same size.")}</p>
-            <div className="mt-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"><button type="button" aria-label={label("Giảm cỡ công thức", "Decrease formula scale")} onClick={() => setFormulaTextScale(formulaScale - 1)} disabled={formulaScale <= MIN_FORMULA_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Minus className="h-4 w-4" /></button><input aria-label={label("Tỷ lệ công thức và memo", "Formula and memo scale percentage")} type="range" min={MIN_FORMULA_SCALE} max={MAX_FORMULA_SCALE} step="1" value={formulaScale} onChange={(event) => setFormulaTextScale(Number(event.target.value))} className="w-full accent-[#1ba77a]" /><button type="button" aria-label={label("Tăng cỡ công thức", "Increase formula scale")} onClick={() => setFormulaTextScale(formulaScale + 1)} disabled={formulaScale >= MAX_FORMULA_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Plus className="h-4 w-4" /></button></div>
-            <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2"><input aria-label={label("Nhập tỷ lệ công thức", "Enter formula scale percentage")} type="number" min={MIN_FORMULA_SCALE} max={MAX_FORMULA_SCALE} step="1" value={formulaScale} onChange={(event) => { if (event.target.value !== "") setFormulaTextScale(Number(event.target.value)); }} className="h-9 min-w-0 rounded-sm border border-[#17221d]/25 bg-white px-2 text-right font-mono text-sm font-bold outline-none focus:border-[#1ba77a]" /><span className="font-mono text-[10px] text-[#17221d]/55">%</span><button type="button" onClick={() => setFormulaTextScale(DEFAULT_FORMULA_SCALE)} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[9px] font-bold hover:border-[#17221d]">{label("100% MẶC ĐỊNH", "RESET 100%")}</button></div>
-            <div className="mt-3 border-l-4 border-[#1ba77a] bg-white px-3 py-3"><p className="font-mono text-[8px] font-bold tracking-[0.14em] text-[#17221d]/50">{label("XEM TRƯỚC CÔNG THỨC / MEMO", "FORMULA / MEMO PREVIEW")}</p><p className="formula-content mt-1 font-mono text-base font-black tracking-[0.12em] text-[#17221d]">R U R′ U′ · CJD AWH</p></div>
-          </div>
-          <p className="mt-3 font-mono text-[9px] leading-4 text-[#17221d]/55">{label("Các màu nhấn thay rail, trạng thái active và điều khiển chính; Dark Mode giữ surface than và formula có độ tương phản rõ.", "Accent colors drive rails, active states, and primary controls; Dark Mode keeps charcoal surfaces and formula contrast clear.")}</p>
+          <p className="mt-4 text-sm leading-6 text-[#17221d]/60">{label("Giao diện dùng bảng màu và typography cố định để mọi màn hình Rubik giữ nhịp đọc nhất quán.", "The interface uses a fixed palette and typography to keep every Rubik screen consistently readable.")}</p>
         </SettingCard>
       </div>
       <div className="settings-actions"><button onClick={reset} className="settings-reset"><RotateCcw />{label("Khôi phục", "Reset")}</button><button onClick={save} className="settings-save">{saved ? <Check /> : null}{saved ? label("Đã lưu", "Saved") : label("Lưu cài đặt", "Save settings")}</button></div>

@@ -145,3 +145,55 @@
 - Studio dùng tiếng Việt vận hành kỹ thuật: Bàn giải, Bảng nhập, Cấu hình chạy, Bảng kiểm tra; tiếng Anh chỉ giữ cho CFOP, 3-Style, Speffz, case ID và notation.
 - Canvas solver/cube là apparatus duy nhất có material border/shadow nặng. Input drawer, cấu hình, inspector và record phụ phải là ruled-sheet phẳng hơn.
 - Wordmark toàn cục giữ header nén nhưng tăng độ đọc của cube stamp, CFOP liền mạch và O-notch mint ở lần nhìn đầu.
+
+## Soft Minimal Reset
+
+### Ba hướng tiếp cận
+
+#### 1. Soft Focus Workspace
+
+**Very Brief Intro:** Bề mặt sáng dịu, khoảng trắng rộng, các khối chức năng bo mềm vừa phải và cube là vật thể có sắc độ mạnh nhất. Hướng này ưu tiên sự bình tĩnh khi luyện tập dài.
+
+**Probability:** 0.06
+
+#### 2. Calm Study Desk
+
+**Very Brief Intro:** Cảm giác bàn học kỹ thuật tối giản với các cụm nội dung như giấy ghi chú mờ, nhịp chữ lớn và bộ điều khiển ít nhiễu. Hướng này tập trung đọc thuật toán và theo dõi từng state.
+
+**Probability:** 0.08
+
+#### 3. Gentle Dark Instrument
+
+**Very Brief Intro:** Nền charcoal dịu với các surface mềm và cube nổi vừa đủ, hướng tới cảm giác tập trung trong Dark Mode. Hướng này tránh neon, grid cứng và dashboard dày đặc.
+
+**Probability:** 0.04
+
+### Hướng được chọn: Soft Focus Workspace
+
+**Design Movement:** Japanese-inspired calm productivity kết hợp product minimalism; không dùng soft-neumorphism quá mức và không có border trang trí.
+
+**Core Principles:** Một mục tiêu chính trên mỗi vùng nhìn; khoảng trắng được dùng để phân nhóm; surface phân biệt bằng nền, radius, elevation mờ và spacing thay vì đường viền; các control Rubik giữ notation/metadata rõ nhưng không biến toàn trang thành dashboard.
+
+**Color Philosophy:** Light Mode dùng nền pearl ấm, surface trắng sữa, ink xanh-than dịu và xanh sage cố định làm tín hiệu hợp lệ. Dark Mode dùng slate than mềm với surface nâng sáng vừa đủ. Sáu màu cube chỉ thuộc về cube/sticker/legend.
+
+**Layout Paradigm:** Desktop-first dùng content rail rộng, left input compact, visual cube stage là lõi, và result desk lùi xuống dưới. Các panel dùng cùng Shell, Surface, SectionHeading, SegmentedControl, PrimaryAction và MetricChip. Không tạo card mới chỉ vì nội dung khác.
+
+**Signature Elements:** Gradient surface mờ rất nhẹ; corner radius 16–24px; shadow diffused thấp; tiny status dot dành cho trạng thái Rubik hợp lệ. Không có border đường thẳng, rail, tick, grid hay offset shadow làm trang trí.
+
+**Interaction Philosophy:** Thao tác ứng dụng dùng press state 140ms và focus ring mềm; không có entrance animation. Cube 3D giữ animation xoay tầng vì đó là phản hồi thao tác trực tiếp.
+
+**Typography System:** Giữ Space Grotesk cho title/CTA và IBM Plex Mono cho notation, move, case ID, timer. Mọi nội dung UI dùng cỡ chữ cố định, đọc tốt ngay ở 100%; không còn preference scale.
+
+**Brand Essence:** Một workspace Rubik bình tĩnh, trực quan và chính xác để giải, quan sát và luyện tập các state phức tạp. **Dịu, tập trung, tin cậy.**
+
+**Brand Voice:** “Nhập state, xem cube, chạy lời giải.” và “Memo đã sẵn sàng để ôn.” — ngắn, hành động rõ, không có jargon không cần thiết.
+
+**Wordmark & Logo:** Cube mark còn lại như dấu nhận diện nhỏ trên nền mềm; wordmark đọc gọn, không dùng effect hoặc marker kỹ thuật.
+
+**Signature Brand Color:** **Sage Teal #42A897**.
+
+### Style Decisions
+
+- Header luôn đọc liên tục là **CFOP Solver Studio**; chữ O là chữ thật, dùng Sage Teal cố định và không bị thu nhỏ thành dấu trang trí.
+- Surface phụ dùng nền giấy phẳng và elevation rất thấp; chỉ Cube/primary apparatus của từng route được phép có shadow rõ hơn.
+- Không dùng rail, tick, grid hoặc border làm trang trí. Trạng thái Rubik được truyền bằng màu Sage Teal, khoảng cách, hàng metadata và nội dung thực.

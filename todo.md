@@ -606,3 +606,12 @@
 - [x] Thiết kế lại bố cục, typography, surface và responsive model cho toàn bộ Studio.
 - [x] Triển khai Studio mới, giữ đầy đủ solver, Cube 3D, state editor, playback và BLD.
 - [x] Kiểm thử Studio với CFOP/3-Style thực, desktop/mobile, TypeScript/build và checkpoint.
+
+## Hệ giao diện tối giản, mềm mại
+
+- [x] Kiểm toán component, luồng Rubik và các thiết lập cá nhân hóa cần gỡ.
+- [x] Thiết kế token, primitives và quy tắc Dark Mode dùng lại được, không dùng border trang trí.
+- [x] Tái thiết kế Studio desktop-first, bảo toàn CFOP, 3-Style, Cube 3D và state editor.
+- [x] Gỡ accent picker/chỉnh cỡ chữ; giữ Dark Mode và mọi thiết lập phục vụ Rubik.
+- [x] Mở rộng hệ giao diện sang Timer, Study, Settings và breakpoint màn hình nhỏ.
+- [x] Kiểm thử luồng Rubik, Dark Mode, responsive, TypeScript/build và checkpoint.

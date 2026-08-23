@@ -1,7 +1,7 @@
 /**
- * Studio Reset — Command Deck: clear context bar, compact input drawer, one dominant
- * solver/cube canvas, and a full-width record drawer. Secondary data never competes
- * with the apparatus, and every panel has a stable responsive grid area.
+ * Soft Focus Workspace: a calm, reusable desktop-first Rubik canvas. Surfaces are
+ * grouped by spacing, soft elevation and color—not decorative borders—while 3D cube
+ * movement remains the sole rich animation.
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
@@ -18,6 +18,7 @@ import { BldMemoLab } from "@/components/BldMemoLab";
 import { BldTrainingLab } from "@/components/BldTrainingLab";
 import { CubeStateEditor } from "@/components/CubeStateEditor";
 import { CameraScanner } from "@/components/CameraScanner";
+import { SoftStatus, SoftSurface } from "@/components/SoftUI";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -392,7 +393,7 @@ export default function Home() {
             <p className="studio-command-status">{loading ? t("input.loading") : solverKind === "bld" ? (language === "vi" ? "DÒNG XỬ LÝ MEMO" : "MEMO PIPELINE") : mode === "state" ? (language === "vi" ? "KIỂM TRA STATE" : "STATE VALIDATION") : (language === "vi" ? "DÒNG XỬ LÝ SCRAMBLE" : "SCRAMBLE PIPELINE")}</p>
           </header>
           <aside className="studio-control-stack space-y-5 xl:sticky xl:top-5 xl:h-fit">
-            <div className="studio-support-panel scorecard overflow-hidden rounded-[3px] border-2 border-[#17221d] bg-white shadow-[7px_7px_0_#17221d]">
+            <SoftSurface className="studio-support-panel scorecard overflow-hidden">
               <div className="studio-input-header flex h-16 items-center justify-between border-b-2 border-[#17221d]/15 px-5"><div><p className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">{language === "vi" ? "BẢNG NHẬP" : "INPUT DRAWER"}</p><p className="mt-1 font-mono text-[10px] font-bold tracking-[0.08em] text-[#17221d]/55">{mode === "scramble" ? "MOVE SEQUENCE" : "54-STICKER STATE"}</p></div><img src="/manus-storage/cfop-studio-mark_62473f8e.png" alt="CFOP cube mark" className="h-10 w-10 rounded-sm border-2 border-[#17221d] bg-[#f4f0e8] p-1 shadow-[2px_2px_0_#1ba77a]" /></div>
               <div className="p-5">
                 {solverKind === "bld" && <div className="studio-input-context"><p>BUFFER / UF (C) · UBL (A)</p><span>{language === "vi" ? "Chuẩn bị trace memo và execution key." : "Prepare memo trace and execution key."}</span></div>}
@@ -423,7 +424,7 @@ export default function Home() {
                   {loading ? <><Loader2 className="h-4 w-4 animate-spin" />{t("input.loading")}</> : <><Sparkles className="h-4 w-4" />{solverKind === "bld" ? (language === "vi" ? "TẠO MEMO 3-STYLE" : "BUILD 3-STYLE MEMO") : t("input.solve")}</>}
                 </button>
               </div>
-            </div>
+            </SoftSurface>
             <details className="studio-camera-fold border border-[#17221d]/20 bg-[#f4f0e8] p-3"><summary className="cursor-pointer font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#17221d]/60">{language === "vi" ? "Quét camera · tùy chọn" : "Camera scan · optional"}</summary><div className="mt-3"><CameraScanner onState={(state) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(state); setSavedState(state); setResult(null); setBldResult(null); setCursor(0); setError(""); }} /></div></details>
             <section className="studio-input-ledger" aria-label={language === "vi" ? "Run profile" : "Run profile"}>
               <p>{language === "vi" ? "CẤU HÌNH CHẠY" : "RUN PROFILE"}</p>
@@ -437,7 +438,7 @@ export default function Home() {
           </aside>
 
           <section className="studio-stage-column min-w-0">
-            <div className="studio-solver-apparatus scorecard rounded-[3px] border-2 border-[#17221d] bg-white p-5 shadow-[9px_9px_0_rgba(23,34,29,0.16)] sm:p-8">
+            <SoftSurface className="studio-solver-apparatus scorecard p-5 sm:p-8" tone="focus">
               <div className="studio-apparatus-readout flex flex-wrap items-start justify-between gap-6">
                 <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{t("guide.step")} · {String(cursor).padStart(2, "0")} / {String(totalMoves).padStart(2, "0")}</p><p key={cubeMotion.kind === "phase" ? cubeMotion.id : activePhase?.name ?? "ready"} className={cn("studio-phase-title mt-2 text-xl font-black tracking-[-0.045em] sm:text-2xl", cubeMotion.kind === "phase" && "studio-phase-title-relay")}>{activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</p><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
                 <div className="studio-apparatus-readout-card rounded-sm border-2 border-[#17221d]/15 bg-[#f4f0e8] px-4 py-3 font-mono text-xs shadow-[3px_3px_0_rgba(23,34,29,0.12)]"><p className="text-[#17221d]/45">{t("guide.move").toUpperCase()}</p><p className="mt-1 text-2xl font-bold text-[#1ba77a]">{currentStep?.move ?? "—"}</p></div>
@@ -452,7 +453,7 @@ export default function Home() {
               {openingOutcome && <div className={cn("studio-opening-outcome mt-4 border-2", openingOutcome.kind !== "cross" ? "border-[#1ba77a]/50 bg-[#1ba77a]/10" : "border-[#17221d]/12 bg-[#f4f0e8]")}><div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"><div className="min-w-0"><p className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-[#17221d]/55">{language === "vi" ? "KẾT QUẢ OPENING" : "OPENING OUTCOME"}</p><p className="mt-1 break-words text-sm font-black">{openingOutcome.kind === "xxxxcross" ? "XXXXCross · Full F2L" : openingOutcome.kind === "xxxcross" ? `XXXCross · ${openingOutcome.slots.join("+")}` : openingOutcome.kind === "xxcross" ? `XXCross · ${openingOutcome.slots.join("+")}` : openingOutcome.kind === "xcross" ? `XCross · ${openingOutcome.slot}` : "Cross chuẩn"}</p></div><span className={cn("font-mono text-[10px] font-bold", openingOutcome.kind !== "cross" ? "text-[#1b7b5e]" : "text-[#17221d]/55")}>{openingOutcome.moves} {language === "vi" ? "nước" : "moves"}</span></div>{openingTelemetry && <div className="studio-fallback-telemetry border-t border-[#17221d]/12 px-4 py-2 font-mono text-[9px]"><span>{language === "vi" ? "YÊU CẦU" : "REQUEST"} <b>{openingModeLabel(openingTelemetry.requested, language)}</b></span><span>→</span><span>{language === "vi" ? "ĐẠT" : "ACHIEVED"} <b>{openingModeLabel(openingTelemetry.achieved, language)}</b></span><span className={openingTelemetry.did_fallback ? "text-[#b64b31]" : "text-[#1b7b5e]"}>{openingTelemetry.did_fallback ? (language === "vi" ? `LÙI ${openingTelemetry.fallback_count} CẤP` : `${openingTelemetry.fallback_count} FALLBACKS`) : (language === "vi" ? "ĐÚNG CẤP" : "TARGET MET")}</span><details className="studio-route-detail"><summary>{language === "vi" ? "LỘ TRÌNH" : "ROUTE"}</summary><p>{openingTelemetry.attempts.map((attempt) => openingModeLabel(attempt, language)).join(" → ")}</p></details></div>}</div>}
               {lastLayerTelemetry && <div className={cn("studio-opening-outcome mt-3 border-2", lastLayerTelemetry.did_fallback ? "border-[#e7c34f]/60 bg-[#e7c34f]/10" : "border-[#1ba77a]/50 bg-[#1ba77a]/10")}><div className="studio-fallback-telemetry px-4 py-2.5 font-mono text-[9px]"><span className="font-bold tracking-[0.14em] text-[#17221d]/55">LAST LAYER</span><span>{language === "vi" ? "ĐẠT" : "ACHIEVED"} <b>{lastLayerModeLabel(lastLayerTelemetry.achieved, language)}</b></span>{lastLayerTelemetry.case_id && <span className="text-[#1b7b5e]">CASE <b>{lastLayerTelemetry.case_id}</b></span>}<span className={lastLayerTelemetry.did_fallback ? "text-[#9b6b00]" : "text-[#1b7b5e]"}>{lastLayerTelemetry.did_fallback ? (language === "vi" ? "CATALOG MISS → OLL/PLL" : "CATALOG MISS → OLL/PLL") : "DIRECT MATCH"}</span><details className="studio-route-detail"><summary>{language === "vi" ? "LỘ TRÌNH" : "ROUTE"}</summary><p>{lastLayerTelemetry.attempts.map((attempt) => lastLayerModeLabel(attempt, language)).join(" → ")}</p></details></div></div>}
               <div className="studio-apparatus-rail mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]"><div className="flex items-center gap-4"><input aria-label="Chọn move trong trace" type="range" min="0" max={Math.max(0, totalMoves)} value={cursor} onChange={(event) => selectCursor(Number(event.target.value), "seek")} className="min-w-0 flex-1 accent-[#1ba77a]" /><span className="min-w-16 text-right font-mono text-xs font-bold">{cursor} moves</span></div><label className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#17221d]/60">Speed {playbackSpeed.toFixed(2)}×<input aria-label="Playback speed" type="range" min="0.5" max="2" step="0.25" value={playbackSpeed} onChange={(event) => setPlaybackSpeed(Number(event.target.value))} className="w-24 accent-[#1ba77a]" /></label></div>
-            </div>
+            </SoftSurface>
           </section>
 
           <aside className={`studio-telemetry-column ${solverKind === "bld" ? "studio-bld-deck" : "space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2"}`}>
@@ -478,8 +479,8 @@ export default function Home() {
   );
 }
 
-function Stat({ label, value, icon, compact = false }: { label: string; value: string; icon: ReactNode; compact?: boolean }) {
-  return <div className={`telemetry-panel rounded-md border-2 border-[#17221d] bg-white shadow-[3px_3px_0_rgba(23,34,29,0.12)] ${compact ? "p-2" : "p-3"}`}><div className="flex items-center justify-between text-[#17221d]/45">{icon}<span className="font-mono text-[8px] font-bold tracking-[0.12em]">{label}</span></div><p className={`${compact ? "mt-1 text-lg" : "mt-2 text-xl"} font-mono font-bold tracking-[-0.08em]`}>{value}</p></div>;
+function Stat({ label, value, icon }: { label: string; value: string; icon: ReactNode; compact?: boolean }) {
+  return <SoftStatus label={label} value={value} leading={icon} tone={value === "✓" ? "success" : value === "!" ? "warning" : "neutral"} />;
 }
 
 /** Xưởng Cơ Khí Tốc Độ — a searchable record drawer for verified one-look cases. */
