@@ -584,3 +584,10 @@
 - [x] Thiết kế Escape chỉ hủy inspection, nhãn replay rõ nghĩa, compact single-column và export lớn hơn.
 - [x] Thêm Esc hủy inspection, sửa layout ẩn CubeNet và tăng CubeNet/chữ cho PNG Ao5.
 - [x] Kiểm thử keyboard, toggle, export ảnh, desktop/mobile, TypeScript/build và checkpoint.
+
+## Solution thực tế, export Ao5 ngang và 3-Style mở rộng
+
+- [x] Rà schema history, luồng nhập solution, canvas export và layout 3-Style Studio hiện tại.
+- [x] Thiết kế lưu solution có validation, replay solution-first, export ngang và layout 3-Style expandable.
+- [x] Thêm ghi/lưu solution thực tế, replay theo solution, Ao5 canvas phủ ngang và cấu trúc 3-Style mới.
+- [x] Kiểm thử dữ liệu legacy, solution hợp lệ/không hợp lệ, export, Studio desktop/mobile, TypeScript/build và checkpoint.

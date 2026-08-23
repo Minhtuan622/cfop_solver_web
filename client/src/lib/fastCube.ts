@@ -40,3 +40,19 @@ export function traceFastMoves(initialState: string, text: string): FastMoveTrac
     return { move, previousState, state };
   });
 }
+
+export type RecordedSolutionValidation = { valid: boolean; normalized: string; moves: string[]; error?: "empty" | "unsupported" | "unfinished" };
+
+/** Validate a player-recorded solution against the exact state created by its saved scramble/state input. */
+export function validateRecordedSolution(initialState: string, text: string): RecordedSolutionValidation {
+  const moves = parseFastMoves(text);
+  if (!moves.length) return { valid: true, normalized: "", moves: [], error: "empty" };
+  try {
+    const trace = traceFastMoves(initialState, moves.join(" "));
+    return trace.at(-1)?.state === SOLVED_FAST_STATE
+      ? { valid: true, normalized: moves.join(" "), moves }
+      : { valid: false, normalized: moves.join(" "), moves, error: "unfinished" };
+  } catch {
+    return { valid: false, normalized: moves.join(" "), moves, error: "unsupported" };
+  }
+}

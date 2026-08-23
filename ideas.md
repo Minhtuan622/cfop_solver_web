@@ -117,3 +117,7 @@
 - Right rail nối case, counter, lịch và catalog bằng ruled ladder liên tục; khoảng trống giữ grid/rule rất nhẹ để đọc như bàn đo đã chuẩn bị.
 - Apparatus chính dùng geometry instrument-plate sắc hoặc chỉ chamfer rất nhẹ; không dùng khối card bo mềm. Space Grotesk là nameplate/command/headline, IBM Plex Mono dành cho move, counter, case ID và telemetry.
 - Timer luôn có stopwatch plate tối là visual apex; scramble, cube, log, filter và empty state là record-sheet telemetry nối bằng rail/tick mint. Wordmark giữ dạng equipment label liên tục, O-notch là accent mint độc nhất.
+- Mỗi route chỉ giữ một apparatus có dark ink, grid và material shadow mạnh; record sheet phụ ưu tiên paper surface, rule mảnh và nhãn mono nhẹ.
+- Rail bên phải là một measurement ladder liên tục: mint rail dọc nối counter, phase, case và report thay vì các dashboard card tách rời.
+- Cube/state dùng sticker-plane sắc cạnh với inset material shadow thống nhất giữa 3D guide, CubeNet và state surface; không dùng treatment icon phẳng tách rời apparatus.
+- Nameplate toàn cục dùng cube stamp vuông, CFOP liền mạch bằng Space Grotesk và O-notch mint rõ nét; Solver Studio là telemetry mono nhỏ, không cạnh tranh với stage.

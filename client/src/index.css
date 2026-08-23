@@ -1262,3 +1262,59 @@ html[data-font-scale] { font-size: inherit; }
     html[data-theme-transition="true"] body, html[data-theme-transition="true"] body *, html[data-theme-transition="true"] body *::before, html[data-theme-transition="true"] body *::after { transition: none !important; }
   }
 }
+/* Swiss editorial workbench: BLD uses a broad modular deck; Timer states stay concise and mechanically legible. */
+.timer-solution-capture {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid rgba(100, 212, 173, .55);
+  border-left: 4px solid #64d4ad;
+  background: rgba(100, 212, 173, .08);
+  padding: .75rem .9rem;
+  color: #f4f0e8;
+}
+.timer-solution-capture p { margin: 0; font: 800 .62rem/1.3 ui-monospace, SFMono-Regular, monospace; letter-spacing: .12em; }
+.timer-solution-capture span { display: block; margin-top: .28rem; max-width: 34rem; font: 600 .65rem/1.45 ui-monospace, SFMono-Regular, monospace; color: rgba(244,240,232,.72); }
+.timer-solution-capture button { flex: 0 0 auto; border: 1px solid #64d4ad; background: #64d4ad; padding: .62rem .78rem; font: 800 .62rem/1 ui-monospace, SFMono-Regular, monospace; letter-spacing: .08em; color: #17221d; transition: transform 160ms var(--ease-out, ease-out), background 160ms var(--ease-out, ease-out); }
+.timer-solution-capture button:active { transform: scale(.97); }
+.studio-bld-layout { grid-template-columns: minmax(0, 1fr); }
+.studio-bld-deck { min-width: 0; }
+@media (min-width: 1100px) {
+  .studio-bld-layout { grid-template-columns: minmax(290px, 350px) minmax(0, 1fr); align-items: start; }
+  .studio-bld-layout > .studio-control-stack { grid-column: 1; }
+  .studio-bld-layout > .studio-stage-column { grid-column: 2; min-width: 0; }
+  .studio-bld-layout > .studio-bld-deck { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1.25rem; border-top: 2px solid color-mix(in srgb, var(--line) 65%, transparent); padding-top: 1.25rem; }
+  .studio-bld-deck > .studio-telemetry-strip { grid-column: 1 / -1; }
+  .studio-bld-deck > .studio-bld-report { grid-column: span 8; margin-top: 0; }
+  .studio-bld-deck > .studio-bld-training { grid-column: span 4; margin-top: 0; }
+  .studio-bld-deck > .studio-bld-memo-lab { grid-column: span 7; margin-top: 0; }
+  .studio-bld-deck > .studio-bld-profile { grid-column: span 5; margin-top: 0; align-self: start; }
+  .studio-bld-deck .studio-bld-report .max-h-72 { max-height: 31rem; }
+}
+@media (max-width: 1099px) {
+  .studio-bld-deck { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .studio-bld-deck > * { margin-top: 0 !important; }
+}
+@media (max-width: 640px) {
+  .timer-solution-capture { align-items: flex-start; flex-direction: column; }
+  .timer-solution-capture button { width: 100%; }
+}
+
+/* Visual-review hierarchy pass: one dominant apparatus per route; telemetry is a connected measured record. */
+.studio-telemetry-column:not(.studio-bld-deck) { position: relative; padding-left: 1rem; background: linear-gradient(90deg, rgba(27,167,122,.07), transparent 2rem); }
+.studio-telemetry-column:not(.studio-bld-deck)::before { position: absolute; inset: .15rem auto .15rem 0; width: 3px; background: repeating-linear-gradient(to bottom, #1ba77a 0 10px, transparent 10px 17px); content: ""; }
+.studio-telemetry-column:not(.studio-bld-deck) > .studio-telemetry-strip { margin-bottom: -.15rem; border-block: 1px solid rgba(23,34,29,.18); background: transparent; padding: .65rem 0 .85rem; }
+.studio-telemetry-column:not(.studio-bld-deck) > .studio-report-empty,
+.studio-telemetry-column:not(.studio-bld-deck) .studio-report { box-shadow: none; }
+.studio-telemetry-column:not(.studio-bld-deck) .studio-record-strip > * { box-shadow: none !important; }
+.app-shell-brand { gap: .62rem; }
+.app-shell-brand > img { border-radius: 0; box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent, #1ba77a) 76%, transparent); }
+.app-shell-brand > span > b { font-family: "Space Grotesk", sans-serif; font-size: .93rem; font-weight: 900; letter-spacing: -.075em; }
+.app-shell-brand > span > em { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .48rem; font-style: normal; font-weight: 800; letter-spacing: .13em; opacity: .72; }
+.app-shell-o { position: relative; color: var(--accent, #1ba77a); text-shadow: none; }
+.app-shell-o::after { position: absolute; right: -.04em; bottom: .08em; width: .28em; height: .21em; background: var(--page, #f4f0e8); content: ""; }
+.cube3d-guide { border-color: color-mix(in srgb, #17221d 90%, var(--accent, #1ba77a)); box-shadow: inset 0 0 0 1px rgba(244,240,232,.08), 3px 3px 0 color-mix(in srgb, var(--accent, #1ba77a) 58%, transparent); }
+.cube3d-stage { background-image: linear-gradient(rgba(244,240,232,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(244,240,232,.045) 1px, transparent 1px); background-size: 13px 13px; }
+.cube3d-face span,
+.cube3d-layer span { box-shadow: inset 0 0 0 1px rgba(23,34,29,.22), inset 1px 1px 0 rgba(255,255,255,.2); }
