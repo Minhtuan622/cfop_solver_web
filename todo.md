@@ -577,3 +577,10 @@
 - [x] Thiết kế zoom CubeNet, toggle gọn, replay per-card và asset export Ao5 có annotation/ghi chú.
 - [x] Thêm controls, preview phóng to, replay, xuất PNG Ao5 và lưu lựa chọn hiển thị CubeNet.
 - [x] Kiểm thử thao tác, file ảnh export, responsive, persistence, TypeScript/build và checkpoint.
+
+## Làm rõ replay, Esc inspection và export Ao5 dễ đọc
+
+- [x] Rà state/keyboard handler inspection, layout metric khi ẩn CubeNet và tỷ lệ canvas export Ao5.
+- [x] Thiết kế Escape chỉ hủy inspection, nhãn replay rõ nghĩa, compact single-column và export lớn hơn.
+- [x] Thêm Esc hủy inspection, sửa layout ẩn CubeNet và tăng CubeNet/chữ cho PNG Ao5.
+- [x] Kiểm thử keyboard, toggle, export ảnh, desktop/mobile, TypeScript/build và checkpoint.
