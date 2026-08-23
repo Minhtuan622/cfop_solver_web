@@ -570,3 +570,10 @@
 - [x] Thiết kế annotation rõ ràng, nút copy từng lượt và thumbnail CubeNet không làm panel quá nặng.
 - [x] Thêm highlight best/worst loại khỏi Ao, copy scramble và hình CubeNet cho từng card detail.
 - [x] Kiểm thử Ao5/Ao12, DNF, thao tác copy, desktop/mobile, TypeScript/build và checkpoint.
+
+## Ao detail: zoom, replay, toggle CubeNet và export ảnh
+
+- [x] Rà dialog metric, luồng replay, thư viện export hiện có và persistence preference CubeNet.
+- [x] Thiết kế zoom CubeNet, toggle gọn, replay per-card và asset export Ao5 có annotation/ghi chú.
+- [x] Thêm controls, preview phóng to, replay, xuất PNG Ao5 và lưu lựa chọn hiển thị CubeNet.
+- [x] Kiểm thử thao tác, file ảnh export, responsive, persistence, TypeScript/build và checkpoint.
