@@ -556,3 +556,10 @@
 - [x] Thiết kế hierarchy dashboard: scramble luôn thấy, clock/cube apparatus trung tâm, metric rail luôn thấy.
 - [x] Triển khai layout responsive gọn cho Standard/Compact, giữ analytics và log ở vùng phụ.
 - [x] Kiểm thử desktop/mobile, global font scale lớn, Compact/Standard, TypeScript/build và checkpoint.
+
+## Drill-down scramble từ thành tích Timer
+
+- [x] Rà mapping PB/Ao5/Ao12/Ao50/Ao100 sang lượt history và cửa sổ average cụ thể.
+- [x] Thiết kế metric clickable, panel chi tiết accessible và copy cho lượt/DNF/scramble.
+- [x] Thêm panel hiển thị scramble và kết quả của từng lượt cấu thành metric đã chọn.
+- [x] Kiểm thử PB, average, metric chưa đủ lượt, DNF, desktop/mobile, TypeScript/build và checkpoint.

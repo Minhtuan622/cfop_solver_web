@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SolveHistoryEntry } from "./solveHistory";
-import { detectPersonalRecords } from "./timerRecords";
+import { detectPersonalRecords, metricEvidence } from "./timerRecords";
 
 function solve(id: string, elapsedMs: number, penalty: SolveHistoryEntry["penalty"] = "none"): SolveHistoryEntry {
   return { id, createdAt: Number(id.replaceAll(/\D/g, "")) || 1, elapsedMs, inspectionMs: 0, input: "R U R' U'", inputKind: "scramble", moves: 0, penalty, solution: "", note: "", tags: [], phaseSplits: [] };
@@ -18,5 +18,11 @@ describe("detectPersonalRecords", () => {
 
   it("never awards a record to a DNF", () => {
     expect(detectPersonalRecords([solve("old", 15_000)], solve("dnf", 8_000, "DNF"))).toEqual([]);
+  });
+
+  it("maps PB and Ao5 drill-downs back to their concrete solve rows", () => {
+    const entries = [solve("s1", 13_000), solve("s2", 10_000), solve("s3", 12_000), solve("s4", 14_000), solve("s5", 11_000)];
+    expect(metricEvidence(entries, "pb").entries.map((entry) => entry.id)).toEqual(["s2"]);
+    expect(metricEvidence(entries, "ao5")).toMatchObject({ value: 12_000, entries: entries });
   });
 });

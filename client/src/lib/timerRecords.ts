@@ -3,6 +3,8 @@ import { effectiveTime, type SolveHistoryEntry } from "./solveHistory";
 export const RECORD_WINDOWS = [5, 12, 50, 100] as const;
 export type PersonalRecordKey = "single" | `ao${(typeof RECORD_WINDOWS)[number]}`;
 export type PersonalRecord = { key: PersonalRecordKey; value: number };
+export type TimerMetricKey = "pb" | `ao${(typeof RECORD_WINDOWS)[number]}` | "total";
+export type MetricEvidence = { entries: SolveHistoryEntry[]; value: number | null | undefined };
 
 export function rollingAverage(sample: SolveHistoryEntry[]) {
   const numeric = sample.map(effectiveTime).filter((value): value is number => value !== null).sort((a, b) => a - b);
@@ -19,6 +21,19 @@ function bestRollingAverage(entries: SolveHistoryEntry[], windowSize: number) {
     if (value !== null && (best === undefined || value < best)) best = value;
   }
   return best;
+}
+
+/** Returns the concrete history rows that explain the currently displayed Timer metric. */
+export function metricEvidence(entries: SolveHistoryEntry[], key: TimerMetricKey): MetricEvidence {
+  if (key === "total") return { entries, value: entries.length };
+  if (key === "pb") {
+    const valid = entries.filter((entry) => effectiveTime(entry) !== null);
+    const best = valid.reduce<SolveHistoryEntry | undefined>((current, entry) => !current || (effectiveTime(entry) ?? Infinity) < (effectiveTime(current) ?? Infinity) ? entry : current, undefined);
+    return { entries: best ? [best] : [], value: best ? effectiveTime(best) : undefined };
+  }
+  const size = Number(key.slice(2));
+  const window = entries.slice(0, size);
+  return { entries: window.length === size ? window : [], value: window.length === size ? rollingAverage(window) : undefined };
 }
 
 /** Compares a newly saved solve only with the history that existed before it. */
