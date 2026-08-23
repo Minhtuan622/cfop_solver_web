@@ -563,3 +563,10 @@
 - [x] Thiết kế metric clickable, panel chi tiết accessible và copy cho lượt/DNF/scramble.
 - [x] Thêm panel hiển thị scramble và kết quả của từng lượt cấu thành metric đã chọn.
 - [x] Kiểm thử PB, average, metric chưa đủ lượt, DNF, desktop/mobile, TypeScript/build và checkpoint.
+
+## Chi tiết Ao có annotation, copy và CubeNet
+
+- [x] Rà luật loại best/worst ở Ao có hoặc không có DNF và dữ liệu CubeNet từ scramble.
+- [x] Thiết kế annotation rõ ràng, nút copy từng lượt và thumbnail CubeNet không làm panel quá nặng.
+- [x] Thêm highlight best/worst loại khỏi Ao, copy scramble và hình CubeNet cho từng card detail.
+- [x] Kiểm thử Ao5/Ao12, DNF, thao tác copy, desktop/mobile, TypeScript/build và checkpoint.

@@ -4,7 +4,8 @@ export const RECORD_WINDOWS = [5, 12, 50, 100] as const;
 export type PersonalRecordKey = "single" | `ao${(typeof RECORD_WINDOWS)[number]}`;
 export type PersonalRecord = { key: PersonalRecordKey; value: number };
 export type TimerMetricKey = "pb" | `ao${(typeof RECORD_WINDOWS)[number]}` | "total";
-export type MetricEvidence = { entries: SolveHistoryEntry[]; value: number | null | undefined };
+export type AverageExclusion = "best" | "worst";
+export type MetricEvidence = { entries: SolveHistoryEntry[]; value: number | null | undefined; exclusions: Record<string, AverageExclusion> };
 
 export function rollingAverage(sample: SolveHistoryEntry[]) {
   const numeric = sample.map(effectiveTime).filter((value): value is number => value !== null).sort((a, b) => a - b);
@@ -23,17 +24,28 @@ function bestRollingAverage(entries: SolveHistoryEntry[], windowSize: number) {
   return best;
 }
 
+function averageExclusions(sample: SolveHistoryEntry[]): Record<string, AverageExclusion> {
+  const numeric = sample.map((entry, index) => ({ entry, index, value: effectiveTime(entry) })).filter((item): item is { entry: SolveHistoryEntry; index: number; value: number } => item.value !== null);
+  const dnf = sample.find((entry) => effectiveTime(entry) === null);
+  if (!numeric.length || sample.length - numeric.length >= 2) return {};
+  const best = numeric.reduce((current, item) => item.value < current.value ? item : current);
+  if (dnf) return { [best.entry.id]: "best", [dnf.id]: "worst" };
+  const worst = numeric.filter((item) => item.index !== best.index).reduce((current, item) => item.value > current.value ? item : current);
+  return { [best.entry.id]: "best", [worst.entry.id]: "worst" };
+}
+
 /** Returns the concrete history rows that explain the currently displayed Timer metric. */
 export function metricEvidence(entries: SolveHistoryEntry[], key: TimerMetricKey): MetricEvidence {
-  if (key === "total") return { entries, value: entries.length };
+  if (key === "total") return { entries, value: entries.length, exclusions: {} };
   if (key === "pb") {
     const valid = entries.filter((entry) => effectiveTime(entry) !== null);
     const best = valid.reduce<SolveHistoryEntry | undefined>((current, entry) => !current || (effectiveTime(entry) ?? Infinity) < (effectiveTime(current) ?? Infinity) ? entry : current, undefined);
-    return { entries: best ? [best] : [], value: best ? effectiveTime(best) : undefined };
+    return { entries: best ? [best] : [], value: best ? effectiveTime(best) : undefined, exclusions: {} };
   }
   const size = Number(key.slice(2));
   const window = entries.slice(0, size);
-  return { entries: window.length === size ? window : [], value: window.length === size ? rollingAverage(window) : undefined };
+  const hasWindow = window.length === size;
+  return { entries: hasWindow ? window : [], value: hasWindow ? rollingAverage(window) : undefined, exclusions: hasWindow ? averageExclusions(window) : {} };
 }
 
 /** Compares a newly saved solve only with the history that existed before it. */

@@ -25,4 +25,11 @@ describe("detectPersonalRecords", () => {
     expect(metricEvidence(entries, "pb").entries.map((entry) => entry.id)).toEqual(["s2"]);
     expect(metricEvidence(entries, "ao5")).toMatchObject({ value: 12_000, entries: entries });
   });
+
+  it("marks the discarded best and worst solve for valid and one-DNF averages", () => {
+    const valid = [solve("a", 13_000), solve("b", 10_000), solve("c", 12_000), solve("d", 14_000), solve("e", 11_000)];
+    const withDnf = [solve("a", 13_000), solve("b", 10_000), solve("c", 12_000), solve("d", 14_000), solve("dnf", 0, "DNF")];
+    expect(metricEvidence(valid, "ao5").exclusions).toEqual({ b: "best", d: "worst" });
+    expect(metricEvidence(withDnf, "ao5").exclusions).toEqual({ b: "best", dnf: "worst" });
+  });
 });
