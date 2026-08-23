@@ -1,10 +1,12 @@
 export type AppFontSize = "small" | "medium" | "large";
 export type AppFontScale = number;
+export type FormulaScale = number;
 export type AppTheme = "light" | "dark";
 export type AppThemeMode = AppTheme | "system";
 export type AppAccent = "mint" | "sky" | "violet" | "coral" | "custom";
 
 const FONT_SCALE_KEY = "cfop-app-font-scale-v2";
+const FORMULA_SCALE_KEY = "cfop-formula-scale-v1";
 const LEGACY_FONT_SIZE_KEY = "cfop-app-font-size-v1";
 const THEME_KEY = "theme";
 const ACCENT_KEY = "cfop-app-accent-v1";
@@ -14,6 +16,9 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 export const MIN_FONT_SCALE = 80;
 export const MAX_FONT_SCALE = 140;
 export const DEFAULT_FONT_SCALE = 100;
+export const MIN_FORMULA_SCALE = 80;
+export const MAX_FORMULA_SCALE = 180;
+export const DEFAULT_FORMULA_SCALE = 100;
 export function clampAppFontScale(value: number) { return Math.round(Math.min(MAX_FONT_SCALE, Math.max(MIN_FONT_SCALE, Number.isFinite(value) ? value : DEFAULT_FONT_SCALE))); }
 export function readAppFontScale(): AppFontScale {
   try {
@@ -25,6 +30,11 @@ export function readAppFontScale(): AppFontScale {
 }
 export function applyAppFontScale(scale: AppFontScale) { const normalized = clampAppFontScale(scale); document.documentElement.dataset.fontScale = String(normalized); document.documentElement.style.fontSize = `${normalized}%`; }
 export function writeAppFontScale(scale: AppFontScale) { const normalized = clampAppFontScale(scale); localStorage.setItem(FONT_SCALE_KEY, String(normalized)); applyAppFontScale(normalized); return normalized; }
+
+export function clampFormulaScale(value: number) { return Math.round(Math.min(MAX_FORMULA_SCALE, Math.max(MIN_FORMULA_SCALE, Number.isFinite(value) ? value : DEFAULT_FORMULA_SCALE))); }
+export function readFormulaScale(): FormulaScale { try { const stored = Number(localStorage.getItem(FORMULA_SCALE_KEY)); return Number.isFinite(stored) && stored > 0 ? clampFormulaScale(stored) : DEFAULT_FORMULA_SCALE; } catch { return DEFAULT_FORMULA_SCALE; } }
+export function applyFormulaScale(scale: FormulaScale) { const normalized = clampFormulaScale(scale); const root = document.documentElement; root.dataset.formulaScale = String(normalized); root.style.setProperty("--formula-scale", String(normalized / 100)); }
+export function writeFormulaScale(scale: FormulaScale) { const normalized = clampFormulaScale(scale); localStorage.setItem(FORMULA_SCALE_KEY, String(normalized)); applyFormulaScale(normalized); return normalized; }
 
 export function readAppThemeMode(): AppThemeMode { try { const stored = localStorage.getItem(THEME_KEY); return stored === "dark" || stored === "system" ? stored : "light"; } catch { return "light"; } }
 export function resolveAppTheme(mode: AppThemeMode): AppTheme { return mode === "system" ? (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light") : mode; }

@@ -1,28 +1,70 @@
-/** Xưởng Cơ Khí Tốc Độ — compact settings hub; explanations are available as deliberate tooltips. */
+/* Xưởng Cơ Khí Tốc Độ — Display keeps navigation calibrated while semantic formula/memo surfaces have an independent readable scale. */
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { Check, CircleHelp, Minus, Moon, Plus, RotateCcw, Sun } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readLastLayerStudy, writeLastLayerStudy } from "@/lib/lastLayerStudy";
-import { clampAppFontScale, DEFAULT_FONT_SCALE, isValidAccentColor, MAX_FONT_SCALE, MIN_FONT_SCALE, readAppAccent, readAppFontScale, readCustomAppAccent, writeAppAccent, writeAppFontScale, writeCustomAppAccent, type AppAccent } from "@/lib/displaySettings";
+import {
+  clampAppFontScale,
+  clampFormulaScale,
+  DEFAULT_FONT_SCALE,
+  DEFAULT_FORMULA_SCALE,
+  isValidAccentColor,
+  MAX_FONT_SCALE,
+  MAX_FORMULA_SCALE,
+  MIN_FONT_SCALE,
+  MIN_FORMULA_SCALE,
+  readAppAccent,
+  readAppFontScale,
+  readCustomAppAccent,
+  readFormulaScale,
+  writeAppAccent,
+  writeAppFontScale,
+  writeCustomAppAccent,
+  writeFormulaScale,
+  type AppAccent,
+} from "@/lib/displaySettings";
 
-const colors: { value: SolverSettings["crossColor"]; hex: string; vi: string; en: string }[] = [{ value: "U", hex: "#f7f3e9", vi: "Trắng", en: "White" }, { value: "D", hex: "#e7c34f", vi: "Vàng", en: "Yellow" }, { value: "F", hex: "#1ba77a", vi: "Xanh lá", en: "Green" }, { value: "B", hex: "#3b6fc7", vi: "Xanh dương", en: "Blue" }, { value: "R", hex: "#d95743", vi: "Đỏ", en: "Red" }, { value: "L", hex: "#ed8e42", vi: "Cam", en: "Orange" }];
-const openings: { value: SolverSettings["opening"]; label: string }[] = [{ value: "cross", label: "Cross" }, { value: "auto", label: "XCross" }, { value: "xxcross", label: "XXCross" }, { value: "xxxcross", label: "XXXCross" }, { value: "xxxxcross", label: "XXXXCross" }];
-const lastLayers: { value: SolverSettings["lastLayer"]; label: string }[] = [{ value: "auto", label: "Auto" }, { value: "oll_pll", label: "OLL + PLL" }, { value: "zbll", label: "ZBLL" }, { value: "1lll", label: "1LLL" }];
+const colors: { value: SolverSettings["crossColor"]; hex: string; vi: string; en: string }[] = [
+  { value: "U", hex: "#f7f3e9", vi: "Trắng", en: "White" },
+  { value: "D", hex: "#e7c34f", vi: "Vàng", en: "Yellow" },
+  { value: "F", hex: "#1ba77a", vi: "Xanh lá", en: "Green" },
+  { value: "B", hex: "#3b6fc7", vi: "Xanh dương", en: "Blue" },
+  { value: "R", hex: "#d95743", vi: "Đỏ", en: "Red" },
+  { value: "L", hex: "#ed8e42", vi: "Cam", en: "Orange" },
+];
+const openings: { value: SolverSettings["opening"]; label: string }[] = [
+  { value: "cross", label: "Cross" }, { value: "auto", label: "XCross" }, { value: "xxcross", label: "XXCross" }, { value: "xxxcross", label: "XXXCross" }, { value: "xxxxcross", label: "XXXXCross" },
+];
+const lastLayers: { value: SolverSettings["lastLayer"]; label: string }[] = [
+  { value: "auto", label: "Auto" }, { value: "oll_pll", label: "OLL + PLL" }, { value: "zbll", label: "ZBLL" }, { value: "1lll", label: "1LLL" },
+];
 const f2lSlots = ["FR", "FL", "BL", "BR"] as const;
-const accents: { value: Exclude<AppAccent, "custom">; vi: string; en: string; color: string }[] = [{ value: "mint", vi: "Mint", en: "Mint", color: "#1ba77a" }, { value: "sky", vi: "Trời", en: "Sky", color: "#4aa3ff" }, { value: "violet", vi: "Tím", en: "Violet", color: "#a78bfa" }, { value: "coral", vi: "San hô", en: "Coral", color: "#ff7a67" }];
+const quickFontScales = [100, 120, 140] as const;
+const accents: { value: Exclude<AppAccent, "custom">; vi: string; en: string; color: string }[] = [
+  { value: "mint", vi: "Mint", en: "Mint", color: "#1ba77a" }, { value: "sky", vi: "Trời", en: "Sky", color: "#4aa3ff" }, { value: "violet", vi: "Tím", en: "Violet", color: "#a78bfa" }, { value: "coral", vi: "San hô", en: "Coral", color: "#ff7a67" },
+];
 const defaultTargets = { Cross: 4, F2L: 12, OLL: 4, PLL: 5 };
 type Phase = keyof typeof defaultTargets;
-function readTargets() { try { const raw = JSON.parse(localStorage.getItem("cfop-phase-targets") ?? "{}") as Partial<Record<Phase, number>>; return { Cross: raw.Cross ?? 4, F2L: raw.F2L ?? 12, OLL: raw.OLL ?? 4, PLL: raw.PLL ?? 5 }; } catch { return defaultTargets; } }
-/** Xưởng Cơ Khí Tốc Độ — Settings is a compact calibration sheet; numeric type scaling remains one measured control. */
+
+function readTargets() {
+  try {
+    const raw = JSON.parse(localStorage.getItem("cfop-phase-targets") ?? "{}") as Partial<Record<Phase, number>>;
+    return { Cross: raw.Cross ?? 4, F2L: raw.F2L ?? 12, OLL: raw.OLL ?? 4, PLL: raw.PLL ?? 5 };
+  } catch { return defaultTargets; }
+}
+
 function Help({ text }: { text: string }) { return <span className="settings-help" title={text} aria-label={text}><CircleHelp /></span>; }
-function SettingCard({ index, title, tip, children }: { index: string; title: string; tip: string; children: ReactNode }) { return <section className="settings-sheet"><div className="settings-card-title"><p>{index}</p><h2>{title}<Help text={tip} /></h2></div>{children}</section>; }
+function SettingCard({ index, title, tip, children }: { index: string; title: string; tip: string; children: ReactNode }) {
+  return <section className="settings-sheet"><div className="settings-card-title"><p>{index}</p><h2>{title}<Help text={tip} /></h2></div>{children}</section>;
+}
 
 export default function Settings() {
   const { language, setLanguage } = useLanguage();
   const { theme, themeMode, setThemeMode } = useTheme();
   const vi = language === "vi";
+  const label = (viText: string, enText: string) => vi ? viText : enText;
   const [solver, setSolver] = useState<SolverSettings>(readSolverSettings);
   const [sound, setSound] = useState(() => localStorage.getItem("cfop-inspection-sound") !== "off");
   const [splits, setSplits] = useState(() => localStorage.getItem("cfop-space-splits") !== "off");
@@ -30,29 +72,113 @@ export default function Settings() {
   const [targets, setTargets] = useState(readTargets);
   const [dailyGoal, setDailyGoal] = useState(() => readLastLayerStudy().dailyGoal);
   const [fontScale, setFontScale] = useState(readAppFontScale);
+  const [formulaScale, setFormulaScale] = useState(readFormulaScale);
   const [accent, setAccent] = useState<AppAccent>(readAppAccent);
   const [customAccent, setCustomAccent] = useState(readCustomAppAccent);
   const [saved, setSaved] = useState(false);
-  const save = () => { writeSolverSettings(solver); writeAppFontScale(fontScale); if (accent !== "custom") writeAppAccent(accent); localStorage.setItem("cfop-inspection-color", solver.crossColor); localStorage.setItem("cfop-inspection-sound", sound ? "on" : "off"); localStorage.setItem("cfop-space-splits", splits ? "on" : "off"); localStorage.setItem("cfop-cross-highlight", highlight ? "on" : "off"); localStorage.setItem("cfop-phase-targets", JSON.stringify(targets)); writeLastLayerStudy({ ...readLastLayerStudy(), dailyGoal }); setSaved(true); window.setTimeout(() => setSaved(false), 2200); };
-  const reset = () => { setSolver(DEFAULT_SOLVER_SETTINGS); setSound(true); setSplits(true); setHighlight(true); setTargets(defaultTargets); setDailyGoal(12); setFontScale(DEFAULT_FONT_SCALE); setAccent("mint"); setCustomAccent("#1ba77a"); writeAppFontScale(DEFAULT_FONT_SCALE); writeAppAccent("mint"); setThemeMode("light"); };
-  const setTarget = (phase: Phase, value: number) => { if (Number.isFinite(value) && value > 0) setTargets((current) => ({ ...current, [phase]: value })); };
-  const setScale = (value: number) => { const next = clampAppFontScale(value); setFontScale(next); writeAppFontScale(next); };
-  const label = (viText: string, enText: string) => vi ? viText : enText;
-  return <main className="settings-page min-h-screen bg-[#f4f0e8] text-[#17221d]"><div className="settings-workbench mx-auto max-w-5xl px-4 py-4 sm:px-6">
-    <div className="settings-strip"><span>{label("CÀI ĐẶT ỨNG DỤNG", "APP SETTINGS")}</span><small>{label("Dấu ? giải thích từng nhóm", "? explains each group")}</small></div>
-    <div className="mt-4 grid gap-3 lg:grid-cols-2">
-      <SettingCard index="01 · SOLVER" title={label("Thuật toán & Cross", "Solver & Cross")} tip={label("Chọn hướng Cross, độ sâu mở đầu và chiến lược lớp cuối mặc định cho lần giải mới.", "Sets the default Cross orientation, opening depth, and last-layer strategy for new solves.")}>
-        <label className="settings-label">{label("Màu Cross mặc định", "Default Cross color")}</label><div className="grid grid-cols-6 gap-2">{colors.map((color) => <button key={color.value} onClick={() => setSolver((current) => ({ ...current, crossColor: color.value }))} className={solver.crossColor === color.value ? "settings-color active" : "settings-color"} title={label(color.vi, color.en)}><span style={{ backgroundColor: color.hex }} /></button>)}</div>
-        <label className="settings-label">{label("Mở đầu", "Opening")}</label><div className="settings-chip-grid">{openings.map((option) => <button key={option.value} onClick={() => setSolver((current) => ({ ...current, opening: option.value }))} className={solver.opening === option.value ? "active" : ""}>{option.label}</button>)}</div><label className="settings-label mt-4 flex items-center justify-between"><span>{label("Độ sâu direct opening", "Direct opening depth")}</span><b className="font-mono text-[#1b7b5e]">{solver.openingDepth}</b></label><input aria-label={label("Độ sâu direct opening", "Direct opening depth")} type="range" min="4" max="10" step="1" value={solver.openingDepth} onChange={(event) => setSolver((current) => ({ ...current, openingDepth: Number(event.target.value) }))} className="w-full accent-[#1ba77a]" /><p className="mt-1 font-mono text-[9px] leading-4 text-[#17221d]/55">{label("Áp dụng đồng thời cho XCross đến XXXXCross. Depth cao hơn tìm kỹ hơn nhưng chậm hơn.", "Applies to XCross through XXXXCross. Higher depth searches harder but takes longer.")}</p>
-        <label className="settings-label">{label("Lớp cuối", "Last layer")}</label><div className="settings-chip-grid">{lastLayers.map((option) => <button key={option.value} onClick={() => setSolver((current) => ({ ...current, lastLayer: option.value }))} className={solver.lastLayer === option.value ? "active" : ""}>{option.label}</button>)}</div>
-        <label className="settings-label">{label("Ưu tiên / loại trừ F2L", "Prefer / exclude F2L")}</label><div className="settings-chip-grid"><button onClick={() => setSolver((current) => ({ ...current, preferredSlot: undefined }))} className={!solver.preferredSlot ? "active" : ""}>{label("Tự do", "Any")}</button>{f2lSlots.map((slot) => <button key={slot} disabled={solver.excludedSlots.includes(slot)} onClick={() => setSolver((current) => ({ ...current, preferredSlot: current.preferredSlot === slot ? undefined : slot }))} className={solver.preferredSlot === slot ? "active" : ""}>{slot}</button>)}</div><div className="settings-chip-grid mt-1">{f2lSlots.map((slot) => <button key={slot} onClick={() => setSolver((current) => ({ ...current, preferredSlot: current.preferredSlot === slot ? undefined : current.preferredSlot, excludedSlots: current.excludedSlots.includes(slot) ? current.excludedSlots.filter((value) => value !== slot) : [...current.excludedSlots, slot] }))} className={solver.excludedSlots.includes(slot) ? "active" : ""}>{label("Loại", "Skip")} {slot}</button>)}</div>
-      </SettingCard>
-      <SettingCard index="02 · TIMER" title="Inspection & Input" tip={label("Bật âm báo inspection, kiểm soát Speed split và lựa chọn highlight Cross trong preview 3D.", "Controls inspection audio, Speed split, and Cross highlight in the 3D preview.")}>
-        <div className="mt-3 space-y-2"><button onClick={() => setSound(!sound)} className={sound ? "settings-toggle active" : "settings-toggle"}><span>{label("Âm inspection", "Inspection sound")}</span><b>{sound ? "ON" : "OFF"}</b></button><button onClick={() => setSplits(!splits)} className={splits ? "settings-toggle active" : "settings-toggle"}><span>Speed split</span><b>{splits ? "ON" : "OFF"}</b></button><button onClick={() => setHighlight(!highlight)} className={highlight ? "settings-toggle active" : "settings-toggle"}><span>{label("Highlight Cross", "Cross highlight")}</span><b>{highlight ? "ON" : "OFF"}</b></button></div>
-      </SettingCard>
-      {splits && <SettingCard index="03 · SPEED SPLIT" title={label("Mục tiêu pha", "Phase targets")} tip={label("Các ngưỡng này chỉ dùng khi Speed split bật để báo pha Cross, F2L, OLL và PLL chậm hơn mục tiêu.", "These limits appear only with Speed split and flag Cross, F2L, OLL, or PLL phases that exceed the target.")}><div className="mt-3 space-y-2">{(Object.keys(targets) as Phase[]).map((phase) => <label key={phase} className="settings-number"><span>{phase}</span><input type="number" min="0.1" max="120" step="0.1" value={targets[phase]} onChange={(event) => setTarget(phase, Number(event.target.value))} /><em>s</em></label>)}</div></SettingCard>}
-      <SettingCard index="04 · STUDY" title={label("Mục tiêu & ngôn ngữ", "Goal & language")} tip={label("Đặt số case ôn mỗi ngày cho Study Bay và thay đổi ngôn ngữ toàn ứng dụng ngay lập tức.", "Sets the daily Study Bay review count and changes the application language immediately.")}><label className="settings-number mt-3"><span>{label("Case / ngày", "Cases / day")}</span><input type="number" min="1" max="200" value={dailyGoal} onChange={(event) => setDailyGoal(Math.max(1, Math.min(200, Number(event.target.value) || 1)))} /><em>{label("case", "cases")}</em></label><div className="settings-chip-grid mt-4"><button onClick={() => setLanguage("vi")} className={vi ? "active" : ""}>Tiếng Việt</button><button onClick={() => setLanguage("en")} className={!vi ? "active" : ""}>English</button></div></SettingCard>
-      <SettingCard index="05 · DISPLAY" title={label("Hiển thị, theme & cỡ chữ", "Display, theme & text size")} tip={label("Theme có thể theo hệ điều hành; màu nhấn, Dark Mode và tỷ lệ chữ được lưu trên thiết bị này.", "Theme can follow the operating system; accent, Dark Mode, and type scale are stored on this device.")}><label className="settings-label mt-3">{label("Chế độ màu", "Color mode")}</label><div className="settings-chip-grid"><button onClick={() => setThemeMode("light")} className={themeMode === "light" ? "active" : ""}><Sun className="mr-1 inline h-3.5 w-3.5" />{label("Sáng", "Light")}</button><button onClick={() => setThemeMode("dark")} className={themeMode === "dark" ? "active" : ""}><Moon className="mr-1 inline h-3.5 w-3.5" />Dark</button><button onClick={() => setThemeMode("system")} className={themeMode === "system" ? "active" : ""}>{label("Hệ điều hành", "System")}</button></div><p className="mt-2 font-mono text-[8px] text-[#17221d]/55">{themeMode === "system" ? (theme === "dark" ? label("Hệ điều hành hiện đang dùng Dark.", "System is currently using Dark.") : label("Hệ điều hành hiện đang dùng Sáng.", "System is currently using Light.")) : label("Lựa chọn này ghi đè giao diện hệ điều hành.", "This choice overrides the system appearance.")}</p><label className="settings-label mt-4">{label("Màu nhấn", "Accent color")}</label><div className="settings-accent-grid">{accents.map((option) => <button key={option.value} onClick={() => { setAccent(option.value); writeAppAccent(option.value); }} className={accent === option.value ? "active" : ""} title={label(option.vi, option.en)}><span style={{ background: option.color }} />{label(option.vi, option.en)}</button>)}</div><div className="settings-custom-accent"><div><label htmlFor="custom-accent" className="settings-label mt-4">{label("Màu tùy chỉnh", "Custom color")}</label><div className="settings-custom-accent-input"><input id="custom-accent" aria-label={label("Chọn màu nhấn tùy chỉnh", "Choose custom accent color")} type="color" value={customAccent} onChange={(event) => setCustomAccent(event.target.value)} /><code>{customAccent.toUpperCase()}</code><button type="button" disabled={!isValidAccentColor(customAccent)} onClick={() => { if (writeCustomAppAccent(customAccent)) setAccent("custom"); }}>{label("Áp dụng", "Apply")}</button></div></div><div className="accent-preview" style={{ "--preview-accent": customAccent } as CSSProperties}><div className="accent-preview-nav"><i /><b>CFOP</b><span>{label("Studio", "Studio")}</span></div><div className="accent-preview-stage"><small>{label("XEM TRƯỚC", "PREVIEW")}</small><strong>{label("Nước xoay", "Move")}</strong><button>{label("Giải", "Solve")}</button></div><p>{label("Preview chỉ dùng màu draft; chọn Áp dụng để đổi giao diện.", "Preview uses the draft color only; choose Apply to change the interface.")}</p></div></div><label className="settings-label mt-4 flex items-center justify-between"><span>{label("Tỷ lệ chữ toàn trang", "Whole-app text scale")}</span><b className="font-mono text-[#1b7b5e]">{fontScale}%</b></label><div className="mt-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"><button type="button" aria-label={label("Giảm tỷ lệ chữ", "Decrease text scale")} onClick={() => setScale(fontScale - 1)} disabled={fontScale <= MIN_FONT_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Minus className="h-4 w-4" /></button><input aria-label={label("Tỷ lệ chữ toàn trang theo phần trăm", "Whole-app text scale percentage")} type="range" min={MIN_FONT_SCALE} max={MAX_FONT_SCALE} step="1" value={fontScale} onChange={(event) => setScale(Number(event.target.value))} className="w-full accent-[#1ba77a]" /><button type="button" aria-label={label("Tăng tỷ lệ chữ", "Increase text scale")} onClick={() => setScale(fontScale + 1)} disabled={fontScale >= MAX_FONT_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Plus className="h-4 w-4" /></button></div><div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2"><input aria-label={label("Nhập tỷ lệ chữ phần trăm", "Enter text scale percentage")} type="number" min={MIN_FONT_SCALE} max={MAX_FONT_SCALE} step="1" value={fontScale} onChange={(event) => { if (event.target.value !== "") setScale(Number(event.target.value)); }} className="h-9 min-w-0 rounded-sm border border-[#17221d]/25 bg-white px-2 text-right font-mono text-sm font-bold outline-none focus:border-[#1ba77a]" /><span className="font-mono text-[10px] text-[#17221d]/55">%</span><button type="button" onClick={() => setScale(DEFAULT_FONT_SCALE)} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[9px] font-bold hover:border-[#17221d]">{label("100% MẶC ĐỊNH", "RESET 100%")}</button></div><div className="mt-3 border-y border-[#17221d]/12 py-2"><p style={{ fontSize: `${Math.round((16 * fontScale) / 100)}px` }} className="font-sans font-bold leading-snug">{label("Xem trước kích thước chữ trong giao diện.", "Preview of interface text size.")}</p><p className="mt-1 font-mono text-[9px] text-[#17221d]/55">{MIN_FONT_SCALE}%–{MAX_FONT_SCALE}% · {label("thay đổi từng 1% và áp dụng ngay.", "changes in 1% steps and applies immediately.")}</p></div><p className="mt-3 font-mono text-[9px] leading-4 text-[#17221d]/55">{label("Các màu nhấn thay rail, trạng thái active và điều khiển chính; Dark Mode giữ surface than và formula có độ tương phản rõ.", "Accent colors drive rails, active states, and primary controls; Dark Mode keeps charcoal surfaces and formula contrast clear.")}</p></SettingCard>
-    </div><div className="settings-actions"><button onClick={reset} className="settings-reset"><RotateCcw />{label("Khôi phục", "Reset")}</button><button onClick={save} className="settings-save">{saved ? <Check /> : null}{saved ? label("Đã lưu", "Saved") : label("Lưu cài đặt", "Save settings")}</button></div>
-  </div></main>;
+
+  const setScale = (value: number) => {
+    const next = clampAppFontScale(value);
+    setFontScale(next);
+    writeAppFontScale(next);
+  };
+  const setFormulaTextScale = (value: number) => {
+    const next = clampFormulaScale(value);
+    setFormulaScale(next);
+    writeFormulaScale(next);
+  };
+  const save = () => {
+    writeSolverSettings(solver);
+    writeAppFontScale(fontScale);
+    writeFormulaScale(formulaScale);
+    if (accent !== "custom") writeAppAccent(accent);
+    localStorage.setItem("cfop-inspection-color", solver.crossColor);
+    localStorage.setItem("cfop-inspection-sound", sound ? "on" : "off");
+    localStorage.setItem("cfop-space-splits", splits ? "on" : "off");
+    localStorage.setItem("cfop-cross-highlight", highlight ? "on" : "off");
+    localStorage.setItem("cfop-phase-targets", JSON.stringify(targets));
+    writeLastLayerStudy({ ...readLastLayerStudy(), dailyGoal });
+    setSaved(true);
+    window.setTimeout(() => setSaved(false), 2200);
+  };
+  const reset = () => {
+    setSolver(DEFAULT_SOLVER_SETTINGS);
+    setSound(true);
+    setSplits(true);
+    setHighlight(true);
+    setTargets(defaultTargets);
+    setDailyGoal(12);
+    setScale(DEFAULT_FONT_SCALE);
+    setFormulaTextScale(DEFAULT_FORMULA_SCALE);
+    setAccent("mint");
+    setCustomAccent("#1ba77a");
+    writeAppAccent("mint");
+    setThemeMode("light");
+  };
+  const setTarget = (phase: Phase, value: number) => {
+    if (Number.isFinite(value) && value > 0) setTargets((current) => ({ ...current, [phase]: value }));
+  };
+
+  return <main className="settings-page min-h-screen bg-[#f4f0e8] text-[#17221d]">
+    <div className="settings-workbench mx-auto max-w-5xl px-4 py-4 sm:px-6">
+      <div className="settings-strip"><span>{label("CÀI ĐẶT ỨNG DỤNG", "APP SETTINGS")}</span><small>{label("Dấu ? giải thích từng nhóm", "? explains each group")}</small></div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        <SettingCard index="01 · SOLVER" title={label("Thuật toán & Cross", "Solver & Cross")} tip={label("Chọn hướng Cross, độ sâu mở đầu và chiến lược lớp cuối mặc định cho lần giải mới.", "Sets the default Cross orientation, opening depth, and last-layer strategy for new solves.")}>
+          <label className="settings-label">{label("Màu Cross mặc định", "Default Cross color")}</label>
+          <div className="grid grid-cols-6 gap-2">{colors.map((color) => <button key={color.value} onClick={() => setSolver((current) => ({ ...current, crossColor: color.value }))} className={solver.crossColor === color.value ? "settings-color active" : "settings-color"} title={label(color.vi, color.en)}><span style={{ backgroundColor: color.hex }} /></button>)}</div>
+          <label className="settings-label">{label("Mở đầu", "Opening")}</label>
+          <div className="settings-chip-grid">{openings.map((option) => <button key={option.value} onClick={() => setSolver((current) => ({ ...current, opening: option.value }))} className={solver.opening === option.value ? "active" : ""}>{option.label}</button>)}</div>
+          <label className="settings-label mt-4 flex items-center justify-between"><span>{label("Độ sâu direct opening", "Direct opening depth")}</span><b className="font-mono text-[#1b7b5e]">{solver.openingDepth}</b></label>
+          <input aria-label={label("Độ sâu direct opening", "Direct opening depth")} type="range" min="4" max="10" step="1" value={solver.openingDepth} onChange={(event) => setSolver((current) => ({ ...current, openingDepth: Number(event.target.value) }))} className="w-full accent-[#1ba77a]" />
+          <p className="mt-1 font-mono text-[9px] leading-4 text-[#17221d]/55">{label("Áp dụng đồng thời cho XCross đến XXXXCross. Depth cao hơn tìm kỹ hơn nhưng chậm hơn.", "Applies to XCross through XXXXCross. Higher depth searches harder but takes longer.")}</p>
+          <label className="settings-label">{label("Lớp cuối", "Last layer")}</label>
+          <div className="settings-chip-grid">{lastLayers.map((option) => <button key={option.value} onClick={() => setSolver((current) => ({ ...current, lastLayer: option.value }))} className={solver.lastLayer === option.value ? "active" : ""}>{option.label}</button>)}</div>
+          <label className="settings-label">{label("Ưu tiên / loại trừ F2L", "Prefer / exclude F2L")}</label>
+          <div className="settings-chip-grid"><button onClick={() => setSolver((current) => ({ ...current, preferredSlot: undefined }))} className={!solver.preferredSlot ? "active" : ""}>{label("Tự do", "Any")}</button>{f2lSlots.map((slot) => <button key={slot} disabled={solver.excludedSlots.includes(slot)} onClick={() => setSolver((current) => ({ ...current, preferredSlot: current.preferredSlot === slot ? undefined : slot }))} className={solver.preferredSlot === slot ? "active" : ""}>{slot}</button>)}</div>
+          <div className="settings-chip-grid mt-1">{f2lSlots.map((slot) => <button key={slot} onClick={() => setSolver((current) => ({ ...current, preferredSlot: current.preferredSlot === slot ? undefined : current.preferredSlot, excludedSlots: current.excludedSlots.includes(slot) ? current.excludedSlots.filter((value) => value !== slot) : [...current.excludedSlots, slot] }))} className={solver.excludedSlots.includes(slot) ? "active" : ""}>{label("Loại", "Skip")} {slot}</button>)}</div>
+        </SettingCard>
+
+        <SettingCard index="02 · TIMER" title="Inspection & Input" tip={label("Bật âm báo inspection, kiểm soát Speed split và lựa chọn highlight Cross trong preview 3D.", "Controls inspection audio, Speed split, and Cross highlight in the 3D preview.")}>
+          <div className="mt-3 space-y-2"><button onClick={() => setSound(!sound)} className={sound ? "settings-toggle active" : "settings-toggle"}><span>{label("Âm inspection", "Inspection sound")}</span><b>{sound ? "ON" : "OFF"}</b></button><button onClick={() => setSplits(!splits)} className={splits ? "settings-toggle active" : "settings-toggle"}><span>Speed split</span><b>{splits ? "ON" : "OFF"}</b></button><button onClick={() => setHighlight(!highlight)} className={highlight ? "settings-toggle active" : "settings-toggle"}><span>{label("Highlight Cross", "Cross highlight")}</span><b>{highlight ? "ON" : "OFF"}</b></button></div>
+        </SettingCard>
+
+        {splits && <SettingCard index="03 · SPEED SPLIT" title={label("Mục tiêu pha", "Phase targets")} tip={label("Các ngưỡng này chỉ dùng khi Speed split bật để báo pha Cross, F2L, OLL và PLL chậm hơn mục tiêu.", "These limits appear only with Speed split and flag Cross, F2L, OLL, or PLL phases that exceed the target.")}><div className="mt-3 space-y-2">{(Object.keys(targets) as Phase[]).map((phase) => <label key={phase} className="settings-number"><span>{phase}</span><input type="number" min="0.1" max="120" step="0.1" value={targets[phase]} onChange={(event) => setTarget(phase, Number(event.target.value))} /><em>s</em></label>)}</div></SettingCard>}
+
+        <SettingCard index="04 · STUDY" title={label("Mục tiêu & ngôn ngữ", "Goal & language")} tip={label("Đặt số case ôn mỗi ngày cho Study Bay và thay đổi ngôn ngữ toàn ứng dụng ngay lập tức.", "Sets the daily Study Bay review count and changes the application language immediately.")}>
+          <label className="settings-number mt-3"><span>{label("Case / ngày", "Cases / day")}</span><input type="number" min="1" max="200" value={dailyGoal} onChange={(event) => setDailyGoal(Math.max(1, Math.min(200, Number(event.target.value) || 1)))} /><em>{label("case", "cases")}</em></label>
+          <div className="settings-chip-grid mt-4"><button onClick={() => setLanguage("vi")} className={vi ? "active" : ""}>Tiếng Việt</button><button onClick={() => setLanguage("en")} className={!vi ? "active" : ""}>English</button></div>
+        </SettingCard>
+
+        <SettingCard index="05 · DISPLAY" title={label("Hiển thị, theme & cỡ chữ", "Display, theme & text size")} tip={label("Theme theo hệ điều hành; màu nhấn, tỷ lệ giao diện và tỷ lệ công thức/memo được lưu riêng trên thiết bị này.", "Theme can follow the operating system; accent, UI scale, and formula/memo scale are stored separately on this device.")}>
+          <label className="settings-label mt-3">{label("Chế độ màu", "Color mode")}</label>
+          <div className="settings-chip-grid"><button onClick={() => setThemeMode("light")} className={themeMode === "light" ? "active" : ""}><Sun className="mr-1 inline h-3.5 w-3.5" />{label("Sáng", "Light")}</button><button onClick={() => setThemeMode("dark")} className={themeMode === "dark" ? "active" : ""}><Moon className="mr-1 inline h-3.5 w-3.5" />Dark</button><button onClick={() => setThemeMode("system")} className={themeMode === "system" ? "active" : ""}>{label("Hệ điều hành", "System")}</button></div>
+          <p className="mt-2 font-mono text-[8px] text-[#17221d]/55">{themeMode === "system" ? (theme === "dark" ? label("Hệ điều hành hiện đang dùng Dark.", "System is currently using Dark.") : label("Hệ điều hành hiện đang dùng Sáng.", "System is currently using Light.")) : label("Lựa chọn này ghi đè giao diện hệ điều hành.", "This choice overrides the system appearance.")}</p>
+
+          <label className="settings-label mt-4">{label("Màu nhấn", "Accent color")}</label>
+          <div className="settings-accent-grid">{accents.map((option) => <button key={option.value} onClick={() => { setAccent(option.value); writeAppAccent(option.value); }} className={accent === option.value ? "active" : ""} title={label(option.vi, option.en)}><span style={{ background: option.color }} />{label(option.vi, option.en)}</button>)}</div>
+          <div className="settings-custom-accent"><div><label htmlFor="custom-accent" className="settings-label mt-4">{label("Màu tùy chỉnh", "Custom color")}</label><div className="settings-custom-accent-input"><input id="custom-accent" aria-label={label("Chọn màu nhấn tùy chỉnh", "Choose custom accent color")} type="color" value={customAccent} onChange={(event) => setCustomAccent(event.target.value)} /><code>{customAccent.toUpperCase()}</code><button type="button" disabled={!isValidAccentColor(customAccent)} onClick={() => { if (writeCustomAppAccent(customAccent)) setAccent("custom"); }}>{label("Áp dụng", "Apply")}</button></div></div><div className="accent-preview" style={{ "--preview-accent": customAccent } as CSSProperties}><div className="accent-preview-nav"><i /><b>CFOP</b><span>{label("Studio", "Studio")}</span></div><div className="accent-preview-stage"><small>{label("XEM TRƯỚC", "PREVIEW")}</small><strong>{label("Nước xoay", "Move")}</strong><button>{label("Giải", "Solve")}</button></div><p>{label("Preview chỉ dùng màu draft; chọn Áp dụng để đổi giao diện.", "Preview uses the draft color only; choose Apply to change the interface.")}</p></div></div>
+
+          <label className="settings-label mt-4 flex items-center justify-between"><span>{label("Tỷ lệ chữ toàn trang", "Whole-app text scale")}</span><b className="font-mono text-[#1b7b5e]">{fontScale}%</b></label>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button type="button" aria-label={label("Giảm tỷ lệ chữ", "Decrease text scale")} onClick={() => setScale(fontScale - 1)} disabled={fontScale <= MIN_FONT_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Minus className="h-4 w-4" /></button>
+            <input aria-label={label("Tỷ lệ chữ toàn trang theo phần trăm", "Whole-app text scale percentage")} type="range" min={MIN_FONT_SCALE} max={MAX_FONT_SCALE} step="1" value={fontScale} onChange={(event) => setScale(Number(event.target.value))} className="min-w-36 flex-1 accent-[#1ba77a]" />
+            <button type="button" aria-label={label("Tăng tỷ lệ chữ", "Increase text scale")} onClick={() => setScale(fontScale + 1)} disabled={fontScale >= MAX_FONT_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Plus className="h-4 w-4" /></button>
+            <div className="settings-scale-presets" aria-label={label("Preset tỷ lệ chữ", "Text scale presets")}>{quickFontScales.map((scale) => <button key={scale} type="button" onClick={() => setScale(scale)} className={fontScale === scale ? "active" : ""}>{scale}%</button>)}</div>
+          </div>
+          <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2"><input aria-label={label("Nhập tỷ lệ chữ phần trăm", "Enter text scale percentage")} type="number" min={MIN_FONT_SCALE} max={MAX_FONT_SCALE} step="1" value={fontScale} onChange={(event) => { if (event.target.value !== "") setScale(Number(event.target.value)); }} className="h-9 min-w-0 rounded-sm border border-[#17221d]/25 bg-white px-2 text-right font-mono text-sm font-bold outline-none focus:border-[#1ba77a]" /><span className="font-mono text-[10px] text-[#17221d]/55">%</span><button type="button" onClick={() => setScale(DEFAULT_FONT_SCALE)} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[9px] font-bold hover:border-[#17221d]">{label("100% MẶC ĐỊNH", "RESET 100%")}</button></div>
+          <div className="mt-3 border-y border-[#17221d]/12 py-2"><p style={{ fontSize: `${Math.round((16 * fontScale) / 100)}px` }} className="font-sans font-bold leading-snug">{label("Xem trước kích thước chữ trong giao diện.", "Preview of interface text size.")}</p><p className="mt-1 font-mono text-[9px] text-[#17221d]/55">{MIN_FONT_SCALE}%–{MAX_FONT_SCALE}% · {label("thay đổi từng 1% và áp dụng ngay.", "changes in 1% steps and applies immediately.")}</p></div>
+
+          <div className="mt-5 border-y border-[#17221d]/16 py-4">
+            <label className="settings-label flex items-center justify-between"><span>{label("Công thức & memo", "Formula & memo text")}</span><b className="font-mono text-[#1b7b5e]">{formulaScale}%</b></label>
+            <p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{label("Chỉ phóng to notation CFOP, công thức Last Layer, 3-Style algorithm và memo letter pair. Navbar, nút và UI điều hướng không đổi kích thước.", "Only enlarges CFOP notation, Last Layer formulas, 3-Style algorithms, and memo letter pairs. Navigation, buttons, and UI chrome stay the same size.")}</p>
+            <div className="mt-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"><button type="button" aria-label={label("Giảm cỡ công thức", "Decrease formula scale")} onClick={() => setFormulaTextScale(formulaScale - 1)} disabled={formulaScale <= MIN_FORMULA_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Minus className="h-4 w-4" /></button><input aria-label={label("Tỷ lệ công thức và memo", "Formula and memo scale percentage")} type="range" min={MIN_FORMULA_SCALE} max={MAX_FORMULA_SCALE} step="1" value={formulaScale} onChange={(event) => setFormulaTextScale(Number(event.target.value))} className="w-full accent-[#1ba77a]" /><button type="button" aria-label={label("Tăng cỡ công thức", "Increase formula scale")} onClick={() => setFormulaTextScale(formulaScale + 1)} disabled={formulaScale >= MAX_FORMULA_SCALE} className="grid h-9 w-9 place-items-center rounded-sm border border-[#17221d]/25 bg-white text-[#17221d] disabled:opacity-35"><Plus className="h-4 w-4" /></button></div>
+            <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2"><input aria-label={label("Nhập tỷ lệ công thức", "Enter formula scale percentage")} type="number" min={MIN_FORMULA_SCALE} max={MAX_FORMULA_SCALE} step="1" value={formulaScale} onChange={(event) => { if (event.target.value !== "") setFormulaTextScale(Number(event.target.value)); }} className="h-9 min-w-0 rounded-sm border border-[#17221d]/25 bg-white px-2 text-right font-mono text-sm font-bold outline-none focus:border-[#1ba77a]" /><span className="font-mono text-[10px] text-[#17221d]/55">%</span><button type="button" onClick={() => setFormulaTextScale(DEFAULT_FORMULA_SCALE)} className="h-9 rounded-sm border border-[#17221d]/25 bg-[#f4f0e8] px-2 font-mono text-[9px] font-bold hover:border-[#17221d]">{label("100% MẶC ĐỊNH", "RESET 100%")}</button></div>
+            <div className="mt-3 border-l-4 border-[#1ba77a] bg-white px-3 py-3"><p className="font-mono text-[8px] font-bold tracking-[0.14em] text-[#17221d]/50">{label("XEM TRƯỚC CÔNG THỨC / MEMO", "FORMULA / MEMO PREVIEW")}</p><p className="formula-content mt-1 font-mono text-base font-black tracking-[0.12em] text-[#17221d]">R U R′ U′ · CJD AWH</p></div>
+          </div>
+          <p className="mt-3 font-mono text-[9px] leading-4 text-[#17221d]/55">{label("Các màu nhấn thay rail, trạng thái active và điều khiển chính; Dark Mode giữ surface than và formula có độ tương phản rõ.", "Accent colors drive rails, active states, and primary controls; Dark Mode keeps charcoal surfaces and formula contrast clear.")}</p>
+        </SettingCard>
+      </div>
+      <div className="settings-actions"><button onClick={reset} className="settings-reset"><RotateCcw />{label("Khôi phục", "Reset")}</button><button onClick={save} className="settings-save">{saved ? <Check /> : null}{saved ? label("Đã lưu", "Saved") : label("Lưu cài đặt", "Save settings")}</button></div>
+    </div>
+  </main>;
 }

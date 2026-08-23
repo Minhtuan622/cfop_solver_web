@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Xưởng Cơ Khí Tốc Độ — cube motion is a restrained physical layer turn plus a mint phase relay. */
+/* Xưởng Cơ Khí Tốc Độ — cube motion and formula-only type scale keep navigation chrome calibrated while notation stays readable. */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -1143,6 +1143,10 @@ html[data-font-scale] { font-size: inherit; }
   .accent-preview-stage { display: grid; grid-template-columns: 1fr auto; gap: .25rem .45rem; padding: .45rem; }.accent-preview-stage small { color: var(--preview-accent); font-size: 7px; font-weight: 800; letter-spacing: .08em; }.accent-preview-stage strong { grid-column: 1 / -1; font-size: 12px; }.accent-preview-stage button { grid-column: 1 / -1; border: 1px solid #17221d; background: var(--preview-accent); color: #102018; padding: .28rem; font-family: inherit; font-size: 9px; font-weight: 900; }
   .accent-preview p { border-top: 1px solid rgb(23 34 29 / .15); margin: 0; padding: .3rem .45rem; color: rgb(23 34 29 / .58); font-size: 7px; line-height: 1.35; }
   .dark .settings-custom-accent-input, .dark .accent-preview { border-color: rgb(231 235 227 / .25); background: #1c2821; color: #e7ebe3; }.dark .settings-custom-accent-input button { border-color: #e7ebe3; background: #e7ebe3; color: #102018; }.dark .accent-preview-nav, .dark .accent-preview p { border-color: rgb(231 235 227 / .16); }.dark .accent-preview p { color: rgb(231 235 227 / .58); }.dark .accent-preview-stage button { border-color: #e7ebe3; color: #102018; }
+  .settings-scale-presets { display: inline-flex; min-height: 2.25rem; overflow: hidden; border: 1px solid rgb(23 34 29 / .25); background: #f8f5ed; }
+  .settings-scale-presets button { min-width: 2.55rem; border-right: 1px solid rgb(23 34 29 / .18); padding: 0 .42rem; font-family: "IBM Plex Mono", monospace; font-size: 9px; font-weight: 800; color: rgb(23 34 29 / .64); transition: background-color 160ms ease-out, color 160ms ease-out, transform 160ms ease-out; }
+  .settings-scale-presets button:last-child { border-right: 0; }.settings-scale-presets button:hover { background: var(--workbench-accent-soft); color: #17221d; }.settings-scale-presets button.active { background: var(--workbench-accent); color: var(--workbench-accent-ink); }.settings-scale-presets button:active { transform: scale(.96); }
+  .dark .settings-scale-presets { border-color: var(--wb-line); background: var(--wb-panel); }.dark .settings-scale-presets button { border-color: var(--wb-line); color: var(--wb-muted); }.dark .settings-scale-presets button:hover { color: var(--wb-ink); }
   @media (max-width: 640px) { .settings-custom-accent { grid-template-columns: 1fr; }.accent-preview { max-width: none; } }
 
   /* Theme-consistency audit: semantic materials live after every legacy workbench selector. */
@@ -1163,6 +1167,22 @@ html[data-font-scale] { font-size: inherit; }
   .dark .studio-page .studio-apparatus-viewport { background-color: var(--wb-inset) !important; }
   .dark .studio-page .studio-apparatus-controls .control-button, .dark .studio-page .studio-report-options button, .dark .studio-page .last-layer-formula-strip button, .dark .studio-page .cube-state-editor button { background-color: var(--wb-panel); color: var(--wb-ink); border-color: var(--wb-line); }
   .dark .studio-page .studio-apparatus-controls button.bg-\[\#17221d\] { background-color: #080d0a !important; color: #edf2eb !important; }
+
+  /* Semantic formula scope: this scales notation/memo content only, never navigation or control chrome. */
+  :root { --formula-scale: 1; }
+  .formula-content { font-size: calc(1em * var(--formula-scale)); }
+
+  /* Calibration-sheet refinement: mint marks selection and measurement, never a generic Settings section fill. */
+  .settings-sheet { box-shadow: none; }
+  [data-accent] .settings-card-title { background-color: transparent !important; box-shadow: inset 3px 0 0 var(--workbench-accent) !important; }
+  .settings-card-title h2 { padding-right: .15rem; }
+  [data-accent] .settings-toggle.active { border-color: var(--workbench-accent) !important; background-color: var(--wb-panel) !important; color: var(--wb-ink) !important; box-shadow: inset 3px 0 0 var(--workbench-accent) !important; }
+  [data-accent] .settings-toggle.active b { color: var(--workbench-accent) !important; }
+  .settings-chip-grid button.active { box-shadow: inset 2px 0 0 var(--workbench-accent-ink); }
+  .settings-workbench > .grid::before { background: repeating-linear-gradient(to bottom, var(--workbench-accent) 0 7px, transparent 7px 14px); opacity: .58; }
+  .study-measurement-rail::after { position: absolute; top: .65rem; bottom: .7rem; left: .2rem; width: calc(100% - .2rem); background: repeating-linear-gradient(to bottom, transparent 0 39px, var(--wb-line) 39px 40px); content: ""; opacity: .52; pointer-events: none; }
+  .study-measurement-rail > * { z-index: 1; }
+  .app-shell-brand b { letter-spacing: .095em; }
 
   /* Theme transition runs only while the root flag is present; it cannot affect continuous cube/playback motion. */
   @media (prefers-reduced-motion: no-preference) {

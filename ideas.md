@@ -113,3 +113,5 @@
 - Study Bay chỉ dùng CubeNet/case trainer làm apparatus đậm; Cube 3D và stopwatch chuyển thành telemetry giấy kỹ thuật có rail đo liên kết.
 - Right rail của Study nối mục tiêu, lịch ôn và catalog thành một measurement ladder liên tục bằng mint rail, ruled row, counter và case ID mono.
 - Nameplate toàn cục tăng nhận diện bằng cube stamp vuông, wordmark CFOP liền mạch và O-notch mint/đường tick nhỏ; không tăng chiều cao header.
+- Settings là calibration record sheet phẳng: rail dọc, numbered rule và status mono mang hierarchy; Solver Mint chỉ đánh dấu lựa chọn, action hợp lệ hoặc phép đo, không phủ nền tiêu đề/row chung.
+- Right rail nối case, counter, lịch và catalog bằng ruled ladder liên tục; khoảng trống giữ grid/rule rất nhẹ để đọc như bàn đo đã chuẩn bị.

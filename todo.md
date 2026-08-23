@@ -519,3 +519,10 @@
 - [x] Thiết kế scale phần trăm, giới hạn accessibility, preview và migration preference preset cũ.
 - [x] Thay preset bằng input số/range và nút tăng giảm/reset; lưu giá trị phần trăm toàn app.
 - [x] Kiểm thử persistence, Light/Dark/System, desktop/mobile nhiều mức chữ, TypeScript/build và checkpoint.
+
+## Formula-only scale và preset nhanh
+
+- [x] Rà selector thuật toán, memo và formula ở Studio, Study, BLD để áp dụng scale riêng không ảnh hưởng navigation.
+- [x] Thiết kế phạm vi scale công thức, persistence độc lập và preset 100/120/140% cho tỷ lệ giao diện chung.
+- [x] Thêm slider scale công thức, áp dụng CSS semantic và preset nhanh cạnh thanh trượt chính.
+- [x] Kiểm thử Studio, Study, BLD, Light/Dark/System, TypeScript/build và checkpoint.
