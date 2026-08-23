@@ -1326,6 +1326,103 @@ html[data-font-scale] { font-size: inherit; }
 .studio-bld-layout .studio-control-stack :is(.scorecard, .studio-support-panel) { box-shadow: none !important; }
 .studio-bld-sidecar > :is(.studio-bld-training, .studio-bld-memo-lab, .studio-bld-profile) { box-shadow: none !important; background-image: linear-gradient(90deg, rgba(23,34,29,.025) 1px, transparent 1px); background-size: 24px 24px; }
 
+/* Studio Reset — Command Deck: continuous workspace shell, one canvas, one inspector and one record drawer. */
+.studio-command-workspace {
+  grid-template-areas:
+    "command"
+    "input"
+    "canvas"
+    "inspector"
+    "record";
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+.studio-command-bar {
+  grid-area: command;
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .7rem;
+  border-block: 1px solid color-mix(in srgb, var(--line, #17221d) 28%, transparent);
+  background: linear-gradient(90deg, rgba(23,34,29,.04), transparent 34%);
+  padding: .7rem 0;
+}
+.studio-command-identity { display: flex; min-width: 0; align-items: baseline; gap: .55rem; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.studio-command-identity span { color: #1ba77a; font-size: .62rem; font-weight: 800; letter-spacing: .18em; }
+.studio-command-identity b { overflow: hidden; color: var(--wb-ink, #17221d); font-size: .75rem; letter-spacing: .07em; text-overflow: ellipsis; white-space: nowrap; }
+.studio-command-tabs { display: inline-flex; min-width: 0; overflow: hidden; border: 1px solid rgba(23,34,29,.22); background: rgba(244,240,232,.65); }
+.studio-command-tabs button { min-height: 2rem; border-right: 1px solid rgba(23,34,29,.17); padding: 0 .75rem; color: rgba(23,34,29,.58); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .64rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out); }
+.studio-command-tabs button:last-child { border-right: 0; }
+.studio-command-tabs button:hover { background: rgba(27,167,122,.10); color: #17221d; }
+.studio-command-tabs button.is-active { background: #17221d; color: #f4f0e8; }
+.studio-command-tabs.studio-input-mode button.is-active { background: #1ba77a; color: #10241c; }
+.studio-command-status { margin-left: auto; color: rgba(23,34,29,.52); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .61rem; font-weight: 800; letter-spacing: .14em; white-space: nowrap; }
+.studio-command-workspace > .studio-control-stack { grid-area: input; position: static !important; height: auto !important; }
+.studio-command-workspace > .studio-stage-column { grid-area: canvas; min-width: 0; }
+.studio-command-workspace > .studio-telemetry-column { display: contents; }
+.studio-command-workspace > .studio-telemetry-column > .studio-inspector-column { grid-area: inspector; min-width: 0; }
+.studio-command-workspace > .studio-telemetry-column > .studio-record-drawer { grid-area: record; min-width: 0; }
+.studio-command-workspace .studio-support-panel { box-shadow: 3px 3px 0 rgba(23,34,29,.10) !important; }
+.studio-command-workspace .studio-control-stack .studio-support-panel,
+.studio-command-workspace .studio-camera-fold { box-shadow: none !important; }
+.studio-command-workspace .studio-solver-apparatus { border-width: 3px; box-shadow: 9px 9px 0 rgba(23,34,29,.20); }
+.studio-command-workspace .studio-stage-column { position: relative; }
+.studio-command-workspace .studio-stage-column::before { position: absolute; top: .9rem; right: .9rem; width: 2rem; height: 2px; background: #1ba77a; content: ""; }
+.app-shell-brand > img { width: 2rem; height: 2rem; }
+.app-shell-brand > span > b { font-size: 1.05rem; letter-spacing: -.09em; }
+.app-shell-brand .app-shell-o { font-size: 1.08em; }
+.studio-command-workspace .studio-input-context { margin: 0 0 1rem; border-left: 3px solid #1ba77a; background: rgba(27,167,122,.055); padding: .6rem .75rem; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.studio-command-workspace .studio-input-context p { color: #1b7b5e; font-size: .67rem; font-weight: 800; letter-spacing: .08em; }
+.studio-command-workspace .studio-input-context span { display: block; margin-top: .28rem; color: rgba(23,34,29,.58); font-size: .64rem; line-height: 1.45; }
+.studio-command-workspace .studio-input-ledger { margin-top: 1rem; border-top: 1px solid rgba(23,34,29,.22); border-bottom: 1px solid rgba(23,34,29,.16); padding: .8rem 0; }
+.studio-command-workspace .studio-input-ledger > p { color: #1ba77a; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .6rem; font-weight: 800; letter-spacing: .18em; }
+.studio-command-workspace .studio-input-ledger dl { margin-top: .55rem; }
+.studio-command-workspace .studio-input-ledger dl > div { display: flex; justify-content: space-between; gap: .75rem; border-top: 1px solid rgba(23,34,29,.10); padding: .48rem 0; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .64rem; }
+.studio-command-workspace .studio-input-ledger dt { color: rgba(23,34,29,.5); }
+.studio-command-workspace .studio-input-ledger dd { color: #17221d; font-weight: 800; text-align: right; }
+.studio-command-workspace .studio-input-ledger > span { display: block; margin-top: .3rem; color: rgba(23,34,29,.48); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .6rem; line-height: 1.45; }
+.studio-command-workspace .studio-telemetry-strip { position: relative; margin: 0; border: 1px solid rgba(23,34,29,.23); background: rgba(248,245,237,.78); padding: .55rem; }
+.studio-command-workspace .studio-telemetry-strip::before,
+.studio-command-workspace .studio-telemetry-strip::after { display: none; }
+.studio-command-workspace .studio-telemetry-strip > * { min-height: 0; border-width: 0 0 0 2px !important; border-radius: 0 !important; box-shadow: none !important; }
+.studio-command-workspace .studio-telemetry-strip > *:first-child { border-left: 0 !important; }
+.studio-command-workspace .studio-inspector-detail { margin-top: .85rem; border-top: 1px solid rgba(23,34,29,.22); border-bottom: 1px solid rgba(23,34,29,.16); padding: .75rem 0; }
+.studio-command-workspace .studio-inspector-detail > p { color: #1ba77a; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .6rem; font-weight: 800; letter-spacing: .18em; }
+.studio-command-workspace .studio-inspector-detail dl { margin-top: .55rem; }
+.studio-command-workspace .studio-inspector-detail dl > div { display: flex; min-width: 0; justify-content: space-between; gap: .65rem; border-top: 1px solid rgba(23,34,29,.10); padding: .5rem 0; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .65rem; line-height: 1.35; }
+.studio-command-workspace .studio-inspector-detail dt { color: rgba(23,34,29,.5); }
+.studio-command-workspace .studio-inspector-detail dd { overflow: hidden; color: #17221d; font-weight: 800; letter-spacing: .025em; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.studio-command-workspace .studio-record-drawer { border-top: 2px solid #17221d; background: linear-gradient(90deg, rgba(23,34,29,.025) 1px, transparent 1px); background-size: 30px 30px; padding-top: 1rem; }
+.studio-command-workspace .studio-record-drawer > :is(.studio-report-empty, .studio-report) { margin-top: 0; }
+.studio-command-workspace .studio-report-empty { min-height: 8.25rem; border-color: rgba(23,34,29,.25); background: rgba(248,245,237,.86); }
+.studio-command-workspace .studio-bld-sidecar { margin-top: 1rem; }
+.studio-command-workspace .studio-bld-sidecar > * { box-shadow: none !important; }
+@media (min-width: 760px) {
+  .studio-command-workspace { grid-template-areas: "command command" "input inspector" "canvas canvas" "record record"; grid-template-columns: minmax(260px, .82fr) minmax(0, 1.18fr); gap: 1.25rem; }
+  .studio-command-workspace .studio-inspector-column { align-self: start; }
+  .studio-command-workspace .studio-record-drawer-bld { display: grid; grid-template-columns: minmax(0, 7fr) minmax(270px, 5fr); gap: 1.25rem; align-items: start; }
+  .studio-command-workspace .studio-record-drawer-bld > .studio-bld-sidecar { margin-top: 0; }
+}
+@media (min-width: 1180px) {
+  .studio-command-workspace { grid-template-areas: "command command command command command command command command command command command command" "input input input canvas canvas canvas canvas canvas canvas inspector inspector inspector" "record record record record record record record record record record record record"; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 1.5rem; row-gap: 1.35rem; }
+  .studio-command-workspace > .studio-control-stack { grid-column: 1 / span 3; }
+  .studio-command-workspace > .studio-stage-column { grid-column: 4 / span 6; }
+  .studio-command-workspace > .studio-telemetry-column > .studio-inspector-column { grid-column: 10 / -1; }
+  .studio-command-workspace > .studio-telemetry-column > .studio-record-drawer { grid-column: 1 / -1; }
+  .studio-command-workspace .studio-command-bar { gap: .85rem; }
+  .studio-command-workspace .studio-record-drawer-bld { grid-template-columns: minmax(0, 7fr) minmax(320px, 5fr); gap: 1.5rem; }
+}
+@media (max-width: 759px) {
+  .studio-command-bar { gap: .5rem; }
+  .studio-command-status { width: 100%; margin-left: 0; }
+  .studio-command-tabs button { padding-inline: .6rem; }
+  .studio-command-workspace .studio-solver-apparatus { padding: 1rem; }
+  .studio-command-workspace .studio-apparatus-viewport { margin-top: 1rem; padding: .8rem; }
+  .studio-command-workspace .studio-record-drawer { padding-top: .75rem; }
+}
+
 /* 3-Style uses a two-deck workbench: concise setup + broad apparatus, then dense study modules without a dead rail. */
 .studio-bld-layout,
 .studio-bld-layout * { min-inline-size: 0; }

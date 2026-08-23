@@ -598,3 +598,11 @@
 - [x] Tái phân bổ report, profile, memo và training thành các vùng có tỷ lệ phù hợp.
 - [x] Thêm giới hạn/wrapping cho memo, algorithm, control và Cube 3D để không phá grid.
 - [x] Kiểm thử với memo thực tế, desktop/mobile, TypeScript/build và checkpoint.
+
+## Tái thiết kế toàn diện Studio theo mẫu tham khảo
+
+- [x] Nghiên cứu các mẫu workbench/solver/tool kỹ thuật chất lượng và ghi nhận nguyên tắc phù hợp.
+- [x] Kiểm toán CFOP và 3-Style Studio để khóa luồng thao tác và content hierarchy cần giữ.
+- [x] Thiết kế lại bố cục, typography, surface và responsive model cho toàn bộ Studio.
+- [x] Triển khai Studio mới, giữ đầy đủ solver, Cube 3D, state editor, playback và BLD.
+- [x] Kiểm thử Studio với CFOP/3-Style thực, desktop/mobile, TypeScript/build và checkpoint.

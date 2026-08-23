@@ -123,3 +123,25 @@
 - Nameplate toàn cục dùng cube stamp vuông, CFOP liền mạch bằng Space Grotesk và O-notch mint rõ nét; Solver Studio là telemetry mono nhỏ, không cạnh tranh với stage.
 - Rail mint nổi bật phải kết thúc ở phase, counter, case, tiến độ hoặc validation có nhãn; rail không gắn phép đo chỉ lùi thành texture giấy.
 - Sidecar 3-Style là chuỗi record sheet phẳng theo luồng Drill → Memo → Profile; chỉ stage cube/solver được giữ material shadow và grid đậm.
+
+## Studio Reset — Command Deck
+
+**Design Movement:** Command-center minimalism lấy từ DevTools/CAD, kết hợp Swiss hierarchy; không còn mô hình ba card cạnh tranh nhau.
+
+**Core Principles:** Workspace là một shell liên tục thay vì một chuỗi cards. Command bar định nghĩa context; input drawer chỉ chứa dữ liệu vào; canvas cube/solver là vùng thao tác lớn nhất; inspector chỉ cho state đang liên quan; report chuyển thành record drawer toàn chiều ngang dưới workspace. Một action chính duy nhất được giữ nổi bật theo mode đang chọn.
+
+**Layout Paradigm:** Desktop dùng grid 12 cột và ba vùng chức năng: input drawer 3 cột, canvas 6 cột, inspector 3 cột. Command bar chạy ngang toàn shell; report drawer chạy ngang toàn chiều dưới canvas. BLD dùng report 7/12 + sidecar 5/12 ở record drawer, CFOP dùng report full-width có chiều cao đọc được. Tablet giảm thành input + canvas, inspector thành strip; mobile là command bar → input → canvas → inspector → record.
+
+**Color Philosophy:** Giữ giấy ngà, mực than và Solver Mint, nhưng bỏ rail lớn rời rạc. Mint chỉ báo mode hoạt động, validation, action và tiến độ. Vùng phụ phẳng, rule mảnh; canvas được phép dùng grid/ink mạnh.
+
+**Interaction Philosophy:** Mode/nguồn input luôn đọc được ở command bar. Input drawer giữ action Tạo memo/Giải ngay tại nơi nhập. Inspector chuyển từ dashboard card thành danh sách state/metric ngắn. Report drawer có một title bar, section rõ và chứa toàn bộ dữ liệu dài để không phá canvas.
+
+**Typography System:** Space Grotesk cho context/action, IBM Plex Mono cho token move, case ID, buffer, state và counter. Header command dùng title nhỏ gọn, không còn headline display chiếm chỗ.
+
+**Brand Voice:** “Workspace đã sẵn sàng.”, “Nhập state. Chạy pipeline.”, “Record chưa có dữ liệu.” — dứt khoát, vận hành, không mô tả app chung chung.
+
+### Style Decisions
+
+- Studio dùng tiếng Việt vận hành kỹ thuật: Bàn giải, Bảng nhập, Cấu hình chạy, Bảng kiểm tra; tiếng Anh chỉ giữ cho CFOP, 3-Style, Speffz, case ID và notation.
+- Canvas solver/cube là apparatus duy nhất có material border/shadow nặng. Input drawer, cấu hình, inspector và record phụ phải là ruled-sheet phẳng hơn.
+- Wordmark toàn cục giữ header nén nhưng tăng độ đọc của cube stamp, CFOP liền mạch và O-notch mint ở lần nhìn đầu.

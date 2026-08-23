@@ -1,7 +1,7 @@
 /**
- * Xưởng Cơ Khí Tốc Độ — asymmetrical workbench, mono telemetry and cube-state
- * signals make the CFOP solution readable as an instrument panel; phase changes
- * use a brief relay rather than a distracting full-cube spin.
+ * Studio Reset — Command Deck: clear context bar, compact input drawer, one dominant
+ * solver/cube canvas, and a full-width record drawer. Secondary data never competes
+ * with the apparatus, and every panel has a stable responsive grid area.
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
@@ -380,18 +380,22 @@ export default function Home() {
   return (
     <main className="studio-page min-h-screen overflow-x-hidden bg-[#f4f0e8] text-[#17221d]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
       <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
-        <section className={`studio-workbench grid gap-7 ${solverKind === "bld" ? "studio-bld-layout" : "xl:grid-cols-[330px_minmax(0,1fr)_360px]"}`}>
+        <section className={`studio-workbench studio-command-workspace grid gap-7 ${solverKind === "bld" ? "studio-bld-layout" : ""}`}>
+          <header className="studio-command-bar">
+            <div className="studio-command-identity"><span>{language === "vi" ? "BÀN GIẢI" : "WORKSPACE"}</span><b>{solverKind === "bld" ? "3-STYLE / SPEFFZ" : "CFOP / SOLVER"}</b></div>
+            <div className="studio-command-tabs" role="tablist" aria-label={language === "vi" ? "Chế độ solver" : "Solver mode"}>
+              {(["cfop", "bld"] as const).map((item) => <button key={item} type="button" role="tab" aria-selected={solverKind === item} onClick={() => { setSolverKind(item); setResult(null); setBldResult(null); setCursor(0); setPlaying(false); setError(""); }} className={cn(solverKind === item && "is-active")}>{item === "cfop" ? "CFOP" : "3-STYLE"}</button>)}
+            </div>
+            <div className="studio-command-tabs studio-input-mode" role="tablist" aria-label={language === "vi" ? "Nguồn đầu vào" : "Input source"}>
+              {(["scramble", "state"] as const).map((item) => <button key={item} type="button" role="tab" aria-selected={mode === item} onClick={() => switchInputMode(item)} className={cn(mode === item && "is-active")}>{item === "scramble" ? t("input.scramble") : t("input.state")}</button>)}
+            </div>
+            <p className="studio-command-status">{loading ? t("input.loading") : solverKind === "bld" ? (language === "vi" ? "DÒNG XỬ LÝ MEMO" : "MEMO PIPELINE") : mode === "state" ? (language === "vi" ? "KIỂM TRA STATE" : "STATE VALIDATION") : (language === "vi" ? "DÒNG XỬ LÝ SCRAMBLE" : "SCRAMBLE PIPELINE")}</p>
+          </header>
           <aside className="studio-control-stack space-y-5 xl:sticky xl:top-5 xl:h-fit">
             <div className="studio-support-panel scorecard overflow-hidden rounded-[3px] border-2 border-[#17221d] bg-white shadow-[7px_7px_0_#17221d]">
-              <div className="studio-input-header flex h-20 items-center justify-between border-b-2 border-[#17221d]/15 px-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">CUBE INPUT</p><img src="/manus-storage/cfop-studio-mark_62473f8e.png" alt="CFOP cube mark" className="h-12 w-12 rounded-lg border-2 border-[#17221d] bg-[#f4f0e8] p-1 shadow-[3px_3px_0_#1ba77a]" /></div>
+              <div className="studio-input-header flex h-16 items-center justify-between border-b-2 border-[#17221d]/15 px-5"><div><p className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[#1ba77a]">{language === "vi" ? "BẢNG NHẬP" : "INPUT DRAWER"}</p><p className="mt-1 font-mono text-[10px] font-bold tracking-[0.08em] text-[#17221d]/55">{mode === "scramble" ? "MOVE SEQUENCE" : "54-STICKER STATE"}</p></div><img src="/manus-storage/cfop-studio-mark_62473f8e.png" alt="CFOP cube mark" className="h-10 w-10 rounded-sm border-2 border-[#17221d] bg-[#f4f0e8] p-1 shadow-[2px_2px_0_#1ba77a]" /></div>
               <div className="p-5">
-                <div className="grid grid-cols-2 rounded-sm border-2 border-[#17221d]/15 p-1">
-                  {(["cfop", "bld"] as const).map((item) => <button key={item} onClick={() => { setSolverKind(item); setResult(null); setBldResult(null); setCursor(0); setPlaying(false); setError(""); }} className={cn("rounded-md px-2 py-2 font-mono text-[10px] font-bold uppercase transition", solverKind === item ? "bg-[#1ba77a] text-[#17221d]" : "text-[#17221d]/55 hover:bg-[#f4f0e8]")}>{item === "cfop" ? "CFOP" : "3-STYLE BLD"}</button>)}
-                </div>
-                <div className="mt-3 grid grid-cols-2 rounded-sm border-2 border-[#17221d]/15 p-1">
-                  {(["scramble", "state"] as const).map((item) => <button key={item} onClick={() => switchInputMode(item)} className={cn("rounded-md px-2 py-2 font-mono text-[11px] font-bold uppercase transition", mode === item ? "bg-[#17221d] text-[#f4f0e8]" : "text-[#17221d]/55 hover:bg-[#f4f0e8]")}>{item === "scramble" ? t("input.scramble") : t("input.state")}</button>)}
-                </div>
-                {solverKind === "bld" && <div className="mt-3 border-y border-[#17221d]/15 py-3"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#1b7b5e]">3-STYLE BLD · SPEFFZ</p><p className="mt-2 font-mono text-[9px] leading-4 text-[#17221d]/55">{language === "vi" ? "Buffer edge UF (C), corner UBL (A). Studio trace memo, cycle break, parity/flip/twist rồi đối chiếu execution key với BLDDB." : "Edge buffer UF (C), corner buffer UBL (A). Studio traces memo, cycle breaks, parity/flip/twist, then resolves execution keys against BLDDB."}</p></div>}
+                {solverKind === "bld" && <div className="studio-input-context"><p>BUFFER / UF (C) · UBL (A)</p><span>{language === "vi" ? "Chuẩn bị trace memo và execution key." : "Prepare memo trace and execution key."}</span></div>}
                 <details className="mt-4 border-y border-[#17221d]/15 py-3">
                   <summary className="cursor-pointer font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-[#17221d]/60">{language === "vi" ? "CÀI ĐẶT SOLVER" : "SOLVER SETTINGS"}</summary><div className="pt-3">
                   <div className="flex items-center justify-between gap-3"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#17221d]/60">{language === "vi" ? "MÀU CROSS" : "CROSS COLOR"}</p><span className="font-mono text-[10px] font-bold text-[#1b7b5e]">{language === "vi" ? CROSS_COLORS.find((item) => item.value === crossColor)?.vi : CROSS_COLORS.find((item) => item.value === crossColor)?.en}</span></div>
@@ -421,6 +425,15 @@ export default function Home() {
               </div>
             </div>
             <details className="studio-camera-fold border border-[#17221d]/20 bg-[#f4f0e8] p-3"><summary className="cursor-pointer font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#17221d]/60">{language === "vi" ? "Quét camera · tùy chọn" : "Camera scan · optional"}</summary><div className="mt-3"><CameraScanner onState={(state) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(state); setSavedState(state); setResult(null); setBldResult(null); setCursor(0); setError(""); }} /></div></details>
+            <section className="studio-input-ledger" aria-label={language === "vi" ? "Run profile" : "Run profile"}>
+              <p>{language === "vi" ? "CẤU HÌNH CHẠY" : "RUN PROFILE"}</p>
+              <dl>
+                <div><dt>{language === "vi" ? "Nguồn" : "Source"}</dt><dd>{mode === "scramble" ? "SCRAMBLE" : "STATE"}</dd></div>
+                <div><dt>{language === "vi" ? "Opening" : "Opening"}</dt><dd>{solverKind === "bld" ? "CYCLE TRACE" : OPENING_OPTIONS.find((item) => item.value === opening)?.compact}</dd></div>
+                <div><dt>{language === "vi" ? "Đích" : "Target"}</dt><dd>{solverKind === "bld" ? "EDGE / CORNER" : LAST_LAYER_OPTIONS.find((item) => item.value === lastLayer)?.compact}</dd></div>
+              </dl>
+              <span>{language === "vi" ? "Mở Cài đặt Solver trong drawer để hiệu chỉnh pipeline." : "Open Solver Settings in the drawer to calibrate the pipeline."}</span>
+            </section>
           </aside>
 
           <section className="studio-stage-column min-w-0">
@@ -443,9 +456,21 @@ export default function Home() {
           </section>
 
           <aside className={`studio-telemetry-column ${solverKind === "bld" ? "studio-bld-deck" : "space-y-5 xl:sticky xl:top-5 xl:h-[calc(100vh-2.5rem)] xl:overflow-auto xl:pr-2"}`}>
-            <div className="studio-telemetry-strip studio-record-strip grid grid-cols-3 gap-2"><Stat compact={solverKind === "bld"} label={solverKind === "bld" ? "EDGE" : t("status.moves")} value={solverKind === "bld" ? String(bldResult?.analysis.edges.memo.length ?? "—") : (result ? String(totalMoves) : "—")} icon={<CircleGauge className="h-4 w-4" />} /><Stat compact={solverKind === "bld"} label={solverKind === "bld" ? "CORNER" : t("status.steps")} value={solverKind === "bld" ? String(bldResult?.analysis.corners.memo.length ?? "—") : (result ? String(phaseCount) : "—")} icon={<ChevronRight className="h-4 w-4" />} /><Stat compact={solverKind === "bld"} label={solverKind === "bld" ? "PARITY" : t("status.ok")} value={solverKind === "bld" ? (bldResult?.analysis.special.parity ? "!" : "✓") : (result ? "✓" : "—")} icon={<ShieldCheck className="h-4 w-4" />} /></div>
-            {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <section className="studio-report-empty border-2 border-[#17221d]/25 bg-[#f8f5ed] p-4"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#1b7b5e]">{solverKind === "bld" ? "3-STYLE BLD · MEMO" : `CFOP · ${language === "vi" ? "BÁO CÁO" : "REPORT"}`}</p><p className="mt-2 font-mono text-[10px] leading-5 text-[#17221d]/60">{solverKind === "bld" ? (language === "vi" ? "Tạo memo để xem edge/corner cycle, execution key và parity/flip/twist tại đây." : "Build memo to view edge/corner cycles, execution keys, and parity/flip/twist here.") : (language === "vi" ? "Chạy solver để ghi phase, invariant, algorithm và xuất báo cáo tại đây." : "Run the solver to record phases, invariants, algorithms, and exports here.")}</p></section>}
-            {solverKind === "bld" && <div className="studio-bld-sidecar"><BldTrainingLab result={bldResult} profile={bldProfile} onProfile={setBldProfile} language={language} /><BldMemoLab result={bldResult} profile={bldProfile} onProfile={setBldProfile} language={language} /><BldProfilePanel profile={bldProfile} onProfile={setBldProfile} language={language} /></div>}
+            <div className="studio-inspector-column">
+              <div className="studio-telemetry-strip studio-record-strip grid grid-cols-3 gap-2"><Stat compact={solverKind === "bld"} label={solverKind === "bld" ? "EDGE" : t("status.moves")} value={solverKind === "bld" ? String(bldResult?.analysis.edges.memo.length ?? "—") : (result ? String(totalMoves) : "—")} icon={<CircleGauge className="h-4 w-4" />} /><Stat compact={solverKind === "bld"} label={solverKind === "bld" ? "CORNER" : t("status.steps")} value={solverKind === "bld" ? String(bldResult?.analysis.corners.memo.length ?? "—") : (result ? String(phaseCount) : "—")} icon={<ChevronRight className="h-4 w-4" />} /><Stat compact={solverKind === "bld"} label={solverKind === "bld" ? "PARITY" : t("status.ok")} value={solverKind === "bld" ? (bldResult?.analysis.special.parity ? "!" : "✓") : (result ? "✓" : "—")} icon={<ShieldCheck className="h-4 w-4" />} /></div>
+              <section className="studio-inspector-detail" aria-label={language === "vi" ? "Inspector pipeline" : "Pipeline inspector"}>
+              <p>{language === "vi" ? "BẢNG KIỂM TRA" : "INSPECTOR"}</p>
+              <dl>
+                <div><dt>{language === "vi" ? "Nguồn" : "Source"}</dt><dd>{mode === "scramble" ? (language === "vi" ? "Chuỗi xoay" : "Scramble") : (language === "vi" ? "State 54 sticker" : "54-sticker state")}</dd></div>
+                <div><dt>{language === "vi" ? "Pipeline" : "Pipeline"}</dt><dd>{solverKind === "bld" ? "Memo · cycles · BLDDB" : `${opening.toUpperCase()} · ${lastLayer.toUpperCase()}`}</dd></div>
+                <div><dt>{solverKind === "bld" ? "Buffers" : (language === "vi" ? "Cross" : "Cross")}</dt><dd>{solverKind === "bld" ? "UF / UBL" : (language === "vi" ? CROSS_COLORS.find((item) => item.value === crossColor)?.vi : CROSS_COLORS.find((item) => item.value === crossColor)?.en)}</dd></div>
+              </dl>
+              </section>
+            </div>
+            <div className={cn("studio-record-drawer", solverKind === "bld" && "studio-record-drawer-bld")}>
+              {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <section className="studio-report-empty border-2 border-[#17221d]/25 bg-[#f8f5ed] p-4"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#1ba77a]">{solverKind === "bld" ? "3-STYLE BLD · MEMO" : `CFOP · ${language === "vi" ? "BÁO CÁO" : "REPORT"}`}</p><p className="mt-2 font-mono text-[10px] leading-5 text-[#17221d]/60">{solverKind === "bld" ? (language === "vi" ? "Nhập scramble hoặc state để tạo memo, cycle và execution key." : "Enter a scramble or state to build memo cycles and execution keys.") : (language === "vi" ? "Nhập scramble hoặc state để ghi phase, invariant và thuật toán." : "Enter a scramble or state to record phases, invariants, and algorithms.")}</p></section>}
+              {solverKind === "bld" && <div className="studio-bld-sidecar"><BldTrainingLab result={bldResult} profile={bldProfile} onProfile={setBldProfile} language={language} /><BldMemoLab result={bldResult} profile={bldProfile} onProfile={setBldProfile} language={language} /><BldProfilePanel profile={bldProfile} onProfile={setBldProfile} language={language} /></div>}
+            </div>
           </aside>
         </section>
       </div>
