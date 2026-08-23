@@ -197,3 +197,9 @@
 - Header luôn đọc liên tục là **CFOP Solver Studio**; chữ O là chữ thật, dùng Sage Teal cố định và không bị thu nhỏ thành dấu trang trí.
 - Surface phụ dùng nền giấy phẳng và elevation rất thấp; chỉ Cube/primary apparatus của từng route được phép có shadow rõ hơn.
 - Không dùng rail, tick, grid hoặc border làm trang trí. Trạng thái Rubik được truyền bằng màu Sage Teal, khoảng cách, hàng metadata và nội dung thực.
+
+## Motion & Rhythm Calibration
+
+**Cube Motion:** Layer turn mô phỏng một động tác có lực: tăng tốc ngắn, phần quay chính xác ở giữa và giảm tốc nhỏ trước khi state mới ổn định. Layer chuyển động giữ opacity đến sát cuối để tránh cảm giác “biến mất”, nhận elevation/shadow rất nhẹ khi tách lớp, và toàn bộ animation tắt theo reduced-motion.
+
+**Desktop Rhythm:** Dùng bậc spacing 8px: 8/16/24/32/48. Mỗi route có một content rail chung; bên trong, panel phụ cách nhau 16px, cụm thao tác cách nhau 24px, và main apparatus cách record/history 32px. Timer dùng một device lớn bên trái, bảng thành tích hẹp bên phải, sau đó mới đến log/analytics toàn chiều rộng.

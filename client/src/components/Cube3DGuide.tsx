@@ -1,6 +1,6 @@
 /**
- * Xưởng Cơ Khí Tốc Độ — the cube moves like a physical layer-turn instrument:
- * short mechanical turns for adjacent moves and a mint relay slate for phase jumps.
+ * Soft Focus Workspace — physical layer-turns accelerate, lock into place, then settle;
+ * drag orbit remains direct with no transition lag and Cube 3D is the only rich motion.
  */
 import { Rotate3D } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent } from "react";
@@ -84,6 +84,7 @@ function LayerTurn({ face, state, angle, step, move, duration }: { face: "U" | "
 export function Cube3DGuide({ state, previousState, move, step, crossColor = "U", inspection = false, alignCross = false, highlightCross = true, xcrossSlots, lastLayerCase, specialStickers, transition = "idle", transitionDirection = "forward", transitionId = 0, phaseLabel, turnDurationMs = 340 }: { state: string; previousState?: string; move?: string; step: number; crossColor?: string; inspection?: boolean; alignCross?: boolean; highlightCross?: boolean; xcrossSlots?: string[]; lastLayerCase?: { family: string; id: string }; specialStickers?: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>>; transition?: "idle" | "move" | "seek" | "phase" | "reset"; transitionDirection?: "forward" | "backward"; transitionId?: number; phaseLabel?: string; turnDurationMs?: number }) {
   const { language } = useLanguage();
   const [camera, setCamera] = useState(DEFAULT_CAMERA);
+  const [isOrbiting, setIsOrbiting] = useState(false);
   const drag = useRef<{ x: number; y: number; orbit: number; pitch: number; lastX: number; lastY: number; lastAt: number; moved: boolean; startedAt: number; pointerType: string } | null>(null);
   const pinch = useRef<number | null>(null);
   const inertiaFrame = useRef<number | null>(null);
@@ -118,6 +119,7 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
     event.preventDefault();
     cancelInertia();
     const now = performance.now();
+    setIsOrbiting(false);
     drag.current = { x: event.clientX, y: event.clientY, orbit: camera.orbit, pitch: camera.pitch, lastX: event.clientX, lastY: event.clientY, lastAt: now, moved: false, startedAt: now, pointerType: event.pointerType };
   };
   const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
@@ -132,6 +134,7 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
     const heldLongEnough = activeDrag.pointerType !== "touch" || performance.now() - activeDrag.startedAt >= TOUCH_HOLD_TO_ORBIT_MS;
     if (!activeDrag.moved && (!heldLongEnough || Math.hypot(deltaX, deltaY) < threshold)) return;
     activeDrag.moved = true;
+    setIsOrbiting(true);
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.setPointerCapture(event.pointerId);
     const now = performance.now();
     const elapsed = Math.max(8, now - activeDrag.lastAt);
@@ -141,17 +144,18 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
     activeDrag.lastAt = now;
     setCamera((previous) => ({ ...previous, orbit: activeDrag.orbit + deltaX * 0.42, pitch: clampPitch(activeDrag.pitch - deltaY * 0.38) }));
   };
-  const pointerUp = (event: PointerEvent<HTMLDivElement>) => { const wasDragged = drag.current?.moved; if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); drag.current = null; if (wasDragged) startInertia(); };
-  const pointerLeave = (event: PointerEvent<HTMLDivElement>) => { if (event.pointerType === "mouse" && event.buttons === 0) drag.current = null; };
+  const pointerUp = (event: PointerEvent<HTMLDivElement>) => { const wasDragged = drag.current?.moved; if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); drag.current = null; setIsOrbiting(false); if (wasDragged) startInertia(); };
+  const pointerLeave = (event: PointerEvent<HTMLDivElement>) => { if (event.pointerType === "mouse" && event.buttons === 0) { drag.current = null; setIsOrbiting(false); } };
   const wheel = (event: WheelEvent<HTMLDivElement>) => { event.preventDefault(); changeZoom(event.deltaY > 0 ? -0.08 : 0.08); };
   const touchStart = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length === 2) pinch.current = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); };
   const touchMove = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length !== 2 || pinch.current === null) return; const distance = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); changeZoom((distance - pinch.current) / 240); pinch.current = distance; };
-  const reset = () => { cancelInertia(); setCamera((previous) => ({ ...previous, orbit: 0, pitch: 0 })); };
+  const reset = () => { cancelInertia(); setIsOrbiting(false); setCamera((previous) => ({ ...previous, orbit: 0, pitch: 0 })); };
   const transform = `rotateX(${camera.pitch}deg) rotateY(${camera.orbit}deg) ${DEFAULT_ORIENTATION} scale3d(${camera.zoom}, ${camera.zoom}, ${camera.zoom})`;
   const turnAngle = move?.endsWith("2") ? "180deg" : move?.endsWith("'") ? "-90deg" : "90deg";
+  const turnDuration = Math.round(turnDurationMs * (move?.endsWith("2") ? 1.22 : 1));
   return <div className="cube3d-guide rounded-sm border-2 border-[#17221d] bg-[#17221d] p-3 text-[#f4f0e8]">
-    <div className={`cube3d-stage interactive-cube-stage cube3d-transition-${transition}`} aria-label={language === "vi" ? "Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to" : "3D Rubik model, drag horizontally for 360° orbit and vertically to view top or bottom; pinch or scroll to zoom"} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onPointerLeave={pointerLeave} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
-      <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={renderedState} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} lastLayerStickers={lastLayerStickers} specialStickers={specialStickers} />)}{animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={renderedPreviousState} angle={turnAngle} step={step} move={move} duration={turnDurationMs} />}</div></div>
+    <div className={`cube3d-stage interactive-cube-stage cube3d-transition-${transition} ${isOrbiting ? "is-orbiting" : ""}`} aria-label={language === "vi" ? "Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to" : "3D Rubik model, drag horizontally for 360° orbit and vertically to view top or bottom; pinch or scroll to zoom"} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onPointerLeave={pointerLeave} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
+      <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={renderedState} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} lastLayerStickers={lastLayerStickers} specialStickers={specialStickers} />)}{animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={renderedPreviousState} angle={turnAngle} step={step} move={move} duration={turnDuration} />}</div></div>
       {transition === "phase" && phaseLabel && <div key={transitionId} className="cube3d-phase-callout" aria-live="polite"><span>{language === "vi" ? "CHUYỂN PHA" : "PHASE SHIFT"}</span><b>{phaseLabel}</b></div>}
     </div>
     <div className="mt-1 flex justify-end"><button type="button" onClick={reset} className="cube-mini-control" aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><Rotate3D className="h-3.5 w-3.5" /></button></div>

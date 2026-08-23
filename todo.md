@@ -615,3 +615,10 @@
 - [x] Gỡ accent picker/chỉnh cỡ chữ; giữ Dark Mode và mọi thiết lập phục vụ Rubik.
 - [x] Mở rộng hệ giao diện sang Timer, Study, Settings và breakpoint màn hình nhỏ.
 - [x] Kiểm thử luồng Rubik, Dark Mode, responsive, TypeScript/build và checkpoint.
+
+## Motion Cube 3D, nhịp desktop và Timer
+
+- [x] Kiểm toán layer-turn animation, orbit/zoom Cube 3D, spacing desktop và structure Timer.
+- [x] Thiết kế easing, duration, shadow/settle cho turn; chốt scale spacing desktop và hierarchy Timer.
+- [x] Triển khai chuyển động Cube 3D mượt/chân thực, căn lại margin/padding và chỉnh lại Timer.
+- [x] Kiểm thử drag, orbit, zoom, playback, Timer desktop/mobile, Dark Mode, TypeScript/build.

@@ -428,7 +428,10 @@ html[data-font-scale] { font-size: inherit; }
     pointer-events: none;
     animation-duration: var(--turn-duration, 340ms);
     animation-fill-mode: both;
-    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    animation-timing-function: cubic-bezier(.16, .82, .24, 1);
+    backface-visibility: hidden;
+    filter: drop-shadow(0 6px 5px rgb(0 0 0 / .23));
+    will-change: transform, opacity;
   }
   .cube3d-layer-main, .cube3d-layer-strip {
     position: absolute;
@@ -477,9 +480,9 @@ html[data-font-scale] { font-size: inherit; }
   .cube3d-xcross-sticker { box-shadow: inset 0 0 0 2px #17221d, 0 0 0 3px #1ba77a, 0 0 17px 3px rgb(27 167 122 / .9) !important; z-index: 3; }
   .cube3d-last-layer-sticker { box-shadow: inset 0 0 0 2px #17221d, 0 0 0 3px #e7c34f, 0 0 15px 2px rgb(231 195 79 / .82) !important; z-index: 3; }
   .cube3d-special-sticker { box-shadow: inset 0 0 0 2px #17221d, 0 0 0 3px #d95743, 0 0 16px 3px rgb(217 87 67 / .78) !important; z-index: 4; }
-  @keyframes cube-layer-turn-x { 0% { opacity: 1; transform: rotateX(0); } 86% { opacity: 1; transform: rotateX(var(--turn-angle)); } 100% { opacity: 0; transform: rotateX(var(--turn-angle)); } }
-  @keyframes cube-layer-turn-y { 0% { opacity: 1; transform: rotateY(0); } 86% { opacity: 1; transform: rotateY(var(--turn-angle)); } 100% { opacity: 0; transform: rotateY(var(--turn-angle)); } }
-  @keyframes cube-layer-turn-z { 0% { opacity: 1; transform: rotateZ(0); } 86% { opacity: 1; transform: rotateZ(var(--turn-angle)); } 100% { opacity: 0; transform: rotateZ(var(--turn-angle)); } }
+  @keyframes cube-layer-turn-x { 0% { opacity: .98; transform: rotateX(0); } 9% { opacity: 1; } 92% { opacity: 1; transform: rotateX(var(--turn-angle)); } 100% { opacity: 0; transform: rotateX(var(--turn-angle)); } }
+  @keyframes cube-layer-turn-y { 0% { opacity: .98; transform: rotateY(0); } 9% { opacity: 1; } 92% { opacity: 1; transform: rotateY(var(--turn-angle)); } 100% { opacity: 0; transform: rotateY(var(--turn-angle)); } }
+  @keyframes cube-layer-turn-z { 0% { opacity: .98; transform: rotateZ(0); } 9% { opacity: 1; } 92% { opacity: 1; transform: rotateZ(var(--turn-angle)); } 100% { opacity: 0; transform: rotateZ(var(--turn-angle)); } }
 
   .timer-card {
     background-image: linear-gradient(90deg, rgb(23 34 29 / 0.04) 1px, transparent 1px);
@@ -494,7 +497,8 @@ html[data-font-scale] { font-size: inherit; }
   }
 
   .interactive-cube-stage:active { cursor: grabbing; }
-  .cube3d-model { transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .cube3d-model { transition: transform 180ms cubic-bezier(.22, .8, .24, 1); will-change: transform; }
+  .interactive-cube-stage.is-orbiting .cube3d-model { transition: none; }
 
   .cube-turn-badge {
     position: absolute;
@@ -1567,6 +1571,45 @@ html { font-size: 100% !important; }
 .last-layer-study :is(.scanner-button, .study-action-rail button, .study-apparatus button, .study-record-sheet button) { border: 0 !important; border-radius: 12px !important; box-shadow: none !important; }
 .settings-page .settings-sheet [class*="border"] { border: 0 !important; }
 .settings-page .settings-sheet :is(.settings-card-title, .settings-label, .settings-number, .settings-toggle) { border: 0 !important; }
+
+/* Desktop rhythm calibration: one 8px scale and a common content rail across Rubik routes. */
+@media (min-width: 1024px) {
+  .studio-page > .mx-auto { max-width: 1480px; padding-block: 2rem; }
+  .studio-page .studio-command-workspace { gap: 1.5rem; }
+  .studio-page .studio-control-stack { gap: 1rem; }
+  .studio-page .studio-stage-column { min-width: 0; }
+  .studio-page .studio-solver-apparatus { padding: 2rem; }
+  .studio-page .studio-record-drawer { margin-top: .5rem; }
+  .timer-lab { padding: 2rem 2.5rem !important; }
+  .timer-lab > .mx-auto { max-width: 1360px !important; padding-bottom: 4rem; }
+  .timer-lab .timer-lab-stack { display: grid; grid-template-columns: minmax(0, 1fr) 304px; align-items: start; gap: 1.5rem; }
+  .timer-lab .timer-competition-apparatus { padding: 2rem !important; }
+  .timer-lab .timer-device-grid { grid-template-columns: minmax(0, 1.18fr) minmax(248px, .82fr); gap: 1.5rem; align-items: stretch; }
+  .timer-lab .timer-device-cube { min-width: 0; padding: .5rem; }
+  .timer-lab .timer-visible-metrics { position: sticky; top: 5.25rem; padding: 1.25rem !important; }
+  .timer-lab .timer-visible-metrics .grid { gap: .6rem; }
+  .timer-lab .timer-secondary-sheet,
+  .timer-lab .history-panel:not(.timer-competition-apparatus):not(.timer-visible-metrics) { margin-top: 2rem !important; }
+}
+.timer-lab .tick-ruler { display: none !important; }
+.timer-lab-stack > .history-panel:not(.timer-competition-apparatus)::before,
+.timer-lab .timer-visible-metrics::before,
+.timer-lab .timer-visible-metrics::after,
+.timer-lab .history-panel > .flex:first-of-type::after { display: none !important; }
+.timer-lab-stack > .history-panel:not(.timer-competition-apparatus) { box-shadow: 0 4px 14px rgba(35, 56, 49, .055) !important; }
+.timer-lab .history-panel > .mt-4.grid { background-image: none !important; }
+.timer-lab .metric-drilldown:not(:disabled):hover,
+.timer-lab .metric-drilldown:not(:disabled):focus-visible { border: 0 !important; box-shadow: none !important; transform: translateY(-1px); }
+.timer-lab .timer-competition-apparatus { background-image: none !important; }
+.timer-lab .timer-scramble-actions { gap: .45rem; }
+.timer-lab .timer-scramble-actions button { display: grid; width: 2rem; height: 2rem; place-items: center; border: 0 !important; border-radius: 10px; background: var(--soft-surface-quiet); color: var(--soft-ink); }
+.timer-lab .timer-visible-metrics { background: var(--soft-surface) !important; }
+.timer-lab .timer-visible-metrics .grid > :is(div, button) { border: 0 !important; border-radius: 12px !important; background: var(--soft-surface-quiet) !important; box-shadow: none !important; }
+.timer-lab .timer-secondary-sheet { background: var(--soft-surface) !important; }
+@media (max-width: 1023px) {
+  .timer-lab { padding: 1rem !important; }
+  .timer-lab .timer-lab-stack { gap: 1rem; }
+}
 /* Secondary areas recede as flat record sheets; each route keeps only one elevated apparatus. */
 .studio-page :is(.studio-support-panel, .studio-camera-fold, .studio-input-ledger, .studio-inspector-column, .studio-report-empty) { box-shadow: 0 4px 14px rgba(35, 56, 49, .055) !important; }
 .studio-page .studio-solver-apparatus .studio-phase-title { color: var(--soft-ink); font-family: "Space Grotesk", sans-serif; font-size: clamp(1.4rem, 2vw, 2rem); font-weight: 750; }
