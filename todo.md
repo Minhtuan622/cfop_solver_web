@@ -542,3 +542,10 @@
 - [x] Thêm control Compact/Standard, persistence và class layout cho Timer.
 - [x] Tự tạo scramble mới ngay khi solve hoàn thành, đồng thời giữ kết quả vừa lưu trong lịch sử.
 - [x] Kiểm thử interaction, persistence, desktop/mobile, TypeScript/build và checkpoint.
+
+## Hiệu ứng kỷ lục cá nhân Timer
+
+- [x] Rà cơ chế PB single, Ao5/Ao12/Ao50/Ao100 và thời điểm tạo history entry.
+- [x] Định nghĩa điều kiện PB, copy tiếng Việt/Anh và hiệu ứng chúc mừng có reduced-motion fallback.
+- [x] Thêm phát hiện kỷ lục sau solve cùng overlay/toast chúc mừng không chặn lượt kế tiếp.
+- [x] Kiểm thử single/Ao5 mới, DNF, persistence, desktop/mobile, TypeScript/build và checkpoint.
