@@ -622,3 +622,10 @@
 - [x] Thiết kế easing, duration, shadow/settle cho turn; chốt scale spacing desktop và hierarchy Timer.
 - [x] Triển khai chuyển động Cube 3D mượt/chân thực, căn lại margin/padding và chỉnh lại Timer.
 - [x] Kiểm thử drag, orbit, zoom, playback, Timer desktop/mobile, Dark Mode, TypeScript/build.
+
+## Visual refinement: bo góc, surface và hover
+
+- [x] Kiểm toán radius, shadow/viền legacy, sticky metrics Timer và hover state hiện có.
+- [x] Định nghĩa palette mềm, bo góc vừa phải, hover nhẹ và quy tắc không shadow.
+- [x] Gỡ shadow/viền cứng, sửa metrics Timer cuộn tự nhiên và áp dụng visual pass toàn app.
+- [x] Kiểm thử scroll Timer, hover, desktop/mobile, Dark Mode, TypeScript/build và checkpoint.

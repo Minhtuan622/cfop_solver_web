@@ -92,7 +92,7 @@ export default function Settings() {
           <div className="settings-chip-grid mt-1">{f2lSlots.map((slot) => <button key={slot} onClick={() => setSolver((current) => ({ ...current, preferredSlot: current.preferredSlot === slot ? undefined : current.preferredSlot, excludedSlots: current.excludedSlots.includes(slot) ? current.excludedSlots.filter((value) => value !== slot) : [...current.excludedSlots, slot] }))} className={solver.excludedSlots.includes(slot) ? "active" : ""}>{label("Loại", "Skip")} {slot}</button>)}</div>
         </SettingCard>
 
-        <SettingCard index="02 · TIMER" title="Inspection & Input" tip={label("Bật âm báo inspection, kiểm soát Speed split và lựa chọn highlight Cross trong preview 3D.", "Controls inspection audio, Speed split, and Cross highlight in the 3D preview.")}>
+        <SettingCard index="02 · TIMER" title={label("Inspection & thao tác", "Inspection & input")} tip={label("Bật âm báo inspection, kiểm soát Speed split và lựa chọn highlight Cross trong preview 3D.", "Controls inspection audio, Speed split, and Cross highlight in the 3D preview.")}>
           <div className="mt-3 space-y-2"><button onClick={() => setSound(!sound)} className={sound ? "settings-toggle active" : "settings-toggle"}><span>{label("Âm inspection", "Inspection sound")}</span><b>{sound ? "ON" : "OFF"}</b></button><button onClick={() => setSplits(!splits)} className={splits ? "settings-toggle active" : "settings-toggle"}><span>Speed split</span><b>{splits ? "ON" : "OFF"}</b></button><button onClick={() => setHighlight(!highlight)} className={highlight ? "settings-toggle active" : "settings-toggle"}><span>{label("Highlight Cross", "Cross highlight")}</span><b>{highlight ? "ON" : "OFF"}</b></button></div>
         </SettingCard>
 

@@ -1610,6 +1610,63 @@ html { font-size: 100% !important; }
   .timer-lab { padding: 1rem !important; }
   .timer-lab .timer-lab-stack { gap: 1rem; }
 }
+
+/* Final soft visual pass: balanced color, moderate corners, no UI shadows or hard outlines. */
+:root {
+  --soft-bg: #f5f3ed;
+  --soft-surface: #fcfbf8;
+  --soft-surface-quiet: #edf1ed;
+  --soft-ink: #26352f;
+  --soft-muted: #74847d;
+  --soft-accent: #49aa98;
+  --soft-accent-strong: #338e7e;
+  --soft-radius: 18px;
+  --soft-radius-sm: 14px;
+  --soft-radius-control: 10px;
+  --soft-shadow: none;
+  --soft-shadow-focus: none;
+}
+.dark {
+  --soft-bg: #171d1a;
+  --soft-surface: #202925;
+  --soft-surface-quiet: #29352f;
+  --soft-ink: #eef4f0;
+  --soft-muted: #a8b6af;
+  --soft-accent: #72c6b6;
+  --soft-accent-strong: #8bd5c7;
+}
+:is(.app-shell-nav, .studio-page, .timer-lab, .last-layer-study, .settings-page) :is(.soft-surface, .studio-support-panel, .studio-camera-fold, .studio-input-ledger, .studio-inspector-column, .studio-report-empty, .studio-solver-apparatus, .timer-competition-apparatus, .timer-visible-metrics, .timer-secondary-sheet, .timer-analytics-sheet, .history-panel, .settings-sheet, .study-apparatus, .study-record-sheet, .last-layer-explorer, .bld-report, .bld-memo-lab, .bld-training, .bld-profile) { box-shadow: none !important; }
+:is(.app-shell-nav, .studio-page, .timer-lab, .last-layer-study, .settings-page) :is(.soft-surface, .studio-support-panel, .studio-camera-fold, .studio-input-ledger, .studio-inspector-column, .studio-report-empty, .studio-solver-apparatus, .timer-competition-apparatus, .timer-visible-metrics, .timer-secondary-sheet, .timer-analytics-sheet, .history-panel, .settings-sheet, .study-apparatus, .study-record-sheet, .last-layer-explorer, .bld-report, .bld-memo-lab, .bld-training, .bld-profile) { border: 0 !important; border-radius: var(--soft-radius) !important; }
+:is(.studio-page, .timer-lab, .last-layer-study, .settings-page) :is(button, input, textarea, select, [role="tab"], .soft-status) { border-color: transparent !important; box-shadow: none !important; border-radius: var(--soft-radius-control) !important; }
+.timer-lab .timer-visible-metrics { position: static !important; top: auto !important; align-self: stretch; }
+.timer-lab .timer-visible-metrics .grid > :is(div, button),
+.studio-page .studio-telemetry-strip,
+.studio-page .soft-status,
+.settings-page .settings-sheet :is(button, input, select) { border-radius: var(--soft-radius-control) !important; }
+.studio-page .studio-solver-apparatus,
+.timer-lab .timer-competition-apparatus,
+.last-layer-study .study-apparatus { border-radius: 22px !important; }
+.cube3d-guide { box-shadow: none !important; border-radius: 14px !important; }
+.cube3d-stage { border-radius: 12px !important; }
+@media (hover: hover) {
+  :is(.app-shell-nav, .studio-page, .timer-lab, .last-layer-study, .settings-page) :is(a, button, [role="tab"], select, summary) { transition: transform 140ms cubic-bezier(.23, 1, .32, 1), background-color 140ms cubic-bezier(.23, 1, .32, 1), color 140ms cubic-bezier(.23, 1, .32, 1), opacity 140ms cubic-bezier(.23, 1, .32, 1); }
+  :is(.app-shell-nav, .studio-page, .timer-lab, .last-layer-study, .settings-page) :is(a, button:not(:disabled), [role="tab"], summary):hover { transform: translateY(-1px); }
+  :is(.app-shell-nav, .studio-page, .timer-lab, .last-layer-study, .settings-page) :is(.soft-surface, .soft-status, .metric-drilldown:not(:disabled), .app-shell-link):hover { background-color: color-mix(in srgb, var(--soft-surface-quiet) 72%, var(--soft-surface)) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.app-shell-nav, .studio-page, .timer-lab, .last-layer-study, .settings-page) :is(a, button, [role="tab"], select, summary) { transition: none !important; }
+  :is(.app-shell-nav, .studio-page, .timer-lab, .last-layer-study, .settings-page) :is(a, button, [role="tab"], summary):hover { transform: none; }
+}
+.settings-page .settings-toggle.active {
+  background: color-mix(in srgb, var(--soft-accent) 16%, var(--soft-surface)) !important;
+  color: var(--soft-ink) !important;
+}
+.settings-page .settings-toggle.active b {
+  color: var(--soft-accent-strong) !important;
+}
+.dark .settings-page .settings-toggle.active {
+  background: color-mix(in srgb, var(--soft-accent) 18%, var(--soft-surface)) !important;
+}
 /* Secondary areas recede as flat record sheets; each route keeps only one elevated apparatus. */
 .studio-page :is(.studio-support-panel, .studio-camera-fold, .studio-input-ledger, .studio-inspector-column, .studio-report-empty) { box-shadow: 0 4px 14px rgba(35, 56, 49, .055) !important; }
 .studio-page .studio-solver-apparatus .studio-phase-title { color: var(--soft-ink); font-family: "Space Grotesk", sans-serif; font-size: clamp(1.4rem, 2vw, 2rem); font-weight: 750; }

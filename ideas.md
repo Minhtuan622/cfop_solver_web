@@ -203,3 +203,11 @@
 **Cube Motion:** Layer turn mô phỏng một động tác có lực: tăng tốc ngắn, phần quay chính xác ở giữa và giảm tốc nhỏ trước khi state mới ổn định. Layer chuyển động giữ opacity đến sát cuối để tránh cảm giác “biến mất”, nhận elevation/shadow rất nhẹ khi tách lớp, và toàn bộ animation tắt theo reduced-motion.
 
 **Desktop Rhythm:** Dùng bậc spacing 8px: 8/16/24/32/48. Mỗi route có một content rail chung; bên trong, panel phụ cách nhau 16px, cụm thao tác cách nhau 24px, và main apparatus cách record/history 32px. Timer dùng một device lớn bên trái, bảng thành tích hẹp bên phải, sau đó mới đến log/analytics toàn chiều rộng.
+
+## Surface Refinement
+
+**Corner Geometry:** Dùng một thang bo góc vừa phải: 10px cho control/chip, 14px cho field và metric, 18px cho panel, 22px cho apparatus chính. Không còn góc sắc, pill quá tròn hay radius quá lớn.
+
+**Color Balance:** Nền pearl ấm, surface trắng ngà, inset sage-grey nhẹ và Sage Teal chỉ dành cho action/trạng thái hợp lệ. Dark Mode dùng charcoal dịu, không dùng outline sáng hoặc shadow đen.
+
+**Elevation & Hover:** Không dùng shadow, viền đen, offset hoặc glow trên UI. Surface được phân tầng bằng color. Thành phần có thể tương tác chỉ đổi background nhẹ, chữ/icon sang ink/accent và dịch `translateY(-1px)` trong 140ms; reduced-motion tắt translate.
