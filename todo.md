@@ -591,3 +591,10 @@
 - [x] Thiết kế lưu solution có validation, replay solution-first, export ngang và layout 3-Style expandable.
 - [x] Thêm ghi/lưu solution thực tế, replay theo solution, Ao5 canvas phủ ngang và cấu trúc 3-Style mới.
 - [x] Kiểm thử dữ liệu legacy, solution hợp lệ/không hợp lệ, export, Studio desktop/mobile, TypeScript/build và checkpoint.
+
+## 3-Style Studio: chống tràn và tận dụng không gian
+
+- [x] Kiểm tra lại layout desktop/mobile, xác định panel tràn và vùng trống trong tab 3-Style.
+- [x] Tái phân bổ report, profile, memo và training thành các vùng có tỷ lệ phù hợp.
+- [x] Thêm giới hạn/wrapping cho memo, algorithm, control và Cube 3D để không phá grid.
+- [x] Kiểm thử với memo thực tế, desktop/mobile, TypeScript/build và checkpoint.

@@ -121,3 +121,5 @@
 - Rail bên phải là một measurement ladder liên tục: mint rail dọc nối counter, phase, case và report thay vì các dashboard card tách rời.
 - Cube/state dùng sticker-plane sắc cạnh với inset material shadow thống nhất giữa 3D guide, CubeNet và state surface; không dùng treatment icon phẳng tách rời apparatus.
 - Nameplate toàn cục dùng cube stamp vuông, CFOP liền mạch bằng Space Grotesk và O-notch mint rõ nét; Solver Studio là telemetry mono nhỏ, không cạnh tranh với stage.
+- Rail mint nổi bật phải kết thúc ở phase, counter, case, tiến độ hoặc validation có nhãn; rail không gắn phép đo chỉ lùi thành texture giấy.
+- Sidecar 3-Style là chuỗi record sheet phẳng theo luồng Drill → Memo → Profile; chỉ stage cube/solver được giữ material shadow và grid đậm.
