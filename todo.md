@@ -549,3 +549,10 @@
 - [x] Định nghĩa điều kiện PB, copy tiếng Việt/Anh và hiệu ứng chúc mừng có reduced-motion fallback.
 - [x] Thêm phát hiện kỷ lục sau solve cùng overlay/toast chúc mừng không chặn lượt kế tiếp.
 - [x] Kiểm thử single/Ao5 mới, DNF, persistence, desktop/mobile, TypeScript/build và checkpoint.
+
+## Dashboard Timer một màn hình
+
+- [x] Kiểm toán vùng scramble, timer/cube, thành tích cá nhân và log để xác định layout nén phù hợp.
+- [x] Thiết kế hierarchy dashboard: scramble luôn thấy, clock/cube apparatus trung tâm, metric rail luôn thấy.
+- [x] Triển khai layout responsive gọn cho Standard/Compact, giữ analytics và log ở vùng phụ.
+- [x] Kiểm thử desktop/mobile, global font scale lớn, Compact/Standard, TypeScript/build và checkpoint.
