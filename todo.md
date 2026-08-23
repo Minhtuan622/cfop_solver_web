@@ -650,3 +650,10 @@
 - [x] Thiết kế điểm vào 3-Style trong Study, giữ Last Layer và BLD có luồng rõ ràng, không trùng tính năng.
 - [x] Di chuyển training rack, memo, profile và drill sang Study; gỡ các khu luyện tập tương ứng khỏi Studio.
 - [x] Kiểm thử timer, SRS, Drill Mode, import/export profile, desktop/mobile, TypeScript/build và checkpoint.
+
+## 3-Style nhập môn và Studio tối giản
+
+- [x] Nghiên cứu timer Rubik phổ biến và kiểm kê các nhãn, bước, khái niệm 3-Style gây khó hiểu cho người mới.
+- [x] Thiết kế lộ trình bắt đầu từ khái niệm BLD, chữ cái, memo, algorithm rồi mới đến drill/timer; giảm mỗi màn hình còn một mục tiêu.
+- [x] Triển khai hướng dẫn 3-Style theo bước trong Study, chuyển thuật ngữ kỹ thuật thành giải thích dễ hiểu và nén mode 3-Style ở Studio.
+- [x] Kiểm thử lộ trình người mới, memo/SRS/profile cũ, responsive, TypeScript/build và checkpoint.

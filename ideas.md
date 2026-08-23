@@ -225,3 +225,13 @@
 **Hierarchy:** `DRILL` là apparatus chính cho parity, 2-flip và corner twist; `MEMO SRS` và `HỒ SƠ` là hai support surface nhỏ. Một input gọn tạo memo từ scramble/state ngay tại Study để luồng Học 3-Style không lệ thuộc quay lại Studio.
 
 **Continuity:** Các component BLD hiện có được tái sử dụng cùng contract localStorage; không đổi SRS, kết quả Drill, Speffz cards, profile import/export hay algorithm ưu tiên. Studio chỉ giữ BLD analysis/report, không còn sidecar luyện tập.
+
+## 3-Style nhập môn — Calm Learning Path
+
+**Design Movement:** Guided practice flow lấy cảm hứng từ timer có hierarchy tập trung: một thao tác lớn ở trung tâm, bước tiếp theo được gọi tên bằng ngôn ngữ thường ngày, phần thống kê lùi xuống sau hành động.
+
+**Learning Ladder:** Study không mở bằng Drill. Nó mở bằng bốn bước có thứ tự: `1. Hiểu cách BLD hoạt động` → `2. Gắn chữ cái thành hình gợi nhớ` → `3. Thử tạo memo với một scramble` → `4. Luyện nhận diện và xem đáp án`. `SRS`, `parity`, `buffer`, `execution`, `2-flip` và `corner twist` chỉ hiện trong nhãn phụ sau giải thích tiếng Việt ngắn ngay tại bước cần dùng.
+
+**Minimal Contract:** Mỗi bước chỉ có một primary action. Chỉ render nội dung của bước đang học; progress bar 4 bước thay cho các desk/tabs đồng trọng lượng. Hồ sơ và import/export là mục `Tiến độ & sao lưu` ở cuối lộ trình, không cạnh tranh với bài học.
+
+**Studio 3-Style:** Studio là “Tạo & xem memo” gọn: input, một action tạo memo, cube, ba số liệu cạnh/góc/parity và report. Playback không liên quan, control bị vô hiệu và khoảng canvas trống phải được loại bỏ; Study là nơi duy nhất đặt nội dung học/luyện.
