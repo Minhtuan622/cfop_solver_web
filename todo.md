@@ -657,3 +657,10 @@
 - [x] Thiết kế lộ trình bắt đầu từ khái niệm BLD, chữ cái, memo, algorithm rồi mới đến drill/timer; giảm mỗi màn hình còn một mục tiêu.
 - [x] Triển khai hướng dẫn 3-Style theo bước trong Study, chuyển thuật ngữ kỹ thuật thành giải thích dễ hiểu và nén mode 3-Style ở Studio.
 - [x] Kiểm thử lộ trình người mới, memo/SRS/profile cũ, responsive, TypeScript/build và checkpoint.
+
+## Chuyển giao diện sang Bootstrap
+
+- [x] Xác minh Bootstrap phiên bản mới nhất và kiểm kê lớp CSS/component cũ trên Studio, Timer, Study và Settings.
+- [x] Thiết kế system Bootstrap chung gồm navbar, card, tab, form, table, modal, spacing và Light/Dark Mode.
+- [x] Tích hợp Bootstrap, thay shell và các trang giao diện, đồng thời giữ nguyên toàn bộ hành vi solver, timer, Study và lưu dữ liệu cục bộ.
+- [x] Kiểm thử các luồng Rubik chính, responsive desktop/mobile, theme, TypeScript, regression/build và checkpoint.

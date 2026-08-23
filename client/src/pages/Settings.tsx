@@ -33,7 +33,7 @@ function readTargets() {
 
 function Help({ text }: { text: string }) { return <span className="settings-help" title={text} aria-label={text}><CircleHelp /></span>; }
 function SettingCard({ index, title, tip, children }: { index: string; title: string; tip: string; children: ReactNode }) {
-  return <section className="settings-sheet"><div className="settings-card-title"><p>{index}</p><h2>{title}<Help text={tip} /></h2></div>{children}</section>;
+  return <section className="settings-sheet card h-100"><div className="settings-card-title card-header"><p>{index}</p><h2>{title}<Help text={tip} /></h2></div><div className="card-body">{children}</div></section>;
 }
 
 export default function Settings() {
@@ -73,8 +73,8 @@ export default function Settings() {
     if (Number.isFinite(value) && value > 0) setTargets((current) => ({ ...current, [phase]: value }));
   };
 
-  return <main className="settings-page min-h-screen bg-[#f4f0e8] text-[#17221d]">
-    <div className="settings-workbench mx-auto max-w-5xl px-4 py-4 sm:px-6">
+  return <main className="settings-page bs-page min-vh-100">
+    <div className="settings-workbench container-xxl py-4">
       <div className="settings-strip"><span>{label("CÀI ĐẶT ỨNG DỤNG", "APP SETTINGS")}</span><small>{label("Dấu ? giải thích từng nhóm", "? explains each group")}</small></div>
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
         <SettingCard index="01 · SOLVER" title={label("Thuật toán & Cross", "Solver & Cross")} tip={label("Chọn hướng Cross, độ sâu mở đầu và chiến lược lớp cuối mặc định cho lần giải mới.", "Sets the default Cross orientation, opening depth, and last-layer strategy for new solves.")}>

@@ -377,8 +377,8 @@ export default function Home() {
   };
 
   return (
-    <main className="studio-page min-h-screen overflow-x-hidden bg-[#f4f0e8] text-[#17221d]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-      <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
+    <main className="studio-page bs-page min-vh-100 overflow-x-hidden" style={{ fontFamily: "var(--bs-body-font-family)" }}>
+      <div className="container-xxl py-4">
         <section className={`studio-workbench studio-command-workspace grid gap-7 ${solverKind === "bld" ? "studio-bld-layout" : ""}`}>
           <header className="studio-command-bar">
             <div className="studio-command-identity"><span>{language === "vi" ? "BÀN GIẢI" : "WORKSPACE"}</span><b>{solverKind === "bld" ? "3-STYLE / SPEFFZ" : "CFOP / SOLVER"}</b></div>

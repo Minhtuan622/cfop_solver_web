@@ -34,6 +34,10 @@ export function ThemeProvider({ children, defaultTheme = "light", switchable = f
     return () => media.removeEventListener("change", applySystemChange);
   }, [themeMode, switchable]);
 
+  useEffect(() => {
+    document.documentElement.setAttribute("data-bs-theme", theme);
+  }, [theme]);
+
   const setThemeMode = (mode: AppThemeMode) => {
     if (!switchable) return;
     setTheme(writeAppThemeMode(mode));

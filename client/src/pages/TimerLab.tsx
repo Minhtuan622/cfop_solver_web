@@ -170,7 +170,7 @@ export default function TimerLab() {
   const openReplay = (entry: SolveHistoryEntry) => { const validation = validateRecordedSolution(initialStateFor(entry), entry.solution); if (!validation.valid || !validation.moves.length) return; setReplayMode("solution"); setReplay({ ...entry, solution: validation.normalized }); setReplayStep(0); setReplayPlaying(false); setReplaySpeed(1); };
   const openScrambleReplay = (entry: SolveHistoryEntry) => openReplay(entry);
 
-  return <main className={`timer-lab timer-density-${timerDensity} history-surface min-h-screen bg-[#f4f0e8] px-4 py-4 text-[#17221d] sm:px-8`}><div className="mx-auto max-w-6xl pb-16">
+  return <main className={`timer-lab bs-page timer-density-${timerDensity} history-surface min-vh-100 py-4`}><div className="container-xxl pb-5">
     {labTab === "study" ? <LastLayerStudyLab language={language} /> : <>
     <section className="timer-lab-stack">
       <section className="timer-competition-apparatus history-panel border-2 border-[#17221d] bg-white p-5 sm:p-7"><div className="tick-ruler tick-ruler-ink" />

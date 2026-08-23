@@ -32,6 +32,7 @@ export function applyAppThemeMode(mode: AppThemeMode, animate = false) {
   document.documentElement.classList.toggle("dark", theme === "dark");
   document.documentElement.dataset.theme = theme;
   document.documentElement.dataset.themeMode = mode;
+  delete document.documentElement.dataset.accent;
   return theme;
 }
 

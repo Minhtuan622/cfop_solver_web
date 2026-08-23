@@ -235,3 +235,30 @@
 **Minimal Contract:** Mỗi bước chỉ có một primary action. Chỉ render nội dung của bước đang học; progress bar 4 bước thay cho các desk/tabs đồng trọng lượng. Hồ sơ và import/export là mục `Tiến độ & sao lưu` ở cuối lộ trình, không cạnh tranh với bài học.
 
 **Studio 3-Style:** Studio là “Tạo & xem memo” gọn: input, một action tạo memo, cube, ba số liệu cạnh/góc/parity và report. Playback không liên quan, control bị vô hiệu và khoảng canvas trống phải được loại bỏ; Study là nơi duy nhất đặt nội dung học/luyện.
+
+## Bootstrap Platform Reset
+
+**Design Movement:** Bootstrap-native technical workspace. Thay vì các class utility và panel tự chế chồng lên nhau, toàn ứng dụng dùng bố cục quen thuộc của Bootstrap 5.3: navbar, container, row/column, card, nav-tab, accordion, form-control, table, modal và badge.
+
+**Core Principles:** Mỗi route bắt đầu bằng một Bootstrap container rõ ràng. Nội dung chính dùng card có header/body/footer, không tạo kiểu panel riêng cho cùng một nhiệm vụ. Tương tác dùng button, dropdown, tabs hoặc accordion đúng ngữ nghĩa. Responsive dùng grid breakpoint chuẩn `sm`, `md`, `lg`, `xl`, `xxl`, không dùng media query rời rạc khi Bootstrap đã có utility phù hợp.
+
+**Color Philosophy:** Dùng palette blue/slate có tính nhận diện Bootstrap: primary dành cho action, success cho state hợp lệ, warning/danger cho penalty và validation, sáu màu cube vẫn chỉ thuộc về sticker. Giữ Light, Dark và System bằng `data-bs-theme`, không có accent picker hoặc text scale.
+
+**Layout Paradigm:** Navbar responsive cố định trên cùng; mỗi route là `container-xxl`. Studio dùng input column, cube/action column và inspector column. Timer dùng scramble/stopwatch/cube ở hàng đầu, metrics/history theo card/table phía dưới. Study dùng nav-tabs và progress/accordion. Settings dùng nav-pills và form sections.
+
+**Signature Elements:** Tab Bootstrap có active state rõ; card header ngắn; badge cho phase/case/status; table responsive cho history/catalog; offcanvas nav ở mobile. UI không dùng shadow, offset, grid trang trí hoặc gradient; chỉ Cube 3D có animation.
+
+**Interaction Philosophy:** Các control có focus ring Bootstrap rõ, hover nền nhẹ và active press nhanh. Collapse, modal, dropdown và tab chỉ dùng cho disclosure có ích, không dùng để che mọi setting hoặc nhồi nội dung.
+
+**Typography System:** System sans-serif Bootstrap cho nội dung ứng dụng và `font-monospace` Bootstrap cho notation, moves, timer, case ID và telemetry. Không dùng typography display hay branding nặng trên các thao tác thường xuyên.
+
+**Brand Essence:** CFOP Solver Studio là workspace Rubik chuẩn, dễ quét và dễ dùng, được xây bằng các thành phần giao diện quen thuộc thay vì style tự chế. **Rõ ràng, nhất quán, thực dụng.**
+
+### Style Decisions
+
+- Bootstrap 5.3.8 được cài bằng NPM và import qua Vite; không dùng CDN.
+- ThemeContext đồng bộ `data-bs-theme` trên phần tử `html` cho Light/Dark/System.
+- Component mới ưu tiên Bootstrap semantic classes; lớp compatibility chỉ dùng tạm thời để bảo toàn logic Rubik trong quá trình chuyển đổi.
+- Mọi card, tab, table, form, modal và navbar mới phải trông như cùng một Bootstrap product, không pha thêm Soft Focus/record-sheet/technical-rail cũ.
+- Bootstrap là hệ component, không phải palette mặc định: active navigation, selected tab, action hợp lệ và enabled state dùng Solver Mint `#1BA77A`, dark ink hoặc paper inversion; không dùng blue mặc định.
+- Mỗi route chỉ có một apparatus plate có dark ink/grid/material mạnh. Panel còn lại là record sheet phẳng với ruled row, counter/case ID và mono telemetry; Settings là calibration record có mint rail thay vì các toggle slab màu phủ kín.
