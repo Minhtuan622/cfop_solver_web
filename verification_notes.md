@@ -60,3 +60,4 @@
 - 2026-08-23: Timer scroll verification: with eight local solves visible, scrolling from the device area to the solve log removed the Personal Metrics card from the viewport. The metrics card now flows with the document rather than covering lower UI.
 - 2026-08-23: Visual refinement verification: Light Settings shows softer mint state rows and no UI shadows; Dark Mode was toggled directly and retains readable charcoal surfaces, moderate corner geometry, and non-glowing controls.
 - 2026-08-23: The browser was restored to Light Mode after the Dark Mode verification.
+- 2026-08-23: Studio CubeNet verification: desktop now shows a large 2D net alongside the solver content without overlapping Cube 3D; mobile stacks the readable 2D net above the 3D model and playback controls. Timer scramble has a rounded quiet surface on desktop and mobile.

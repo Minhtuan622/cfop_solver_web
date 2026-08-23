@@ -32,7 +32,7 @@ export const CUBE_COLOR: Record<string, string> = {
 
 type Face = (typeof FACE_ORDER)[number];
 
-export function CubeNet({ state, compact = false, inspectCross = false, crossColor = "U", editable = false, selectedColor = "U", onStateChange, disabled = false }: { state: string; compact?: boolean; inspectCross?: boolean; crossColor?: string; editable?: boolean; selectedColor?: Face; onStateChange?: (state: string) => void; disabled?: boolean }) {
+export function CubeNet({ state, compact = false, inspectCross = false, crossColor = "U", editable = false, selectedColor = "U", onStateChange, disabled = false, emphasis = "default" }: { state: string; compact?: boolean; inspectCross?: boolean; crossColor?: string; editable?: boolean; selectedColor?: Face; onStateChange?: (state: string) => void; disabled?: boolean; emphasis?: "default" | "studio" }) {
   const safeState = state.length === 54 ? state : SOLVED_STATE;
   const paint = (face: Face, stickerIndex: number) => {
     if (!editable || disabled || stickerIndex === 4) return;
@@ -49,9 +49,10 @@ export function CubeNet({ state, compact = false, inspectCross = false, crossCol
     <div
       aria-label={editable ? "Sơ đồ Rubik 2D có thể tô sticker trực tiếp" : "Trạng thái Rubik dạng cube net"}
       className={cn(
-        "cube-net grid grid-cols-4 grid-rows-3 gap-1.5 rounded-[1.35rem] bg-[#17221d] p-3 shadow-[12px_12px_0_#1ba77a]",
+        "cube-net grid grid-cols-4 grid-rows-3 gap-1.5 rounded-[1.125rem] bg-[#17221d] p-3",
         compact ? "w-[224px]" : "w-full max-w-[530px]",
         editable && "cube-net-editable ring-2 ring-[#1ba77a]/55",
+        emphasis === "studio" && "cube-net--studio",
       )}
     >
       {FACE_ORDER.map((face) => (

@@ -629,3 +629,10 @@
 - [x] Định nghĩa palette mềm, bo góc vừa phải, hover nhẹ và quy tắc không shadow.
 - [x] Gỡ shadow/viền cứng, sửa metrics Timer cuộn tự nhiên và áp dụng visual pass toàn app.
 - [x] Kiểm thử scroll Timer, hover, desktop/mobile, Dark Mode, TypeScript/build và checkpoint.
+
+## CubeNet Studio và surface Timer
+
+- [x] Kiểm tra scale CubeNet 2D ở Studio, corner thẻ scramble và surface Timer chưa đồng đều.
+- [x] Chốt kích thước CubeNet desktop-first và corner radius nhất quán cho scramble/surface Timer.
+- [x] Tăng CubeNet, sửa corner scramble và tinh chỉnh tiếp UI Timer.
+- [x] Kiểm thử Studio/Timer desktop/mobile, TypeScript/build và checkpoint.

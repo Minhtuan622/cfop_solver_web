@@ -1667,6 +1667,15 @@ html { font-size: 100% !important; }
 .dark .settings-page .settings-toggle.active {
   background: color-mix(in srgb, var(--soft-accent) 18%, var(--soft-surface)) !important;
 }
+.studio-page .studio-apparatus-viewport .cube-net--studio { width: min(100%, 360px) !important; max-width: 360px !important; padding: .9rem !important; gap: .5rem !important; }
+.studio-page .studio-apparatus-viewport .cube-net--studio > div { min-width: 0; }
+@media (min-width: 1024px) {
+  .studio-page .studio-apparatus-viewport { grid-template-columns: minmax(0, 1fr) !important; min-height: 0; padding: 1.5rem !important; }
+  .studio-page .studio-apparatus-viewport .cube-net--studio { width: min(100%, 380px) !important; max-width: 380px !important; padding: .95rem !important; gap: .55rem !important; }
+  .studio-page .studio-apparatus-viewport > div:last-child { max-width: 240px !important; margin-inline: auto; }
+}
+.timer-lab .timer-scramble { display: block; border-radius: var(--soft-radius-sm); background: var(--soft-surface-quiet); padding: .85rem 1rem; }
+.timer-lab .timer-scramble-actions { margin-left: .25rem; }
 /* Secondary areas recede as flat record sheets; each route keeps only one elevated apparatus. */
 .studio-page :is(.studio-support-panel, .studio-camera-fold, .studio-input-ledger, .studio-inspector-column, .studio-report-empty) { box-shadow: 0 4px 14px rgba(35, 56, 49, .055) !important; }
 .studio-page .studio-solver-apparatus .studio-phase-title { color: var(--soft-ink); font-family: "Space Grotesk", sans-serif; font-size: clamp(1.4rem, 2vw, 2rem); font-weight: 750; }
