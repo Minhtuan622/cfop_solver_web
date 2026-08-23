@@ -1829,3 +1829,43 @@ html { font-size: 100% !important; }
   .studio-bld-sidecar { display: grid; gap: 1rem; }
   .studio-bld-sidecar > :is(.studio-bld-training, .studio-bld-memo-lab, .studio-bld-profile) { margin-top: 0; }
 }
+
+/* Study keeps one subject desk at a time: Last Layer or self-contained 3-Style practice. */
+.last-layer-study .study-lane-switch,
+.bld-study-practice-tabs,
+.bld-study-source-modes { display: inline-flex; align-items: center; gap: .25rem; width: fit-content; max-width: 100%; padding: .25rem; border-radius: var(--soft-radius-control); background: var(--soft-surface-quiet); }
+.last-layer-study .study-lane-switch button,
+.bld-study-practice-tabs button,
+.bld-study-source-modes button { border: 0 !important; border-radius: 8px !important; background: transparent; padding: .5rem .7rem; color: var(--soft-muted); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .68rem; font-weight: 800; letter-spacing: .08em; white-space: nowrap; }
+.last-layer-study .study-lane-switch button[aria-selected="true"],
+.bld-study-practice-tabs button[aria-selected="true"],
+.bld-study-source-modes button[aria-selected="true"] { background: var(--soft-surface) !important; color: var(--soft-accent-strong) !important; }
+.bld-study-lab { max-width: 100%; }
+.bld-study-source { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(320px, 1.35fr) minmax(170px, .48fr); align-items: start; gap: 1.25rem; border-radius: 22px; background: var(--soft-surface); padding: 1.5rem; }
+.bld-study-source-copy p,
+.bld-study-preview > span { color: var(--soft-accent-strong); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .7rem; font-weight: 800; letter-spacing: .12em; }
+.bld-study-source-copy h3 { margin-top: .55rem; color: var(--soft-ink); font-family: "Space Grotesk", sans-serif; font-size: clamp(1.25rem, 1rem + .65vw, 1.75rem); font-weight: 750; letter-spacing: -.035em; line-height: 1.1; }
+.bld-study-source-copy span { display: block; max-width: 28rem; margin-top: .7rem; color: var(--soft-muted); font-size: .9rem; line-height: 1.55; }
+.bld-study-source-controls { min-width: 0; }
+.bld-study-source-controls textarea { display: block; min-height: 8.1rem; width: 100%; margin-top: .65rem; resize: vertical; border: 0 !important; border-radius: var(--soft-radius-sm) !important; background: var(--soft-surface-quiet); padding: .9rem 1rem; color: var(--soft-ink); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .86rem; font-weight: 650; line-height: 1.65; outline: none; }
+.bld-study-source-controls textarea:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--soft-accent) 26%, transparent) !important; }
+.bld-study-source-actions { display: flex; justify-content: space-between; align-items: center; gap: .65rem; margin-top: .7rem; }
+.bld-study-source-actions > button:first-child { display: grid; width: 2.45rem; height: 2.45rem; place-items: center; border: 0 !important; border-radius: var(--soft-radius-control) !important; background: var(--soft-surface-quiet); color: var(--soft-muted); }
+.bld-study-build { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 2.45rem; border: 0 !important; border-radius: var(--soft-radius-control) !important; background: var(--soft-accent) !important; padding: .55rem .9rem; color: #18342d !important; font-family: "Space Grotesk", sans-serif; font-size: .78rem; font-weight: 750; letter-spacing: .02em; }
+.bld-study-build:disabled { cursor: wait; opacity: .65; }
+.bld-study-error { margin-top: .65rem; color: #a34737; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .76rem; line-height: 1.45; }
+.bld-study-preview { display: grid; min-height: 100%; place-items: center; align-content: center; gap: .85rem; border-radius: var(--soft-radius-sm); background: var(--soft-surface-quiet); padding: 1rem; text-align: center; }
+.bld-study-preview .cube-net { width: min(100%, 180px) !important; max-width: 180px !important; box-shadow: none !important; }
+.bld-study-preview > span { font-size: .62rem; line-height: 1.45; }
+.bld-study-practice { border-radius: 22px; background: var(--soft-surface); padding: 1.5rem; }
+.bld-study-practice-tabs { margin-bottom: 1.1rem; }
+.bld-study-practice :is(.studio-bld-training, .studio-bld-memo-lab, .studio-bld-profile) { margin-top: 0 !important; border: 0 !important; border-radius: var(--soft-radius-sm) !important; background: var(--soft-surface-quiet) !important; box-shadow: none !important; }
+.bld-study-practice :is(.studio-bld-training, .studio-bld-memo-lab, .studio-bld-profile) :is(.border, .border-x, .border-y, .border-t, .border-b) { border-color: color-mix(in srgb, var(--soft-ink) 9%, transparent) !important; }
+.bld-study-practice :is(.studio-bld-training, .studio-bld-memo-lab, .studio-bld-profile) :is(.bg-white, .bg-\[\#f8f5ed\], .bg-\[\#efe9dc\]) { background: var(--soft-surface) !important; }
+.bld-study-practice :is(.studio-bld-training, .studio-bld-memo-lab, .studio-bld-profile) :is(button, input) { border-radius: var(--soft-radius-control) !important; }
+.bld-study-drill-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .36fr); gap: 1.25rem; align-items: start; }
+.bld-study-cube-reference { border-radius: var(--soft-radius-sm); background: var(--soft-surface-quiet); padding: 1rem; }
+.bld-study-cube-reference > p { color: var(--soft-muted); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .66rem; font-weight: 800; letter-spacing: .12em; }
+.bld-study-cube-reference .cube3d-guide { margin-top: .75rem; }
+@media (max-width: 980px) { .bld-study-source { grid-template-columns: minmax(0, 1fr) minmax(200px, .42fr); }.bld-study-source-controls { grid-column: 1 / -1; grid-row: 2; }.bld-study-source-copy { grid-column: 1; }.bld-study-preview { grid-column: 2; grid-row: 1; }.bld-study-drill-layout { grid-template-columns: 1fr; }.bld-study-cube-reference { max-width: 400px; } }
+@media (max-width: 620px) { .last-layer-study .study-lane-switch, .bld-study-practice-tabs { width: 100%; }.last-layer-study .study-lane-switch button, .bld-study-practice-tabs button { flex: 1; padding-inline: .45rem; }.bld-study-source { grid-template-columns: 1fr; padding: 1rem; }.bld-study-source-copy, .bld-study-source-controls, .bld-study-preview { grid-column: 1; grid-row: auto; }.bld-study-preview { min-height: 0; }.bld-study-preview .cube-net { width: min(100%, 170px) !important; }.bld-study-practice { padding: 1rem; }.bld-study-practice-tabs button { font-size: .62rem; } }

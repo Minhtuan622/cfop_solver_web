@@ -13,9 +13,6 @@ import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { BldReport } from "@/components/BldReport";
-import { BldProfilePanel } from "@/components/BldProfilePanel";
-import { BldMemoLab } from "@/components/BldMemoLab";
-import { BldTrainingLab } from "@/components/BldTrainingLab";
 import { CubeStateEditor } from "@/components/CubeStateEditor";
 import { CameraScanner } from "@/components/CameraScanner";
 import { SoftStatus, SoftSurface } from "@/components/SoftUI";
@@ -480,7 +477,6 @@ export default function Home() {
             </div>
             <div className={cn("studio-record-drawer", solverKind === "bld" && "studio-record-drawer-bld")}>
               {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <section className="studio-report-empty border-2 border-[#17221d]/25 bg-[#f8f5ed] p-4"><p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#1ba77a]">{solverKind === "bld" ? "3-STYLE BLD · MEMO" : `CFOP · ${language === "vi" ? "BÁO CÁO" : "REPORT"}`}</p><p className="mt-2 font-mono text-[10px] leading-5 text-[#17221d]/60">{solverKind === "bld" ? (language === "vi" ? "Nhập scramble hoặc state để tạo memo, cycle và execution key." : "Enter a scramble or state to build memo cycles and execution keys.") : (language === "vi" ? "Nhập scramble hoặc state để ghi phase, invariant và thuật toán." : "Enter a scramble or state to record phases, invariants, and algorithms.")}</p></section>}
-              {solverKind === "bld" && <div className="studio-bld-sidecar"><BldTrainingLab result={bldResult} profile={bldProfile} onProfile={setBldProfile} language={language} /><BldMemoLab result={bldResult} profile={bldProfile} onProfile={setBldProfile} language={language} /><BldProfilePanel profile={bldProfile} onProfile={setBldProfile} language={language} /></div>}
             </div>
           </aside>
         </section>

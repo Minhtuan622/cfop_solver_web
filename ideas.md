@@ -217,3 +217,11 @@
 **Studio View Toggle:** Một segmented control nhỏ đặt ngay trong viewport, chỉ có `2D` và `3D`. Mỗi thời điểm chỉ hiển thị một mô hình; lựa chọn giữ trong phiên để Canvas bớt dày đặc mà controls playback không đổi.
 
 **Study Hierarchy:** Trainer case là apparatus chính. Timer và model tham chiếu nằm trong cùng một support stack; mục tiêu ngày, lịch SRS và catalog trở thành hai record sheet ở hàng sau. Filter catalog nằm trên một hàng có thể quét, danh sách case là vùng cuộn chủ động thay vì kéo dài bề mặt.
+
+## 3-Style trong Study
+
+**Placement:** Luyện 3-Style trở thành một desk riêng dưới Last Layer trên cùng route Study, được mở bằng control `LAST LAYER` / `3-STYLE BLD`. Chỉ desk đang chọn được render để desktop không thành một trang dài dày đặc.
+
+**Hierarchy:** `DRILL` là apparatus chính cho parity, 2-flip và corner twist; `MEMO SRS` và `HỒ SƠ` là hai support surface nhỏ. Một input gọn tạo memo từ scramble/state ngay tại Study để luồng Học 3-Style không lệ thuộc quay lại Studio.
+
+**Continuity:** Các component BLD hiện có được tái sử dụng cùng contract localStorage; không đổi SRS, kết quả Drill, Speffz cards, profile import/export hay algorithm ưu tiên. Studio chỉ giữ BLD analysis/report, không còn sidecar luyện tập.

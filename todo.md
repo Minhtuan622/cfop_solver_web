@@ -643,3 +643,10 @@
 - [x] Thiết kế chuyển 2D/3D, hover mềm nhất quán và hierarchy Study tối giản.
 - [x] Triển khai toggle Studio, motion hover Timer và Study surface mới.
 - [x] Kiểm thử Studio/Timer/Study desktop/mobile, TypeScript/build và checkpoint.
+
+## Chuyển luyện tập 3-Style sang Study
+
+- [x] Kiểm kê component 3-Style, Drill Mode, Memo SRS, profile và state cục bộ đang dùng trong Studio.
+- [x] Thiết kế điểm vào 3-Style trong Study, giữ Last Layer và BLD có luồng rõ ràng, không trùng tính năng.
+- [x] Di chuyển training rack, memo, profile và drill sang Study; gỡ các khu luyện tập tương ứng khỏi Studio.
+- [x] Kiểm thử timer, SRS, Drill Mode, import/export profile, desktop/mobile, TypeScript/build và checkpoint.
