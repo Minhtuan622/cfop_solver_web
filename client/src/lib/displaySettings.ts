@@ -15,10 +15,18 @@ export function writeAppFontSize(size: AppFontSize) { localStorage.setItem(FONT_
 
 export function readAppThemeMode(): AppThemeMode { try { const stored = localStorage.getItem(THEME_KEY); return stored === "dark" || stored === "system" ? stored : "light"; } catch { return "light"; } }
 export function resolveAppTheme(mode: AppThemeMode): AppTheme { return mode === "system" ? (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light") : mode; }
-export function applyAppThemeMode(mode: AppThemeMode) { const theme = resolveAppTheme(mode); document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme; document.documentElement.dataset.themeMode = mode; return theme; }
-export function writeAppThemeMode(mode: AppThemeMode) { localStorage.setItem(THEME_KEY, mode); return applyAppThemeMode(mode); }
+let themeTransitionTimer: number | undefined;
+function pulseThemeTransition() {
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+  const root = document.documentElement;
+  root.dataset.themeTransition = "true";
+  if (themeTransitionTimer) window.clearTimeout(themeTransitionTimer);
+  themeTransitionTimer = window.setTimeout(() => { delete root.dataset.themeTransition; }, 260);
+}
+export function applyAppThemeMode(mode: AppThemeMode, animate = false) { const theme = resolveAppTheme(mode); if (animate) pulseThemeTransition(); document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme; document.documentElement.dataset.themeMode = mode; return theme; }
+export function writeAppThemeMode(mode: AppThemeMode) { localStorage.setItem(THEME_KEY, mode); return applyAppThemeMode(mode, true); }
 export function readAppTheme(): AppTheme { return resolveAppTheme(readAppThemeMode()); }
-export function applyAppTheme(theme: AppTheme) { document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme; }
+export function applyAppTheme(theme: AppTheme, animate = false) { if (animate) pulseThemeTransition(); document.documentElement.classList.toggle("dark", theme === "dark"); document.documentElement.dataset.theme = theme; }
 export function writeAppTheme(theme: AppTheme) { return writeAppThemeMode(theme); }
 
 export function isValidAccentColor(value: string): value is `#${string}` { return HEX.test(value); }

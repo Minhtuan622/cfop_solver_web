@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { applyAppThemeMode, readAppThemeMode, type AppThemeMode } from "@/lib/displaySettings";
+import { applyAppThemeMode, readAppThemeMode, writeAppThemeMode, type AppThemeMode } from "@/lib/displaySettings";
 
 type Theme = "light" | "dark";
 
@@ -29,13 +29,14 @@ export function ThemeProvider({ children, defaultTheme = "light", switchable = f
     apply();
     if (themeMode !== "system") return;
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    media.addEventListener("change", apply);
-    return () => media.removeEventListener("change", apply);
+    const applySystemChange = () => setTheme(applyAppThemeMode("system", true));
+    media.addEventListener("change", applySystemChange);
+    return () => media.removeEventListener("change", applySystemChange);
   }, [themeMode, switchable]);
 
   const setThemeMode = (mode: AppThemeMode) => {
     if (!switchable) return;
-    localStorage.setItem("theme", mode);
+    setTheme(writeAppThemeMode(mode));
     setThemeModeState(mode);
   };
 

@@ -378,7 +378,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#f4f0e8] text-[#17221d]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+    <main className="studio-page min-h-screen overflow-x-hidden bg-[#f4f0e8] text-[#17221d]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
       <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
         <section className="studio-workbench grid gap-7 xl:grid-cols-[330px_minmax(0,1fr)_360px]">
           <aside className="studio-control-stack space-y-5 xl:sticky xl:top-5 xl:h-fit">

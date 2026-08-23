@@ -505,3 +505,10 @@
 - [x] Chuẩn hóa token semantic cho nền, sheet, control, chữ chính/phụ, border và trạng thái active.
 - [x] Sửa Studio, Timer, BLD panels, Study và Settings để không còn surface lẫn theme.
 - [x] Kiểm tra desktop/mobile ở Light, Dark, System; TypeScript/build và checkpoint.
+
+## Theme transition và Studio Dark coverage
+
+- [x] Rà Studio Dark để xác định chính xác các surface chưa phủ token hoặc bị light rule ghi đè.
+- [x] Thiết kế transition background, color, border, shadow an toàn; reduced-motion không animate.
+- [x] Thêm transition theme toàn app và override Studio Dark cho report, input, rail, playback, BLD controls.
+- [x] Kiểm thử chuyển Light/Dark/System, Studio desktop/mobile, TypeScript/build và checkpoint.

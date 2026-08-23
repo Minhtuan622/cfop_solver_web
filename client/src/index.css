@@ -1158,4 +1158,19 @@ html[data-font-size="large"] { font-size: 18px; }
   .dark .studio-workbench :is([class*="text-[#17221d"], [class*="text-[#1b7b5e"]), .dark .timer-lab :is([class*="text-[#17221d"], [class*="text-[#1b7b5e"]), .dark .last-layer-study :is([class*="text-[#17221d"], [class*="text-[#1b7b5e"]), .dark .settings-page :is([class*="text-[#17221d"], [class*="text-[#1b7b5e"]) { color: var(--wb-ink) !important; }
   .dark .studio-workbench :is([class*="text-[#17221d]/"], [class*="text-[#1b7b5e]/"]), .dark .timer-lab :is([class*="text-[#17221d]/"], [class*="text-[#1b7b5e]/"]), .dark .last-layer-study :is([class*="text-[#17221d]/"], [class*="text-[#1b7b5e]/"]), .dark .settings-page :is([class*="text-[#17221d]/"], [class*="text-[#1b7b5e]/"]) { color: var(--wb-muted) !important; }
   .dark .studio-workbench .cube3d-guide, .dark .studio-workbench .cube3d-stage, .dark .timer-lab .cube3d-guide, .dark .timer-lab .cube3d-stage, .dark .last-layer-study .cube3d-guide, .dark .last-layer-study .cube3d-stage { background-color: #080d0a !important; border-color: var(--wb-line) !important; }
+
+  /* Studio needs its own page material: its legacy main wrapper sat outside .studio-workbench. */
+  .dark .studio-page { background-color: var(--wb-page) !important; color: var(--wb-ink) !important; }
+  .dark .studio-page .studio-solver-apparatus, .dark .studio-page .studio-camera-fold, .dark .studio-page .studio-apparatus-readout-card, .dark .studio-page .studio-apparatus-viewport, .dark .studio-page .studio-opening-outcome, .dark .studio-page .studio-report-options, .dark .studio-page .last-layer-formula-strip, .dark .studio-page .cube-state-editor { background-color: var(--wb-sheet) !important; color: var(--wb-ink) !important; border-color: var(--wb-line) !important; background-image: linear-gradient(90deg, rgb(231 235 227 / .04) 1px, transparent 1px) !important; }
+  .dark .studio-page .studio-apparatus-viewport { background-color: var(--wb-inset) !important; }
+  .dark .studio-page .studio-apparatus-controls .control-button, .dark .studio-page .studio-report-options button, .dark .studio-page .last-layer-formula-strip button, .dark .studio-page .cube-state-editor button { background-color: var(--wb-panel); color: var(--wb-ink); border-color: var(--wb-line); }
+  .dark .studio-page .studio-apparatus-controls button.bg-\[\#17221d\] { background-color: #080d0a !important; color: #edf2eb !important; }
+
+  /* Theme transition runs only while the root flag is present; it cannot affect continuous cube/playback motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    html[data-theme-transition="true"] body, html[data-theme-transition="true"] body *, html[data-theme-transition="true"] body *::before, html[data-theme-transition="true"] body *::after { transition-property: background-color, color, border-color, box-shadow, fill, stroke !important; transition-duration: 220ms !important; transition-timing-function: cubic-bezier(.23, 1, .32, 1) !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html[data-theme-transition="true"] body, html[data-theme-transition="true"] body *, html[data-theme-transition="true"] body *::before, html[data-theme-transition="true"] body *::after { transition: none !important; }
+  }
 }
