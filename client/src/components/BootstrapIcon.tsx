@@ -1,11 +1,14 @@
-import type { CSSProperties, HTMLAttributes } from "react";
+import type { CSSProperties } from "react";
 
-type IconProps = HTMLAttributes<HTMLElement> & { size?: number | string; strokeWidth?: number; fill?: string };
+type IconProps = { className?: string; size?: number | string; strokeWidth?: number | string; fill?: string; style?: CSSProperties; [key: string]: unknown };
 
 function icon(name: string) {
   return function BootstrapIcon({ className, size, strokeWidth: _strokeWidth, fill: _fill, style, ...props }: IconProps) {
     const iconStyle: CSSProperties = size === undefined ? (style ?? {}) : { fontSize: size, ...style };
-    return <i aria-hidden="true" className={`bi bi-${name}${className ? ` ${className}` : ""}`} style={iconStyle} {...props} />;
+    const sizeMatch = className?.match(/\bh-(3\.5|3|4|5|6)\b/);
+    const fsClass = sizeMatch?.[1] === "6" ? "fs-4" : sizeMatch?.[1] === "5" ? "fs-5" : "fs-6";
+    const normalizedClassName = className?.replace(/\b(?:h|w)-(?:3\.5|3|4|5|6)\b/g, "").replace(/\s+/g, " ").trim();
+    return <i aria-hidden="true" className={`bi bi-${name} ${fsClass}${normalizedClassName ? ` ${normalizedClassName}` : ""}`} style={iconStyle} {...props} />;
   };
 }
 
@@ -21,6 +24,7 @@ export const CheckIcon = Check;
 export const CircleGauge = icon("speedometer2");
 export const ChevronDown = icon("chevron-down");
 export const ChevronDownIcon = ChevronDown;
+export const ChevronLeftIcon = icon("chevron-left");
 export const ChevronRight = icon("chevron-right");
 export const ChevronRightIcon = ChevronRight;
 export const ChevronUpIcon = icon("chevron-up");
@@ -54,6 +58,7 @@ export const Menu = icon("list");
 export const MinusIcon = icon("dash");
 export const Moon = icon("moon");
 export const MoreHorizontal = icon("three-dots");
+export const MoreHorizontalIcon = MoreHorizontal;
 export const PanelLeftIcon = icon("layout-sidebar-inset");
 export const Pause = icon("pause-fill");
 export const Pencil = icon("pencil");
@@ -80,3 +85,4 @@ export const Upload = icon("upload");
 export const Volume2 = icon("volume-up");
 export const VolumeX = icon("volume-mute");
 export const X = icon("x-lg");
+export const XIcon = X;

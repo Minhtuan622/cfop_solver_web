@@ -7,7 +7,7 @@ async function visit(directory) {
   for (const item of await readdir(directory, { withFileTypes: true })) {
     const path = join(directory, item.name);
     if (item.isDirectory()) {
-      if (item.name !== "ui") await visit(path);
+      await visit(path);
       continue;
     }
     if (!path.endsWith(".tsx") && !path.endsWith(".ts")) continue;

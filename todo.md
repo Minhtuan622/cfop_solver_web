@@ -716,3 +716,10 @@
 - [x] Cài `bootstrap-icons`, nạp stylesheet chính thức và thay icon ở shell, Studio, Timer bằng class `bi` tương ứng.
 - [x] Thay icon ở Study, 3-Style, Settings, modal và component con; giữ aria-label/title trên nút chỉ-icon.
 - [x] Kiểm tra desktop/mobile, TypeScript, tests và build trước checkpoint.
+
+## Chuẩn hóa kích thước Bootstrap Icons
+
+- [x] Kiểm kê icon legacy còn import `lucide-react`, SVG icon cứng và mọi class kích thước icon không theo Bootstrap.
+- [x] Chuẩn hóa icon navigation, action, form, card và feedback theo các class `fs-6`, `fs-5`, `fs-4` Bootstrap phù hợp.
+- [x] Thay mọi import icon còn sót trong component legacy bằng lớp Bootstrap Icons; giữ aria-label và tooltip.
+- [x] Kiểm tra TypeScript, grep không còn Lucide/SVG icon UI, screenshot và regression trước checkpoint.
