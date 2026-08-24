@@ -686,3 +686,10 @@
 - [x] Đề xuất design system Bootstrap, kiến trúc component và thứ tự redesign; trình người dùng xác nhận trước khi sửa code.
 - [x] Chuẩn hóa global layout, navigation, states và component dùng chung sau khi được xác nhận.
 - [x] Redesign từng route/module, kiểm thử responsive, accessibility, loading/empty/error/success state và regression rồi checkpoint.
+
+## Bootstrap thuần tuyệt đối
+
+- [x] Chỉ giữ CSS hình học tối thiểu cho Cube 2D/3D, layer-turn, highlight sticker và chart theo xác nhận của người dùng; loại bỏ CSS trình bày giao diện.
+- [x] Gỡ Tailwind/theme/base/navbar presentation khỏi `index.css` và thay component trình bày bằng Bootstrap 5.3.8.
+- [x] Thay UI ngoài Bootstrap còn sót ở Studio, Timer, Study, 3-Style, Settings, dialog và navigation.
+- [x] Kiểm thử các route, trạng thái feedback, modal, timer và Cube trước checkpoint.

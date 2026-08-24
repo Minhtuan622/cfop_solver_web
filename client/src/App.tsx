@@ -1,5 +1,3 @@
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -38,14 +36,11 @@ function App() {
         defaultTheme="light"
         switchable
       >
-        <TooltipProvider>
-          <Toaster />
-          <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">Bỏ qua điều hướng</a>
-          <AppNav />
-          <main id="main-content" className="py-4 py-lg-5">
-            <Router />
-          </main>
-        </TooltipProvider>
+        <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">Bỏ qua điều hướng</a>
+        <AppNav />
+        <main id="main-content" className="py-4">
+          <Router />
+        </main>
       </ThemeProvider>
       </LanguageProvider>
     </ErrorBoundary>

@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export function PageHeader({ title, description, actions, className }: { title: string; description?: string; actions?: ReactNode; className?: string }) {
-  return <header className={cn("d-flex flex-column flex-lg-row align-items-lg-start justify-content-lg-between gap-3 mb-4", className)}>
+  return <header className={cn("d-flex align-items-lg-start justify-content-lg-between gap-3 mb-4", className)}>
     <div>
-      <h1 className="h2 mb-1">{title}</h1>
+      <h1 className="mb-1">{title}</h1>
       {description ? <p className="text-body-secondary mb-0">{description}</p> : null}
     </div>
     {actions ? <div className="d-flex flex-wrap gap-2 align-items-center">{actions}</div> : null}
@@ -13,8 +13,8 @@ export function PageHeader({ title, description, actions, className }: { title: 
 
 export function SectionCard({ title, description, actions, children, className }: { title?: string; description?: string; actions?: ReactNode; children: ReactNode; className?: string }) {
   return <section className={cn("card", className)}>
-    {(title || description || actions) ? <div className="card-header bg-body d-flex flex-column flex-sm-row align-items-sm-start justify-content-sm-between gap-2">
-      <div>{title ? <h2 className="h5 mb-0">{title}</h2> : null}{description ? <p className="small text-body-secondary mb-0 mt-1">{description}</p> : null}</div>
+    {(title || description || actions) ? <div className="card-header bg-body d-flex align-items-sm-start justify-content-sm-between gap-2">
+      <div>{title ? <h2 className="mb-0">{title}</h2> : null}{description ? <p className="small text-body-secondary mb-0 mt-1">{description}</p> : null}</div>
       {actions ? <div className="d-flex flex-wrap gap-2">{actions}</div> : null}
     </div> : null}
     <div className="card-body">{children}</div>
@@ -32,7 +32,7 @@ export function FieldGroup({ id, label, hint, error, children }: { id: string; l
   return <div>
     <label className="form-label" htmlFor={id}>{label}</label>
     {children}
-    {error ? <div id={`${id}-error`} className="invalid-feedback d-block">{error}</div> : null}
+    {error ? <div id={`${id}-error`} className="d-block">{error}</div> : null}
     {!error && hint ? <div id={`${id}-hint`} className="form-text">{hint}</div> : null}
   </div>;
 }
