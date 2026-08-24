@@ -892,3 +892,10 @@
 - [x] Tạo các skeleton Bootstrap tái sử dụng cho layout trang, danh sách, card, chart và report.
 - [x] Thay mọi loading state dữ liệu bằng skeleton đúng cấu trúc, giữ spinner cho thao tác tức thời.
 - [x] Chạy hồi quy, kiểm tra desktop/mobile và checkpoint sau khi hoàn tất.
+
+## Tái thiết kế lộ trình học 3×3 BLD
+
+- [x] Kiểm kê bước học BLD hiện tại, persistence tiến độ và các công cụ memo/drill/SRS.
+- [x] Xác định chặng học, mục tiêu, trạng thái hoàn thành và điều kiện tiếp tục dễ hiểu.
+- [x] Thiết kế lại Study BLD theo hành trình thống nhất, tái dùng tính năng hiện có.
+- [x] Kiểm tra desktop/mobile, hồi quy dữ liệu BLD và checkpoint sau khi hoàn tất.
