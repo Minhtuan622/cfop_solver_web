@@ -1,8 +1,7 @@
 /* Xưởng Cơ Khí Tốc Độ — Display keeps navigation calibrated while semantic formula/memo surfaces have an independent readable scale. */
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Check, CircleHelp, Moon, RotateCcw, Sun } from "@/components/BootstrapIcon";
+import { Check, CircleHelp, RotateCcw } from "@/components/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readLastLayerStudy, writeLastLayerStudy } from "@/lib/lastLayerStudy";
 
@@ -40,7 +39,6 @@ function SettingCard({ id, index, title, tip, children, open, onToggle }: { id: 
 
 export default function Settings() {
   const { language, setLanguage } = useLanguage();
-  const { theme, themeMode, setThemeMode } = useTheme();
   const vi = language === "vi";
   const label = (viText: string, enText: string) => vi ? viText : enText;
   const [solver, setSolver] = useState<SolverSettings>(readSolverSettings);
@@ -85,7 +83,7 @@ export default function Settings() {
       setAutoSaveState("saved");
     }, 350);
     return () => window.clearTimeout(saveTimer);
-  }, [solver, sound, splits, highlight, targets, dailyGoal, language, themeMode]);
+  }, [solver, sound, splits, highlight, targets, dailyGoal, language]);
 
   useEffect(() => {
     if (autoSaveState !== "saved") return;
@@ -99,7 +97,6 @@ export default function Settings() {
     setHighlight(true);
     setTargets(defaultTargets);
     setDailyGoal(12);
-    setThemeMode("light");
   };
   const setTarget = (phase: Phase, value: number) => {
     if (Number.isFinite(value) && value > 0) setTargets((current) => ({ ...current, [phase]: value }));
@@ -133,13 +130,6 @@ export default function Settings() {
           <div className="btn-group mt-4"><button onClick={() => setLanguage("vi")} className={vi ? "btn btn-primary" : "btn btn-outline-secondary"}>Tiếng Việt</button><button onClick={() => setLanguage("en")} className={!vi ? "btn btn-primary" : "btn btn-outline-secondary"}>English</button></div>
         </SettingCard>
 
-        <SettingCard id="display" open={openSections.includes("display")} onToggle={() => toggleSection("display")} index="05 · DISPLAY" title={label("Giao diện", "Appearance")} tip={label("Chỉ giữ tùy chọn Sáng, Tối hoặc theo hệ điều hành. Màu nhấn và cỡ chữ được thống nhất để giao diện luôn dễ đọc.", "Keep Light, Dark, or System appearance. Accent and text scale are fixed for a consistent readable interface.")}>
-          <label className="form-label mt-3">{label("Chế độ màu", "Color mode")}</label>
-          <div className="btn-group"><button onClick={() => setThemeMode("light")} aria-label={label("Sáng", "Light")} className={themeMode === "light" ? "btn btn-primary" : "btn btn-outline-secondary"}><Sun className="fs-6" /></button><button onClick={() => setThemeMode("dark")} aria-label="Dark" className={themeMode === "dark" ? "btn btn-primary" : "btn btn-outline-secondary"}><Moon className="fs-6" /></button><button onClick={() => setThemeMode("system")} className={themeMode === "system" ? "btn btn-primary" : "btn btn-outline-secondary"}>{label("Hệ điều hành", "System")}</button></div>
-          <p className="small text-muted mt-2">{themeMode === "system" ? (theme === "dark" ? label("Hệ điều hành hiện đang dùng Dark.", "System is currently using Dark.") : label("Hệ điều hành hiện đang dùng Sáng.", "System is currently using Light.")) : label("Lựa chọn này ghi đè giao diện hệ điều hành.", "This choice overrides the system appearance.")}</p>
-
-          <p className="mt-4 text-body-secondary">{label("Chỉ lưu các thông số cần dùng. Lựa chọn hiển thị được áp dụng nhất quán trên toàn bộ công cụ.", "Only essential display settings are stored. Your appearance choice is applied consistently across the workspace.")}</p>
-        </SettingCard>
       </div>
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2"><button type="button" onClick={reset} aria-label={label("Khôi phục cài đặt", "Reset settings")} className="btn btn-outline-secondary"><RotateCcw className="fs-6" /></button><span className="small text-body-secondary d-inline-flex align-items-center gap-1" role="status" aria-live="polite">{autoSaveState === "saving" ? <><span className="spinner-border spinner-border-sm" aria-hidden="true" />{label("Đang tự lưu", "Saving automatically")}</> : autoSaveState === "saved" ? <><Check className="fs-6" />{label("Đã tự lưu", "Saved automatically")}</> : label("Tự động lưu", "Auto-save enabled")}</span></div>
   </div>;

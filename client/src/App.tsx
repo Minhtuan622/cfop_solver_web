@@ -1,21 +1,22 @@
-import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 // @ts-expect-error Bootstrap distribution declarations are not bundled in this project.
 import { Tooltip } from "bootstrap";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AppNav } from "./components/AppNav";
-import Home from "./pages/Home";
-import History from "./pages/History";
-import Settings from "./pages/Settings";
-import TimerLab from "./pages/TimerLab";
+const Home = lazy(() => import("./pages/Home"));
+const History = lazy(() => import("./pages/History"));
+const Settings = lazy(() => import("./pages/Settings"));
+const TimerLab = lazy(() => import("./pages/TimerLab"));
 
+function RouteLoading() {
+  return <div className="container py-5" role="status" aria-live="polite"><div className="d-flex align-items-center gap-2 text-body-secondary"><span className="spinner-border spinner-border-sm" aria-hidden="true" />Đang tải công cụ…</div></div>;
+}
 function Router() {
-  return <Switch>
+  return <Suspense fallback={<RouteLoading />}><Switch>
     <Route path="/" component={Home} />
     <Route path="/timer" component={TimerLab} />
     <Route path="/study" component={TimerLab} />
@@ -23,7 +24,7 @@ function Router() {
     <Route path="/history" component={History} />
     <Route path="/404" component={NotFound} />
     <Route component={NotFound} />
-  </Switch>;
+  </Switch></Suspense>;
 }
 
 export function BootstrapControlEnhancer() {
@@ -52,12 +53,12 @@ export function BootstrapControlEnhancer() {
 }
 
 function App() {
-  return <ErrorBoundary><LanguageProvider><ThemeProvider defaultTheme="light" switchable><TooltipProvider><Toaster />
+  return <ErrorBoundary><LanguageProvider><TooltipProvider>
     <BootstrapControlEnhancer />
     <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">Bỏ qua điều hướng</a>
     <AppNav />
     <main id="main-content" className="py-4 py-lg-5"><Router /></main>
-  </TooltipProvider></ThemeProvider></LanguageProvider></ErrorBoundary>;
+  </TooltipProvider></LanguageProvider></ErrorBoundary>;
 }
 
 export default App;

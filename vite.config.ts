@@ -219,6 +219,14 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/recharts")) return "charts";
+          if (id.includes("embeddedSolver") || id.includes("solverWorker")) return "solver";
+        },
+      },
+    },
   },
   server: {
     port: 3000,

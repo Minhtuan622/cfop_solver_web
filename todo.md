@@ -846,3 +846,11 @@
 - [x] Bổ sung test UI tự động cho tooltip Bootstrap và aria-label của control icon-only.
 - [x] Xác minh replay với solve có solution trong môi trường kiểm thử, không sửa history thật của người dùng.
 - [x] Chạy hồi quy, kiểm tra desktop/mobile và lưu checkpoint sau khi hoàn tất.
+
+## Tải lười và giản lược giao diện
+
+- [x] Kiểm kê bundle Solver/biểu đồ, tùy biến giao diện còn tồn tại và các control density không có tác dụng.
+- [x] Tách Solver và chart qua lazy loading, có fallback Bootstrap trong khi tải.
+- [x] Xóa toàn bộ lựa chọn custom giao diện và gỡ density không hiệu quả khỏi Timer/Cài đặt.
+- [x] Đưa đồng hồ Timer vào trung tâm apparatus và khôi phục chữ trắng tương phản trên các nút primary.
+- [x] Kiểm tra bundle, TypeScript, toàn bộ test và desktop/mobile trước checkpoint.

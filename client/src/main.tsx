@@ -4,7 +4,5 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap";
 import "./index.css";
-import { applyAppThemeMode, readAppThemeMode } from "./lib/displaySettings";
 
-applyAppThemeMode(readAppThemeMode());
 createRoot(document.getElementById("root")!).render(<App />);
