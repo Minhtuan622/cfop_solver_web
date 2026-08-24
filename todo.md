@@ -702,3 +702,10 @@
 - [x] Chuyển report, memo, special cases và profile 3-Style đang render sang card, alert, list-group, table-responsive, form và button Bootstrap.
 - [x] Giảm Studio 3-Style còn input + Cube stage là hai cột desktop; mọi phần còn lại xếp toàn chiều ngang/1 cột mobile.
 - [x] Kiểm tra 1440px/390px, tạo memo thực, TypeScript, tests và build trước checkpoint.
+
+## Timer analytics — làm lại Bootstrap theo ảnh hồi quy
+
+- [x] Thay `history-panel`, `tick-ruler`, viền đen, nền giấy và card custom trong phân tích Timer bằng Bootstrap card/row/col.
+- [x] Chuyển mục tiêu pha, preset, phase Ao và hiệu quả solution sang form-control, button group, list-group, alert và card Bootstrap.
+- [x] Chuyển các empty state biểu đồ sang alert Bootstrap; chỉ giữ CSS bắt buộc của thư viện chart.
+- [x] Xác minh desktop/mobile cùng TypeScript, Vitest và production build trước checkpoint.
