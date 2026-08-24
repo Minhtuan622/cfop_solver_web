@@ -693,3 +693,11 @@
 - [x] Gỡ Tailwind/theme/base/navbar presentation khỏi `index.css` và thay component trình bày bằng Bootstrap 5.3.8.
 - [x] Thay UI ngoài Bootstrap còn sót ở Studio, Timer, Study, 3-Style, Settings, dialog và navigation.
 - [x] Kiểm thử các route, trạng thái feedback, modal, timer và Cube trước checkpoint.
+
+## Sửa hồi quy Bootstrap Catalog và lịch sử Timer
+
+- [x] Tái hiện Catalog Study theo ảnh người dùng, xác định class Bootstrap bị mất hoặc cấu trúc layout sai.
+- [x] Thay Catalog bằng card, form-select, input-group, list-group, progress, badge và empty/loading state Bootstrap rõ ràng.
+- [x] Chuẩn hóa modal lịch sử Timer bằng Bootstrap modal, header/body/footer, table/list responsive và badge trạng thái.
+- [x] Chỉ dùng hiệu ứng fade và spinner/loading Bootstrap tích hợp; không thêm CSS animation hoặc transition tùy biến.
+- [x] Kiểm tra desktop/mobile, keyboard/Escape, dữ liệu lịch sử, TypeScript, tests và production build trước checkpoint.
