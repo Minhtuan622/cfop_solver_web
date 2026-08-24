@@ -863,3 +863,10 @@
 - [x] Bỏ action học/catalog trùng trong Studio, giữ deep-link chính xác sang Study.
 - [x] Dùng một preview cube theo state ở mỗi ngữ cảnh và bỏ preview trùng lặp.
 - [x] Chạy hồi quy, kiểm tra desktop/mobile và checkpoint sau khi hoàn tất.
+
+## Chuẩn hóa cuộn modal
+
+- [x] Kiểm kê toàn bộ modal và xác định modal có nội dung dài hoặc cấu trúc cuộn sai.
+- [x] Chuẩn hóa shared modal primitive theo Bootstrap `modal-dialog-scrollable` và chiều cao viewport an toàn.
+- [x] Kiểm tra trực tiếp cuộn modal Timer và modal đại diện desktop/mobile.
+- [x] Chạy hồi quy, ghi nhận xác minh và checkpoint sau khi hoàn tất.
