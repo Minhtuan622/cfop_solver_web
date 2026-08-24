@@ -816,3 +816,10 @@
 - [x] Phân vai defaults và overrides giữa Settings, Studio, Timer bằng nhãn rõ ràng.
 - [x] Phân vai Studio BLD (chẩn đoán state) và Study BLD (memo, drill, SRS, profile).
 - [x] Kiểm tra migration localStorage, desktop/mobile, TypeScript, Vitest và build trước checkpoint.
+
+## Quản lý solve tập trung tại History
+
+- [x] Kiểm kê edit, penalty, replay, tag/note, xóa, chọn hàng loạt và import/export hiện chỉ có ở Timer.
+- [x] Đưa toàn bộ controls quản lý solve và export/import JSON/CSV sang History bằng Bootstrap modal/list-group.
+- [x] Xóa controls quản lý/export khỏi Timer, giữ Timer chỉ cho solve hiện tại, summary và liên kết History.
+- [x] Kiểm tra lịch sử thực, desktop/mobile, TypeScript, Vitest và build trước checkpoint.
