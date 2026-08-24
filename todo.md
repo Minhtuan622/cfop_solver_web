@@ -686,3 +686,11 @@
 - [x] Đề xuất design system Bootstrap, kiến trúc component và thứ tự redesign; trình người dùng xác nhận trước khi sửa code.
 - [x] Chuẩn hóa global layout, navigation, states và component dùng chung sau khi được xác nhận.
 - [x] Redesign từng route/module, kiểm thử responsive, accessibility, loading/empty/error/success state và regression rồi checkpoint.
+
+## Migration Bootstrap thực sự — làm lại theo ảnh hồi quy
+
+- [x] Lập danh mục mọi `className` legacy/Tailwind và mọi class rỗng đang render trên bốn route chính cùng component con.
+- [x] Viết lại Studio theo `container`, `row/col`, `card`, `nav`, `form-*`, `btn`, `table/list-group` Bootstrap; không giữ panel, badge hay telemetry legacy.
+- [x] Viết lại Timer, lịch sử, filter, analytics, dialog và sheet theo Bootstrap; loại bỏ hoàn toàn spacing/card/control legacy còn nhìn thấy trong ảnh.
+- [x] Viết lại Study, 3-Style, Settings và component chung theo Bootstrap; giữ riêng CSS hình học Cube/charts bắt buộc.
+- [x] Kiểm tra bằng ảnh desktop và mobile từng route, grep class legacy, rồi mới chạy regression/build/checkpoint.
