@@ -823,3 +823,10 @@
 - [x] Đưa toàn bộ controls quản lý solve và export/import JSON/CSV sang History bằng Bootstrap modal/list-group.
 - [x] Xóa controls quản lý/export khỏi Timer, giữ Timer chỉ cho solve hiện tại, summary và liên kết History.
 - [x] Kiểm tra lịch sử thực, desktop/mobile, TypeScript, Vitest và build trước checkpoint.
+
+## Tối giản icon controls và màu mặc định
+
+- [x] Kiểm kê các nút có icon kèm label có thể chuyển thành icon-only mà không làm mất ngữ cảnh.
+- [x] Chuyển các nút icon phù hợp thành icon-only, giữ aria-label và tooltip Bootstrap.
+- [x] Chuẩn hóa các label/nút semantic còn sót về biến thể Bootstrap mặc định.
+- [x] Kiểm tra desktop/mobile, hover/focus tooltip, TypeScript, Vitest và build trước checkpoint.
