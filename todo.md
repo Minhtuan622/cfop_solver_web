@@ -801,3 +801,18 @@
 - [x] Kiểm tra route `/history` và menu điều hướng hiện tại.
 - [x] Thêm History vào navbar Bootstrap, gồm trạng thái active và responsive mobile.
 - [x] Kiểm tra route/menu desktop/mobile, TypeScript, Vitest và build trước checkpoint.
+
+## Kiểm kê tính năng trùng lặp
+
+- [x] Liệt kê các route, component và luồng tính năng đang được render.
+- [x] Phân loại trùng hoàn toàn, trùng một phần và các tính năng cần giữ riêng.
+- [x] Ghi khuyến nghị hợp nhất/loại bỏ theo từng nhóm mà không chỉnh sửa mã nguồn.
+
+## Hợp nhất luồng tính năng trùng lặp
+
+- [x] Lập helper migration để hợp nhất mastered Last Layer giữa Studio và Study mà không mất tiến độ.
+- [x] Chuyển catalog và luyện ZBLL/1LLL về Study; Studio chỉ nhận diện case và deep-link sang Study.
+- [x] Đưa History thành nơi phân tích chính; giữ Timer tập trung vào solve hiện tại, tóm tắt và solve gần nhất.
+- [x] Phân vai defaults và overrides giữa Settings, Studio, Timer bằng nhãn rõ ràng.
+- [x] Phân vai Studio BLD (chẩn đoán state) và Study BLD (memo, drill, SRS, profile).
+- [x] Kiểm tra migration localStorage, desktop/mobile, TypeScript, Vitest và build trước checkpoint.

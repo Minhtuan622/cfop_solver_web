@@ -19,8 +19,9 @@ import { FieldGroup, PageHeader, StatusFeedback } from "@/components/BootstrapUI
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-import { readSolverSettings, writeSolverSettings } from "@/lib/appSettings";
+import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/lib/bldProfile";
+import { readMasteredCaseKeys, writeMasteredCaseKeys } from "@/lib/lastLayerStudy";
 import { analyzeBldInBrowser, listLastLayerCasesInBrowser, solveInBrowser, validateStateInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerCatalogCase, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 
 const SCRAMBLE_FACES = ["U", "R", "F", "D", "L", "B"] as const;
@@ -71,7 +72,6 @@ const LAST_LAYER_OPTIONS: { value: LastLayerMode; vi: string; en: string; compac
 ];
 type RecentCubeState = { id: string; state: string; label: string; savedAt: string; crossColor: CrossColor };
 const RECENT_STATE_KEY = "cfop-studio-recent-states-v1";
-const MASTERED_LAST_LAYER_KEY = "cfop-studio-mastered-last-layer-v1";
 const PHASE_LESSON_URL: Record<string, string> = {
   cross: "https://www.speedsolving.com/wiki/index.php?title=Cross",
   f2l: "https://www.speedsolving.com/wiki/index.php?title=F2L",
@@ -160,9 +160,8 @@ export default function Home() {
   const [selectedCatalogCase, setSelectedCatalogCase] = useState<LastLayerCatalogCase | null>(null);
   const [onlyUnmasteredCases, setOnlyUnmasteredCases] = useState(false);
   const [paintColor, setPaintColor] = useState<CrossColor>("U");
-  const [masteredCaseKeys, setMasteredCaseKeys] = useState<string[]>(() => { try { const stored = JSON.parse(localStorage.getItem(MASTERED_LAST_LAYER_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is string => typeof item === "string").slice(-1800) : []; } catch { return []; } });
+  const [masteredCaseKeys, setMasteredCaseKeys] = useState<string[]>(() => Array.from(readMasteredCaseKeys()));
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() => { try { const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]"); return Array.isArray(stored) ? stored.filter((item): item is RecentCubeState => typeof item?.state === "string" && item.state.length === 54).slice(0, 8) : []; } catch { return []; } });
-  useEffect(() => { writeSolverSettings({ crossColor, opening, openingDepth, lastLayer, preferredSlot, excludedSlots }); }, [crossColor, opening, openingDepth, lastLayer, preferredSlot, excludedSlots]);
   useEffect(() => { writeBldProfile(bldProfile); }, [bldProfile]);
   const stateHistory = useRef<{ past: string[]; future: string[] }>({ past: [], future: [] });
   const cursorRef = useRef(0);
@@ -207,7 +206,7 @@ export default function Home() {
   const visibleCatalogCases = useMemo(() => onlyUnmasteredCases ? catalogCases.filter((catalogCase) => !masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`)) : catalogCases, [catalogCases, masteredCaseSet, onlyUnmasteredCases]);
   const unmasteredVisibleCount = useMemo(() => catalogCases.filter((catalogCase) => !masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`)).length, [catalogCases, masteredCaseSet]);
   const groupProgress = useMemo(() => Array.from(catalogInventory.reduce((accumulator, catalogCase) => { const key = `${catalogCase.family}:${catalogCase.group}`; const current = accumulator.get(key) ?? { family: catalogCase.family, group: catalogCase.group, mastered: 0, total: 0 }; current.total += 1; if (masteredCaseSet.has(`${catalogCase.family}:${catalogCase.id}`)) current.mastered += 1; accumulator.set(key, current); return accumulator; }, new Map<string, { family: "zbll" | "1lll"; group: string; mastered: number; total: number }>()).values()).sort((left, right) => left.family.localeCompare(right.family) || left.group.localeCompare(right.group)), [catalogInventory, masteredCaseSet]);
-  useEffect(() => { localStorage.setItem(MASTERED_LAST_LAYER_KEY, JSON.stringify(masteredCaseKeys)); }, [masteredCaseKeys]);
+  useEffect(() => { writeMasteredCaseKeys(new Set(masteredCaseKeys)); }, [masteredCaseKeys]);
   const chooseOpening = (nextOpening: OpeningMode) => {
     setOpening(nextOpening);
     if (nextOpening === "xxxxcross") { setPreferredSlot(undefined); setExcludedSlots([]); }
@@ -387,6 +386,7 @@ export default function Home() {
               {(["scramble", "state"] as const).map((item) => <button key={item} type="button" role="tab" aria-selected={mode === item} onClick={() => switchInputMode(item)} className={mode === item ? "btn btn-primary" : "btn btn-outline-primary"}>{item === "scramble" ? t("input.scramble") : t("input.state")}</button>)}
             </div>
             {loading ? <span className="small text-body-secondary ms-lg-auto" role="status">{t("input.loading")}</span> : null}
+            {solverKind === "cfop" ? <div className="alert alert-secondary small d-flex flex-wrap align-items-center gap-2 w-100 mb-0"><span>{language === "vi" ? "Các lựa chọn Solver ở đây chỉ áp dụng cho lần giải đang mở; mặc định lâu dài nằm trong Cài đặt." : "Solver choices here apply only to the current Studio session; persistent defaults live in Settings."}</span><button type="button" className="btn btn-outline-secondary btn-sm ms-sm-auto" onClick={() => { const defaults = readSolverSettings(); setCrossColor(defaults.crossColor); setOpening(defaults.opening); setOpeningDepth(defaults.openingDepth); setLastLayer(defaults.lastLayer); setPreferredSlot(defaults.preferredSlot); setExcludedSlots(defaults.excludedSlots); }}>{language === "vi" ? "Dùng mặc định" : "Use defaults"}</button></div> : null}
           </header>
           <aside className="col-12 col-lg-4"><section className="card"><div className="card-header"><h2 className="h5 mb-0">{mode === "scramble" ? "Move sequence" : "54-sticker state"}</h2></div><div className="card-body">
                 {solverKind === "bld" && <div className="alert alert-info small">BUFFER / UF (C) · UBL (A) — {language === "vi" ? "Chuẩn bị trace memo và execution key." : "Prepare memo trace and execution key."}</div>}
@@ -424,7 +424,7 @@ export default function Home() {
                 <button onClick={() => selectCursor(0, "reset")} disabled={!result} className="btn btn-outline-secondary ms-auto"><RotateCcw className="h-3.5 w-3.5" /> {t("guide.reset")}</button>
               </div>
               {openingOutcome && <div className="alert alert-success mt-3 mb-0"><strong>{language === "vi" ? "Kết quả Opening:" : "Opening outcome:"}</strong> {openingOutcome.kind} · {openingOutcome.moves} {language === "vi" ? "nước" : "moves"}{openingTelemetry?.did_fallback ? ` · ${language === "vi" ? `Lùi ${openingTelemetry.fallback_count} cấp` : `${openingTelemetry.fallback_count} fallbacks`}` : ""}</div>}
-              {lastLayerTelemetry && <div className={lastLayerTelemetry.did_fallback ? "alert alert-warning mt-3 mb-0" : "alert alert-success mt-3 mb-0"}><strong>Last Layer:</strong> {lastLayerModeLabel(lastLayerTelemetry.achieved, language)} {lastLayerTelemetry.case_id ? `· ${lastLayerTelemetry.case_id}` : ""}</div>}
+              {lastLayerTelemetry && <div className={lastLayerTelemetry.did_fallback ? "alert alert-warning mt-3 mb-0" : "alert alert-success mt-3 mb-0"}><strong>Last Layer:</strong> {lastLayerModeLabel(lastLayerTelemetry.achieved, language)} {lastLayerTelemetry.case_id ? `· ${lastLayerTelemetry.case_id}` : ""}{lastLayerTelemetry.case_id && (lastLayerTelemetry.achieved === "zbll" || lastLayerTelemetry.achieved === "1lll") ? <Link href={`/study?family=${lastLayerTelemetry.achieved}&case=${encodeURIComponent(lastLayerTelemetry.case_id)}`} className="btn btn-sm btn-outline-secondary ms-2">{language === "vi" ? "Mở trong Study" : "Open in Study"}</Link> : null}</div>}
               <div className="row g-3 align-items-center mt-1"><div className="col"><input aria-label="Chọn move trong trace" type="range" min="0" max={Math.max(0, totalMoves)} value={cursor} onChange={(event) => selectCursor(Number(event.target.value), "seek")} className="form-range" /><small className="text-body-secondary">{cursor} moves</small></div><div className="col-12 col-sm-auto"><label className="form-label mb-0">Speed {playbackSpeed.toFixed(2)}×<input aria-label="Playback speed" type="range" min="0.5" max="2" step="0.25" value={playbackSpeed} onChange={(event) => setPlaybackSpeed(Number(event.target.value))} className="form-range" /></label></div></div></>}
             </div></div>
           </section>

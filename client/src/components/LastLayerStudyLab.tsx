@@ -2,6 +2,7 @@
 /* Xưởng Cơ Khí Tốc Độ — algorithm notation is independently scalable; the study apparatus and timer chrome remain calibrated. */
 import { Check, Download, FileUp, Sparkles, TimerReset } from "@/components/BootstrapIcon";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useLocation } from "wouter";
 import { BldStudyLab } from "@/components/BldStudyLab";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { CubeNet } from "@/components/CubeNet";
@@ -17,6 +18,7 @@ function download(name: string, value: unknown) { const url = URL.createObjectUR
 
 export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const vi = language === "vi";
+  const [location] = useLocation();
   const [family, setFamily] = useState<"all" | "zbll" | "1lll">("all");
   const [catalog, setCatalog] = useState<LastLayerCatalogCase[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,8 +34,25 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const [solverSettings, setSolverSettings] = useState<SolverSettings>(() => readSolverSettings());
   const backupRef = useRef<HTMLInputElement>(null);
 
+  const requestedCase = useMemo(() => {
+    const params = new URLSearchParams(window.location.search || location.split("?")[1] || "");
+    const family = params.get("family");
+    const id = params.get("case");
+    return (family === "zbll" || family === "1lll") && id ? { family: family as "zbll" | "1lll", id } : null;
+  }, [location]);
+  const requestedLane = useMemo(() => new URLSearchParams(window.location.search || location.split("?")[1] || "").get("lane"), [location]);
+
   useEffect(() => { const refresh = () => setSolverSettings(readSolverSettings()); window.addEventListener("focus", refresh); document.addEventListener("visibilitychange", refresh); return () => { window.removeEventListener("focus", refresh); document.removeEventListener("visibilitychange", refresh); }; }, []);
   useEffect(() => { let live = true; listLastLayerCasesInBrowser({ family: "all", limit: 2000 }).then((cases) => { if (live) { setCatalog(cases); setLoading(false); } }).catch(() => { if (live) { setCatalog([]); setLoading(false); } }); return () => { live = false; }; }, []);
+  useEffect(() => {
+    if (!requestedCase || !catalog.length) return;
+    const match = catalog.find((item) => item.family === requestedCase.family && item.id === requestedCase.id);
+    if (!match) return;
+    setStudyLane("lastLayer");
+    setFamily(requestedCase.family);
+    selectCase(match);
+  }, [catalog, requestedCase]);
+  useEffect(() => { if (requestedLane === "bld") setStudyLane("bld"); }, [requestedLane]);
   useEffect(() => { writeLastLayerStudy(study); }, [study]);
   useEffect(() => { writeMasteredCaseKeys(masteredKeys); }, [masteredKeys]);
 
