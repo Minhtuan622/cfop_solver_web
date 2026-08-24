@@ -738,3 +738,11 @@
 - [x] Chuyển modal Cài đặt Timer và toàn bộ control bên trong sang modal/form/button Bootstrap, bỏ dark/paper/viền custom.
 - [x] Chuyển thẻ Quét camera sang card/alert/button Bootstrap, bỏ nền giấy và viền đen custom.
 - [x] Kiểm tra desktop/mobile, keyboard, TypeScript, tests và build trước checkpoint.
+
+## Rà soát lại Timer và Study theo ảnh lỗi mới
+
+- [x] Thay mọi lớp legacy trong Timer log: toolbar, filter, empty state, button và spacing bằng card/form/input-group/alert Bootstrap.
+- [x] Bỏ toàn bộ panel inspection/practice legacy còn xuất hiện dưới Cube Timer; giữ tính năng trong modal Cài đặt Timer Bootstrap.
+- [x] Chuyển Memo SRS và Hồ sơ BLD trong Study thành card/form/list-group/button Bootstrap, xóa nền giấy, border đen, mono nhỏ và spacing custom.
+- [x] Kiểm tra toàn trang Timer/Study ở desktop và mobile, bao gồm empty state và khối mở rộng, trước khi xác nhận.
+- [x] Chạy TypeScript, Vitest và build production rồi mới lưu checkpoint.
