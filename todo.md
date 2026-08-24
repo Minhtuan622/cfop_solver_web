@@ -694,3 +694,11 @@
 - [x] Viết lại Timer, lịch sử, filter, analytics, dialog và sheet theo Bootstrap; loại bỏ hoàn toàn spacing/card/control legacy còn nhìn thấy trong ảnh.
 - [x] Viết lại Study, 3-Style, Settings và component chung theo Bootstrap; giữ riêng CSS hình học Cube/charts bắt buộc.
 - [x] Kiểm tra bằng ảnh desktop và mobile từng route, grep class legacy, rồi mới chạy regression/build/checkpoint.
+
+## Studio 3-Style — sửa Cube và Bootstrap
+
+- [x] Tái hiện và xác định nguyên nhân Cube 3D bị cắt trong stage 3-Style theo ảnh người dùng.
+- [x] Sửa vùng chứa 3D Cube để đủ kích thước, không che/cắt mô hình và giữ thao tác xoay/zoom/layer-turn.
+- [x] Chuyển report, memo, special cases và profile 3-Style đang render sang card, alert, list-group, table-responsive, form và button Bootstrap.
+- [x] Giảm Studio 3-Style còn input + Cube stage là hai cột desktop; mọi phần còn lại xếp toàn chiều ngang/1 cột mobile.
+- [x] Kiểm tra 1440px/390px, tạo memo thực, TypeScript, tests và build trước checkpoint.
