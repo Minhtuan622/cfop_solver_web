@@ -761,3 +761,10 @@
 - [x] Chuyển các panel Studio còn lại sang Bootstrap card/accordion/form/alert/list-group/button theo từng component.
 - [x] Mở và kiểm tra các modal Timer trên viewport mobile: cài đặt, metric, CubeNet, chỉnh sửa, playback và xác nhận xóa.
 - [x] Kiểm tra Studio mobile/desktop, TypeScript, Vitest và build trước checkpoint.
+
+## History Bootstrap và modal solve thực tế
+
+- [x] Kiểm kê page History cũ và đọc dữ liệu solve của trình duyệt ở chế độ chỉ đọc.
+- [x] Chuyển History sang Bootstrap Navbar/Card/Row/List Group/Alert/Button và giữ biểu đồ Recharts là ngoại lệ chức năng.
+- [x] Kiểm tra History desktop/mobile và modal metric/CubeNet/edit/replay với solve thật nếu có, không ghi hoặc xóa lịch sử. Phiên hiện có 0 solve, nên chỉ xác minh được cấu trúc/empty state và modal Settings responsive mà không tạo dữ liệu giả.
+- [x] Chạy TypeScript, Vitest, build và lưu checkpoint sau khi hoàn tất.

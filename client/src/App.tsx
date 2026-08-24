@@ -10,6 +10,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AppNav } from "./components/AppNav";
 import Home from "./pages/Home";
+import History from "./pages/History";
 import Settings from "./pages/Settings";
 import TimerLab from "./pages/TimerLab";
 
@@ -19,6 +20,7 @@ function Router() {
     <Route path="/timer" component={TimerLab} />
     <Route path="/study" component={TimerLab} />
     <Route path="/settings" component={Settings} />
+    <Route path="/history" component={History} />
     <Route path="/404" component={NotFound} />
     <Route component={NotFound} />
   </Switch>;

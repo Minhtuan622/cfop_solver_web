@@ -5,7 +5,7 @@ const DialogContext = createContext<{ close: () => void }>({ close: () => undefi
 function ModalShell({ open, onOpenChange, children }: { open: boolean; onOpenChange: (open: boolean) => void; children: ReactNode }) {
   useEffect(() => { if (!open) return; const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") onOpenChange(false); }; window.addEventListener("keydown", onKeyDown); return () => window.removeEventListener("keydown", onKeyDown); }, [onOpenChange, open]);
   if (!open) return null;
-  return <DialogContext.Provider value={{ close: () => onOpenChange(false) }}><div className="modal fade show d-block" role="dialog" aria-modal="true" onMouseDown={(event) => { if (event.target === event.currentTarget) onOpenChange(false); }}><div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"><div className="modal-content">{children}</div></div></div><div className="modal-backdrop fade show" /></DialogContext.Provider>;
+  return <DialogContext.Provider value={{ close: () => onOpenChange(false) }}><div className="modal fade show d-block" role="dialog" aria-modal="true" onMouseDown={(event) => { if (event.target === event.currentTarget) onOpenChange(false); }}><div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-fullscreen-sm-down"><div className="modal-content">{children}</div></div></div><div className="modal-backdrop fade show" /></DialogContext.Provider>;
 }
 
 export function Dialog({ open, onOpenChange, children }: { open: boolean; onOpenChange: (open: boolean) => void; children: ReactNode }) { return <ModalShell open={open} onOpenChange={onOpenChange}>{children}</ModalShell>; }
