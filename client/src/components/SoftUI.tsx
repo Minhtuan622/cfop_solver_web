@@ -14,7 +14,7 @@ export function SoftSurface({ children, className, as: Tag = "section" }: Surfac
 }
 
 export function SoftSectionTitle({ eyebrow, title, detail, className }: { eyebrow?: string; title: string; detail?: string; className?: string }) {
-  return <header className={cn("mb-3", className)}>{eyebrow && <p className="small text-muted mb-1">{eyebrow}</p>}<h2 className="">{title}</h2>{detail && <span className="text-muted">{detail}</span>}</header>;
+  return <header className={cn("mb-3", className)}>{eyebrow && <p className="small text-muted mb-1">{eyebrow}</p>}<h2 className="h4">{title}</h2>{detail && <span className="text-muted">{detail}</span>}</header>;
 }
 
 export function SoftStatus({ label, value, tone = "neutral", leading }: { label: string; value: ReactNode; tone?: "neutral" | "success" | "warning"; leading?: ReactNode }) {

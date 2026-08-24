@@ -17,5 +17,5 @@ export function PdfExport({ result, input, inputKind }: { result: SolverResult |
     await doc.html(root, { autoPaging: "text", margin: [10, 10, 10, 10], width: 190, windowWidth: 820 });
     doc.save(`rubik-guide-${language}-${new Date().toISOString().slice(0, 10)}.pdf`);
   }
-  return <button disabled={!result} onClick={exportPdf} className="w-100 justify-content-center"><FileText className="" />{result ? t("pdf.export") : t("pdf.wait")}<Download className="" /></button>;
+  return <button disabled={!result} onClick={exportPdf} className="scanner-button w-full justify-center disabled:opacity-40"><FileText className="h-3.5 w-3.5" />{result ? t("pdf.export") : t("pdf.wait")}<Download className="h-3.5 w-3.5" /></button>;
 }

@@ -32,9 +32,9 @@ function readTargets() {
   } catch { return defaultTargets; }
 }
 
-function Help({ text }: { text: string }) { return <span className="ms-1 text-muted" title={text} aria-label={text}><CircleHelp className="" /></span>; }
+function Help({ text }: { text: string }) { return <span className="ms-1 text-muted" title={text} aria-label={text}><CircleHelp className="h-4 w-4" /></span>; }
 function SettingCard({ index, title, tip, children }: { index: string; title: string; tip: string; children: ReactNode }) {
-  return <section className="card h-100"><div className="card-header"><p className="small text-muted mb-1">{index}</p><h2 className="mb-0">{title}<Help text={tip} /></h2></div><div className="card-body">{children}</div></section>;
+  return <section className="card h-100"><div className="card-header"><p className="small text-muted mb-1">{index}</p><h2 className="h5 mb-0">{title}<Help text={tip} /></h2></div><div className="card-body">{children}</div></section>;
 }
 
 export default function Settings() {
@@ -106,13 +106,13 @@ export default function Settings() {
 
         <SettingCard index="05 · DISPLAY" title={label("Giao diện", "Appearance")} tip={label("Chỉ giữ tùy chọn Sáng, Tối hoặc theo hệ điều hành. Màu nhấn và cỡ chữ được thống nhất để giao diện luôn dễ đọc.", "Keep Light, Dark, or System appearance. Accent and text scale are fixed for a consistent readable interface.")}>
           <label className="form-label mt-3">{label("Chế độ màu", "Color mode")}</label>
-          <div className="btn-group"><button onClick={() => setThemeMode("light")} className={themeMode === "light" ? "btn btn-primary" : "btn btn-outline-secondary"}><Sun className="me-1" />{label("Sáng", "Light")}</button><button onClick={() => setThemeMode("dark")} className={themeMode === "dark" ? "btn btn-primary" : "btn btn-outline-secondary"}><Moon className="me-1" />Dark</button><button onClick={() => setThemeMode("system")} className={themeMode === "system" ? "btn btn-primary" : "btn btn-outline-secondary"}>{label("Hệ điều hành", "System")}</button></div>
+          <div className="btn-group"><button onClick={() => setThemeMode("light")} className={themeMode === "light" ? "btn btn-primary" : "btn btn-outline-secondary"}><Sun className="me-1 inline h-3.5 w-3.5" />{label("Sáng", "Light")}</button><button onClick={() => setThemeMode("dark")} className={themeMode === "dark" ? "btn btn-primary" : "btn btn-outline-secondary"}><Moon className="me-1 inline h-3.5 w-3.5" />Dark</button><button onClick={() => setThemeMode("system")} className={themeMode === "system" ? "btn btn-primary" : "btn btn-outline-secondary"}>{label("Hệ điều hành", "System")}</button></div>
           <p className="small text-muted mt-2">{themeMode === "system" ? (theme === "dark" ? label("Hệ điều hành hiện đang dùng Dark.", "System is currently using Dark.") : label("Hệ điều hành hiện đang dùng Sáng.", "System is currently using Light.")) : label("Lựa chọn này ghi đè giao diện hệ điều hành.", "This choice overrides the system appearance.")}</p>
 
           <p className="mt-4 text-body-secondary">{label("Chỉ lưu các thông số cần dùng. Lựa chọn hiển thị được áp dụng nhất quán trên toàn bộ công cụ.", "Only essential display settings are stored. Your appearance choice is applied consistently across the workspace.")}</p>
         </SettingCard>
       </div>
-      <div className="d-flex flex-wrap gap-2 mt-4"><button onClick={reset} className="btn btn-outline-secondary"><RotateCcw className="me-1" />{label("Khôi phục", "Reset")}</button><button onClick={save} className="btn btn-primary">{saved ? <Check className="me-1" /> : null}{saved ? label("Đã lưu", "Saved") : label("Lưu cài đặt", "Save settings")}</button></div>
+      <div className="d-flex flex-wrap gap-2 mt-4"><button onClick={reset} className="btn btn-outline-secondary"><RotateCcw className="me-1 h-4 w-4" />{label("Khôi phục", "Reset")}</button><button onClick={save} className="btn btn-primary">{saved ? <Check className="me-1 h-4 w-4" /> : null}{saved ? label("Đã lưu", "Saved") : label("Lưu cài đặt", "Save settings")}</button></div>
       {saved ? <div className="mt-3"><StatusFeedback tone="success" title={label("Đã lưu cài đặt", "Settings saved")}>{label("Các thiết lập mới đã được lưu trên thiết bị này.", "Your updated preferences have been saved on this device.")}</StatusFeedback></div> : null}
     </div>
   </div>;

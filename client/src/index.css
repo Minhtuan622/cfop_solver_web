@@ -1,26 +1,184 @@
-/* CSS below is limited to 3D Rubik geometry, layer turns, and sticker highlights.
-   All application layout and presentation use Bootstrap classes. */
-.cube3d-stage { display: grid; min-height: 190px; place-items: center; overflow: hidden; perspective: 700px; }
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --radius: .375rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(.145 0 0);
+  --primary: oklch(.488 .243 264.376);
+  --primary-foreground: oklch(.985 0 0);
+  --secondary: oklch(.967 .001 286.375);
+  --secondary-foreground: oklch(.21 .006 285.885);
+  --muted: oklch(.967 .001 286.375);
+  --muted-foreground: oklch(.552 .016 285.938);
+  --accent: oklch(.967 .001 286.375);
+  --accent-foreground: oklch(.21 .006 285.885);
+  --destructive: oklch(.577 .245 27.325);
+  --destructive-foreground: oklch(.985 0 0);
+  --border: oklch(.92 .004 286.32);
+  --input: oklch(.92 .004 286.32);
+  --ring: oklch(.708 .0 0);
+}
+
+.dark {
+  --background: oklch(.145 0 0);
+  --foreground: oklch(.985 0 0);
+  --card: oklch(.205 0 0);
+  --card-foreground: oklch(.985 0 0);
+  --popover: oklch(.205 0 0);
+  --popover-foreground: oklch(.985 0 0);
+  --primary: oklch(.556 .0 0);
+  --primary-foreground: oklch(.205 0 0);
+  --secondary: oklch(.269 0 0);
+  --secondary-foreground: oklch(.985 0 0);
+  --muted: oklch(.269 0 0);
+  --muted-foreground: oklch(.708 0 0);
+  --accent: oklch(.269 0 0);
+  --accent-foreground: oklch(.985 0 0);
+  --destructive: oklch(.704 .191 22.216);
+  --destructive-foreground: oklch(.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(.556 0 0);
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}
+
+html, body, #root { min-height: 100%; }
+body { margin: 0; }
+
+/* Bootstrap's JavaScript collapse is intentionally not used; this only retains the responsive navigation behavior. */
+.navbar-collapse { display: none; }
+.navbar-collapse.show { display: block; }
+@media (min-width: 992px) {
+  .navbar-expand-lg .navbar-collapse { display: flex; flex-basis: auto; flex-grow: 1; }
+}
+
+/* Functional 3D Rubik scene. These rules describe the cube geometry and are not a page theme. */
+.cube3d-stage {
+  display: grid;
+  min-height: 190px;
+  place-items: center;
+  overflow: hidden;
+  perspective: 700px;
+}
 .interactive-cube-stage { position: relative; cursor: grab; touch-action: none; user-select: none; }
 .interactive-cube-stage:active { cursor: grabbing; }
 .cube3d-motion-shell { display: grid; place-items: center; transform-style: preserve-3d; }
-.cube3d-model { position: relative; width: 118px; height: 118px; transform: var(--cube-transform, rotateX(-26deg) rotateY(34deg)); transform-origin: 50% 50% 0; transform-style: preserve-3d; transition: transform 180ms ease-out; will-change: transform; }
+.cube3d-model {
+  position: relative;
+  width: 118px;
+  height: 118px;
+  transform: var(--cube-transform, rotateX(-26deg) rotateY(34deg));
+  transform-origin: 50% 50% 0;
+  transform-style: preserve-3d;
+  transition: transform 180ms ease-out;
+  will-change: transform;
+}
 .interactive-cube-stage.is-orbiting .cube3d-model { transition: none; }
-.cube3d-face { position: absolute; display: grid; width: 118px; height: 118px; grid-template-columns: repeat(3, 1fr); gap: 3px; border: 4px solid #111; background: #111; transform: var(--face-transform); }
+.cube3d-face {
+  position: absolute;
+  display: grid;
+  width: 118px;
+  height: 118px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  border: 4px solid #111;
+  background: #111;
+  transform: var(--face-transform);
+}
 .cube3d-face span { box-shadow: inset 0 -3px 0 rgb(0 0 0 / .18); }
-.cube3d-f { --face-transform: translateZ(59px); }.cube3d-r { --face-transform: rotateY(90deg) translateZ(59px); }.cube3d-u { --face-transform: rotateX(90deg) translateZ(59px); }.cube3d-b { --face-transform: rotateY(180deg) translateZ(59px); }.cube3d-l { --face-transform: rotateY(-90deg) translateZ(59px); }.cube3d-d { --face-transform: rotateX(-90deg) translateZ(59px); }
-.cube3d-layer { position: absolute; inset: 0; opacity: 0; transform-origin: 59px 59px; transform-style: preserve-3d; pointer-events: none; animation-duration: var(--turn-duration, 340ms); animation-fill-mode: both; animation-timing-function: ease-in-out; }
-.cube3d-layer-main, .cube3d-layer-strip { position: absolute; display: grid; gap: 3px; border: 4px solid #111; background: #111; }
+.cube3d-f { --face-transform: translateZ(59px); }
+.cube3d-r { --face-transform: rotateY(90deg) translateZ(59px); }
+.cube3d-u { --face-transform: rotateX(90deg) translateZ(59px); }
+.cube3d-b { --face-transform: rotateY(180deg) translateZ(59px); }
+.cube3d-l { --face-transform: rotateY(-90deg) translateZ(59px); }
+.cube3d-d { --face-transform: rotateX(-90deg) translateZ(59px); }
+.cube3d-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform-origin: 59px 59px;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  animation-duration: var(--turn-duration, 340ms);
+  animation-fill-mode: both;
+  animation-timing-function: ease-in-out;
+}
+.cube3d-layer-main, .cube3d-layer-strip {
+  position: absolute;
+  display: grid;
+  gap: 3px;
+  border: 4px solid #111;
+  background: #111;
+}
 .cube3d-layer-main { width: 118px; height: 118px; grid-template-columns: repeat(3, 1fr); }
-.cube3d-layer-r .cube3d-layer-main { transform: rotateY(90deg) translateZ(60px); }.cube3d-layer-l .cube3d-layer-main { transform: rotateY(-90deg) translateZ(60px); }.cube3d-layer-u .cube3d-layer-main { transform: rotateX(90deg) translateZ(60px); }.cube3d-layer-d .cube3d-layer-main { transform: rotateX(-90deg) translateZ(60px); }.cube3d-layer-f .cube3d-layer-main { transform: translateZ(60px); }.cube3d-layer-b .cube3d-layer-main { transform: rotateY(180deg) translateZ(60px); }
+.cube3d-layer-r .cube3d-layer-main { transform: rotateY(90deg) translateZ(60px); }
+.cube3d-layer-l .cube3d-layer-main { transform: rotateY(-90deg) translateZ(60px); }
+.cube3d-layer-u .cube3d-layer-main { transform: rotateX(90deg) translateZ(60px); }
+.cube3d-layer-d .cube3d-layer-main { transform: rotateX(-90deg) translateZ(60px); }
+.cube3d-layer-f .cube3d-layer-main { transform: translateZ(60px); }
+.cube3d-layer-b .cube3d-layer-main { transform: rotateY(180deg) translateZ(60px); }
 .cube3d-layer-r .cube3d-layer-strip, .cube3d-layer-l .cube3d-layer-strip { width: 39px; height: 118px; grid-template-rows: repeat(3, 1fr); }
 .cube3d-layer-u .cube3d-layer-strip, .cube3d-layer-d .cube3d-layer-strip, .cube3d-layer-f .cube3d-layer-strip, .cube3d-layer-b .cube3d-layer-strip { width: 118px; height: 39px; grid-template-columns: repeat(3, 1fr); }
-.cube3d-layer-r .cube3d-layer-strip-f, .cube3d-layer-r .cube3d-layer-strip-u, .cube3d-layer-r .cube3d-layer-strip-d { left: 79px; }.cube3d-layer-r .cube3d-layer-strip-f, .cube3d-layer-l .cube3d-layer-strip-f { transform: translateZ(60px); }.cube3d-layer-r .cube3d-layer-strip-u, .cube3d-layer-l .cube3d-layer-strip-u { transform: rotateX(90deg) translateZ(60px); }.cube3d-layer-r .cube3d-layer-strip-d, .cube3d-layer-l .cube3d-layer-strip-d { transform: rotateX(-90deg) translateZ(60px); }.cube3d-layer-r .cube3d-layer-strip-b, .cube3d-layer-l .cube3d-layer-strip-b { transform: rotateY(180deg) translateZ(60px); }
-.cube3d-layer-u .cube3d-layer-strip-f, .cube3d-layer-u .cube3d-layer-strip-r, .cube3d-layer-u .cube3d-layer-strip-l { top: 0; }.cube3d-layer-d .cube3d-layer-strip-f, .cube3d-layer-d .cube3d-layer-strip-r, .cube3d-layer-d .cube3d-layer-strip-l { top: 79px; }.cube3d-layer-u .cube3d-layer-strip-f, .cube3d-layer-d .cube3d-layer-strip-f { transform: translateZ(60px); }.cube3d-layer-u .cube3d-layer-strip-r, .cube3d-layer-d .cube3d-layer-strip-r { transform: rotateY(90deg) translateZ(60px); }.cube3d-layer-u .cube3d-layer-strip-l, .cube3d-layer-d .cube3d-layer-strip-l { transform: rotateY(-90deg) translateZ(60px); }.cube3d-layer-u .cube3d-layer-strip-b, .cube3d-layer-d .cube3d-layer-strip-b { transform: rotateY(180deg) translateZ(60px); }
-.cube3d-layer-f .cube3d-layer-strip-u, .cube3d-layer-b .cube3d-layer-strip-u { transform: rotateX(90deg) translateZ(60px); top: 79px; }.cube3d-layer-f .cube3d-layer-strip-d, .cube3d-layer-b .cube3d-layer-strip-d { transform: rotateX(-90deg) translateZ(60px); top: 0; }.cube3d-layer-f .cube3d-layer-strip-r, .cube3d-layer-b .cube3d-layer-strip-r { transform: rotateY(90deg) translateZ(60px); left: 79px; width: 39px; height: 118px; grid-template-rows: repeat(3, 1fr); }.cube3d-layer-f .cube3d-layer-strip-l, .cube3d-layer-b .cube3d-layer-strip-l { transform: rotateY(-90deg) translateZ(60px); width: 39px; height: 118px; grid-template-rows: repeat(3, 1fr); }
-.cube3d-layer-r, .cube3d-layer-l { animation-name: cube-layer-turn-y; }.cube3d-layer-u, .cube3d-layer-d { animation-name: cube-layer-turn-x; }.cube3d-layer-f, .cube3d-layer-b { animation-name: cube-layer-turn-z; }
+.cube3d-layer-r .cube3d-layer-strip-f, .cube3d-layer-r .cube3d-layer-strip-u, .cube3d-layer-r .cube3d-layer-strip-d { left: 79px; }
+.cube3d-layer-r .cube3d-layer-strip-f, .cube3d-layer-l .cube3d-layer-strip-f { transform: translateZ(60px); }
+.cube3d-layer-r .cube3d-layer-strip-u, .cube3d-layer-l .cube3d-layer-strip-u { transform: rotateX(90deg) translateZ(60px); }
+.cube3d-layer-r .cube3d-layer-strip-d, .cube3d-layer-l .cube3d-layer-strip-d { transform: rotateX(-90deg) translateZ(60px); }
+.cube3d-layer-r .cube3d-layer-strip-b, .cube3d-layer-l .cube3d-layer-strip-b { transform: rotateY(180deg) translateZ(60px); }
+.cube3d-layer-u .cube3d-layer-strip-f, .cube3d-layer-u .cube3d-layer-strip-r, .cube3d-layer-u .cube3d-layer-strip-l { top: 0; }
+.cube3d-layer-d .cube3d-layer-strip-f, .cube3d-layer-d .cube3d-layer-strip-r, .cube3d-layer-d .cube3d-layer-strip-l { top: 79px; }
+.cube3d-layer-u .cube3d-layer-strip-f, .cube3d-layer-d .cube3d-layer-strip-f { transform: translateZ(60px); }
+.cube3d-layer-u .cube3d-layer-strip-r, .cube3d-layer-d .cube3d-layer-strip-r { transform: rotateY(90deg) translateZ(60px); }
+.cube3d-layer-u .cube3d-layer-strip-l, .cube3d-layer-d .cube3d-layer-strip-l { transform: rotateY(-90deg) translateZ(60px); }
+.cube3d-layer-u .cube3d-layer-strip-b, .cube3d-layer-d .cube3d-layer-strip-b { transform: rotateY(180deg) translateZ(60px); }
+.cube3d-layer-f .cube3d-layer-strip-u, .cube3d-layer-b .cube3d-layer-strip-u { transform: rotateX(90deg) translateZ(60px); top: 79px; }
+.cube3d-layer-f .cube3d-layer-strip-d, .cube3d-layer-b .cube3d-layer-strip-d { transform: rotateX(-90deg) translateZ(60px); top: 0; }
+.cube3d-layer-f .cube3d-layer-strip-r, .cube3d-layer-b .cube3d-layer-strip-r { transform: rotateY(90deg) translateZ(60px); left: 79px; width: 39px; height: 118px; grid-template-rows: repeat(3, 1fr); }
+.cube3d-layer-f .cube3d-layer-strip-l, .cube3d-layer-b .cube3d-layer-strip-l { transform: rotateY(-90deg) translateZ(60px); width: 39px; height: 118px; grid-template-rows: repeat(3, 1fr); }
+.cube3d-layer-r, .cube3d-layer-l { animation-name: cube-layer-turn-y; }
+.cube3d-layer-u, .cube3d-layer-d { animation-name: cube-layer-turn-x; }
+.cube3d-layer-f, .cube3d-layer-b { animation-name: cube-layer-turn-z; }
 @keyframes cube-layer-turn-x { 0% { opacity: 1; transform: rotateX(0); } 90% { opacity: 1; transform: rotateX(var(--turn-angle)); } 100% { opacity: 0; transform: rotateX(var(--turn-angle)); } }
 @keyframes cube-layer-turn-y { 0% { opacity: 1; transform: rotateY(0); } 90% { opacity: 1; transform: rotateY(var(--turn-angle)); } 100% { opacity: 0; transform: rotateY(var(--turn-angle)); } }
 @keyframes cube-layer-turn-z { 0% { opacity: 1; transform: rotateZ(0); } 90% { opacity: 1; transform: rotateZ(var(--turn-angle)); } 100% { opacity: 0; transform: rotateZ(var(--turn-angle)); } }
-.cube3d-cross-sticker { outline: 3px solid #fff; outline-offset: -3px; }.cube3d-xcross-sticker { outline: 3px solid #0d6efd; outline-offset: -3px; }.cube3d-last-layer-sticker { outline: 3px solid #ffc107; outline-offset: -3px; }.cube3d-special-sticker { outline: 3px solid #dc3545; outline-offset: -3px; }
-@media (prefers-reduced-motion: reduce) { .cube3d-model { transition: none; }.cube3d-layer { animation: none; } }
+.cube3d-cross-sticker { outline: 3px solid #fff; outline-offset: -3px; }
+.cube3d-xcross-sticker { outline: 3px solid #0d6efd; outline-offset: -3px; }
+.cube3d-last-layer-sticker { outline: 3px solid #ffc107; outline-offset: -3px; }
+.cube3d-special-sticker { outline: 3px solid #dc3545; outline-offset: -3px; }
+@media (prefers-reduced-motion: reduce) { .cube3d-model { transition: none; } .cube3d-layer { animation: none; } }
