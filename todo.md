@@ -746,3 +746,11 @@
 - [x] Chuyển Memo SRS và Hồ sơ BLD trong Study thành card/form/list-group/button Bootstrap, xóa nền giấy, border đen, mono nhỏ và spacing custom.
 - [x] Kiểm tra toàn trang Timer/Study ở desktop và mobile, bao gồm empty state và khối mở rộng, trước khi xác nhận.
 - [x] Chạy TypeScript, Vitest và build production rồi mới lưu checkpoint.
+
+## Modal Timer, lịch sử thực tế và BLD Report Bootstrap
+
+- [x] Kiểm kê tất cả modal Timer: chi tiết thành tích, CubeNet phóng to, chỉnh sửa solve, playback và xác nhận xóa.
+- [x] Chuyển từng modal Timer còn legacy sang cấu trúc Bootstrap modal/header/body/footer, forms, cards, list-group và buttons.
+- [x] Đọc dữ liệu lịch sử local hiện có theo chế độ chỉ đọc và kiểm tra hàng solve, badges, actions, note/tag, filter, desktop/mobile.
+- [x] Viết lại BLD Report Studio: header, memo, execution, special cases, stats và algorithm preference bằng Bootstrap card/list-group/form/alert.
+- [x] Xác minh browser desktop/mobile cho modal và BLD Report, chạy TypeScript, Vitest, build rồi mới checkpoint.
