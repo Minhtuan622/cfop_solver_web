@@ -678,3 +678,11 @@
 - [x] Định nghĩa quy ước Bootstrap chung: desktop chỉ `col-12` hoặc một cặp hai cột; mobile luôn một cột.
 - [x] Chuyển toàn bộ trang và các khối con theo quy ước hai cột, giữ nguyên nội dung và tương tác Rubik.
 - [x] Kiểm thử solver, timer, Study/3-Style, Settings, desktop/mobile, TypeScript/build và checkpoint.
+
+## UX/UI audit & Bootstrap redesign toàn diện
+
+- [x] Kiểm kê route, layout, navigation, form, dialog, table/list, feedback state, component tái sử dụng, CSS và interaction hiện có.
+- [x] Lập UX/UI audit Critical/High/Medium/Low, xác định rủi ro tới logic, dữ liệu cục bộ và flow Rubik.
+- [x] Đề xuất design system Bootstrap, kiến trúc component và thứ tự redesign; trình người dùng xác nhận trước khi sửa code.
+- [x] Chuẩn hóa global layout, navigation, states và component dùng chung sau khi được xác nhận.
+- [x] Redesign từng route/module, kiểm thử responsive, accessibility, loading/empty/error/success state và regression rồi checkpoint.

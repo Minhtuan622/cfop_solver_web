@@ -170,7 +170,7 @@ export default function TimerLab() {
   const openReplay = (entry: SolveHistoryEntry) => { const validation = validateRecordedSolution(initialStateFor(entry), entry.solution); if (!validation.valid || !validation.moves.length) return; setReplayMode("solution"); setReplay({ ...entry, solution: validation.normalized }); setReplayStep(0); setReplayPlaying(false); setReplaySpeed(1); };
   const openScrambleReplay = (entry: SolveHistoryEntry) => openReplay(entry);
 
-  return <main className="min-vh-100 py-4"><div className="container pb-5">
+  return <div><div className="container pb-5"><h1 className="visually-hidden">{labTab === "study" ? (vi ? "Study" : "Study") : (vi ? "Timer" : "Timer")}</h1>
     {labTab === "study" ? <LastLayerStudyLab language={language} /> : <>
     <section className="row g-4">
       <section className="col-12 col-xl-8"><div className="card card-body"><p className="timer-scramble break-words fs-4 fw-bold mb-2">{scramble}</p><div className="d-flex align-items-center gap-2"><button className="btn btn-outline-secondary btn-sm" onClick={() => nextScramble()} title={copy.new} aria-label={copy.new}><Dices className="h-3.5 w-3.5" /></button><button className="btn btn-outline-secondary btn-sm" onClick={() => navigator.clipboard?.writeText(scramble)} title={copy.copy} aria-label={copy.copy}><ClipboardCheck className="h-3.5 w-3.5" /></button><button className="btn btn-outline-secondary btn-sm" onClick={() => setTimerSettingsOpen(true)} title={vi ? "Cài đặt Timer" : "Timer settings"} aria-label={vi ? "Cài đặt Timer" : "Timer settings"}><Settings2 className="h-3.5 w-3.5" /></button></div>
@@ -206,7 +206,7 @@ export default function TimerLab() {
     <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}><AlertDialogContent className="border-2 border-[#17221d] bg-[#f4f0e8] text-[#17221d]"><AlertDialogHeader><AlertDialogTitle>{copy.deleteTitle}</AlertDialogTitle><AlertDialogDescription>{copy.deleteDetail}</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>{copy.cancel}</AlertDialogCancel><AlertDialogAction onClick={() => { if (deleteTarget) setEntries(deleteSolveHistory(deleteTarget.id)); setDeleteTarget(null); }} className="bg-[#d95743] text-white hover:bg-[#bb4533]">{copy.remove}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
     <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}><AlertDialogContent className="border-2 border-[#17221d] bg-[#f4f0e8] text-[#17221d]"><AlertDialogHeader><AlertDialogTitle>{copy.deleteManyTitle}</AlertDialogTitle><AlertDialogDescription>{copy.deleteManyDetail}</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>{copy.cancel}</AlertDialogCancel><AlertDialogAction onClick={deleteSelected} className="bg-[#d95743] text-white hover:bg-[#bb4533]">{copy.deleteSelected}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
     </>}
-  </div></main>;
+  </div></div>;
 }
 
 function Metric({ label, value }: { label: string; value: string }) { return <div className="border-2 border-[#17221d] bg-white p-3"><p className="font-mono text-[9px] text-[#17221d]/50">{label}</p><b className="mt-1 block font-mono text-lg tracking-[-0.06em]">{value}</b></div>; }

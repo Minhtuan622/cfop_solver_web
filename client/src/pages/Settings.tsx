@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readLastLayerStudy, writeLastLayerStudy } from "@/lib/lastLayerStudy";
+import { PageHeader, StatusFeedback } from "@/components/BootstrapUI";
 
 const colors: { value: SolverSettings["crossColor"]; hex: string; vi: string; en: string }[] = [
   { value: "U", hex: "#f7f3e9", vi: "Trắng", en: "White" },
@@ -73,9 +74,9 @@ export default function Settings() {
     if (Number.isFinite(value) && value > 0) setTargets((current) => ({ ...current, [phase]: value }));
   };
 
-  return <main className="min-vh-100">
+  return <div>
     <div className="container py-4">
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2"><h1 className="h3 mb-0">{label("Cài đặt ứng dụng", "App settings")}</h1><small className="text-muted">{label("Dấu ? giải thích từng nhóm", "? explains each group")}</small></div>
+      <PageHeader title={label("Cài đặt ứng dụng", "App settings")} description={label("Thiết lập solver, timer, Study và giao diện. Dấu ? giải thích từng nhóm.", "Configure Solver, Timer, Study and appearance. The ? icon explains each group.")} />
       <div className="row g-3 mt-1">
         <SettingCard index="01 · SOLVER" title={label("Thuật toán & Cross", "Solver & Cross")} tip={label("Chọn hướng Cross, độ sâu mở đầu và chiến lược lớp cuối mặc định cho lần giải mới.", "Sets the default Cross orientation, opening depth, and last-layer strategy for new solves.")}>
           <label className="form-label">{label("Màu Cross mặc định", "Default Cross color")}</label>
@@ -108,10 +109,11 @@ export default function Settings() {
           <div className="btn-group"><button onClick={() => setThemeMode("light")} className={themeMode === "light" ? "btn btn-primary" : "btn btn-outline-secondary"}><Sun className="me-1 inline h-3.5 w-3.5" />{label("Sáng", "Light")}</button><button onClick={() => setThemeMode("dark")} className={themeMode === "dark" ? "btn btn-primary" : "btn btn-outline-secondary"}><Moon className="me-1 inline h-3.5 w-3.5" />Dark</button><button onClick={() => setThemeMode("system")} className={themeMode === "system" ? "btn btn-primary" : "btn btn-outline-secondary"}>{label("Hệ điều hành", "System")}</button></div>
           <p className="small text-muted mt-2">{themeMode === "system" ? (theme === "dark" ? label("Hệ điều hành hiện đang dùng Dark.", "System is currently using Dark.") : label("Hệ điều hành hiện đang dùng Sáng.", "System is currently using Light.")) : label("Lựa chọn này ghi đè giao diện hệ điều hành.", "This choice overrides the system appearance.")}</p>
 
-          <p className="mt-4 text-body-secondary">{label("Giao diện hiện dùng Bootstrap mặc định; phần tùy biến sẽ chỉ được xem xét lại sau khi toàn bộ tính năng hoàn thành.", "The interface currently uses default Bootstrap; customization will only be considered after all features are complete.")}</p>
+          <p className="mt-4 text-body-secondary">{label("Chỉ lưu các thông số cần dùng. Lựa chọn hiển thị được áp dụng nhất quán trên toàn bộ công cụ.", "Only essential display settings are stored. Your appearance choice is applied consistently across the workspace.")}</p>
         </SettingCard>
       </div>
-      <div className="d-flex gap-2 mt-4"><button onClick={reset} className="btn btn-outline-secondary"><RotateCcw className="me-1 h-4 w-4" />{label("Khôi phục", "Reset")}</button><button onClick={save} className="btn btn-primary">{saved ? <Check className="me-1 h-4 w-4" /> : null}{saved ? label("Đã lưu", "Saved") : label("Lưu cài đặt", "Save settings")}</button></div>
+      <div className="d-flex flex-wrap gap-2 mt-4"><button onClick={reset} className="btn btn-outline-secondary"><RotateCcw className="me-1 h-4 w-4" />{label("Khôi phục", "Reset")}</button><button onClick={save} className="btn btn-primary">{saved ? <Check className="me-1 h-4 w-4" /> : null}{saved ? label("Đã lưu", "Saved") : label("Lưu cài đặt", "Save settings")}</button></div>
+      {saved ? <div className="mt-3"><StatusFeedback tone="success" title={label("Đã lưu cài đặt", "Settings saved")}>{label("Các thiết lập mới đã được lưu trên thiết bị này.", "Your updated preferences have been saved on this device.")}</StatusFeedback></div> : null}
     </div>
-  </main>;
+  </div>;
 }

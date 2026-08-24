@@ -16,6 +16,7 @@ import { BldReport } from "@/components/BldReport";
 import { CubeStateEditor } from "@/components/CubeStateEditor";
 import { CameraScanner } from "@/components/CameraScanner";
 import { SoftStatus, SoftSurface } from "@/components/SoftUI";
+import { FieldGroup, PageHeader, StatusFeedback } from "@/components/BootstrapUI";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -377,18 +378,18 @@ export default function Home() {
   };
 
   return (
-    <main className="studio-page bs-page min-vh-100 overflow-x-hidden" style={{ fontFamily: "var(--bs-body-font-family)" }}>
+    <div className="studio-page bs-page overflow-x-hidden">
       <div className="container py-4">
         <section className="row g-4">
           <header className="col-12 d-flex flex-wrap align-items-center gap-3">
-            <h1 className="h4 mb-0">{solverKind === "bld" ? "3-Style / Speffz" : "CFOP Solver"}</h1>
+            <PageHeader className="w-100 mb-0" title={solverKind === "bld" ? "3-Style / Speffz" : "CFOP Solver"} description={solverKind === "bld" ? (language === "vi" ? "Tạo memo từ scramble hoặc state, sau đó chuyển sang Study để luyện." : "Create a memo from a scramble or state, then continue to Study for practice.") : mode === "state" ? (language === "vi" ? "Kiểm tra state 54 sticker và chạy pipeline CFOP." : "Validate a 54-sticker state and run the CFOP pipeline.") : (language === "vi" ? "Nhập scramble để nhận lời giải CFOP theo từng pha." : "Enter a scramble for a phase-by-phase CFOP solution.")} />
             <div className="btn-group" role="tablist" aria-label={language === "vi" ? "Chế độ solver" : "Solver mode"}>
               {(["cfop", "bld"] as const).map((item) => <button key={item} type="button" role="tab" aria-selected={solverKind === item} onClick={() => { setSolverKind(item); setResult(null); setBldResult(null); setCursor(0); setPlaying(false); setError(""); }} className={solverKind === item ? "btn btn-primary" : "btn btn-outline-primary"}>{item === "cfop" ? "CFOP" : "3-Style"}</button>)}
             </div>
             <div className="btn-group" role="tablist" aria-label={language === "vi" ? "Nguồn đầu vào" : "Input source"}>
               {(["scramble", "state"] as const).map((item) => <button key={item} type="button" role="tab" aria-selected={mode === item} onClick={() => switchInputMode(item)} className={mode === item ? "btn btn-primary" : "btn btn-outline-primary"}>{item === "scramble" ? t("input.scramble") : t("input.state")}</button>)}
             </div>
-            <p className="small text-muted ms-lg-auto mb-0">{loading ? t("input.loading") : solverKind === "bld" ? (language === "vi" ? "Dòng xử lý memo" : "Memo pipeline") : mode === "state" ? (language === "vi" ? "Kiểm tra state" : "State validation") : (language === "vi" ? "Dòng xử lý scramble" : "Scramble pipeline")}</p>
+            {loading ? <span className="small text-body-secondary ms-lg-auto" role="status">{t("input.loading")}</span> : null}
           </header>
           <aside className="col-12 col-lg-4">
             <SoftSurface className="overflow-hidden">
@@ -417,7 +418,7 @@ export default function Home() {
                   <div className="mt-2 flex flex-wrap items-center gap-1"><span className="mr-1 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-[#17221d]/45">{language === "vi" ? "Loại trừ" : "Exclude"}</span>{F2L_SLOTS.map((slot) => <button key={`exclude-${slot}`} type="button" onClick={() => { setExcludedSlots((current) => current.includes(slot) ? current.filter((value) => value !== slot) : [...current, slot]); if (preferredSlot === slot) setPreferredSlot(undefined); }} className={cn("rounded-sm border px-1.5 py-1 font-mono text-[9px] font-bold transition", excludedSlots.includes(slot) ? "border-[#d95743] bg-[#d95743] text-white" : "border-[#17221d]/15 bg-[#f4f0e8] text-[#17221d]/55 hover:border-[#17221d]")}>{slot}</button>)}</div>
                 </div></details>}</details>
                 {mode === "scramble" ? <textarea aria-label={t("input.label")} value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); setBldResult(null); }} placeholder={language === "vi" ? "Nhập scramble · R U R' U'" : "Enter scramble · R U R' U'"} spellCheck={false} className="form-control mt-4" rows={5} /> : <><div className="mt-4"><CubeStateEditor state={value} onChange={applyStateEdit} disabled={loading} canUndo={stateHistory.current.past.length > 0} canRedo={stateHistory.current.future.length > 0} onUndo={undoStateEdit} onRedo={redoStateEdit} selectedColor={paintColor} onSelectedColorChange={setPaintColor} controlsOnly /></div><p className="small text-muted mt-2">{language === "vi" ? "Tô trực tiếp trên sơ đồ 2D lớn cạnh Cube 3D." : "Paint directly on the large 2D net beside the 3D cube."}</p><div className={stateValidation?.valid ? "alert alert-success mt-3" : "alert alert-danger mt-3"}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div>{recentStates.length > 0 && <div className="mt-3"><p className="small fw-bold mb-2"><History className="h-3 w-3" /> {language === "vi" ? "State gần đây" : "Recent states"}</p><div className="list-group">{recentStates.map((item) => <div key={item.id} className="list-group-item d-flex align-items-center gap-2"><button type="button" onClick={() => loadRecentState(item)} className="btn btn-link text-start text-truncate flex-grow-1 p-0">{item.label}</button><button type="button" onClick={() => removeRecentState(item.id)} aria-label={language === "vi" ? `Xóa ${item.label}` : `Remove ${item.label}`} className="btn btn-outline-danger btn-sm"><Trash2 className="h-3 w-3" /></button></div>)}</div></div>}<details className="mt-3"><summary>{language === "vi" ? "Dán chuỗi 54 sticker" : "Paste 54-sticker state"}</summary><textarea value={value} onChange={(event) => applyStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())} spellCheck={false} className="form-control mt-2" rows={3} /></details></>}
-                {error && <p className="mt-3 rounded-lg bg-[#d95743]/10 p-3 font-mono text-xs leading-5 text-[#9b3023]">{error}</p>}
+                {error && <div className="mt-3"><StatusFeedback tone="danger" title={language === "vi" ? "Không thể chạy solver" : "Solver could not run"}>{error}</StatusFeedback></div>}
                 <button disabled={loading || !value.trim() || (mode === "state" && !stateValidation?.valid)} onClick={runSolver} className="btn btn-primary w-100 mt-4">
                   {loading ? <><Loader2 className="h-4 w-4 animate-spin" />{t("input.loading")}</> : <><Sparkles className="h-4 w-4" />{solverKind === "bld" ? (language === "vi" ? "TẠO MEMO 3-STYLE" : "BUILD 3-STYLE MEMO") : t("input.solve")}</>}
                 </button>
@@ -481,7 +482,7 @@ export default function Home() {
           </aside>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
 
