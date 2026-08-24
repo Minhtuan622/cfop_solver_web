@@ -723,3 +723,10 @@
 - [x] Chuẩn hóa icon navigation, action, form, card và feedback theo các class `fs-6`, `fs-5`, `fs-4` Bootstrap phù hợp.
 - [x] Thay mọi import icon còn sót trong component legacy bằng lớp Bootstrap Icons; giữ aria-label và tooltip.
 - [x] Kiểm tra TypeScript, grep không còn Lucide/SVG icon UI, screenshot và regression trước checkpoint.
+
+## Chuẩn hóa controls Bootstrap
+
+- [x] Kiểm kê các nút icon-only, icon trong nút có nhãn, disabled state và spacing icon hiện tại.
+- [x] Áp dụng `text-body-secondary` cho disabled state; áp dụng utility margin/gap Bootstrap nhất quán cho icon.
+- [x] Bổ sung Bootstrap tooltip cho mọi nút icon-only, giữ aria-label/title và không cản thao tác bàn phím.
+- [x] Kiểm tra desktop/mobile, tooltip focus/hover, TypeScript, tests và build trước checkpoint.
