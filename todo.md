@@ -781,3 +781,10 @@
 - [x] Kiểm kê các setting đang rời rạc, mô tả lặp và nhóm điều khiển có thể gộp.
 - [x] Chuyển Settings sang bố cục Bootstrap một cột gọn với các section/card/accordion theo nhu cầu.
 - [x] Kiểm tra lưu setting, desktop/mobile, TypeScript, Vitest và build trước checkpoint.
+
+## Auto-save và Accordion Cài đặt mobile
+
+- [x] Tách hàm ghi cấu hình dùng chung và thêm auto-save debounce cho các thay đổi Settings.
+- [x] Hiển thị phản hồi Bootstrap ngắn khi auto-save hoàn tất; giữ nút Reset an toàn.
+- [x] Mặc định đóng toàn bộ Accordion ở mobile, giữ nhóm Solver/Timer mở ở desktop.
+- [x] Kiểm tra desktop/mobile, localStorage, TypeScript, Vitest và build trước checkpoint.
