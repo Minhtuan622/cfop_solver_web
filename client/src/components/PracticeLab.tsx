@@ -1,6 +1,6 @@
 /** Visual OLL/PLL drills made from the verified setup inverse and saved local practice outcomes. */
 import { useEffect, useMemo, useState } from "react";
-import { Check, Eye, Play, RotateCcw, TimerReset, X } from "lucide-react";
+import { Check, Eye, Play, RotateCcw, TimerReset, X } from "@/components/BootstrapIcon";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { OLL_CASES, PLL_CASES, type PracticeCase } from "@/lib/practiceCases";
 import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";

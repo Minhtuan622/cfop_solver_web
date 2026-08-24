@@ -1,6 +1,6 @@
 /** Xưởng Cơ Khí Tốc Độ — one compact navigation rail for every route. */
 /** Bootstrap default navbar: keeps route access while visual customization is deferred. */
-import { Menu, X } from "lucide-react";
+import { Menu, X } from "@/components/BootstrapIcon";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";

@@ -1,5 +1,5 @@
 /* Xưởng Cơ Khí Tốc Độ — exact-match BLD execution catalog; preference overrides remain visibly user-authored. */
-import { ExternalLink, Link2, Loader2, ShieldCheck, X } from "lucide-react";
+import { ExternalLink, Link2, Loader2, ShieldCheck, X } from "@/components/BootstrapIcon";
 import { useEffect, useMemo, useState } from "react";
 import { preferenceKey, setPreferredAlgorithm, type BldProfile } from "@/lib/bldProfile";
 import type { BldResult } from "@/lib/solverRuntime";

@@ -1,6 +1,6 @@
 /** Personal full-solve history backed only by localStorage and styled as a mechanical scorecard. */
 /** Xưởng Cơ Khí Tốc Độ — history is a timer-log scorecard, never a blank marketing empty state. */
-import { ArrowLeft, BarChart3, Clock3, Play, Trash2 } from "lucide-react";
+import { ArrowLeft, BarChart3, Clock3, Play, Trash2 } from "@/components/BootstrapIcon";
 import { Link } from "wouter";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { clearSolveHistory, formatSolveTime, readSolveHistory, type SolveHistoryEntry } from "@/lib/solveHistory";

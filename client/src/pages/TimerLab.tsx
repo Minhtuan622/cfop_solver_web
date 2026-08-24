@@ -2,7 +2,7 @@
  * Xưởng Cơ Khí Tốc Độ — Timer Lab chia hai apparatus rõ ràng: timer competition và study bay Last Layer.
  * Competition giữ scramble/inspection/history; Study bay dùng score-strip, mint progress và case-first repetition.
  */
-import { ClipboardCheck, Download, Dices, Eye, EyeOff, FileDown, FileUp, ImageDown, Maximize2, Pause, Pencil, Play, RotateCcw, Search, Settings2, Tag, Trash2, Trophy, X } from "lucide-react";
+import { ClipboardCheck, Download, Dices, Eye, EyeOff, FileDown, FileUp, ImageDown, Maximize2, Pause, Pencil, Play, RotateCcw, Search, Settings2, Tag, Trash2, Trophy, X } from "@/components/BootstrapIcon";
 import { useLocation } from "wouter";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";

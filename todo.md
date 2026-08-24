@@ -709,3 +709,10 @@
 - [x] Chuyển mục tiêu pha, preset, phase Ao và hiệu quả solution sang form-control, button group, list-group, alert và card Bootstrap.
 - [x] Chuyển các empty state biểu đồ sang alert Bootstrap; chỉ giữ CSS bắt buộc của thư viện chart.
 - [x] Xác minh desktop/mobile cùng TypeScript, Vitest và production build trước checkpoint.
+
+## Bootstrap Icons
+
+- [x] Kiểm kê mọi icon Lucide/SVG đang render trên navigation, Studio, Timer, Study, 3-Style, Settings, dialog và feedback.
+- [x] Cài `bootstrap-icons`, nạp stylesheet chính thức và thay icon ở shell, Studio, Timer bằng class `bi` tương ứng.
+- [x] Thay icon ở Study, 3-Style, Settings, modal và component con; giữ aria-label/title trên nút chỉ-icon.
+- [x] Kiểm tra desktop/mobile, TypeScript, tests và build trước checkpoint.

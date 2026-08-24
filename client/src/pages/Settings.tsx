@@ -1,6 +1,6 @@
 /* Xưởng Cơ Khí Tốc Độ — Display keeps navigation calibrated while semantic formula/memo surfaces have an independent readable scale. */
 import { useState, type ReactNode } from "react";
-import { Check, CircleHelp, Moon, RotateCcw, Sun } from "lucide-react";
+import { Check, CircleHelp, Moon, RotateCcw, Sun } from "@/components/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";

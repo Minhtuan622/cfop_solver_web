@@ -1,5 +1,5 @@
 /* Xưởng Cơ Khí Tốc Độ — a compact local record sheet for portable BLD preferences. */
-import { Download, FileUp, Volume2, VolumeX } from "lucide-react";
+import { Download, FileUp, Volume2, VolumeX } from "@/components/BootstrapIcon";
 import { useRef, useState, type ChangeEvent } from "react";
 import { importBldProfile, profileExport, type BldProfile } from "@/lib/bldProfile";
 

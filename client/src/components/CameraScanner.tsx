@@ -1,6 +1,6 @@
 /** Xưởng Cơ Khí Tốc Độ — local-only six-face camera scanner with center-color calibration. */
 import { useEffect, useRef, useState } from "react";
-import { Camera, Check, RotateCcw, ScanLine, Square, X } from "lucide-react";
+import { Camera, Check, RotateCcw, ScanLine, Square, X } from "@/components/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const ORDER = ["U", "R", "F", "D", "L", "B"] as const;

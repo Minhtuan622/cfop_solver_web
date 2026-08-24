@@ -1,5 +1,5 @@
 /** Client-side PDF export, rendered from HTML so Vietnamese and English are preserved. */
-import { Download, FileText } from "lucide-react";
+import { Download, FileText } from "@/components/BootstrapIcon";
 import type { SolverResult } from "@/lib/solverRuntime";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 

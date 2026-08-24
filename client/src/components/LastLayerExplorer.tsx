@@ -1,5 +1,5 @@
 /** Xưởng Cơ Khí Tốc Độ — one last-layer catalog drawer, shared with the Study SRS store. */
-import { Dices, Search } from "lucide-react";
+import { Dices, Search } from "@/components/BootstrapIcon";
 import { useMemo, useState } from "react";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 

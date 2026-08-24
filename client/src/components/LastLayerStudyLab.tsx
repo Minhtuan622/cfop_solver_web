@@ -1,6 +1,6 @@
 /** Xưởng Cơ Khí Tốc Độ — Study là nhà duy nhất cho SRS lẫn catalog Last Layer. */
 /* Xưởng Cơ Khí Tốc Độ — algorithm notation is independently scalable; the study apparatus and timer chrome remain calibrated. */
-import { Check, Download, FileUp, Sparkles, TimerReset } from "lucide-react";
+import { Check, Download, FileUp, Sparkles, TimerReset } from "@/components/BootstrapIcon";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { BldStudyLab } from "@/components/BldStudyLab";
 import { Cube3DGuide } from "@/components/Cube3DGuide";

@@ -1,5 +1,5 @@
 /* Xưởng Cơ Khí Tốc Độ — each Speffz pair gets a small, portable memory card. */
-import { ImagePlus, Tag } from "lucide-react";
+import { ImagePlus, Tag } from "@/components/BootstrapIcon";
 import { useEffect, useState } from "react";
 import { setPairCard, type BldProfile } from "@/lib/bldProfile";
 

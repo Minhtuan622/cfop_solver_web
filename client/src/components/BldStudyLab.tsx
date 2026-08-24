@@ -2,7 +2,7 @@
  * Soft Focus Workspace — BLD is taught as a calm four-step path.
  * One beginner action is visible at a time; drill, SRS and backup remain available after the lesson.
  */
-import { BookOpenCheck, ChevronRight, Dices, Layers3, Loader2, Sparkles } from "lucide-react";
+import { BookOpenCheck, ChevronRight, Dices, Layers3, Loader2, Sparkles } from "@/components/BootstrapIcon";
 import { useEffect, useMemo, useState } from "react";
 import { BldMemoLab } from "@/components/BldMemoLab";
 import { BldProfilePanel } from "@/components/BldProfilePanel";

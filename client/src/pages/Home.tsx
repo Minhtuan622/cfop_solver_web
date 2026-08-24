@@ -7,8 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import {
   ArrowLeft, ArrowRight, Check, ChevronRight, CircleGauge, ClipboardCopy,
   Cpu, FileJson, History, ImageDown, Info, Layers3, Loader2, Play, RotateCcw, Search, ShieldCheck, Sparkles, Trash2,
-} from "lucide-react";
-import { Timer } from "lucide-react";
+} from "@/components/BootstrapIcon";
+import { Timer } from "@/components/BootstrapIcon";
 import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
