@@ -830,3 +830,11 @@
 - [x] Chuyển các nút icon phù hợp thành icon-only, giữ aria-label và tooltip Bootstrap.
 - [x] Chuẩn hóa các label/nút semantic còn sót về biến thể Bootstrap mặc định.
 - [x] Kiểm tra desktop/mobile, hover/focus tooltip, TypeScript, Vitest và build trước checkpoint.
+
+## Icon-only toàn diện
+
+- [x] Lập danh sách mọi button có icon kèm text trong các route/component đang render.
+- [x] Chuyển toàn bộ controls phù hợp sang icon-only với aria-label và tooltip Bootstrap.
+- [x] Giữ text chỉ cho action không có icon hoặc cần đọc rõ để phòng thao tác hủy/xác nhận quan trọng.
+- [x] Chuẩn hóa màu controls icon về Bootstrap default và kiểm tra tất cả route desktop/mobile.
+- [x] Chạy TypeScript, Vitest, build rồi mới checkpoint.
