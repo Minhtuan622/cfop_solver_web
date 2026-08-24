@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const navItems = [
   { href: "/", label: "Studio", active: (path: string) => path === "/" },
   { href: "/timer", label: "Timer", active: (path: string) => path === "/timer" },
+  { href: "/history", label: "History", active: (path: string) => path === "/history" },
   { href: "/study", label: "Study", active: (path: string) => path === "/study" },
   { href: "/settings", label: "Cài đặt", active: (path: string) => path === "/settings" },
 ];

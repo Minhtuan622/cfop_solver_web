@@ -795,3 +795,9 @@
 - [x] Thiết kế lại Study/3-Style theo lộ trình học rõ ràng, giữ dữ liệu SRS và profile hiện có.
 - [x] Mở rộng History thành trang phân tích chuyên biệt, tách khỏi Timer nhưng giữ danh sách solve và dữ liệu localStorage.
 - [x] Kiểm tra Study/History desktop/mobile, TypeScript, Vitest và build. History hiện không nhận được records trong phiên preview sau khi cập nhật nên đã xác minh trạng thái trống; metrics/filters dùng trực tiếp contract SolveHistoryEntry hiện có.
+
+## Điều hướng trang History
+
+- [x] Kiểm tra route `/history` và menu điều hướng hiện tại.
+- [x] Thêm History vào navbar Bootstrap, gồm trạng thái active và responsive mobile.
+- [x] Kiểm tra route/menu desktop/mobile, TypeScript, Vitest và build trước checkpoint.
