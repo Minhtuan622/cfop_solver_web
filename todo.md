@@ -664,3 +664,10 @@
 - [x] Thiết kế system Bootstrap chung gồm navbar, card, tab, form, table, modal, spacing và Light/Dark Mode.
 - [x] Tích hợp Bootstrap, thay shell và các trang giao diện, đồng thời giữ nguyên toàn bộ hành vi solver, timer, Study và lưu dữ liệu cục bộ.
 - [x] Kiểm thử các luồng Rubik chính, responsive desktop/mobile, theme, TypeScript, regression/build và checkpoint.
+
+## Baseline Bootstrap không tùy biến
+
+- [x] Kiểm kê và xác định các token, font, palette, rule layout, class UI tự custom đang ghi đè Bootstrap.
+- [x] Đặt baseline Bootstrap mặc định cho navigation, button, form, card, nav/tab, table, modal và Light/Dark Mode.
+- [x] Gỡ CSS/component UI tùy biến, giữ nguyên markup và logic Rubik; chỉ bổ sung class Bootstrap chuẩn khi cần để layout còn đọc được.
+- [x] Kiểm thử solver, Cube 3D, Timer, Study/3-Style, Settings, desktop/mobile, TypeScript/build và checkpoint.

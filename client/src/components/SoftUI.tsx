@@ -9,14 +9,15 @@ type SurfaceProps = {
   tone?: "base" | "quiet" | "focus";
 };
 
-export function SoftSurface({ children, className, as: Tag = "section", tone = "base" }: SurfaceProps) {
-  return <Tag className={cn("card bs-surface", `soft-surface-${tone}`, className)}>{children}</Tag>;
+export function SoftSurface({ children, className, as: Tag = "section" }: SurfaceProps) {
+  return <Tag className={cn("card", className)}>{children}</Tag>;
 }
 
 export function SoftSectionTitle({ eyebrow, title, detail, className }: { eyebrow?: string; title: string; detail?: string; className?: string }) {
-  return <header className={cn("soft-section-title bs-section-title", className)}>{eyebrow && <p>{eyebrow}</p>}<h2>{title}</h2>{detail && <span>{detail}</span>}</header>;
+  return <header className={cn("mb-3", className)}>{eyebrow && <p className="small text-muted mb-1">{eyebrow}</p>}<h2 className="h4">{title}</h2>{detail && <span className="text-muted">{detail}</span>}</header>;
 }
 
 export function SoftStatus({ label, value, tone = "neutral", leading }: { label: string; value: ReactNode; tone?: "neutral" | "success" | "warning"; leading?: ReactNode }) {
-  return <div className={cn("soft-status badge text-start", `soft-status-${tone}`)}>{leading && <i>{leading}</i>}<span>{label}</span><b>{value}</b></div>;
+  const color = tone === "success" ? "text-bg-success" : tone === "warning" ? "text-bg-warning" : "text-bg-secondary";
+  return <div className={cn("col", "badge text-start", color)}>{leading && <i className="me-1">{leading}</i>}<span>{label}: </span><b>{value}</b></div>;
 }
