@@ -854,3 +854,12 @@
 - [x] Xóa toàn bộ lựa chọn custom giao diện và gỡ density không hiệu quả khỏi Timer/Cài đặt.
 - [x] Đưa đồng hồ Timer vào trung tâm apparatus và khôi phục chữ trắng tương phản trên các nút primary.
 - [x] Kiểm tra bundle, TypeScript, toàn bộ test và desktop/mobile trước checkpoint.
+
+## Hợp nhất tính năng trùng lặp
+
+- [x] Kiểm kê controls Timer, replay, action học Studio và preview cube đang chồng lấp.
+- [x] Dời toàn bộ thiết lập Timer lâu dài về Cài đặt chung, chỉ giữ thao tác timer trực tiếp trên Timer.
+- [x] Chỉ giữ replay solution thực tế và thay nhánh replay scramble bằng hướng dẫn nhập solution ngắn gọn.
+- [x] Bỏ action học/catalog trùng trong Studio, giữ deep-link chính xác sang Study.
+- [x] Dùng một preview cube theo state ở mỗi ngữ cảnh và bỏ preview trùng lặp.
+- [x] Chạy hồi quy, kiểm tra desktop/mobile và checkpoint sau khi hoàn tất.
