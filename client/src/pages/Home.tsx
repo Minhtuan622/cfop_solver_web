@@ -145,6 +145,7 @@ export default function Home() {
   const [bldProfile, setBldProfile] = useState(() => readBldProfile());
   const [cursor, setCursor] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [solverStatus, setSolverStatus] = useState("");
   const [playing, setPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [cubeMotion, setCubeMotion] = useState<{ id: number; kind: CubeMotionKind; direction: "forward" | "backward"; phaseName?: string }>({ id: 0, kind: "idle", direction: "forward" });
@@ -275,8 +276,11 @@ export default function Home() {
     setLoading(true);
     setPlaying(false);
     setError("");
+    setSolverStatus(language === "vi" ? "Đang chuẩn bị dữ liệu cube…" : "Preparing cube data…");
     try {
+      await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
       if (solverKind === "bld") {
+        setSolverStatus(language === "vi" ? "Đang dựng memo 3-Style…" : "Building 3-Style memo…");
         const next = await analyzeBldInBrowser(mode, value.trim());
         setBldResult(next);
         setResult(null);
@@ -286,6 +290,7 @@ export default function Home() {
         if (mode === "state") rememberRecentState(value.trim(), crossColor);
         return;
       }
+      setSolverStatus(language === "vi" ? `Đang tìm ${openingModeLabel(opening, language)}…` : `Searching ${openingModeLabel(opening, language)}…`);
       const next = await solveInBrowser(mode, value.trim(), crossColor, opening, { preferredSlot, excludedSlots }, lastLayer, openingDepth);
       setResult(next);
       setBldResult(null);
@@ -297,6 +302,7 @@ export default function Home() {
       setError(reason instanceof Error ? reason.message : "Không thể chạy solver với đầu vào này.");
     } finally {
       setLoading(false);
+      setSolverStatus("");
     }
   }
 
@@ -385,7 +391,7 @@ export default function Home() {
             <div className="btn-group" role="tablist" aria-label={language === "vi" ? "Nguồn đầu vào" : "Input source"}>
               {(["scramble", "state"] as const).map((item) => <button key={item} type="button" role="tab" aria-selected={mode === item} onClick={() => switchInputMode(item)} className={mode === item ? "btn btn-primary" : "btn btn-outline-primary"}>{item === "scramble" ? t("input.scramble") : t("input.state")}</button>)}
             </div>
-            {loading ? <span className="small text-body-secondary ms-lg-auto" role="status">{t("input.loading")}</span> : null}
+            {loading ? <div className="alert alert-primary py-2 px-3 mb-0 ms-lg-auto d-flex align-items-center gap-2" role="status" aria-live="polite"><span className="spinner-border spinner-border-sm" aria-hidden="true" /><span className="small">{solverStatus}</span></div> : null}
             {solverKind === "cfop" ? <div className="alert alert-secondary small d-flex flex-wrap align-items-center gap-2 w-100 mb-0"><span>{language === "vi" ? "Các lựa chọn Solver ở đây chỉ áp dụng cho lần giải đang mở; mặc định lâu dài nằm trong Cài đặt." : "Solver choices here apply only to the current Studio session; persistent defaults live in Settings."}</span><button type="button" className="btn btn-outline-secondary btn-sm ms-sm-auto" onClick={() => { const defaults = readSolverSettings(); setCrossColor(defaults.crossColor); setOpening(defaults.opening); setOpeningDepth(defaults.openingDepth); setLastLayer(defaults.lastLayer); setPreferredSlot(defaults.preferredSlot); setExcludedSlots(defaults.excludedSlots); }}>{language === "vi" ? "Dùng mặc định" : "Use defaults"}</button></div> : null}
           </header>
           <aside className="col-12 col-lg-4"><section className="card"><div className="card-header"><h2 className="h5 mb-0">{mode === "scramble" ? "Move sequence" : "54-sticker state"}</h2></div><div className="card-body">
@@ -399,7 +405,7 @@ export default function Home() {
                 {mode === "scramble" ? <textarea aria-label={t("input.label")} value={value} onChange={(event) => { setValue(event.target.value); setSavedScramble(event.target.value); setBldResult(null); }} placeholder={language === "vi" ? "Nhập scramble · R U R' U'" : "Enter scramble · R U R' U'"} spellCheck={false} className="form-control mt-4" rows={5} /> : <><div className="mt-4"><CubeStateEditor state={value} onChange={applyStateEdit} disabled={loading} canUndo={stateHistory.current.past.length > 0} canRedo={stateHistory.current.future.length > 0} onUndo={undoStateEdit} onRedo={redoStateEdit} selectedColor={paintColor} onSelectedColorChange={setPaintColor} controlsOnly /></div><p className="small text-body-secondary mt-2">{language === "vi" ? "Tô trực tiếp trên sơ đồ 2D lớn cạnh Cube 3D." : "Paint directly on the large 2D net beside the 3D cube."}</p><div className={stateValidation?.valid ? "alert alert-success mt-3" : "alert alert-danger mt-3"}>{stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? (language === "vi" ? "Đang chờ kiểm tra state." : "Waiting to validate state.")}</div>{recentStates.length > 0 && <div className="mt-3"><p className="small fw-semibold mb-2"><History className="fs-6 me-1" /> {language === "vi" ? "State gần đây" : "Recent states"}</p><div className="list-group">{recentStates.map((item) => <div key={item.id} className="list-group-item d-flex align-items-center gap-2"><button type="button" onClick={() => loadRecentState(item)} className="btn btn-link text-start text-truncate flex-grow-1 p-0">{item.label}</button><button type="button" onClick={() => removeRecentState(item.id)} aria-label={language === "vi" ? `Xóa ${item.label}` : `Remove ${item.label}`} className="btn btn-outline-danger btn-sm"><Trash2 className="fs-6" /></button></div>)}</div></div>}<div className="accordion mt-3" id="studio-state-paste"><div className="accordion-item"><h3 className="accordion-header"><button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#studio-state-paste-body" aria-expanded="false" aria-controls="studio-state-paste-body">{language === "vi" ? "Dán chuỗi 54 sticker" : "Paste 54-sticker state"}</button></h3><div id="studio-state-paste-body" className="accordion-collapse collapse"><div className="accordion-body"><textarea value={value} onChange={(event) => applyStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())} spellCheck={false} className="form-control" rows={3} /></div></div></div></div></>}
                 {error && <div className="mt-3"><StatusFeedback tone="danger" title={language === "vi" ? "Không thể chạy solver" : "Solver could not run"}>{error}</StatusFeedback></div>}
                 <button disabled={loading || !value.trim() || (mode === "state" && !stateValidation?.valid)} onClick={runSolver} className="btn btn-primary w-100 mt-4">
-                  {loading ? <><Loader2 className="h-4 w-4 animate-spin" />{t("input.loading")}</> : <><Sparkles className="h-4 w-4" />{solverKind === "bld" ? (language === "vi" ? "TẠO MEMO 3-STYLE" : "BUILD 3-STYLE MEMO") : t("input.solve")}</>}
+                  {loading ? <><span className="spinner-border spinner-border-sm" aria-hidden="true" />{solverStatus}</> : <><Sparkles className="fs-6" />{solverKind === "bld" ? (language === "vi" ? "TẠO MEMO 3-STYLE" : "BUILD 3-STYLE MEMO") : t("input.solve")}</>}
                 </button>
               </div>
             </section>

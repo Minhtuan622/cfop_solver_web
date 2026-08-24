@@ -13,7 +13,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
 
 function RouteLoading() {
-  return <div className="container py-5" role="status" aria-live="polite"><div className="d-flex align-items-center gap-2 text-body-secondary"><span className="spinner-border spinner-border-sm" aria-hidden="true" />Đang tải công cụ…</div></div>;
+  return <div className="container py-5" role="status" aria-live="polite"><div className="alert alert-secondary d-inline-flex align-items-center gap-2 mb-0"><span className="spinner-border spinner-border-sm text-primary" aria-hidden="true" /><span>Đang tải công cụ…</span></div></div>;
 }
 function Router() {
   return <Suspense fallback={<RouteLoading />}><Switch>

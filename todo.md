@@ -870,3 +870,11 @@
 - [x] Chuẩn hóa shared modal primitive theo Bootstrap `modal-dialog-scrollable` và chiều cao viewport an toàn.
 - [x] Kiểm tra trực tiếp cuộn modal Timer và modal đại diện desktop/mobile.
 - [x] Chạy hồi quy, ghi nhận xác minh và checkpoint sau khi hoàn tất.
+
+## UX: tiến trình, empty state và tải
+
+- [x] Kiểm kê luồng Solver, empty state, tiến trình Study và các lazy boundary hiện có.
+- [x] Hiển thị trạng thái ngắn, chính xác của Solver trong khi chuẩn bị và giải.
+- [x] Chuẩn hóa loading Bootstrap có ngữ cảnh cho các phần tải lười.
+- [x] Thêm hành động rõ ràng cho empty state và giữ tiến trình Study bám ngữ cảnh khi cuộn.
+- [x] Chạy hồi quy, kiểm tra desktop/mobile và checkpoint sau khi hoàn tất.
