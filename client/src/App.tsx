@@ -7,13 +7,14 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AppNav } from "./components/AppNav";
+import { SkeletonCard } from "./components/BootstrapUI";
 const Home = lazy(() => import("./pages/Home"));
 const History = lazy(() => import("./pages/History"));
 const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
 
 function RouteLoading() {
-  return <div className="container py-5" role="status" aria-live="polite"><div className="alert alert-secondary d-inline-flex align-items-center gap-2 mb-0"><span className="spinner-border spinner-border-sm text-primary" aria-hidden="true" /><span>Đang tải công cụ…</span></div></div>;
+  return <div className="container py-4 py-lg-5" aria-live="polite"><div className="row g-4"><div className="col-12 col-xl-8"><SkeletonCard lines={2} label="Đang tải công cụ" /><SkeletonCard lines={5} className="mt-4" label="Đang tải nội dung công cụ" /></div><div className="col-12 col-xl-4"><SkeletonCard lines={4} label="Đang tải thông tin bổ sung" /></div></div></div>;
 }
 function Router() {
   return <Suspense fallback={<RouteLoading />}><Switch>

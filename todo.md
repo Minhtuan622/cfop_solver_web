@@ -885,3 +885,10 @@
 - [x] Thêm skeleton Bootstrap riêng cho catalog Study khi đang nạp.
 - [x] Lưu lượt đang chạy với DNF khi nhấn Esc, không ảnh hưởng Esc hủy inspection.
 - [x] Bổ sung kiểm thử, kiểm tra desktop/mobile và checkpoint sau khi hoàn tất.
+
+## Skeleton loading toàn website
+
+- [x] Kiểm kê toàn bộ fetch, worker promise, lazy route và trạng thái loading đang render text/spinner.
+- [x] Tạo các skeleton Bootstrap tái sử dụng cho layout trang, danh sách, card, chart và report.
+- [x] Thay mọi loading state dữ liệu bằng skeleton đúng cấu trúc, giữ spinner cho thao tác tức thời.
+- [x] Chạy hồi quy, kiểm tra desktop/mobile và checkpoint sau khi hoàn tất.
