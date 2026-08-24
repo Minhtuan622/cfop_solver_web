@@ -754,3 +754,10 @@
 - [x] Đọc dữ liệu lịch sử local hiện có theo chế độ chỉ đọc và kiểm tra hàng solve, badges, actions, note/tag, filter, desktop/mobile.
 - [x] Viết lại BLD Report Studio: header, memo, execution, special cases, stats và algorithm preference bằng Bootstrap card/list-group/form/alert.
 - [x] Xác minh browser desktop/mobile cho modal và BLD Report, chạy TypeScript, Vitest, build rồi mới checkpoint.
+
+## Modal mobile và panel Studio còn lại
+
+- [x] Kiểm kê các panel legacy còn render trong Studio ngoài BLD Report, gồm input, camera, run profile, playback, status và report shell.
+- [x] Chuyển các panel Studio còn lại sang Bootstrap card/accordion/form/alert/list-group/button theo từng component.
+- [x] Mở và kiểm tra các modal Timer trên viewport mobile: cài đặt, metric, CubeNet, chỉnh sửa, playback và xác nhận xóa.
+- [x] Kiểm tra Studio mobile/desktop, TypeScript, Vitest và build trước checkpoint.

@@ -89,6 +89,11 @@ body { margin: 0; }
   .navbar-expand-lg .navbar-collapse { display: flex; flex-basis: auto; flex-grow: 1; }
 }
 
+/* Tailwind's `.collapse` utility sets `visibility: collapse`; restore Bootstrap Collapse semantics. */
+.collapse { visibility: visible; }
+.collapse:not(.show) { display: none; }
+.collapsing { height: 0; overflow: hidden; transition: height .35s ease; visibility: visible; }
+
 /* Functional 3D Rubik scene. These rules describe the cube geometry and are not a page theme. */
 .cube3d-stage {
   display: grid;
