@@ -30,6 +30,7 @@ function BootstrapControlEnhancer() {
     const apply = () => {
       document.querySelectorAll<HTMLElement>("button:disabled, [aria-disabled='true']").forEach((element) => element.classList.add("text-body-secondary"));
       document.querySelectorAll<HTMLButtonElement>("button[aria-label]").forEach((button) => {
+        if (button.dataset.bootstrapControl === "navbar-toggler") return;
         const isIconOnly = Boolean(button.querySelector(".bi")) && !button.textContent?.trim();
         if (!isIconOnly) return;
         button.classList.add("p-2", "d-inline-flex", "align-items-center", "justify-content-center");

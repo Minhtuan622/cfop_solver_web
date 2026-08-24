@@ -730,3 +730,11 @@
 - [x] Áp dụng `text-body-secondary` cho disabled state; áp dụng utility margin/gap Bootstrap nhất quán cho icon.
 - [x] Bổ sung Bootstrap tooltip cho mọi nút icon-only, giữ aria-label/title và không cản thao tác bàn phím.
 - [x] Kiểm tra desktop/mobile, tooltip focus/hover, TypeScript, tests và build trước checkpoint.
+
+## Sửa hồi quy Bootstrap theo ảnh người dùng
+
+- [x] Dùng navbar-toggler-icon Bootstrap đúng chuẩn; không gắn tooltip tự động gây lỗi icon mở điều hướng.
+- [x] Điều chỉnh stage Cube 3D 3-Style cân đối, hiển thị cube lớn/rõ mà không cắt hoặc dư nền đen.
+- [x] Chuyển modal Cài đặt Timer và toàn bộ control bên trong sang modal/form/button Bootstrap, bỏ dark/paper/viền custom.
+- [x] Chuyển thẻ Quét camera sang card/alert/button Bootstrap, bỏ nền giấy và viền đen custom.
+- [x] Kiểm tra desktop/mobile, keyboard, TypeScript, tests và build trước checkpoint.

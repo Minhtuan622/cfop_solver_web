@@ -1,6 +1,7 @@
 /** Xưởng Cơ Khí Tốc Độ — local-only six-face camera scanner with center-color calibration. */
 import { useEffect, useRef, useState } from "react";
-import { Camera, Check, RotateCcw, ScanLine, Square, X } from "@/components/BootstrapIcon";
+/** Bootstrap-native camera card; only the live-video sampling frame remains functional layout. */
+import { Camera, Check, RotateCcw, ScanLine, X } from "@/components/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const ORDER = ["U", "R", "F", "D", "L", "B"] as const;
@@ -91,13 +92,22 @@ export function CameraScanner({ onState }: { onState: (state: string) => void })
 
   function reset() { setCaptures({}); setFaceIndex(0); setMessage(language === "vi" ? "Đã xóa lần quét. Bắt đầu lại từ mặt U." : "Scan cleared. Start again with face U."); }
 
-  return <div className="telemetry-panel scanner-plate rounded-[1rem] border-2 border-[#17221d] bg-[#e9e3d6] p-4">
-    <div className="flex items-start justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#17221d]/55">{t("camera.title")}</p><p className="mt-1 text-sm font-bold">{t("camera.help")}</p></div><Camera className="h-4 w-4 text-[#1ba77a]" /></div>
-    {active && <div className="relative mt-3 aspect-video overflow-hidden rounded-lg bg-[#17221d]"><video ref={videoRef} muted playsInline className="h-full w-full object-cover" /><div className="pointer-events-none absolute inset-[18%] grid grid-cols-3 grid-rows-3 border-2 border-[#1ba77a]">{Array.from({ length: 9 }).map((_, index) => <span key={index} className="border border-[#1ba77a]/80" />)}</div><span className="absolute left-2 top-2 rounded bg-[#17221d]/80 px-2 py-1 font-mono text-xs font-bold text-[#f4f0e8]">FACE {currentFace}</span></div>}
-    <div className="mt-3 flex items-center gap-1.5">{ORDER.map((face) => <span key={face} className={`grid h-6 w-6 place-items-center rounded-sm border font-mono text-[10px] font-bold ${captures[face] ? "border-[#1ba77a] bg-[#1ba77a] text-[#17221d]" : face === currentFace ? "border-[#17221d] bg-white" : "border-[#17221d]/20 bg-white/40 text-[#17221d]/45"}`}>{captures[face] ? <Check className="h-3 w-3" /> : face}</span>)}</div>
-    <p className="mt-3 text-xs leading-5 text-[#17221d]/65">{message}</p>
-    <div className="mt-3 flex flex-wrap gap-2">{!active ? <button onClick={start} className="scanner-button"><Camera className="h-3.5 w-3.5" />{t("camera.open")}</button> : <><button onClick={capture} className="scanner-button"><ScanLine className="h-3.5 w-3.5" />{t("camera.capture")} {currentFace}</button><button onClick={stop} className="scanner-button scanner-secondary"><X className="h-3.5 w-3.5" />{t("camera.stop")}</button></>}<button onClick={reset} className="scanner-button scanner-secondary"><RotateCcw className="h-3.5 w-3.5" />{t("camera.reset")}</button></div>
-    {Object.values(captures).length > 0 && <div className="mt-3 flex gap-1">{ORDER.filter((face) => captures[face]).map((face) => <span key={face} className="h-3 flex-1 rounded-sm border border-black/15" style={{ background: css(captures[face]![4]) }} title={`Tâm ${face}`} />)}</div>}
-    <canvas ref={canvasRef} className="hidden" />
-  </div>;
+  return <section className="card">
+    <div className="card-body">
+      <div className="d-flex align-items-start justify-content-between gap-3">
+        <div><p className="small text-uppercase fw-semibold text-body-secondary mb-1">{t("camera.title")}</p><p className="fw-semibold mb-0">{t("camera.help")}</p></div>
+        <Camera className="fs-5 text-success flex-shrink-0" />
+      </div>
+      {active && <div className="ratio ratio-16x9 bg-dark rounded overflow-hidden position-relative mt-3">
+        <video ref={videoRef} muted playsInline className="w-100 h-100 object-fit-cover" />
+        <div className="position-absolute top-50 start-50 translate-middle w-50 h-50 border border-2 border-success pointer-events-none"><div className="row row-cols-3 g-0 h-100">{Array.from({ length: 9 }).map((_, index) => <span key={index} className="border border-success" />)}</div></div>
+        <span className="badge text-bg-dark position-absolute top-0 start-0 m-2">FACE {currentFace}</span>
+      </div>}
+      <div className="d-flex flex-wrap gap-2 mt-3" aria-label={language === "vi" ? "Tiến độ quét các mặt" : "Face scan progress"}>{ORDER.map((face) => <span key={face} className={`badge border ${captures[face] ? "text-bg-success" : face === currentFace ? "border-primary text-primary" : "border-secondary text-body-secondary"}`}>{captures[face] ? <Check className="fs-6" /> : face}</span>)}</div>
+      <p className="small text-body-secondary mt-3 mb-0">{message}</p>
+      <div className="d-flex flex-wrap gap-2 mt-3">{!active ? <button type="button" onClick={start} className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"><Camera className="fs-6" />{t("camera.open")}</button> : <><button type="button" onClick={capture} className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"><ScanLine className="fs-6" />{t("camera.capture")} {currentFace}</button><button type="button" onClick={stop} className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"><X className="fs-6" />{t("camera.stop")}</button></>}<button type="button" onClick={reset} className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"><RotateCcw className="fs-6" />{t("camera.reset")}</button></div>
+      {Object.values(captures).length > 0 && <div className="d-flex gap-1 mt-3">{ORDER.filter((face) => captures[face]).map((face) => <span key={face} className="rounded flex-fill" style={{ minHeight: "0.5rem", backgroundColor: css(captures[face]![4]) }} title={`Tâm ${face}`} />)}</div>}
+      <canvas ref={canvasRef} className="d-none" />
+    </div>
+  </section>;
 }

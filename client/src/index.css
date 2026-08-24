@@ -92,7 +92,7 @@ body { margin: 0; }
 /* Functional 3D Rubik scene. These rules describe the cube geometry and are not a page theme. */
 .cube3d-stage {
   display: grid;
-  min-height: 260px;
+  min-height: 230px;
   place-items: center;
   overflow: visible;
   perspective: 700px;
