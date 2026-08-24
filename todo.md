@@ -838,3 +838,11 @@
 - [x] Giữ text chỉ cho action không có icon hoặc cần đọc rõ để phòng thao tác hủy/xác nhận quan trọng.
 - [x] Chuẩn hóa màu controls icon về Bootstrap default và kiểm tra tất cả route desktop/mobile.
 - [x] Chạy TypeScript, Vitest, build rồi mới checkpoint.
+
+## Dọn legacy, test UI accessibility và replay
+
+- [x] Kiểm kê component/script legacy không còn được route hoặc component đang render tham chiếu.
+- [x] Xóa mã legacy đã xác minh không dùng và giữ lại các primitive/hệ thống đang được import.
+- [x] Bổ sung test UI tự động cho tooltip Bootstrap và aria-label của control icon-only.
+- [x] Xác minh replay với solve có solution trong môi trường kiểm thử, không sửa history thật của người dùng.
+- [x] Chạy hồi quy, kiểm tra desktop/mobile và lưu checkpoint sau khi hoàn tất.

@@ -26,7 +26,7 @@ function Router() {
   </Switch>;
 }
 
-function BootstrapControlEnhancer() {
+export function BootstrapControlEnhancer() {
   useEffect(() => {
     const instances = new Set<InstanceType<typeof Tooltip>>();
     const apply = () => {
