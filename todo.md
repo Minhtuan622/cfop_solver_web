@@ -671,3 +671,10 @@
 - [x] Đặt baseline Bootstrap mặc định cho navigation, button, form, card, nav/tab, table, modal và Light/Dark Mode.
 - [x] Gỡ CSS/component UI tùy biến, giữ nguyên markup và logic Rubik; chỉ bổ sung class Bootstrap chuẩn khi cần để layout còn đọc được.
 - [x] Kiểm thử solver, Cube 3D, Timer, Study/3-Style, Settings, desktop/mobile, TypeScript/build và checkpoint.
+
+## Toàn bộ giao diện tối đa hai cột
+
+- [x] Kiểm kê mọi grid/layout Studio, Timer, Study, 3-Style và Settings đang xuất hiện từ ba cột ngang trở lên.
+- [x] Định nghĩa quy ước Bootstrap chung: desktop chỉ `col-12` hoặc một cặp hai cột; mobile luôn một cột.
+- [x] Chuyển toàn bộ trang và các khối con theo quy ước hai cột, giữ nguyên nội dung và tương tác Rubik.
+- [x] Kiểm thử solver, timer, Study/3-Style, Settings, desktop/mobile, TypeScript/build và checkpoint.

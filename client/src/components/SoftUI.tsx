@@ -19,5 +19,5 @@ export function SoftSectionTitle({ eyebrow, title, detail, className }: { eyebro
 
 export function SoftStatus({ label, value, tone = "neutral", leading }: { label: string; value: ReactNode; tone?: "neutral" | "success" | "warning"; leading?: ReactNode }) {
   const color = tone === "success" ? "text-bg-success" : tone === "warning" ? "text-bg-warning" : "text-bg-secondary";
-  return <div className={cn("col", "badge text-start", color)}>{leading && <i className="me-1">{leading}</i>}<span>{label}: </span><b>{value}</b></div>;
+  return <div className={cn("col-12 col-md-6", "badge text-start", color)}>{leading && <i className="me-1">{leading}</i>}<span>{label}: </span><b>{value}</b></div>;
 }

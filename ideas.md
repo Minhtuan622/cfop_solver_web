@@ -262,3 +262,4 @@
 - Mọi card, tab, table, form, modal và navbar mới phải trông như cùng một Bootstrap product, không pha thêm Soft Focus/record-sheet/technical-rail cũ.
 - Bootstrap là hệ component, không phải palette mặc định: active navigation, selected tab, action hợp lệ và enabled state dùng Solver Mint `#1BA77A`, dark ink hoặc paper inversion; không dùng blue mặc định.
 - Mỗi route chỉ có một apparatus plate có dark ink/grid/material mạnh. Panel còn lại là record sheet phẳng với ruled row, counter/case ID và mono telemetry; Settings là calibration record có mint rail thay vì các toggle slab màu phủ kín.
+- Từ nay mọi route và mọi khối nội dung chỉ được dùng một cột toàn chiều rộng hoặc đúng hai cột Bootstrap ở desktop; không dựng ba rail, ba card song song hoặc grid nội dung từ ba cột trở lên. Ở breakpoint nhỏ, tất cả xếp một cột theo thứ tự thao tác.

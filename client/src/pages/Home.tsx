@@ -390,7 +390,7 @@ export default function Home() {
             </div>
             <p className="small text-muted ms-lg-auto mb-0">{loading ? t("input.loading") : solverKind === "bld" ? (language === "vi" ? "Dòng xử lý memo" : "Memo pipeline") : mode === "state" ? (language === "vi" ? "Kiểm tra state" : "State validation") : (language === "vi" ? "Dòng xử lý scramble" : "Scramble pipeline")}</p>
           </header>
-          <aside className="col-12 col-xl-4">
+          <aside className="col-12 col-lg-4">
             <SoftSurface className="overflow-hidden">
               <div className="card-header"><h2 className="h5 mb-0">{mode === "scramble" ? "Move sequence" : "54-sticker state"}</h2></div>
               <div className="card-body">
@@ -435,7 +435,7 @@ export default function Home() {
             </section>
           </aside>
 
-          <section className="col-12 col-xl-5">
+          <section className="col-12 col-lg-8">
             <SoftSurface className="p-4" tone="focus">
               <div className="studio-apparatus-readout flex flex-wrap items-start justify-between gap-6">
                 <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#1ba77a]">{solverKind === "bld" ? "3-STYLE · MEMO" : `${t("guide.step")} · ${String(cursor).padStart(2, "0")} / ${String(totalMoves).padStart(2, "0")}`}</p><p key={cubeMotion.kind === "phase" ? cubeMotion.id : activePhase?.name ?? "ready"} className={cn("studio-phase-title mt-2 text-xl font-black tracking-[-0.045em] sm:text-2xl", cubeMotion.kind === "phase" && "studio-phase-title-relay")}>{solverKind === "bld" ? (bldResult ? (language === "vi" ? "Đường ghi nhớ đã sẵn sàng" : "Memory path is ready") : (language === "vi" ? "Tạo memo từ trạng thái cube" : "Build a memo from this cube")) : activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</p><p className="mt-2 max-w-xl text-sm leading-6 text-[#17221d]/60">{solverKind === "bld" ? (bldResult ? (language === "vi" ? "Cạnh và góc đã được tách để bạn chuyển sang Study luyện theo từng bước." : "Edges and corners are separated; continue in Study for the guided learning path.") : (language === "vi" ? "Studio chỉ tạo và xem memo. Học và luyện theo lộ trình nằm ở Study." : "Studio creates and previews memo; the guided learning path lives in Study.")) : currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div>
@@ -463,7 +463,7 @@ export default function Home() {
             </SoftSurface>
           </section>
 
-          <aside className="col-12 col-xl-3">
+          <aside className="col-12">
             <div className="studio-inspector-column">
               <div className="row g-2"><Stat compact={solverKind === "bld"} label={solverKind === "bld" ? "EDGE" : t("status.moves")} value={solverKind === "bld" ? String(bldResult?.analysis.edges.memo.length ?? "—") : (result ? String(totalMoves) : "—")} icon={<CircleGauge className="h-4 w-4" />} /><Stat compact={solverKind === "bld"} label={solverKind === "bld" ? "CORNER" : t("status.steps")} value={solverKind === "bld" ? String(bldResult?.analysis.corners.memo.length ?? "—") : (result ? String(phaseCount) : "—")} icon={<ChevronRight className="h-4 w-4" />} /><Stat compact={solverKind === "bld"} label={solverKind === "bld" ? "PARITY" : t("status.ok")} value={solverKind === "bld" ? (bldResult?.analysis.special.parity ? "!" : "✓") : (result ? "✓" : "—")} icon={<ShieldCheck className="h-4 w-4" />} /></div>
               <section className="studio-inspector-detail" aria-label={language === "vi" ? "Inspector pipeline" : "Pipeline inspector"}>
