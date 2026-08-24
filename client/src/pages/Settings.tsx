@@ -5,7 +5,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readLastLayerStudy, writeLastLayerStudy } from "@/lib/lastLayerStudy";
-import { PageHeader, StatusFeedback } from "@/components/BootstrapUI";
+import { StatusFeedback } from "@/components/BootstrapUI";
+
+/** Bootstrap-minimal settings: one focused column, concise groups, and no decorative page header. */
 
 const colors: { value: SolverSettings["crossColor"]; hex: string; vi: string; en: string }[] = [
   { value: "U", hex: "#f7f3e9", vi: "Trắng", en: "White" },
@@ -32,9 +34,10 @@ function readTargets() {
   } catch { return defaultTargets; }
 }
 
-function Help({ text }: { text: string }) { return <span className="ms-1 text-muted" title={text} aria-label={text}><CircleHelp className="h-4 w-4" /></span>; }
-function SettingCard({ index, title, tip, children }: { index: string; title: string; tip: string; children: ReactNode }) {
-  return <section className="card h-100"><div className="card-header"><p className="small text-muted mb-1">{index}</p><h2 className="h5 mb-0">{title}<Help text={tip} /></h2></div><div className="card-body">{children}</div></section>;
+function Help({ text }: { text: string }) { return <span className="ms-1 text-muted" title={text} aria-label={text}><CircleHelp className="fs-6" /></span>; }
+function SettingCard({ index, title, tip, children, defaultOpen = false }: { index: string; title: string; tip: string; children: ReactNode; defaultOpen?: boolean }) {
+  const id = `settings-${index.replaceAll(/[^a-z0-9]+/gi, "-").replaceAll(/^-|-$/g, "").toLowerCase()}`;
+  return <section className="accordion-item"><h2 className="accordion-header" id={`${id}-heading`}><button type="button" className={defaultOpen ? "accordion-button" : "accordion-button collapsed"} data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded={defaultOpen} aria-controls={id}><span><span className="small text-uppercase fw-semibold text-body-secondary d-block mb-1">{index}</span><span className="fw-semibold">{title}</span></span><Help text={tip} /></button></h2><div id={id} className={defaultOpen ? "accordion-collapse collapse show" : "accordion-collapse collapse"} aria-labelledby={`${id}-heading`} data-bs-parent="#settings-accordion"><div className="accordion-body">{children}</div></div></section>;
 }
 
 export default function Settings() {
@@ -74,11 +77,9 @@ export default function Settings() {
     if (Number.isFinite(value) && value > 0) setTargets((current) => ({ ...current, [phase]: value }));
   };
 
-  return <div>
-    <div className="container py-4">
-      <PageHeader title={label("Cài đặt ứng dụng", "App settings")} description={label("Thiết lập solver, timer, Study và giao diện. Dấu ? giải thích từng nhóm.", "Configure Solver, Timer, Study and appearance. The ? icon explains each group.")} />
-      <div className="row g-3 mt-1">
-        <SettingCard index="01 · SOLVER" title={label("Thuật toán & Cross", "Solver & Cross")} tip={label("Chọn hướng Cross, độ sâu mở đầu và chiến lược lớp cuối mặc định cho lần giải mới.", "Sets the default Cross orientation, opening depth, and last-layer strategy for new solves.")}>
+  return <div className="container py-3">
+      <div className="accordion" id="settings-accordion">
+        <SettingCard defaultOpen index="01 · SOLVER" title={label("Thuật toán & Cross", "Solver & Cross")} tip={label("Chọn hướng Cross, độ sâu mở đầu và chiến lược lớp cuối mặc định cho lần giải mới.", "Sets the default Cross orientation, opening depth, and last-layer strategy for new solves.")}>
           <label className="form-label">{label("Màu Cross mặc định", "Default Cross color")}</label>
           <div className="d-flex flex-wrap gap-2">{colors.map((color) => <button key={color.value} onClick={() => setSolver((current) => ({ ...current, crossColor: color.value }))} className={solver.crossColor === color.value ? "btn btn-primary p-1" : "btn btn-outline-secondary p-1"} title={label(color.vi, color.en)}><span className="d-block rounded" style={{ backgroundColor: color.hex, width: "1.5rem", height: "1.5rem" }} /></button>)}</div>
           <label className="form-label mt-3">{label("Mở đầu", "Opening")}</label>
@@ -93,8 +94,8 @@ export default function Settings() {
           <div className="d-flex flex-wrap gap-2 mt-2">{f2lSlots.map((slot) => <button key={slot} onClick={() => setSolver((current) => ({ ...current, preferredSlot: current.preferredSlot === slot ? undefined : current.preferredSlot, excludedSlots: current.excludedSlots.includes(slot) ? current.excludedSlots.filter((value) => value !== slot) : [...current.excludedSlots, slot] }))} className={solver.excludedSlots.includes(slot) ? "btn btn-danger btn-sm" : "btn btn-outline-secondary btn-sm"}>{label("Loại", "Skip")} {slot}</button>)}</div>
         </SettingCard>
 
-        <SettingCard index="02 · TIMER" title={label("Inspection & thao tác", "Inspection & input")} tip={label("Bật âm báo inspection, kiểm soát Speed split và lựa chọn highlight Cross trong preview 3D.", "Controls inspection audio, Speed split, and Cross highlight in the 3D preview.")}>
-          <div className="d-grid gap-2 mt-3"><button onClick={() => setSound(!sound)} className={sound ? "btn btn-primary text-start" : "btn btn-outline-secondary text-start"}>{label("Âm inspection", "Inspection sound")}: {sound ? "ON" : "OFF"}</button><button onClick={() => setSplits(!splits)} className={splits ? "btn btn-primary text-start" : "btn btn-outline-secondary text-start"}>Speed split: {splits ? "ON" : "OFF"}</button><button onClick={() => setHighlight(!highlight)} className={highlight ? "btn btn-primary text-start" : "btn btn-outline-secondary text-start"}>{label("Highlight Cross", "Cross highlight")}: {highlight ? "ON" : "OFF"}</button></div>
+        <SettingCard defaultOpen index="02 · TIMER" title={label("Inspection & thao tác", "Inspection & input")} tip={label("Bật âm báo inspection, kiểm soát Speed split và lựa chọn highlight Cross trong preview 3D.", "Controls inspection audio, Speed split, and Cross highlight in the 3D preview.")}>
+          <div className="vstack gap-2"><div className="form-check form-switch"><input id="setting-sound" className="form-check-input" type="checkbox" checked={sound} onChange={() => setSound(!sound)} /><label className="form-check-label" htmlFor="setting-sound">{label("Âm inspection", "Inspection sound")}</label></div><div className="form-check form-switch"><input id="setting-splits" className="form-check-input" type="checkbox" checked={splits} onChange={() => setSplits(!splits)} /><label className="form-check-label" htmlFor="setting-splits">Speed split</label></div><div className="form-check form-switch"><input id="setting-highlight" className="form-check-input" type="checkbox" checked={highlight} onChange={() => setHighlight(!highlight)} /><label className="form-check-label" htmlFor="setting-highlight">{label("Highlight Cross", "Cross highlight")}</label></div></div>
         </SettingCard>
 
         {splits && <SettingCard index="03 · SPEED SPLIT" title={label("Mục tiêu pha", "Phase targets")} tip={label("Các ngưỡng này chỉ dùng khi Speed split bật để báo pha Cross, F2L, OLL và PLL chậm hơn mục tiêu.", "These limits appear only with Speed split and flag Cross, F2L, OLL, or PLL phases that exceed the target.")}><div className="row g-2 mt-1">{(Object.keys(targets) as Phase[]).map((phase) => <label key={phase} className="col-6 input-group"><span className="input-group-text">{phase}</span><input className="form-control" type="number" min="0.1" max="120" step="0.1" value={targets[phase]} onChange={(event) => setTarget(phase, Number(event.target.value))} /><span className="input-group-text">s</span></label>)}</div></SettingCard>}
@@ -112,8 +113,7 @@ export default function Settings() {
           <p className="mt-4 text-body-secondary">{label("Chỉ lưu các thông số cần dùng. Lựa chọn hiển thị được áp dụng nhất quán trên toàn bộ công cụ.", "Only essential display settings are stored. Your appearance choice is applied consistently across the workspace.")}</p>
         </SettingCard>
       </div>
-      <div className="d-flex flex-wrap gap-2 mt-4"><button onClick={reset} className="btn btn-outline-secondary"><RotateCcw className="me-1 h-4 w-4" />{label("Khôi phục", "Reset")}</button><button onClick={save} className="btn btn-primary">{saved ? <Check className="me-1 h-4 w-4" /> : null}{saved ? label("Đã lưu", "Saved") : label("Lưu cài đặt", "Save settings")}</button></div>
+      <div className="d-flex flex-wrap align-items-center justify-content-between gap-2"><button type="button" onClick={reset} className="btn btn-outline-secondary d-inline-flex align-items-center gap-1"><RotateCcw className="fs-6" />{label("Khôi phục", "Reset")}</button><button type="button" onClick={save} className="btn btn-primary d-inline-flex align-items-center gap-1">{saved ? <Check className="fs-6" /> : null}{saved ? label("Đã lưu", "Saved") : label("Lưu cài đặt", "Save settings")}</button></div>
       {saved ? <div className="mt-3"><StatusFeedback tone="success" title={label("Đã lưu cài đặt", "Settings saved")}>{label("Các thiết lập mới đã được lưu trên thiết bị này.", "Your updated preferences have been saved on this device.")}</StatusFeedback></div> : null}
-    </div>
   </div>;
 }

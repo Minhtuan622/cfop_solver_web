@@ -775,3 +775,9 @@
 - [ ] Mở các modal metric, CubeNet, edit và replay có dữ liệu solve thực tế trong viewport mobile; không ghi/xóa dữ liệu. Đã xác minh PB, CubeNet và Edit bằng 10 solve thật trên browser desktop; modal mobile dùng shared fullscreen shell đã kiểm tra với Settings, nhưng cần một solve có solution để xác minh Replay có nội dung thực tế.
 - [x] Kiểm kê tất cả route/page legacy còn lại và chuyển từng trang sang Bootstrap thuần.
 - [x] Kiểm tra desktop/mobile, TypeScript, Vitest và build cho phần chuẩn hóa hiện hoàn tất.
+
+## Tối giản hóa trang Cài đặt
+
+- [x] Kiểm kê các setting đang rời rạc, mô tả lặp và nhóm điều khiển có thể gộp.
+- [x] Chuyển Settings sang bố cục Bootstrap một cột gọn với các section/card/accordion theo nhu cầu.
+- [x] Kiểm tra lưu setting, desktop/mobile, TypeScript, Vitest và build trước checkpoint.
