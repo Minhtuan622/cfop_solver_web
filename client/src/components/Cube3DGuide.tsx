@@ -155,11 +155,11 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const transform = `rotateX(${camera.pitch}deg) rotateY(${camera.orbit}deg) ${DEFAULT_ORIENTATION} scale3d(${displayZoom}, ${displayZoom}, ${displayZoom})`;
   const turnAngle = move?.endsWith("2") ? "180deg" : move?.endsWith("'") ? "-90deg" : "90deg";
   const turnDuration = Math.round(turnDurationMs * (move?.endsWith("2") ? 1.22 : 1));
-  return <div className="cube3d-guide w-100 rounded-sm border-2 border-[#17221d] bg-[#17221d] p-3 text-[#f4f0e8]">
+  return <div className="cube3d-guide card bg-dark text-white w-100"><div className="card-body p-3">
     <div className={`cube3d-stage interactive-cube-stage cube3d-transition-${transition} ${isOrbiting ? "is-orbiting" : ""}`} aria-label={language === "vi" ? "Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to" : "3D Rubik model, drag horizontally for 360° orbit and vertically to view top or bottom; pinch or scroll to zoom"} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onPointerLeave={pointerLeave} onWheel={wheel} onTouchStart={touchStart} onTouchMove={touchMove}>
       <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={renderedState} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} lastLayerStickers={lastLayerStickers} specialStickers={specialStickers} />)}{animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={renderedPreviousState} angle={turnAngle} step={step} move={move} duration={turnDuration} />}</div></div>
       {transition === "phase" && phaseLabel && <div key={transitionId} className="cube3d-phase-callout" aria-live="polite"><span>{language === "vi" ? "CHUYỂN PHA" : "PHASE SHIFT"}</span><b>{phaseLabel}</b></div>}
     </div>
-    <div className="mt-1 flex justify-end"><button type="button" onClick={reset} className="cube-mini-control" aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><Rotate3D className="h-3.5 w-3.5" /></button></div>
-  </div>;
+    <div className="d-flex justify-content-end mt-2"><button type="button" onClick={reset} className="btn btn-outline-light btn-sm" aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><Rotate3D className="fs-6" /></button></div>
+  </div></div>;
 }

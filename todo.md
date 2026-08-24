@@ -768,3 +768,10 @@
 - [x] Chuyển History sang Bootstrap Navbar/Card/Row/List Group/Alert/Button và giữ biểu đồ Recharts là ngoại lệ chức năng.
 - [x] Kiểm tra History desktop/mobile và modal metric/CubeNet/edit/replay với solve thật nếu có, không ghi hoặc xóa lịch sử. Phiên hiện có 0 solve, nên chỉ xác minh được cấu trúc/empty state và modal Settings responsive mà không tạo dữ liệu giả.
 - [x] Chạy TypeScript, Vitest, build và lưu checkpoint sau khi hoàn tất.
+
+## Đối chiếu solve thật và trang phụ legacy
+
+- [x] Kiểm tra trực tiếp nguồn lịch sử solve người dùng đang xem, không suy luận từ một trạng thái browser khác.
+- [ ] Mở các modal metric, CubeNet, edit và replay có dữ liệu solve thực tế trong viewport mobile; không ghi/xóa dữ liệu. Đã xác minh PB, CubeNet và Edit bằng 10 solve thật trên browser desktop; modal mobile dùng shared fullscreen shell đã kiểm tra với Settings, nhưng cần một solve có solution để xác minh Replay có nội dung thực tế.
+- [x] Kiểm kê tất cả route/page legacy còn lại và chuyển từng trang sang Bootstrap thuần.
+- [x] Kiểm tra desktop/mobile, TypeScript, Vitest và build cho phần chuẩn hóa hiện hoàn tất.
