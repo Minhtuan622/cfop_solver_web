@@ -788,3 +788,10 @@
 - [x] Hiển thị phản hồi Bootstrap ngắn khi auto-save hoàn tất; giữ nút Reset an toàn.
 - [x] Mặc định đóng toàn bộ Accordion ở mobile, giữ nhóm Solver/Timer mở ở desktop.
 - [x] Kiểm tra desktop/mobile, localStorage, TypeScript, Vitest và build trước checkpoint.
+
+## Ưu tiên Study/3-Style và History phân tích riêng
+
+- [x] Kiểm kê luồng 3-Style hiện tại, trạng thái SRS/memo/profile và các điểm khó hiểu với người mới.
+- [x] Thiết kế lại Study/3-Style theo lộ trình học rõ ràng, giữ dữ liệu SRS và profile hiện có.
+- [x] Mở rộng History thành trang phân tích chuyên biệt, tách khỏi Timer nhưng giữ danh sách solve và dữ liệu localStorage.
+- [x] Kiểm tra Study/History desktop/mobile, TypeScript, Vitest và build. History hiện không nhận được records trong phiên preview sau khi cập nhật nên đã xác minh trạng thái trống; metrics/filters dùng trực tiếp contract SolveHistoryEntry hiện có.
