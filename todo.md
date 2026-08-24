@@ -878,3 +878,10 @@
 - [x] Chuẩn hóa loading Bootstrap có ngữ cảnh cho các phần tải lười.
 - [x] Thêm hành động rõ ràng cho empty state và giữ tiến trình Study bám ngữ cảnh khi cuộn.
 - [x] Chạy hồi quy, kiểm tra desktop/mobile và checkpoint sau khi hoàn tất.
+
+## Skeleton Study và DNF bằng Esc
+
+- [x] Kiểm kê lifecycle tải catalog Study và sự kiện Esc của Timer.
+- [x] Thêm skeleton Bootstrap riêng cho catalog Study khi đang nạp.
+- [x] Lưu lượt đang chạy với DNF khi nhấn Esc, không ảnh hưởng Esc hủy inspection.
+- [x] Bổ sung kiểm thử, kiểm tra desktop/mobile và checkpoint sau khi hoàn tất.
