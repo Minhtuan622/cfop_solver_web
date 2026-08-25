@@ -15,7 +15,6 @@ import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { BldReport } from "@/components/BldReport";
 import { CubeStateEditor } from "@/components/CubeStateEditor";
 import { CameraScanner } from "@/components/CameraScanner";
-import { XxxxCrossPatternLibrary } from "@/components/XxxxCrossPatternLibrary";
 import { FieldGroup, PageHeader, StatusFeedback } from "@/components/BootstrapUI";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
@@ -59,17 +58,17 @@ const CROSS_COLORS: { value: CrossColor; vi: string; en: string; hex: string }[]
 ];
 const F2L_SLOTS: F2LSlot[] = ["FR", "FL", "BL", "BR"];
 const OPENING_OPTIONS: { value: OpeningMode; vi: string; en: string; compact: string }[] = [
-  { value: "cross", vi: "Cách cơ bản", en: "Standard method", compact: "CƠ BẢN" },
-  { value: "auto", vi: "Tìm bước khởi đầu ngắn hơn", en: "Look for a shorter start", compact: "NHANH HƠN" },
-  { value: "xxcross", vi: "Tìm kỹ hơn", en: "Search more", compact: "TÌM KỸ" },
-  { value: "xxxcross", vi: "Tìm rất kỹ", en: "Search deeply", compact: "TÌM RẤT KỸ" },
-  { value: "xxxxcross", vi: "Tìm tối đa", en: "Search most", compact: "TÌM TỐI ĐA" },
+  { value: "cross", vi: "Cross chuẩn", en: "Standard Cross", compact: "CROSS" },
+  { value: "auto", vi: "XCross · Cross + 1 F2L", en: "XCross · Cross + 1 F2L", compact: "XCROSS" },
+  { value: "xxcross", vi: "XXCross · Cross + 2 F2L", en: "XXCross · Cross + 2 F2L", compact: "XXCROSS" },
+  { value: "xxxcross", vi: "XXXCross · Cross + 3 F2L", en: "XXXCross · Cross + 3 F2L", compact: "XXXCROSS" },
+  { value: "xxxxcross", vi: "XXXXCross · Full F2L", en: "XXXXCross · Full F2L", compact: "XXXXCROSS" },
 ];
 const LAST_LAYER_OPTIONS: { value: LastLayerMode; vi: string; en: string; compact: string }[] = [
-  { value: "auto", vi: "Tự chọn cách phù hợp", en: "Choose automatically", compact: "TỰ ĐỘNG" },
-  { value: "oll_pll", vi: "Hoàn thành theo hai chặng", en: "Finish in two stages", compact: "HAI CHẶNG" },
-  { value: "zbll", vi: "Ưu tiên cách ngắn", en: "Prefer a short finish", compact: "NGẮN" },
-  { value: "1lll", vi: "Thử hoàn thành ngay", en: "Try a direct finish", compact: "NGAY" },
+  { value: "auto", vi: "Tự động · ZBLL → 1LLL → OLL/PLL", en: "Auto · ZBLL → 1LLL → OLL/PLL", compact: "AUTO" },
+  { value: "oll_pll", vi: "OLL + PLL · 2 pha", en: "OLL + PLL · 2 phases", compact: "OLL/PLL" },
+  { value: "zbll", vi: "ZBLL · cần EO", en: "ZBLL · EO required", compact: "ZBLL" },
+  { value: "1lll", vi: "1LLL · 1 pha", en: "1LLL · 1 phase", compact: "1LLL" },
 ];
 type RecentCubeState = { id: string; state: string; label: string; savedAt: string; crossColor: CrossColor };
 const RECENT_STATE_KEY = "cfop-studio-recent-states-v1";
@@ -92,18 +91,18 @@ function phaseStudyNote(name: string, language: "vi" | "en") {
 function phaseLessonUrl(name: string) { if (name === "zbll") return "https://www.speedsolving.com/wiki/index.php/ZBLL"; if (name === "1lll") return "https://www.speedsolving.com/wiki/index.php/1LLL"; return name.startsWith("f2l") || name.startsWith("xcross") || name.startsWith("xxcross") || name.startsWith("xxxcross") || name.startsWith("xxxxcross") ? PHASE_LESSON_URL.f2l : PHASE_LESSON_URL[name] ?? "https://www.speedsolving.com/wiki/index.php/CFOP_method"; }
 function openingModeLabel(mode: string, language: "vi" | "en") {
   const achievedLabels: Record<string, { vi: string; en: string }> = {
-    xcross: { vi: "Bước đầu ngắn hơn", en: "Shorter start" },
-    xxcross: { vi: "Đầu gọn hơn", en: "More compact start" },
-    xxxcross: { vi: "Đầu được rút gọn", en: "Condensed start" },
-    xxxxcross: { vi: "Phần đầu hoàn chỉnh", en: "Complete first part" },
+    xcross: { vi: "XCross", en: "XCross" },
+    xxcross: { vi: "XXCross", en: "XXCross" },
+    xxxcross: { vi: "XXXCross", en: "XXXCross" },
+    xxxxcross: { vi: "XXXXCross · Full F2L", en: "XXXXCross · Full F2L" },
   };
   return OPENING_OPTIONS.find((option) => option.value === mode)?.[language] ?? achievedLabels[mode]?.[language] ?? mode.toUpperCase();
 }
 function lastLayerModeLabel(mode: string, language: "vi" | "en") {
   const achieved: Record<string, { vi: string; en: string }> = {
-    oll_pll: { vi: "Hoàn thành theo hai chặng", en: "Finish in two stages" },
-    zbll: { vi: "Hoàn thành nhanh", en: "Quick finish" },
-    "1lll": { vi: "Hoàn thành ngay", en: "Direct finish" },
+    oll_pll: { vi: "OLL + PLL", en: "OLL + PLL" },
+    zbll: { vi: "ZBLL", en: "ZBLL" },
+    "1lll": { vi: "1LLL", en: "1LLL" },
   };
   return LAST_LAYER_OPTIONS.find((option) => option.value === mode)?.[language] ?? achieved[mode]?.[language] ?? mode.toUpperCase();
 }
@@ -410,7 +409,6 @@ export default function Home() {
               </div>
             </section>
             <section className="card mt-3"><div className="card-header p-0"><button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#studio-camera-body" aria-expanded="false" aria-controls="studio-camera-body">{language === "vi" ? "Quét camera · tùy chọn" : "Camera scan · optional"}</button></div><div id="studio-camera-body" className="collapse"><div className="card-body"><CameraScanner onState={(state) => { stateHistory.current = { past: [], future: [] }; setStateHistoryVersion((version) => version + 1); setMode("state"); setValue(state); setSavedState(state); setResult(null); setBldResult(null); setCursor(0); setError(""); }} /></div></div></section>
-            {solverKind === "cfop" ? <XxxxCrossPatternLibrary language={language} onUse={(scramble) => { setMode("scramble"); setValue(scramble); setSavedScramble(scramble); setOpening("xxxxcross"); setResult(null); setBldResult(null); setCursor(0); setError(""); }} /> : null}
             <section className="card mt-3" aria-label={language === "vi" ? "Thông tin khối" : "Cube information"}><div className="card-header"><h2 className="h6 mb-0">{language === "vi" ? "Thông tin khối" : "Cube information"}</h2></div><div className="card-body"><p className="small text-body-secondary mb-0">{mode === "scramble" ? (language === "vi" ? "Bạn đã nhập cách khối được xáo trộn. Bấm nút Tìm cách giải khi sẵn sàng." : "You entered how the cube was mixed. Choose Find a solution when ready.") : (language === "vi" ? "Bạn đang tô màu trực tiếp trên hình khối. Hoàn tất cả sáu mặt rồi bấm Tìm cách giải." : "You are coloring the cube directly. Complete all six sides, then choose Find a solution.")}</p></div></section>
           </aside>
 

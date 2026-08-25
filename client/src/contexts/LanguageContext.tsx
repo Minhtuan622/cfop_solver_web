@@ -65,24 +65,24 @@ export function useLanguage() { return useContext(Context); }
 
 export function simplePhase(name: string, language: Language) {
   if (name.startsWith("xxxxcross_")) {
-    return language === "vi" ? "Hoàn thành phần đầu" : "Finish the first part";
+    return "XXXXCross · Full F2L";
   }
   if (name.startsWith("xxxcross_")) {
-    return language === "vi" ? "Sắp xếp phần đầu" : "Arrange the first part";
+    return "XXXCross · 3 F2L";
   }
   if (name.startsWith("xxcross_")) {
-    return language === "vi" ? "Ghép phần đầu" : "Build the first part";
+    return "XXCross · 2 F2L";
   }
   if (name.startsWith("xcross_")) {
-    return language === "vi" ? "Tạo bước khởi đầu" : "Create a starting step";
+    return "XCross · 1 F2L";
   }
   const values: Record<string, [string, string]> = {
-    cross: ["Tạo nền", "Build the base"],
-    f2l_FR: ["Lắp phần 1", "Place part 1"], f2l_FL: ["Lắp phần 2", "Place part 2"],
-    f2l_BL: ["Lắp phần 3", "Place part 3"], f2l_BR: ["Lắp phần 4", "Place part 4"],
-    oll: ["Chỉnh mặt trên", "Fix the top side"], pll: ["Hoàn tất khối", "Finish the cube"],
-    zbll: ["Hoàn tất mặt trên", "Finish the top side"],
-    "1lll": ["Hoàn tất khối", "Finish the cube"],
+    cross: ["Cross", "Cross"],
+    f2l_FR: ["F2L 1", "F2L 1"], f2l_FL: ["F2L 2", "F2L 2"],
+    f2l_BL: ["F2L 3", "F2L 3"], f2l_BR: ["F2L 4", "F2L 4"],
+    oll: ["OLL", "OLL"], pll: ["PLL", "PLL"],
+    zbll: ["ZBLL", "ZBLL"],
+    "1lll": ["1LLL", "1LLL"],
   };
   return values[name]?.[language === "vi" ? 0 : 1] ?? name;
 }

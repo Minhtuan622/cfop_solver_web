@@ -985,3 +985,9 @@
 - [x] Viết lại nhãn, trạng thái và nút theo ngôn ngữ phổ thông; giữ thuật ngữ Rubik trong phần nâng cao khi thật sự cần.
 - [x] Tổ chức lại luồng Studio thành nhập → bấm giải → xem kết quả, không cần đọc hướng dẫn trước.
 - [x] Kiểm tra desktop/mobile, truy cập bàn phím, test/build và checkpoint.
+
+## Cân bằng thuật ngữ Rubik
+
+- [x] Gỡ phần Mẫu để thử khỏi Studio, không ảnh hưởng dữ liệu hoặc solver.
+- [x] Khôi phục thuật ngữ Rubik cần thiết tại selector, tiến trình và kết quả lời giải.
+- [x] Kiểm tra TypeScript, test, build, responsive capture và checkpoint.
