@@ -940,3 +940,10 @@
 - [x] Đối chiếu trình tự học beginner 3-Style từ tutorial và cộng đồng, tập trung vào các bước có thể hoàn thành trước khi mở catalog lớn.
 - [x] Chuyển lộ trình hiện có thành các mục tiêu ngắn, giải thích thuật ngữ ngay tại thời điểm cần dùng và chỉ dẫn hành động kế tiếp rõ ràng.
 - [x] Giữ tương thích tiến độ, profile, memo, Drill và SRS cục bộ; kiểm tra desktop/mobile, hồi quy và checkpoint.
+
+## Nhịp ôn SRS, sighted-commutator và checklist BLD
+
+- [x] Kiểm kê SRS/profile hiện có để chọn case ôn kế tiếp từ dữ liệu thật, có fallback rõ ràng khi chưa có case đến hạn.
+- [x] Thiết kế bài sighted-commutator tương tác từ một case starter, có Cube 3D theo từng nước và tự kiểm không cần bịt mắt.
+- [x] Thêm checklist hoàn thành theo từng chặng, giữ tương thích progress, profile, Memo, Drill và SRS cục bộ.
+- [x] Kiểm thử, xác minh desktop/mobile, cập nhật ghi chú và checkpoint.

@@ -14,8 +14,8 @@ describe("BLD formula learning stage", () => {
     expect(screen.getByText("MỤC TIÊU HÔM NAY")).toBeTruthy();
     expect(screen.getByText("Chọn một case, không mở catalog lớn.")).toBeTruthy();
     expect(screen.getByText(/Học một case, không học cả thư viện cùng lúc/i)).toBeTruthy();
-    expect(screen.getByText("L2 U L2 S' L2 S U' L2")).toBeTruthy();
-    expect(screen.getByLabelText(/Mô hình Rubik 3D/i)).toBeTruthy();
+    expect(screen.getAllByText("L2 U L2 S' L2 S U' L2").length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText(/Mô hình Rubik 3D/i).length).toBeGreaterThan(0);
     expect(screen.getByText("Target scramble")).toBeTruthy();
     expect(screen.getByText("Năm nhịp luyện 3-Style dễ áp dụng")).toBeTruthy();
     expect(screen.getByRole("link", { name: /J Perm · 3×3 Blindfolded/i })).toHaveProperty("href", "https://www.youtube.com/watch?v=9KPqwwKNldc");
