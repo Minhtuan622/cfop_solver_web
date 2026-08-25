@@ -978,3 +978,10 @@
 - [x] Thêm node threshold cục bộ, bảng trạng thái target slot/attempt và telemetry worker tương ứng.
 - [x] Tạo thư viện pattern XXXXCROSS chỉ hiển thị case đã kiểm chứng direct cùng thuật toán và bằng chứng slot.
 - [x] Tối ưu tìm Cross bằng coordinate transition, benchmark đường descent, kiểm thử UI/solver, build và checkpoint.
+
+## Đơn giản hoá trải nghiệm cho người mới
+
+- [x] Kiểm kê toàn bộ từ chuyên môn và vị trí khiến người mới khó bắt đầu trên các route chính.
+- [x] Viết lại nhãn, trạng thái và nút theo ngôn ngữ phổ thông; giữ thuật ngữ Rubik trong phần nâng cao khi thật sự cần.
+- [x] Tổ chức lại luồng Studio thành nhập → bấm giải → xem kết quả, không cần đọc hướng dẫn trước.
+- [x] Kiểm tra desktop/mobile, truy cập bàn phím, test/build và checkpoint.

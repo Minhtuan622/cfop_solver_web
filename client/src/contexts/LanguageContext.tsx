@@ -5,17 +5,17 @@ export type Language = "vi" | "en";
 type Dictionary = Record<string, [string, string]>;
 
 const words: Dictionary = {
-  "app.title": ["CFOP Solver Studio", "CFOP Solver Studio"],
-  "app.tagline": ["Kiểm tra trạng thái. Chạy chuỗi CFOP.", "Inspect state. Run the CFOP sequence."],
+  "app.title": ["Giải Rubik", "Rubik Solver"],
+  "app.tagline": ["Nhập khối Rubik và xem cách giải.", "Enter your Rubik's Cube and see a solution."],
   "language.vi": ["VI", "VI"], "language.en": ["EN", "EN"],
   "input.title": ["Nhập khối Rubik", "Enter your Rubik's Cube"],
-  "input.scramble": ["Chuỗi xoay", "Move sequence"], "input.state": ["Màu 6 mặt", "6-face colors"],
-  "input.label": ["Nhập các bước xoay", "Enter move sequence"], "input.solve": ["Kiểm tra & giải CFOP", "Inspect & solve CFOP"],
+  "input.scramble": ["Cách khối đang bị xáo trộn", "How the cube was mixed"], "input.state": ["Tô màu 6 mặt", "Color the 6 sides"],
+  "input.label": ["Dán các nước xoay của khối", "Paste the cube moves"], "input.solve": ["TÌM CÁCH GIẢI", "FIND A SOLUTION"],
   "input.loading": ["Đang chuẩn bị…", "Preparing…"],
   "input.camera": ["Dùng camera", "Use camera"],
-  "guide.title": ["Hướng dẫn từng bước", "Step-by-step guide"],
-  "guide.ready": ["Bàn giải sẵn sàng", "Solver bench ready"],
-  "guide.help": ["Chạy solver hoặc phát sequence để kiểm tra từng nước xoay.", "Run the solver or replay the sequence to inspect every turn."],
+  "guide.title": ["Các bước để hoàn thành", "Steps to finish"],
+  "guide.ready": ["Sẵn sàng giải", "Ready to solve"],
+  "guide.help": ["Nhập tình trạng khối ở bên trái rồi bấm nút Tìm cách giải.", "Enter the cube on the left, then choose Find a solution."],
   "guide.previous": ["Trước", "Previous"], "guide.next": ["Sau", "Next"],
   "guide.play": ["Phát", "Play"], "guide.pause": ["Dừng", "Pause"], "guide.reset": ["Làm lại", "Reset"],
   "guide.move": ["Nước xoay", "Move"], "guide.step": ["Bước", "Step"], "guide.moves": ["nước xoay", "moves"],
@@ -44,7 +44,7 @@ const words: Dictionary = {
   "pdf.ready": ["SẴN SÀNG TẢI", "READY TO DOWNLOAD"],
   "pdf.waiting": ["CHƯA CÓ HƯỚNG DẪN", "NO GUIDE YET"],
   "status.title": ["Tình trạng", "Status"], "status.ready": ["Đã sẵn sàng", "Ready"],
-  "status.moves": ["NƯỚC XOAY", "MOVES"], "status.steps": ["BƯỚC", "STEPS"], "status.ok": ["ĐÃ XONG", "DONE"],
+  "status.moves": ["LƯỢT XOAY", "TURNS"], "status.steps": ["CHẶNG", "STAGES"], "status.ok": ["HOÀN TẤT", "DONE"],
   "check.title": ["Kiểm tra lời giải", "Solution check"],
   "check.oll": ["Các bước mặt trên", "Top-face cases"], "check.pll": ["Các bước cuối", "Final-step cases"],
   "check.turns": ["Mọi hướng xoay", "All turn directions"],
@@ -65,28 +65,24 @@ export function useLanguage() { return useContext(Context); }
 
 export function simplePhase(name: string, language: Language) {
   if (name.startsWith("xxxxcross_")) {
-    const slots = name.slice("xxxxcross_".length).replaceAll("_", " + ");
-    return language === "vi" ? `XXXXCross · F2L ${slots}` : `XXXXCross · F2L ${slots}`;
+    return language === "vi" ? "Hoàn thành phần đầu" : "Finish the first part";
   }
   if (name.startsWith("xxxcross_")) {
-    const slots = name.slice("xxxcross_".length).replaceAll("_", " + ");
-    return language === "vi" ? `XXXCross · F2L ${slots}` : `XXXCross · F2L ${slots}`;
+    return language === "vi" ? "Sắp xếp phần đầu" : "Arrange the first part";
   }
   if (name.startsWith("xxcross_")) {
-    const slots = name.slice("xxcross_".length).replaceAll("_", " + ");
-    return language === "vi" ? `XXCross · F2L ${slots}` : `XXCross · F2L ${slots}`;
+    return language === "vi" ? "Ghép phần đầu" : "Build the first part";
   }
   if (name.startsWith("xcross_")) {
-    const slot = name.slice("xcross_".length);
-    return language === "vi" ? `XCross · F2L ${slot}` : `XCross · F2L ${slot}`;
+    return language === "vi" ? "Tạo bước khởi đầu" : "Create a starting step";
   }
   const values: Record<string, [string, string]> = {
-    cross: ["Cross", "Cross"],
-    f2l_FR: ["F2L 1", "F2L 1"], f2l_FL: ["F2L 2", "F2L 2"],
-    f2l_BL: ["F2L 3", "F2L 3"], f2l_BR: ["F2L 4", "F2L 4"],
-    oll: ["OLL", "OLL"], pll: ["PLL", "PLL"],
-    zbll: ["ZBLL · 1 look EO", "ZBLL · 1-look EO"],
-    "1lll": ["1LLL · 1 look", "1LLL · 1-look"],
+    cross: ["Tạo nền", "Build the base"],
+    f2l_FR: ["Lắp phần 1", "Place part 1"], f2l_FL: ["Lắp phần 2", "Place part 2"],
+    f2l_BL: ["Lắp phần 3", "Place part 3"], f2l_BR: ["Lắp phần 4", "Place part 4"],
+    oll: ["Chỉnh mặt trên", "Fix the top side"], pll: ["Hoàn tất khối", "Finish the cube"],
+    zbll: ["Hoàn tất mặt trên", "Finish the top side"],
+    "1lll": ["Hoàn tất khối", "Finish the cube"],
   };
   return values[name]?.[language === "vi" ? 0 : 1] ?? name;
 }
