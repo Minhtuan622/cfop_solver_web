@@ -9,8 +9,10 @@ describe("BLD formula learning stage", () => {
 
   it("shows a starter algorithm and stores it as the learner preference", async () => {
     render(<BldStudyLab language="vi" />);
-    fireEvent.click(screen.getByRole("tab", { name: /Học algorithm đầu tiên/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /Học nhịp đầu tiên/i }));
 
+    expect(screen.getByText("MỤC TIÊU HÔM NAY")).toBeTruthy();
+    expect(screen.getByText("Chọn một case, không mở catalog lớn.")).toBeTruthy();
     expect(screen.getByText(/Học một case, không học cả thư viện cùng lúc/i)).toBeTruthy();
     expect(screen.getByText("L2 U L2 S' L2 S U' L2")).toBeTruthy();
     expect(screen.getByLabelText(/Mô hình Rubik 3D/i)).toBeTruthy();

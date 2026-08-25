@@ -22,3 +22,22 @@ Các mẹo đưa vào ứng dụng phải ngắn, có thể thực hành ngay, k
 
 1. [J Perm — 3x3 Blindfolded: 3-Style Method Tutorial](https://www.youtube.com/watch?v=9KPqwwKNldc), 10:13. Dùng làm video tổng quan về buffer, commutator, setup/undo và parity.
 2. [GuardCube — 3x3 Blindfolded 10 Tips for FASTER & EASIER Memo!!](https://www.youtube.com/watch?v=CFzIemRwwqI), 8:01. Dùng làm video mở rộng về tạo hình cho góc, nhịp âm thanh cho cạnh và luyện memo.
+
+## Nguyên tắc điều chỉnh lộ trình cho người mới
+
+| Nguyên tắc | Ứng dụng vào Study | Nguồn |
+|---|---|---|
+| Không mở bằng catalog lớn | Lộ trình mở bằng việc hiểu buffer/cycle và một pattern setup → commutator → undo; catalog đầy đủ chỉ là bước mở rộng sau khi người học làm ổn một case. | [Timothy Goh — 3-Style Tutorial Part 1](https://www.youtube.com/watch?v=Bq9oz1k5wP4) [SpeedSolving: Intuitive 3-Style](https://www.speedsolving.com/threads/intuitive-3-style-as-a-beginner-blind-method.77200/) |
+| Luyện execution có nhìn trước | Sau khi hiểu cấu trúc, người học nên chạy commutator có nhìn hoặc dùng memo viết trước khi chuyển sang một lượt bịt mắt đầy đủ. | [SpeedSolving: Intuitive 3-Style](https://www.speedsolving.com/threads/intuitive-3-style-as-a-beginner-blind-method.77200/) |
+| Thu hẹp bộ pattern ban đầu | Một bộ nhỏ interchange/insertion có cấu trúc ổn định là nền tảng đủ để bắt đầu; chỉ sau khi các pattern đầu chắc mới thêm layer/interchange hoặc catalog rộng. | [SpeedSolving: Intuitive 3-Style](https://www.speedsolving.com/threads/intuitive-3-style-as-a-beginner-blind-method.77200/) |
+| Để special cases ở sau | Parity, flip và twist được giới thiệu là bài bổ sung sau khi người học đã nắm case 3-cycle và biết tự kiểm target. | Tổng hợp theo hướng dẫn cơ bản của [J Perm](https://www.youtube.com/watch?v=9KPqwwKNldc) và [Timothy Goh](https://www.youtube.com/watch?v=Bq9oz1k5wP4). |
+
+## Lộ trình áp dụng trong Study
+
+| Chặng | Việc người mới làm ngay | Điều kiện để sang chặng sau |
+|---|---|---|
+| Bắt đầu | Nhận ra buffer, cycle và ba nhịp nhìn → ghi → thực hiện. | Biết rằng chưa cần bịt mắt ở chặng này. |
+| Một case | Học một nhịp setup → commutator → hoàn tác bằng Cube 3D. | Tự giải target AUF chậm và đúng. |
+| Memo có nhìn | Tạo hai dòng memo, đọc chúng thành từ/hình và thực hiện khi vẫn nhìn cube. | Memo và execution không bị lẫn thứ tự. |
+| Củng cố | Lặp lại self-check case chính; thử parity/flip/twist khi đã sẵn sàng. | Case chính ổn định hơn special case. |
+| Ôn và mở rộng | Để SRS gọi lại case cũ; thêm đúng một case mới trong lần học kế tiếp. | Mở catalog đầy đủ với mục đích tra đúng case cần học. |

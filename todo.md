@@ -934,3 +934,9 @@
 - [x] Đối chiếu mẹo luyện memo, commutator, buffer, slow execution và SRS từ nguồn Rubik/YouTube đáng tin cậy.
 - [x] Chuyển nội dung thành hướng dẫn tiếng Việt ngắn, có liên kết nguồn và không thay đổi thuật toán hay dữ liệu BLD hiện có.
 - [x] Tích hợp mục mẹo vào lộ trình Study bằng Bootstrap, kiểm tra desktop/mobile, hồi quy và checkpoint.
+
+## Lộ trình 3-Style dễ hiểu cho người mới
+
+- [x] Đối chiếu trình tự học beginner 3-Style từ tutorial và cộng đồng, tập trung vào các bước có thể hoàn thành trước khi mở catalog lớn.
+- [x] Chuyển lộ trình hiện có thành các mục tiêu ngắn, giải thích thuật ngữ ngay tại thời điểm cần dùng và chỉ dẫn hành động kế tiếp rõ ràng.
+- [x] Giữ tương thích tiến độ, profile, memo, Drill và SRS cục bộ; kiểm tra desktop/mobile, hồi quy và checkpoint.
