@@ -9,7 +9,7 @@ const HASH_PARAMS = { N: 16_384, r: 8, p: 1, keyLength: 64 };
 const SESSION_DAYS = 30;
 export const CFOP_ACCOUNT_COOKIE = "cfop_account_session";
 
-export type PublicCfopAccount = Pick<CfopAccount, "id" | "email" | "displayName" | "bio" | "createdAt" | "lastSignedIn">;
+export type PublicCfopAccount = Pick<CfopAccount, "id" | "email" | "displayName" | "bio" | "avatarUrl" | "goalMs" | "createdAt" | "lastSignedIn">;
 
 function derivePasswordKey(password: string, salt: string, N: number, r: number, p: number) {
   return new Promise<Buffer>((resolve, reject) => {
@@ -20,7 +20,7 @@ function derivePasswordKey(password: string, salt: string, N: number, r: number,
 }
 
 export function toPublicCfopAccount(account: CfopAccount): PublicCfopAccount {
-  return { id: account.id, email: account.email, displayName: account.displayName, bio: account.bio, createdAt: account.createdAt, lastSignedIn: account.lastSignedIn };
+  return { id: account.id, email: account.email, displayName: account.displayName, bio: account.bio, avatarUrl: account.avatarUrl, goalMs: account.goalMs, createdAt: account.createdAt, lastSignedIn: account.lastSignedIn };
 }
 
 export function normalizeEmail(email: string) {

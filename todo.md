@@ -1029,3 +1029,10 @@
 - [x] Tích hợp auto-sync khi đăng nhập/thay đổi dữ liệu và thêm trang Hồ sơ có thống kê Timer.
 - [x] Tạm hoãn gửi email cho Quên mật khẩu theo lựa chọn người dùng; giữ reset token server-side để có thể bật lại khi cấu hình Resend/domain sẵn sàng.
 - [x] Kiểm tra migration, bảo mật, sync, hồ sơ, desktop/mobile, test/build và checkpoint.
+
+## Hồ sơ cá nhân hoá và tiến bộ
+
+- [x] Thiết kế avatar S3 có giới hạn ảnh, mục tiêu cá nhân và trạng thái lần đồng bộ cuối.
+- [x] Mở rộng schema/API/storage cho avatar, mục tiêu và yêu cầu đồng bộ thủ công.
+- [x] Thêm UI ảnh đại diện, mục tiêu sub-X, nút sync và biểu đồ Best/Ao5 theo ngày vào Hồ sơ.
+- [x] Kiểm tra upload, an toàn dữ liệu, chart responsive, test/build và checkpoint.

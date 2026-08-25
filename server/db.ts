@@ -55,11 +55,19 @@ export async function markCfopAccountSignedIn(accountId: number) {
   await db.update(cfopAccounts).set({ lastSignedIn: new Date() }).where(eq(cfopAccounts.id, accountId));
 }
 
-export async function updateCfopAccountProfile(accountId: number, patch: { displayName: string; bio: string }) {
+export async function updateCfopAccountProfile(accountId: number, patch: { displayName: string; bio: string; goalMs: number | null }) {
   const db = await requireDb();
   await db.update(cfopAccounts).set({ ...patch, updatedAt: new Date() }).where(eq(cfopAccounts.id, accountId));
   const account = await findCfopAccountById(accountId);
   if (!account) throw new Error("Account not found after profile update");
+  return account;
+}
+
+export async function updateCfopAccountAvatar(accountId: number, avatarUrl: string) {
+  const db = await requireDb();
+  await db.update(cfopAccounts).set({ avatarUrl, updatedAt: new Date() }).where(eq(cfopAccounts.id, accountId));
+  const account = await findCfopAccountById(accountId);
+  if (!account) throw new Error("Account not found after avatar update");
   return account;
 }
 

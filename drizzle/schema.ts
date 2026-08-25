@@ -19,6 +19,8 @@ export const cfopAccounts = mysqlTable("cfop_accounts", {
   email: varchar("email", { length: 320 }).notNull().unique(),
   displayName: varchar("displayName", { length: 80 }).notNull(),
   bio: varchar("bio", { length: 280 }).default("").notNull(),
+  avatarUrl: varchar("avatarUrl", { length: 512 }).default("").notNull(),
+  goalMs: int("goalMs"),
   passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
