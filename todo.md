@@ -1043,3 +1043,11 @@
 - [x] Thêm phạm vi 7 ngày, 30 ngày và tất cả cho biểu đồ Best/Ao5.
 - [x] Hiển thị thông báo chúc mừng khi Ao5 đạt hoặc vượt mục tiêu sub-X trên Hồ sơ.
 - [x] Kiểm thử crop, filter, goal state, desktop/mobile, test/build và checkpoint.
+
+## Phòng thi đấu nhiều người
+
+- [x] Chốt mô hình tạo/tham gia phòng, vai trò chủ phòng và cơ chế cập nhật kết quả giữa người chơi bằng polling miễn phí 2–3 giây.
+- [x] Thêm schema/migration cho phòng, thành viên, lượt đấu và kết quả thuộc tài khoản CFOP.
+- [x] Tạo API có phân quyền cho tạo phòng, tham gia/rời phòng, bắt đầu lượt và nộp kết quả.
+- [x] Xây dựng lobby và trang phòng tối đa hai cột, dùng chung Timer nhưng không ghi đè lịch sử cá nhân.
+- [x] Kiểm thử phân quyền, kết quả nhiều người, responsive, TypeScript, build và checkpoint.

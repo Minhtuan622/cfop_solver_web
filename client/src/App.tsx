@@ -9,6 +9,7 @@ import { CfopCloudSync } from "./components/CfopCloudSync";
 const Home = lazy(() => import("./pages/Home"));
 const History = lazy(() => import("./pages/History"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Rooms = lazy(() => import("./pages/Rooms"));
 const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
 
@@ -24,6 +25,8 @@ function Router() {
     <Route path="/settings" component={Settings} />
     <Route path="/history" component={History} />
     <Route path="/profile" component={Profile} />
+    <Route path="/rooms/:code" component={Rooms} />
+    <Route path="/rooms" component={Rooms} />
     <Route path="/404" component={NotFound} />
     <Route component={NotFound} />
   </Switch></Suspense>;

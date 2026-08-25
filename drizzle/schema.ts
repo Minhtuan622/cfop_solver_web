@@ -1,4 +1,4 @@
-import { index, int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { index, int, json, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 /** Existing platform-auth user table. CFOP email/password accounts intentionally do not use this table. */
 export const users = mysqlTable("users", {
@@ -54,8 +54,52 @@ export const cfopPasswordResetTokens = mysqlTable("cfop_password_reset_tokens", 
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => [index("cfop_password_reset_account_idx").on(table.accountId), index("cfop_password_reset_expires_idx").on(table.expiresAt)]);
 
+/** Server-backed battle room. It always belongs to native CFOP accounts, never Manus OAuth identities. */
+export const cfopCompetitionRooms = mysqlTable("cfop_competition_rooms", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 10 }).notNull(),
+  name: varchar("name", { length: 80 }).notNull(),
+  hostAccountId: int("hostAccountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
+  status: mysqlEnum("status", ["waiting", "active", "finished"]).notNull().default("waiting"),
+  maxPlayers: int("maxPlayers").notNull().default(8),
+  currentRound: int("currentRound").notNull().default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => [uniqueIndex("cfop_competition_rooms_code_unique").on(table.code), index("cfop_competition_rooms_host_idx").on(table.hostAccountId)]);
+
+/** Active membership is one row per account and room; leaving removes the row instead of retaining stale presence. */
+export const cfopCompetitionMembers = mysqlTable("cfop_competition_members", {
+  id: int("id").autoincrement().primaryKey(),
+  roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
+  accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+}, (table) => [uniqueIndex("cfop_competition_members_room_account_unique").on(table.roomId, table.accountId), index("cfop_competition_members_account_idx").on(table.accountId)]);
+
+/** A room round freezes one shared scramble so every competitor solves the identical state. */
+export const cfopCompetitionRounds = mysqlTable("cfop_competition_rounds", {
+  id: int("id").autoincrement().primaryKey(),
+  roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
+  sequence: int("sequence").notNull(),
+  scramble: varchar("scramble", { length: 255 }).notNull(),
+  status: mysqlEnum("status", ["active", "finished"]).notNull().default("active"),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+}, (table) => [uniqueIndex("cfop_competition_rounds_room_sequence_unique").on(table.roomId, table.sequence), index("cfop_competition_rounds_room_idx").on(table.roomId)]);
+
+/** Every competitor can submit one immutable timed result for a room round. */
+export const cfopCompetitionResults = mysqlTable("cfop_competition_results", {
+  id: int("id").autoincrement().primaryKey(),
+  roundId: int("roundId").notNull().references(() => cfopCompetitionRounds.id, { onDelete: "cascade" }),
+  accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
+  elapsedMs: int("elapsedMs").notNull(),
+  inspectionMs: int("inspectionMs").notNull().default(0),
+  penalty: mysqlEnum("penalty", ["none", "+2", "DNF"]).notNull().default("none"),
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+}, (table) => [uniqueIndex("cfop_competition_results_round_account_unique").on(table.roundId, table.accountId), index("cfop_competition_results_account_idx").on(table.accountId)]);
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type CfopAccount = typeof cfopAccounts.$inferSelect;
 export type InsertCfopAccount = typeof cfopAccounts.$inferInsert;
 export type CfopAccountCloudState = typeof cfopAccountCloudStates.$inferSelect;
+export type CfopCompetitionRoom = typeof cfopCompetitionRooms.$inferSelect;
