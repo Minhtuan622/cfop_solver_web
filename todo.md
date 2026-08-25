@@ -971,3 +971,10 @@
 - [x] Tái lập scramble người dùng và chứng minh construction hiện tại hoàn thành Cross trước, nên không phải direct opening.
 - [x] Loại bỏ construction gộp Cross/F2L, chỉ trả XXXCross/XXXXCross khi direct search nguyên tử tìm được toàn bộ target.
 - [x] Cập nhật telemetry/UI cho trạng thái không có direct result; regression fixture, build và checkpoint.
+
+## Quan sát direct search, threshold và pattern XXXXCROSS
+
+- [x] Kiểm kê telemetry per-slot, node budget, hiệu năng Cross và nguồn pattern XXXXCROSS có thể chứng minh direct.
+- [x] Thêm node threshold cục bộ, bảng trạng thái target slot/attempt và telemetry worker tương ứng.
+- [x] Tạo thư viện pattern XXXXCROSS chỉ hiển thị case đã kiểm chứng direct cùng thuật toán và bằng chứng slot.
+- [x] Tối ưu tìm Cross bằng coordinate transition, benchmark đường descent, kiểm thử UI/solver, build và checkpoint.

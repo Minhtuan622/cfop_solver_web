@@ -25,11 +25,16 @@ async function getPyodide() {
   return pyodidePromise;
 }
 
-self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "bld" | "case" | "validate" | "catalog"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross"; lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto"; openingDepth?: number; openingFindResult?: boolean; preferredSlot?: string; excludedSlots?: string[]; family?: string; group?: string; query?: string; limit?: number }>) => {
-  const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", lastLayer = "auto", openingDepth = 8, openingFindResult = false, preferredSlot, excludedSlots = [], family = "all", group = "all", query = "", limit = 120 } = event.data;
+self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "bld" | "case" | "validate" | "catalog" | "warmup"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross"; lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto"; openingDepth?: number; openingFindResult?: boolean; directNodeBudget?: number; preferredSlot?: string; excludedSlots?: string[]; family?: string; group?: string; query?: string; limit?: number }>) => {
+  const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", lastLayer = "auto", openingDepth = 8, openingFindResult = false, directNodeBudget = 5000, preferredSlot, excludedSlots = [], family = "all", group = "all", query = "", limit = 120 } = event.data;
   try {
     const runtime = await getPyodide();
-    const request = JSON.stringify({ kind, value, crossColor, opening, lastLayer, openingDepth, openingFindResult, preferredSlot, excludedSlots, family, group, query, limit });
+    const request = JSON.stringify({ kind, value, crossColor, opening, lastLayer, openingDepth, openingFindResult, directNodeBudget, preferredSlot, excludedSlots, family, group, query, limit });
+    if (command === "warmup") {
+      await runtime.runPythonAsync("from cfop_solver.search import cross_pruning_table; cross_pruning_table()");
+      self.postMessage({ id, ok: true, output: JSON.stringify({ ready: true }) });
+      return;
+    }
     if (command === "catalog") {
       const output = await runtime.runPythonAsync(`
 import json
@@ -86,7 +91,8 @@ initial = Cube(request["value"]) if request["kind"] == "state" else Cube().apply
 preferred = request.get("preferredSlot")
 excluded = tuple(slot for slot in request.get("excludedSlots", []) if slot in ("FR", "FL", "BL", "BR"))
 opening_depth = max(4, min(10, int(request.get("openingDepth", 8))))
-solution = solve(initial, last_layer=request.get("lastLayer", "auto"), cross_color=request.get("crossColor", "U"), opening=request.get("opening", "cross"), xcross_depth=opening_depth, xxcross_depth=opening_depth, xxxcross_depth=opening_depth, xxxxcross_depth=opening_depth, xcross_preferred_slot=preferred, xcross_excluded_slots=excluded, opening_find_result=bool(request.get("openingFindResult", False)))
+node_budget = max(500, min(50000, int(request.get("directNodeBudget", 5000))))
+solution = solve(initial, last_layer=request.get("lastLayer", "auto"), cross_color=request.get("crossColor", "U"), opening=request.get("opening", "cross"), xcross_depth=opening_depth, xxcross_depth=opening_depth, xxxcross_depth=opening_depth, xxxxcross_depth=opening_depth, xcross_preferred_slot=preferred, xcross_excluded_slots=excluded, opening_find_result=bool(request.get("openingFindResult", False)), direct_node_budget=node_budget)
 current = initial
 trace, phases = [], []
 for record in solution.phases:

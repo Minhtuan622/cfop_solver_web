@@ -1,7 +1,8 @@
 /** Xưởng Cơ Khí Tốc Độ — typed bridge to a non-blocking CFOP Web Worker. */
 export type TraceStep = { index: number; phase: string; move: string; state: string };
 export type PhaseResult = { name: string; algorithm: string; moves: string[]; state_after: string; valid_after: boolean; predicate_after: boolean; case_id: string | null; start: number; end: number };
-export type OpeningTelemetry = { requested: string; target: string; achieved: string; attempts: string[]; method?: "direct" | "expanded" | "unavailable" | "staged"; fallback_count: number; did_fallback: boolean };
+export type DirectAttempt = { slots: F2LSlot[]; nodes: number; budget: number; depth: number; status: "solved" | "budget" | "no_solution" };
+export type OpeningTelemetry = { requested: string; target: string; achieved: string; attempts: string[]; method?: "direct" | "expanded" | "unavailable" | "staged"; fallback_count: number; did_fallback: boolean; direct_search?: { node_budget: number; attempts: DirectAttempt[] } };
 export type LastLayerMode = "oll_pll" | "zbll" | "1lll" | "auto";
 export type LastLayerTelemetry = { requested: string; achieved: string; attempts: string[]; case_id?: string | null; fallback_count: number; did_fallback: boolean };
 export type SolverResult = { initial_state: string; final_state: string; algorithm: string; phases: PhaseResult[]; trace: TraceStep[]; opening: OpeningTelemetry; last_layer: LastLayerTelemetry };
@@ -32,10 +33,16 @@ function getWorker() {
   return worker;
 }
 
-export function solveInBrowser(kind: "scramble" | "state", value: string, crossColor: CrossColor = "U", opening: OpeningMode = "cross", xcross: XCrossOptions = {}, lastLayer: LastLayerMode = "auto", openingDepth = 8, openingFindResult = false): Promise<SolverResult> {
+export function solveInBrowser(kind: "scramble" | "state", value: string, crossColor: CrossColor = "U", opening: OpeningMode = "cross", xcross: XCrossOptions = {}, lastLayer: LastLayerMode = "auto", openingDepth = 8, openingFindResult = false, directNodeBudget = 5000): Promise<SolverResult> {
   const id = nextId++;
-  getWorker().postMessage({ id, command: "solve", kind, value, crossColor, opening, lastLayer, openingDepth, openingFindResult, preferredSlot: xcross.preferredSlot, excludedSlots: xcross.excludedSlots ?? [] });
+  getWorker().postMessage({ id, command: "solve", kind, value, crossColor, opening, lastLayer, openingDepth, openingFindResult, directNodeBudget, preferredSlot: xcross.preferredSlot, excludedSlots: xcross.excludedSlots ?? [] });
   return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve(result as SolverResult), reject }));
+}
+
+export function warmSolverInBrowser(): Promise<void> {
+  const id = nextId++;
+  getWorker().postMessage({ id, command: "warmup", value: "" });
+  return new Promise((resolve, reject) => pending.set(id, { resolve: () => resolve(), reject }));
 }
 
 export function analyzeBldInBrowser(kind: "scramble" | "state", value: string): Promise<BldResult> {
