@@ -192,6 +192,25 @@ Luồng giải Rubik, Timer, History và Study **không cần secret** để ho�
 
 Không đưa key, token hoặc file `.env` thật vào Git. Nếu bổ sung tích hợp bên thứ ba về sau, hãy mô tả biến môi trường mới trong README này và cung cấp `.env.example` không chứa secret.
 
+### Thiết lập local
+
+`NODE_ENV` và `PORT` chỉ ảnh hưởng runner/server; `pnpm dev` vẫn chạy được nếu không có `.env.local`. Hai biến `BUILT_IN_FORGE_*` chỉ cần cho storage proxy, còn `VITE_OAUTH_PORTAL_URL` và `VITE_APP_ID` chỉ cần khi bạn tự tích hợp login. Để trống các biến tùy chọn nếu chưa dùng chúng.
+
+Khi tự triển khai ngoài workspace được quản lý, tạo `.env.local` với các biến sau nếu cần:
+
+```dotenv
+NODE_ENV=development
+PORT=3000
+
+# Chỉ cần khi dùng /manus-storage/<path>
+BUILT_IN_FORGE_API_URL=
+BUILT_IN_FORGE_API_KEY=
+
+# Chỉ cần khi tự tích hợp OAuth
+VITE_OAUTH_PORTAL_URL=
+VITE_APP_ID=
+```
+
 ## Lưu ý về tài nguyên tĩnh
 
 Không để ảnh, video hoặc file lớn trong `client/public/` hay `client/src/assets/`. Với môi trường Manus, asset lớn cần được đưa ra storage webdev. Với self-host độc lập, nên dùng CDN/object storage riêng và tham chiếu qua URL ổn định.

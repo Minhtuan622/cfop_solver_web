@@ -1003,3 +1003,15 @@
 - [x] Kiểm kê scripts, phụ thuộc, cấu trúc và luồng Python solver nhúng.
 - [x] Viết README gồm cài đặt, chạy local, test, build, xử lý sự cố và checklist chuyển môi trường.
 - [x] Đối chiếu hướng dẫn với package scripts hiện có, cập nhật nhật ký và checkpoint.
+
+## Cấu hình môi trường mẫu
+
+- [x] Kiểm kê biến môi trường được Vite, server production và storage proxy sử dụng.
+- [ ] Tạo `.env.example` không chứa secret, kèm ghi chú cho từng nhóm biến. *(Dừng theo yêu cầu người dùng; README đã có block `.env.local` an toàn.)*
+- [x] Đối chiếu README, kiểm tra build và checkpoint.
+
+## Kiểm kê dự án và tối ưu tải trang
+
+- [x] Kiểm kê cấu trúc repository, tệp thiết yếu, cấu hình và bundle production hiện tại.
+- [x] Triển khai tối ưu tải có rủi ro thấp dựa trên số liệu bundle thực tế.
+- [x] Kiểm tra lại TypeScript, test, build, các route chính và checkpoint.

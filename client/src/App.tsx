@@ -1,6 +1,3 @@
-import { TooltipProvider } from "@/components/ui/tooltip";
-// @ts-expect-error Bootstrap distribution declarations are not bundled in this project.
-import { Tooltip } from "bootstrap";
 import { lazy, Suspense, useEffect } from "react";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
@@ -30,9 +27,14 @@ function Router() {
 
 export function BootstrapControlEnhancer() {
   useEffect(() => {
-    const instances = new Set<InstanceType<typeof Tooltip>>();
-    const apply = () => {
+    let disposed = false;
+    const instances: { dispose: () => void }[] = [];
+    const applyStaticClasses = () => {
       document.querySelectorAll<HTMLElement>("button:disabled, [aria-disabled='true']").forEach((element) => element.classList.add("text-body-secondary"));
+    };
+    const applyTooltips = async () => {
+      const { default: Tooltip } = await import("bootstrap/js/dist/tooltip");
+      if (disposed) return;
       document.querySelectorAll<HTMLButtonElement>("button[aria-label]").forEach((button) => {
         if (button.dataset.bootstrapControl === "navbar-toggler") return;
         const isIconOnly = Boolean(button.querySelector(".bi")) && !button.textContent?.trim();
@@ -41,25 +43,26 @@ export function BootstrapControlEnhancer() {
         if (!button.disabled && !button.dataset.bsToggle) {
           button.dataset.bsToggle = "tooltip";
           button.setAttribute("title", button.getAttribute("aria-label") ?? "");
-          instances.add(new Tooltip(button));
+          instances.push(new Tooltip(button));
         }
       });
     };
-    apply();
-    const observer = new MutationObserver(apply);
+    applyStaticClasses();
+    void applyTooltips();
+    const observer = new MutationObserver(() => { applyStaticClasses(); void applyTooltips(); });
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled", "aria-disabled"] });
-    return () => { observer.disconnect(); instances.forEach((instance) => instance.dispose()); };
+    return () => { disposed = true; observer.disconnect(); instances.forEach((instance) => instance.dispose()); };
   }, []);
   return null;
 }
 
 function App() {
-  return <ErrorBoundary><LanguageProvider><TooltipProvider>
+  return <ErrorBoundary><LanguageProvider>
     <BootstrapControlEnhancer />
     <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">Bỏ qua điều hướng</a>
     <AppNav />
     <main id="main-content" className="py-4 py-lg-5"><Router /></main>
-  </TooltipProvider></LanguageProvider></ErrorBoundary>;
+  </LanguageProvider></ErrorBoundary>;
 }
 
 export default App;
