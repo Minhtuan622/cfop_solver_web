@@ -965,3 +965,9 @@
 - [x] Tái lập với fixture khó và ghi nhận lý do direct search hạ từ XXXCross/XXXXCross xuống tier thấp hơn.
 - [x] Thay chiến lược retry depth không hiệu quả bằng đường tìm đúng tier có thể hoàn thành, không gán nhầm F2L tuần tự là direct opening.
 - [x] Xác minh telemetry/UI nhận đúng tier, chạy regression Python/web, build và checkpoint.
+
+## Sửa invariant direct XXXCross/XXXXCross
+
+- [x] Tái lập scramble người dùng và chứng minh construction hiện tại hoàn thành Cross trước, nên không phải direct opening.
+- [x] Loại bỏ construction gộp Cross/F2L, chỉ trả XXXCross/XXXXCross khi direct search nguyên tử tìm được toàn bộ target.
+- [x] Cập nhật telemetry/UI cho trạng thái không có direct result; regression fixture, build và checkpoint.
