@@ -1065,3 +1065,10 @@
 - [x] Mở rộng API có phân quyền để tạo rematch, trả lịch sử hoàn tất và xếp hạng ổn định theo phòng.
 - [x] Thêm thông báo tin mới, công tắc âm thanh, nút Đấu lại và trang lịch sử kết quả phòng.
 - [x] Kiểm thử chat mới, rematch, quyền chủ phòng, lịch sử/xếp hạng, responsive, test/build và checkpoint.
+
+## Phòng thi đấu: bảng xếp hạng toàn hệ thống và chúc mừng
+
+- [x] Chốt quy tắc xếp hạng tuần/tháng, xử lý thể thức khác nhau và điều kiện chiến thắng/kỷ lục cá nhân.
+- [x] Xây dựng API tổng hợp bảng xếp hạng chỉ từ phòng đã hoàn tất, có giới hạn và không lộ dữ liệu riêng tư.
+- [x] Thêm bảng xếp hạng tuần/tháng cùng hiệu ứng âm thanh/pháo hoa nhẹ có thể tắt khi vô địch hoặc lập kỷ lục.
+- [x] Kiểm thử truy vấn thống kê, điều kiện chúc mừng, responsive, TypeScript, test/build và checkpoint.

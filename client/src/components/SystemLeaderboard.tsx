@@ -1,0 +1,9 @@
+import { useMemo, useState } from "react";
+import { trpc } from "@/lib/trpc";
+
+export function SystemLeaderboard() {
+  const [period, setPeriod] = useState<"week" | "month">("week");
+  const input = useMemo(() => ({ period }), [period]);
+  const leaderboardQuery = trpc.competition.leaderboard.useQuery(input, { retry: false });
+  return <section className="card mt-4"><div className="card-body"><div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><div><h2 className="h5 mb-1">Bảng xếp hạng toàn hệ thống</h2><p className="text-body-secondary small mb-0">Điểm từ các phòng đã hoàn tất: hạng 1 nhận 10 điểm, hạng 2 nhận 6 điểm.</p></div><div className="btn-group" role="group" aria-label="Khoảng thời gian xếp hạng"><button type="button" className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`} onClick={() => setPeriod("week")}>Tuần này</button><button type="button" className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`} onClick={() => setPeriod("month")}>Tháng này</button></div></div>{leaderboardQuery.isLoading ? <div className="placeholder-glow"><span className="placeholder col-8" /></div> : leaderboardQuery.data?.players.length ? <ol className="list-group list-group-numbered">{leaderboardQuery.data.players.slice(0, 10).map((player) => <li key={player.accountId} className="list-group-item d-flex justify-content-between align-items-center gap-2"><span className="text-truncate"><strong>{player.displayName}</strong><small className="d-block text-body-secondary">{player.wins} chiến thắng · {player.rooms} phòng đã tính</small></span><span className="badge text-bg-primary rounded-pill">{player.points} điểm</span></li>)}</ol> : <p className="text-body-secondary mb-0">Chưa có đủ phòng hoàn tất với từ hai người chơi trong khoảng thời gian này.</p>}</div></section>;
+}

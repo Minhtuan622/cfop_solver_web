@@ -3,9 +3,9 @@ import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { COOKIE_NAME } from "../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "./cfopAccountAuth";
-import { competitionFormatScore, competitionRoundLimit, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
+import { buildCompetitionLeaderboard, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "./cfopPasswordResetMail";
-import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "./db";
+import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { cfopAccountProcedure, publicProcedure, router } from "./_core/trpc";
@@ -28,6 +28,7 @@ const roomCodeInput = z.object({ code: z.string().trim().min(4).max(10) });
 const createRoomInput = z.object({ name: z.string().trim().min(2, "Tên phòng cần ít nhất 2 ký tự.").max(80), maxPlayers: z.number().int().min(2).max(16).default(8), format: z.enum(["best_of_3", "ao5", "ao12"]).default("ao5") });
 const resultInput = roomCodeInput.extend({ roundId: z.number().int().positive(), elapsedMs: z.number().int().min(0).max(3_600_000), inspectionMs: z.number().int().min(0).max(60_000), penalty: z.enum(["none", "+2", "DNF"]) });
 const messageInput = roomCodeInput.extend({ content: z.string().trim().min(1, "Tin nhắn không được để trống.").max(500, "Tin nhắn tối đa 500 ký tự.") });
+const leaderboardInput = z.object({ period: z.enum(["week", "month"]) });
 
 function normalizeRoomCode(value: string) { return value.toUpperCase().replace(/[^A-Z0-9]/g, ""); }
 function roomError() { return new TRPCError({ code: "NOT_FOUND", message: "Không tìm thấy phòng thi đấu này." }); }
@@ -59,6 +60,15 @@ async function competitionHistory(accountId: number) {
     const mine = state.standings.find((player) => player.accountId === accountId);
     return { room: state.room, roundLimit: state.roundLimit, standings: state.standings, myRank: mine?.rank ?? null, myScore: mine?.score ?? undefined };
   }));
+}
+
+function leaderboardRange(period: "week" | "month", now = new Date()) {
+  const endAt = new Date(now);
+  const startAt = new Date(now);
+  if (period === "month") startAt.setUTCDate(1);
+  else { const day = startAt.getUTCDay() || 7; startAt.setUTCDate(startAt.getUTCDate() - day + 1); }
+  startAt.setUTCHours(0, 0, 0, 0);
+  return { startAt, endAt };
 }
 
 function validateCloudPayload(payload: unknown) {
@@ -150,6 +160,11 @@ export const appRouter = router({
     }),
   }),
   competition: router({
+    leaderboard: publicProcedure.input(leaderboardInput).query(async ({ input }) => {
+      const { startAt, endAt } = leaderboardRange(input.period);
+      const results = await listFinishedCompetitionResultsBetween(startAt, endAt);
+      return { period: input.period, startAt, endAt, players: buildCompetitionLeaderboard(results).slice(0, 50) };
+    }),
     listMine: cfopAccountProcedure.query(({ ctx }) => listCompetitionRoomsForAccount(ctx.cfopAccount.id)),
     history: cfopAccountProcedure.query(({ ctx }) => competitionHistory(ctx.cfopAccount.id)),
     create: cfopAccountProcedure.input(createRoomInput).mutation(async ({ ctx, input }) => {

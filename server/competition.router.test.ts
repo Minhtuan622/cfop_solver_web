@@ -15,10 +15,11 @@ vi.mock("./db", () => ({
   listFinishedCompetitionRoomsForAccount: vi.fn(),
   listCompetitionResults: vi.fn(),
   listCompetitionMessages: vi.fn(),
+  listFinishedCompetitionResultsBetween: vi.fn(),
 }));
 
 import { appRouter } from "./routers";
-import { createCompetitionMessage, createCompetitionRematch, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, getCompetitionActiveRound, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listFinishedCompetitionRoomsForAccount, startCompetitionRound, submitCompetitionResult } from "./db";
+import { createCompetitionMessage, createCompetitionRematch, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, getCompetitionActiveRound, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, startCompetitionRound, submitCompetitionResult } from "./db";
 
 const room = { id: 9, code: "ABC123", name: "Test room", hostAccountId: 1, status: "waiting", format: "ao5" as const, maxPlayers: 8, currentRound: 0, createdAt: new Date(), updatedAt: new Date() };
 const ctx = { cfopAccount: { id: 1, email: "host@example.com", displayName: "Host", bio: "", avatarUrl: "", goalMs: null, createdAt: new Date(), lastSignedIn: new Date() }, req: {}, res: {} } as unknown as TrpcContext;
@@ -73,5 +74,18 @@ describe("competition router", () => {
     const history = await appRouter.createCaller(ctx).competition.history();
     expect(history).toHaveLength(1);
     expect(history[0]).toMatchObject({ room: { code: room.code }, myRank: 1 });
+  });
+
+  it("trả bảng xếp hạng tuần từ điểm tổng hợp, không cần đăng nhập", async () => {
+    vi.mocked(listFinishedCompetitionResultsBetween).mockResolvedValue([
+      { roomId: 1, roomFormat: "best_of_3", accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 10_000, penalty: "none", roundSequence: 1 },
+      { roomId: 1, roomFormat: "best_of_3", accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 11_000, penalty: "none", roundSequence: 2 },
+      { roomId: 1, roomFormat: "best_of_3", accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 12_000, penalty: "none", roundSequence: 3 },
+      { roomId: 1, roomFormat: "best_of_3", accountId: 2, displayName: "Cuber", avatarUrl: "", elapsedMs: 13_000, penalty: "none", roundSequence: 1 },
+      { roomId: 1, roomFormat: "best_of_3", accountId: 2, displayName: "Cuber", avatarUrl: "", elapsedMs: 14_000, penalty: "none", roundSequence: 2 },
+      { roomId: 1, roomFormat: "best_of_3", accountId: 2, displayName: "Cuber", avatarUrl: "", elapsedMs: 15_000, penalty: "none", roundSequence: 3 },
+    ]);
+    const result = await appRouter.createCaller(ctx).competition.leaderboard({ period: "week" });
+    expect(result.players[0]).toMatchObject({ rank: 1, accountId: 1, points: 10 });
   });
 });

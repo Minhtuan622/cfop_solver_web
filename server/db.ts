@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, gte, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopCompetitionMembers, cfopCompetitionMessages, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds, cfopPasswordResetTokens, InsertUser, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -226,6 +226,11 @@ export async function submitCompetitionResult(values: { roundId: number; account
 export async function listCompetitionResults(roomId: number) {
   const db = await requireDb();
   return db.select({ roundSequence: cfopCompetitionRounds.sequence, roundId: cfopCompetitionRounds.id, accountId: cfopCompetitionResults.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, elapsedMs: cfopCompetitionResults.elapsedMs, inspectionMs: cfopCompetitionResults.inspectionMs, penalty: cfopCompetitionResults.penalty, submittedAt: cfopCompetitionResults.submittedAt }).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(eq(cfopCompetitionRounds.roomId, roomId)).orderBy(asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
+}
+
+export async function listFinishedCompetitionResultsBetween(startAt: Date, endAt: Date) {
+  const db = await requireDb();
+  return db.select({ roomId: cfopCompetitionRooms.id, roomFormat: cfopCompetitionRooms.format, accountId: cfopCompetitionResults.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, elapsedMs: cfopCompetitionResults.elapsedMs, penalty: cfopCompetitionResults.penalty, roundSequence: cfopCompetitionRounds.sequence }).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionRounds.roomId, cfopCompetitionRooms.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(and(eq(cfopCompetitionRooms.status, "finished"), gte(cfopCompetitionRooms.updatedAt, startAt), lt(cfopCompetitionRooms.updatedAt, endAt))).orderBy(desc(cfopCompetitionRooms.updatedAt), asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
 }
 
 export async function createCompetitionMessage(values: { roomId: number; accountId: number; content: string }) {

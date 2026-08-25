@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { competitionAo5, competitionAo12, competitionBestOf3, competitionFormatScore, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
+import { buildCompetitionLeaderboard, competitionAo5, competitionAo12, competitionBestOf3, competitionFormatScore, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
 
 describe("competition helpers", () => {
   it("tạo mã phòng dễ đọc và scramble 3×3 không lặp mặt liền nhau", () => {
@@ -23,5 +23,19 @@ describe("competition helpers", () => {
     const twelve = Array.from({ length: 12 }, (_, index) => ({ elapsedMs: (10 + index) * 1_000, penalty: "none" as const }));
     expect(competitionAo12(twelve)).toBe(15_500);
     expect(competitionFormatScore("ao12", twelve)).toBe(15_500);
+  });
+
+  it("tổng hợp bảng xếp hạng từ các phòng đã chốt", () => {
+    const results = [
+      ...[10, 11, 12].map((seconds, index) => ({ roomId: 1, roomFormat: "best_of_3" as const, accountId: 1, displayName: "An", avatarUrl: null, roundSequence: index + 1, elapsedMs: seconds * 1_000, penalty: "none" as const })),
+      ...[13, 14, 15].map((seconds, index) => ({ roomId: 1, roomFormat: "best_of_3" as const, accountId: 2, displayName: "Bình", avatarUrl: null, roundSequence: index + 1, elapsedMs: seconds * 1_000, penalty: "none" as const })),
+      ...[9, 10, 11].map((seconds, index) => ({ roomId: 2, roomFormat: "best_of_3" as const, accountId: 1, displayName: "An", avatarUrl: null, roundSequence: index + 1, elapsedMs: seconds * 1_000, penalty: "none" as const })),
+      ...[12, 13, 14].map((seconds, index) => ({ roomId: 2, roomFormat: "best_of_3" as const, accountId: 3, displayName: "Chi", avatarUrl: null, roundSequence: index + 1, elapsedMs: seconds * 1_000, penalty: "none" as const })),
+    ];
+    expect(buildCompetitionLeaderboard(results)).toMatchObject([
+      { rank: 1, accountId: 1, points: 20, wins: 2, rooms: 2 },
+      { rank: 2, accountId: 2, points: 6, wins: 0, rooms: 1 },
+      { rank: 3, accountId: 3, points: 6, wins: 0, rooms: 1 },
+    ]);
   });
 });
