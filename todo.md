@@ -899,3 +899,10 @@
 - [x] Xác định chặng học, mục tiêu, trạng thái hoàn thành và điều kiện tiếp tục dễ hiểu.
 - [x] Thiết kế lại Study BLD theo hành trình thống nhất, tái dùng tính năng hiện có.
 - [x] Kiểm tra desktop/mobile, hồi quy dữ liệu BLD và checkpoint sau khi hoàn tất.
+
+## Công thức và phương pháp học 3×3 BLD
+
+- [x] Kiểm kê catalog execution/special BLD hiện có và chọn nhóm công thức khởi đầu.
+- [x] Bổ sung chặng công thức với thứ tự học, notation và quy trình luyện từng algorithm.
+- [x] Kết nối công thức đã chọn với preferred algorithm, Drill và SRS hiện có.
+- [x] Kiểm tra thuật toán, desktop/mobile và checkpoint sau khi hoàn tất.
