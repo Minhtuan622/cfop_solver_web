@@ -997,3 +997,9 @@
 - [x] Rà lại các cài đặt Cross, Opening, Last Layer, inspection, speed splits và mục tiêu phase đang lưu.
 - [x] Nhóm và viết lại Cài đặt theo thuật ngữ Rubik, có mô tả ngắn nhưng không diễn giải lan man.
 - [x] Kiểm tra autosave, test/build, desktop/mobile và checkpoint.
+
+## README triển khai độc lập
+
+- [x] Kiểm kê scripts, phụ thuộc, cấu trúc và luồng Python solver nhúng.
+- [x] Viết README gồm cài đặt, chạy local, test, build, xử lý sự cố và checklist chuyển môi trường.
+- [x] Đối chiếu hướng dẫn với package scripts hiện có, cập nhật nhật ký và checkpoint.
