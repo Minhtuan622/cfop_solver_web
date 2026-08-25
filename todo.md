@@ -959,3 +959,9 @@
 - [x] Kiểm kê cấu hình, worker solver, giới hạn direct opening và fallback hiện có cho XCross đến XXXXCROSS.
 - [x] Thêm tùy chọn ưu tiên tìm được kết quả với giới hạn thời gian/độ sâu an toàn, đồng thời giữ chế độ manual depth hiện tại.
 - [x] Kiểm thử các mode opening, xác minh desktop/mobile, hồi quy, build và checkpoint.
+
+## Sửa direct opening XXXCross và XXXXCROSS
+
+- [x] Tái lập với fixture khó và ghi nhận lý do direct search hạ từ XXXCross/XXXXCross xuống tier thấp hơn.
+- [x] Thay chiến lược retry depth không hiệu quả bằng đường tìm đúng tier có thể hoàn thành, không gán nhầm F2L tuần tự là direct opening.
+- [x] Xác minh telemetry/UI nhận đúng tier, chạy regression Python/web, build và checkpoint.

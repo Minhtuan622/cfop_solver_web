@@ -1,7 +1,7 @@
 /** Xưởng Cơ Khí Tốc Độ — typed bridge to a non-blocking CFOP Web Worker. */
 export type TraceStep = { index: number; phase: string; move: string; state: string };
 export type PhaseResult = { name: string; algorithm: string; moves: string[]; state_after: string; valid_after: boolean; predicate_after: boolean; case_id: string | null; start: number; end: number };
-export type OpeningTelemetry = { requested: string; target: string; achieved: string; attempts: string[]; method?: "direct" | "expanded" | "staged"; fallback_count: number; did_fallback: boolean };
+export type OpeningTelemetry = { requested: string; target: string; achieved: string; attempts: string[]; method?: "direct" | "expanded" | "constructed" | "staged"; fallback_count: number; did_fallback: boolean };
 export type LastLayerMode = "oll_pll" | "zbll" | "1lll" | "auto";
 export type LastLayerTelemetry = { requested: string; achieved: string; attempts: string[]; case_id?: string | null; fallback_count: number; did_fallback: boolean };
 export type SolverResult = { initial_state: string; final_state: string; algorithm: string; phases: PhaseResult[]; trace: TraceStep[]; opening: OpeningTelemetry; last_layer: LastLayerTelemetry };
