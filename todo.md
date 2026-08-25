@@ -921,3 +921,10 @@
 - [x] Thiết kế target scramble hợp lệ cho từng algorithm cùng tiêu chí đỗ/rớt.
 - [x] Bỏ Quiz notation và tích hợp chế độ tự kiểm vào chặng Công thức.
 - [x] Kiểm tra target scramble, desktop/mobile và checkpoint sau khi hoàn tất.
+
+## Catalog 3-Style đầy đủ và AUF self-check
+
+- [x] Thu thập và đối chiếu catalog đầy đủ cạnh, góc, parity, flip và twist từ nguồn BLD đang dùng.
+- [x] Chuẩn hóa key Speffz, metadata nhóm và catalog có thể lọc trong Study.
+- [x] Tạo target scramble có AUF hợp lệ và xác thực solution linh hoạt cho mỗi case.
+- [x] Kiểm tra độ phủ catalog, target AUF, desktop/mobile và checkpoint sau khi hoàn tất.
