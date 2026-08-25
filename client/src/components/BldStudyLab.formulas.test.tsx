@@ -18,6 +18,7 @@ describe("BLD formula learning stage", () => {
     expect(screen.getAllByLabelText(/Mô hình Rubik 3D/i).length).toBeGreaterThan(0);
     expect(screen.getByText("Target scramble")).toBeTruthy();
     expect(screen.getByText("Năm nhịp luyện 3-Style dễ áp dụng")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Xem mẹo" }));
     expect(screen.getByRole("link", { name: /J Perm · 3×3 Blindfolded/i })).toHaveProperty("href", "https://www.youtube.com/watch?v=9KPqwwKNldc");
     fireEvent.change(screen.getByLabelText("Solution của bạn"), { target: { value: "U' L2 U L2 S' L2 S U' L2" } });
     fireEvent.click(screen.getByRole("button", { name: "Kiểm tra solution" }));

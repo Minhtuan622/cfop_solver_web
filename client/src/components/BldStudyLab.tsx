@@ -47,7 +47,7 @@ const NOTATION_QUESTIONS = [
 
 function randomScramble(length = 20) { const moves: string[] = []; const sameAxis = (left: string, right: string) => (left === "U" || left === "D") === (right === "U" || right === "D") && (left === "R" || left === "L") === (right === "R" || right === "L"); while (moves.length < length) { const face = FACES[Math.floor(Math.random() * FACES.length)]; const previous = moves.at(-1)?.[0]; const before = moves.at(-2)?.[0]; if (face === previous || (previous && before && sameAxis(face, previous) && sameAxis(face, before))) continue; moves.push(face + SUFFIXES[Math.floor(Math.random() * SUFFIXES.length)]); } return moves.join(" "); }
 type Stage = { title: string; subtitle: string; shortTitle: string };
-function initialStage() { return typeof window !== "undefined" && new URLSearchParams(window.location.search).get("bldStage") === "formulas" ? 1 : readBldLearningPath().lastStage; }
+function initialStage() { if (typeof window === "undefined") return 0; const stage = new URLSearchParams(window.location.search).get("bldStage"); const byQuery: Record<string, number> = { orientation: 0, formulas: 1, memo: 2, drill: 3, review: 4 }; return stage && stage in byQuery ? byQuery[stage] : readBldLearningPath().lastStage; }
 
 export function BldStudyLab({ language }: { language: "vi" | "en" }) {
   const vi = language === "vi";

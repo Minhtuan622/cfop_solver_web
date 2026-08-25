@@ -947,3 +947,9 @@
 - [x] Thiết kế bài sighted-commutator tương tác từ một case starter, có Cube 3D theo từng nước và tự kiểm không cần bịt mắt.
 - [x] Thêm checklist hoàn thành theo từng chặng, giữ tương thích progress, profile, Memo, Drill và SRS cục bộ.
 - [x] Kiểm thử, xác minh desktop/mobile, cập nhật ghi chú và checkpoint.
+
+## Streak ôn tập và giao diện Study 3-Style
+
+- [x] Tính streak ngày từ lịch sử SRS thật, bao gồm trạng thái chưa có dữ liệu và cách giữ streak hôm nay.
+- [x] Tái cấu trúc Study BLD theo bố cục Bootstrap tối đa hai cột: thanh điều hướng/hồ sơ gọn, khu vực bài đang học rõ ràng và các phần phụ ít cạnh tranh hơn.
+- [x] Bảo toàn checklist, SRS, profile, memo, Drill và catalog; kiểm thử desktop/mobile, hồi quy, build và checkpoint.
