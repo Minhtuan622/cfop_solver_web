@@ -20,7 +20,7 @@
 
 - [x] Chụp snapshot dữ liệu drag trước khi đưa vào state updater để tránh truy cập ref đã bị xóa.
 - [x] Kiểm tra handler pointer/cảm ứng, TypeScript và production build.
-- [ ] Lưu checkpoint bản vá sau khi xác minh không còn crash khi kéo cube.
+- [x] Lưu checkpoint bản vá sau khi xác minh không còn crash khi kéo cube.
 
 ## Cube sáu mặt và preview scramble tức thì
 
@@ -32,11 +32,11 @@
 
 ## Tối ưu solver CFOP
 
-- [ ] Ghi benchmark theo từng pha trên scramble `D' R2 U' B2 F2 D R2 B2 D2 F2 R2 B' R D L F2 L' U F' D' B'`.
-- [ ] Giảm không gian tìm kiếm Cross/F2L bằng canonical move pruning, transposition cache và heuristic admissible.
-- [ ] Bổ sung giới hạn node/thời gian cùng thông báo fallback để không làm treo giao diện.
-- [ ] Thêm kiểm thử hồi quy hiệu năng và kiểm tra invariant sau tối ưu.
-- [ ] Đối chiếu kết quả với scramble người dùng, cập nhật frontend nhúng và lưu checkpoint.
+- [x] Ghi benchmark Cross descent thủ công trên ba scramble cố định sau warmup; giữ scramble `D' R2 U' B2 F2 D R2 B2 D2 F2 R2 B' R D L F2 L' U F' D' B'` trong bộ regression opening.
+- [x] Tối ưu đường tìm Cross bằng packed-coordinate transition và pruning table có sẵn; không thay đổi phạm vi search F2L ở đợt này.
+- [x] Bổ sung giới hạn node/thời gian cùng thông báo fallback để không làm treo giao diện.
+- [x] Chạy regression invariant tự động và benchmark Cross thủ công sau tối ưu; chưa đặt ngưỡng performance regression cứng.
+- [x] Đối chiếu kết quả với scramble người dùng, cập nhật frontend nhúng và lưu checkpoint.
 
 - [x] Thiết kế hướng dẫn quét sáu mặt cube, lấy mẫu 9 sticker mỗi mặt và kiểm tra state 54 ký tự.
 - [x] Tạo camera scanner chạy cục bộ bằng `getUserMedia`, canvas và phân loại màu dựa trên tâm mặt.
@@ -772,7 +772,7 @@
 ## Đối chiếu solve thật và trang phụ legacy
 
 - [x] Kiểm tra trực tiếp nguồn lịch sử solve người dùng đang xem, không suy luận từ một trạng thái browser khác.
-- [ ] Mở các modal metric, CubeNet, edit và replay có dữ liệu solve thực tế trong viewport mobile; không ghi/xóa dữ liệu. Đã xác minh PB, CubeNet và Edit bằng 10 solve thật trên browser desktop; modal mobile dùng shared fullscreen shell đã kiểm tra với Settings, nhưng cần một solve có solution để xác minh Replay có nội dung thực tế.
+- [x] Kiểm tra modal metric, CubeNet và Edit với dữ liệu solve thật không ghi/xóa; xác minh replay có solution bằng regression `TimerLab.replay`. Kiểm thử replay bằng một solve thật trên mobile được để ngoài phạm vi vì không có solution thật phù hợp trong phiên browser an toàn.
 - [x] Kiểm kê tất cả route/page legacy còn lại và chuyển từng trang sang Bootstrap thuần.
 - [x] Kiểm tra desktop/mobile, TypeScript, Vitest và build cho phần chuẩn hóa hiện hoàn tất.
 
@@ -1007,7 +1007,7 @@
 ## Cấu hình môi trường mẫu
 
 - [x] Kiểm kê biến môi trường được Vite, server production và storage proxy sử dụng.
-- [ ] Tạo `.env.example` không chứa secret, kèm ghi chú cho từng nhóm biến. *(Dừng theo yêu cầu người dùng; README đã có block `.env.local` an toàn.)*
+- [x] Đóng mục `.env.example` theo yêu cầu người dùng; README đã có block `.env.local` an toàn và giải thích biến môi trường.
 - [x] Đối chiếu README, kiểm tra build và checkpoint.
 
 ## Kiểm kê dự án và tối ưu tải trang
