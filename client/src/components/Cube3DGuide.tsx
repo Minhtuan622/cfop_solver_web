@@ -82,9 +82,9 @@ function LayerTurn({ face, state, angle, step, move, duration }: { face: "U" | "
   </div>;
 }
 
-export function Cube3DGuide({ state, previousState, move, step, crossColor = "U", inspection = false, alignCross = false, highlightCross = true, xcrossSlots, lastLayerCase, specialStickers, transition = "idle", transitionDirection = "forward", transitionId = 0, phaseLabel, turnDurationMs = 340 }: { state: string; previousState?: string; move?: string; step: number; crossColor?: string; inspection?: boolean; alignCross?: boolean; highlightCross?: boolean; xcrossSlots?: string[]; lastLayerCase?: { family: string; id: string }; specialStickers?: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>>; transition?: "idle" | "move" | "seek" | "phase" | "reset"; transitionDirection?: "forward" | "backward"; transitionId?: number; phaseLabel?: string; turnDurationMs?: number }) {
+export function Cube3DGuide({ state, previousState, move, step, crossColor = "U", inspection = false, alignCross = false, highlightCross = true, xcrossSlots, lastLayerCase, specialStickers, transition = "idle", transitionDirection = "forward", transitionId = 0, phaseLabel, turnDurationMs = 340, initialOrbit = 0, initialPitch = 0 }: { state: string; previousState?: string; move?: string; step: number; crossColor?: string; inspection?: boolean; alignCross?: boolean; highlightCross?: boolean; xcrossSlots?: string[]; lastLayerCase?: { family: string; id: string }; specialStickers?: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>>; transition?: "idle" | "move" | "seek" | "phase" | "reset"; transitionDirection?: "forward" | "backward"; transitionId?: number; phaseLabel?: string; turnDurationMs?: number; initialOrbit?: number; initialPitch?: number }) {
   const { language } = useLanguage();
-  const [camera, setCamera] = useState(DEFAULT_CAMERA);
+  const [camera, setCamera] = useState(() => ({ ...DEFAULT_CAMERA, orbit: initialOrbit, pitch: initialPitch }));
   const [isOrbiting, setIsOrbiting] = useState(false);
   const drag = useRef<{ x: number; y: number; orbit: number; pitch: number; lastX: number; lastY: number; lastAt: number; moved: boolean; startedAt: number; pointerType: string } | null>(null);
   const pinch = useRef<number | null>(null);
@@ -150,7 +150,7 @@ export function Cube3DGuide({ state, previousState, move, step, crossColor = "U"
   const wheel = (event: WheelEvent<HTMLDivElement>) => { event.preventDefault(); changeZoom(event.deltaY > 0 ? -0.08 : 0.08); };
   const touchStart = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length === 2) pinch.current = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); };
   const touchMove = (event: TouchEvent<HTMLDivElement>) => { if (event.touches.length !== 2 || pinch.current === null) return; const distance = Math.hypot(event.touches[0].clientX - event.touches[1].clientX, event.touches[0].clientY - event.touches[1].clientY); changeZoom((distance - pinch.current) / 240); pinch.current = distance; };
-  const reset = () => { cancelInertia(); setIsOrbiting(false); setCamera((previous) => ({ ...previous, orbit: 0, pitch: 0 })); };
+  const reset = () => { cancelInertia(); setIsOrbiting(false); setCamera((previous) => ({ ...previous, orbit: initialOrbit, pitch: initialPitch })); };
   const displayZoom = camera.zoom * DISPLAY_SCALE;
   const transform = `rotateX(${camera.pitch}deg) rotateY(${camera.orbit}deg) ${DEFAULT_ORIENTATION} scale3d(${displayZoom}, ${displayZoom}, ${displayZoom})`;
   const turnAngle = move?.endsWith("2") ? "180deg" : move?.endsWith("'") ? "-90deg" : "90deg";

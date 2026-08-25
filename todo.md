@@ -906,3 +906,11 @@
 - [x] Bổ sung chặng công thức với thứ tự học, notation và quy trình luyện từng algorithm.
 - [x] Kết nối công thức đã chọn với preferred algorithm, Drill và SRS hiện có.
 - [x] Kiểm tra thuật toán, desktop/mobile và checkpoint sau khi hoàn tất.
+
+## Starter pack, notation quiz và Cube 3D BLD
+
+- [x] Kiểm kê catalog công thức 3-Style, primitive Cube 3D và quiz có thể tái dùng.
+- [x] Mở rộng starter pack theo nhóm cạnh/góc với metadata học rõ ràng.
+- [x] Thêm quiz notation ngắn có phản hồi và tiến độ phiên học.
+- [x] Gắn Cube 3D trực quan theo công thức đang chọn.
+- [x] Kiểm tra thuật toán, desktop/mobile và checkpoint sau khi hoàn tất.
