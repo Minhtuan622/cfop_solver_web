@@ -1058,3 +1058,10 @@
 - [x] Mở rộng schema/migration/API cho thể thức phòng và tin nhắn chat có phân quyền.
 - [x] Thêm thao tác sao chép/chia sẻ link mời, khung chat và bảng kết quả theo thể thức đã chọn.
 - [x] Kiểm thử link mời, giới hạn chat, quyền thành viên, Best of 3/Ao5/Ao12, responsive, test/build và checkpoint.
+
+## Phòng thi đấu: thông báo, Đấu lại, lịch sử và xếp hạng
+
+- [x] Chốt quy tắc chấm đỏ/âm thanh chat, rematch giữ thành viên, lịch sử chỉ đọc và thứ hạng cuối phòng.
+- [x] Mở rộng API có phân quyền để tạo rematch, trả lịch sử hoàn tất và xếp hạng ổn định theo phòng.
+- [x] Thêm thông báo tin mới, công tắc âm thanh, nút Đấu lại và trang lịch sử kết quả phòng.
+- [x] Kiểm thử chat mới, rematch, quyền chủ phòng, lịch sử/xếp hạng, responsive, test/build và checkpoint.

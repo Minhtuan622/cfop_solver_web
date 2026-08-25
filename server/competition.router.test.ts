@@ -9,12 +9,16 @@ vi.mock("./db", () => ({
   findCompetitionResult: vi.fn(),
   submitCompetitionResult: vi.fn(),
   createCompetitionMessage: vi.fn(),
+  createCompetitionRematch: vi.fn(),
   finishCompetitionRound: vi.fn(),
   startCompetitionRound: vi.fn(),
+  listFinishedCompetitionRoomsForAccount: vi.fn(),
+  listCompetitionResults: vi.fn(),
+  listCompetitionMessages: vi.fn(),
 }));
 
 import { appRouter } from "./routers";
-import { createCompetitionMessage, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, getCompetitionActiveRound, listCompetitionMembers, startCompetitionRound, submitCompetitionResult } from "./db";
+import { createCompetitionMessage, createCompetitionRematch, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, getCompetitionActiveRound, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listFinishedCompetitionRoomsForAccount, startCompetitionRound, submitCompetitionResult } from "./db";
 
 const room = { id: 9, code: "ABC123", name: "Test room", hostAccountId: 1, status: "waiting", format: "ao5" as const, maxPlayers: 8, currentRound: 0, createdAt: new Date(), updatedAt: new Date() };
 const ctx = { cfopAccount: { id: 1, email: "host@example.com", displayName: "Host", bio: "", avatarUrl: "", goalMs: null, createdAt: new Date(), lastSignedIn: new Date() }, req: {}, res: {} } as unknown as TrpcContext;
@@ -44,5 +48,30 @@ describe("competition router", () => {
     vi.mocked(findCompetitionMember).mockResolvedValue({ id: 3, roomId: room.id, accountId: 1, joinedAt: new Date() });
     await expect(appRouter.createCaller(ctx).competition.sendMessage({ code: room.code, content: "Chúc mọi người PB!" })).resolves.toEqual({ success: true });
     expect(createCompetitionMessage).toHaveBeenCalledWith({ roomId: room.id, accountId: 1, content: "Chúc mọi người PB!" });
+  });
+
+  it("chỉ tạo Đấu lại khi chủ phòng đã kết thúc trận", async () => {
+    const finishedRoom = { ...room, status: "finished" as const, currentRound: 5 };
+    vi.mocked(findCompetitionRoomByCode).mockResolvedValueOnce(finishedRoom).mockResolvedValueOnce(null);
+    vi.mocked(createCompetitionRematch).mockResolvedValue({ ...finishedRoom, id: 10, code: "NEXT99", name: "Test room · Đấu lại", status: "waiting", currentRound: 0 });
+    await expect(appRouter.createCaller(ctx).competition.rematch({ code: room.code })).resolves.toEqual({ code: "NEXT99" });
+    expect(createCompetitionRematch).toHaveBeenCalledWith(room.id, expect.any(String));
+  });
+
+  it("trả lịch sử phòng đã kết thúc với thứ hạng cuối của thành viên", async () => {
+    const finishedRoom = { ...room, status: "finished" as const, currentRound: 5 };
+    vi.mocked(listFinishedCompetitionRoomsForAccount).mockResolvedValue([{ room: finishedRoom, joinedAt: new Date() }]);
+    vi.mocked(findCompetitionRoomByCode).mockResolvedValue(finishedRoom);
+    vi.mocked(findCompetitionMember).mockResolvedValue({ id: 3, roomId: room.id, accountId: 1, joinedAt: new Date() });
+    vi.mocked(listCompetitionMembers).mockResolvedValue([{ accountId: 1, displayName: "Host", avatarUrl: "", joinedAt: new Date() }, { accountId: 2, displayName: "Cuber", avatarUrl: "", joinedAt: new Date() }]);
+    vi.mocked(getCompetitionActiveRound).mockResolvedValue(null);
+    vi.mocked(listCompetitionMessages).mockResolvedValue([]);
+    vi.mocked(listCompetitionResults).mockResolvedValue([
+      { roundSequence: 1, roundId: 11, accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 10_000, inspectionMs: 0, penalty: "none", submittedAt: new Date() },
+      { roundSequence: 1, roundId: 11, accountId: 2, displayName: "Cuber", avatarUrl: "", elapsedMs: 12_000, inspectionMs: 0, penalty: "none", submittedAt: new Date() },
+    ]);
+    const history = await appRouter.createCaller(ctx).competition.history();
+    expect(history).toHaveLength(1);
+    expect(history[0]).toMatchObject({ room: { code: room.code }, myRank: 1 });
   });
 });

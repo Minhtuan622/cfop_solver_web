@@ -5,7 +5,7 @@ import { COOKIE_NAME } from "../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "./cfopAccountAuth";
 import { competitionFormatScore, competitionRoundLimit, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "./cfopPasswordResetMail";
-import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "./db";
+import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { cfopAccountProcedure, publicProcedure, router } from "./_core/trpc";
@@ -50,6 +50,15 @@ async function competitionRoomState(code: string, accountId: number) {
     return (leftScore ?? Number.POSITIVE_INFINITY) - (rightScore ?? Number.POSITIVE_INFINITY);
   }).map((player, index) => ({ ...player, rank: index + 1 }));
   return { room, isHost: room.hostAccountId === accountId, roundLimit: competitionRoundLimit(room.format), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, startedAt: activeRound.startedAt } : null, players, standings, messages };
+}
+
+async function competitionHistory(accountId: number) {
+  const rooms = await listFinishedCompetitionRoomsForAccount(accountId);
+  return Promise.all(rooms.map(async ({ room }) => {
+    const state = await competitionRoomState(room.code, accountId);
+    const mine = state.standings.find((player) => player.accountId === accountId);
+    return { room: state.room, roundLimit: state.roundLimit, standings: state.standings, myRank: mine?.rank ?? null, myScore: mine?.score ?? undefined };
+  }));
 }
 
 function validateCloudPayload(payload: unknown) {
@@ -142,6 +151,7 @@ export const appRouter = router({
   }),
   competition: router({
     listMine: cfopAccountProcedure.query(({ ctx }) => listCompetitionRoomsForAccount(ctx.cfopAccount.id)),
+    history: cfopAccountProcedure.query(({ ctx }) => competitionHistory(ctx.cfopAccount.id)),
     create: cfopAccountProcedure.input(createRoomInput).mutation(async ({ ctx, input }) => {
       let room = null;
       for (let attempt = 0; attempt < 5 && !room; attempt += 1) {
@@ -207,6 +217,19 @@ export const appRouter = router({
       if (activeRound) await finishCompetitionRound(activeRound.id);
       await finishCompetitionRoom(room.id);
       return { success: true } as const;
+    }),
+    rematch: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => {
+      const source = await requireCompetitionRoom(input.code);
+      if (source.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được tạo Đấu lại." });
+      if (source.status !== "finished") throw new TRPCError({ code: "BAD_REQUEST", message: "Chỉ có thể Đấu lại sau khi phòng kết thúc." });
+      let room = null;
+      for (let attempt = 0; attempt < 5 && !room; attempt += 1) {
+        const code = createCompetitionCode();
+        if (await findCompetitionRoomByCode(code)) continue;
+        room = await createCompetitionRematch(source.id, code);
+      }
+      if (!room) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Không thể tạo phòng Đấu lại. Hãy thử lại." });
+      return { code: room.code };
     }),
   }),
 });

@@ -140,6 +140,18 @@ export async function createCompetitionRoom(values: { code: string; name: string
   return room;
 }
 
+export async function createCompetitionRematch(sourceRoomId: number, code: string) {
+  const db = await requireDb();
+  const source = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.id, sourceRoomId)).limit(1))[0];
+  if (!source) throw new Error("Source room not found");
+  const members = await db.select({ accountId: cfopCompetitionMembers.accountId }).from(cfopCompetitionMembers).where(eq(cfopCompetitionMembers.roomId, sourceRoomId));
+  await db.insert(cfopCompetitionRooms).values({ code, name: `${source.name} · Đấu lại`.slice(0, 80), hostAccountId: source.hostAccountId, maxPlayers: source.maxPlayers, format: source.format });
+  const room = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.code, code)).limit(1))[0];
+  if (!room) throw new Error("Rematch creation did not return a row");
+  if (members.length) await db.insert(cfopCompetitionMembers).values(members.map((member) => ({ roomId: room.id, accountId: member.accountId })));
+  return room;
+}
+
 export async function findCompetitionRoomByCode(code: string) {
   const db = await requireDb();
   return (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.code, code)).limit(1))[0] ?? null;
@@ -164,6 +176,11 @@ export async function leaveCompetitionRoom(roomId: number, accountId: number) {
 export async function listCompetitionRoomsForAccount(accountId: number) {
   const db = await requireDb();
   return db.select({ room: cfopCompetitionRooms, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionMembers.roomId, cfopCompetitionRooms.id)).where(eq(cfopCompetitionMembers.accountId, accountId)).orderBy(desc(cfopCompetitionRooms.updatedAt));
+}
+
+export async function listFinishedCompetitionRoomsForAccount(accountId: number) {
+  const db = await requireDb();
+  return db.select({ room: cfopCompetitionRooms, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionMembers.roomId, cfopCompetitionRooms.id)).where(and(eq(cfopCompetitionMembers.accountId, accountId), eq(cfopCompetitionRooms.status, "finished"))).orderBy(desc(cfopCompetitionRooms.updatedAt));
 }
 
 export async function listCompetitionMembers(roomId: number) {
