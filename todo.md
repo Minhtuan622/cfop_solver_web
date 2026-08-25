@@ -928,3 +928,9 @@
 - [x] Chuẩn hóa key Speffz, metadata nhóm và catalog có thể lọc trong Study.
 - [x] Tạo target scramble có AUF hợp lệ và xác thực solution linh hoạt cho mỗi case.
 - [x] Kiểm tra độ phủ catalog, target AUF, desktop/mobile và checkpoint sau khi hoàn tất.
+
+## Mẹo học 3-Style từ Internet và YouTube
+
+- [x] Đối chiếu mẹo luyện memo, commutator, buffer, slow execution và SRS từ nguồn Rubik/YouTube đáng tin cậy.
+- [x] Chuyển nội dung thành hướng dẫn tiếng Việt ngắn, có liên kết nguồn và không thay đổi thuật toán hay dữ liệu BLD hiện có.
+- [x] Tích hợp mục mẹo vào lộ trình Study bằng Bootstrap, kiểm tra desktop/mobile, hồi quy và checkpoint.

@@ -2,6 +2,9 @@
 html, body, #root { min-height: 100%; }
 body { margin: 0; }
 
+/* Study stages are vertical Bootstrap documents; they must not stretch to an arbitrary panel height. */
+[role="tabpanel"] > .card.h-100 { height: auto !important; }
+
 /* Giữ đúng hành vi mặc định của Bootstrap: nền primary luôn có chữ/icon trắng dễ đọc. */
 .btn-primary,
 .btn-primary:hover,
