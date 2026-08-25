@@ -1,6 +1,6 @@
 # CFOP Solver Studio
 
-Ứng dụng web hỗ trợ giải và luyện Rubik 3×3. Giao diện được xây bằng **React + TypeScript + Vite + Bootstrap**. Thuật toán CFOP/BLD viết bằng Python được đóng gói vào trình duyệt và chạy trong **Pyodide Web Worker**, vì vậy luồng giải chính không cần một API hay cơ sở dữ liệu riêng.
+Ứng dụng web hỗ trợ giải và luyện Rubik 3×3. Giao diện được xây bằng **React + TypeScript + Vite + Bootstrap**; backend dùng **Express + tRPC + Drizzle/MySQL** cho tài khoản CFOP riêng. Thuật toán CFOP/BLD viết bằng Python được đóng gói vào trình duyệt và chạy trong **Pyodide Web Worker**, vì vậy luồng giải chính vẫn không gọi API.
 
 > **Mục tiêu triển khai:** sau khi sao chép đúng workspace gồm frontend và gói Python solver, bạn chỉ cần cài Node.js, `pnpm install`, rồi chạy `pnpm dev` hoặc `pnpm build`.
 
@@ -33,6 +33,11 @@
 │ Python CFOP package (workspace anh em)                      │
 │  ../cfop_solver/cfop_solver                                 │
 └────────────────────────────────────────────────────────────┘
+                    │
+┌───────────────────▼────────────────────────────────────────┐
+│ Express + tRPC + MySQL/TiDB                                  │
+│  Tài khoản CFOP email/mật khẩu và phiên HTTP-only            │
+└────────────────────────────────────────────────────────────┘
 ```
 
 ## Yêu cầu môi trường
@@ -42,6 +47,7 @@
 | Node.js | 22 LTS trở lên | Chạy Vite, build và production server. |
 | pnpm | 10 trở lên | Cài dependency đúng theo lockfile. |
 | Python | 3.11 trở lên | Chạy test cho thuật toán solver; không bắt buộc khi chỉ chạy bản web đã build. |
+| MySQL/TiDB | MySQL 8 trở lên | Bắt buộc khi bật đăng ký/đăng nhập tài khoản CFOP riêng. |
 | Git | Bản mới | Sao chép/sync source code. |
 
 Lệnh kiểm tra nhanh:
@@ -61,7 +67,8 @@ Script `embed-solver` mặc định lấy Python package từ **thư mục anh e
 rubik-workspace/
 ├── cfop_solver_web/              # repository này
 │   ├── client/                    # React/Vite frontend
-│   ├── server/                    # Express static server cho production
+│   ├── server/                    # Express/tRPC backend và production server
+│   ├── drizzle/                   # Schema/migration MySQL cho tài khoản CFOP
 │   ├── scripts/embed-solver.mjs   # nạp Python source vào web bundle
 │   ├── package.json
 │   └── pnpm-lock.yaml
@@ -88,7 +95,17 @@ pnpm install --frozen-lockfile
 
 `pnpm-lock.yaml` cần được giữ nguyên để tái lập đúng dependency đã kiểm thử. Không dùng `npm install` hoặc `yarn install` trong cùng project vì sẽ tạo lockfile khác.
 
-### 3. Đồng bộ Python solver vào frontend
+### 3. Chuẩn bị database cho tài khoản CFOP (tùy chọn nhưng cần nếu dùng đăng nhập)
+
+Tạo một database MySQL/TiDB rỗng, đặt `DATABASE_URL` trong environment của server, sau đó áp dụng migration:
+
+```bash
+pnpm drizzle-kit migrate
+```
+
+Migration tạo ba bảng: `cfop_accounts`, `cfop_account_sessions` và `users`. Hai bảng bắt đầu bằng `cfop_` là **tài khoản CFOP độc lập**; chúng không dùng `openId`, OAuth, hay thông tin tài khoản Manus. Mật khẩu chỉ được lưu bằng scrypt hash; session browser chỉ chứa random token HTTP-only, còn database chỉ lưu SHA-256 hash của token.
+
+### 4. Đồng bộ Python solver vào frontend
 
 ```bash
 pnpm run embed-solver
@@ -98,25 +115,24 @@ Lệnh này đọc 15 module Python từ `../cfop_solver/cfop_solver/` và sinh 
 
 > **Không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`.** File này sẽ bị ghi đè ở lần chạy `embed-solver` hoặc `build` kế tiếp.
 
-### 4. Chạy môi trường phát triển
+### 5. Chạy môi trường phát triển
 
 ```bash
 pnpm dev
 ```
 
-Mặc định ứng dụng chạy tại `http://localhost:3000`. Nếu cổng 3000 đang bận, Vite sẽ tự chọn cổng kế tiếp.
+Mặc định ứng dụng chạy tại `http://localhost:3000`. Nếu cổng 3000 đang bận, Express sẽ tự chọn cổng kế tiếp. Dev server gồm cả Vite middleware và tRPC API `/api/trpc`.
 
 ## Lệnh thường dùng
 
 | Lệnh | Mục đích |
 |---|---|
-| `pnpm dev` | Mở Vite development server. |
+| `pnpm dev` | Mở Express development server, Vite middleware và tRPC API. |
 | `pnpm run embed-solver` | Sinh lại Python solver đã nhúng sau khi sửa Python source. |
 | `pnpm check` | Kiểm tra TypeScript, không tạo file build. |
-| `pnpm exec vitest run` | Chạy toàn bộ test giao diện và thư viện TypeScript. |
-| `pnpm build` | Nhúng solver, build frontend vào `dist/public`, rồi bundle static server vào `dist/index.js`. |
-| `pnpm preview` | Xem nhanh Vite production bundle tại máy local. |
-| `PORT=8080 pnpm start` | Chạy Express static server của bản build tại cổng 8080. |
+| `pnpm test` | Chạy toàn bộ test server, bảo mật tài khoản và giao diện. |
+| `pnpm build` | Nhúng solver, build frontend vào `dist/public`, rồi bundle Express/tRPC server vào `dist/index.js`. |
+| `PORT=8080 pnpm start` | Chạy Express/tRPC production server tại cổng 8080. |
 | `pnpm format` | Format code bằng Prettier. |
 
 ## Kiểm thử trước khi commit hoặc triển khai
@@ -160,7 +176,7 @@ Nếu thêm module Python mới được import trong solver, hãy thêm tên mo
 
 ## Dữ liệu người dùng và localStorage
 
-Ứng dụng hiện là client-side. Timer history, setting, tiến độ Study/SRS, mastered case và một số lựa chọn UI được lưu trong **`localStorage` của trình duyệt**.
+Timer history, setting, tiến độ Study/SRS, mastered case và một số lựa chọn UI vẫn được lưu trong **`localStorage` của trình duyệt**. Đăng ký/đăng nhập chỉ lưu danh tính CFOP và phiên vào database; bản hiện tại chưa tự đồng bộ Timer/Study localStorage giữa các thiết bị.
 
 Điều này có nghĩa là dữ liệu được tách theo trình duyệt, thiết bị và origin. Khi chạy ở domain khác hoặc xoá dữ liệu trình duyệt, lịch sử local có thể không còn hiện. Các chức năng xuất/nhập của History và Study nên được dùng để sao lưu định kỳ trước khi chuyển máy.
 
@@ -178,17 +194,17 @@ Sau build:
 
 ```text
 dist/
-├── index.js       # Express server với SPA fallback
+├── index.js       # Express/tRPC server với SPA fallback
 └── public/        # HTML, JavaScript, CSS và assets tĩnh
 ```
 
-`server/index.ts` chỉ phục vụ file tĩnh và gửi lại `index.html` cho các route SPA như `/timer`, `/history`, `/study` và `/settings`. Solver vẫn chạy ở trình duyệt thông qua Web Worker.
+`server/_core/index.ts` mount tRPC ở `/api/trpc`, sau đó phục vụ file tĩnh và gửi lại `index.html` cho các route SPA như `/timer`, `/history`, `/study` và `/settings`. Solver vẫn chạy ở trình duyệt thông qua Web Worker.
 
-Nếu triển khai lên static host, hãy upload nội dung `dist/public/` và bật SPA fallback về `index.html`. Nếu host cần Node server, dùng `pnpm start` sau khi build.
+Khi bật tài khoản CFOP, **không dùng static host thuần**: cần Node server chạy `pnpm start` cùng MySQL/TiDB. Nếu tắt hoàn toàn phần tài khoản, vẫn có thể tách `dist/public/` sang static host với SPA fallback.
 
 ## Biến môi trường
 
-Luồng giải Rubik, Timer, History và Study **không cần secret** để hoạt động. Cấu hình Vite có một storage proxy phát triển tại `/manus-storage`; proxy đó chỉ cần biến `BUILT_IN_FORGE_API_URL` và `BUILT_IN_FORGE_API_KEY` khi dự án thực sự sử dụng asset trên storage tương ứng.
+Luồng giải Rubik, Timer, History và Study **không cần secret** để hoạt động. Tài khoản CFOP cần `DATABASE_URL`; server core cũng cần `JWT_SECRET` ngẫu nhiên, ổn định khi tự host. Cấu hình Vite có một storage proxy phát triển tại `/manus-storage`; proxy đó chỉ cần biến `BUILT_IN_FORGE_API_URL` và `BUILT_IN_FORGE_API_KEY` khi dự án thực sự sử dụng asset trên storage tương ứng.
 
 Không đưa key, token hoặc file `.env` thật vào Git. Nếu bổ sung tích hợp bên thứ ba về sau, hãy mô tả biến môi trường mới trong README này và cung cấp `.env.example` không chứa secret.
 
@@ -201,6 +217,10 @@ Khi tự triển khai ngoài workspace được quản lý, tạo `.env.local` v
 ```dotenv
 NODE_ENV=development
 PORT=3000
+
+# Cần khi bật tài khoản CFOP email/mật khẩu
+DATABASE_URL=mysql://username:password@127.0.0.1:3306/cfop_solver
+JWT_SECRET=replace-with-a-long-random-secret
 
 # Chỉ cần khi dùng /manus-storage/<path>
 BUILT_IN_FORGE_API_URL=
@@ -225,6 +245,7 @@ Không để ảnh, video hoặc file lớn trong `client/public/` hay `client/s
 | Trang con trả 404 khi deploy static | Host chưa bật SPA fallback. | Cấu hình route fallback trả về `index.html`. |
 | Lịch sử Timer biến mất | Đổi domain/browser hoặc xoá localStorage. | Import bản sao lưu JSON trước đó hoặc dùng cùng origin cũ. |
 | Direct Opening chậm | Direct depth/node budget đang cao. | Hạ `node budget direct`, giảm depth hoặc chọn Opening tier thấp hơn. |
+| Đăng ký/đăng nhập lỗi | Chưa cấu hình `DATABASE_URL` hoặc chưa chạy migration. | Kiểm tra kết nối MySQL/TiDB, rồi chạy `pnpm drizzle-kit migrate`. |
 
 ## Checklist chuyển dự án sang máy khác
 
@@ -233,7 +254,8 @@ Không để ảnh, video hoặc file lớn trong `client/public/` hay `client/s
 - [ ] `pnpm install --frozen-lockfile` chạy thành công.
 - [ ] `pnpm run embed-solver` sinh được `client/src/lib/embeddedSolver.ts`.
 - [ ] `pnpm check`, `pnpm exec vitest run` và `pnpm build` đều pass.
-- [ ] Static host có SPA fallback hoặc Node host chạy `pnpm start`.
+- [ ] Nếu dùng tài khoản CFOP: MySQL/TiDB sẵn sàng, `DATABASE_URL`/`JWT_SECRET` đã đặt và migration đã chạy.
+- [ ] Node host chạy `pnpm start`; không dùng static host thuần khi bật tài khoản.
 - [ ] Dữ liệu local quan trọng đã export trước khi đổi domain/trình duyệt.
 
 ## Tài liệu nền tảng

@@ -14,6 +14,7 @@ function RouteLoading() {
   return <div className="container py-4 py-lg-5" aria-live="polite"><div className="row g-4"><div className="col-12 col-xl-8"><SkeletonCard lines={2} label="Đang tải công cụ" /><SkeletonCard lines={5} className="mt-4" label="Đang tải nội dung công cụ" /></div><div className="col-12 col-xl-4"><SkeletonCard lines={4} label="Đang tải thông tin bổ sung" /></div></div></div>;
 }
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return <Suspense fallback={<RouteLoading />}><Switch>
     <Route path="/" component={Home} />
     <Route path="/timer" component={TimerLab} />

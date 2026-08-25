@@ -1015,3 +1015,9 @@
 - [x] Kiểm kê cấu trúc repository, tệp thiết yếu, cấu hình và bundle production hiện tại.
 - [x] Triển khai tối ưu tải có rủi ro thấp dựa trên số liệu bundle thực tế.
 - [x] Kiểm tra lại TypeScript, test, build, các route chính và checkpoint.
+
+## Tài khoản CFOP riêng
+
+- [x] Thiết kế tài khoản email/mật khẩu, phiên đăng nhập và các dữ liệu không được trộn với Manus.
+- [x] Nâng cấp backend/database, tạo API đăng ký/đăng nhập/đăng xuất và bảo vệ mật khẩu.
+- [x] Thêm giao diện tài khoản, kiểm thử luồng xác thực và checkpoint.
