@@ -914,3 +914,10 @@
 - [x] Thêm quiz notation ngắn có phản hồi và tiến độ phiên học.
 - [x] Gắn Cube 3D trực quan theo công thức đang chọn.
 - [x] Kiểm tra thuật toán, desktop/mobile và checkpoint sau khi hoàn tất.
+
+## Tự kiểm target scramble 3-Style
+
+- [x] Kiểm kê công thức starter, helper inverse/state và luồng kiểm tra kết quả có thể tái dùng.
+- [x] Thiết kế target scramble hợp lệ cho từng algorithm cùng tiêu chí đỗ/rớt.
+- [x] Bỏ Quiz notation và tích hợp chế độ tự kiểm vào chặng Công thức.
+- [x] Kiểm tra target scramble, desktop/mobile và checkpoint sau khi hoàn tất.
