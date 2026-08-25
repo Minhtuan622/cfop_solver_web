@@ -953,3 +953,9 @@
 - [x] Tính streak ngày từ lịch sử SRS thật, bao gồm trạng thái chưa có dữ liệu và cách giữ streak hôm nay.
 - [x] Tái cấu trúc Study BLD theo bố cục Bootstrap tối đa hai cột: thanh điều hướng/hồ sơ gọn, khu vực bài đang học rõ ràng và các phần phụ ít cạnh tranh hơn.
 - [x] Bảo toàn checklist, SRS, profile, memo, Drill và catalog; kiểm thử desktop/mobile, hồi quy, build và checkpoint.
+
+## Direct opening ưu tiên tìm được XCross đến XXXXCROSS
+
+- [x] Kiểm kê cấu hình, worker solver, giới hạn direct opening và fallback hiện có cho XCross đến XXXXCROSS.
+- [x] Thêm tùy chọn ưu tiên tìm được kết quả với giới hạn thời gian/độ sâu an toàn, đồng thời giữ chế độ manual depth hiện tại.
+- [x] Kiểm thử các mode opening, xác minh desktop/mobile, hồi quy, build và checkpoint.
