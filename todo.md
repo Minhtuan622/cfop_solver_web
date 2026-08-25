@@ -1051,3 +1051,10 @@
 - [x] Tạo API có phân quyền cho tạo phòng, tham gia/rời phòng, bắt đầu lượt và nộp kết quả.
 - [x] Xây dựng lobby và trang phòng tối đa hai cột, dùng chung Timer nhưng không ghi đè lịch sử cá nhân.
 - [x] Kiểm thử phân quyền, kết quả nhiều người, responsive, TypeScript, build và checkpoint.
+
+## Phòng thi đấu: mời, chat và thể thức
+
+- [x] Chốt liên kết mời trực tiếp, chat phòng cập nhật miễn phí và quy tắc Best of 3/Ao5/Ao12.
+- [x] Mở rộng schema/migration/API cho thể thức phòng và tin nhắn chat có phân quyền.
+- [x] Thêm thao tác sao chép/chia sẻ link mời, khung chat và bảng kết quả theo thể thức đã chọn.
+- [x] Kiểm thử link mời, giới hạn chat, quyền thành viên, Best of 3/Ao5/Ao12, responsive, test/build và checkpoint.

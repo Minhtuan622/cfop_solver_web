@@ -3,9 +3,9 @@ import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { COOKIE_NAME } from "../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "./cfopAccountAuth";
-import { competitionAo5, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
+import { competitionFormatScore, competitionRoundLimit, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "./cfopPasswordResetMail";
-import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionResults, listCompetitionRoomsForAccount, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "./db";
+import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { cfopAccountProcedure, publicProcedure, router } from "./_core/trpc";
@@ -25,8 +25,9 @@ const cloudStateInput = z.object({
   bldLearningPath: z.unknown(),
 });
 const roomCodeInput = z.object({ code: z.string().trim().min(4).max(10) });
-const createRoomInput = z.object({ name: z.string().trim().min(2, "Tên phòng cần ít nhất 2 ký tự.").max(80), maxPlayers: z.number().int().min(2).max(16).default(8) });
+const createRoomInput = z.object({ name: z.string().trim().min(2, "Tên phòng cần ít nhất 2 ký tự.").max(80), maxPlayers: z.number().int().min(2).max(16).default(8), format: z.enum(["best_of_3", "ao5", "ao12"]).default("ao5") });
 const resultInput = roomCodeInput.extend({ roundId: z.number().int().positive(), elapsedMs: z.number().int().min(0).max(3_600_000), inspectionMs: z.number().int().min(0).max(60_000), penalty: z.enum(["none", "+2", "DNF"]) });
+const messageInput = roomCodeInput.extend({ content: z.string().trim().min(1, "Tin nhắn không được để trống.").max(500, "Tin nhắn tối đa 500 ký tự.") });
 
 function normalizeRoomCode(value: string) { return value.toUpperCase().replace(/[^A-Z0-9]/g, ""); }
 function roomError() { return new TRPCError({ code: "NOT_FOUND", message: "Không tìm thấy phòng thi đấu này." }); }
@@ -35,20 +36,20 @@ async function requireCompetitionMember(roomId: number, accountId: number) { con
 async function competitionRoomState(code: string, accountId: number) {
   const room = await requireCompetitionRoom(code);
   await requireCompetitionMember(room.id, accountId);
-  const [members, activeRound, results] = await Promise.all([listCompetitionMembers(room.id), getCompetitionActiveRound(room.id), listCompetitionResults(room.id)]);
+  const [members, activeRound, results, messages] = await Promise.all([listCompetitionMembers(room.id), getCompetitionActiveRound(room.id), listCompetitionResults(room.id), listCompetitionMessages(room.id)]);
   const players = members.map((member) => {
     const history = results.filter((result) => result.accountId === member.accountId);
     const lastResult = history.at(-1) ?? null;
     const currentResult = activeRound ? history.find((result) => result.roundId === activeRound.id) ?? null : null;
-    const ao5 = competitionAo5(history.map((result) => ({ elapsedMs: result.elapsedMs, penalty: result.penalty })));
-    return { ...member, solves: history.length, ao5, lastResult: lastResult ? { elapsedMs: lastResult.elapsedMs, penalty: lastResult.penalty, roundSequence: lastResult.roundSequence } : null, currentResult: currentResult ? { elapsedMs: currentResult.elapsedMs, inspectionMs: currentResult.inspectionMs, penalty: currentResult.penalty, submittedAt: currentResult.submittedAt } : null };
+    const score = competitionFormatScore(room.format, history.map((result) => ({ elapsedMs: result.elapsedMs, penalty: result.penalty })));
+    return { ...member, solves: history.length, score, lastResult: lastResult ? { elapsedMs: lastResult.elapsedMs, penalty: lastResult.penalty, roundSequence: lastResult.roundSequence } : null, currentResult: currentResult ? { elapsedMs: currentResult.elapsedMs, inspectionMs: currentResult.inspectionMs, penalty: currentResult.penalty, submittedAt: currentResult.submittedAt } : null };
   });
   const standings = [...players].filter((player) => player.lastResult).sort((left, right) => {
-    const leftScore = left.ao5 === undefined ? effectiveCompetitionTime(left.lastResult!) : left.ao5;
-    const rightScore = right.ao5 === undefined ? effectiveCompetitionTime(right.lastResult!) : right.ao5;
+    const leftScore = left.score === undefined ? effectiveCompetitionTime(left.lastResult!) : left.score;
+    const rightScore = right.score === undefined ? effectiveCompetitionTime(right.lastResult!) : right.score;
     return (leftScore ?? Number.POSITIVE_INFINITY) - (rightScore ?? Number.POSITIVE_INFINITY);
   }).map((player, index) => ({ ...player, rank: index + 1 }));
-  return { room, isHost: room.hostAccountId === accountId, activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, startedAt: activeRound.startedAt } : null, players, standings };
+  return { room, isHost: room.hostAccountId === accountId, roundLimit: competitionRoundLimit(room.format), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, startedAt: activeRound.startedAt } : null, players, standings, messages };
 }
 
 function validateCloudPayload(payload: unknown) {
@@ -146,7 +147,7 @@ export const appRouter = router({
       for (let attempt = 0; attempt < 5 && !room; attempt += 1) {
         const code = createCompetitionCode();
         if (await findCompetitionRoomByCode(code)) continue;
-        room = await createCompetitionRoom({ code, name: input.name, maxPlayers: input.maxPlayers, hostAccountId: ctx.cfopAccount.id });
+        room = await createCompetitionRoom({ code, name: input.name, maxPlayers: input.maxPlayers, format: input.format, hostAccountId: ctx.cfopAccount.id });
       }
       if (!room) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Không thể tạo mã phòng. Hãy thử lại." });
       return { code: room.code };
@@ -170,7 +171,9 @@ export const appRouter = router({
     startRound: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => {
       const room = await requireCompetitionRoom(input.code);
       if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được bắt đầu lượt mới." });
+      if (room.status === "finished") throw new TRPCError({ code: "BAD_REQUEST", message: "Thể thức này đã kết thúc. Hãy tạo phòng mới để thi tiếp." });
       if ((await listCompetitionMembers(room.id)).length < 2) throw new TRPCError({ code: "BAD_REQUEST", message: "Cần ít nhất 2 người trong phòng để bắt đầu thi đấu." });
+      if (room.currentRound >= competitionRoundLimit(room.format)) throw new TRPCError({ code: "BAD_REQUEST", message: "Đã đủ số lượt của thể thức này. Hãy hoàn tất phòng để chốt bảng xếp hạng." });
       const activeRound = await getCompetitionActiveRound(room.id);
       if (activeRound) await finishCompetitionRound(activeRound.id);
       const round = await startCompetitionRound(room.id, room.currentRound + 1, createSharedScramble());
@@ -184,6 +187,25 @@ export const appRouter = router({
       if (activeRound.id !== input.roundId) throw new TRPCError({ code: "CONFLICT", message: "Lượt thi đấu đã chuyển. Hãy đồng bộ lại phòng trước khi nộp kết quả." });
       if (await findCompetitionResult(activeRound.id, ctx.cfopAccount.id)) throw new TRPCError({ code: "CONFLICT", message: "Bạn đã nộp kết quả cho lượt này." });
       await submitCompetitionResult({ roundId: activeRound.id, accountId: ctx.cfopAccount.id, elapsedMs: input.elapsedMs, inspectionMs: input.inspectionMs, penalty: input.penalty });
+      if (activeRound.sequence >= competitionRoundLimit(room.format)) {
+        const [members, results] = await Promise.all([listCompetitionMembers(room.id), listCompetitionResults(room.id)]);
+        const allSubmitted = members.every((member) => results.some((result) => result.roundId === activeRound.id && result.accountId === member.accountId));
+        if (allSubmitted) { await finishCompetitionRound(activeRound.id); await finishCompetitionRoom(room.id); }
+      }
+      return { success: true } as const;
+    }),
+    sendMessage: cfopAccountProcedure.input(messageInput).mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      await requireCompetitionMember(room.id, ctx.cfopAccount.id);
+      await createCompetitionMessage({ roomId: room.id, accountId: ctx.cfopAccount.id, content: input.content });
+      return { success: true } as const;
+    }),
+    finish: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được hoàn tất thể thức." });
+      const activeRound = await getCompetitionActiveRound(room.id);
+      if (activeRound) await finishCompetitionRound(activeRound.id);
+      await finishCompetitionRoom(room.id);
       return { success: true } as const;
     }),
   }),

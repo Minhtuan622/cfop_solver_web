@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, gt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopCompetitionMembers, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds, cfopPasswordResetTokens, InsertUser, users } from "../drizzle/schema";
+import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopCompetitionMembers, cfopCompetitionMessages, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds, cfopPasswordResetTokens, InsertUser, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -131,7 +131,7 @@ export async function consumeCfopPasswordResetToken(tokenHash: string, passwordH
   return findCfopAccountById(reset.accountId);
 }
 
-export async function createCompetitionRoom(values: { code: string; name: string; hostAccountId: number; maxPlayers: number }) {
+export async function createCompetitionRoom(values: { code: string; name: string; hostAccountId: number; maxPlayers: number; format: "best_of_3" | "ao5" | "ao12" }) {
   const db = await requireDb();
   await db.insert(cfopCompetitionRooms).values(values);
   const room = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.code, values.code)).limit(1))[0];
@@ -190,6 +190,11 @@ export async function finishCompetitionRound(roundId: number) {
   await db.update(cfopCompetitionRounds).set({ status: "finished", completedAt: new Date() }).where(eq(cfopCompetitionRounds.id, roundId));
 }
 
+export async function finishCompetitionRoom(roomId: number) {
+  const db = await requireDb();
+  await db.update(cfopCompetitionRooms).set({ status: "finished", updatedAt: new Date() }).where(eq(cfopCompetitionRooms.id, roomId));
+}
+
 export async function findCompetitionResult(roundId: number, accountId: number) {
   const db = await requireDb();
   return (await db.select().from(cfopCompetitionResults).where(and(eq(cfopCompetitionResults.roundId, roundId), eq(cfopCompetitionResults.accountId, accountId))).limit(1))[0] ?? null;
@@ -204,4 +209,15 @@ export async function submitCompetitionResult(values: { roundId: number; account
 export async function listCompetitionResults(roomId: number) {
   const db = await requireDb();
   return db.select({ roundSequence: cfopCompetitionRounds.sequence, roundId: cfopCompetitionRounds.id, accountId: cfopCompetitionResults.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, elapsedMs: cfopCompetitionResults.elapsedMs, inspectionMs: cfopCompetitionResults.inspectionMs, penalty: cfopCompetitionResults.penalty, submittedAt: cfopCompetitionResults.submittedAt }).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(eq(cfopCompetitionRounds.roomId, roomId)).orderBy(asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
+}
+
+export async function createCompetitionMessage(values: { roomId: number; accountId: number; content: string }) {
+  const db = await requireDb();
+  await db.insert(cfopCompetitionMessages).values(values);
+}
+
+export async function listCompetitionMessages(roomId: number, limit = 60) {
+  const db = await requireDb();
+  const rows = await db.select({ id: cfopCompetitionMessages.id, accountId: cfopCompetitionMessages.accountId, content: cfopCompetitionMessages.content, createdAt: cfopCompetitionMessages.createdAt, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl }).from(cfopCompetitionMessages).innerJoin(cfopAccounts, eq(cfopCompetitionMessages.accountId, cfopAccounts.id)).where(eq(cfopCompetitionMessages.roomId, roomId)).orderBy(desc(cfopCompetitionMessages.createdAt)).limit(limit);
+  return rows.reverse();
 }

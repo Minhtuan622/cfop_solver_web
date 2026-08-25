@@ -61,6 +61,7 @@ export const cfopCompetitionRooms = mysqlTable("cfop_competition_rooms", {
   name: varchar("name", { length: 80 }).notNull(),
   hostAccountId: int("hostAccountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
   status: mysqlEnum("status", ["waiting", "active", "finished"]).notNull().default("waiting"),
+  format: mysqlEnum("format", ["best_of_3", "ao5", "ao12"]).notNull().default("ao5"),
   maxPlayers: int("maxPlayers").notNull().default(8),
   currentRound: int("currentRound").notNull().default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -96,6 +97,15 @@ export const cfopCompetitionResults = mysqlTable("cfop_competition_results", {
   penalty: mysqlEnum("penalty", ["none", "+2", "DNF"]).notNull().default("none"),
   submittedAt: timestamp("submittedAt").defaultNow().notNull(),
 }, (table) => [uniqueIndex("cfop_competition_results_round_account_unique").on(table.roundId, table.accountId), index("cfop_competition_results_account_idx").on(table.accountId)]);
+
+/** Short, room-scoped text messages. The sender must be an active room member at API level. */
+export const cfopCompetitionMessages = mysqlTable("cfop_competition_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
+  accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
+  content: varchar("content", { length: 500 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => [index("cfop_competition_messages_room_created_idx").on(table.roomId, table.createdAt), index("cfop_competition_messages_account_idx").on(table.accountId)]);
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
