@@ -1036,3 +1036,10 @@
 - [x] Mở rộng schema/API/storage cho avatar, mục tiêu và yêu cầu đồng bộ thủ công.
 - [x] Thêm UI ảnh đại diện, mục tiêu sub-X, nút sync và biểu đồ Best/Ao5 theo ngày vào Hồ sơ.
 - [x] Kiểm tra upload, an toàn dữ liệu, chart responsive, test/build và checkpoint.
+
+## Crop avatar, lọc tiến bộ và mục tiêu Ao5
+
+- [x] Thiết kế crop avatar vuông chạy cục bộ, gồm zoom và vị trí khung trước khi tải ảnh.
+- [x] Thêm phạm vi 7 ngày, 30 ngày và tất cả cho biểu đồ Best/Ao5.
+- [x] Hiển thị thông báo chúc mừng khi Ao5 đạt hoặc vượt mục tiêu sub-X trên Hồ sơ.
+- [x] Kiểm thử crop, filter, goal state, desktop/mobile, test/build và checkpoint.
