@@ -1,3 +1,5 @@
+import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
+
 export type BldLearningPathProgress = { orientationDone: boolean; formulaDone: boolean; memoDone: boolean; sightedDone: boolean; selfCheckDone: boolean; reviewDone: boolean; lastStage: number };
 
 const STORAGE_KEY = "cfop-bld-learning-path-v1";
@@ -13,4 +15,5 @@ export function readBldLearningPath(): BldLearningPathProgress {
 
 export function writeBldLearningPath(progress: BldLearningPathProgress) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({ schema: "cfop-bld-learning-path", version: 2, ...progress }));
+  notifyCfopCloudStateChanged();
 }

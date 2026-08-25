@@ -1021,3 +1021,11 @@
 - [x] Thiết kế tài khoản email/mật khẩu, phiên đăng nhập và các dữ liệu không được trộn với Manus.
 - [x] Nâng cấp backend/database, tạo API đăng ký/đăng nhập/đăng xuất và bảo vệ mật khẩu.
 - [x] Thêm giao diện tài khoản, kiểm thử luồng xác thực và checkpoint.
+
+## Đồng bộ, Hồ sơ và quản lý mật khẩu
+
+- [x] Thiết kế snapshot đồng bộ an toàn cho Timer/Study, quy tắc gộp dữ liệu và trường hồ sơ CFOP.
+- [x] Mở rộng schema/API cho cloud state, hồ sơ, đổi mật khẩu và reset token đã băm.
+- [x] Tích hợp auto-sync khi đăng nhập/thay đổi dữ liệu và thêm trang Hồ sơ có thống kê Timer.
+- [x] Tạm hoãn gửi email cho Quên mật khẩu theo lựa chọn người dùng; giữ reset token server-side để có thể bật lại khi cấu hình Resend/domain sẵn sàng.
+- [x] Kiểm tra migration, bảo mật, sync, hồ sơ, desktop/mobile, test/build và checkpoint.

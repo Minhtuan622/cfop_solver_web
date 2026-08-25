@@ -1,4 +1,6 @@
 export type SolvePenalty = "none" | "+2" | "DNF";
+import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
+
 export const SPLIT_PHASES = ["Cross", "F2L", "OLL", "PLL"] as const;
 export type SplitPhase = (typeof SPLIT_PHASES)[number];
 export type SolvePhaseSplit = { phase: SplitPhase; markedAtMs: number; elapsedMs: number };
@@ -56,7 +58,7 @@ function normalize(item: Imported): SolveHistoryEntry {
     phaseSplits: safePhaseSplits(item.phaseSplits),
   };
 }
-function write(entries: SolveHistoryEntry[]) { localStorage.setItem(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); }
+function write(entries: SolveHistoryEntry[]) { localStorage.setItem(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); notifyCfopCloudStateChanged(); }
 
 export function readSolveHistory(): SolveHistoryEntry[] {
   try { return (JSON.parse(localStorage.getItem(KEY) ?? "[]") as Imported[]).filter((item) => item && typeof item === "object").map(normalize); } catch { return []; }
@@ -67,7 +69,7 @@ export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt
 export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
 export function deleteSolveHistory(id: string): SolveHistoryEntry[] { const next = readSolveHistory().filter((entry) => entry.id !== id); write(next); return next; }
 export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry[] { const selected = new Set(ids); const next = readSolveHistory().filter((entry) => !selected.has(entry.id)); write(next); return next; }
-export function clearSolveHistory() { localStorage.removeItem(KEY); }
+export function clearSolveHistory() { localStorage.removeItem(KEY); notifyCfopCloudStateChanged(); }
 export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
   const raw = Array.isArray(payload) ? payload : payload && typeof payload === "object" && Array.isArray((payload as { entries?: unknown }).entries) ? (payload as { entries: unknown[] }).entries : null;
   if (!raw) throw new Error("Invalid backup");

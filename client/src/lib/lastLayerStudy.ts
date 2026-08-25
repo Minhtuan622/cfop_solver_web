@@ -1,5 +1,7 @@
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 
+import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
+
 export type StudyGrade = "again" | "hard" | "good" | "easy";
 export type StudyRecord = {
   key: string;
@@ -49,13 +51,13 @@ export function readLastLayerStudy(): StudyState {
   } catch { return { records: {}, dailyGoal: 12 }; }
 }
 
-export function writeLastLayerStudy(state: StudyState) { localStorage.setItem(STORE, JSON.stringify({ schema: "cfop-last-layer-study", version: 1, records: Object.fromEntries(Object.entries(state.records).slice(0, MAX_RECORDS)), dailyGoal: Math.round(boundedNumber(state.dailyGoal, 12, 1, 200)) })); }
+export function writeLastLayerStudy(state: StudyState) { localStorage.setItem(STORE, JSON.stringify({ schema: "cfop-last-layer-study", version: 1, records: Object.fromEntries(Object.entries(state.records).slice(0, MAX_RECORDS)), dailyGoal: Math.round(boundedNumber(state.dailyGoal, 12, 1, 200)) })); notifyCfopCloudStateChanged(); }
 
 export function readMasteredCaseKeys() {
   try { const raw = JSON.parse(localStorage.getItem(MASTERED_STORE) ?? "[]"); return new Set(Array.isArray(raw) ? raw.filter((item): item is string => typeof item === "string").slice(-1800) : []); } catch { return new Set<string>(); }
 }
 
-export function writeMasteredCaseKeys(keys: Set<string>) { localStorage.setItem(MASTERED_STORE, JSON.stringify(Array.from(keys).slice(-1800))); }
+export function writeMasteredCaseKeys(keys: Set<string>) { localStorage.setItem(MASTERED_STORE, JSON.stringify(Array.from(keys).slice(-1800))); notifyCfopCloudStateChanged(); }
 
 export function gradeCase(item: LastLayerCatalogCase, existing: StudyRecord | undefined, elapsedMs: number, grade: StudyGrade, now = Date.now()): StudyRecord {
   const prior = existing?.intervalDays ?? 0;

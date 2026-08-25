@@ -5,8 +5,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AppNav } from "./components/AppNav";
 import { SkeletonCard } from "./components/BootstrapUI";
+import { CfopCloudSync } from "./components/CfopCloudSync";
 const Home = lazy(() => import("./pages/Home"));
 const History = lazy(() => import("./pages/History"));
+const Profile = lazy(() => import("./pages/Profile"));
 const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
 
@@ -21,6 +23,7 @@ function Router() {
     <Route path="/study" component={TimerLab} />
     <Route path="/settings" component={Settings} />
     <Route path="/history" component={History} />
+    <Route path="/profile" component={Profile} />
     <Route path="/404" component={NotFound} />
     <Route component={NotFound} />
   </Switch></Suspense>;
@@ -60,6 +63,7 @@ export function BootstrapControlEnhancer() {
 function App() {
   return <ErrorBoundary><LanguageProvider>
     <BootstrapControlEnhancer />
+    <CfopCloudSync />
     <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">Bỏ qua điều hướng</a>
     <AppNav />
     <main id="main-content" className="py-4 py-lg-5"><Router /></main>
