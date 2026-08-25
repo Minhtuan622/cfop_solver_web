@@ -991,3 +991,9 @@
 - [x] Gỡ phần Mẫu để thử khỏi Studio, không ảnh hưởng dữ liệu hoặc solver.
 - [x] Khôi phục thuật ngữ Rubik cần thiết tại selector, tiến trình và kết quả lời giải.
 - [x] Kiểm tra TypeScript, test, build, responsive capture và checkpoint.
+
+## Cài đặt theo trải nghiệm cuber
+
+- [x] Rà lại các cài đặt Cross, Opening, Last Layer, inspection, speed splits và mục tiêu phase đang lưu.
+- [x] Nhóm và viết lại Cài đặt theo thuật ngữ Rubik, có mô tả ngắn nhưng không diễn giải lan man.
+- [x] Kiểm tra autosave, test/build, desktop/mobile và checkpoint.
