@@ -1217,3 +1217,10 @@
 - [x] Đối chiếu Clock hiện tại với mẫu tham chiếu: board tròn dày, mặt đen, chín dial, kim, pin, vành và ốc.
 - [x] Dựng lại Clock theo các bộ phận vật lý, vẫn dùng mapping dial/pin csTimer và không tự phát animation.
 - [x] Kiểm thử TypeScript, unit test, build production, thao tác preview và checkpoint.
+
+## Viết lại renderer side-event liền khối
+
+- [x] Loại bỏ hình học Clock rời, đặc biệt vòng ngang ngoài board và các dial/pin nổi sai vị trí.
+- [x] Xây lại Clock bằng body đĩa tròn liền khối với dial/pin gắn mặt và board trước/sau khép kín.
+- [x] Xây lại Square-1 bằng cubie kín hai tầng, các mặt bên khít nhau và equator belt không xuyên/tách mảnh.
+- [x] Bảo toàn mapping scramble, thêm regression hình học và kiểm thử preview/build trước checkpoint.

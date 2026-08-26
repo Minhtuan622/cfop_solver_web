@@ -73,15 +73,16 @@ const CLOCK_FRONT_LAYOUT = [0, 3, 6, 1, 4, 7, 2, 5, 8];
 const CLOCK_BACK_LAYOUT = [2, 10, 8, 9, 11, 13, 0, 12, 6];
 export function clockDialIndex(column: number, row: number, back = false) { return (back ? CLOCK_BACK_LAYOUT : CLOCK_FRONT_LAYOUT)[column * 3 + row]; }
 
-function squareOneSideColor(piece: number) {
-  const face = (piece % 2 ? SQUARE_CORNER_SIDE : SQUARE_EDGE_SIDE)[piece] ?? "F";
+function squareOneSideColor(piece: number, cornerFace = 0) {
+  const index = ((piece % 16) + 16) % 16;
+  const face = piece % 2 ? SQUARE_CORNER_SIDE[(index - 1 + cornerFace + 16) % 16] : SQUARE_EDGE_SIDE[index];
   return CUBE_COLORS[face] ?? CUBE_COLORS.F;
 }
 
 function squareOneSidePanel(THREE: ThreeModule, angle: number, width: number, verticalCenter: number, color: string) {
   const x = Math.cos(angle);
   const z = Math.sin(angle);
-  const squareRadius = 1.68;
+  const squareRadius = 1.658;
   const scale = squareRadius / Math.max(Math.abs(x), Math.abs(z), 0.0001);
   const panel = new THREE.Mesh(
     new THREE.BoxGeometry(width, 0.46, 0.045),
@@ -95,15 +96,15 @@ function squareOneSidePanel(THREE: ThreeModule, angle: number, width: number, ve
 function squareOneLayer(THREE: ThreeModule, wedges: PatternOrbit, startIndex: number, verticalBase: number) {
   const layer = new THREE.Group();
   const isTopLayer = verticalBase > 0;
-  const thickness = 0.48;
+  const thickness = 0.46;
   const stickerY = verticalBase + (isTopLayer ? thickness + 0.004 : -thickness - 0.004);
   const verticalCenter = verticalBase + (isTopLayer ? thickness / 2 : -thickness / 2);
-  const neutralPiece = new THREE.MeshStandardMaterial({ color: "#17202a", roughness: 0.58, metalness: 0.04 });
+  const neutralPiece = new THREE.MeshStandardMaterial({ color: "#252b31", roughness: 0.62, metalness: 0.01 });
   for (const { position, piece, units, face } of squareOneVisualSlots(wedges.pieces, startIndex)) {
     const layerOffset = startIndex === 0 ? -1 : -6;
-    const start = -(position + layerOffset) * Math.PI / 6 + 0.025;
-    const end = start - units * Math.PI / 6 + 0.05;
-    const shape = squareSectorShape(THREE, 0.12, 1.65, start, end);
+    const start = -(position + layerOffset) * Math.PI / 6 + 0.008;
+    const end = start - units * Math.PI / 6 + 0.016;
+    const shape = squareSectorShape(THREE, 0.035, 1.65, start, end);
     const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false }), neutralPiece);
     body.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
     body.position.y = verticalBase;
@@ -114,8 +115,7 @@ function squareOneLayer(THREE: ThreeModule, wedges: PatternOrbit, startIndex: nu
 
     for (let unit = 0; unit < units; unit += 1) {
       const unitAngle = start - (unit + 0.5) * Math.PI / 6;
-      const sideFace = units === 2 ? SQUARE_CORNER_SIDE[piece - 1 + unit] : SQUARE_EDGE_SIDE[piece];
-      layer.add(squareOneSidePanel(THREE, unitAngle, units === 2 ? 0.82 : 0.74, verticalCenter, CUBE_COLORS[sideFace] ?? CUBE_COLORS.F));
+      layer.add(squareOneSidePanel(THREE, unitAngle, units === 2 ? 0.81 : 0.76, verticalCenter, squareOneSideColor(piece, unit)));
     }
   }
   return layer;
@@ -125,17 +125,17 @@ function squareOneObject(THREE: ThreeModule, pattern: PatternData) {
   const root = new THREE.Group();
   const wedges = pattern.WEDGES;
   if (!wedges) throw new Error("Square-1 pattern is unavailable");
-  const top = squareOneLayer(THREE, wedges, 0, 0.16);
-  const bottom = squareOneLayer(THREE, wedges, 12, -0.16);
+  const top = squareOneLayer(THREE, wedges, 0, 0.12);
+  const bottom = squareOneLayer(THREE, wedges, 12, -0.12);
   const belt = new THREE.Group();
-  const beltCore = new THREE.Mesh(new THREE.BoxGeometry(3.38, 0.3, 3.38), new THREE.MeshStandardMaterial({ color: "#1f2833", roughness: 0.5, metalness: 0.26 }));
+  const beltCore = new THREE.Mesh(new THREE.BoxGeometry(3.31, 0.23, 3.31), new THREE.MeshStandardMaterial({ color: "#171d23", roughness: 0.5, metalness: 0.26 }));
   belt.add(beltCore);
   const beltFaces: Array<[number, number, number, string, boolean]> = [
     [0, 1.705, 0, CUBE_COLORS.R, true], [0, -1.705, 0, CUBE_COLORS.L, true],
     [1.705, 0, 0, CUBE_COLORS.F, false], [-1.705, 0, 0, CUBE_COLORS.B, false],
   ];
   beltFaces.forEach(([x, z, rotation, color, side]) => {
-    const band = new THREE.Mesh(new THREE.BoxGeometry(1.38, 0.16, 0.04), new THREE.MeshStandardMaterial({ color, roughness: 0.46, metalness: 0.03 }));
+    const band = new THREE.Mesh(new THREE.BoxGeometry(1.34, 0.13, 0.035), new THREE.MeshStandardMaterial({ color, roughness: 0.46, metalness: 0.03 }));
     band.position.set(x, 0, z);
     band.rotation.y = side ? rotation : Math.PI / 2;
     belt.add(band);
@@ -230,7 +230,6 @@ function clockObject(THREE: ThreeModule, pattern: PatternData) {
   const backBoard = board.clone();
   backBoard.position.z = -0.21;
   const rim = new THREE.Mesh(new THREE.TorusGeometry(2.31, 0.095, 12, 64), new THREE.MeshStandardMaterial({ color: "#e4e6e8", roughness: 0.18, metalness: 0.9 }));
-  rim.rotation.x = Math.PI / 2;
   rim.position.z = 0.3;
   const front = clockFace(THREE, dials, pattern.FACES, pivots);
   const back = clockFace(THREE, dials, pattern.FACES, pivots, true);
