@@ -1,5 +1,6 @@
 export type SolvePenalty = "none" | "+2" | "DNF";
 import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
+import { normalizeTimerEventId, type TimerEventId } from "./timerEvents";
 
 export const SPLIT_PHASES = ["Cross", "F2L", "OLL", "PLL"] as const;
 export type SplitPhase = (typeof SPLIT_PHASES)[number];
@@ -17,6 +18,8 @@ export type SolveHistoryEntry = {
   note: string;
   tags: string[];
   phaseSplits: SolvePhaseSplit[];
+  /** Older entries omit this field and are normalized as 3×3 when read. */
+  eventId?: TimerEventId;
 };
 
 const KEY = "cfop-solve-history-v1";
@@ -56,6 +59,7 @@ function normalize(item: Imported): SolveHistoryEntry {
     note: typeof item.note === "string" ? item.note.slice(0, 500) : "",
     tags: safeTags(item.tags),
     phaseSplits: safePhaseSplits(item.phaseSplits),
+    eventId: normalizeTimerEventId(item.eventId),
   };
 }
 function write(entries: SolveHistoryEntry[]) { localStorage.setItem(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); notifyCfopCloudStateChanged(); }

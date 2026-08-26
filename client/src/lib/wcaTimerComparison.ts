@@ -1,5 +1,6 @@
 import { effectiveTime, type SolveHistoryEntry } from "./solveHistory";
 import { bestRollingAverage } from "./timerRecords";
+import { DEFAULT_TIMER_EVENT, normalizeTimerEventId } from "./timerEvents";
 
 export type WcaTimerComparisonRow = {
   key: "single" | "ao5";
@@ -20,9 +21,10 @@ function centisecondsToMilliseconds(value: number | null | undefined) {
 
 /** Compares local Timer PBs with official 3×3 WCA personal records without altering either data source. */
 export function wcaTimerComparison(entries: SolveHistoryEntry[], record: ThreeByThreeWcaRecord): WcaTimerComparisonRow[] {
-  const singles = entries.map(effectiveTime).filter((value): value is number => value !== null);
+  const threeByThreeEntries = entries.filter((entry) => normalizeTimerEventId(entry.eventId) === DEFAULT_TIMER_EVENT);
+  const singles = threeByThreeEntries.map(effectiveTime).filter((value): value is number => value !== null);
   const timerSingle = singles.length ? Math.min(...singles) : null;
-  const timerAo5 = bestRollingAverage(entries, 5) ?? null;
+  const timerAo5 = bestRollingAverage(threeByThreeEntries, 5) ?? null;
   const wcaSingle = centisecondsToMilliseconds(record.singleCentiseconds);
   const wcaAverage = centisecondsToMilliseconds(record.averageCentiseconds);
 

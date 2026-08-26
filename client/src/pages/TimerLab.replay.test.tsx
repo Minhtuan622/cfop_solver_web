@@ -10,6 +10,7 @@ vi.mock("@/components/CubeNet", () => ({ CubeNet: () => <div data-testid="cube-n
 vi.mock("@/components/SolveTimer", () => ({ SolveTimer: () => <div data-testid="solve-timer" /> }));
 vi.mock("@/components/LastLayerStudyLab", () => ({ LastLayerStudyLab: () => <div data-testid="last-layer-study" /> }));
 vi.mock("recharts", () => ({ Bar: () => null, BarChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Line: () => null, LineChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Tooltip: () => null, XAxis: () => null, YAxis: () => null }));
+vi.mock("@/lib/timerEvents", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/timerEvents")>()), generateTimerScramble: async (eventId: string) => `${eventId} scramble` }));
 
 import TimerLab from "./TimerLab";
 
@@ -52,5 +53,18 @@ describe("Timer replay với solution đã lưu", () => {
     fireEvent.click(screen.getByRole("button", { name: "Nước sau" }));
     await waitFor(() => expect(screen.getByText(/1 \/ 2 · TPS/)).toBeInTheDocument());
     expect(screen.getAllByTestId("cube-guide").at(-1)).toHaveTextContent("U' · 1");
+  });
+
+  it("tách event Timer, tạo scramble mới và tắt công cụ CFOP khi chọn puzzle khác 3×3", async () => {
+    localStorage.setItem("cfop-language", "vi");
+    render(<LanguageProvider><TimerLab /></LanguageProvider>);
+
+    const eventSelect = screen.getByLabelText("Loại khối");
+    fireEvent.change(eventSelect, { target: { value: "pyram" } });
+
+    expect(await screen.findByText("pyram scramble")).toBeInTheDocument();
+    expect(screen.getAllByText("Pyraminx").length).toBeGreaterThan(0);
+    expect(screen.getByText(/Các công cụ CFOP\/3D chỉ áp dụng cho 3×3/i)).toBeInTheDocument();
+    expect(screen.getByText("Chưa có solve Pyraminx.")).toBeInTheDocument();
   });
 });

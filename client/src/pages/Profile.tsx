@@ -7,6 +7,7 @@ import { filterProfileProgress, meetsAo5Goal, profileProgressByDay, type Profile
 import { trpc } from "@/lib/trpc";
 import { readSolveHistory, effectiveTime, formatSolveTime } from "@/lib/solveHistory";
 import { rollingAverage } from "@/lib/timerRecords";
+import { DEFAULT_TIMER_EVENT, normalizeTimerEventId } from "@/lib/timerEvents";
 import { wcaTimerComparison } from "@/lib/wcaTimerComparison";
 import { dueMemoRecords, readBldProfile, reviewStreak } from "@/lib/bldProfile";
 import { readLastLayerStudy, todayReviewCount } from "@/lib/lastLayerStudy";
@@ -126,13 +127,14 @@ export default function Profile() {
     if (state === "error") setError("Không thể liên kết WCA. Hãy thử lại hoặc nhập WCA ID thủ công.");
   }, [location, utils]);
 
-  const valid = entries.map(effectiveTime).filter((value): value is number => value !== null);
+  const timerEntries = entries.filter((entry) => normalizeTimerEventId(entry.eventId) === DEFAULT_TIMER_EVENT);
+  const valid = timerEntries.map(effectiveTime).filter((value): value is number => value !== null);
   const best = valid.length ? Math.min(...valid) : null;
-  const ao5 = entries.length >= 5 ? rollingAverage(entries.slice(0, 5)) : null;
+  const ao5 = timerEntries.length >= 5 ? rollingAverage(timerEntries.slice(0, 5)) : null;
   const due = dueMemoRecords(bld).length;
   const streak = reviewStreak(bld);
   const reviewedLastLayer = todayReviewCount(lastLayer.records);
-  const chart = useMemo(() => profileProgressByDay(entries), [entries]);
+  const chart = useMemo(() => profileProgressByDay(timerEntries), [timerEntries]);
   const filteredChart = useMemo(() => filterProfileProgress(chart, progressRange), [chart, progressRange]);
   const submitProfile = (event: React.FormEvent) => { event.preventDefault(); setError(""); setMessage(""); const parsed = goalSeconds.trim() ? Number(goalSeconds) : null; if (parsed !== null && (!Number.isInteger(parsed) || parsed < 1 || parsed > 3600)) { setError("Mục tiêu nhập theo giây, từ 1 đến 3600."); return; } updateProfile.mutate({ displayName, bio, goalMs: parsed === null ? null : parsed * 1000 }); };
   const submitPassword = (event: React.FormEvent) => { event.preventDefault(); setError(""); setMessage(""); changePassword.mutate({ currentPassword, newPassword }); };
@@ -147,7 +149,7 @@ export default function Profile() {
 
   return <div className="container">
     <div className="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4"><div className="d-flex align-items-center gap-3"><div className="rounded-circle bg-body-secondary d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style={{ width: 76, height: 76 }} aria-label="Ảnh đại diện">{account.avatarUrl ? <img src={account.avatarUrl} alt="Ảnh đại diện" className="w-100 h-100 object-fit-cover" /> : <span className="fw-semibold">{initials(account.displayName)}</span>}</div><div><p className="text-body-secondary small mb-1">Tài khoản CFOP</p><h1 className="h2 mb-1">Hồ sơ của {account.displayName}</h1><p className="text-body-secondary mb-0">Mục tiêu: <strong>{goalLabel}</strong> · Timer và Study tự đồng bộ khi đăng nhập.</p></div></div><Link href="/history" className="btn btn-outline-secondary">Xem toàn bộ kết quả</Link></div>
-    <section className="row g-3 mb-4" aria-label="Thống kê Timer"><AccountMetric label="Lượt giải" value={String(entries.length)} detail="đang có trong lịch sử" /><AccountMetric label="Tốt nhất" value={best === null ? "—" : formatSolveTime(best)} detail="single hợp lệ" /><AccountMetric label="Ao5 gần nhất" value={ao5 === null ? "—" : formatSolveTime(ao5)} detail="5 lượt mới nhất" /><AccountMetric label="Ôn hôm nay" value={String(reviewedLastLayer)} detail="case Last Layer" /></section>
+    <section className="row g-3 mb-4" aria-label="Thống kê Timer"><AccountMetric label="Lượt 3×3" value={String(timerEntries.length)} detail="đang có trong lịch sử" /><AccountMetric label="Tốt nhất 3×3" value={best === null ? "—" : formatSolveTime(best)} detail="single hợp lệ" /><AccountMetric label="Ao5 3×3 gần nhất" value={ao5 === null ? "—" : formatSolveTime(ao5)} detail="5 lượt mới nhất" /><AccountMetric label="Ôn hôm nay" value={String(reviewedLastLayer)} detail="case Last Layer" /></section>
     {meetsAo5Goal(ao5, account.goalMs) ? <section className="alert alert-success d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4" role="status"><div><h2 className="h5 mb-1">Đã đạt mục tiêu {goalLabel}</h2><p className="mb-0">Ao5 gần nhất là <strong>{formatSolveTime(ao5 ?? 0)}</strong>. Giữ nhịp solve này để ổn định thành tích.</p></div><span className="badge text-bg-success fs-6">Ao5 đạt mục tiêu</span></section> : null}
     <section className="card mb-4"><div className="card-body"><div className="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3"><div><h2 className="h5 mb-1">Tiến bộ theo ngày</h2><p className="text-body-secondary small mb-0">Best và Ao5 tích luỹ từ lịch sử Timer hiện có.</p></div><div className="btn-group" role="group" aria-label="Phạm vi biểu đồ tiến độ">{(["7d", "30d", "all"] as ProfileProgressRange[]).map((range) => <button key={range} type="button" className={progressRange === range ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm"} onClick={() => setProgressRange(range)}>{range === "7d" ? "7 ngày" : range === "30d" ? "30 ngày" : "Tất cả"}</button>)}</div></div><ProfileProgressChart data={filteredChart} /></div></section>
     <div className="row g-4">

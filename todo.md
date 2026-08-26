@@ -1104,3 +1104,10 @@
 - [x] Chốt công thức so sánh 3×3 single WCA với PB Timer và average WCA với PB Ao5 Timer.
 - [x] Hiển thị chênh lệch, nguồn dữ liệu và trạng thái chưa đủ lượt trong card Hồ sơ WCA.
 - [x] Kiểm thử PB/Ao5, DNF, layout responsive, TypeScript, regression, build và checkpoint.
+
+## Timer đa loại Rubik
+
+- [x] Kiểm kê Timer, model lịch sử, scrambler và toàn bộ điểm giả định 3×3 hiện có.
+- [x] Thêm danh mục event phổ biến cùng scramble tương ứng và lưu event cho solve mới mà không làm hỏng lịch sử 3×3 cũ.
+- [x] Tách scramble, thống kê, PB/Ao và danh sách solve Timer theo event đang chọn.
+- [x] Kiểm thử event, dữ liệu lịch sử cũ, keyboard/touch, desktop/mobile, TypeScript, regression, build và checkpoint.
