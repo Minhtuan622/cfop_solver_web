@@ -107,8 +107,19 @@ function makeSquareShape(THREE: ThreeModule, points: SquarePoint[]) {
 function squareOneVerticalPanel(THREE: ThreeModule, from: SquarePoint, to: SquarePoint, lowerY: number, upperY: number, color: string) {
   const [ax, az] = from;
   const [bx, bz] = to;
+  const midpointX = (ax + bx) / 2;
+  const midpointZ = (az + bz) / 2;
+  const midpointLength = Math.max(0.0001, Math.hypot(midpointX, midpointZ));
+  const outward = 0.006;
+  const offsetX = (midpointX / midpointLength) * outward;
+  const offsetZ = (midpointZ / midpointLength) * outward;
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute([ax, lowerY, az, bx, lowerY, bz, bx, upperY, bz, ax, upperY, az], 3));
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute([
+    ax + offsetX, lowerY, az + offsetZ,
+    bx + offsetX, lowerY, bz + offsetZ,
+    bx + offsetX, upperY, bz + offsetZ,
+    ax + offsetX, upperY, az + offsetZ,
+  ], 3));
   geometry.setIndex([0, 1, 2, 0, 2, 3]);
   geometry.computeVertexNormals();
   return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.02, side: THREE.DoubleSide }));
@@ -131,7 +142,7 @@ function squareOneLayer(THREE: ThreeModule, state: SquareOneState, startIndex: n
   const lowerY = isTopLayer ? verticalBase : verticalBase - thickness;
   const upperY = isTopLayer ? verticalBase + thickness : verticalBase;
   const stickerY = isTopLayer ? upperY + 0.004 : lowerY - 0.004;
-  const neutralPiece = new THREE.MeshStandardMaterial({ color: "#252b31", roughness: 0.62, metalness: 0.01 });
+  const neutralPiece = new THREE.MeshStandardMaterial({ color: "#59636a", roughness: 0.62, metalness: 0.01 });
   const edge: SquarePoint[] = [[0, 0], [-0.5, -SQUARE1_SQA], [0.5, -SQUARE1_SQA]];
   const corner: SquarePoint[] = [[0, 0], [-0.5, -SQUARE1_SQA], [-SQUARE1_SQA, -SQUARE1_SQA], [-SQUARE1_SQA, -0.5]];
   for (let position = 0; position < 12; position += 1) {
@@ -149,6 +160,7 @@ function squareOneLayer(THREE: ThreeModule, state: SquareOneState, startIndex: n
     const sticker = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshStandardMaterial({ color: CUBE_COLORS[piece >= 8 ? "D" : "U"], roughness: 0.48, metalness: 0.01 }));
     sticker.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
     sticker.position.y = stickerY;
+    sticker.scale.set(1.012, 1.012, 1);
     layer.add(body, sticker, squareOneCubieOutline(THREE, cubieGeometry, body.rotation.x, verticalBase));
     const panels: Array<[SquarePoint, SquarePoint, string]> = isCorner
       ? [[points[1]!, points[2]!, squareOneSideColor(piece)], [points[2]!, points[3]!, squareOneSideColor(piece, 1)]]
@@ -173,7 +185,7 @@ function squareOneObject(THREE: ThreeModule, state: SquareOneState) {
     [1.705, 0, 0, CUBE_COLORS.F, false], [-1.705, 0, 0, CUBE_COLORS.B, false],
   ];
   beltFaces.forEach(([x, z, rotation, color, side]) => {
-    const band = new THREE.Mesh(new THREE.BoxGeometry(1.34, SQUARE1_LAYER_THICKNESS - 0.08, 0.035), new THREE.MeshStandardMaterial({ color, roughness: 0.46, metalness: 0.03 }));
+    const band = new THREE.Mesh(new THREE.BoxGeometry(3.22, SQUARE1_LAYER_THICKNESS - 0.08, 0.035), new THREE.MeshStandardMaterial({ color, roughness: 0.46, metalness: 0.03 }));
     band.position.set(x, 0, z);
     band.rotation.y = side ? rotation : Math.PI / 2;
     belt.add(band);

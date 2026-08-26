@@ -1255,3 +1255,9 @@
 - [x] Co đồng đều toàn bộ stack Square-1 theo trục dọc xuống tỷ lệ 2/3.
 - [x] Giữ footprint, viền cubie, equator và state/silhouette scramble không đổi.
 - [x] Kiểm thử TypeScript, regression, build và checkpoint.
+
+## Khép khe hở Square-1
+
+- [x] Loại bỏ body tối lộ ra quá nhiều ở tâm và giữa các cubie.
+- [x] Nới sticker/mặt bên/equator để các tầng khép sát, chỉ giữ rãnh viền mảnh.
+- [x] Kiểm thử state, TypeScript, regression, build và checkpoint.
