@@ -6,6 +6,10 @@ function solve(id: string, elapsedMs: number, penalty: SolveHistoryEntry["penalt
   return { id, createdAt: Number(id.replaceAll(/\D/g, "")) || 1, elapsedMs, inspectionMs: 0, input: "R U R' U'", inputKind: "scramble", moves: 0, penalty, solution: "", note: "", tags: [], phaseSplits: [] };
 }
 
+function multiBlind(id: string, attempted: number, solved: number, elapsedMs: number): SolveHistoryEntry {
+  return { ...solve(id, elapsedMs), eventId: "333mbf", multiBlind: { attempted, solved } };
+}
+
 describe("detectPersonalRecords", () => {
   it("marks a faster valid single as a PB", () => {
     expect(detectPersonalRecords([solve("old", 15_000)], solve("new", 12_000))).toEqual([{ key: "single", value: 12_000 }]);
@@ -31,5 +35,12 @@ describe("detectPersonalRecords", () => {
     const withDnf = [solve("a", 13_000), solve("b", 10_000), solve("c", 12_000), solve("d", 14_000), solve("dnf", 0, "DNF")];
     expect(metricEvidence(valid, "ao5").exclusions).toEqual({ b: "best", d: "worst" });
     expect(metricEvidence(withDnf, "ao5").exclusions).toEqual({ b: "best", dnf: "worst" });
+  });
+
+  it("ranks Multi-Blind PB by score, then time, then unsolved cubes", () => {
+    const previous = [multiBlind("old", 4, 3, 40_000)];
+    const candidate = multiBlind("new", 6, 4, 30_000);
+    expect(detectPersonalRecords(previous, candidate)).toEqual([{ key: "single", value: 2 }]);
+    expect(metricEvidence([...previous, candidate], "pb")).toMatchObject({ value: 2, entries: [candidate] });
   });
 });

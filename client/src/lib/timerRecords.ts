@@ -1,4 +1,5 @@
 import { effectiveTime, type SolveHistoryEntry } from "./solveHistory";
+import { compareMultiBlindResults, multiBlindResult } from "./multiBlind";
 
 export const RECORD_WINDOWS = [5, 12, 50, 100] as const;
 export type PersonalRecordKey = "single" | `ao${(typeof RECORD_WINDOWS)[number]}`;
@@ -6,6 +7,20 @@ export type PersonalRecord = { key: PersonalRecordKey; value: number };
 export type TimerMetricKey = "pb" | `ao${(typeof RECORD_WINDOWS)[number]}` | "total";
 export type AverageExclusion = "best" | "worst";
 export type MetricEvidence = { entries: SolveHistoryEntry[]; value: number | null | undefined; exclusions: Record<string, AverageExclusion> };
+
+function multiBlindCandidate(entry: SolveHistoryEntry) {
+  const time = effectiveTime(entry);
+  if (!entry.multiBlind || time === null) return null;
+  const result = multiBlindResult(entry.multiBlind, time);
+  return result.valid ? { entry, time, result } : null;
+}
+
+function bestMultiBlind(entries: SolveHistoryEntry[]) {
+  return entries.flatMap((entry) => {
+    const candidate = multiBlindCandidate(entry);
+    return candidate ? [candidate] : [];
+  }).sort((left, right) => compareMultiBlindResults(left.result, right.result, left.time, right.time))[0];
+}
 
 export function rollingAverage(sample: SolveHistoryEntry[]) {
   const numeric = sample.map(effectiveTime).filter((value): value is number => value !== null).sort((a, b) => a - b);
@@ -38,6 +53,8 @@ function averageExclusions(sample: SolveHistoryEntry[]): Record<string, AverageE
 export function metricEvidence(entries: SolveHistoryEntry[], key: TimerMetricKey): MetricEvidence {
   if (key === "total") return { entries, value: entries.length, exclusions: {} };
   if (key === "pb") {
+    const multiBlind = bestMultiBlind(entries);
+    if (multiBlind) return { entries: [multiBlind.entry], value: multiBlind.result.score, exclusions: {} };
     const valid = entries.filter((entry) => effectiveTime(entry) !== null);
     const best = valid.reduce<SolveHistoryEntry | undefined>((current, entry) => !current || (effectiveTime(entry) ?? Infinity) < (effectiveTime(current) ?? Infinity) ? entry : current, undefined);
     return { entries: best ? [best] : [], value: best ? effectiveTime(best) : undefined, exclusions: {} };
@@ -55,6 +72,12 @@ export function detectPersonalRecords(previousEntries: SolveHistoryEntry[], newE
   const entry = Array.isArray(newEntry) ? newEntry[0] : newEntry;
   if (!entry) return [];
   const records: PersonalRecord[] = [];
+  const multiBlind = multiBlindCandidate(entry);
+  if (multiBlind) {
+    const prior = bestMultiBlind(previousEntries);
+    if (!prior || compareMultiBlindResults(multiBlind.result, prior.result, multiBlind.time, prior.time) < 0) records.push({ key: "single", value: multiBlind.result.score });
+    return records;
+  }
   const single = effectiveTime(entry);
   const previousSingles = previousEntries.map(effectiveTime).filter((value): value is number => value !== null);
   if (single !== null && (previousSingles.length === 0 || single < Math.min(...previousSingles))) records.push({ key: "single", value: single });

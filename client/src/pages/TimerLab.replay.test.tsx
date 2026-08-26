@@ -8,7 +8,7 @@ import type { SolveHistoryEntry } from "@/lib/solveHistory";
 vi.mock("@/components/Cube3DGuide", () => ({ Cube3DGuide: ({ move, step }: { move?: string; step: number }) => <div data-testid="cube-guide">{move ?? "ready"} · {step}</div> }));
 vi.mock("@/components/CubeNet", () => ({ CubeNet: () => <div data-testid="cube-net" />, CUBE_COLOR: { U: "#fff", R: "#f00", F: "#0a0", D: "#ff0", L: "#f80", B: "#00f" } }));
 vi.mock("@/components/PuzzleScramblePreview", () => ({ PuzzleScramblePreview: ({ eventId }: { eventId: string }) => <div data-testid="puzzle-preview">{eventId} preview</div> }));
-vi.mock("@/components/SolveTimer", () => ({ SolveTimer: () => <div data-testid="solve-timer" /> }));
+vi.mock("@/components/SolveTimer", () => ({ SolveTimer: ({ onComplete }: { onComplete: (completion: { elapsedMs: number; inspectionMs: number; automaticPenalty: "none"; phaseSplits: [] }) => void }) => <button data-testid="solve-timer" onClick={() => onComplete({ elapsedMs: 30_000, inspectionMs: 0, automaticPenalty: "none", phaseSplits: [] })}>Stop timer</button> }));
 vi.mock("@/components/LastLayerStudyLab", () => ({ LastLayerStudyLab: () => <div data-testid="last-layer-study" /> }));
 vi.mock("recharts", () => ({ Bar: () => null, BarChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Line: () => null, LineChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Tooltip: () => null, XAxis: () => null, YAxis: () => null }));
 vi.mock("@/lib/timerEvents", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/timerEvents")>()), generateTimerScramble: async (eventId: string) => `${eventId} scramble` }));
@@ -79,6 +79,19 @@ describe("Timer replay với solution đã lưu", () => {
     fireEvent.change(eventSelect, { target: { value: "333bf" } });
     expect(await screen.findByText("333bf scramble")).toBeInTheDocument();
     expect(screen.getAllByTestId("cube-guide").at(-1)).toHaveTextContent("ready · 0");
-    expect(screen.getByText("Chưa có solve 3×3×3 Bịt mắt (BLD).")).toBeInTheDocument();
+    expect(screen.getByText("Chưa có solve 3×3 BLD.")).toBeInTheDocument();
+  });
+
+  it("ghi điểm Multi-Blind từ số khối giải đúng và thời gian sau khi dừng timer", async () => {
+    localStorage.setItem("cfop-language", "vi");
+    render(<LanguageProvider><TimerLab /></LanguageProvider>);
+    fireEvent.change(screen.getByLabelText("Loại khối"), { target: { value: "333mbf" } });
+    expect(await screen.findByText("333mbf scramble")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Số khối thử Multi-Blind"), { target: { value: "4" } });
+    fireEvent.click(screen.getByTestId("solve-timer"));
+    expect(await screen.findByText("Xác nhận kết quả Multi-Blind")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Số khối giải đúng Multi-Blind"), { target: { value: "3" } });
+    fireEvent.click(screen.getByRole("button", { name: "Lưu điểm Multi-Blind" }));
+    expect(await screen.findByText(/3\/4 · 2đ · 0:30/)).toBeInTheDocument();
   });
 });

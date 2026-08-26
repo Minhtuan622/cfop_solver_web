@@ -1168,3 +1168,10 @@
 - [x] Mở rộng danh mục event, preview 3×3 và quy tắc Timer/thống kê tách theo biến thể.
 - [x] Điều chỉnh UI Timer để các biến thể 3×3 hiển thị đúng trải nghiệm và không trộn lịch sử.
 - [x] Kiểm thử scramble, preview, lịch sử, TypeScript, regression, build và checkpoint.
+
+## Điểm Multi-Blind và nhãn 3×3
+
+- [x] Xác minh công thức điểm Multi-Blind, giới hạn hợp lệ và cách biểu diễn thời gian.
+- [x] Thiết kế dữ liệu số khối thử/giải đúng, điểm và hiển thị lịch sử Multi-Blind.
+- [x] Triển khai nhập kết quả, chấm điểm Multi-Blind và nhãn event 3×3 rút gọn.
+- [x] Kiểm thử điểm, thời gian, lịch sử, TypeScript, regression, build và checkpoint.

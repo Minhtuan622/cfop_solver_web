@@ -16,8 +16,8 @@ describe("timer events", () => {
     expect(isThreeByThreeEvent("333fm")).toBe(true);
     expect(isThreeByThreeEvent("333mbf")).toBe(true);
     expect(isThreeByThreeEvent("pyram")).toBe(false);
-    expect(timerEventLabel("333oh", "vi")).toContain("OH");
-    expect(timerEventLabel("333bf", "en")).toContain("Blindfolded");
+    expect(timerEventLabel("333oh", "vi")).toBe("3×3 OH");
+    expect(timerEventLabel("333bf", "en")).toBe("3×3 BLD");
     expect(timerEventLabel("sq1", "vi")).toBe("Square-1");
   });
 
