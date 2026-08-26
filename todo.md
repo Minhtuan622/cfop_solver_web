@@ -1306,3 +1306,9 @@
 - [x] Thêm role moderator, cấp/gỡ quyền do chủ phòng thực hiện và giữ tương thích membership cũ.
 - [x] Cho moderator quản lý spectator (loại khán giả), không can thiệp vào điểm hoặc chủ phòng.
 - [x] Bổ sung regression phân quyền, TypeScript, build và checkpoint.
+
+## Thông báo moderation và danh sách spectator
+
+- [x] Ghi nhận thông báo hệ thống khi moderator/chủ phòng loại spectator khỏi phòng.
+- [x] Hiển thị danh sách spectator đang trực tuyến theo thứ tự tham gia.
+- [x] Bổ sung regression thông báo/quyền, TypeScript, build và checkpoint.

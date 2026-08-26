@@ -57,8 +57,8 @@ async function competitionRoomState(code: string, accountId: number) {
     return compareCompetitionResults(room.eventId, left.lastResult!, right.lastResult!);
   }).map((player, index) => ({ ...player, rank: index + 1 }));
   const scrambleBundle = activeRound && Array.isArray(activeRound.scrambleBundle) ? activeRound.scrambleBundle.filter((value): value is string => typeof value === "string") : [];
-  const onlineSpectatorCount = members.filter((member) => member.role !== "player" && member.lastSeen.getTime() >= Date.now() - 20_000).length;
-  return { room, members, isHost: room.hostAccountId === accountId, isSpectator: membership.role !== "player", isModerator: membership.role === "moderator", onlineSpectatorCount, roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, messages };
+  const onlineSpectators = members.filter((member) => member.role !== "player" && member.lastSeen.getTime() >= Date.now() - 20_000);
+  return { room, members, isHost: room.hostAccountId === accountId, isSpectator: membership.role !== "player", isModerator: membership.role === "moderator", onlineSpectatorCount: onlineSpectators.length, onlineSpectators, roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, messages };
 }
 
 async function competitionHistory(accountId: number) {
@@ -253,6 +253,7 @@ export const appRouter = router({
       if (room.hostAccountId !== ctx.cfopAccount.id && actor.role !== "moderator") throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng hoặc moderator được quản lý khán giả." });
       const target = await requireCompetitionMember(room.id, input.accountId);
       if (target.role !== "spectator") throw new TRPCError({ code: "BAD_REQUEST", message: "Chỉ có thể loại spectator." });
+      await createCompetitionMessage({ roomId: room.id, accountId: ctx.cfopAccount.id, content: "[system] Moderator đã loại một người xem khỏi phòng." });
       await leaveCompetitionRoom(room.id, input.accountId);
       return { success: true } as const;
     }),

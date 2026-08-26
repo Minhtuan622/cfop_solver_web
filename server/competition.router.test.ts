@@ -104,7 +104,7 @@ describe("competition router", () => {
     vi.mocked(getCompetitionActiveRound).mockResolvedValue(null);
     vi.mocked(listCompetitionResults).mockResolvedValue([]);
     vi.mocked(listCompetitionMessages).mockResolvedValue([]);
-    await expect(appRouter.createCaller(ctx).competition.state({ code: room.code })).resolves.toMatchObject({ onlineSpectatorCount: 1 });
+    await expect(appRouter.createCaller(ctx).competition.state({ code: room.code })).resolves.toMatchObject({ onlineSpectatorCount: 1, onlineSpectators: [expect.objectContaining({ displayName: "Viewer", role: "spectator" })] });
     expect(touchCompetitionMember).toHaveBeenCalledWith(room.id, 1);
   });
 
@@ -125,6 +125,7 @@ describe("competition router", () => {
     vi.mocked(findCompetitionMember).mockResolvedValueOnce({ id: 3, roomId: room.id, accountId: 1, role: "player", joinedAt: new Date(), lastSeen: new Date() }).mockResolvedValueOnce({ id: 8, roomId: room.id, accountId: 2, role: "spectator", joinedAt: new Date(), lastSeen: new Date() });
     await expect(appRouter.createCaller(ctx).competition.removeSpectator({ code: room.code, accountId: 2 })).resolves.toEqual({ success: true });
     expect(leaveCompetitionRoom).toHaveBeenCalledWith(room.id, 2);
+    expect(createCompetitionMessage).toHaveBeenCalledWith({ roomId: room.id, accountId: 1, content: "[system] Moderator đã loại một người xem khỏi phòng." });
   });
 
   it("trả bảng xếp hạng tuần từ điểm tổng hợp, không cần đăng nhập", async () => {
