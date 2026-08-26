@@ -12,6 +12,7 @@ vi.mock("./db", () => ({
   joinCompetitionRoom: vi.fn(),
   leaveCompetitionRoom: vi.fn(),
   markCompetitionSpectatorRemoved: vi.fn(),
+  createCompetitionModerationLog: vi.fn(),
   deleteCompetitionRoom: vi.fn(),
   touchCompetitionMember: vi.fn(),
   updateCompetitionMemberRole: vi.fn(),
@@ -22,11 +23,13 @@ vi.mock("./db", () => ({
   listFinishedCompetitionRoomsForAccount: vi.fn(),
   listCompetitionResults: vi.fn(),
   listCompetitionMessages: vi.fn(),
+  listCompetitionModerationLogs: vi.fn(),
+  findLatestCompetitionModerationLog: vi.fn(),
   listFinishedCompetitionResultsBetween: vi.fn(),
 }));
 
 import { appRouter } from "./routers";
-import { createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, getCompetitionActiveRound, joinCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCompetitionSpectatorRemoved, startCompetitionRound, submitCompetitionResult, touchCompetitionMember, updateCompetitionMemberRole } from "./db";
+import { createCompetitionMessage, createCompetitionModerationLog, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, findLatestCompetitionModerationLog, getCompetitionActiveRound, joinCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCompetitionSpectatorRemoved, startCompetitionRound, submitCompetitionResult, touchCompetitionMember, updateCompetitionMemberRole } from "./db";
 
 const room = { id: 9, code: "ABC123", name: "Test room", hostAccountId: 1, status: "waiting", format: "ao5" as const, eventId: "333", multiBlindCubes: 2, maxPlayers: 8, currentRound: 0, createdAt: new Date(), updatedAt: new Date() };
 const ctx = { cfopAccount: { id: 1, email: "host@example.com", displayName: "Host", bio: "", avatarUrl: "", goalMs: null, createdAt: new Date(), lastSignedIn: new Date() }, req: {}, res: {} } as unknown as TrpcContext;
@@ -105,14 +108,17 @@ describe("competition router", () => {
     vi.mocked(getCompetitionActiveRound).mockResolvedValue(null);
     vi.mocked(listCompetitionResults).mockResolvedValue([]);
     vi.mocked(listCompetitionMessages).mockResolvedValue([]);
+    vi.mocked(listCompetitionModerationLogs).mockResolvedValue([{ id: 31, action: "remove_spectator", reason: "Spam", createdAt: new Date(), actorAccountId: 1, actorDisplayName: "Host", targetAccountId: 3, targetDisplayName: "Viewer cũ" }]);
     await expect(appRouter.createCaller(ctx).competition.state({ code: room.code })).resolves.toMatchObject({ onlineSpectatorCount: 1, onlineSpectators: [expect.objectContaining({ displayName: "Viewer", role: "spectator" })] });
+    await expect(appRouter.createCaller(ctx).competition.state({ code: room.code })).resolves.toMatchObject({ moderationLogs: [expect.objectContaining({ reason: "Spam", actorDisplayName: "Host" })] });
     expect(touchCompetitionMember).toHaveBeenCalledWith(room.id, 1);
   });
 
   it("trả tín hiệu riêng khi spectator đã bị loại để client hiển thị toast", async () => {
     vi.mocked(findCompetitionRoomByCode).mockResolvedValue(room);
     vi.mocked(findCompetitionMember).mockResolvedValue({ id: 8, roomId: room.id, accountId: 1, role: "spectator", joinedAt: new Date(), lastSeen: new Date(), removedAt: new Date() });
-    await expect(appRouter.createCaller(ctx).competition.state({ code: room.code })).rejects.toMatchObject({ code: "FORBIDDEN", message: "Bạn đã bị quản trị viên loại khỏi phòng." });
+    vi.mocked(findLatestCompetitionModerationLog).mockResolvedValue({ id: 12, roomId: room.id, actorAccountId: 2, targetAccountId: 1, action: "remove_spectator", reason: "Gây rối chat", createdAt: new Date() });
+    await expect(appRouter.createCaller(ctx).competition.state({ code: room.code })).rejects.toMatchObject({ code: "FORBIDDEN", message: "Bạn đã bị quản trị viên loại khỏi phòng. Lý do: Gây rối chat" });
   });
 
   it("chỉ chủ phòng được xóa phòng chờ hoặc đã kết thúc", async () => {
@@ -130,8 +136,9 @@ describe("competition router", () => {
     await expect(appRouter.createCaller(ctx).competition.revokeModerator({ code: room.code, accountId: 2 })).resolves.toEqual({ success: true });
     expect(updateCompetitionMemberRole).toHaveBeenCalledWith(room.id, 2, "spectator");
     vi.mocked(findCompetitionMember).mockResolvedValueOnce({ id: 3, roomId: room.id, accountId: 1, role: "player", joinedAt: new Date(), lastSeen: new Date() }).mockResolvedValueOnce({ id: 8, roomId: room.id, accountId: 2, role: "spectator", joinedAt: new Date(), lastSeen: new Date() });
-    await expect(appRouter.createCaller(ctx).competition.removeSpectator({ code: room.code, accountId: 2 })).resolves.toEqual({ success: true });
+    await expect(appRouter.createCaller(ctx).competition.removeSpectator({ code: room.code, accountId: 2, reason: "Spam liên tục trong phòng." })).resolves.toEqual({ success: true });
     expect(markCompetitionSpectatorRemoved).toHaveBeenCalledWith(room.id, 2);
+    expect(createCompetitionModerationLog).toHaveBeenCalledWith({ roomId: room.id, actorAccountId: 1, targetAccountId: 2, reason: "Spam liên tục trong phòng." });
     expect(createCompetitionMessage).toHaveBeenCalledWith({ roomId: room.id, accountId: 1, content: "[system] Moderator đã loại một người xem khỏi phòng." });
   });
 

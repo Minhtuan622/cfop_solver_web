@@ -1314,7 +1314,12 @@
 - [x] Bổ sung regression thông báo/quyền, TypeScript, build và checkpoint.
 
 ## Toast spectator bị loại
-
 - [x] Trả tín hiệu phân biệt spectator đã bị loại khỏi state polling.
 - [x] Hiển thị toast cảnh báo và điều hướng spectator về danh sách phòng.
 - [x] Bổ sung regression, TypeScript, build và checkpoint.
+
+## Lý do loại spectator và nhật ký kiểm duyệt
+- [x] Lưu lý do loại và actor thực hiện thao tác kiểm duyệt cho từng spectator.
+- [x] Mở rộng state/API để toast nhận đúng lý do và phòng hiển thị moderation log.
+- [x] Tạo giao diện nhập lý do, toast rõ ràng và danh sách nhật ký theo phòng.
+- [x] Bổ sung migration, regression, TypeScript, build và checkpoint.

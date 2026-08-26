@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, gt, gte, isNull, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopCompetitionMembers, cfopCompetitionMessages, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds, cfopPasswordResetTokens, cfopWcaOauthStates, InsertUser, users } from "../drizzle/schema";
+import { alias } from "drizzle-orm/mysql-core";
+import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopCompetitionMembers, cfopCompetitionMessages, cfopCompetitionModerationLogs, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds, cfopPasswordResetTokens, cfopWcaOauthStates, InsertUser, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import type { TimerEventId } from "../shared/timerEvents";
 
@@ -201,6 +202,24 @@ export async function markCompetitionSpectatorRemoved(roomId: number, accountId:
   await db.update(cfopCompetitionMembers).set({ removedAt: new Date(), lastSeen: new Date() }).where(and(eq(cfopCompetitionMembers.roomId, roomId), eq(cfopCompetitionMembers.accountId, accountId)));
 }
 
+export async function createCompetitionModerationLog(values: { roomId: number; actorAccountId: number; targetAccountId: number; reason: string }) {
+  const db = await requireDb();
+  await db.insert(cfopCompetitionModerationLogs).values(values);
+}
+
+export async function findLatestCompetitionModerationLog(roomId: number, targetAccountId: number) {
+  const db = await requireDb();
+  return (await db.select().from(cfopCompetitionModerationLogs).where(and(eq(cfopCompetitionModerationLogs.roomId, roomId), eq(cfopCompetitionModerationLogs.targetAccountId, targetAccountId), eq(cfopCompetitionModerationLogs.action, "remove_spectator"))).orderBy(desc(cfopCompetitionModerationLogs.createdAt)).limit(1))[0] ?? null;
+}
+
+export async function listCompetitionModerationLogs(roomId: number, limit = 50) {
+  const db = await requireDb();
+  const actor = alias(cfopAccounts, "competition_moderation_actor");
+  const target = alias(cfopAccounts, "competition_moderation_target");
+  const rows = await db.select({ id: cfopCompetitionModerationLogs.id, action: cfopCompetitionModerationLogs.action, reason: cfopCompetitionModerationLogs.reason, createdAt: cfopCompetitionModerationLogs.createdAt, actorAccountId: cfopCompetitionModerationLogs.actorAccountId, actorDisplayName: actor.displayName, targetAccountId: cfopCompetitionModerationLogs.targetAccountId, targetDisplayName: target.displayName }).from(cfopCompetitionModerationLogs).innerJoin(actor, eq(cfopCompetitionModerationLogs.actorAccountId, actor.id)).innerJoin(target, eq(cfopCompetitionModerationLogs.targetAccountId, target.id)).where(eq(cfopCompetitionModerationLogs.roomId, roomId)).orderBy(desc(cfopCompetitionModerationLogs.createdAt)).limit(limit);
+  return rows.reverse();
+}
+
 export async function touchCompetitionMember(roomId: number, accountId: number) {
   const db = await requireDb();
   await db.update(cfopCompetitionMembers).set({ lastSeen: new Date() }).where(and(eq(cfopCompetitionMembers.roomId, roomId), eq(cfopCompetitionMembers.accountId, accountId)));
@@ -214,12 +233,12 @@ export async function updateCompetitionMemberRole(roomId: number, accountId: num
 
 export async function listCompetitionRoomsForAccount(accountId: number) {
   const db = await requireDb();
-  return db.select({ room: cfopCompetitionRooms, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionMembers.roomId, cfopCompetitionRooms.id)).where(eq(cfopCompetitionMembers.accountId, accountId)).orderBy(desc(cfopCompetitionRooms.updatedAt));
+  return db.select({ room: cfopCompetitionRooms, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionMembers.roomId, cfopCompetitionRooms.id)).where(and(eq(cfopCompetitionMembers.accountId, accountId), isNull(cfopCompetitionMembers.removedAt))).orderBy(desc(cfopCompetitionRooms.updatedAt));
 }
 
 export async function listFinishedCompetitionRoomsForAccount(accountId: number) {
   const db = await requireDb();
-  return db.select({ room: cfopCompetitionRooms, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionMembers.roomId, cfopCompetitionRooms.id)).where(and(eq(cfopCompetitionMembers.accountId, accountId), eq(cfopCompetitionRooms.status, "finished"))).orderBy(desc(cfopCompetitionRooms.updatedAt));
+  return db.select({ room: cfopCompetitionRooms, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionMembers.roomId, cfopCompetitionRooms.id)).where(and(eq(cfopCompetitionMembers.accountId, accountId), isNull(cfopCompetitionMembers.removedAt), eq(cfopCompetitionRooms.status, "finished"))).orderBy(desc(cfopCompetitionRooms.updatedAt));
 }
 
 export async function listCompetitionMembers(roomId: number) {

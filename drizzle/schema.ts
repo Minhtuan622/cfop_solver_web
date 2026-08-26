@@ -91,6 +91,17 @@ export const cfopCompetitionMembers = mysqlTable("cfop_competition_members", {
   removedAt: timestamp("removedAt"),
 }, (table) => [uniqueIndex("cfop_competition_members_room_account_unique").on(table.roomId, table.accountId), index("cfop_competition_members_account_idx").on(table.accountId)]);
 
+/** Immutable room-scoped moderation audit records; initially only spectator removals are supported. */
+export const cfopCompetitionModerationLogs = mysqlTable("cfop_competition_moderation_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
+  actorAccountId: int("actorAccountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
+  targetAccountId: int("targetAccountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
+  action: mysqlEnum("action", ["remove_spectator"]).notNull().default("remove_spectator"),
+  reason: varchar("reason", { length: 280 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => [index("cfop_competition_moderation_room_created_idx").on(table.roomId, table.createdAt), index("cfop_competition_moderation_target_idx").on(table.targetAccountId)]);
+
 /** A room round freezes one shared scramble so every competitor solves the identical state. */
 export const cfopCompetitionRounds = mysqlTable("cfop_competition_rounds", {
   id: int("id").autoincrement().primaryKey(),
