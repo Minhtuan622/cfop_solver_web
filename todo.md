@@ -1098,3 +1098,9 @@
 
 - [x] Hợp nhất tóm tắt Thành tích WCA và bảng Hồ sơ WCA đầy đủ trong một card.
 - [x] Kiểm thử layout desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## So sánh WCA và Timer
+
+- [x] Chốt công thức so sánh 3×3 single WCA với PB Timer và average WCA với PB Ao5 Timer.
+- [x] Hiển thị chênh lệch, nguồn dữ liệu và trạng thái chưa đủ lượt trong card Hồ sơ WCA.
+- [x] Kiểm thử PB/Ao5, DNF, layout responsive, TypeScript, regression, build và checkpoint.

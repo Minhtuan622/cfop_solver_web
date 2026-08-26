@@ -15,7 +15,7 @@ export function rollingAverage(sample: SolveHistoryEntry[]) {
   return core.length ? core.reduce((sum, value) => sum + value, 0) / core.length : null;
 }
 
-function bestRollingAverage(entries: SolveHistoryEntry[], windowSize: number) {
+export function bestRollingAverage(entries: SolveHistoryEntry[], windowSize: number) {
   let best: number | undefined;
   for (let start = 0; start + windowSize <= entries.length; start += 1) {
     const value = rollingAverage(entries.slice(start, start + windowSize));
