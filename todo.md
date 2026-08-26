@@ -1119,3 +1119,10 @@
 - [x] Hiển thị preview scramble trực quan cho 2×2, Pyraminx và Megaminx mà không làm sai preview 3×3.
 - [x] So sánh PB Timer với WCA single/average cho event đang chọn, kèm trạng thái thiếu hồ sơ hoặc record.
 - [x] Kiểm thử dữ liệu event, WCA fallback, preview, desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## Mô hình puzzle 3D trong Timer
+
+- [x] Kiểm tra renderer 3D hiện có và xác nhận cách hiển thị trạng thái scramble cho 2×2, Pyraminx, Megaminx.
+- [x] Thay vùng preview trống bằng mô hình puzzle 3D thật, ưu tiên 2×2 thao tác được như 3×3.
+- [x] Thêm fallback rõ ràng cho puzzle chưa thể render 3D và không để lại vùng trắng.
+- [x] Kiểm thử trạng thái scramble, tương tác chuột/cảm ứng, desktop/mobile, TypeScript, regression, build và checkpoint.

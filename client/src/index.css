@@ -59,6 +59,7 @@ body { margin: 0; }
   transform: var(--face-transform);
 }
 .cube3d-face span { box-shadow: inset 0 -3px 0 rgb(0 0 0 / .18); }
+.cube3d-face-2x2 { grid-template-columns: repeat(2, 1fr); }
 .cube3d-f { --face-transform: translateZ(59px); }
 .cube3d-r { --face-transform: rotateY(90deg) translateZ(59px); }
 .cube3d-u { --face-transform: rotateX(90deg) translateZ(59px); }

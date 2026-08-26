@@ -6,6 +6,8 @@
 - Để hiển thị **trạng thái scramble**, dùng `experimental-setup-alg=<scramble>` và không phát một lời giải. `puzzle` dự kiến: `2x2x2`, `pyraminx`, `megaminx`.
 - Không ép chế độ 2D vì tài liệu nêu chỉ một số puzzle hỗ trợ 2D. Dùng player 3D tĩnh, không control panel, background trong suốt để tránh preview sai với Pyraminx/Megaminx.
 
+Kết quả browser cho thấy vùng `TwistyPlayer` có thể giữ kích thước nhưng không render model. Vì Timer không được phép để vùng trắng, preview 2×2 sẽ chuyển sang renderer CSS 3D nội bộ: tái sử dụng state 3×3 của cùng scramble và lấy bốn corner facelet trên từng mặt, vốn tương ứng trực tiếp với trạng thái 2×2. Pyraminx/Megaminx chỉ giữ TwistyPlayer khi đã có model render; nếu thất bại phải hiện fallback có ích thay vì card rỗng.
+
 Nguồn: [cubing/twisty](https://js.cubing.net/cubing/twisty/), truy cập 2026-08-26.
 
 ## So sánh WCA

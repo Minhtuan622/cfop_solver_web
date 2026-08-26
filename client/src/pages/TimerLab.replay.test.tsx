@@ -67,7 +67,7 @@ describe("Timer replay với solution đã lưu", () => {
     expect(await screen.findByText("pyram scramble")).toBeInTheDocument();
     expect(screen.getAllByText("Pyraminx").length).toBeGreaterThan(0);
     expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("pyram preview");
-    expect(screen.getByText(/Các công cụ CFOP\/3D chỉ áp dụng cho 3×3/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Các công cụ CFOP\/3D chỉ áp dụng cho 3×3/i)).not.toBeInTheDocument();
     expect(screen.getByText("Chưa có solve Pyraminx.")).toBeInTheDocument();
     expect(screen.getByText("Liên kết WCA ID")).toBeInTheDocument();
   });
