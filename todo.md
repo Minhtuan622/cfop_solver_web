@@ -1093,3 +1093,8 @@
 - [x] Mở rộng adapter WCA, nhãn event và regression cho các trường công khai đầy đủ.
 - [x] Thiết kế tóm tắt thành tích và bảng tất cả event có thể mở rộng trong Hồ sơ.
 - [x] Kiểm thử dữ liệu, responsive, TypeScript, regression, build và checkpoint.
+
+## Gộp card Hồ sơ WCA
+
+- [x] Hợp nhất tóm tắt Thành tích WCA và bảng Hồ sơ WCA đầy đủ trong một card.
+- [x] Kiểm thử layout desktop/mobile, TypeScript, regression, build và checkpoint.
