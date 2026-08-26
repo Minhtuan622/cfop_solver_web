@@ -36,10 +36,18 @@ async function sideEventPatterns(puzzle: SideEventPuzzle, scramble: string) {
 
 function sectorShape(THREE: ThreeModule, innerRadius: number, outerRadius: number, start: number, end: number) {
   const shape = new THREE.Shape();
-  shape.moveTo(Math.cos(start) * innerRadius, Math.sin(start) * innerRadius);
-  shape.absarc(0, 0, outerRadius, start, end, false);
-  shape.lineTo(Math.cos(end) * innerRadius, Math.sin(end) * innerRadius);
-  shape.absarc(0, 0, innerRadius, end, start, true);
+  const point = (angle: number, radius: number) => {
+    const x = Math.cos(angle);
+    const y = Math.sin(angle);
+    const scale = radius / Math.pow(Math.pow(Math.abs(x), 4) + Math.pow(Math.abs(y), 4), 0.25);
+    return { x: x * scale, y: y * scale };
+  };
+  const innerStart = point(start, innerRadius);
+  shape.moveTo(innerStart.x, innerStart.y);
+  for (let step = 0; step <= 8; step += 1) { const outer = point(start + ((end - start) * step) / 8, outerRadius); shape.lineTo(outer.x, outer.y); }
+  const innerEnd = point(end, innerRadius);
+  shape.lineTo(innerEnd.x, innerEnd.y);
+  for (let step = 8; step >= 0; step -= 1) { const inner = point(start + ((end - start) * step) / 8, innerRadius); shape.lineTo(inner.x, inner.y); }
   return shape;
 }
 
@@ -64,7 +72,7 @@ function squareOneLayer(THREE: ThreeModule, wedges: PatternOrbit, startIndex: nu
     const units = Math.min(squareOneWedgeUnits(piece), 12 - position);
     const start = -Math.PI / 2 + position * unit + 0.012;
     const end = -Math.PI / 2 + (position + units) * unit - 0.012;
-    const shape = sectorShape(THREE, 0.64, 1.84, start, end);
+    const shape = sectorShape(THREE, 0.64, 1.66, start, end);
     const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.55, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color: squareOneSideColor(piece), roughness: 0.72, metalness: 0.04 }));
     body.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
     body.position.y = verticalBase;
@@ -82,15 +90,15 @@ function squareOneObject(THREE: ThreeModule, pattern: PatternData) {
   const root = new THREE.Group();
   const wedges = pattern.WEDGES;
   if (!wedges) throw new Error("Square-1 pattern is unavailable");
-  const slashPivot = new THREE.Group();
   const top = squareOneLayer(THREE, wedges, 0, 0.24);
   const bottom = squareOneLayer(THREE, wedges, 12, -0.24);
-  const belt = new THREE.Mesh(new THREE.CylinderGeometry(1.86, 1.86, 0.3, 48), new THREE.MeshStandardMaterial({ color: wedges.pieces[0] >= 8 ? CUBE_COLORS.R : CUBE_COLORS.L, roughness: 0.48, metalness: 0.28 }));
+  const shell = new THREE.Mesh(new THREE.BoxGeometry(3.58, 0.12, 3.58), new THREE.MeshStandardMaterial({ color: "#222a35", roughness: 0.42, metalness: 0.3 }));
+  shell.position.y = -0.03;
+  const belt = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.3, 3.4), new THREE.MeshStandardMaterial({ color: wedges.pieces[0] >= 8 ? CUBE_COLORS.R : CUBE_COLORS.L, roughness: 0.48, metalness: 0.28 }));
   belt.position.y = -0.03;
   belt.rotation.y = (pattern.EQUATOR?.orientation[0] ?? 0) * Math.PI;
-  slashPivot.add(top, bottom, belt);
-  root.add(slashPivot);
-  root.userData.squareAnimation = { top, bottom, slashPivot };
+  root.add(shell, top, bottom, belt);
+  root.userData.squareAnimation = { top, bottom, belt };
   return root;
 }
 
@@ -146,7 +154,8 @@ function clockObject(THREE: ThreeModule, pattern: PatternData) {
   const dials = pattern.DIALS;
   if (!dials) throw new Error("Clock pattern is unavailable");
   const pivots: ClockHand[] = [];
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(4.75, 4.75, 0.36), new THREE.MeshStandardMaterial({ color: "#222a35", roughness: 0.34, metalness: 0.42 }));
+  const frame = new THREE.Mesh(new THREE.CylinderGeometry(2.45, 2.45, 0.36, 64), new THREE.MeshStandardMaterial({ color: "#222a35", roughness: 0.34, metalness: 0.42 }));
+  frame.rotation.x = Math.PI / 2;
   root.add(frame);
   const front = clockFace(THREE, dials, pattern.FACES, pivots);
   front.position.z = 0.2;
@@ -178,6 +187,12 @@ export function squareTurnForAnimation(move: string) {
   return { layer: match[1] === "U" ? "top" : "bottom", angle: amount * (TAU / 12) } as const;
 }
 
+export function squareSlashPose(progress: number) {
+  const phase = Math.max(0, Math.min(1, progress));
+  const lift = Math.sin(Math.PI * phase) * 0.34;
+  return { topY: lift, bottomY: lift === 0 ? 0 : -lift, topAngle: Math.PI * phase, bottomAngle: phase === 0 ? 0 : -Math.PI * phase, beltScaleY: 1 + lift * 1.6 };
+}
+
 function shortestAngle(from: number, to: number) {
   return ((to - from + Math.PI * 3) % TAU) - Math.PI;
 }
@@ -204,7 +219,7 @@ export async function sideEvent3DAnimation(THREE: ThreeModule, puzzle: SideEvent
   const play = (render: () => void) => {
     if (played || stopped || !steps.length) return;
     played = true;
-    const duration = Math.max(72, Math.min(150, 1_200 / steps.length));
+    const baseDuration = Math.max(72, Math.min(150, 1_200 / steps.length));
     let index = 0;
     const next = () => {
       if (stopped) return;
@@ -213,7 +228,8 @@ export async function sideEvent3DAnimation(THREE: ThreeModule, puzzle: SideEvent
       const startedAt = performance.now();
       const square = puzzle === "square1" ? squareTurnForAnimation(step.move) : null;
       const isSlash = puzzle === "square1" && step.move === "/";
-      const squareData = current.userData.squareAnimation as { top: Group; bottom: Group; slashPivot: Group } | undefined;
+      const duration = isSlash ? 260 : baseDuration;
+      const squareData = current.userData.squareAnimation as { top: Group; bottom: Group; belt: Group } | undefined;
       const clockData = current.userData.clockAnimation as { pivots: ClockHand[]; pattern: PatternData } | undefined;
       const fromFrame = current.rotation.y;
       const targetFrame = ((step.pattern.FRAME?.orientation[0] ?? 0) % 2) * Math.PI;
@@ -222,7 +238,14 @@ export async function sideEvent3DAnimation(THREE: ThreeModule, puzzle: SideEvent
         const linear = Math.min(1, (now - startedAt) / duration);
         const eased = linear * linear * (3 - 2 * linear);
         if (square && squareData) squareData[square.layer].rotation.y = square.angle * eased;
-        if (isSlash && squareData) squareData.slashPivot.rotation.z = Math.PI * eased;
+        if (isSlash && squareData) {
+          const slash = squareSlashPose(eased);
+          squareData.top.position.y = slash.topY;
+          squareData.bottom.position.y = slash.bottomY;
+          squareData.top.rotation.y = slash.topAngle;
+          squareData.bottom.rotation.y = slash.bottomAngle;
+          squareData.belt.scale.y = slash.beltScaleY;
+        }
         if (clockData) {
           const fromDials = currentPattern.DIALS?.orientation ?? [];
           const toDials = step.pattern.DIALS?.orientation ?? [];

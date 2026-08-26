@@ -87,6 +87,8 @@ describe("Timer replay với solution đã lưu", () => {
     render(<LanguageProvider><TimerLab /></LanguageProvider>);
     fireEvent.change(screen.getByLabelText("Loại khối"), { target: { value: "333mbf" } });
     expect(await screen.findByText("2 SCRAMBLE RIÊNG · MỖI KHỐI MỘT SCRAMBLE")).toBeInTheDocument();
+    expect(screen.queryByTestId("cube-guide")).not.toBeInTheDocument();
+    expect(screen.getByText("Multi-Blind tập trung vào bộ scramble riêng cho từng khối.")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Số khối thử Multi-Blind"), { target: { value: "4" } });
     expect(screen.getByText("Hãy tạo đủ một scramble riêng cho mỗi khối trước khi bắt đầu Multi-Blind.")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Tạo scramble Multi-Blind" }));

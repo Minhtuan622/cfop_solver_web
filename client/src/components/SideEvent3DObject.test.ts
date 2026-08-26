@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clockDialIndex, isSideEvent3DPuzzle, squareOneWedgeUnits, squareTurnForAnimation } from "./SideEvent3DObject";
+import { clockDialIndex, isSideEvent3DPuzzle, squareOneWedgeUnits, squareSlashPose, squareTurnForAnimation } from "./SideEvent3DObject";
 
 describe("side-event 3D renderer selection", () => {
   it("uses the custom Three.js state renderer only for Square-1 and Clock", () => {
@@ -21,5 +21,15 @@ describe("side-event 3D renderer selection", () => {
     expect(clockDialIndex(0, 0)).toBe(0);
     expect(clockDialIndex(2, 1)).toBe(7);
     expect(clockDialIndex(0, 0, true)).toBe(9);
+  });
+
+  it("separates and counter-rotates Square-1 layers during a slash", () => {
+    expect(squareSlashPose(0)).toMatchObject({ topY: 0, bottomY: 0, topAngle: 0, bottomAngle: 0 });
+    const middle = squareSlashPose(0.5);
+    expect(middle.topY).toBeGreaterThan(0.3);
+    expect(middle.bottomY).toBeLessThan(-0.3);
+    expect(middle.topAngle).toBeCloseTo(Math.PI / 2);
+    expect(middle.bottomAngle).toBeCloseTo(-Math.PI / 2);
+    expect(squareSlashPose(1).topAngle).toBeCloseTo(Math.PI);
   });
 });

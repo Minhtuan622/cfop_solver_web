@@ -1182,3 +1182,10 @@
 - [x] Thiết kế danh sách scramble riêng theo số khối và dữ liệu preview/renderer bám trạng thái puzzle.
 - [x] Triển khai nhiều scramble Multi-Blind cùng renderer Square-1, Clock đã sửa.
 - [x] Kiểm thử scramble từng khối, score, mô hình 3D, desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## Slash Square-1, silhouette side-event và MBLD
+
+- [x] Rà soát slash Square-1, bố cục 2D csTimer và điều kiện ẩn preview Multi-Blind.
+- [x] Thiết kế slash cắt–đổi nửa tầng, Square-1 thân vuông và Clock thân tròn.
+- [x] Triển khai animation slash, hình học 3D mới và ẩn mô hình Multi-Blind.
+- [x] Kiểm thử animation, silhouette, preview MBLD, TypeScript, regression, build và checkpoint.
