@@ -1231,3 +1231,9 @@
 - [x] Dựng extrusion từng wedge từ polygon đúng để shape-shift có đường bao và khe rãnh đúng trạng thái.
 - [x] Gắn sticker U/D và mặt bên theo từng wedge, giữ equator belt khớp hai tầng.
 - [x] Kiểm thử scramble mẫu/shape-shift, TypeScript, regression, build và checkpoint.
+
+## Hoàn thiện độ đọc Square-1
+
+- [x] Thêm đường viền mảnh cho mặt trên/dưới và cạnh ngoài của mỗi cubie wedge.
+- [x] Tăng nhẹ độ dày hai tầng, điều chỉnh equator để tổng thể cân đối.
+- [x] Kiểm thử shape-shift, TypeScript, regression, build và checkpoint.

@@ -110,10 +110,20 @@ function squareOneVerticalPanel(THREE: ThreeModule, from: SquarePoint, to: Squar
   return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.02, side: THREE.DoubleSide }));
 }
 
+function squareOneCubieOutline(THREE: ThreeModule, geometry: InstanceType<ThreeModule["ExtrudeGeometry"]>, rotation: number, verticalBase: number) {
+  const outline = new THREE.LineSegments(
+    new THREE.EdgesGeometry(geometry, 22),
+    new THREE.LineBasicMaterial({ color: "#0a0d10", transparent: true, opacity: 0.9 }),
+  );
+  outline.rotation.x = rotation;
+  outline.position.y = verticalBase;
+  return outline;
+}
+
 function squareOneLayer(THREE: ThreeModule, state: SquareOneState, startIndex: number, verticalBase: number) {
   const layer = new THREE.Group();
   const isTopLayer = verticalBase > 0;
-  const thickness = 0.46;
+  const thickness = 0.54;
   const lowerY = isTopLayer ? verticalBase : verticalBase - thickness;
   const upperY = isTopLayer ? verticalBase + thickness : verticalBase;
   const stickerY = isTopLayer ? upperY + 0.004 : lowerY - 0.004;
@@ -128,13 +138,14 @@ function squareOneLayer(THREE: ThreeModule, state: SquareOneState, startIndex: n
       : -(startIndex === 0 ? position : position - 5) * Math.PI / 6;
     const points = rotateSquarePoints(isCorner ? corner : edge, rotation);
     const shape = makeSquareShape(THREE, points);
-    const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false }), neutralPiece);
+    const cubieGeometry = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
+    const body = new THREE.Mesh(cubieGeometry, neutralPiece);
     body.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
     body.position.y = verticalBase;
     const sticker = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshStandardMaterial({ color: CUBE_COLORS[piece >= 8 ? "D" : "U"], roughness: 0.48, metalness: 0.01 }));
     sticker.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
     sticker.position.y = stickerY;
-    layer.add(body, sticker);
+    layer.add(body, sticker, squareOneCubieOutline(THREE, cubieGeometry, body.rotation.x, verticalBase));
     const panels: Array<[SquarePoint, SquarePoint, string]> = isCorner
       ? [[points[1]!, points[2]!, squareOneSideColor(piece)], [points[2]!, points[3]!, squareOneSideColor(piece, 1)]]
       : [[points[1]!, points[2]!, squareOneSideColor(piece)]];
