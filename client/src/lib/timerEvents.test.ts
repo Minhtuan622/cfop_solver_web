@@ -4,6 +4,8 @@ import { DEFAULT_TIMER_EVENT, filterTimerEventEntries, isThreeByThreeEvent, isTi
 describe("timer events", () => {
   it("recognizes supported event IDs and defaults missing legacy history to 3×3", () => {
     expect(isTimerEventId("444")).toBe(true);
+    expect(isTimerEventId("444bf")).toBe(true);
+    expect(isTimerEventId("555bf")).toBe(true);
     expect(isTimerEventId("invalid")).toBe(false);
     expect(normalizeTimerEventId(undefined)).toBe(DEFAULT_TIMER_EVENT);
     expect(normalizeTimerEventId("invalid")).toBe(DEFAULT_TIMER_EVENT);
@@ -15,9 +17,13 @@ describe("timer events", () => {
     expect(isThreeByThreeEvent("333bf")).toBe(true);
     expect(isThreeByThreeEvent("333fm")).toBe(true);
     expect(isThreeByThreeEvent("333mbf")).toBe(true);
+    expect(isThreeByThreeEvent("444bf")).toBe(false);
+    expect(isThreeByThreeEvent("555bf")).toBe(false);
     expect(isThreeByThreeEvent("pyram")).toBe(false);
     expect(timerEventLabel("333oh", "vi")).toBe("3×3 OH");
     expect(timerEventLabel("333bf", "en")).toBe("3×3 BLD");
+    expect(timerEventLabel("444bf", "vi")).toBe("4×4 BLD");
+    expect(timerEventLabel("555bf", "en")).toBe("5×5 BLD");
     expect(timerEventLabel("sq1", "vi")).toBe("Square-1");
   });
 
@@ -35,7 +41,9 @@ describe("timer events", () => {
     expect(timerPreviewPuzzleId("sq1")).toBe("square1");
     expect(timerPreviewPuzzleId("clock")).toBe("clock");
     expect(timerPreviewPuzzleId("444")).toBe("4x4x4");
+    expect(timerPreviewPuzzleId("444bf")).toBe("4x4x4");
     expect(timerPreviewPuzzleId("555")).toBe("5x5x5");
+    expect(timerPreviewPuzzleId("555bf")).toBe("5x5x5");
     expect(timerPreviewPuzzleId("666")).toBe("6x6x6");
     expect(timerPreviewPuzzleId("777")).toBe("7x7x7");
   });

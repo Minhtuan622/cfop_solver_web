@@ -1273,3 +1273,9 @@
 - [x] Giảm thêm một phần ba từ mức 5/6, đặt chiều cao tổng thành 5/9 kích thước gốc.
 - [x] Giữ footprint, ba tầng, viền cubie và state/silhouette scramble.
 - [x] Kiểm thử TypeScript, regression, build và checkpoint.
+
+## 4×4 BLD và 5×5 BLD
+
+- [x] Bổ sung định nghĩa event 4×4 BLD và 5×5 BLD với scramble Cubing.js, nhãn gọn và metadata WCA.
+- [x] Kết nối preview 3D, Timer, PB/Ao, lịch sử, biểu đồ và so sánh WCA theo event mới.
+- [x] Bổ sung unit test event/mapping preview và kiểm thử desktop/mobile, TypeScript, regression, build, checkpoint.
