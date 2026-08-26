@@ -40,6 +40,7 @@ const SQUARE1_SOLVED_WEDGES = [0, 1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 9, 9, 8, 11, 
 const SQUARE1_SQA = Math.sqrt(3) / 2 + 1;
 const SQUARE1_FOOTPRINT_SCALE = 0.5;
 const SQUARE1_LAYER_THICKNESS = 1.08;
+const SQUARE1_LAYER_BASE = SQUARE1_LAYER_THICKNESS / 2;
 type SquarePoint = [number, number];
 export type SquareOneState = { wedges: number[]; middle: 0 | 1 };
 
@@ -159,19 +160,19 @@ function squareOneLayer(THREE: ThreeModule, state: SquareOneState, startIndex: n
 
 function squareOneObject(THREE: ThreeModule, state: SquareOneState) {
   const root = new THREE.Group();
-  const top = squareOneLayer(THREE, state, 0, 0.12);
-  const bottom = squareOneLayer(THREE, state, 12, -0.12);
+  const top = squareOneLayer(THREE, state, 0, SQUARE1_LAYER_BASE);
+  const bottom = squareOneLayer(THREE, state, 12, -SQUARE1_LAYER_BASE);
   top.scale.set(SQUARE1_FOOTPRINT_SCALE, 1, SQUARE1_FOOTPRINT_SCALE);
   bottom.scale.set(SQUARE1_FOOTPRINT_SCALE, 1, SQUARE1_FOOTPRINT_SCALE);
   const belt = new THREE.Group();
-  const beltCore = new THREE.Mesh(new THREE.BoxGeometry(3.31, 0.23, 3.31), new THREE.MeshStandardMaterial({ color: "#171d23", roughness: 0.5, metalness: 0.26 }));
+  const beltCore = new THREE.Mesh(new THREE.BoxGeometry(3.31, SQUARE1_LAYER_THICKNESS, 3.31), new THREE.MeshStandardMaterial({ color: "#171d23", roughness: 0.5, metalness: 0.26 }));
   belt.add(beltCore);
   const beltFaces: Array<[number, number, number, string, boolean]> = [
     [0, 1.705, 0, CUBE_COLORS.R, true], [0, -1.705, 0, CUBE_COLORS.L, true],
     [1.705, 0, 0, CUBE_COLORS.F, false], [-1.705, 0, 0, CUBE_COLORS.B, false],
   ];
   beltFaces.forEach(([x, z, rotation, color, side]) => {
-    const band = new THREE.Mesh(new THREE.BoxGeometry(1.34, 0.13, 0.035), new THREE.MeshStandardMaterial({ color, roughness: 0.46, metalness: 0.03 }));
+    const band = new THREE.Mesh(new THREE.BoxGeometry(1.34, SQUARE1_LAYER_THICKNESS - 0.08, 0.035), new THREE.MeshStandardMaterial({ color, roughness: 0.46, metalness: 0.03 }));
     band.position.set(x, 0, z);
     band.rotation.y = side ? rotation : Math.PI / 2;
     belt.add(band);

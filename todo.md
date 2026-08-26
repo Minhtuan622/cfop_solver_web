@@ -1243,3 +1243,9 @@
 - [x] Co toàn bộ footprint wedge, sticker, mặt bên và equator xuống một nửa đồng bộ.
 - [x] Tăng gấp đôi chiều dày hai tầng và cân lại khoảng hở equator.
 - [x] Kiểm thử mapping shape-shift, TypeScript, regression, build và checkpoint.
+
+## Chiều cao ba tầng Square-1
+
+- [x] Đồng bộ chiều cao tầng trên, equator và tầng dưới.
+- [x] Căn lại vị trí layer để ba tầng chạm đều mà không thay đổi state/silhouette.
+- [x] Kiểm thử TypeScript, regression, build và checkpoint.
