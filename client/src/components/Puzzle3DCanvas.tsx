@@ -2,10 +2,10 @@ import { useEffect, useRef, useState, type PointerEvent, type WheelEvent } from 
 import type { Object3D, WebGLRenderer } from "three";
 import type { TimerEventId } from "@/lib/timerEvents";
 
-type PuzzleId = "pyraminx" | "megaminx";
+type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "megaminx";
 export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 type Point = { x: number; y: number };
-const CAMERA_LIMITS = { min: 3.6, max: 10.5, pitch: 1.1 };
+const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -20,6 +20,23 @@ export function orbitFromDrag(start: PuzzleOrbit, deltaX: number, deltaY: number
 export function distanceFromPinch(startDistance: number, startGap: number, currentGap: number) {
   if (startGap <= 0 || currentGap <= 0) return clamp(startDistance, CAMERA_LIMITS.min, CAMERA_LIMITS.max);
   return clamp(startDistance * (startGap / currentGap), CAMERA_LIMITS.min, CAMERA_LIMITS.max);
+}
+
+export function inertiaStep(orbit: PuzzleOrbit, velocity: { yaw: number; pitch: number }) {
+  const nextVelocity = { yaw: velocity.yaw * 0.91, pitch: velocity.pitch * 0.91 };
+  return {
+    orbit: { ...orbit, yaw: orbit.yaw + nextVelocity.yaw, pitch: clamp(orbit.pitch + nextVelocity.pitch, -CAMERA_LIMITS.pitch, CAMERA_LIMITS.pitch) },
+    velocity: nextVelocity,
+  };
+}
+
+function defaultPuzzleCamera(puzzle: PuzzleId) {
+  if (puzzle === "megaminx") return { fov: 29, distance: 7.2, height: "17rem" };
+  if (puzzle === "7x7x7") return { fov: 31, distance: 6.8, height: "15rem" };
+  if (puzzle === "6x6x6") return { fov: 32, distance: 6.5, height: "15rem" };
+  if (puzzle === "5x5x5") return { fov: 33, distance: 6.1, height: "14rem" };
+  if (puzzle === "4x4x4") return { fov: 34, distance: 5.8, height: "14rem" };
+  return { fov: 34, distance: 5.4, height: "14rem" };
 }
 
 function gapBetween([first, second]: Point[]) { return Math.hypot(first.x - second.x, first.y - second.y); }
@@ -49,12 +66,14 @@ function startMountedTwistyPlayer(player: HTMLElement) {
 
 export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventId: TimerEventId; puzzle: PuzzleId; scramble: string; language: "vi" | "en" }) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ x: number; y: number; yaw: number; pitch: number } | null>(null);
+  const dragRef = useRef<{ x: number; y: number; yaw: number; pitch: number; lastX: number; lastY: number; lastAt: number; moved: boolean } | null>(null);
   const orbitRef = useRef({ yaw: -0.55, pitch: 0.32, distance: 5.4 });
   const targetDistanceRef = useRef(5.4);
   const pointersRef = useRef(new Map<number, Point>());
   const pinchRef = useRef<{ gap: number; distance: number } | null>(null);
   const zoomFrameRef = useRef<number | null>(null);
+  const inertiaFrameRef = useRef<number | null>(null);
+  const inertiaVelocityRef = useRef({ yaw: 0, pitch: 0 });
   const renderRef = useRef<(() => void) | null>(null);
   const resetRef = useRef<(() => void) | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -102,8 +121,9 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
       host.replaceChildren(activeRenderer.domElement);
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(puzzle === "megaminx" ? 29 : 34, 1, 0.1, 100);
-      const orbit = orbitRef.current = { yaw: -0.55, pitch: 0.32, distance: puzzle === "megaminx" ? 7.2 : 5.4 };
+      const cameraConfig = defaultPuzzleCamera(puzzle);
+      const camera = new THREE.PerspectiveCamera(cameraConfig.fov, 1, 0.1, 100);
+      const orbit = orbitRef.current = { yaw: -0.55, pitch: 0.32, distance: cameraConfig.distance };
       targetDistanceRef.current = orbit.distance;
       const root = new THREE.Group();
       root.add(puzzleObject as unknown as Object3D);
@@ -125,7 +145,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
         activeRenderer.render(scene, camera);
       };
       renderRef.current = resizeAndRender;
-      resetRef.current = () => { orbit.yaw = -0.55; orbit.pitch = 0.32; orbit.distance = puzzle === "megaminx" ? 7.2 : 5.4; resizeAndRender(); };
+      resetRef.current = () => { orbit.yaw = -0.55; orbit.pitch = 0.32; orbit.distance = cameraConfig.distance; resizeAndRender(); };
       const observer = new ResizeObserver(resizeAndRender);
       observer.observe(host);
       resizeAndRender();
@@ -134,6 +154,8 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
         observer.disconnect();
         if (zoomFrameRef.current !== null) window.cancelAnimationFrame(zoomFrameRef.current);
         zoomFrameRef.current = null;
+        if (inertiaFrameRef.current !== null) window.cancelAnimationFrame(inertiaFrameRef.current);
+        inertiaFrameRef.current = null;
         pointersRef.current.clear();
         pinchRef.current = null;
         renderRef.current = null;
@@ -170,9 +192,30 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
     zoomFrameRef.current = window.requestAnimationFrame(tick);
   };
 
+  const cancelInertia = () => {
+    if (inertiaFrameRef.current !== null) window.cancelAnimationFrame(inertiaFrameRef.current);
+    inertiaFrameRef.current = null;
+    inertiaVelocityRef.current = { yaw: 0, pitch: 0 };
+  };
+
+  const startInertia = () => {
+    if (!renderRef.current || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const advance = () => {
+      const next = inertiaStep(orbitRef.current, inertiaVelocityRef.current);
+      inertiaVelocityRef.current = next.velocity;
+      if (Math.abs(next.velocity.yaw) < 0.0004 && Math.abs(next.velocity.pitch) < 0.0004) { cancelInertia(); return; }
+      orbitRef.current.yaw = next.orbit.yaw;
+      orbitRef.current.pitch = next.orbit.pitch;
+      renderRef.current?.();
+      inertiaFrameRef.current = window.requestAnimationFrame(advance);
+    };
+    inertiaFrameRef.current = window.requestAnimationFrame(advance);
+  };
+
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     if (!renderRef.current) return;
+    cancelInertia();
     event.currentTarget.setPointerCapture(event.pointerId);
     pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     if (pointersRef.current.size >= 2) {
@@ -181,7 +224,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
       dragRef.current = null;
       return;
     }
-    dragRef.current = { x: event.clientX, y: event.clientY, yaw: orbitRef.current.yaw, pitch: orbitRef.current.pitch };
+    dragRef.current = { x: event.clientX, y: event.clientY, yaw: orbitRef.current.yaw, pitch: orbitRef.current.pitch, lastX: event.clientX, lastY: event.clientY, lastAt: performance.now(), moved: false };
   };
   const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (!pointersRef.current.has(event.pointerId) || !renderRef.current) return;
@@ -193,17 +236,26 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
     }
     const drag = dragRef.current;
     if (!drag) return;
+    const now = performance.now();
+    const elapsed = Math.max(8, now - drag.lastAt);
+    inertiaVelocityRef.current = { yaw: ((event.clientX - drag.lastX) * 0.012 * 16) / elapsed, pitch: ((event.clientY - drag.lastY) * 0.012 * 16) / elapsed };
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
+    drag.lastAt = now;
+    drag.moved = true;
     const nextOrbit = orbitFromDrag({ yaw: drag.yaw, pitch: drag.pitch, distance: orbitRef.current.distance }, event.clientX - drag.x, event.clientY - drag.y);
     orbitRef.current.yaw = nextOrbit.yaw;
     orbitRef.current.pitch = nextOrbit.pitch;
     renderRef.current();
   };
   const pointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    const wasDragged = dragRef.current?.moved ?? false;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     pointersRef.current.delete(event.pointerId);
     pinchRef.current = null;
     const remaining = Array.from(pointersRef.current.values())[0];
-    dragRef.current = remaining ? { x: remaining.x, y: remaining.y, yaw: orbitRef.current.yaw, pitch: orbitRef.current.pitch } : null;
+    dragRef.current = remaining ? { x: remaining.x, y: remaining.y, yaw: orbitRef.current.yaw, pitch: orbitRef.current.pitch, lastX: remaining.x, lastY: remaining.y, lastAt: performance.now(), moved: false } : null;
+    if (!remaining && wasDragged) startInertia();
   };
   const wheel = (event: WheelEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -212,7 +264,9 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
     smoothZoom();
   };
 
-  if (status === "error") return <div className="card card-body h-100 d-flex flex-column align-items-center justify-content-center text-center"><i className="bi bi-box-seam fs-1 text-body-secondary mb-3" aria-hidden="true" /><p className="fw-semibold mb-1">{eventId === "pyram" ? "Pyraminx" : "Megaminx"}</p><p className="small text-body-secondary mb-0">{language === "vi" ? "Không thể tạo mô hình 3D cho scramble này." : "The 3D model could not be created for this scramble."}</p></div>;
+  const cameraConfig = defaultPuzzleCamera(puzzle);
+  const label = eventId === "pyram" ? "Pyraminx" : eventId === "minx" ? "Megaminx" : `${eventId.slice(0, 1)}×${eventId.slice(0, 1)}×${eventId.slice(0, 1)}`;
+  if (status === "error") return <div className="card card-body h-100 d-flex flex-column align-items-center justify-content-center text-center"><i className="bi bi-box-seam fs-1 text-body-secondary mb-3" aria-hidden="true" /><p className="fw-semibold mb-1">{label}</p><p className="small text-body-secondary mb-0">{language === "vi" ? "Không thể tạo mô hình 3D cho scramble này." : "The 3D model could not be created for this scramble."}</p></div>;
 
-  return <div className="card bg-dark text-white h-100"><div className="card-body p-2 position-relative"><div ref={hostRef} className="w-100" style={{ minHeight: eventId === "minx" ? "17rem" : "14rem", touchAction: "none", cursor: "grab" }} aria-label={language === "vi" ? `Mô hình ${eventId === "pyram" ? "Pyraminx" : "Megaminx"} 3D` : `${eventId === "pyram" ? "Pyraminx" : "Megaminx"} 3D model`} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} />{status === "loading" ? <div className="position-absolute top-50 start-50 translate-middle small text-white-50">{language === "vi" ? "Đang tạo mô hình 3D…" : "Building 3D model…"}</div> : null}<button type="button" className="btn btn-outline-light btn-sm position-absolute bottom-0 end-0 m-2" onClick={() => { resetRef.current?.(); targetDistanceRef.current = orbitRef.current.distance; }} aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><i className="bi bi-arrow-counterclockwise" aria-hidden="true" /></button></div></div>;
+  return <div className="card bg-dark text-white h-100"><div className="card-body p-2 position-relative"><div ref={hostRef} className="w-100" style={{ minHeight: cameraConfig.height, touchAction: "none", cursor: "grab" }} aria-label={language === "vi" ? `Mô hình ${label} 3D` : `${label} 3D model`} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} />{status === "loading" ? <div className="position-absolute top-50 start-50 translate-middle small text-white-50">{language === "vi" ? "Đang tạo mô hình 3D…" : "Building 3D model…"}</div> : null}<button type="button" className="btn btn-outline-light btn-sm position-absolute bottom-0 end-0 m-2" onClick={() => { cancelInertia(); resetRef.current?.(); targetDistanceRef.current = orbitRef.current.distance; }} aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><i className="bi bi-arrow-counterclockwise" aria-hidden="true" /></button></div></div>;
 }

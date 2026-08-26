@@ -14,5 +14,5 @@ export function PuzzleScramblePreview({ eventId, scramble, language }: { eventId
   const twoByTwoState = useMemo(() => { if (eventId !== "222") return SOLVED_FAST_STATE; try { return stateFromScramble(scramble); } catch { return SOLVED_FAST_STATE; } }, [eventId, scramble]);
 
   if (eventId === "222") return <Cube3DGuide state={twoByTwoState} dimension={2} step={0} />;
-  return config?.puzzle === "pyraminx" || config?.puzzle === "megaminx" ? <Puzzle3DCanvas eventId={eventId} puzzle={config.puzzle} scramble={scramble} language={language} /> : null;
+  return config && config.puzzle !== "2x2x2" ? <Puzzle3DCanvas eventId={eventId} puzzle={config.puzzle} scramble={scramble} language={language} /> : null;
 }

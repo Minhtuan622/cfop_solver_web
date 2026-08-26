@@ -70,5 +70,10 @@ describe("Timer replay với solution đã lưu", () => {
     expect(screen.queryByText(/Các công cụ CFOP\/3D chỉ áp dụng cho 3×3/i)).not.toBeInTheDocument();
     expect(screen.getByText("Chưa có solve Pyraminx.")).toBeInTheDocument();
     expect(screen.getByText("Liên kết WCA ID")).toBeInTheDocument();
+
+    fireEvent.change(eventSelect, { target: { value: "444" } });
+    expect(await screen.findByText("444 scramble")).toBeInTheDocument();
+    expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("444 preview");
+    expect(screen.getByText("Chưa có solve 4×4×4.")).toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { distanceFromPinch, orbitFromDrag } from "./Puzzle3DCanvas";
+import { distanceFromPinch, inertiaStep, orbitFromDrag } from "./Puzzle3DCanvas";
 
 describe("Puzzle3DCanvas controls", () => {
   it("moves the vertical camera axis in the same direction as the pointer", () => {
@@ -11,6 +11,14 @@ describe("Puzzle3DCanvas controls", () => {
 
   it("zooms in when a pinch expands and clamps distances safely", () => {
     expect(distanceFromPinch(6, 100, 200)).toBe(3.6);
-    expect(distanceFromPinch(6, 100, 50)).toBe(10.5);
+    expect(distanceFromPinch(6, 100, 40)).toBe(13);
+  });
+
+  it("keeps a light, decaying velocity after the user releases the model", () => {
+    const next = inertiaStep({ yaw: 0, pitch: 0, distance: 6 }, { yaw: 0.2, pitch: -0.1 });
+    expect(next.orbit.yaw).toBeGreaterThan(0);
+    expect(next.orbit.pitch).toBeLessThan(0);
+    expect(next.velocity.yaw).toBeLessThan(0.2);
+    expect(next.velocity.pitch).toBeGreaterThan(-0.1);
   });
 });

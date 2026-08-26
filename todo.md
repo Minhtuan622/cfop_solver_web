@@ -1140,3 +1140,10 @@
 - [x] Đảo hướng kéo dọc để chuyển động camera khớp hướng chuột, giữ nguyên trục ngang.
 - [x] Thêm pinch-to-zoom mượt, giới hạn khoảng cách an toàn và tránh nhầm pinch với xoay một ngón.
 - [x] Kiểm thử kéo chuột, kéo cảm ứng, pinch, reset, desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## Quán tính và cube 4×4–7×7
+
+- [x] Kiểm tra renderer, mapping event và các điều khiển 3D hiện có.
+- [x] Thêm quán tính nhẹ sau khi thả chuột/ngón tay cho canvas puzzle 3D.
+- [x] Mở rộng mapping và mô hình 3D trạng thái scramble cho 4×4, 5×5, 6×6, 7×7.
+- [x] Kiểm thử quán tính, event cube mới, desktop/mobile, TypeScript, regression, build và checkpoint.

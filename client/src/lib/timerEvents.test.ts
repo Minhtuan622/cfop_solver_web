@@ -21,10 +21,13 @@ describe("timer events", () => {
     expect(filterTimerEventEntries(entries, "444").map((entry) => entry.id)).toEqual(["four"]);
   });
 
-  it("maps only supported visual previews to their cubing.js puzzle IDs", () => {
+  it("maps supported visual previews to their cubing.js puzzle IDs", () => {
     expect(timerPreviewPuzzleId("222")).toBe("2x2x2");
     expect(timerPreviewPuzzleId("pyram")).toBe("pyraminx");
     expect(timerPreviewPuzzleId("minx")).toBe("megaminx");
-    expect(timerPreviewPuzzleId("444")).toBeNull();
+    expect(timerPreviewPuzzleId("444")).toBe("4x4x4");
+    expect(timerPreviewPuzzleId("555")).toBe("5x5x5");
+    expect(timerPreviewPuzzleId("666")).toBe("6x6x6");
+    expect(timerPreviewPuzzleId("777")).toBe("7x7x7");
   });
 });

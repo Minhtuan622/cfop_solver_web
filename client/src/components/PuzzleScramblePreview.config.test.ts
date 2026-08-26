@@ -6,9 +6,11 @@ describe("puzzleScramblePreviewConfig", () => {
     expect(puzzleScramblePreviewConfig("222", "R U R'")).toMatchObject({ puzzle: "2x2x2", experimentalSetupAlg: "R U R'", alg: "", visualization: "3D", controlPanel: "none" });
     expect(puzzleScramblePreviewConfig("pyram", "R U' L")).toMatchObject({ puzzle: "pyraminx", experimentalSetupAlg: "R U' L", alg: "", visualization: "3D", controlPanel: "none" });
     expect(puzzleScramblePreviewConfig("minx", "R++ D--")).toMatchObject({ puzzle: "megaminx", experimentalSetupAlg: "R++ D--", alg: "", visualization: "3D", controlPanel: "none" });
+    expect(puzzleScramblePreviewConfig("444", "Rw U2")).toMatchObject({ puzzle: "4x4x4", experimentalSetupAlg: "Rw U2", visualization: "3D" });
+    expect(puzzleScramblePreviewConfig("777", "3Rw U2")).toMatchObject({ puzzle: "7x7x7", experimentalSetupAlg: "3Rw U2", visualization: "3D" });
   });
 
   it("does not claim a visual preview for unsupported puzzles", () => {
-    expect(puzzleScramblePreviewConfig("444", "Rw U2")).toBeNull();
+    expect(puzzleScramblePreviewConfig("skewb", "R U")).toBeNull();
   });
 });
