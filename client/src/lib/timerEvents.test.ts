@@ -6,6 +6,7 @@ describe("timer events", () => {
     expect(isTimerEventId("444")).toBe(true);
     expect(isTimerEventId("444bf")).toBe(true);
     expect(isTimerEventId("555bf")).toBe(true);
+    expect(isTimerEventId("fto")).toBe(true);
     expect(isTimerEventId("invalid")).toBe(false);
     expect(normalizeTimerEventId(undefined)).toBe(DEFAULT_TIMER_EVENT);
     expect(normalizeTimerEventId("invalid")).toBe(DEFAULT_TIMER_EVENT);
@@ -20,10 +21,12 @@ describe("timer events", () => {
     expect(isThreeByThreeEvent("444bf")).toBe(false);
     expect(isThreeByThreeEvent("555bf")).toBe(false);
     expect(isThreeByThreeEvent("pyram")).toBe(false);
+    expect(isThreeByThreeEvent("fto")).toBe(false);
     expect(timerEventLabel("333oh", "vi")).toBe("3×3 OH");
     expect(timerEventLabel("333bf", "en")).toBe("3×3 BLD");
     expect(timerEventLabel("444bf", "vi")).toBe("4×4 BLD");
     expect(timerEventLabel("555bf", "en")).toBe("5×5 BLD");
+    expect(timerEventLabel("fto", "vi")).toBe("FTO");
     expect(timerEventLabel("sq1", "vi")).toBe("Square-1");
   });
 
@@ -38,6 +41,7 @@ describe("timer events", () => {
     expect(timerPreviewPuzzleId("pyram")).toBe("pyraminx");
     expect(timerPreviewPuzzleId("skewb")).toBe("skewb");
     expect(timerPreviewPuzzleId("minx")).toBe("megaminx");
+    expect(timerPreviewPuzzleId("fto")).toBe("fto");
     expect(timerPreviewPuzzleId("sq1")).toBe("square1");
     expect(timerPreviewPuzzleId("clock")).toBe("clock");
     expect(timerPreviewPuzzleId("444")).toBe("4x4x4");

@@ -1331,3 +1331,8 @@
 ## Sửa lỗi runtime trang chính
 - [x] Truy vết Script error mới trên trang chính bằng log và tái tạo render.
 - [x] Áp dụng bản vá tối thiểu, kiểm thử runtime, build và checkpoint.
+
+## Bổ sung FTO vào Timer
+- [x] Thêm FTO vào danh mục event, scramble và lịch sử Timer.
+- [x] Hiển thị preview phù hợp và bổ sung regression cho FTO.
+- [x] Kiểm tra TypeScript, build và lưu checkpoint.

@@ -3,7 +3,7 @@ import type { Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
 import { isSideEvent3DPuzzle, sideEvent3DAnimation, type SideEvent3DAnimation } from "@/components/SideEvent3DObject";
 
-type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "megaminx" | "square1" | "clock";
+type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "megaminx" | "fto" | "square1" | "clock";
 export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 type Point = { x: number; y: number };
 const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
@@ -33,6 +33,7 @@ export function inertiaStep(orbit: PuzzleOrbit, velocity: { yaw: number; pitch: 
 
 function defaultPuzzleCamera(puzzle: PuzzleId) {
   if (puzzle === "megaminx") return { fov: 29, distance: 6.1, height: "18rem" };
+  if (puzzle === "fto") return { fov: 28, distance: 5.95, height: "17rem" };
   if (puzzle === "pyraminx") return { fov: 32, distance: 4.45, height: "16rem" };
   if (puzzle === "skewb") return { fov: 33, distance: 4.65, height: "16rem" };
   if (puzzle === "clock") return { fov: 31, distance: 7.45, height: "12rem" };

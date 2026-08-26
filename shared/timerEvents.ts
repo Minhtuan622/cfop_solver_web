@@ -1,7 +1,7 @@
 export const TIMER_EVENT_IDS = [
   "222", "333", "333oh", "333bf", "333fm", "333mbf",
   "444", "444bf", "555", "555bf", "666", "777",
-  "pyram", "skewb", "minx", "sq1", "clock",
+  "pyram", "skewb", "minx", "fto", "sq1", "clock",
 ] as const;
 
 export type TimerEventId = (typeof TIMER_EVENT_IDS)[number];
@@ -23,6 +23,7 @@ export const TIMER_EVENTS = [
   { id: "pyram", labelVi: "Pyraminx", labelEn: "Pyraminx" },
   { id: "skewb", labelVi: "Skewb", labelEn: "Skewb" },
   { id: "minx", labelVi: "Megaminx", labelEn: "Megaminx" },
+  { id: "fto", labelVi: "FTO", labelEn: "FTO" },
   { id: "sq1", labelVi: "Square-1", labelEn: "Square-1" },
   { id: "clock", labelVi: "Clock", labelEn: "Clock" },
 ] as const satisfies readonly { id: TimerEventId; labelVi: string; labelEn: string }[];

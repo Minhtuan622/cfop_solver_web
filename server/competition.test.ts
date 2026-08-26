@@ -9,12 +9,14 @@ describe("competition helpers", () => {
     expect(faces.every((face, index) => index === 0 || face !== faces[index - 1])).toBe(true);
   });
 
-  it("tạo scramble Cubing.js cho event Blindfolded 4×4 và 5×5", async () => {
-    const [fourBlind, fiveBlind] = await Promise.all([createCompetitionScramble("444bf"), createCompetitionScramble("555bf")]);
+  it("tạo scramble Cubing.js cho event Blindfolded 4×4, 5×5 và FTO", async () => {
+    const [fourBlind, fiveBlind, fto] = await Promise.all([createCompetitionScramble("444bf"), createCompetitionScramble("555bf"), createCompetitionScramble("fto")]);
     expect(fourBlind.trim()).not.toBe("");
     expect(fiveBlind.trim()).not.toBe("");
+    expect(fto.trim()).not.toBe("");
     expect(fourBlind).toMatch(/[URFDLB]/);
     expect(fiveBlind).toMatch(/[URFDLB]/);
+    expect(fto).toMatch(/[URFDLB]/);
   }, 20_000);
 
   it("tạo bundle MBLD và xếp theo score, thời gian, rồi unsolved", async () => {
