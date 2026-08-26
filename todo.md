@@ -1210,3 +1210,10 @@
 - [x] Thay hình học Square-1 bằng khối hai tầng vuông với mặt trên/dưới và mặt bên thẳng đứng đúng loại mảnh.
 - [x] Giữ mapping trạng thái scramble, dừng tự xoay và bổ sung regression cho hình học mới.
 - [x] Xác minh thao tác 3D, TypeScript, test, build và checkpoint.
+
+## Xác minh Square-1 và dựng lại Clock vật lý
+
+- [x] Tạo regression Square-1 với scramble cố định, xác nhận slot edge/corner và màu mặt U/D.
+- [x] Đối chiếu Clock hiện tại với mẫu tham chiếu: board tròn dày, mặt đen, chín dial, kim, pin, vành và ốc.
+- [x] Dựng lại Clock theo các bộ phận vật lý, vẫn dùng mapping dial/pin csTimer và không tự phát animation.
+- [x] Kiểm thử TypeScript, unit test, build production, thao tác preview và checkpoint.
