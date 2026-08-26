@@ -1203,3 +1203,10 @@
 - [x] Thiết kế kích thước riêng cho Square-1, Clock, Pyraminx, Megaminx, Skewb và mô hình vật lý nhận diện đúng.
 - [x] Triển khai cân tỷ lệ, dừng tự xoay và thay Square-1/Clock bằng hình học vật lý.
 - [x] Kiểm thử kích thước, trạng thái đứng yên, browser, TypeScript, regression, build và checkpoint.
+
+## Dựng lại Square-1 theo mẫu vật lý
+
+- [x] Đối chiếu renderer hiện tại với mẫu hai tầng vuông gồm corner/edge, belt và slash.
+- [x] Thay hình học Square-1 bằng khối hai tầng vuông với mặt trên/dưới và mặt bên thẳng đứng đúng loại mảnh.
+- [x] Giữ mapping trạng thái scramble, dừng tự xoay và bổ sung regression cho hình học mới.
+- [x] Xác minh thao tác 3D, TypeScript, test, build và checkpoint.

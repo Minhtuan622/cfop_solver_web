@@ -34,12 +34,14 @@ async function sideEventPatterns(puzzle: SideEventPuzzle, scramble: string) {
   return { initial, steps };
 }
 
-function sectorShape(THREE: ThreeModule, innerRadius: number, outerRadius: number, start: number, end: number) {
+function squareSectorShape(THREE: ThreeModule, innerRadius: number, outerRadius: number, start: number, end: number) {
   const shape = new THREE.Shape();
   const point = (angle: number, radius: number) => {
     const x = Math.cos(angle);
     const y = Math.sin(angle);
-    const scale = radius / Math.pow(Math.pow(Math.abs(x), 4) + Math.pow(Math.abs(y), 4), 0.25);
+    // The shell of a real Square-1 is a square, not a rounded 12-sector disk.
+    // Projecting rays onto a square keeps the side walls flat like a physical puzzle.
+    const scale = radius / Math.max(Math.abs(x), Math.abs(y), 0.0001);
     return { x: x * scale, y: y * scale };
   };
   const innerStart = point(start, innerRadius);
@@ -55,6 +57,7 @@ const SQUARE_EDGE_SIDE = "R-B-L-F-F-L-B-R-";
 const SQUARE_CORNER_SIDE = "RBBLLFFRRFFLLBBR";
 
 export function squareOneWedgeUnits(piece: number) { return piece % 2 === 1 ? 2 : 1; }
+export function squareOnePieceKind(piece: number) { return squareOneWedgeUnits(piece) === 2 ? "corner" : "edge"; }
 const CLOCK_FRONT_LAYOUT = [0, 3, 6, 1, 4, 7, 2, 5, 8];
 const CLOCK_BACK_LAYOUT = [2, 10, 8, 9, 11, 13, 0, 12, 6];
 export function clockDialIndex(column: number, row: number, back = false) { return (back ? CLOCK_BACK_LAYOUT : CLOCK_FRONT_LAYOUT)[column * 3 + row]; }
@@ -64,37 +67,48 @@ function squareOneSideColor(piece: number) {
   return CUBE_COLORS[face] ?? CUBE_COLORS.F;
 }
 
+function squareOneSidePanel(THREE: ThreeModule, angle: number, width: number, verticalCenter: number, color: string) {
+  const x = Math.cos(angle);
+  const z = Math.sin(angle);
+  const squareRadius = 1.68;
+  const scale = squareRadius / Math.max(Math.abs(x), Math.abs(z), 0.0001);
+  const panel = new THREE.Mesh(
+    new THREE.BoxGeometry(width, 0.46, 0.045),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.52, metalness: 0.02 }),
+  );
+  panel.position.set(x * scale, verticalCenter, z * scale);
+  if (Math.abs(x) > Math.abs(z)) panel.rotation.y = Math.PI / 2;
+  return panel;
+}
+
 function squareOneLayer(THREE: ThreeModule, wedges: PatternOrbit, startIndex: number, verticalBase: number) {
   const layer = new THREE.Group();
   const isTopLayer = verticalBase > 0;
-  const sqa = Math.sqrt(3) / 2 + 1;
-  const ep = [[0, 0], [-0.5, -sqa], [0.5, -sqa]];
-  const cp = [[0, 0], [-0.5, -sqa], [-sqa, -sqa], [-sqa, -0.5]];
-  const cpr = [[0, 0], [-0.5, -sqa], [-sqa, -sqa]];
-  const cpl = [[0, 0], [-sqa, -sqa], [-sqa, -0.5]];
-  const rotate = (points: number[][], angle: number) => points.map(([x, z]) => [x * Math.cos(angle) - z * Math.sin(angle), x * Math.sin(angle) + z * Math.cos(angle)]);
-  const makeShape = (points: number[][]) => { const shape = new THREE.Shape(); points.forEach(([x, z], index) => index === 0 ? shape.moveTo(x, z) : shape.lineTo(x, z)); shape.closePath(); return shape; };
-  const place = (points: number[][], color: string, topSticker = false) => {
-    const shape = makeShape(points);
-    const mesh = new THREE.Mesh(topSticker ? new THREE.ShapeGeometry(shape) : new THREE.ExtrudeGeometry(shape, { depth: 0.52, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color, roughness: 0.66, metalness: 0.03 }));
-    mesh.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
-    mesh.position.y = verticalBase + (topSticker ? (isTopLayer ? 0.526 : -0.526) : 0);
-    layer.add(mesh);
-  };
+  const thickness = 0.48;
+  const stickerY = verticalBase + (isTopLayer ? thickness + 0.004 : -thickness - 0.004);
+  const verticalCenter = verticalBase + (isTopLayer ? thickness / 2 : -thickness / 2);
+  const neutralPiece = new THREE.MeshStandardMaterial({ color: "#17202a", roughness: 0.58, metalness: 0.04 });
   for (let position = 0; position < 12; position += 1) {
     const piece = wedges.pieces[startIndex + position] ?? startIndex + position;
-    const colorUD = CUBE_COLORS[piece >= 8 ? "D" : "U"];
-    const corner = piece % 2 === 1;
-    const rotation = -(startIndex === 0 ? (position - 1) : (position - 6)) * Math.PI / 6;
-    if (corner) {
-      place(rotate(cpr, rotation), CUBE_COLORS[SQUARE_CORNER_SIDE[piece - 1] ?? "F"]);
-      place(rotate(cpl, rotation), CUBE_COLORS[SQUARE_CORNER_SIDE[piece] ?? "F"]);
-      place(rotate(cp, rotation), colorUD, true);
-      position += 1;
-    } else {
-      place(rotate(ep, rotation - Math.PI / 6), CUBE_COLORS[SQUARE_EDGE_SIDE[piece] ?? "F"]);
-      place(rotate(ep.map(([x, z]) => [x * 0.66, z * 0.66]), rotation - Math.PI / 6), colorUD, true);
+    const units = squareOneWedgeUnits(piece);
+    const layerOffset = startIndex === 0 ? -1 : -6;
+    const start = -(position + layerOffset) * Math.PI / 6 + 0.025;
+    const end = start - units * Math.PI / 6 + 0.05;
+    const shape = squareSectorShape(THREE, 0.12, 1.65, start, end);
+    const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false }), neutralPiece);
+    body.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
+    body.position.y = verticalBase;
+    const sticker = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshStandardMaterial({ color: CUBE_COLORS[piece >= 8 ? "D" : "U"], roughness: 0.48, metalness: 0.01 }));
+    sticker.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
+    sticker.position.y = stickerY;
+    layer.add(body, sticker);
+
+    for (let unit = 0; unit < units; unit += 1) {
+      const unitAngle = start - (unit + 0.5) * Math.PI / 6;
+      const sideFace = units === 2 ? SQUARE_CORNER_SIDE[piece - 1 + unit] : SQUARE_EDGE_SIDE[piece];
+      layer.add(squareOneSidePanel(THREE, unitAngle, units === 2 ? 0.82 : 0.74, verticalCenter, CUBE_COLORS[sideFace] ?? CUBE_COLORS.F));
     }
+    if (units === 2) position += 1;
   }
   return layer;
 }
@@ -103,14 +117,23 @@ function squareOneObject(THREE: ThreeModule, pattern: PatternData) {
   const root = new THREE.Group();
   const wedges = pattern.WEDGES;
   if (!wedges) throw new Error("Square-1 pattern is unavailable");
-  const top = squareOneLayer(THREE, wedges, 0, 0.24);
-  const bottom = squareOneLayer(THREE, wedges, 12, -0.24);
-  const shell = new THREE.Mesh(new THREE.BoxGeometry(3.58, 0.12, 3.58), new THREE.MeshStandardMaterial({ color: "#222a35", roughness: 0.42, metalness: 0.3 }));
-  shell.position.y = -0.03;
-  const belt = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.3, 3.4), new THREE.MeshStandardMaterial({ color: wedges.pieces[0] >= 8 ? CUBE_COLORS.R : CUBE_COLORS.L, roughness: 0.48, metalness: 0.28 }));
-  belt.position.y = -0.03;
+  const top = squareOneLayer(THREE, wedges, 0, 0.16);
+  const bottom = squareOneLayer(THREE, wedges, 12, -0.16);
+  const belt = new THREE.Group();
+  const beltCore = new THREE.Mesh(new THREE.BoxGeometry(3.38, 0.3, 3.38), new THREE.MeshStandardMaterial({ color: "#1f2833", roughness: 0.5, metalness: 0.26 }));
+  belt.add(beltCore);
+  const beltFaces: Array<[number, number, number, string, boolean]> = [
+    [0, 1.705, 0, CUBE_COLORS.R, true], [0, -1.705, 0, CUBE_COLORS.L, true],
+    [1.705, 0, 0, CUBE_COLORS.F, false], [-1.705, 0, 0, CUBE_COLORS.B, false],
+  ];
+  beltFaces.forEach(([x, z, rotation, color, side]) => {
+    const band = new THREE.Mesh(new THREE.BoxGeometry(1.38, 0.16, 0.04), new THREE.MeshStandardMaterial({ color, roughness: 0.46, metalness: 0.03 }));
+    band.position.set(x, 0, z);
+    band.rotation.y = side ? rotation : Math.PI / 2;
+    belt.add(band);
+  });
   belt.rotation.y = (pattern.EQUATOR?.orientation[0] ?? 0) * Math.PI;
-  root.add(shell, top, bottom, belt);
+  root.add(top, bottom, belt);
   root.userData.squareAnimation = { top, bottom, belt };
   return root;
 }
