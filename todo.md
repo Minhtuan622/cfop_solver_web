@@ -1237,3 +1237,9 @@
 - [x] Thêm đường viền mảnh cho mặt trên/dưới và cạnh ngoài của mỗi cubie wedge.
 - [x] Tăng nhẹ độ dày hai tầng, điều chỉnh equator để tổng thể cân đối.
 - [x] Kiểm thử shape-shift, TypeScript, regression, build và checkpoint.
+
+## Tỷ lệ Square-1 hẹp và dày
+
+- [x] Co toàn bộ footprint wedge, sticker, mặt bên và equator xuống một nửa đồng bộ.
+- [x] Tăng gấp đôi chiều dày hai tầng và cân lại khoảng hở equator.
+- [x] Kiểm thử mapping shape-shift, TypeScript, regression, build và checkpoint.
