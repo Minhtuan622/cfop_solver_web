@@ -86,8 +86,12 @@ describe("Timer replay với solution đã lưu", () => {
     localStorage.setItem("cfop-language", "vi");
     render(<LanguageProvider><TimerLab /></LanguageProvider>);
     fireEvent.change(screen.getByLabelText("Loại khối"), { target: { value: "333mbf" } });
-    expect(await screen.findByText("333mbf scramble")).toBeInTheDocument();
+    expect(await screen.findByText("2 SCRAMBLE RIÊNG · MỖI KHỐI MỘT SCRAMBLE")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Số khối thử Multi-Blind"), { target: { value: "4" } });
+    expect(screen.getByText("Hãy tạo đủ một scramble riêng cho mỗi khối trước khi bắt đầu Multi-Blind.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Tạo scramble Multi-Blind" }));
+    expect(await screen.findByText("4 SCRAMBLE RIÊNG · MỖI KHỐI MỘT SCRAMBLE")).toBeInTheDocument();
+    expect(screen.getAllByText("333 scramble")).toHaveLength(4);
     fireEvent.click(screen.getByTestId("solve-timer"));
     expect(await screen.findByText("Xác nhận kết quả Multi-Blind")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Số khối giải đúng Multi-Blind"), { target: { value: "3" } });

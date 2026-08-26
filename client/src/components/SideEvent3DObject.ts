@@ -11,7 +11,7 @@ type SideEventStep = { move: string; pattern: PatternData };
 
 export type SideEvent3DAnimation = { object: Group; play: (render: () => void) => void; finish: () => void; cancel: () => void; dispose: () => void };
 
-const SIDE_COLORS = ["#d95743", "#3b6fc7", "#1ba77a", "#ed8e42", "#f7f3e9", "#e7c34f"];
+const CUBE_COLORS: Record<string, string> = { U: "#f7f3e9", R: "#d95743", F: "#1ba77a", D: "#e7c34f", L: "#ed8e42", B: "#3b6fc7" };
 const TAU = Math.PI * 2;
 const CLOCK_UNIT = TAU / 12;
 
@@ -43,8 +43,15 @@ function sectorShape(THREE: ThreeModule, innerRadius: number, outerRadius: numbe
   return shape;
 }
 
-function pairOfCornerWedges(first: number, second: number) {
-  return Math.floor(first / 3) === Math.floor(second / 3) && first % 3 !== 2 && second % 3 !== 2;
+const SQUARE_EDGE_SIDE = "R-B-L-F-F-L-B-R-";
+const SQUARE_CORNER_SIDE = "RBBLLFFRRFFLLBBR";
+
+export function squareOneWedgeUnits(piece: number) { return piece % 2 === 1 ? 2 : 1; }
+export function clockDialIndex(column: number, row: number, back = false) { return (back ? 9 : 0) + column * 3 + row; }
+
+function squareOneSideColor(piece: number) {
+  const face = (piece % 2 ? SQUARE_CORNER_SIDE : SQUARE_EDGE_SIDE)[piece] ?? "F";
+  return CUBE_COLORS[face] ?? CUBE_COLORS.F;
 }
 
 function squareOneLayer(THREE: ThreeModule, wedges: PatternOrbit, startIndex: number, verticalBase: number) {
@@ -54,19 +61,17 @@ function squareOneLayer(THREE: ThreeModule, wedges: PatternOrbit, startIndex: nu
   let position = 0;
   while (position < 12) {
     const piece = wedges.pieces[startIndex + position] ?? startIndex + position;
-    const next = wedges.pieces[startIndex + position + 1] ?? -1;
-    const units = position < 11 && pairOfCornerWedges(piece, next) ? 2 : 1;
-    const orientation = wedges.orientation[startIndex + position] ?? 0;
+    const units = Math.min(squareOneWedgeUnits(piece), 12 - position);
     const start = -Math.PI / 2 + position * unit + 0.012;
     const end = -Math.PI / 2 + (position + units) * unit - 0.012;
     const shape = sectorShape(THREE, 0.64, 1.84, start, end);
-    const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.55, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color: SIDE_COLORS[Math.abs(piece + orientation) % SIDE_COLORS.length], roughness: 0.72, metalness: 0.04 }));
+    const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.55, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color: squareOneSideColor(piece), roughness: 0.72, metalness: 0.04 }));
     body.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
     body.position.y = verticalBase;
     layer.add(body);
-    const face = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshStandardMaterial({ color: piece < 12 ? "#f7f3e9" : "#e7c34f", roughness: 0.58, metalness: 0.02 }));
+    const face = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshStandardMaterial({ color: CUBE_COLORS[piece >= 8 ? "D" : "U"], roughness: 0.58, metalness: 0.02 }));
     face.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
-    face.position.y = verticalBase + (isTopLayer ? 0.556 : -0.006);
+    face.position.y = verticalBase + (isTopLayer ? 0.556 : -0.556);
     layer.add(face);
     position += units;
   }
@@ -80,8 +85,9 @@ function squareOneObject(THREE: ThreeModule, pattern: PatternData) {
   const slashPivot = new THREE.Group();
   const top = squareOneLayer(THREE, wedges, 0, 0.24);
   const bottom = squareOneLayer(THREE, wedges, 12, -0.24);
-  const belt = new THREE.Mesh(new THREE.CylinderGeometry(1.86, 1.86, 0.22, 48), new THREE.MeshStandardMaterial({ color: "#252a31", roughness: 0.48, metalness: 0.34 }));
+  const belt = new THREE.Mesh(new THREE.CylinderGeometry(1.86, 1.86, 0.3, 48), new THREE.MeshStandardMaterial({ color: wedges.pieces[0] >= 8 ? CUBE_COLORS.R : CUBE_COLORS.L, roughness: 0.48, metalness: 0.28 }));
   belt.position.y = -0.03;
+  belt.rotation.y = (pattern.EQUATOR?.orientation[0] ?? 0) * Math.PI;
   slashPivot.add(top, bottom, belt);
   root.add(slashPivot);
   root.userData.squareAnimation = { top, bottom, slashPivot };
@@ -113,23 +119,23 @@ function dial(THREE: ThreeModule, orientation: number, faceColor: string, back =
   return { dialGroup, pivot };
 }
 
-function clockFace(THREE: ThreeModule, dials: PatternOrbit, faceOrbit: PatternOrbit | undefined, offset: number, pivots: ClockHand[], back = false) {
+function clockFace(THREE: ThreeModule, dials: PatternOrbit, faceOrbit: PatternOrbit | undefined, pivots: ClockHand[], back = false) {
   const group = new THREE.Group();
   const positions = [-1.18, 0, 1.18];
   for (let row = 0; row < 3; row += 1) {
     for (let column = 0; column < 3; column += 1) {
-      const index = offset + row * 3 + column;
+      const index = clockDialIndex(column, row, back);
       const item = dial(THREE, dials.orientation[index] ?? 0, back ? "#405f92" : "#f1eee4", back);
       item.dialGroup.position.set(positions[column], positions[2 - row], back ? -0.27 : 0.27);
       pivots.push({ pivot: item.pivot, index });
       group.add(item.dialGroup);
     }
   }
-  for (const [index, x, y] of [[0, -1.88, 1.88], [1, 1.88, 1.88], [2, -1.88, -1.88], [3, 1.88, -1.88]] as const) {
-    const state = faceOrbit?.pieces[index + offset] ?? index;
-    const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, state % 2 ? 0.25 : 0.12, 18), new THREE.MeshStandardMaterial({ color: state % 2 ? "#db6a4e" : "#2f9b72", roughness: 0.44 }));
+  for (const [index, x, y] of [[0, -1.68, 1.68], [1, 1.68, 1.68], [2, -1.68, -1.68], [3, 1.68, -1.68]] as const) {
+    const state = faceOrbit?.orientation[index + (back ? 9 : 0)] ?? 0;
+    const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, state ? 0.25 : 0.12, 18), new THREE.MeshStandardMaterial({ color: state ? "#db6a4e" : "#2f9b72", roughness: 0.44 }));
     pin.rotation.x = Math.PI / 2;
-    pin.position.set(x, y, back ? -0.38 : 0.38);
+    pin.position.set(x, y, 0.16);
     group.add(pin);
   }
   return group;
@@ -140,12 +146,13 @@ function clockObject(THREE: ThreeModule, pattern: PatternData) {
   const dials = pattern.DIALS;
   if (!dials) throw new Error("Clock pattern is unavailable");
   const pivots: ClockHand[] = [];
-  const frame = new THREE.Mesh(new THREE.CylinderGeometry(2.25, 2.25, 0.34, 48), new THREE.MeshStandardMaterial({ color: "#222a35", roughness: 0.36, metalness: 0.56 }));
-  frame.rotation.x = Math.PI / 2;
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(4.75, 4.75, 0.36), new THREE.MeshStandardMaterial({ color: "#222a35", roughness: 0.34, metalness: 0.42 }));
   root.add(frame);
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(2.18, 0.09, 12, 48), new THREE.MeshStandardMaterial({ color: "#96a2b3", roughness: 0.3, metalness: 0.72 }));
-  rim.rotation.x = Math.PI / 2;
-  root.add(rim, clockFace(THREE, dials, pattern.FACES, 0, pivots), clockFace(THREE, dials, pattern.FACES, 9, pivots, true));
+  const front = clockFace(THREE, dials, pattern.FACES, pivots);
+  front.position.z = 0.2;
+  const back = clockFace(THREE, dials, pattern.FACES, pivots, true);
+  back.position.z = -0.2;
+  root.add(front, back);
   root.rotation.y = ((pattern.FRAME?.orientation[0] ?? 0) % 2) * Math.PI;
   root.userData.clockAnimation = { pivots, pattern };
   return root;

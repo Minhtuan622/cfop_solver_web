@@ -23,6 +23,8 @@ export type SolveHistoryEntry = {
   eventId?: TimerEventId;
   /** Present only for 3×3 Multi-Blind results. */
   multiBlind?: MultiBlindAttempt;
+  /** One independent 3×3 scramble for each Multi-Blind cube. */
+  multiBlindScrambles?: string[];
 };
 
 const KEY = "cfop-solve-history-v1";
@@ -38,6 +40,11 @@ function safeMultiBlind(value: unknown): MultiBlindAttempt | undefined {
   const solved = candidate.solved;
   if (typeof attempted !== "number" || typeof solved !== "number" || !Number.isInteger(attempted) || !Number.isInteger(solved) || attempted < 2 || solved < 0 || solved > attempted) return undefined;
   return { attempted, solved };
+}
+function safeMultiBlindScrambles(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const scrambles = value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean).slice(0, 99);
+  return scrambles.length ? scrambles : undefined;
 }
 function safePhaseSplits(value: unknown): SolvePhaseSplit[] {
   if (!Array.isArray(value)) return [];
@@ -72,6 +79,7 @@ function normalize(item: Imported): SolveHistoryEntry {
     phaseSplits: safePhaseSplits(item.phaseSplits),
     eventId: normalizeTimerEventId(item.eventId),
     multiBlind: safeMultiBlind(item.multiBlind),
+    multiBlindScrambles: safeMultiBlindScrambles(item.multiBlindScrambles),
   };
 }
 function write(entries: SolveHistoryEntry[]) { localStorage.setItem(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); notifyCfopCloudStateChanged(); }
@@ -82,7 +90,7 @@ export function readSolveHistory(): SolveHistoryEntry[] {
 export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags" | "phaseSplits"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry {
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readSolveHistory()]); return item;
 }
-export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "multiBlind">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
+export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
 export function deleteSolveHistory(id: string): SolveHistoryEntry[] { const next = readSolveHistory().filter((entry) => entry.id !== id); write(next); return next; }
 export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry[] { const selected = new Set(ids); const next = readSolveHistory().filter((entry) => !selected.has(entry.id)); write(next); return next; }
 export function clearSolveHistory() { localStorage.removeItem(KEY); notifyCfopCloudStateChanged(); }

@@ -1175,3 +1175,10 @@
 - [x] Thiết kế dữ liệu số khối thử/giải đúng, điểm và hiển thị lịch sử Multi-Blind.
 - [x] Triển khai nhập kết quả, chấm điểm Multi-Blind và nhãn event 3×3 rút gọn.
 - [x] Kiểm thử điểm, thời gian, lịch sử, TypeScript, regression, build và checkpoint.
+
+## Multi-Blind nhiều scramble và side-event 3D
+
+- [x] Rà soát luồng tạo/lưu scramble Multi-Blind và lỗi hiển thị Square-1, Clock hiện tại.
+- [x] Thiết kế danh sách scramble riêng theo số khối và dữ liệu preview/renderer bám trạng thái puzzle.
+- [x] Triển khai nhiều scramble Multi-Blind cùng renderer Square-1, Clock đã sửa.
+- [x] Kiểm thử scramble từng khối, score, mô hình 3D, desktop/mobile, TypeScript, regression, build và checkpoint.
