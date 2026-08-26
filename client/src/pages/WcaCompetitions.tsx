@@ -1,0 +1,51 @@
+import { useMemo, useState } from "react";
+import { trpc } from "@/lib/trpc";
+
+function dateInputValue(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function formatDateRange(start: string, end: string) {
+  const startDate = new Date(`${start}T00:00:00Z`);
+  const endDate = new Date(`${end}T00:00:00Z`);
+  const options: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", year: "numeric" };
+  if (start === end) return startDate.toLocaleDateString("vi-VN", options);
+  return `${startDate.toLocaleDateString("vi-VN", options)} – ${endDate.toLocaleDateString("vi-VN", options)}`;
+}
+
+function messageFor(error: unknown) {
+  return error instanceof Error ? error.message : "Không thể tải dữ liệu WCA. Hãy thử lại.";
+}
+
+function competitionStatus(value: string) {
+  if (value === "approved") return "Đã duyệt";
+  if (value === "cancelled") return "Đã hủy";
+  return value;
+}
+
+export default function WcaCompetitions() {
+  const [start, setStart] = useState(() => dateInputValue(new Date()));
+  const [end, setEnd] = useState(() => dateInputValue(new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)));
+  const [countryIso2, setCountryIso2] = useState<string>("");
+  const countriesQuery = trpc.wca.countries.useQuery(undefined, { staleTime: 24 * 60 * 60 * 1000, retry: 1 });
+  const calendarInput = useMemo(() => ({ start, end, countryIso2: countryIso2 || null }), [start, end, countryIso2]);
+  const competitionsQuery = trpc.wca.competitions.useQuery(calendarInput, { staleTime: 5 * 60 * 1000, retry: 1, enabled: Boolean(start && end && end >= start) });
+
+  return <div className="container">
+    <div className="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+      <div><p className="text-body-secondary small mb-1">World Cube Association</p><h1 className="h2 mb-1">Lịch giải WCA</h1><p className="text-body-secondary mb-0">Tìm các giải sắp diễn ra theo thời gian và quốc gia.</p></div>
+      <a href="https://www.worldcubeassociation.org/competitions" target="_blank" rel="noreferrer" className="btn btn-outline-secondary">Mở lịch WCA <i className="bi bi-box-arrow-up-right ms-1" aria-hidden="true" /></a>
+    </div>
+    <section className="card mb-4"><div className="card-body"><form className="row g-3" onSubmit={(event) => event.preventDefault()}>
+      <label className="col-12 col-md-4 form-label mb-0">Từ ngày<input value={start} onChange={(event) => setStart(event.target.value)} className="form-control mt-1" type="date" /></label>
+      <label className="col-12 col-md-4 form-label mb-0">Đến ngày<input value={end} onChange={(event) => setEnd(event.target.value)} className="form-control mt-1" type="date" min={start} /></label>
+      <label className="col-12 col-md-4 form-label mb-0">Quốc gia<select className="form-select mt-1" value={countryIso2} onChange={(event) => setCountryIso2(event.target.value)} disabled={countriesQuery.isLoading}><option value="">Tất cả quốc gia</option>{countriesQuery.data?.map((country) => <option key={country.iso2} value={country.iso2}>{country.name}</option>)}</select></label>
+    </form></div></section>
+    {end < start ? <div className="alert alert-warning">Ngày kết thúc cần sau hoặc bằng ngày bắt đầu.</div> : null}
+    {competitionsQuery.isLoading ? <div className="row g-3" aria-live="polite">{Array.from({ length: 4 }, (_, index) => <div className="col-12 col-lg-6" key={index}><div className="card"><div className="card-body placeholder-glow"><span className="placeholder col-7" /><span className="placeholder col-10 d-block mt-3" /><span className="placeholder col-5 d-block mt-2" /></div></div></div>)}</div> : null}
+    {competitionsQuery.isError ? <div className="alert alert-danger" role="alert">{messageFor(competitionsQuery.error)}</div> : null}
+    {competitionsQuery.data && !competitionsQuery.data.length ? <div className="alert alert-secondary">Chưa có giải WCA phù hợp trong khoảng thời gian này.</div> : null}
+    {competitionsQuery.data?.length ? <section className="row g-3" aria-label="Danh sách giải WCA">{competitionsQuery.data.map((competition) => <article className="col-12 col-lg-6" key={competition.id}><div className="card h-100"><div className="card-body d-flex flex-column"><div className="d-flex justify-content-between gap-3"><div><h2 className="h5 mb-1">{competition.name}</h2><p className="text-body-secondary small mb-0">{formatDateRange(competition.startDate, competition.endDate)}</p></div><span className="badge text-bg-light align-self-start">{competitionStatus(competition.status)}</span></div><p className="mb-1 mt-3"><i className="bi bi-geo-alt me-2" aria-hidden="true" />{[competition.cityName, competition.countryName].filter(Boolean).join(", ") || "Địa điểm đang cập nhật"}</p>{competition.venueName ? <p className="text-body-secondary small mb-0">{competition.venueName}</p> : null}<div className="d-flex flex-wrap gap-2 mt-auto pt-3"><a href={competition.wcaUrl} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm">Trang giải WCA <i className="bi bi-box-arrow-up-right ms-1" aria-hidden="true" /></a>{competition.website ? <a href={competition.website} target="_blank" rel="noreferrer" className="btn btn-outline-secondary btn-sm">Website giải</a> : null}</div></div></div></article>)}</section> : null}
+    <p className="small text-body-secondary mt-4 mb-0">Lịch lấy từ World Cube Association. Hãy kiểm tra trang giải WCA trước khi đăng ký vì lịch và điều kiện có thể thay đổi.</p>
+  </div>;
+}

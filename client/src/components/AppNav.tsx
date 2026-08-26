@@ -10,6 +10,7 @@ const navItems = [
   { href: "/timer", label: "Bấm giờ", active: (path: string) => path === "/timer" },
   { href: "/history", label: "Kết quả", active: (path: string) => path === "/history" },
   { href: "/rooms", label: "Thi đấu", active: (path: string) => path === "/rooms" || path.startsWith("/rooms/") },
+  { href: "/wca", label: "Giải WCA", active: (path: string) => path === "/wca" },
   { href: "/study", label: "Học thêm", active: (path: string) => path === "/study" },
   { href: "/settings", label: "Cài đặt", active: (path: string) => path === "/settings" },
 ];

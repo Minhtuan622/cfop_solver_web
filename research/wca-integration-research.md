@@ -10,6 +10,8 @@
 - Trang `/posts` dùng widget phía trình duyệt và không trả bài viết trong nội dung tĩnh của lần kiểm tra; không tìm thấy feed tin tổng quát chính thức được tài liệu hóa. Do đó, chưa nên xây tin tức dựa trên scrape widget; chỉ dùng RSS được WCA công bố theo từng mảng khi phù hợp, hoặc chờ WCA xác nhận nguồn tin tổng.
 - WCA Live tự xác nhận là nền tảng chính thức để nhập/quản lý kết quả trong thời gian giải đấu và chuyển kết quả cuối về WCA rankings. Tuy nhiên trang giới thiệu chỉ nêu WCIF/open-source, không công bố API read-only ổn định cho bên thứ ba. Đây nên là link-out tới WCA Live, không phải nguồn API mặc định.
 - Feed RSS thông báo Regulations do WCA từng công bố không phản hồi được ở lần kiểm tra (HTTP 500). Vì vậy không thể coi đó là nguồn tin production đáng tin cậy hiện tại; cần health-check và fallback trước khi sử dụng.
+- Kiểm tra trực tiếp cho thấy `GET /api/v0/persons/{WCA_ID}` trả hồ sơ công khai cùng `competition_count`, `personal_records` theo event (single/average, xếp hạng thế giới/châu lục/quốc gia), medals, records và tổng số solve. Đây là contract đủ cho trang Hồ sơ WCA không cần OAuth.
+- `GET /api/v0/countries` trả danh sách quốc gia WCA với `name` và `iso2`, phù hợp để dựng bộ lọc quốc gia và truyền `country_iso2` cho endpoint competitions.
 - Results Export yêu cầu hiển thị thông báo quy nguồn WCA khi tái xuất bản dữ liệu. Export lớn (khoảng 355–368 MB ở ngày khảo sát), nên không phù hợp để tải trên request của người dùng.
 
 ## Hướng phù hợp cho CFOP Solver Studio

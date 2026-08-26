@@ -1078,3 +1078,11 @@
 - [x] Xác minh nguồn chính thức, API/tải dữ liệu và điều kiện sử dụng dữ liệu WCA.
 - [x] Đối chiếu khả năng lấy giải đấu, tin tức và thành tích với kiến trúc CFOP Solver Studio.
 - [x] Đề xuất phương án tích hợp tối thiểu, bảo mật, chi phí và dữ liệu cần người dùng xác thực.
+
+## Tích hợp WCA: lịch giải, thành tích và OAuth
+
+- [x] Chốt source read-only, bộ lọc quốc gia, dữ liệu thành tích theo WCA ID và contract OAuth tách tài khoản CFOP.
+- [x] Thêm schema/migration/API cho WCA ID, lịch giải có cache và snapshot thành tích công khai.
+- [x] Tạo route lịch giải WCA và phần Hồ sơ WCA có tra cứu, cập nhật thông tin; OAuth được hiển thị ở trạng thái chờ Publish.
+- [ ] Kích hoạt OAuth WCA bằng secret server-side sau khi web được Publish và có redirect URI HTTPS cố định đã đăng ký.
+- [x] Kiểm thử dữ liệu WCA công khai, bảo vệ OAuth chờ Publish, responsive, TypeScript, test/build và checkpoint.

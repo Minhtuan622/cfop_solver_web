@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, gt, gte, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopCompetitionMembers, cfopCompetitionMessages, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds, cfopPasswordResetTokens, InsertUser, users } from "../drizzle/schema";
+import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopCompetitionMembers, cfopCompetitionMessages, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds, cfopPasswordResetTokens, cfopWcaOauthStates, InsertUser, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -61,6 +61,28 @@ export async function updateCfopAccountProfile(accountId: number, patch: { displ
   const account = await findCfopAccountById(accountId);
   if (!account) throw new Error("Account not found after profile update");
   return account;
+}
+
+export async function updateCfopAccountWcaId(accountId: number, wcaId: string | null) {
+  const db = await requireDb();
+  await db.update(cfopAccounts).set({ wcaId, updatedAt: new Date() }).where(eq(cfopAccounts.id, accountId));
+  const account = await findCfopAccountById(accountId);
+  if (!account) throw new Error("Account not found after WCA update");
+  return account;
+}
+
+export async function createCfopWcaOauthState(accountId: number, stateHash: string, expiresAt: Date) {
+  const db = await requireDb();
+  await db.delete(cfopWcaOauthStates).where(eq(cfopWcaOauthStates.accountId, accountId));
+  await db.insert(cfopWcaOauthStates).values({ accountId, stateHash, expiresAt });
+}
+
+export async function consumeCfopWcaOauthState(stateHash: string) {
+  const db = await requireDb();
+  const state = (await db.select().from(cfopWcaOauthStates).where(and(eq(cfopWcaOauthStates.stateHash, stateHash), gt(cfopWcaOauthStates.expiresAt, new Date()))).limit(1))[0] ?? null;
+  if (!state) return null;
+  await db.delete(cfopWcaOauthStates).where(eq(cfopWcaOauthStates.id, state.id));
+  return state;
 }
 
 export async function updateCfopAccountAvatar(accountId: number, avatarUrl: string) {

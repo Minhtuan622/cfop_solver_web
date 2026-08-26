@@ -13,6 +13,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Rooms = lazy(() => import("./pages/Rooms"));
 const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
+const WcaCompetitions = lazy(() => import("./pages/WcaCompetitions"));
 
 function RouteLoading() {
   return <div className="container py-4 py-lg-5" aria-live="polite"><div className="row g-4"><div className="col-12 col-xl-8"><SkeletonCard lines={2} label="Đang tải công cụ" /><SkeletonCard lines={5} className="mt-4" label="Đang tải nội dung công cụ" /></div><div className="col-12 col-xl-4"><SkeletonCard lines={4} label="Đang tải thông tin bổ sung" /></div></div></div>;
@@ -28,6 +29,7 @@ function Router() {
     <Route path="/profile" component={Profile} />
     <Route path="/rooms/:code" component={Rooms} />
     <Route path="/rooms" component={Rooms} />
+    <Route path="/wca" component={WcaCompetitions} />
     <Route path="/404" component={NotFound} />
     <Route component={NotFound} />
   </Switch></Suspense>;

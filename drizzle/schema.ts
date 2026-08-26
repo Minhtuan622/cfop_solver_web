@@ -21,6 +21,7 @@ export const cfopAccounts = mysqlTable("cfop_accounts", {
   bio: varchar("bio", { length: 280 }).default("").notNull(),
   avatarUrl: varchar("avatarUrl", { length: 512 }).default("").notNull(),
   goalMs: int("goalMs"),
+  wcaId: varchar("wcaId", { length: 10 }).unique(),
   passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -53,6 +54,15 @@ export const cfopPasswordResetTokens = mysqlTable("cfop_password_reset_tokens", 
   expiresAt: timestamp("expiresAt").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => [index("cfop_password_reset_account_idx").on(table.accountId), index("cfop_password_reset_expires_idx").on(table.expiresAt)]);
+
+/** Short-lived hashes for OAuth CSRF protection. WCA access tokens are used once for identity verification and never persisted. */
+export const cfopWcaOauthStates = mysqlTable("cfop_wca_oauth_states", {
+  id: int("id").autoincrement().primaryKey(),
+  accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
+  stateHash: varchar("stateHash", { length: 64 }).notNull().unique(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => [index("cfop_wca_oauth_account_idx").on(table.accountId), index("cfop_wca_oauth_expires_idx").on(table.expiresAt)]);
 
 /** Server-backed battle room. It always belongs to native CFOP accounts, never Manus OAuth identities. */
 export const cfopCompetitionRooms = mysqlTable("cfop_competition_rooms", {
@@ -112,4 +122,5 @@ export type InsertUser = typeof users.$inferInsert;
 export type CfopAccount = typeof cfopAccounts.$inferSelect;
 export type InsertCfopAccount = typeof cfopAccounts.$inferInsert;
 export type CfopAccountCloudState = typeof cfopAccountCloudStates.$inferSelect;
+export type CfopWcaOauthState = typeof cfopWcaOauthStates.$inferSelect;
 export type CfopCompetitionRoom = typeof cfopCompetitionRooms.$inferSelect;

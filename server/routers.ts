@@ -5,11 +5,13 @@ import { COOKIE_NAME } from "../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "./cfopAccountAuth";
 import { buildCompetitionLeaderboard, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "./cfopPasswordResetMail";
-import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "./db";
+import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, updateCfopAccountWcaId } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { cfopAccountProcedure, publicProcedure, router } from "./_core/trpc";
 import { storagePut } from "./storage";
+import { getWcaCompetitions, getWcaCountries, getWcaProfile, normalizeWcaId, WcaApiError } from "./wcaApi";
+import { beginWcaOAuth, wcaOAuthConfigured, WcaOAuthError } from "./wcaOAuth";
 
 const passwordInput = z.string().min(10, "Mật khẩu cần ít nhất 10 ký tự.").max(128, "Mật khẩu quá dài.");
 const credentialsInput = z.object({ email: z.string().trim().email("Email không hợp lệ.").max(320), password: passwordInput });
@@ -29,6 +31,8 @@ const createRoomInput = z.object({ name: z.string().trim().min(2, "Tên phòng c
 const resultInput = roomCodeInput.extend({ roundId: z.number().int().positive(), elapsedMs: z.number().int().min(0).max(3_600_000), inspectionMs: z.number().int().min(0).max(60_000), penalty: z.enum(["none", "+2", "DNF"]) });
 const messageInput = roomCodeInput.extend({ content: z.string().trim().min(1, "Tin nhắn không được để trống.").max(500, "Tin nhắn tối đa 500 ký tự.") });
 const leaderboardInput = z.object({ period: z.enum(["week", "month"]) });
+const wcaCalendarInput = z.object({ start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải theo YYYY-MM-DD."), end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải theo YYYY-MM-DD."), countryIso2: z.string().trim().length(2).transform((value) => value.toUpperCase()).nullable().optional() });
+const wcaIdInput = z.object({ wcaId: z.string().trim().min(1).max(10).nullable() });
 
 function normalizeRoomCode(value: string) { return value.toUpperCase().replace(/[^A-Z0-9]/g, ""); }
 function roomError() { return new TRPCError({ code: "NOT_FOUND", message: "Không tìm thấy phòng thi đấu này." }); }
@@ -75,6 +79,12 @@ function validateCloudPayload(payload: unknown) {
   const size = Buffer.byteLength(JSON.stringify(payload), "utf8");
   if (size > 1_500_000) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Dữ liệu đồng bộ quá lớn. Hãy xuất backup cục bộ trước." });
   return payload;
+}
+
+function wcaError(error: unknown): never {
+  if (error instanceof WcaApiError) throw new TRPCError({ code: error.kind === "NOT_FOUND" ? "NOT_FOUND" : "SERVICE_UNAVAILABLE", message: error.message });
+  if (error instanceof WcaOAuthError) throw new TRPCError({ code: error.code === "NOT_CONFIGURED" ? "PRECONDITION_FAILED" : "BAD_REQUEST", message: error.message });
+  throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Không thể xử lý dữ liệu WCA." });
 }
 
 function validateAvatarBytes(data: string, contentType: "image/jpeg" | "image/png" | "image/webp") {
@@ -157,6 +167,33 @@ export const appRouter = router({
       if (!account) throw new TRPCError({ code: "BAD_REQUEST", message: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn." });
       await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
       return toPublicCfopAccount(account);
+    }),
+    wca: router({
+      profile: cfopAccountProcedure.query(async ({ ctx }) => {
+        if (!ctx.cfopAccount.wcaId) return null;
+        try { return await getWcaProfile(ctx.cfopAccount.wcaId); } catch (error) { return wcaError(error); }
+      }),
+      setId: cfopAccountProcedure.input(wcaIdInput).mutation(async ({ ctx, input }) => {
+        if (!input.wcaId) return toPublicCfopAccount(await updateCfopAccountWcaId(ctx.cfopAccount.id, null));
+        try {
+          const profile = await getWcaProfile(normalizeWcaId(input.wcaId));
+          return toPublicCfopAccount(await updateCfopAccountWcaId(ctx.cfopAccount.id, profile.wcaId));
+        } catch (error) { return wcaError(error); }
+      }),
+      oauthStatus: cfopAccountProcedure.query(() => ({ configured: wcaOAuthConfigured() })),
+      startOAuth: cfopAccountProcedure.mutation(async ({ ctx }) => {
+        try { return { url: await beginWcaOAuth(ctx.cfopAccount.id) }; } catch (error) { return wcaError(error); }
+      }),
+      unlink: cfopAccountProcedure.mutation(async ({ ctx }) => toPublicCfopAccount(await updateCfopAccountWcaId(ctx.cfopAccount.id, null))),
+    }),
+  }),
+  wca: router({
+    countries: publicProcedure.query(async () => {
+      try { return await getWcaCountries(); } catch (error) { return wcaError(error); }
+    }),
+    competitions: publicProcedure.input(wcaCalendarInput).query(async ({ input }) => {
+      if (input.end < input.start) throw new TRPCError({ code: "BAD_REQUEST", message: "Ngày kết thúc phải sau ngày bắt đầu." });
+      try { return await getWcaCompetitions(input); } catch (error) { return wcaError(error); }
     }),
   }),
   competition: router({
