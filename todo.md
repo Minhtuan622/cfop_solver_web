@@ -1154,3 +1154,10 @@
 - [x] Mở rộng mapping/config preview cho các event được renderer cubing.js hỗ trợ.
 - [x] Triển khai mô hình 3D đúng trạng thái scramble, điều khiển chuột/cảm ứng và thông báo fallback rõ ràng.
 - [x] Kiểm thử event mới trên desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## Animation Square-1 và Clock
+
+- [x] Phân tích dữ liệu move và renderer hiện tại để xác định animation theo thao tác scramble.
+- [x] Thiết kế animation tuần tự, trạng thái cuối chính xác và reduced motion.
+- [x] Triển khai animation quay cho Square-1 và Clock mà không ảnh hưởng orbit/zoom.
+- [x] Kiểm thử animation, trạng thái cuối, desktop/mobile, TypeScript, regression, build và checkpoint.

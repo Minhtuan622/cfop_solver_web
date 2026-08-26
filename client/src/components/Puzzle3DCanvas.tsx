@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent, type WheelEvent } from "react";
 import type { Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
-import { isSideEvent3DPuzzle, sideEvent3DObject } from "@/components/SideEvent3DObject";
+import { isSideEvent3DPuzzle, sideEvent3DAnimation, type SideEvent3DAnimation } from "@/components/SideEvent3DObject";
 
 type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "megaminx" | "square1" | "clock";
 export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
@@ -89,6 +89,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
     let staging: HTMLDivElement | null = null;
     let player: PuzzlePlayer | null = null;
     let renderer: WebGLRenderer | null = null;
+    let sideEventAnimation: SideEvent3DAnimation | null = null;
     setStatus("loading");
 
     void (async () => {
@@ -96,7 +97,8 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
       if (disposed) return;
       let puzzleObject: Object3D;
       if (isSideEvent3DPuzzle(puzzle)) {
-        puzzleObject = await sideEvent3DObject(THREE, puzzle, scramble);
+        sideEventAnimation = await sideEvent3DAnimation(THREE, puzzle, scramble);
+        puzzleObject = sideEventAnimation.object;
       } else {
         await import("cubing/twisty");
         staging = document.createElement("div");
@@ -119,7 +121,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
           new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error("3D puzzle timeout")), 7_000)),
         ]) as unknown as Object3D;
       }
-      if (disposed) { player?.remove(); staging?.remove(); return; }
+      if (disposed) { sideEventAnimation?.dispose(); player?.remove(); staging?.remove(); return; }
 
       const activeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
       renderer = activeRenderer;
@@ -159,6 +161,14 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
       observer.observe(host);
       resizeAndRender();
       setStatus("ready");
+      if (sideEventAnimation) {
+        if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+          sideEventAnimation.finish();
+          resizeAndRender();
+        } else {
+          window.setTimeout(() => { if (!disposed) sideEventAnimation?.play(resizeAndRender); }, 80);
+        }
+      }
       cleanup = () => {
         observer.disconnect();
         if (zoomFrameRef.current !== null) window.cancelAnimationFrame(zoomFrameRef.current);
@@ -167,6 +177,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
         inertiaFrameRef.current = null;
         pointersRef.current.clear();
         pinchRef.current = null;
+        sideEventAnimation?.dispose();
         renderRef.current = null;
         resetRef.current = null;
         scene.remove(root);
