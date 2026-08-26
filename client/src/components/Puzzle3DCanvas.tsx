@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type PointerEvent, type WheelEvent } from "react";
 import type { Object3D, WebGLRenderer } from "three";
-import type { TimerEventId } from "@/lib/timerEvents";
+import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
+import { isSideEvent3DPuzzle, sideEvent3DObject } from "@/components/SideEvent3DObject";
 
-type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "megaminx";
+type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "megaminx" | "square1" | "clock";
 export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 type Point = { x: number; y: number };
 const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
@@ -32,6 +33,8 @@ export function inertiaStep(orbit: PuzzleOrbit, velocity: { yaw: number; pitch: 
 
 function defaultPuzzleCamera(puzzle: PuzzleId) {
   if (puzzle === "megaminx") return { fov: 29, distance: 7.2, height: "17rem" };
+  if (puzzle === "clock") return { fov: 31, distance: 6.3, height: "13rem" };
+  if (puzzle === "square1") return { fov: 32, distance: 5.8, height: "14rem" };
   if (puzzle === "7x7x7") return { fov: 31, distance: 6.8, height: "15rem" };
   if (puzzle === "6x6x6") return { fov: 32, distance: 6.5, height: "15rem" };
   if (puzzle === "5x5x5") return { fov: 33, distance: 6.1, height: "14rem" };
@@ -89,28 +92,34 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
     setStatus("loading");
 
     void (async () => {
-      const [{ TwistyPlayer }, THREE] = await Promise.all([import("cubing/twisty"), import("three")]);
+      const THREE = await import("three");
       if (disposed) return;
-      staging = document.createElement("div");
-      staging.style.cssText = "position:fixed;left:-10000px;top:-10000px;width:2px;height:2px;overflow:hidden;pointer-events:none";
-      player = document.createElement("twisty-player") as PuzzlePlayer;
-      player.puzzle = puzzle;
-      player.experimentalSetupAlg = scramble;
-      player.alg = "";
-      player.visualization = "3D";
-      player.hintFacelets = "none";
-      player.controlPanel = "none";
-      player.backView = "none";
-      player.background = "none";
-      staging.appendChild(player);
-      document.body.appendChild(staging);
-      await new Promise<void>((resolve) => window.setTimeout(resolve, 80));
-      startMountedTwistyPlayer(player);
-      const puzzleObject = await Promise.race([
-        player.experimentalCurrentThreeJSPuzzleObject(() => renderRef.current?.()),
-        new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error("3D puzzle timeout")), 7_000)),
-      ]);
-      if (disposed) { player.remove(); staging.remove(); return; }
+      let puzzleObject: Object3D;
+      if (isSideEvent3DPuzzle(puzzle)) {
+        puzzleObject = await sideEvent3DObject(THREE, puzzle, scramble);
+      } else {
+        await import("cubing/twisty");
+        staging = document.createElement("div");
+        staging.style.cssText = "position:fixed;left:-10000px;top:-10000px;width:2px;height:2px;overflow:hidden;pointer-events:none";
+        player = document.createElement("twisty-player") as PuzzlePlayer;
+        player.puzzle = puzzle;
+        player.experimentalSetupAlg = scramble;
+        player.alg = "";
+        player.visualization = "3D";
+        player.hintFacelets = "none";
+        player.controlPanel = "none";
+        player.backView = "none";
+        player.background = "none";
+        staging.appendChild(player);
+        document.body.appendChild(staging);
+        await new Promise<void>((resolve) => window.setTimeout(resolve, 80));
+        startMountedTwistyPlayer(player);
+        puzzleObject = await Promise.race([
+          player.experimentalCurrentThreeJSPuzzleObject(() => renderRef.current?.()),
+          new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error("3D puzzle timeout")), 7_000)),
+        ]) as unknown as Object3D;
+      }
+      if (disposed) { player?.remove(); staging?.remove(); return; }
 
       const activeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
       renderer = activeRenderer;
@@ -126,7 +135,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
       const orbit = orbitRef.current = { yaw: -0.55, pitch: 0.32, distance: cameraConfig.distance };
       targetDistanceRef.current = orbit.distance;
       const root = new THREE.Group();
-      root.add(puzzleObject as unknown as Object3D);
+      root.add(puzzleObject);
       scene.add(root);
       scene.add(new THREE.HemisphereLight(0xffffff, 0x1a2230, 2.4));
       const key = new THREE.DirectionalLight(0xffffff, 2.8);
@@ -135,7 +144,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
 
       const resizeAndRender = () => {
         const width = Math.max(220, host.clientWidth);
-        const height = Math.max(puzzle === "megaminx" ? 270 : 220, host.clientHeight);
+        const height = Math.max(puzzle === "megaminx" ? 270 : puzzle === "clock" ? 205 : 220, host.clientHeight);
         activeRenderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
@@ -265,7 +274,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
   };
 
   const cameraConfig = defaultPuzzleCamera(puzzle);
-  const label = eventId === "pyram" ? "Pyraminx" : eventId === "minx" ? "Megaminx" : `${eventId.slice(0, 1)}×${eventId.slice(0, 1)}×${eventId.slice(0, 1)}`;
+  const label = timerEventLabel(eventId, language);
   if (status === "error") return <div className="card card-body h-100 d-flex flex-column align-items-center justify-content-center text-center"><i className="bi bi-box-seam fs-1 text-body-secondary mb-3" aria-hidden="true" /><p className="fw-semibold mb-1">{label}</p><p className="small text-body-secondary mb-0">{language === "vi" ? "Không thể tạo mô hình 3D cho scramble này." : "The 3D model could not be created for this scramble."}</p></div>;
 
   return <div className="card bg-dark text-white h-100"><div className="card-body p-2 position-relative"><div ref={hostRef} className="w-100" style={{ minHeight: cameraConfig.height, touchAction: "none", cursor: "grab" }} aria-label={language === "vi" ? `Mô hình ${label} 3D` : `${label} 3D model`} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} />{status === "loading" ? <div className="position-absolute top-50 start-50 translate-middle small text-white-50">{language === "vi" ? "Đang tạo mô hình 3D…" : "Building 3D model…"}</div> : null}<button type="button" className="btn btn-outline-light btn-sm position-absolute bottom-0 end-0 m-2" onClick={() => { cancelInertia(); resetRef.current?.(); targetDistanceRef.current = orbitRef.current.distance; }} aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><i className="bi bi-arrow-counterclockwise" aria-hidden="true" /></button></div></div>;

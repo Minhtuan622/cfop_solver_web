@@ -1147,3 +1147,10 @@
 - [x] Thêm quán tính nhẹ sau khi thả chuột/ngón tay cho canvas puzzle 3D.
 - [x] Mở rộng mapping và mô hình 3D trạng thái scramble cho 4×4, 5×5, 6×6, 7×7.
 - [x] Kiểm thử quán tính, event cube mới, desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## Mô hình 3D cho các event còn lại
+
+- [x] Rà soát event Timer chưa có preview 3D tương tác và khả năng tạo trạng thái từ scramble.
+- [x] Mở rộng mapping/config preview cho các event được renderer cubing.js hỗ trợ.
+- [x] Triển khai mô hình 3D đúng trạng thái scramble, điều khiển chuột/cảm ứng và thông báo fallback rõ ràng.
+- [x] Kiểm thử event mới trên desktop/mobile, TypeScript, regression, build và checkpoint.

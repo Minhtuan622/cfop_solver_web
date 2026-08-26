@@ -24,7 +24,10 @@ describe("timer events", () => {
   it("maps supported visual previews to their cubing.js puzzle IDs", () => {
     expect(timerPreviewPuzzleId("222")).toBe("2x2x2");
     expect(timerPreviewPuzzleId("pyram")).toBe("pyraminx");
+    expect(timerPreviewPuzzleId("skewb")).toBe("skewb");
     expect(timerPreviewPuzzleId("minx")).toBe("megaminx");
+    expect(timerPreviewPuzzleId("sq1")).toBe("square1");
+    expect(timerPreviewPuzzleId("clock")).toBe("clock");
     expect(timerPreviewPuzzleId("444")).toBe("4x4x4");
     expect(timerPreviewPuzzleId("555")).toBe("5x5x5");
     expect(timerPreviewPuzzleId("666")).toBe("6x6x6");
