@@ -8,6 +8,10 @@
 
 Kết quả browser cho thấy vùng `TwistyPlayer` có thể giữ kích thước nhưng không render model. Vì Timer không được phép để vùng trắng, preview 2×2 sẽ chuyển sang renderer CSS 3D nội bộ: tái sử dụng state 3×3 của cùng scramble và lấy bốn corner facelet trên từng mặt, vốn tương ứng trực tiếp với trạng thái 2×2. Pyraminx/Megaminx chỉ giữ TwistyPlayer khi đã có model render; nếu thất bại phải hiện fallback có ích thay vì card rỗng.
 
+Kiểm chứng tiếp theo cho thấy `TwistyPlayer` tạo được `Object3D` nhưng canvas nội bộ không hiện ổn định trong layout Timer. Cách ổn định là lấy `experimentalCurrentThreeJSPuzzleObject()` từ player staging, rồi render Object3D đó bằng canvas Three.js có cùng phiên bản runtime `0.170.0` như cubing.js. Renderer riêng đã hiển thị Pyraminx thật trong browser với màu trạng thái sau scramble; các input orbit, zoom và reset được quản lý ở app.
+
+Xác minh browser desktop và viewport 390px cho thấy Pyraminx/Megaminx đều có canvas 3D, không rơi về fallback hoặc vùng trắng. Megaminx giữ canvas trong cột Timer trên mobile, không tràn ngang; số sticker và màu sau scramble vẫn hiển thị rõ.
+
 Nguồn: [cubing/twisty](https://js.cubing.net/cubing/twisty/), truy cập 2026-08-26.
 
 ## So sánh WCA

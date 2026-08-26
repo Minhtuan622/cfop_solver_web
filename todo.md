@@ -1126,3 +1126,10 @@
 - [x] Thay vùng preview trống bằng mô hình puzzle 3D thật, ưu tiên 2×2 thao tác được như 3×3.
 - [x] Thêm fallback rõ ràng cho puzzle chưa thể render 3D và không để lại vùng trắng.
 - [x] Kiểm thử trạng thái scramble, tương tác chuột/cảm ứng, desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## Pyraminx và Megaminx 3D trong Timer
+
+- [x] Xác minh renderer 3D đa puzzle và nguyên nhân fallback Pyraminx/Megaminx hiện tại.
+- [x] Thay fallback bằng mô hình 3D thật có kéo xoay, zoom và reset góc nhìn.
+- [x] Nối scramble của từng event vào trạng thái mô hình, không tạo vùng trắng khi tải lỗi.
+- [x] Kiểm thử render, tương tác, desktop/mobile, TypeScript, regression, build và checkpoint.
