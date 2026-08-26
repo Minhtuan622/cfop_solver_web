@@ -1072,3 +1072,9 @@
 - [x] Xây dựng API tổng hợp bảng xếp hạng chỉ từ phòng đã hoàn tất, có giới hạn và không lộ dữ liệu riêng tư.
 - [x] Thêm bảng xếp hạng tuần/tháng cùng hiệu ứng âm thanh/pháo hoa nhẹ có thể tắt khi vô địch hoặc lập kỷ lục.
 - [x] Kiểm thử truy vấn thống kê, điều kiện chúc mừng, responsive, TypeScript, test/build và checkpoint.
+
+## Nghiên cứu tích hợp dữ liệu WCA
+
+- [x] Xác minh nguồn chính thức, API/tải dữ liệu và điều kiện sử dụng dữ liệu WCA.
+- [x] Đối chiếu khả năng lấy giải đấu, tin tức và thành tích với kiến trúc CFOP Solver Studio.
+- [x] Đề xuất phương án tích hợp tối thiểu, bảo mật, chi phí và dữ liệu cần người dùng xác thực.
