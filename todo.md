@@ -1267,3 +1267,9 @@
 - [x] Đổi tỷ lệ dọc toàn bộ Square-1 từ 2/3 sang 5/6 kích thước gốc.
 - [x] Giữ nguyên footprint, ba tầng, viền cubie và state/silhouette scramble.
 - [x] Kiểm thử TypeScript, regression, build và checkpoint.
+
+## Giảm thêm chiều cao Square-1
+
+- [x] Giảm thêm một phần ba từ mức 5/6, đặt chiều cao tổng thành 5/9 kích thước gốc.
+- [x] Giữ footprint, ba tầng, viền cubie và state/silhouette scramble.
+- [x] Kiểm thử TypeScript, regression, build và checkpoint.
