@@ -154,7 +154,7 @@ export async function consumeCfopPasswordResetToken(tokenHash: string, passwordH
   return findCfopAccountById(reset.accountId);
 }
 
-export async function createCompetitionRoom(values: { code: string; name: string; hostAccountId: number; maxPlayers: number; format: "best_of_3" | "ao5" | "ao12"; eventId: TimerEventId }) {
+export async function createCompetitionRoom(values: { code: string; name: string; hostAccountId: number; maxPlayers: number; format: "best_of_3" | "ao5" | "ao12"; eventId: TimerEventId; multiBlindCubes: number }) {
   const db = await requireDb();
   await db.insert(cfopCompetitionRooms).values(values);
   const room = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.code, values.code)).limit(1))[0];
@@ -168,7 +168,7 @@ export async function createCompetitionRematch(sourceRoomId: number, code: strin
   const source = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.id, sourceRoomId)).limit(1))[0];
   if (!source) throw new Error("Source room not found");
   const members = await db.select({ accountId: cfopCompetitionMembers.accountId }).from(cfopCompetitionMembers).where(eq(cfopCompetitionMembers.roomId, sourceRoomId));
-  await db.insert(cfopCompetitionRooms).values({ code, name: `${source.name} · Đấu lại`.slice(0, 80), hostAccountId: source.hostAccountId, maxPlayers: source.maxPlayers, format: source.format, eventId: source.eventId });
+  await db.insert(cfopCompetitionRooms).values({ code, name: `${source.name} · Đấu lại`.slice(0, 80), hostAccountId: source.hostAccountId, maxPlayers: source.maxPlayers, format: source.format, eventId: source.eventId, multiBlindCubes: source.multiBlindCubes });
   const room = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.code, code)).limit(1))[0];
   if (!room) throw new Error("Rematch creation did not return a row");
   if (members.length) await db.insert(cfopCompetitionMembers).values(members.map((member) => ({ roomId: room.id, accountId: member.accountId })));
@@ -216,9 +216,9 @@ export async function getCompetitionActiveRound(roomId: number) {
   return (await db.select().from(cfopCompetitionRounds).where(and(eq(cfopCompetitionRounds.roomId, roomId), eq(cfopCompetitionRounds.status, "active"))).orderBy(desc(cfopCompetitionRounds.sequence)).limit(1))[0] ?? null;
 }
 
-export async function startCompetitionRound(roomId: number, sequence: number, scramble: string) {
+export async function startCompetitionRound(roomId: number, sequence: number, scramble: string, scrambleBundle?: string[]) {
   const db = await requireDb();
-  await db.insert(cfopCompetitionRounds).values({ roomId, sequence, scramble });
+  await db.insert(cfopCompetitionRounds).values({ roomId, sequence, scramble, scrambleBundle: scrambleBundle?.length ? scrambleBundle : null });
   const round = (await db.select().from(cfopCompetitionRounds).where(and(eq(cfopCompetitionRounds.roomId, roomId), eq(cfopCompetitionRounds.sequence, sequence))).limit(1))[0];
   if (!round) throw new Error("Round creation did not return a row");
   await db.update(cfopCompetitionRooms).set({ status: "active", currentRound: sequence, updatedAt: new Date() }).where(eq(cfopCompetitionRooms.id, roomId));
@@ -240,7 +240,7 @@ export async function findCompetitionResult(roundId: number, accountId: number) 
   return (await db.select().from(cfopCompetitionResults).where(and(eq(cfopCompetitionResults.roundId, roundId), eq(cfopCompetitionResults.accountId, accountId))).limit(1))[0] ?? null;
 }
 
-export async function submitCompetitionResult(values: { roundId: number; accountId: number; elapsedMs: number; inspectionMs: number; penalty: "none" | "+2" | "DNF" }) {
+export async function submitCompetitionResult(values: { roundId: number; accountId: number; elapsedMs: number; inspectionMs: number; penalty: "none" | "+2" | "DNF"; multiBlindAttempted?: number; multiBlindSolved?: number; multiBlindScore?: number }) {
   const db = await requireDb();
   await db.insert(cfopCompetitionResults).values(values);
   return findCompetitionResult(values.roundId, values.accountId);
@@ -248,12 +248,14 @@ export async function submitCompetitionResult(values: { roundId: number; account
 
 export async function listCompetitionResults(roomId: number) {
   const db = await requireDb();
-  return db.select({ roundSequence: cfopCompetitionRounds.sequence, roundId: cfopCompetitionRounds.id, accountId: cfopCompetitionResults.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, elapsedMs: cfopCompetitionResults.elapsedMs, inspectionMs: cfopCompetitionResults.inspectionMs, penalty: cfopCompetitionResults.penalty, submittedAt: cfopCompetitionResults.submittedAt }).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(eq(cfopCompetitionRounds.roomId, roomId)).orderBy(asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
+  return db.select({ roundSequence: cfopCompetitionRounds.sequence, roundId: cfopCompetitionRounds.id, accountId: cfopCompetitionResults.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, elapsedMs: cfopCompetitionResults.elapsedMs, inspectionMs: cfopCompetitionResults.inspectionMs, penalty: cfopCompetitionResults.penalty, multiBlindAttempted: cfopCompetitionResults.multiBlindAttempted, multiBlindSolved: cfopCompetitionResults.multiBlindSolved, multiBlindScore: cfopCompetitionResults.multiBlindScore, submittedAt: cfopCompetitionResults.submittedAt }).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(eq(cfopCompetitionRounds.roomId, roomId)).orderBy(asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
 }
 
-export async function listFinishedCompetitionResultsBetween(startAt: Date, endAt: Date) {
+export async function listFinishedCompetitionResultsBetween(startAt: Date, endAt: Date, eventId?: string | null) {
   const db = await requireDb();
-  return db.select({ roomId: cfopCompetitionRooms.id, roomFormat: cfopCompetitionRooms.format, accountId: cfopCompetitionResults.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, elapsedMs: cfopCompetitionResults.elapsedMs, penalty: cfopCompetitionResults.penalty, roundSequence: cfopCompetitionRounds.sequence }).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionRounds.roomId, cfopCompetitionRooms.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(and(eq(cfopCompetitionRooms.status, "finished"), gte(cfopCompetitionRooms.updatedAt, startAt), lt(cfopCompetitionRooms.updatedAt, endAt))).orderBy(desc(cfopCompetitionRooms.updatedAt), asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
+  const filters = [eq(cfopCompetitionRooms.status, "finished"), gte(cfopCompetitionRooms.updatedAt, startAt), lt(cfopCompetitionRooms.updatedAt, endAt)];
+  if (eventId) filters.push(eq(cfopCompetitionRooms.eventId, eventId));
+  return db.select({ roomId: cfopCompetitionRooms.id, roomFormat: cfopCompetitionRooms.format, roomEventId: cfopCompetitionRooms.eventId, accountId: cfopCompetitionResults.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, elapsedMs: cfopCompetitionResults.elapsedMs, penalty: cfopCompetitionResults.penalty, multiBlindAttempted: cfopCompetitionResults.multiBlindAttempted, multiBlindSolved: cfopCompetitionResults.multiBlindSolved, multiBlindScore: cfopCompetitionResults.multiBlindScore, roundSequence: cfopCompetitionRounds.sequence }).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionRounds.roomId, cfopCompetitionRooms.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(and(...filters)).orderBy(desc(cfopCompetitionRooms.updatedAt), asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
 }
 
 export async function createCompetitionMessage(values: { roomId: number; accountId: number; content: string }) {

@@ -1,14 +1,15 @@
 import { randomInt } from "node:crypto";
 import type { TimerEventId } from "../shared/timerEvents";
+import { compareMultiBlindResults, multiBlindResult, type MultiBlindResult } from "../shared/multiBlind";
 
 const FACES = ["U", "R", "F", "D", "L", "B"] as const;
 const SUFFIXES = ["", "2", "'"] as const;
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 export type CompetitionPenalty = "none" | "+2" | "DNF";
-export type CompetitionResultValue = { elapsedMs: number; penalty: CompetitionPenalty };
+export type CompetitionResultValue = { elapsedMs: number; penalty: CompetitionPenalty; multiBlindScore?: number | null; multiBlindAttempted?: number | null; multiBlindSolved?: number | null };
 export type CompetitionFormat = "best_of_3" | "ao5" | "ao12";
-export type CompetitionLeaderboardResult = CompetitionResultValue & { roomId: number; roomFormat: CompetitionFormat; accountId: number; displayName: string; avatarUrl: string | null; roundSequence: number };
+export type CompetitionLeaderboardResult = CompetitionResultValue & { roomId: number; roomFormat: CompetitionFormat; roomEventId: string; accountId: number; displayName: string; avatarUrl: string | null; roundSequence: number };
 
 function sameAxis(first: string, second: string) { const axis = (face: string) => face === "U" || face === "D" ? 0 : face === "R" || face === "L" ? 1 : 2; return axis(first) === axis(second); }
 
@@ -32,6 +33,11 @@ export async function createCompetitionScramble(eventId: TimerEventId) {
   return (await randomScrambleForEvent(eventId)).toString();
 }
 
+export async function createCompetitionScrambleBundle(eventId: TimerEventId, cubeCount = 1) {
+  const count = eventId === "333mbf" ? Math.max(2, Math.min(99, Math.floor(cubeCount))) : 1;
+  return Promise.all(Array.from({ length: count }, () => createCompetitionScramble(eventId === "333mbf" ? "333" : eventId)));
+}
+
 export function effectiveCompetitionTime(result: CompetitionResultValue) { return result.penalty === "DNF" ? null : result.elapsedMs + (result.penalty === "+2" ? 2_000 : 0); }
 
 /** WCA-style average: drop the fastest and slowest; two DNFs make the average DNF. */
@@ -51,8 +57,27 @@ export function competitionBestOf3(results: CompetitionResultValue[]) {
   const values = results.slice(-3).map(effectiveCompetitionTime).filter((value): value is number => value !== null);
   return values.length ? Math.min(...values) : null;
 }
-export function competitionFormatScore(format: CompetitionFormat, results: CompetitionResultValue[]) { return format === "best_of_3" ? competitionBestOf3(results) : format === "ao12" ? competitionAo12(results) : competitionAo5(results); }
-export function competitionRoundLimit(format: CompetitionFormat) { return format === "best_of_3" ? 3 : format === "ao12" ? 12 : 5; }
+export function competitionFormatScore(format: CompetitionFormat, results: CompetitionResultValue[], eventId = "333") {
+  if (eventId === "333mbf") return results.at(-1)?.penalty === "DNF" ? null : results.at(-1)?.multiBlindScore ?? null;
+  return format === "best_of_3" ? competitionBestOf3(results) : format === "ao12" ? competitionAo12(results) : competitionAo5(results);
+}
+export function competitionRoundLimit(format: CompetitionFormat, eventId = "333") { return eventId === "333mbf" ? 1 : format === "best_of_3" ? 3 : format === "ao12" ? 12 : 5; }
+
+function multiBlindData(result: CompetitionResultValue): MultiBlindResult | null {
+  if (typeof result.multiBlindAttempted !== "number" || typeof result.multiBlindSolved !== "number") return null;
+  return multiBlindResult({ attempted: result.multiBlindAttempted, solved: result.multiBlindSolved }, result.elapsedMs);
+}
+
+export function compareCompetitionResults(eventId: string, left: CompetitionResultValue, right: CompetitionResultValue) {
+  if (eventId === "333mbf") {
+    const leftMultiBlind = multiBlindData(left);
+    const rightMultiBlind = multiBlindData(right);
+    if (!leftMultiBlind?.valid) return 1;
+    if (!rightMultiBlind?.valid) return -1;
+    return compareMultiBlindResults(leftMultiBlind, rightMultiBlind, left.elapsedMs, right.elapsedMs);
+  }
+  return (effectiveCompetitionTime(left) ?? Number.POSITIVE_INFINITY) - (effectiveCompetitionTime(right) ?? Number.POSITIVE_INFINITY);
+}
 
 /** Aggregates only completed rooms with at least two scored players. Points reward final room placement. */
 export function buildCompetitionLeaderboard(results: CompetitionLeaderboardResult[]) {
@@ -64,11 +89,12 @@ export function buildCompetitionLeaderboard(results: CompetitionLeaderboardResul
     for (const result of room) players.set(result.accountId, [...(players.get(result.accountId) ?? []), result]);
     const scored = Array.from(players.entries()).map(([accountId, history]) => {
       const format = history[0].roomFormat;
-      const metric = competitionFormatScore(format, history);
+      const eventId = history[0].roomEventId;
+      const metric = competitionFormatScore(format, history, eventId);
       const last = history.at(-1);
       const score = metric === undefined ? (last ? effectiveCompetitionTime(last) : null) : metric;
-      return { accountId, displayName: history[0].displayName, avatarUrl: history[0].avatarUrl, score };
-    }).sort((left, right) => (left.score ?? Number.POSITIVE_INFINITY) - (right.score ?? Number.POSITIVE_INFINITY));
+      return { accountId, displayName: history[0].displayName, avatarUrl: history[0].avatarUrl, score, last, eventId };
+    }).sort((left, right) => left.last && right.last ? compareCompetitionResults(left.eventId, left.last, right.last) : 0);
     if (scored.length < 2) continue;
     const roomPoints = [10, 6, 4, 3, 2, 1];
     scored.forEach((player, index) => {

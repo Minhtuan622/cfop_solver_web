@@ -73,6 +73,7 @@ export const cfopCompetitionRooms = mysqlTable("cfop_competition_rooms", {
   status: mysqlEnum("status", ["waiting", "active", "finished"]).notNull().default("waiting"),
   format: mysqlEnum("format", ["best_of_3", "ao5", "ao12"]).notNull().default("ao5"),
   eventId: varchar("eventId", { length: 10 }).notNull().default("333"),
+  multiBlindCubes: int("multiBlindCubes").notNull().default(2),
   maxPlayers: int("maxPlayers").notNull().default(8),
   currentRound: int("currentRound").notNull().default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -93,6 +94,7 @@ export const cfopCompetitionRounds = mysqlTable("cfop_competition_rounds", {
   roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
   sequence: int("sequence").notNull(),
   scramble: varchar("scramble", { length: 255 }).notNull(),
+  scrambleBundle: json("scrambleBundle"),
   status: mysqlEnum("status", ["active", "finished"]).notNull().default("active"),
   startedAt: timestamp("startedAt").defaultNow().notNull(),
   completedAt: timestamp("completedAt"),
@@ -106,6 +108,9 @@ export const cfopCompetitionResults = mysqlTable("cfop_competition_results", {
   elapsedMs: int("elapsedMs").notNull(),
   inspectionMs: int("inspectionMs").notNull().default(0),
   penalty: mysqlEnum("penalty", ["none", "+2", "DNF"]).notNull().default("none"),
+  multiBlindAttempted: int("multiBlindAttempted"),
+  multiBlindSolved: int("multiBlindSolved"),
+  multiBlindScore: int("multiBlindScore"),
   submittedAt: timestamp("submittedAt").defaultNow().notNull(),
 }, (table) => [uniqueIndex("cfop_competition_results_round_account_unique").on(table.roundId, table.accountId), index("cfop_competition_results_account_idx").on(table.accountId)]);
 

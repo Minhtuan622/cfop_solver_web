@@ -1285,3 +1285,10 @@
 - [x] Dùng danh mục Timer chung cho tùy chọn event khi tạo phòng và hiển thị thông tin phòng.
 - [x] Tạo scramble phòng theo event đã chọn, bao gồm BLD 4×4/5×5 và side event.
 - [x] Giữ quy tắc tính điểm/chế độ phòng, bổ sung regression và kiểm thử TypeScript, build, checkpoint.
+
+## Phòng thi đấu: preview, leaderboard event và MBLD
+
+- [x] Hiển thị preview 3D của scramble theo event trong lượt thi đấu đang mở.
+- [x] Lưu bundle nhiều scramble MBLD, số khối thử/giải đúng và score chuẩn cho mỗi kết quả phòng.
+- [x] Bổ sung giao diện MBLD phòng với tạo bundle, nhập kết quả và bảng xếp hạng score → thời gian → unsolved.
+- [x] Bổ sung bộ lọc event cho bảng xếp hạng hệ thống và regression/schema migration/build/checkpoint.

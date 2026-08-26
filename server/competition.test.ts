@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCompetitionLeaderboard, competitionAo5, competitionAo12, competitionBestOf3, competitionFormatScore, createCompetitionCode, createCompetitionScramble, createSharedScramble, effectiveCompetitionTime } from "./competition";
+import { buildCompetitionLeaderboard, compareCompetitionResults, competitionAo5, competitionAo12, competitionBestOf3, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScramble, createCompetitionScrambleBundle, createSharedScramble, effectiveCompetitionTime } from "./competition";
 
 describe("competition helpers", () => {
   it("tạo mã phòng dễ đọc và scramble 3×3 không lặp mặt liền nhau", () => {
@@ -15,6 +15,17 @@ describe("competition helpers", () => {
     expect(fiveBlind.trim()).not.toBe("");
     expect(fourBlind).toMatch(/[URFDLB]/);
     expect(fiveBlind).toMatch(/[URFDLB]/);
+  }, 20_000);
+
+  it("tạo bundle MBLD và xếp theo score, thời gian, rồi unsolved", async () => {
+    const bundle = await createCompetitionScrambleBundle("333mbf", 3);
+    expect(bundle).toHaveLength(3);
+    expect(bundle.every((scramble) => /[URFDLB]/.test(scramble))).toBe(true);
+    expect(competitionRoundLimit("ao12", "333mbf")).toBe(1);
+    const stronger = { elapsedMs: 150_000, penalty: "none" as const, multiBlindAttempted: 5, multiBlindSolved: 4, multiBlindScore: 3 };
+    const weaker = { elapsedMs: 90_000, penalty: "none" as const, multiBlindAttempted: 5, multiBlindSolved: 3, multiBlindScore: 1 };
+    expect(compareCompetitionResults("333mbf", stronger, weaker)).toBeLessThan(0);
+    expect(competitionFormatScore("ao5", [stronger], "333mbf")).toBe(3);
   }, 20_000);
 
   it("chấm thời gian +2 và Ao5 theo quy tắc loại nhanh/chậm", () => {
