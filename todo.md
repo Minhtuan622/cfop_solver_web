@@ -1323,3 +1323,7 @@
 - [x] Mở rộng state/API để toast nhận đúng lý do và phòng hiển thị moderation log.
 - [x] Tạo giao diện nhập lý do, toast rõ ràng và danh sách nhật ký theo phòng.
 - [x] Bổ sung migration, regression, TypeScript, build và checkpoint.
+
+## Hiển thị kết quả timer trong phòng
+- [x] Giữ kết quả lượt vừa nộp trên màn hình thay vì timer trở về 0.
+- [x] Bổ sung regression, kiểm tra TypeScript, build và checkpoint.

@@ -8,7 +8,10 @@ import type { SolveHistoryEntry } from "@/lib/solveHistory";
 vi.mock("@/components/Cube3DGuide", () => ({ Cube3DGuide: ({ move, step }: { move?: string; step: number }) => <div data-testid="cube-guide">{move ?? "ready"} · {step}</div> }));
 vi.mock("@/components/CubeNet", () => ({ CubeNet: () => <div data-testid="cube-net" />, CUBE_COLOR: { U: "#fff", R: "#f00", F: "#0a0", D: "#ff0", L: "#f80", B: "#00f" } }));
 vi.mock("@/components/PuzzleScramblePreview", () => ({ PuzzleScramblePreview: ({ eventId }: { eventId: string }) => <div data-testid="puzzle-preview">{eventId} preview</div> }));
-vi.mock("@/components/SolveTimer", () => ({ SolveTimer: ({ onComplete }: { onComplete: (completion: { elapsedMs: number; inspectionMs: number; automaticPenalty: "none"; phaseSplits: [] }) => void }) => <button data-testid="solve-timer" onClick={() => onComplete({ elapsedMs: 30_000, inspectionMs: 0, automaticPenalty: "none", phaseSplits: [] })}>Stop timer</button> }));
+vi.mock("@/components/SolveTimer", async () => {
+  const { useState } = await import("react");
+  return { SolveTimer: ({ onComplete }: { onComplete: (completion: { elapsedMs: number; inspectionMs: number; automaticPenalty: "none"; phaseSplits: [] }) => void }) => { const [readout, setReadout] = useState("00:00.00"); return <button data-testid="solve-timer" onClick={() => { setReadout("00:30.00"); onComplete({ elapsedMs: 30_000, inspectionMs: 0, automaticPenalty: "none", phaseSplits: [] }); }}>{readout}</button>; } };
+});
 vi.mock("@/components/LastLayerStudyLab", () => ({ LastLayerStudyLab: () => <div data-testid="last-layer-study" /> }));
 vi.mock("recharts", () => ({ Bar: () => null, BarChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Line: () => null, LineChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Tooltip: () => null, XAxis: () => null, YAxis: () => null }));
 vi.mock("@/lib/timerEvents", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/timerEvents")>()), generateTimerScramble: async (eventId: string) => `${eventId} scramble` }));
@@ -37,6 +40,14 @@ afterEach(() => {
 });
 
 describe("Timer replay với solution đã lưu", () => {
+  it("giữ kết quả vừa hoàn tất trên timer khi scramble kế tiếp được tạo", async () => {
+    localStorage.setItem("cfop-language", "vi");
+    render(<LanguageProvider><TimerLab /></LanguageProvider>);
+    fireEvent.click(await screen.findByTestId("solve-timer"));
+    await waitFor(() => expect(screen.getByTestId("solve-timer")).toHaveTextContent("00:30.00"));
+    expect(screen.getByText("Đã lưu lượt vào nhật ký.")).toBeInTheDocument();
+  });
+
   it("mở dialog, tạo trace hợp lệ và tiến từng move từ fixture cô lập", async () => {
     localStorage.setItem("cfop-language", "vi");
     localStorage.setItem("cfop-solve-history-v1", JSON.stringify([replayFixture]));
