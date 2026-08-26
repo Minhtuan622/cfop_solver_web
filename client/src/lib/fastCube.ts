@@ -4,9 +4,10 @@ export const FAST_MOVE_PERMS: Record<string, number[]> = {"U":[2,5,8,1,4,7,0,3,6
 
 export function parseFastMoves(text: string): string[] {
   return text.replace(/[(),]/g, " ").split(/\s+/).filter(Boolean).map((raw) => {
-    if (raw.endsWith("3'")) return raw.slice(0, -2) + "'";
-    if (raw.endsWith("3")) return raw.slice(0, -1) + "'";
-    return raw;
+    const normalized = raw.replace(/^([URFDLB])w/, (_, face: string) => face.toLowerCase());
+    if (normalized.endsWith("3'")) return normalized.slice(0, -2) + "'";
+    if (normalized.endsWith("3")) return normalized.slice(0, -1) + "'";
+    return normalized;
   });
 }
 

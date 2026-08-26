@@ -1,6 +1,10 @@
 export const TIMER_EVENTS = [
   { id: "222", labelVi: "2×2×2", labelEn: "2×2×2" },
   { id: "333", labelVi: "3×3×3", labelEn: "3×3×3" },
+  { id: "333oh", labelVi: "3×3×3 Một tay (OH)", labelEn: "3×3×3 One-Handed (OH)" },
+  { id: "333bf", labelVi: "3×3×3 Bịt mắt (BLD)", labelEn: "3×3×3 Blindfolded (BLD)" },
+  { id: "333fm", labelVi: "3×3×3 Ít bước (FMC)", labelEn: "3×3×3 Fewest Moves (FMC)" },
+  { id: "333mbf", labelVi: "3×3×3 Nhiều khối bịt mắt (MBLD)", labelEn: "3×3×3 Multi-Blind (MBLD)" },
   { id: "444", labelVi: "4×4×4", labelEn: "4×4×4" },
   { id: "555", labelVi: "5×5×5", labelEn: "5×5×5" },
   { id: "666", labelVi: "6×6×6", labelEn: "6×6×6" },
@@ -30,7 +34,7 @@ export function timerEventLabel(eventId: TimerEventId, language: "vi" | "en") {
 }
 
 export function isThreeByThreeEvent(eventId: TimerEventId) {
-  return eventId === DEFAULT_TIMER_EVENT;
+  return eventId === DEFAULT_TIMER_EVENT || eventId === "333oh" || eventId === "333bf" || eventId === "333fm" || eventId === "333mbf";
 }
 
 export function timerPreviewPuzzleId(eventId: TimerEventId): "2x2x2" | "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "megaminx" | "square1" | "clock" | null {

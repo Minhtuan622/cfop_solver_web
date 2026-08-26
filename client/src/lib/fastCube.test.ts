@@ -14,4 +14,10 @@ describe("validateRecordedSolution", () => {
     expect(validateRecordedSolution(SOLVED_FAST_STATE, "R Q")).toMatchObject({ valid: false, error: "unsupported" });
     expect(validateRecordedSolution(SOLVED_FAST_STATE, "")).toMatchObject({ valid: true, normalized: "", error: "empty" });
   });
+
+  it("builds a valid visible state for BLD-style wide-turn scrambles", () => {
+    const state = stateFromScramble("D' R2 U Dw Rw2 F'");
+    expect(state).toHaveLength(54);
+    expect(state).not.toBe(SOLVED_FAST_STATE);
+  });
 });

@@ -75,5 +75,10 @@ describe("Timer replay với solution đã lưu", () => {
     expect(await screen.findByText("444 scramble")).toBeInTheDocument();
     expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("444 preview");
     expect(screen.getByText("Chưa có solve 4×4×4.")).toBeInTheDocument();
+
+    fireEvent.change(eventSelect, { target: { value: "333bf" } });
+    expect(await screen.findByText("333bf scramble")).toBeInTheDocument();
+    expect(screen.getAllByTestId("cube-guide").at(-1)).toHaveTextContent("ready · 0");
+    expect(screen.getByText("Chưa có solve 3×3×3 Bịt mắt (BLD).")).toBeInTheDocument();
   });
 });

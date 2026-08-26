@@ -1161,3 +1161,10 @@
 - [x] Thiết kế animation tuần tự, trạng thái cuối chính xác và reduced motion.
 - [x] Triển khai animation quay cho Square-1 và Clock mà không ảnh hưởng orbit/zoom.
 - [x] Kiểm thử animation, trạng thái cuối, desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## Biến thể 3×3 trong Timer
+
+- [x] Rà soát mã event WCA, scramble và các giới hạn của OH, BLD, FMC, Multi-Blind.
+- [x] Mở rộng danh mục event, preview 3×3 và quy tắc Timer/thống kê tách theo biến thể.
+- [x] Điều chỉnh UI Timer để các biến thể 3×3 hiển thị đúng trải nghiệm và không trộn lịch sử.
+- [x] Kiểm thử scramble, preview, lịch sử, TypeScript, regression, build và checkpoint.
