@@ -1133,3 +1133,10 @@
 - [x] Thay fallback bằng mô hình 3D thật có kéo xoay, zoom và reset góc nhìn.
 - [x] Nối scramble của từng event vào trạng thái mô hình, không tạo vùng trắng khi tải lỗi.
 - [x] Kiểm thử render, tương tác, desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## Điều khiển cảm ứng puzzle 3D
+
+- [x] Kiểm tra trục xoay chuột/cảm ứng và cơ chế zoom hiện có của Pyraminx/Megaminx.
+- [x] Đảo hướng kéo dọc để chuyển động camera khớp hướng chuột, giữ nguyên trục ngang.
+- [x] Thêm pinch-to-zoom mượt, giới hạn khoảng cách an toàn và tránh nhầm pinch với xoay một ngón.
+- [x] Kiểm thử kéo chuột, kéo cảm ứng, pinch, reset, desktop/mobile, TypeScript, regression, build và checkpoint.
