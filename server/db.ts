@@ -167,11 +167,11 @@ export async function createCompetitionRematch(sourceRoomId: number, code: strin
   const db = await requireDb();
   const source = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.id, sourceRoomId)).limit(1))[0];
   if (!source) throw new Error("Source room not found");
-  const members = await db.select({ accountId: cfopCompetitionMembers.accountId }).from(cfopCompetitionMembers).where(eq(cfopCompetitionMembers.roomId, sourceRoomId));
+  const members = await db.select({ accountId: cfopCompetitionMembers.accountId, role: cfopCompetitionMembers.role }).from(cfopCompetitionMembers).where(eq(cfopCompetitionMembers.roomId, sourceRoomId));
   await db.insert(cfopCompetitionRooms).values({ code, name: `${source.name} · Đấu lại`.slice(0, 80), hostAccountId: source.hostAccountId, maxPlayers: source.maxPlayers, format: source.format, eventId: source.eventId, multiBlindCubes: source.multiBlindCubes });
   const room = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.code, code)).limit(1))[0];
   if (!room) throw new Error("Rematch creation did not return a row");
-  if (members.length) await db.insert(cfopCompetitionMembers).values(members.map((member) => ({ roomId: room.id, accountId: member.accountId })));
+  if (members.length) await db.insert(cfopCompetitionMembers).values(members.map((member) => ({ roomId: room.id, accountId: member.accountId, role: member.role })));
   return room;
 }
 
@@ -185,9 +185,9 @@ export async function findCompetitionMember(roomId: number, accountId: number) {
   return (await db.select().from(cfopCompetitionMembers).where(and(eq(cfopCompetitionMembers.roomId, roomId), eq(cfopCompetitionMembers.accountId, accountId))).limit(1))[0] ?? null;
 }
 
-export async function joinCompetitionRoom(roomId: number, accountId: number) {
+export async function joinCompetitionRoom(roomId: number, accountId: number, role: "player" | "spectator" = "player") {
   const db = await requireDb();
-  await db.insert(cfopCompetitionMembers).values({ roomId, accountId });
+  await db.insert(cfopCompetitionMembers).values({ roomId, accountId, role });
   return findCompetitionMember(roomId, accountId);
 }
 
@@ -208,7 +208,12 @@ export async function listFinishedCompetitionRoomsForAccount(accountId: number) 
 
 export async function listCompetitionMembers(roomId: number) {
   const db = await requireDb();
-  return db.select({ accountId: cfopCompetitionMembers.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopAccounts, eq(cfopCompetitionMembers.accountId, cfopAccounts.id)).where(eq(cfopCompetitionMembers.roomId, roomId)).orderBy(asc(cfopCompetitionMembers.joinedAt));
+  return db.select({ accountId: cfopCompetitionMembers.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, role: cfopCompetitionMembers.role, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopAccounts, eq(cfopCompetitionMembers.accountId, cfopAccounts.id)).where(eq(cfopCompetitionMembers.roomId, roomId)).orderBy(asc(cfopCompetitionMembers.joinedAt));
+}
+
+export async function deleteCompetitionRoom(roomId: number) {
+  const db = await requireDb();
+  await db.delete(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.id, roomId));
 }
 
 export async function getCompetitionActiveRound(roomId: number) {

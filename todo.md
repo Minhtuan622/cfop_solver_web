@@ -1292,3 +1292,10 @@
 - [x] Lưu bundle nhiều scramble MBLD, số khối thử/giải đúng và score chuẩn cho mỗi kết quả phòng.
 - [x] Bổ sung giao diện MBLD phòng với tạo bundle, nhập kết quả và bảng xếp hạng score → thời gian → unsolved.
 - [x] Bổ sung bộ lọc event cho bảng xếp hạng hệ thống và regression/schema migration/build/checkpoint.
+
+## Spectator và xóa phòng thi đấu
+
+- [x] Thêm vai trò spectator để theo dõi state/scramble/preview/kết quả nhưng không nộp solve hoặc chat như người thi.
+- [x] Thêm mutation xóa phòng chỉ cho chủ phòng, có điều kiện trạng thái an toàn và cascade dữ liệu liên quan.
+- [x] Bổ sung UI vào spectator, nhãn trạng thái và nút xóa phòng kèm xác nhận.
+- [x] Bổ sung regression quyền spectator/xóa phòng, TypeScript, build và checkpoint.

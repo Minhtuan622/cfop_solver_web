@@ -5,7 +5,7 @@ import { COOKIE_NAME } from "../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "./cfopAccountAuth";
 import { buildCompetitionLeaderboard, compareCompetitionResults, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScrambleBundle, effectiveCompetitionTime } from "./competition";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "./cfopPasswordResetMail";
-import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, updateCfopAccountWcaId } from "./db";
+import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, updateCfopAccountWcaId } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { cfopAccountProcedure, publicProcedure, router } from "./_core/trpc";
@@ -42,9 +42,9 @@ async function requireCompetitionRoom(code: string) { const room = await findCom
 async function requireCompetitionMember(roomId: number, accountId: number) { const member = await findCompetitionMember(roomId, accountId); if (!member) throw new TRPCError({ code: "FORBIDDEN", message: "Bạn chưa tham gia phòng này." }); return member; }
 async function competitionRoomState(code: string, accountId: number) {
   const room = await requireCompetitionRoom(code);
-  await requireCompetitionMember(room.id, accountId);
+  const membership = await requireCompetitionMember(room.id, accountId);
   const [members, activeRound, results, messages] = await Promise.all([listCompetitionMembers(room.id), getCompetitionActiveRound(room.id), listCompetitionResults(room.id), listCompetitionMessages(room.id)]);
-  const players = members.map((member) => {
+  const players = members.filter((member) => member.role === "player").map((member) => {
     const history = results.filter((result) => result.accountId === member.accountId);
     const lastResult = history.at(-1) ?? null;
     const currentResult = activeRound ? history.find((result) => result.roundId === activeRound.id) ?? null : null;
@@ -55,7 +55,7 @@ async function competitionRoomState(code: string, accountId: number) {
     return compareCompetitionResults(room.eventId, left.lastResult!, right.lastResult!);
   }).map((player, index) => ({ ...player, rank: index + 1 }));
   const scrambleBundle = activeRound && Array.isArray(activeRound.scrambleBundle) ? activeRound.scrambleBundle.filter((value): value is string => typeof value === "string") : [];
-  return { room, isHost: room.hostAccountId === accountId, roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, messages };
+  return { room, members, isHost: room.hostAccountId === accountId, isSpectator: membership.role === "spectator", roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, messages };
 }
 
 async function competitionHistory(accountId: number) {
@@ -223,6 +223,11 @@ export const appRouter = router({
       await joinCompetitionRoom(room.id, ctx.cfopAccount.id);
       return { code: room.code };
     }),
+    spectate: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (!await findCompetitionMember(room.id, ctx.cfopAccount.id)) await joinCompetitionRoom(room.id, ctx.cfopAccount.id, "spectator");
+      return { code: room.code };
+    }),
     state: cfopAccountProcedure.input(roomCodeInput).query(({ ctx, input }) => competitionRoomState(input.code, ctx.cfopAccount.id)),
     leave: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => {
       const room = await requireCompetitionRoom(input.code);
@@ -235,7 +240,7 @@ export const appRouter = router({
       const room = await requireCompetitionRoom(input.code);
       if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được bắt đầu lượt mới." });
       if (room.status === "finished") throw new TRPCError({ code: "BAD_REQUEST", message: "Thể thức này đã kết thúc. Hãy tạo phòng mới để thi tiếp." });
-      if ((await listCompetitionMembers(room.id)).length < 2) throw new TRPCError({ code: "BAD_REQUEST", message: "Cần ít nhất 2 người trong phòng để bắt đầu thi đấu." });
+      if ((await listCompetitionMembers(room.id)).filter((member) => member.role === "player").length < 2) throw new TRPCError({ code: "BAD_REQUEST", message: "Cần ít nhất 2 người thi trong phòng để bắt đầu thi đấu." });
       if (room.currentRound >= competitionRoundLimit(room.format, room.eventId)) throw new TRPCError({ code: "BAD_REQUEST", message: "Đã đủ số lượt của thể thức này. Hãy hoàn tất phòng để chốt bảng xếp hạng." });
       const activeRound = await getCompetitionActiveRound(room.id);
       if (activeRound) await finishCompetitionRound(activeRound.id);
@@ -246,7 +251,8 @@ export const appRouter = router({
     }),
     submit: cfopAccountProcedure.input(resultInput).mutation(async ({ ctx, input }) => {
       const room = await requireCompetitionRoom(input.code);
-      await requireCompetitionMember(room.id, ctx.cfopAccount.id);
+      const membership = await requireCompetitionMember(room.id, ctx.cfopAccount.id);
+      if (membership.role === "spectator") throw new TRPCError({ code: "FORBIDDEN", message: "Khán giả chỉ có thể theo dõi, không thể nộp kết quả." });
       const activeRound = await getCompetitionActiveRound(room.id);
       if (!activeRound) throw new TRPCError({ code: "BAD_REQUEST", message: "Phòng chưa có lượt thi đấu đang mở." });
       if (activeRound.id !== input.roundId) throw new TRPCError({ code: "CONFLICT", message: "Lượt thi đấu đã chuyển. Hãy đồng bộ lại phòng trước khi nộp kết quả." });
@@ -259,15 +265,23 @@ export const appRouter = router({
       await submitCompetitionResult({ roundId: activeRound.id, accountId: ctx.cfopAccount.id, elapsedMs: input.elapsedMs, inspectionMs: input.inspectionMs, penalty, ...(multiBlind ? { multiBlindAttempted: multiBlind.attempted, multiBlindSolved: multiBlind.solved, multiBlindScore: multiBlind.score } : {}) });
       if (activeRound.sequence >= competitionRoundLimit(room.format, room.eventId)) {
         const [members, results] = await Promise.all([listCompetitionMembers(room.id), listCompetitionResults(room.id)]);
-        const allSubmitted = members.every((member) => results.some((result) => result.roundId === activeRound.id && result.accountId === member.accountId));
+        const allSubmitted = members.filter((member) => member.role === "player").every((member) => results.some((result) => result.roundId === activeRound.id && result.accountId === member.accountId));
         if (allSubmitted) { await finishCompetitionRound(activeRound.id); await finishCompetitionRoom(room.id); }
       }
       return { success: true } as const;
     }),
     sendMessage: cfopAccountProcedure.input(messageInput).mutation(async ({ ctx, input }) => {
       const room = await requireCompetitionRoom(input.code);
-      await requireCompetitionMember(room.id, ctx.cfopAccount.id);
+      const membership = await requireCompetitionMember(room.id, ctx.cfopAccount.id);
+      if (membership.role === "spectator") throw new TRPCError({ code: "FORBIDDEN", message: "Khán giả không thể gửi chat trong phòng này." });
       await createCompetitionMessage({ roomId: room.id, accountId: ctx.cfopAccount.id, content: input.content });
+      return { success: true } as const;
+    }),
+    delete: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được xóa phòng." });
+      if (room.status === "active") throw new TRPCError({ code: "BAD_REQUEST", message: "Không thể xóa khi phòng đang thi. Hãy hoàn tất thể thức trước." });
+      await deleteCompetitionRoom(room.id);
       return { success: true } as const;
     }),
     finish: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => {
