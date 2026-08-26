@@ -5,7 +5,7 @@ import { COOKIE_NAME } from "../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "./cfopAccountAuth";
 import { buildCompetitionLeaderboard, compareCompetitionResults, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScrambleBundle, effectiveCompetitionTime } from "./competition";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "./cfopPasswordResetMail";
-import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, touchCompetitionMember, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, updateCfopAccountWcaId, updateCompetitionMemberRole } from "./db";
+import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, markCompetitionSpectatorRemoved, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, touchCompetitionMember, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, updateCfopAccountWcaId, updateCompetitionMemberRole } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { cfopAccountProcedure, publicProcedure, router } from "./_core/trpc";
@@ -40,7 +40,7 @@ const wcaIdInput = z.object({ wcaId: z.string().trim().min(1).max(10).nullable()
 function normalizeRoomCode(value: string) { return value.toUpperCase().replace(/[^A-Z0-9]/g, ""); }
 function roomError() { return new TRPCError({ code: "NOT_FOUND", message: "Không tìm thấy phòng thi đấu này." }); }
 async function requireCompetitionRoom(code: string) { const room = await findCompetitionRoomByCode(normalizeRoomCode(code)); if (!room) throw roomError(); return room; }
-async function requireCompetitionMember(roomId: number, accountId: number) { const member = await findCompetitionMember(roomId, accountId); if (!member) throw new TRPCError({ code: "FORBIDDEN", message: "Bạn chưa tham gia phòng này." }); return member; }
+async function requireCompetitionMember(roomId: number, accountId: number) { const member = await findCompetitionMember(roomId, accountId); if (!member) throw new TRPCError({ code: "FORBIDDEN", message: "Bạn chưa tham gia phòng này." }); if (member.removedAt) throw new TRPCError({ code: "FORBIDDEN", message: "Bạn đã bị quản trị viên loại khỏi phòng." }); return member; }
 async function competitionRoomState(code: string, accountId: number) {
   const room = await requireCompetitionRoom(code);
   const membership = await requireCompetitionMember(room.id, accountId);
@@ -254,7 +254,7 @@ export const appRouter = router({
       const target = await requireCompetitionMember(room.id, input.accountId);
       if (target.role !== "spectator") throw new TRPCError({ code: "BAD_REQUEST", message: "Chỉ có thể loại spectator." });
       await createCompetitionMessage({ roomId: room.id, accountId: ctx.cfopAccount.id, content: "[system] Moderator đã loại một người xem khỏi phòng." });
-      await leaveCompetitionRoom(room.id, input.accountId);
+      await markCompetitionSpectatorRemoved(room.id, input.accountId);
       return { success: true } as const;
     }),
     state: cfopAccountProcedure.input(roomCodeInput).query(({ ctx, input }) => competitionRoomState(input.code, ctx.cfopAccount.id)),

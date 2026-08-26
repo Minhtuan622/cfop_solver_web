@@ -88,6 +88,7 @@ export const cfopCompetitionMembers = mysqlTable("cfop_competition_members", {
   role: mysqlEnum("role", ["player", "spectator", "moderator"]).notNull().default("player"),
   joinedAt: timestamp("joinedAt").defaultNow().notNull(),
   lastSeen: timestamp("lastSeen").defaultNow().notNull(),
+  removedAt: timestamp("removedAt"),
 }, (table) => [uniqueIndex("cfop_competition_members_room_account_unique").on(table.roomId, table.accountId), index("cfop_competition_members_account_idx").on(table.accountId)]);
 
 /** A room round freezes one shared scramble so every competitor solves the identical state. */

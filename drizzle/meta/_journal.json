@@ -71,6 +71,13 @@
       "when": 1787742338424,
       "tag": "0009_loving_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1787751857770,
+      "tag": "0010_skinny_hydra",
+      "breakpoints": true
     }
   ]
 }

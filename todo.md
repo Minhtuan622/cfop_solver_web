@@ -1312,3 +1312,9 @@
 - [x] Ghi nhận thông báo hệ thống khi moderator/chủ phòng loại spectator khỏi phòng.
 - [x] Hiển thị danh sách spectator đang trực tuyến theo thứ tự tham gia.
 - [x] Bổ sung regression thông báo/quyền, TypeScript, build và checkpoint.
+
+## Toast spectator bị loại
+
+- [x] Trả tín hiệu phân biệt spectator đã bị loại khỏi state polling.
+- [x] Hiển thị toast cảnh báo và điều hướng spectator về danh sách phòng.
+- [x] Bổ sung regression, TypeScript, build và checkpoint.

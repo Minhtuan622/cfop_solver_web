@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, gte, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, gte, isNull, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopCompetitionMembers, cfopCompetitionMessages, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds, cfopPasswordResetTokens, cfopWcaOauthStates, InsertUser, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -196,6 +196,11 @@ export async function leaveCompetitionRoom(roomId: number, accountId: number) {
   await db.delete(cfopCompetitionMembers).where(and(eq(cfopCompetitionMembers.roomId, roomId), eq(cfopCompetitionMembers.accountId, accountId)));
 }
 
+export async function markCompetitionSpectatorRemoved(roomId: number, accountId: number) {
+  const db = await requireDb();
+  await db.update(cfopCompetitionMembers).set({ removedAt: new Date(), lastSeen: new Date() }).where(and(eq(cfopCompetitionMembers.roomId, roomId), eq(cfopCompetitionMembers.accountId, accountId)));
+}
+
 export async function touchCompetitionMember(roomId: number, accountId: number) {
   const db = await requireDb();
   await db.update(cfopCompetitionMembers).set({ lastSeen: new Date() }).where(and(eq(cfopCompetitionMembers.roomId, roomId), eq(cfopCompetitionMembers.accountId, accountId)));
@@ -219,7 +224,7 @@ export async function listFinishedCompetitionRoomsForAccount(accountId: number) 
 
 export async function listCompetitionMembers(roomId: number) {
   const db = await requireDb();
-  return db.select({ accountId: cfopCompetitionMembers.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, role: cfopCompetitionMembers.role, joinedAt: cfopCompetitionMembers.joinedAt, lastSeen: cfopCompetitionMembers.lastSeen }).from(cfopCompetitionMembers).innerJoin(cfopAccounts, eq(cfopCompetitionMembers.accountId, cfopAccounts.id)).where(eq(cfopCompetitionMembers.roomId, roomId)).orderBy(asc(cfopCompetitionMembers.joinedAt));
+  return db.select({ accountId: cfopCompetitionMembers.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, role: cfopCompetitionMembers.role, joinedAt: cfopCompetitionMembers.joinedAt, lastSeen: cfopCompetitionMembers.lastSeen }).from(cfopCompetitionMembers).innerJoin(cfopAccounts, eq(cfopCompetitionMembers.accountId, cfopAccounts.id)).where(and(eq(cfopCompetitionMembers.roomId, roomId), isNull(cfopCompetitionMembers.removedAt))).orderBy(asc(cfopCompetitionMembers.joinedAt));
 }
 
 export async function deleteCompetitionRoom(roomId: number) {

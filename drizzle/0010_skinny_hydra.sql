@@ -1,0 +1,1 @@
+ALTER TABLE `cfop_competition_members` ADD `removedAt` timestamp;
