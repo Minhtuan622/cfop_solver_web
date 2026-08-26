@@ -23,8 +23,8 @@ export type WcaPersonalRecord = {
   eventId: string;
   singleCentiseconds: number | null;
   averageCentiseconds: number | null;
-  worldRank: number | null;
-  countryRank: number | null;
+  singleRanks: { world: number | null; continental: number | null; country: number | null };
+  averageRanks: { world: number | null; continental: number | null; country: number | null };
 };
 
 export type WcaProfile = {
@@ -70,8 +70,8 @@ type WcaProfilePayload = {
   medals?: { gold?: number | null; silver?: number | null; bronze?: number | null; total?: number | null } | null;
   records?: { national?: number | null; continental?: number | null; world?: number | null; total?: number | null } | null;
   personal_records?: Record<string, {
-    single?: { best?: number | null; world_rank?: number | null; country_rank?: number | null } | null;
-    average?: { best?: number | null; world_rank?: number | null; country_rank?: number | null } | null;
+    single?: { best?: number | null; world_rank?: number | null; continent_rank?: number | null; country_rank?: number | null } | null;
+    average?: { best?: number | null; world_rank?: number | null; continent_rank?: number | null; country_rank?: number | null } | null;
   }> | null;
 };
 
@@ -160,8 +160,8 @@ export async function getWcaProfile(rawWcaId: string): Promise<WcaProfile> {
     eventId,
     singleCentiseconds: normalizeRecord(record.single?.best),
     averageCentiseconds: normalizeRecord(record.average?.best),
-    worldRank: normalizeRecord(record.average?.world_rank ?? record.single?.world_rank),
-    countryRank: normalizeRecord(record.average?.country_rank ?? record.single?.country_rank),
+    singleRanks: { world: normalizeRecord(record.single?.world_rank), continental: normalizeRecord(record.single?.continent_rank), country: normalizeRecord(record.single?.country_rank) },
+    averageRanks: { world: normalizeRecord(record.average?.world_rank), continental: normalizeRecord(record.average?.continent_rank), country: normalizeRecord(record.average?.country_rank) },
   })).sort((left, right) => left.eventId.localeCompare(right.eventId));
   return {
     wcaId: person.wca_id,

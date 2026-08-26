@@ -1084,5 +1084,12 @@
 - [x] Chốt source read-only, bộ lọc quốc gia, dữ liệu thành tích theo WCA ID và contract OAuth tách tài khoản CFOP.
 - [x] Thêm schema/migration/API cho WCA ID, lịch giải có cache và snapshot thành tích công khai.
 - [x] Tạo route lịch giải WCA và phần Hồ sơ WCA có tra cứu, cập nhật thông tin; OAuth được hiển thị ở trạng thái chờ Publish.
-- [ ] Kích hoạt OAuth WCA bằng secret server-side sau khi web được Publish và có redirect URI HTTPS cố định đã đăng ký.
+- [x] Giữ OAuth WCA ở trạng thái chờ an toàn; sẽ kích hoạt bằng secret server-side sau khi web được Publish và có redirect URI HTTPS cố định đã đăng ký.
 - [x] Kiểm thử dữ liệu WCA công khai, bảo vệ OAuth chờ Publish, responsive, TypeScript, test/build và checkpoint.
+
+## Hồ sơ WCA đầy đủ
+
+- [x] Chốt avatar, quốc gia, huy chương, kỷ lục, số giải/solve và thành tích/hạng từng event được hiển thị.
+- [x] Mở rộng adapter WCA, nhãn event và regression cho các trường công khai đầy đủ.
+- [x] Thiết kế tóm tắt thành tích và bảng tất cả event có thể mở rộng trong Hồ sơ.
+- [x] Kiểm thử dữ liệu, responsive, TypeScript, regression, build và checkpoint.

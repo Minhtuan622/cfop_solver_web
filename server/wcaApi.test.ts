@@ -18,11 +18,11 @@ describe("WCA public API adapter", () => {
       total_solves: 510,
       medals: { gold: 2, silver: 1, bronze: 0, total: 3 },
       records: { national: 1, continental: 0, world: 0, total: 1 },
-      personal_records: { "333": { single: { best: 987, world_rank: 1_000, country_rank: 12 }, average: { best: 1_234, world_rank: 1_200, country_rank: 16 } } },
+      personal_records: { "333": { single: { best: 987, world_rank: 1_000, continent_rank: 120, country_rank: 12 }, average: { best: 1_234, world_rank: 1_200, continent_rank: 150, country_rank: 16 } } },
     })));
     const profile = await getWcaProfile("2020nguy01");
     expect(profile).toMatchObject({ wcaId: "2020NGUY01", name: "Nguyen Cubing", countryIso2: "VN", competitionCount: 12, totalSolves: 510 });
-    expect(profile.personalRecords).toEqual([{ eventId: "333", singleCentiseconds: 987, averageCentiseconds: 1_234, worldRank: 1_200, countryRank: 16 }]);
+    expect(profile.personalRecords).toEqual([{ eventId: "333", singleCentiseconds: 987, averageCentiseconds: 1_234, singleRanks: { world: 1_000, continental: 120, country: 12 }, averageRanks: { world: 1_200, continental: 150, country: 16 } }]);
   });
 
   it("passes the country filter to the competition endpoint and maps public fields", async () => {
