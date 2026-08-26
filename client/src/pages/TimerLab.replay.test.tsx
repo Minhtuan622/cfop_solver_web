@@ -7,10 +7,12 @@ import type { SolveHistoryEntry } from "@/lib/solveHistory";
 
 vi.mock("@/components/Cube3DGuide", () => ({ Cube3DGuide: ({ move, step }: { move?: string; step: number }) => <div data-testid="cube-guide">{move ?? "ready"} · {step}</div> }));
 vi.mock("@/components/CubeNet", () => ({ CubeNet: () => <div data-testid="cube-net" />, CUBE_COLOR: { U: "#fff", R: "#f00", F: "#0a0", D: "#ff0", L: "#f80", B: "#00f" } }));
+vi.mock("@/components/PuzzleScramblePreview", () => ({ PuzzleScramblePreview: ({ eventId }: { eventId: string }) => <div data-testid="puzzle-preview">{eventId} preview</div> }));
 vi.mock("@/components/SolveTimer", () => ({ SolveTimer: () => <div data-testid="solve-timer" /> }));
 vi.mock("@/components/LastLayerStudyLab", () => ({ LastLayerStudyLab: () => <div data-testid="last-layer-study" /> }));
 vi.mock("recharts", () => ({ Bar: () => null, BarChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Line: () => null, LineChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Tooltip: () => null, XAxis: () => null, YAxis: () => null }));
 vi.mock("@/lib/timerEvents", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/timerEvents")>()), generateTimerScramble: async (eventId: string) => `${eventId} scramble` }));
+vi.mock("@/lib/trpc", () => ({ trpc: { cfopAccount: { me: { useQuery: () => ({ data: null, isLoading: false, isError: false }) }, wca: { profile: { useQuery: () => ({ data: null, isLoading: false, isError: false }) } } } } }));
 
 import TimerLab from "./TimerLab";
 
@@ -64,7 +66,9 @@ describe("Timer replay với solution đã lưu", () => {
 
     expect(await screen.findByText("pyram scramble")).toBeInTheDocument();
     expect(screen.getAllByText("Pyraminx").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("pyram preview");
     expect(screen.getByText(/Các công cụ CFOP\/3D chỉ áp dụng cho 3×3/i)).toBeInTheDocument();
     expect(screen.getByText("Chưa có solve Pyraminx.")).toBeInTheDocument();
+    expect(screen.getByText("Liên kết WCA ID")).toBeInTheDocument();
   });
 });

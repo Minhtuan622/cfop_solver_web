@@ -177,7 +177,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ["cubing", "cubing/scramble"],
+    exclude: ["cubing", "cubing/scramble", "cubing/twisty"],
   },
   server: {
     host: true,

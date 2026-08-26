@@ -33,6 +33,13 @@ export function isThreeByThreeEvent(eventId: TimerEventId) {
   return eventId === DEFAULT_TIMER_EVENT;
 }
 
+export function timerPreviewPuzzleId(eventId: TimerEventId): "2x2x2" | "pyraminx" | "megaminx" | null {
+  if (eventId === "222") return "2x2x2";
+  if (eventId === "pyram") return "pyraminx";
+  if (eventId === "minx") return "megaminx";
+  return null;
+}
+
 export function filterTimerEventEntries<T extends { eventId?: unknown }>(entries: readonly T[], eventId: TimerEventId) {
   return entries.filter((entry) => normalizeTimerEventId(entry.eventId) === eventId);
 }

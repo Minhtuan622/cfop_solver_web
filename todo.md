@@ -1111,3 +1111,11 @@
 - [x] Thêm danh mục event phổ biến cùng scramble tương ứng và lưu event cho solve mới mà không làm hỏng lịch sử 3×3 cũ.
 - [x] Tách scramble, thống kê, PB/Ao và danh sách solve Timer theo event đang chọn.
 - [x] Kiểm thử event, dữ liệu lịch sử cũ, keyboard/touch, desktop/mobile, TypeScript, regression, build và checkpoint.
+
+## Timer đa event nâng cao
+
+- [x] Kiểm kê mapping event Timer–WCA, dữ liệu biểu đồ và API preview puzzle chính xác.
+- [x] Thêm biểu đồ thời gian riêng cho event đang chọn trong Timer.
+- [x] Hiển thị preview scramble trực quan cho 2×2, Pyraminx và Megaminx mà không làm sai preview 3×3.
+- [x] So sánh PB Timer với WCA single/average cho event đang chọn, kèm trạng thái thiếu hồ sơ hoặc record.
+- [x] Kiểm thử dữ liệu event, WCA fallback, preview, desktop/mobile, TypeScript, regression, build và checkpoint.

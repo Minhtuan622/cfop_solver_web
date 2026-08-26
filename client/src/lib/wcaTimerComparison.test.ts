@@ -21,4 +21,13 @@ describe("wcaTimerComparison", () => {
       { key: "ao5", label: "PB Ao5 / average", timerMs: null, wcaMs: null, deltaMs: null },
     ]);
   });
+
+  it("uses only the selected event instead of mixing Timer records across puzzles", () => {
+    const twoByTwo = [solve("a", 5_000), solve("b", 4_000), solve("c", 6_000), solve("d", 7_000), solve("e", 5_500)].map((entry) => ({ ...entry, eventId: "222" as const }));
+    const threeByThree = [{ ...solve("three", 1_000), eventId: "333" as const }];
+    expect(wcaTimerComparison([...twoByTwo, ...threeByThree], { singleCentiseconds: 450, averageCentiseconds: 550 }, "222")).toEqual([
+      { key: "single", label: "PB single", timerMs: 4_000, wcaMs: 4_500, deltaMs: -500 },
+      { key: "ao5", label: "PB Ao5 / average", timerMs: 5_500, wcaMs: 5_500, deltaMs: 0 },
+    ]);
+  });
 });

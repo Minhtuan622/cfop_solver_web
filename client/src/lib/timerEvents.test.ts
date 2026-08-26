@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_TIMER_EVENT, filterTimerEventEntries, isThreeByThreeEvent, isTimerEventId, normalizeTimerEventId, timerEventLabel } from "./timerEvents";
+import { DEFAULT_TIMER_EVENT, filterTimerEventEntries, isThreeByThreeEvent, isTimerEventId, normalizeTimerEventId, timerEventLabel, timerPreviewPuzzleId } from "./timerEvents";
 
 describe("timer events", () => {
   it("recognizes supported event IDs and defaults missing legacy history to 3×3", () => {
@@ -19,5 +19,12 @@ describe("timer events", () => {
     const entries = [{ id: "legacy" }, { id: "two", eventId: "222" }, { id: "four", eventId: "444" }];
     expect(filterTimerEventEntries(entries, "333").map((entry) => entry.id)).toEqual(["legacy"]);
     expect(filterTimerEventEntries(entries, "444").map((entry) => entry.id)).toEqual(["four"]);
+  });
+
+  it("maps only supported visual previews to their cubing.js puzzle IDs", () => {
+    expect(timerPreviewPuzzleId("222")).toBe("2x2x2");
+    expect(timerPreviewPuzzleId("pyram")).toBe("pyraminx");
+    expect(timerPreviewPuzzleId("minx")).toBe("megaminx");
+    expect(timerPreviewPuzzleId("444")).toBeNull();
   });
 });

@@ -1,6 +1,6 @@
 import { effectiveTime, type SolveHistoryEntry } from "./solveHistory";
 import { bestRollingAverage } from "./timerRecords";
-import { DEFAULT_TIMER_EVENT, normalizeTimerEventId } from "./timerEvents";
+import { DEFAULT_TIMER_EVENT, normalizeTimerEventId, type TimerEventId } from "./timerEvents";
 
 export type WcaTimerComparisonRow = {
   key: "single" | "ao5";
@@ -10,7 +10,7 @@ export type WcaTimerComparisonRow = {
   deltaMs: number | null;
 };
 
-type ThreeByThreeWcaRecord = {
+type WcaEventRecord = {
   singleCentiseconds: number | null | undefined;
   averageCentiseconds: number | null | undefined;
 };
@@ -19,12 +19,12 @@ function centisecondsToMilliseconds(value: number | null | undefined) {
   return typeof value === "number" && value >= 0 ? value * 10 : null;
 }
 
-/** Compares local Timer PBs with official 3×3 WCA personal records without altering either data source. */
-export function wcaTimerComparison(entries: SolveHistoryEntry[], record: ThreeByThreeWcaRecord): WcaTimerComparisonRow[] {
-  const threeByThreeEntries = entries.filter((entry) => normalizeTimerEventId(entry.eventId) === DEFAULT_TIMER_EVENT);
-  const singles = threeByThreeEntries.map(effectiveTime).filter((value): value is number => value !== null);
+/** Compares local Timer PBs with official WCA personal records for one event without altering either data source. */
+export function wcaTimerComparison(entries: SolveHistoryEntry[], record: WcaEventRecord, eventId: TimerEventId = DEFAULT_TIMER_EVENT): WcaTimerComparisonRow[] {
+  const eventEntries = entries.filter((entry) => normalizeTimerEventId(entry.eventId) === eventId);
+  const singles = eventEntries.map(effectiveTime).filter((value): value is number => value !== null);
   const timerSingle = singles.length ? Math.min(...singles) : null;
-  const timerAo5 = bestRollingAverage(threeByThreeEntries, 5) ?? null;
+  const timerAo5 = bestRollingAverage(eventEntries, 5) ?? null;
   const wcaSingle = centisecondsToMilliseconds(record.singleCentiseconds);
   const wcaAverage = centisecondsToMilliseconds(record.averageCentiseconds);
 
