@@ -41,7 +41,7 @@ const SQUARE1_SQA = Math.sqrt(3) / 2 + 1;
 const SQUARE1_FOOTPRINT_SCALE = 0.5;
 const SQUARE1_LAYER_THICKNESS = 1.08;
 const SQUARE1_LAYER_BASE = SQUARE1_LAYER_THICKNESS / 2;
-const SQUARE1_HEIGHT_SCALE = 2 / 3;
+const SQUARE1_HEIGHT_SCALE = 5 / 6;
 type SquarePoint = [number, number];
 export type SquareOneState = { wedges: number[]; middle: 0 | 1 };
 

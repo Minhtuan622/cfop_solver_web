@@ -1261,3 +1261,9 @@
 - [x] Loại bỏ body tối lộ ra quá nhiều ở tâm và giữa các cubie.
 - [x] Nới sticker/mặt bên/equator để các tầng khép sát, chỉ giữ rãnh viền mảnh.
 - [x] Kiểm thử state, TypeScript, regression, build và checkpoint.
+
+## Chiều cao Square-1 năm phần sáu
+
+- [x] Đổi tỷ lệ dọc toàn bộ Square-1 từ 2/3 sang 5/6 kích thước gốc.
+- [x] Giữ nguyên footprint, ba tầng, viền cubie và state/silhouette scramble.
+- [x] Kiểm thử TypeScript, regression, build và checkpoint.
