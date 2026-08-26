@@ -41,6 +41,7 @@ const SQUARE1_SQA = Math.sqrt(3) / 2 + 1;
 const SQUARE1_FOOTPRINT_SCALE = 0.5;
 const SQUARE1_LAYER_THICKNESS = 1.08;
 const SQUARE1_LAYER_BASE = SQUARE1_LAYER_THICKNESS / 2;
+const SQUARE1_HEIGHT_SCALE = 2 / 3;
 type SquarePoint = [number, number];
 export type SquareOneState = { wedges: number[]; middle: 0 | 1 };
 
@@ -180,6 +181,7 @@ function squareOneObject(THREE: ThreeModule, state: SquareOneState) {
   belt.rotation.y = state.middle * Math.PI;
   belt.scale.set(SQUARE1_FOOTPRINT_SCALE, 1, SQUARE1_FOOTPRINT_SCALE);
   root.add(top, bottom, belt);
+  root.scale.y = SQUARE1_HEIGHT_SCALE;
   root.userData.squareAnimation = { top, bottom, belt };
   return root;
 }

@@ -1249,3 +1249,9 @@
 - [x] Đồng bộ chiều cao tầng trên, equator và tầng dưới.
 - [x] Căn lại vị trí layer để ba tầng chạm đều mà không thay đổi state/silhouette.
 - [x] Kiểm thử TypeScript, regression, build và checkpoint.
+
+## Chiều cao Square-1 hai phần ba
+
+- [x] Co đồng đều toàn bộ stack Square-1 theo trục dọc xuống tỷ lệ 2/3.
+- [x] Giữ footprint, viền cubie, equator và state/silhouette scramble không đổi.
+- [x] Kiểm thử TypeScript, regression, build và checkpoint.
