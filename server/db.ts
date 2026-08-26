@@ -196,6 +196,17 @@ export async function leaveCompetitionRoom(roomId: number, accountId: number) {
   await db.delete(cfopCompetitionMembers).where(and(eq(cfopCompetitionMembers.roomId, roomId), eq(cfopCompetitionMembers.accountId, accountId)));
 }
 
+export async function touchCompetitionMember(roomId: number, accountId: number) {
+  const db = await requireDb();
+  await db.update(cfopCompetitionMembers).set({ lastSeen: new Date() }).where(and(eq(cfopCompetitionMembers.roomId, roomId), eq(cfopCompetitionMembers.accountId, accountId)));
+}
+
+export async function updateCompetitionMemberRole(roomId: number, accountId: number, role: "player" | "spectator" | "moderator") {
+  const db = await requireDb();
+  await db.update(cfopCompetitionMembers).set({ role, lastSeen: new Date() }).where(and(eq(cfopCompetitionMembers.roomId, roomId), eq(cfopCompetitionMembers.accountId, accountId)));
+  return findCompetitionMember(roomId, accountId);
+}
+
 export async function listCompetitionRoomsForAccount(accountId: number) {
   const db = await requireDb();
   return db.select({ room: cfopCompetitionRooms, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionMembers.roomId, cfopCompetitionRooms.id)).where(eq(cfopCompetitionMembers.accountId, accountId)).orderBy(desc(cfopCompetitionRooms.updatedAt));
@@ -208,7 +219,7 @@ export async function listFinishedCompetitionRoomsForAccount(accountId: number) 
 
 export async function listCompetitionMembers(roomId: number) {
   const db = await requireDb();
-  return db.select({ accountId: cfopCompetitionMembers.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, role: cfopCompetitionMembers.role, joinedAt: cfopCompetitionMembers.joinedAt }).from(cfopCompetitionMembers).innerJoin(cfopAccounts, eq(cfopCompetitionMembers.accountId, cfopAccounts.id)).where(eq(cfopCompetitionMembers.roomId, roomId)).orderBy(asc(cfopCompetitionMembers.joinedAt));
+  return db.select({ accountId: cfopCompetitionMembers.accountId, displayName: cfopAccounts.displayName, avatarUrl: cfopAccounts.avatarUrl, role: cfopCompetitionMembers.role, joinedAt: cfopCompetitionMembers.joinedAt, lastSeen: cfopCompetitionMembers.lastSeen }).from(cfopCompetitionMembers).innerJoin(cfopAccounts, eq(cfopCompetitionMembers.accountId, cfopAccounts.id)).where(eq(cfopCompetitionMembers.roomId, roomId)).orderBy(asc(cfopCompetitionMembers.joinedAt));
 }
 
 export async function deleteCompetitionRoom(roomId: number) {

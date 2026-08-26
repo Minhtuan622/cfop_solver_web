@@ -64,6 +64,13 @@
       "when": 1787737635333,
       "tag": "0008_bouncy_ulik",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1787742338424,
+      "tag": "0009_loving_chat",
+      "breakpoints": true
     }
   ]
 }

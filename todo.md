@@ -1299,3 +1299,10 @@
 - [x] Thêm mutation xóa phòng chỉ cho chủ phòng, có điều kiện trạng thái an toàn và cascade dữ liệu liên quan.
 - [x] Bổ sung UI vào spectator, nhãn trạng thái và nút xóa phòng kèm xác nhận.
 - [x] Bổ sung regression quyền spectator/xóa phòng, TypeScript, build và checkpoint.
+
+## Đếm spectator và moderator phòng thi đấu
+
+- [x] Hiển thị số lượng spectator trong state phòng và UI người thi/khán giả.
+- [x] Thêm role moderator, cấp/gỡ quyền do chủ phòng thực hiện và giữ tương thích membership cũ.
+- [x] Cho moderator quản lý spectator (loại khán giả), không can thiệp vào điểm hoặc chủ phòng.
+- [x] Bổ sung regression phân quyền, TypeScript, build và checkpoint.

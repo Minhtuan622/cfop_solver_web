@@ -5,7 +5,7 @@ import { COOKIE_NAME } from "../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "./cfopAccountAuth";
 import { buildCompetitionLeaderboard, compareCompetitionResults, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScrambleBundle, effectiveCompetitionTime } from "./competition";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "./cfopPasswordResetMail";
-import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, updateCfopAccountWcaId } from "./db";
+import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, touchCompetitionMember, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, updateCfopAccountWcaId, updateCompetitionMemberRole } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { cfopAccountProcedure, publicProcedure, router } from "./_core/trpc";
@@ -32,6 +32,7 @@ const roomCodeInput = z.object({ code: z.string().trim().min(4).max(10) });
 const createRoomInput = z.object({ name: z.string().trim().min(2, "Tên phòng cần ít nhất 2 ký tự.").max(80), maxPlayers: z.number().int().min(2).max(16).default(8), format: z.enum(["best_of_3", "ao5", "ao12"]).default("ao5"), eventId: z.enum(TIMER_EVENT_IDS).default(DEFAULT_TIMER_EVENT), multiBlindCubes: z.number().int().min(2).max(99).default(2) });
 const resultInput = roomCodeInput.extend({ roundId: z.number().int().positive(), elapsedMs: z.number().int().min(0).max(3_600_000), inspectionMs: z.number().int().min(0).max(60_000), penalty: z.enum(["none", "+2", "DNF"]), multiBlind: z.object({ attempted: z.number().int().min(2).max(99), solved: z.number().int().min(0).max(99) }).optional() });
 const messageInput = roomCodeInput.extend({ content: z.string().trim().min(1, "Tin nhắn không được để trống.").max(500, "Tin nhắn tối đa 500 ký tự.") });
+const memberTargetInput = roomCodeInput.extend({ accountId: z.number().int().positive() });
 const leaderboardInput = z.object({ period: z.enum(["week", "month"]), eventId: z.enum(TIMER_EVENT_IDS).nullable().optional() });
 const wcaCalendarInput = z.object({ start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải theo YYYY-MM-DD."), end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải theo YYYY-MM-DD."), countryIso2: z.string().trim().length(2).transform((value) => value.toUpperCase()).nullable().optional() });
 const wcaIdInput = z.object({ wcaId: z.string().trim().min(1).max(10).nullable() });
@@ -43,6 +44,7 @@ async function requireCompetitionMember(roomId: number, accountId: number) { con
 async function competitionRoomState(code: string, accountId: number) {
   const room = await requireCompetitionRoom(code);
   const membership = await requireCompetitionMember(room.id, accountId);
+  await touchCompetitionMember(room.id, accountId);
   const [members, activeRound, results, messages] = await Promise.all([listCompetitionMembers(room.id), getCompetitionActiveRound(room.id), listCompetitionResults(room.id), listCompetitionMessages(room.id)]);
   const players = members.filter((member) => member.role === "player").map((member) => {
     const history = results.filter((result) => result.accountId === member.accountId);
@@ -55,7 +57,8 @@ async function competitionRoomState(code: string, accountId: number) {
     return compareCompetitionResults(room.eventId, left.lastResult!, right.lastResult!);
   }).map((player, index) => ({ ...player, rank: index + 1 }));
   const scrambleBundle = activeRound && Array.isArray(activeRound.scrambleBundle) ? activeRound.scrambleBundle.filter((value): value is string => typeof value === "string") : [];
-  return { room, members, isHost: room.hostAccountId === accountId, isSpectator: membership.role === "spectator", roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, messages };
+  const onlineSpectatorCount = members.filter((member) => member.role !== "player" && member.lastSeen.getTime() >= Date.now() - 20_000).length;
+  return { room, members, isHost: room.hostAccountId === accountId, isSpectator: membership.role !== "player", isModerator: membership.role === "moderator", onlineSpectatorCount, roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, messages };
 }
 
 async function competitionHistory(accountId: number) {
@@ -228,6 +231,31 @@ export const appRouter = router({
       if (!await findCompetitionMember(room.id, ctx.cfopAccount.id)) await joinCompetitionRoom(room.id, ctx.cfopAccount.id, "spectator");
       return { code: room.code };
     }),
+    grantModerator: cfopAccountProcedure.input(memberTargetInput).mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được cấp quyền moderator." });
+      const target = await requireCompetitionMember(room.id, input.accountId);
+      if (target.role !== "spectator") throw new TRPCError({ code: "BAD_REQUEST", message: "Chỉ spectator có thể được nâng lên moderator." });
+      await updateCompetitionMemberRole(room.id, input.accountId, "moderator");
+      return { success: true } as const;
+    }),
+    revokeModerator: cfopAccountProcedure.input(memberTargetInput).mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được gỡ quyền moderator." });
+      const target = await requireCompetitionMember(room.id, input.accountId);
+      if (target.role !== "moderator") throw new TRPCError({ code: "BAD_REQUEST", message: "Thành viên này không phải moderator." });
+      await updateCompetitionMemberRole(room.id, input.accountId, "spectator");
+      return { success: true } as const;
+    }),
+    removeSpectator: cfopAccountProcedure.input(memberTargetInput).mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      const actor = await requireCompetitionMember(room.id, ctx.cfopAccount.id);
+      if (room.hostAccountId !== ctx.cfopAccount.id && actor.role !== "moderator") throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng hoặc moderator được quản lý khán giả." });
+      const target = await requireCompetitionMember(room.id, input.accountId);
+      if (target.role !== "spectator") throw new TRPCError({ code: "BAD_REQUEST", message: "Chỉ có thể loại spectator." });
+      await leaveCompetitionRoom(room.id, input.accountId);
+      return { success: true } as const;
+    }),
     state: cfopAccountProcedure.input(roomCodeInput).query(({ ctx, input }) => competitionRoomState(input.code, ctx.cfopAccount.id)),
     leave: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => {
       const room = await requireCompetitionRoom(input.code);
@@ -252,7 +280,7 @@ export const appRouter = router({
     submit: cfopAccountProcedure.input(resultInput).mutation(async ({ ctx, input }) => {
       const room = await requireCompetitionRoom(input.code);
       const membership = await requireCompetitionMember(room.id, ctx.cfopAccount.id);
-      if (membership.role === "spectator") throw new TRPCError({ code: "FORBIDDEN", message: "Khán giả chỉ có thể theo dõi, không thể nộp kết quả." });
+      if (membership.role !== "player") throw new TRPCError({ code: "FORBIDDEN", message: "Người xem chỉ có thể theo dõi, không thể nộp kết quả." });
       const activeRound = await getCompetitionActiveRound(room.id);
       if (!activeRound) throw new TRPCError({ code: "BAD_REQUEST", message: "Phòng chưa có lượt thi đấu đang mở." });
       if (activeRound.id !== input.roundId) throw new TRPCError({ code: "CONFLICT", message: "Lượt thi đấu đã chuyển. Hãy đồng bộ lại phòng trước khi nộp kết quả." });
@@ -273,7 +301,7 @@ export const appRouter = router({
     sendMessage: cfopAccountProcedure.input(messageInput).mutation(async ({ ctx, input }) => {
       const room = await requireCompetitionRoom(input.code);
       const membership = await requireCompetitionMember(room.id, ctx.cfopAccount.id);
-      if (membership.role === "spectator") throw new TRPCError({ code: "FORBIDDEN", message: "Khán giả không thể gửi chat trong phòng này." });
+      if (membership.role !== "player") throw new TRPCError({ code: "FORBIDDEN", message: "Người xem không thể gửi chat trong phòng này." });
       await createCompetitionMessage({ roomId: room.id, accountId: ctx.cfopAccount.id, content: input.content });
       return { success: true } as const;
     }),

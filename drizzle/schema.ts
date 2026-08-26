@@ -85,8 +85,9 @@ export const cfopCompetitionMembers = mysqlTable("cfop_competition_members", {
   id: int("id").autoincrement().primaryKey(),
   roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
   accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
-  role: mysqlEnum("role", ["player", "spectator"]).notNull().default("player"),
+  role: mysqlEnum("role", ["player", "spectator", "moderator"]).notNull().default("player"),
   joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+  lastSeen: timestamp("lastSeen").defaultNow().notNull(),
 }, (table) => [uniqueIndex("cfop_competition_members_room_account_unique").on(table.roomId, table.accountId), index("cfop_competition_members_account_idx").on(table.accountId)]);
 
 /** A room round freezes one shared scramble so every competitor solves the identical state. */

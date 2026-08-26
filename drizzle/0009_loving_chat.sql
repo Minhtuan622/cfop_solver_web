@@ -1,0 +1,2 @@
+ALTER TABLE `cfop_competition_members` MODIFY COLUMN `role` enum('player','spectator','moderator') NOT NULL DEFAULT 'player';--> statement-breakpoint
+ALTER TABLE `cfop_competition_members` ADD `lastSeen` timestamp DEFAULT (now()) NOT NULL;
