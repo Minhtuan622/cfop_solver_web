@@ -1189,3 +1189,10 @@
 - [x] Thiết kế slash cắt–đổi nửa tầng, Square-1 thân vuông và Clock thân tròn.
 - [x] Triển khai animation slash, hình học 3D mới và ẩn mô hình Multi-Blind.
 - [x] Kiểm thử animation, silhouette, preview MBLD, TypeScript, regression, build và checkpoint.
+
+## Dựng lại Square-1 và Clock theo csTimer
+
+- [x] Trích xuất đầy đủ layout, màu, mảnh và mapping state từ renderer 2D csTimer.
+- [x] Thiết kế mesh 3D theo từng phần tử của layout tham chiếu, không dùng hình học ước lượng.
+- [x] Thay renderer Square-1/Clock và gắn lại slash/animation theo mapping mới.
+- [x] Đối chiếu browser với renderer tham chiếu, kiểm thử điều khiển, TypeScript, regression, build và checkpoint.

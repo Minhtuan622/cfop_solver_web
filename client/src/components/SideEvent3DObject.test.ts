@@ -19,8 +19,8 @@ describe("side-event 3D renderer selection", () => {
     expect(squareOneWedgeUnits(0)).toBe(1);
     expect(squareOneWedgeUnits(15)).toBe(2);
     expect(clockDialIndex(0, 0)).toBe(0);
-    expect(clockDialIndex(2, 1)).toBe(7);
-    expect(clockDialIndex(0, 0, true)).toBe(9);
+    expect(clockDialIndex(2, 1)).toBe(5);
+    expect(clockDialIndex(0, 0, true)).toBe(2);
   });
 
   it("separates and counter-rotates Square-1 layers during a slash", () => {
