@@ -1,0 +1,1 @@
+ALTER TABLE `cfop_competition_rooms` ADD `eventId` varchar(10) DEFAULT '333' NOT NULL;

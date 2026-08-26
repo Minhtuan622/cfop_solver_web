@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { COOKIE_NAME } from "../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "./cfopAccountAuth";
-import { buildCompetitionLeaderboard, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
+import { buildCompetitionLeaderboard, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScramble, effectiveCompetitionTime } from "./competition";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "./cfopPasswordResetMail";
 import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, updateCfopAccountWcaId } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -12,6 +12,7 @@ import { cfopAccountProcedure, publicProcedure, router } from "./_core/trpc";
 import { storagePut } from "./storage";
 import { getWcaCompetitions, getWcaCountries, getWcaProfile, normalizeWcaId, WcaApiError } from "./wcaApi";
 import { beginWcaOAuth, wcaOAuthConfigured, WcaOAuthError } from "./wcaOAuth";
+import { DEFAULT_TIMER_EVENT, TIMER_EVENT_IDS, isTimerEventId } from "../shared/timerEvents";
 
 const passwordInput = z.string().min(10, "Mật khẩu cần ít nhất 10 ký tự.").max(128, "Mật khẩu quá dài.");
 const credentialsInput = z.object({ email: z.string().trim().email("Email không hợp lệ.").max(320), password: passwordInput });
@@ -27,7 +28,7 @@ const cloudStateInput = z.object({
   bldLearningPath: z.unknown(),
 });
 const roomCodeInput = z.object({ code: z.string().trim().min(4).max(10) });
-const createRoomInput = z.object({ name: z.string().trim().min(2, "Tên phòng cần ít nhất 2 ký tự.").max(80), maxPlayers: z.number().int().min(2).max(16).default(8), format: z.enum(["best_of_3", "ao5", "ao12"]).default("ao5") });
+const createRoomInput = z.object({ name: z.string().trim().min(2, "Tên phòng cần ít nhất 2 ký tự.").max(80), maxPlayers: z.number().int().min(2).max(16).default(8), format: z.enum(["best_of_3", "ao5", "ao12"]).default("ao5"), eventId: z.enum(TIMER_EVENT_IDS).default(DEFAULT_TIMER_EVENT) });
 const resultInput = roomCodeInput.extend({ roundId: z.number().int().positive(), elapsedMs: z.number().int().min(0).max(3_600_000), inspectionMs: z.number().int().min(0).max(60_000), penalty: z.enum(["none", "+2", "DNF"]) });
 const messageInput = roomCodeInput.extend({ content: z.string().trim().min(1, "Tin nhắn không được để trống.").max(500, "Tin nhắn tối đa 500 ký tự.") });
 const leaderboardInput = z.object({ period: z.enum(["week", "month"]) });
@@ -209,7 +210,7 @@ export const appRouter = router({
       for (let attempt = 0; attempt < 5 && !room; attempt += 1) {
         const code = createCompetitionCode();
         if (await findCompetitionRoomByCode(code)) continue;
-        room = await createCompetitionRoom({ code, name: input.name, maxPlayers: input.maxPlayers, format: input.format, hostAccountId: ctx.cfopAccount.id });
+        room = await createCompetitionRoom({ code, name: input.name, maxPlayers: input.maxPlayers, format: input.format, eventId: input.eventId, hostAccountId: ctx.cfopAccount.id });
       }
       if (!room) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Không thể tạo mã phòng. Hãy thử lại." });
       return { code: room.code };
@@ -238,7 +239,8 @@ export const appRouter = router({
       if (room.currentRound >= competitionRoundLimit(room.format)) throw new TRPCError({ code: "BAD_REQUEST", message: "Đã đủ số lượt của thể thức này. Hãy hoàn tất phòng để chốt bảng xếp hạng." });
       const activeRound = await getCompetitionActiveRound(room.id);
       if (activeRound) await finishCompetitionRound(activeRound.id);
-      const round = await startCompetitionRound(room.id, room.currentRound + 1, createSharedScramble());
+      const eventId = isTimerEventId(room.eventId) ? room.eventId : DEFAULT_TIMER_EVENT;
+      const round = await startCompetitionRound(room.id, room.currentRound + 1, await createCompetitionScramble(eventId));
       return { sequence: round.sequence, scramble: round.scramble };
     }),
     submit: cfopAccountProcedure.input(resultInput).mutation(async ({ ctx, input }) => {

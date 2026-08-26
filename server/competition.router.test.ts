@@ -8,6 +8,7 @@ vi.mock("./db", () => ({
   getCompetitionActiveRound: vi.fn(),
   findCompetitionResult: vi.fn(),
   submitCompetitionResult: vi.fn(),
+  createCompetitionRoom: vi.fn(),
   createCompetitionMessage: vi.fn(),
   createCompetitionRematch: vi.fn(),
   finishCompetitionRound: vi.fn(),
@@ -19,13 +20,20 @@ vi.mock("./db", () => ({
 }));
 
 import { appRouter } from "./routers";
-import { createCompetitionMessage, createCompetitionRematch, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, getCompetitionActiveRound, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, startCompetitionRound, submitCompetitionResult } from "./db";
+import { createCompetitionMessage, createCompetitionRematch, createCompetitionRoom, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, getCompetitionActiveRound, listCompetitionMembers, listCompetitionMessages, listCompetitionResults, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, startCompetitionRound, submitCompetitionResult } from "./db";
 
-const room = { id: 9, code: "ABC123", name: "Test room", hostAccountId: 1, status: "waiting", format: "ao5" as const, maxPlayers: 8, currentRound: 0, createdAt: new Date(), updatedAt: new Date() };
+const room = { id: 9, code: "ABC123", name: "Test room", hostAccountId: 1, status: "waiting", format: "ao5" as const, eventId: "333", maxPlayers: 8, currentRound: 0, createdAt: new Date(), updatedAt: new Date() };
 const ctx = { cfopAccount: { id: 1, email: "host@example.com", displayName: "Host", bio: "", avatarUrl: "", goalMs: null, createdAt: new Date(), lastSignedIn: new Date() }, req: {}, res: {} } as unknown as TrpcContext;
 
 describe("competition router", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("lưu event Timer được chọn khi tạo phòng", async () => {
+    vi.mocked(findCompetitionRoomByCode).mockResolvedValue(null);
+    vi.mocked(createCompetitionRoom).mockResolvedValue({ ...room, eventId: "555bf" });
+    await expect(appRouter.createCaller(ctx).competition.create({ name: "5×5 BLD", maxPlayers: 4, format: "ao5", eventId: "555bf" })).resolves.toEqual({ code: room.code });
+    expect(createCompetitionRoom).toHaveBeenCalledWith(expect.objectContaining({ name: "5×5 BLD", eventId: "555bf", hostAccountId: 1 }));
+  });
 
   it("không cho chủ phòng bắt đầu lượt khi chưa có hai thành viên", async () => {
     vi.mocked(findCompetitionRoomByCode).mockResolvedValue(room);

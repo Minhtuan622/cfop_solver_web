@@ -2,6 +2,7 @@ import { and, asc, desc, eq, gt, gte, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopCompetitionMembers, cfopCompetitionMessages, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds, cfopPasswordResetTokens, cfopWcaOauthStates, InsertUser, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
+import type { TimerEventId } from "../shared/timerEvents";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -153,7 +154,7 @@ export async function consumeCfopPasswordResetToken(tokenHash: string, passwordH
   return findCfopAccountById(reset.accountId);
 }
 
-export async function createCompetitionRoom(values: { code: string; name: string; hostAccountId: number; maxPlayers: number; format: "best_of_3" | "ao5" | "ao12" }) {
+export async function createCompetitionRoom(values: { code: string; name: string; hostAccountId: number; maxPlayers: number; format: "best_of_3" | "ao5" | "ao12"; eventId: TimerEventId }) {
   const db = await requireDb();
   await db.insert(cfopCompetitionRooms).values(values);
   const room = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.code, values.code)).limit(1))[0];
@@ -167,7 +168,7 @@ export async function createCompetitionRematch(sourceRoomId: number, code: strin
   const source = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.id, sourceRoomId)).limit(1))[0];
   if (!source) throw new Error("Source room not found");
   const members = await db.select({ accountId: cfopCompetitionMembers.accountId }).from(cfopCompetitionMembers).where(eq(cfopCompetitionMembers.roomId, sourceRoomId));
-  await db.insert(cfopCompetitionRooms).values({ code, name: `${source.name} · Đấu lại`.slice(0, 80), hostAccountId: source.hostAccountId, maxPlayers: source.maxPlayers, format: source.format });
+  await db.insert(cfopCompetitionRooms).values({ code, name: `${source.name} · Đấu lại`.slice(0, 80), hostAccountId: source.hostAccountId, maxPlayers: source.maxPlayers, format: source.format, eventId: source.eventId });
   const room = (await db.select().from(cfopCompetitionRooms).where(eq(cfopCompetitionRooms.code, code)).limit(1))[0];
   if (!room) throw new Error("Rematch creation did not return a row");
   if (members.length) await db.insert(cfopCompetitionMembers).values(members.map((member) => ({ roomId: room.id, accountId: member.accountId })));

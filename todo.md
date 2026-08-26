@@ -1279,3 +1279,9 @@
 - [x] Bổ sung định nghĩa event 4×4 BLD và 5×5 BLD với scramble Cubing.js, nhãn gọn và metadata WCA.
 - [x] Kết nối preview 3D, Timer, PB/Ao, lịch sử, biểu đồ và so sánh WCA theo event mới.
 - [x] Bổ sung unit test event/mapping preview và kiểm thử desktop/mobile, TypeScript, regression, build, checkpoint.
+
+## Phòng thi đấu đa event
+
+- [x] Dùng danh mục Timer chung cho tùy chọn event khi tạo phòng và hiển thị thông tin phòng.
+- [x] Tạo scramble phòng theo event đã chọn, bao gồm BLD 4×4/5×5 và side event.
+- [x] Giữ quy tắc tính điểm/chế độ phòng, bổ sung regression và kiểm thử TypeScript, build, checkpoint.

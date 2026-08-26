@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCompetitionLeaderboard, competitionAo5, competitionAo12, competitionBestOf3, competitionFormatScore, createCompetitionCode, createSharedScramble, effectiveCompetitionTime } from "./competition";
+import { buildCompetitionLeaderboard, competitionAo5, competitionAo12, competitionBestOf3, competitionFormatScore, createCompetitionCode, createCompetitionScramble, createSharedScramble, effectiveCompetitionTime } from "./competition";
 
 describe("competition helpers", () => {
   it("tạo mã phòng dễ đọc và scramble 3×3 không lặp mặt liền nhau", () => {
@@ -8,6 +8,14 @@ describe("competition helpers", () => {
     expect(faces).toHaveLength(20);
     expect(faces.every((face, index) => index === 0 || face !== faces[index - 1])).toBe(true);
   });
+
+  it("tạo scramble Cubing.js cho event Blindfolded 4×4 và 5×5", async () => {
+    const [fourBlind, fiveBlind] = await Promise.all([createCompetitionScramble("444bf"), createCompetitionScramble("555bf")]);
+    expect(fourBlind.trim()).not.toBe("");
+    expect(fiveBlind.trim()).not.toBe("");
+    expect(fourBlind).toMatch(/[URFDLB]/);
+    expect(fiveBlind).toMatch(/[URFDLB]/);
+  }, 20_000);
 
   it("chấm thời gian +2 và Ao5 theo quy tắc loại nhanh/chậm", () => {
     expect(effectiveCompetitionTime({ elapsedMs: 10_000, penalty: "+2" })).toBe(12_000);

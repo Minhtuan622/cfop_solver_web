@@ -1,4 +1,5 @@
 import { randomInt } from "node:crypto";
+import type { TimerEventId } from "../shared/timerEvents";
 
 const FACES = ["U", "R", "F", "D", "L", "B"] as const;
 const SUFFIXES = ["", "2", "'"] as const;
@@ -23,6 +24,12 @@ export function createSharedScramble(length = 20) {
     moves.push(face + SUFFIXES[randomInt(SUFFIXES.length)]);
   }
   return moves.join(" ");
+}
+
+/** Every room round follows the exact same event scramble semantics as Timer. */
+export async function createCompetitionScramble(eventId: TimerEventId) {
+  const { randomScrambleForEvent } = await import("cubing/scramble");
+  return (await randomScrambleForEvent(eventId)).toString();
 }
 
 export function effectiveCompetitionTime(result: CompetitionResultValue) { return result.penalty === "DNF" ? null : result.elapsedMs + (result.penalty === "+2" ? 2_000 : 0); }

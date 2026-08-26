@@ -72,6 +72,7 @@ export const cfopCompetitionRooms = mysqlTable("cfop_competition_rooms", {
   hostAccountId: int("hostAccountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
   status: mysqlEnum("status", ["waiting", "active", "finished"]).notNull().default("waiting"),
   format: mysqlEnum("format", ["best_of_3", "ao5", "ao12"]).notNull().default("ao5"),
+  eventId: varchar("eventId", { length: 10 }).notNull().default("333"),
   maxPlayers: int("maxPlayers").notNull().default(8),
   currentRound: int("currentRound").notNull().default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
