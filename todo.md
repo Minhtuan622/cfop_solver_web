@@ -1224,3 +1224,10 @@
 - [x] Xây lại Clock bằng body đĩa tròn liền khối với dial/pin gắn mặt và board trước/sau khép kín.
 - [x] Xây lại Square-1 bằng cubie kín hai tầng, các mặt bên khít nhau và equator belt không xuyên/tách mảnh.
 - [x] Bảo toàn mapping scramble, thêm regression hình học và kiểm thử preview/build trước checkpoint.
+
+## Square-1 theo silhouette csTimer sau scramble
+
+- [x] Bỏ phép ép outer profile thành hình vuông, đối chiếu wedge 30°/60° với mẫu 2D csTimer.
+- [x] Dựng extrusion từng wedge từ polygon đúng để shape-shift có đường bao và khe rãnh đúng trạng thái.
+- [x] Gắn sticker U/D và mặt bên theo từng wedge, giữ equator belt khớp hai tầng.
+- [x] Kiểm thử scramble mẫu/shape-shift, TypeScript, regression, build và checkpoint.

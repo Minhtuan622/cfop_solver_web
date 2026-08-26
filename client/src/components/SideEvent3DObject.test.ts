@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clockDialIndex, isSideEvent3DPuzzle, squareOnePieceKind, squareOneVisualSlots, squareOneWedgeUnits, squareSlashPose, squareTurnForAnimation } from "./SideEvent3DObject";
+import { clockDialIndex, isSideEvent3DPuzzle, squareOnePieceKind, squareOneStateFromScramble, squareOneVisualSlots, squareOneWedgeUnits, squareSlashPose, squareTurnForAnimation } from "./SideEvent3DObject";
 
 describe("side-event 3D renderer selection", () => {
   it("uses the custom Three.js state renderer only for Square-1 and Clock", () => {
@@ -25,18 +25,14 @@ describe("side-event 3D renderer selection", () => {
     expect(clockDialIndex(0, 0, true)).toBe(2);
   });
 
-  it("maps a fixed Square-1 scramble layout into stable edge/corner slots and U/D stickers", () => {
-    const pieces = [16, 17, 11, 0, 1, 8, 9, 10, 18, 19, 20, 15, 2, 3, 4, 12, 13, 14, 21, 22, 23, 5, 6, 7];
-    expect(squareOneVisualSlots(pieces, 0).slice(0, 4)).toMatchObject([
-      { position: 0, piece: 16, kind: "edge", face: "D" },
-      { position: 1, piece: 17, kind: "corner", face: "D" },
-      { position: 3, piece: 0, kind: "edge", face: "U" },
-      { position: 4, piece: 1, kind: "corner", face: "U" },
-    ]);
-    expect(squareOneVisualSlots(pieces, 12).slice(0, 3)).toMatchObject([
-      { position: 0, piece: 2, kind: "edge", face: "U" },
+  it("recreates the csTimer wedge state for a shape-shift scramble", () => {
+    const state = squareOneStateFromScramble("(1, 0) / (3, -3) / (-1, 0)");
+    expect(state.middle).toBe(0);
+    expect(state.wedges).toEqual([6, 3, 3, 4, 9, 9, 8, 12, 15, 14, 5, 5, 11, 11, 10, 1, 1, 2, 7, 7, 0, 13, 13, 12]);
+    expect(squareOneVisualSlots(state.wedges, 0).slice(0, 3)).toMatchObject([
+      { position: 0, piece: 6, kind: "edge", face: "U" },
       { position: 1, piece: 3, kind: "corner", face: "U" },
-      { position: 3, piece: 12, kind: "edge", face: "D" },
+      { position: 3, piece: 4, kind: "edge", face: "U" },
     ]);
   });
 

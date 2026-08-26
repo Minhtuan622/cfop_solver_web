@@ -34,30 +34,15 @@ async function sideEventPatterns(puzzle: SideEventPuzzle, scramble: string) {
   return { initial, steps };
 }
 
-function squareSectorShape(THREE: ThreeModule, innerRadius: number, outerRadius: number, start: number, end: number) {
-  const shape = new THREE.Shape();
-  const point = (angle: number, radius: number) => {
-    const x = Math.cos(angle);
-    const y = Math.sin(angle);
-    // The shell of a real Square-1 is a square, not a rounded 12-sector disk.
-    // Projecting rays onto a square keeps the side walls flat like a physical puzzle.
-    const scale = radius / Math.max(Math.abs(x), Math.abs(y), 0.0001);
-    return { x: x * scale, y: y * scale };
-  };
-  const innerStart = point(start, innerRadius);
-  shape.moveTo(innerStart.x, innerStart.y);
-  for (let step = 0; step <= 8; step += 1) { const outer = point(start + ((end - start) * step) / 8, outerRadius); shape.lineTo(outer.x, outer.y); }
-  const innerEnd = point(end, innerRadius);
-  shape.lineTo(innerEnd.x, innerEnd.y);
-  for (let step = 8; step >= 0; step -= 1) { const inner = point(start + ((end - start) * step) / 8, innerRadius); shape.lineTo(inner.x, inner.y); }
-  return shape;
-}
-
 const SQUARE_EDGE_SIDE = "R-B-L-F-F-L-B-R-";
 const SQUARE_CORNER_SIDE = "RBBLLFFRRFFLLBBR";
+const SQUARE1_SOLVED_WEDGES = [0, 1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 9, 9, 8, 11, 11, 10, 13, 13, 12, 12, 15, 14];
+const SQUARE1_SQA = Math.sqrt(3) / 2 + 1;
+type SquarePoint = [number, number];
+export type SquareOneState = { wedges: number[]; middle: 0 | 1 };
 
 export function squareOneWedgeUnits(piece: number) { return piece % 2 === 1 ? 2 : 1; }
-export function squareOnePieceKind(piece: number) { return squareOneWedgeUnits(piece) === 2 ? "corner" : "edge"; }
+export function squareOnePieceKind(piece: number) { return piece % 2 === 1 ? "corner" : "edge"; }
 export type SquareOneVisualSlot = { position: number; piece: number; units: 1 | 2; kind: "edge" | "corner"; face: "U" | "D" };
 export function squareOneVisualSlots(pieces: number[], startIndex: number): SquareOneVisualSlot[] {
   const slots: SquareOneVisualSlot[] = [];
@@ -69,6 +54,31 @@ export function squareOneVisualSlots(pieces: number[], startIndex: number): Squa
   }
   return slots;
 }
+
+function rotateSquareLayer(wedges: number[], start: number, amount: number) {
+  const source = wedges.slice(start, start + 12);
+  const offset = ((amount % 12) + 12) % 12;
+  for (let index = 0; index < 12; index += 1) wedges[start + index] = source[(index + offset) % 12] ?? source[index]!;
+}
+
+export function squareOneStateFromScramble(scramble: string): SquareOneState {
+  const state: SquareOneState = { wedges: [...SQUARE1_SOLVED_WEDGES], middle: 0 };
+  const tokens = scramble.match(/\(\s*-?\d+\s*,\s*-?\d+\s*\)|\//g) ?? [];
+  for (const token of tokens) {
+    if (token === "/") {
+      const upperRight = state.wedges.slice(6, 12);
+      state.wedges.splice(6, 6, ...state.wedges.slice(12, 18));
+      state.wedges.splice(12, 6, ...upperRight);
+      state.middle = state.middle === 0 ? 1 : 0;
+      continue;
+    }
+    const match = token.match(/\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/);
+    if (!match) continue;
+    rotateSquareLayer(state.wedges, 0, Number(match[1]));
+    rotateSquareLayer(state.wedges, 12, Number(match[2]));
+  }
+  return state;
+}
 const CLOCK_FRONT_LAYOUT = [0, 3, 6, 1, 4, 7, 2, 5, 8];
 const CLOCK_BACK_LAYOUT = [2, 10, 8, 9, 11, 13, 0, 12, 6];
 export function clockDialIndex(column: number, row: number, back = false) { return (back ? CLOCK_BACK_LAYOUT : CLOCK_FRONT_LAYOUT)[column * 3 + row]; }
@@ -79,54 +89,65 @@ function squareOneSideColor(piece: number, cornerFace = 0) {
   return CUBE_COLORS[face] ?? CUBE_COLORS.F;
 }
 
-function squareOneSidePanel(THREE: ThreeModule, angle: number, width: number, verticalCenter: number, color: string) {
-  const x = Math.cos(angle);
-  const z = Math.sin(angle);
-  const squareRadius = 1.658;
-  const scale = squareRadius / Math.max(Math.abs(x), Math.abs(z), 0.0001);
-  const panel = new THREE.Mesh(
-    new THREE.BoxGeometry(width, 0.46, 0.045),
-    new THREE.MeshStandardMaterial({ color, roughness: 0.52, metalness: 0.02 }),
-  );
-  panel.position.set(x * scale, verticalCenter, z * scale);
-  if (Math.abs(x) > Math.abs(z)) panel.rotation.y = Math.PI / 2;
-  return panel;
+function rotateSquarePoints(points: SquarePoint[], angle: number): SquarePoint[] {
+  return points.map(([x, z]) => [x * Math.cos(angle) - z * Math.sin(angle), x * Math.sin(angle) + z * Math.cos(angle)]);
 }
 
-function squareOneLayer(THREE: ThreeModule, wedges: PatternOrbit, startIndex: number, verticalBase: number) {
+function makeSquareShape(THREE: ThreeModule, points: SquarePoint[]) {
+  const shape = new THREE.Shape();
+  points.forEach(([x, z], index) => index === 0 ? shape.moveTo(x, z) : shape.lineTo(x, z));
+  shape.closePath();
+  return shape;
+}
+
+function squareOneVerticalPanel(THREE: ThreeModule, from: SquarePoint, to: SquarePoint, lowerY: number, upperY: number, color: string) {
+  const [ax, az] = from;
+  const [bx, bz] = to;
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute([ax, lowerY, az, bx, lowerY, bz, bx, upperY, bz, ax, upperY, az], 3));
+  geometry.setIndex([0, 1, 2, 0, 2, 3]);
+  geometry.computeVertexNormals();
+  return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.02, side: THREE.DoubleSide }));
+}
+
+function squareOneLayer(THREE: ThreeModule, state: SquareOneState, startIndex: number, verticalBase: number) {
   const layer = new THREE.Group();
   const isTopLayer = verticalBase > 0;
   const thickness = 0.46;
-  const stickerY = verticalBase + (isTopLayer ? thickness + 0.004 : -thickness - 0.004);
-  const verticalCenter = verticalBase + (isTopLayer ? thickness / 2 : -thickness / 2);
+  const lowerY = isTopLayer ? verticalBase : verticalBase - thickness;
+  const upperY = isTopLayer ? verticalBase + thickness : verticalBase;
+  const stickerY = isTopLayer ? upperY + 0.004 : lowerY - 0.004;
   const neutralPiece = new THREE.MeshStandardMaterial({ color: "#252b31", roughness: 0.62, metalness: 0.01 });
-  for (const { position, piece, units, face } of squareOneVisualSlots(wedges.pieces, startIndex)) {
-    const layerOffset = startIndex === 0 ? -1 : -6;
-    const start = -(position + layerOffset) * Math.PI / 6 + 0.008;
-    const end = start - units * Math.PI / 6 + 0.016;
-    const shape = squareSectorShape(THREE, 0.035, 1.65, start, end);
+  const edge: SquarePoint[] = [[0, 0], [-0.5, -SQUARE1_SQA], [0.5, -SQUARE1_SQA]];
+  const corner: SquarePoint[] = [[0, 0], [-0.5, -SQUARE1_SQA], [-SQUARE1_SQA, -SQUARE1_SQA], [-SQUARE1_SQA, -0.5]];
+  for (let position = 0; position < 12; position += 1) {
+    const piece = state.wedges[startIndex + position] ?? SQUARE1_SOLVED_WEDGES[startIndex + position]!;
+    const isCorner = piece % 2 === 1;
+    const rotation = isCorner
+      ? -(startIndex === 0 ? position - 1 : position - 6) * Math.PI / 6
+      : -(startIndex === 0 ? position : position - 5) * Math.PI / 6;
+    const points = rotateSquarePoints(isCorner ? corner : edge, rotation);
+    const shape = makeSquareShape(THREE, points);
     const body = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false }), neutralPiece);
     body.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
     body.position.y = verticalBase;
-    const sticker = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshStandardMaterial({ color: CUBE_COLORS[face], roughness: 0.48, metalness: 0.01 }));
+    const sticker = new THREE.Mesh(new THREE.ShapeGeometry(shape), new THREE.MeshStandardMaterial({ color: CUBE_COLORS[piece >= 8 ? "D" : "U"], roughness: 0.48, metalness: 0.01 }));
     sticker.rotation.x = isTopLayer ? -Math.PI / 2 : Math.PI / 2;
     sticker.position.y = stickerY;
     layer.add(body, sticker);
-
-    for (let unit = 0; unit < units; unit += 1) {
-      const unitAngle = start - (unit + 0.5) * Math.PI / 6;
-      layer.add(squareOneSidePanel(THREE, unitAngle, units === 2 ? 0.81 : 0.76, verticalCenter, squareOneSideColor(piece, unit)));
-    }
+    const panels: Array<[SquarePoint, SquarePoint, string]> = isCorner
+      ? [[points[1]!, points[2]!, squareOneSideColor(piece)], [points[2]!, points[3]!, squareOneSideColor(piece, 1)]]
+      : [[points[1]!, points[2]!, squareOneSideColor(piece)]];
+    panels.forEach(([from, to, color]) => layer.add(squareOneVerticalPanel(THREE, from, to, lowerY, upperY, color)));
+    if (isCorner) position += 1;
   }
   return layer;
 }
 
-function squareOneObject(THREE: ThreeModule, pattern: PatternData) {
+function squareOneObject(THREE: ThreeModule, state: SquareOneState) {
   const root = new THREE.Group();
-  const wedges = pattern.WEDGES;
-  if (!wedges) throw new Error("Square-1 pattern is unavailable");
-  const top = squareOneLayer(THREE, wedges, 0, 0.12);
-  const bottom = squareOneLayer(THREE, wedges, 12, -0.12);
+  const top = squareOneLayer(THREE, state, 0, 0.12);
+  const bottom = squareOneLayer(THREE, state, 12, -0.12);
   const belt = new THREE.Group();
   const beltCore = new THREE.Mesh(new THREE.BoxGeometry(3.31, 0.23, 3.31), new THREE.MeshStandardMaterial({ color: "#171d23", roughness: 0.5, metalness: 0.26 }));
   belt.add(beltCore);
@@ -140,7 +161,7 @@ function squareOneObject(THREE: ThreeModule, pattern: PatternData) {
     band.rotation.y = side ? rotation : Math.PI / 2;
     belt.add(band);
   });
-  belt.rotation.y = (pattern.EQUATOR?.orientation[0] ?? 0) * Math.PI;
+  belt.rotation.y = state.middle * Math.PI;
   root.add(top, bottom, belt);
   root.userData.squareAnimation = { top, bottom, belt };
   return root;
@@ -240,8 +261,8 @@ function clockObject(THREE: ThreeModule, pattern: PatternData) {
   return root;
 }
 
-function eventObject(THREE: ThreeModule, puzzle: SideEventPuzzle, pattern: PatternData) {
-  return puzzle === "square1" ? squareOneObject(THREE, pattern) : clockObject(THREE, pattern);
+function eventObject(THREE: ThreeModule, puzzle: SideEventPuzzle, pattern: PatternData, squareState?: SquareOneState) {
+  return puzzle === "square1" ? squareOneObject(THREE, squareState ?? squareOneStateFromScramble("")) : clockObject(THREE, pattern);
 }
 
 function disposeObject(object: Group) {
@@ -273,22 +294,24 @@ function shortestAngle(from: number, to: number) {
 export async function sideEvent3DAnimation(THREE: ThreeModule, puzzle: SideEventPuzzle, scramble: string): Promise<SideEvent3DAnimation> {
   const { initial, steps } = await sideEventPatterns(puzzle, scramble);
   const animationRoot = new THREE.Group();
-  let current = eventObject(THREE, puzzle, initial);
+  const squareInitialState = puzzle === "square1" ? squareOneStateFromScramble("") : undefined;
+  const squareFinalState = puzzle === "square1" ? squareOneStateFromScramble(scramble) : undefined;
+  let current = eventObject(THREE, puzzle, initial, squareInitialState);
   let currentPattern = initial;
   let frame: number | null = null;
   let stopped = false;
   let played = false;
   animationRoot.add(current);
 
-  const replaceCurrent = (nextPattern: PatternData) => {
+  const replaceCurrent = (nextPattern: PatternData, nextSquareState = squareFinalState) => {
     animationRoot.remove(current);
     disposeObject(current);
-    current = eventObject(THREE, puzzle, nextPattern);
+    current = eventObject(THREE, puzzle, nextPattern, nextSquareState);
     currentPattern = nextPattern;
     animationRoot.add(current);
   };
   const cancel = () => { stopped = true; if (frame !== null) window.cancelAnimationFrame(frame); frame = null; };
-  const finish = () => { cancel(); const finalPattern = steps.at(-1)?.pattern ?? initial; replaceCurrent(finalPattern); };
+  const finish = () => { cancel(); const finalPattern = steps.at(-1)?.pattern ?? initial; replaceCurrent(finalPattern, squareFinalState); };
   const play = (render: () => void) => {
     if (played || stopped || !steps.length) return;
     played = true;
