@@ -1327,3 +1327,7 @@
 ## Hiển thị kết quả timer trong phòng
 - [x] Giữ kết quả lượt vừa nộp trên màn hình thay vì timer trở về 0.
 - [x] Bổ sung regression, kiểm tra TypeScript, build và checkpoint.
+
+## Sửa lỗi runtime trang chính
+- [x] Truy vết Script error mới trên trang chính bằng log và tái tạo render.
+- [x] Áp dụng bản vá tối thiểu, kiểm thử runtime, build và checkpoint.

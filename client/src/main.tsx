@@ -11,7 +11,19 @@ import "./index.css";
 
 // Accordions are below the first interaction path. Defer their Bootstrap data API
 // so React, navigation and the initial Studio route can become interactive first.
-window.setTimeout(() => { void import("bootstrap/js/dist/collapse"); }, 0);
+// A failed optional enhancement must never surface as an unhandled boot error.
+window.setTimeout(() => { void import("bootstrap/js/dist/collapse").catch((error: unknown) => console.warn("[Bootstrap] Không thể tải collapse enhancement.", error)); }, 0);
+
+// React boundaries cannot see exceptions raised before mounting or by external scripts.
+// Keep the browser's native reporting intact while adding context for actionable logs.
+window.addEventListener("unhandledrejection", (event) => {
+  const reason = event.reason as { message?: string; stack?: string } | undefined;
+  console.error("[Unhandled Promise Rejection]", { message: reason?.message ?? String(event.reason), stack: reason?.stack, url: window.location.href });
+});
+
+window.addEventListener("error", (event) => {
+  if (event.message === "Script error.") console.warn("[External Script Error] Browser hid stack details for a cross-origin script.", { url: window.location.href, filename: event.filename, line: event.lineno, column: event.colno });
+});
 
 const queryClient = new QueryClient();
 
