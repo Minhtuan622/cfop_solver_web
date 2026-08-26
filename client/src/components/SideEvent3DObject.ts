@@ -171,11 +171,14 @@ function clockObject(THREE: ThreeModule, pattern: PatternData) {
   const frame = new THREE.Mesh(new THREE.CylinderGeometry(2.45, 2.45, 0.36, 64), new THREE.MeshStandardMaterial({ color: "#222a35", roughness: 0.34, metalness: 0.42 }));
   frame.rotation.x = Math.PI / 2;
   root.add(frame);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(2.32, 0.1, 12, 64), new THREE.MeshStandardMaterial({ color: "#a8b4c4", roughness: 0.28, metalness: 0.72 }));
+  rim.rotation.x = Math.PI / 2;
+  rim.position.z = 0.24;
   const front = clockFace(THREE, dials, pattern.FACES, pivots);
   front.position.z = 0.2;
   const back = clockFace(THREE, dials, pattern.FACES, pivots, true);
   back.position.z = -0.2;
-  root.add(front, back);
+  root.add(rim, front, back);
   root.rotation.y = ((pattern.FRAME?.orientation[0] ?? 0) % 2) * Math.PI;
   root.userData.clockAnimation = { pivots, pattern };
   return root;

@@ -32,9 +32,11 @@ export function inertiaStep(orbit: PuzzleOrbit, velocity: { yaw: number; pitch: 
 }
 
 function defaultPuzzleCamera(puzzle: PuzzleId) {
-  if (puzzle === "megaminx") return { fov: 29, distance: 7.2, height: "17rem" };
-  if (puzzle === "clock") return { fov: 31, distance: 6.3, height: "13rem" };
-  if (puzzle === "square1") return { fov: 32, distance: 5.8, height: "14rem" };
+  if (puzzle === "megaminx") return { fov: 29, distance: 6.1, height: "18rem" };
+  if (puzzle === "pyraminx") return { fov: 32, distance: 4.45, height: "16rem" };
+  if (puzzle === "skewb") return { fov: 33, distance: 4.65, height: "16rem" };
+  if (puzzle === "clock") return { fov: 31, distance: 7.45, height: "12rem" };
+  if (puzzle === "square1") return { fov: 32, distance: 7.15, height: "13rem" };
   if (puzzle === "7x7x7") return { fov: 31, distance: 6.8, height: "15rem" };
   if (puzzle === "6x6x6") return { fov: 32, distance: 6.5, height: "15rem" };
   if (puzzle === "5x5x5") return { fov: 33, distance: 6.1, height: "14rem" };
@@ -161,14 +163,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
       observer.observe(host);
       resizeAndRender();
       setStatus("ready");
-      if (sideEventAnimation) {
-        if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-          sideEventAnimation.finish();
-          resizeAndRender();
-        } else {
-          window.setTimeout(() => { if (!disposed) sideEventAnimation?.play(resizeAndRender); }, 80);
-        }
-      }
+      if (sideEventAnimation) { sideEventAnimation.finish(); resizeAndRender(); }
       cleanup = () => {
         observer.disconnect();
         if (zoomFrameRef.current !== null) window.cancelAnimationFrame(zoomFrameRef.current);

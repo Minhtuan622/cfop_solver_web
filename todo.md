@@ -1196,3 +1196,10 @@
 - [x] Thiết kế mesh 3D theo từng phần tử của layout tham chiếu, không dùng hình học ước lượng.
 - [x] Thay renderer Square-1/Clock và gắn lại slash/animation theo mapping mới.
 - [x] Đối chiếu browser với renderer tham chiếu, kiểm thử điều khiển, TypeScript, regression, build và checkpoint.
+
+## Tỷ lệ preview và mô hình vật lý side-event
+
+- [x] Rà soát camera/scale và nguyên nhân Square-1, Clock tự xoay hoặc sai hình dáng.
+- [x] Thiết kế kích thước riêng cho Square-1, Clock, Pyraminx, Megaminx, Skewb và mô hình vật lý nhận diện đúng.
+- [x] Triển khai cân tỷ lệ, dừng tự xoay và thay Square-1/Clock bằng hình học vật lý.
+- [x] Kiểm thử kích thước, trạng thái đứng yên, browser, TypeScript, regression, build và checkpoint.
