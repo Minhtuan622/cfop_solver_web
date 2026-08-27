@@ -15,6 +15,7 @@ export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? Mat
 /** A positive yaw brings the rolled-left white FTO face toward the viewer instead of hiding it behind the model. */
 export function puzzleDefaultYaw(puzzle: PuzzleId) { return puzzle === "fto" ? 0.55 : -0.55; }
 
+/** A teaching-only FTO framing that places the white U face forward without changing the user's default camera. */
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 export function orbitFromDrag(start: PuzzleOrbit, deltaX: number, deltaY: number): PuzzleOrbit {

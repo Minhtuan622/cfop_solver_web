@@ -1413,3 +1413,18 @@
 - [x] Nghiên cứu catalogue case, điều kiện nhận diện và chuỗi thuật toán có thể parser/kiểm chứng cho walkthrough một scramble.
 - [x] Hiển thị mỗi stage nâng cao với trạng thái liên kết, công thức và nhận diện rõ trên 3D không dùng marker vàng.
 - [x] Bổ sung regression state/algorithm, kiểm tra desktop/mobile, build và checkpoint.
+
+## Mốc mặt trắng FTO trong walkthrough
+- [x] Bổ sung stage đầu đưa FTO từ scramble cố định về mặt trắng hoàn thành trước khi vào endgame nâng cao.
+- [x] Kiểm chứng state 3D của mốc mặt trắng và nối đúng với Last Triple, one-look L6X/L3C.
+- [x] Cập nhật hướng dẫn, regression, desktop/mobile và checkpoint.
+
+## Walkthrough FTO nâng cao bắt đầu mặt trắng
+- [x] Thay Nautilus bằng phương pháp nâng cao có stage đầu hoàn thành mặt trắng.
+- [x] Dựng một scramble cố định với checkpoint liên tục từ mặt trắng qua các stage nâng cao đến solved.
+- [x] Cập nhật tên phương pháp, hướng dẫn, 3D, regression, responsive và checkpoint.
+
+## Walkthrough Bencisco FTO
+- [x] Đặt Bencisco làm phương pháp mặc định và ghi đúng mốc white center/hexagon đầu tiên.
+- [x] Dựng một scramble cố định qua First Center, F2T, Centers, LBT và Last 3 Triples đến solved.
+- [x] Kiểm chứng white center/hexagon, minh họa 3D liên kết, regression, responsive và checkpoint.

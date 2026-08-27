@@ -1,7 +1,6 @@
-import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { FTO_NAUTILUS_1LLL_CAPSTONE, FTO_NAUTILUS_WALKTHROUGH_SCRAMBLE, ftoWalkthroughStateAfter, ftoWalkthroughStateBefore } from "@/lib/ftoBeginnerGuide";
+import { FTO_BENCISCO_WALKTHROUGH, FTO_BENCISCO_WALKTHROUGH_SCRAMBLE, ftoWalkthroughStateAfter, ftoWalkthroughStateBefore } from "@/lib/ftoBeginnerGuide";
 import { FtoBeginnerGuide } from "./FtoBeginnerGuide";
 
 vi.mock("@/components/PuzzleScramblePreview", () => ({
@@ -10,42 +9,31 @@ vi.mock("@/components/PuzzleScramblePreview", () => ({
 
 afterEach(() => cleanup());
 
-describe("FtoBeginnerGuide Nautilus walkthrough", () => {
-  it("opens directly on Advanced Nautilus and one fixed advanced scramble", () => {
+describe("FtoBeginnerGuide Bencisco walkthrough", () => {
+  it("opens with Bencisco and the white center as the first concrete milestone", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    expect(screen.getByText("Nautilus · Advanced endgame")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /^Last Triple · Advanced/ })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByText(FTO_NAUTILUS_WALKTHROUGH_SCRAMBLE)).toBeInTheDocument();
-    expect(screen.getByText("Trước stage này")).toBeInTheDocument();
-    expect(screen.getByText("Sau stage này")).toBeInTheDocument();
-    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", ftoWalkthroughStateBefore(0));
-    expect(screen.getAllByTestId("fto-preview")[1]).toHaveAttribute("data-scramble", ftoWalkthroughStateAfter(0));
+    expect(screen.getByText("Bencisco")).toBeTruthy();
+    expect(screen.getByText("1. Bencisco · Hoàn thành white center / hexagon")).toBeTruthy();
+    expect(screen.getByText(FTO_BENCISCO_WALKTHROUGH_SCRAMBLE)).toBeTruthy();
+    expect(screen.getByLabelText("Mặt U trắng đã hoàn thành")).toBeTruthy();
+    expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(0));
+    expect(screen.getAllByTestId("fto-preview")[1].getAttribute("data-scramble")).toBe(ftoWalkthroughStateAfter(0));
   });
 
-  it("plays the current phase from its displayed checkpoint", () => {
+  it("plays the selected Bencisco phase from its displayed before checkpoint", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    fireEvent.click(screen.getByRole("button", { name: "Phát stage nâng cao: F' R' L R L' F R U' R'" }));
+    fireEvent.click(screen.getByRole("button", { name: /Phát stage/ }));
 
-    expect(screen.getByText("Đang chạy: F' R' L R L' F R U' R'")).toBeInTheDocument();
-    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", ftoWalkthroughStateBefore(0));
-    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-animation", "F' R' L R L' F R U' R'");
+    expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(0));
+    expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-animation")).toBe(FTO_BENCISCO_WALKTHROUGH[0].algorithm);
   });
 
-  it("shows the prior after state as the next phase before state", () => {
+  it("uses the prior after state as the next stage before state", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    fireEvent.click(screen.getByRole("button", { name: "Stage tiếp" }));
+    fireEvent.click(screen.getByRole("button", { name: /First Two Triples/ }));
 
-    expect(screen.getByRole("tab", { name: /^L6X · One-look/ })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", ftoWalkthroughStateBefore(1));
+    expect(screen.getByText("2. Bencisco · First Two Triples (F2T)")).toBeTruthy();
+    expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(1));
     expect(ftoWalkthroughStateBefore(1)).toBe(ftoWalkthroughStateAfter(0));
-  });
-
-  it("keeps one-look L3C and direct 1LLL as distinct advanced alternatives", () => {
-    render(<FtoBeginnerGuide language="vi" />);
-    fireEvent.click(screen.getByRole("tab", { name: /^L3C · One-look/ }));
-    expect(screen.getAllByText(/Two flip counterclockwise permutation/).length).toBeGreaterThanOrEqual(1);
-    fireEvent.click(screen.getByRole("button", { name: `Phát case 1LLL: ${FTO_NAUTILUS_1LLL_CAPSTONE.algorithm}` }));
-    expect(screen.getAllByTestId("fto-preview")[2]).toHaveAttribute("data-scramble", FTO_NAUTILUS_1LLL_CAPSTONE.setupAlg);
-    expect(screen.getAllByTestId("fto-preview")[2]).toHaveAttribute("data-animation", FTO_NAUTILUS_1LLL_CAPSTONE.algorithm);
   });
 });
