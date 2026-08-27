@@ -12,21 +12,21 @@ afterEach(() => cleanup());
 describe("FtoBeginnerGuide animation", () => {
   it("starts a documented FTO formula from its matching setup state", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    fireEvent.click(screen.getByRole("tab", { name: /3\. Chèn các cạnh còn lại/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Phát animation: Chèn từ DL vào FR" }));
+    fireEvent.click(screen.getByRole("tab", { name: /2\. Last Triple/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Phát animation: Insert góc từ phải" }));
 
-    expect(screen.getByText("Đang phát: Chèn từ DL vào FR · R' D R")).toBeInTheDocument();
-    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-scramble", "R' D' R");
-    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-animation", "R' D R");
+    expect(screen.getByText("Đang phát: Insert góc từ phải · R U' R'")).toBeInTheDocument();
+    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-scramble", "R U R'");
+    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-animation", "R U' R'");
   });
 
   it("restores the step illustration after the learner chooses reset", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    fireEvent.click(screen.getByRole("tab", { name: /3\. Chèn các cạnh còn lại/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Phát animation: Chèn từ DL vào FR" }));
+    fireEvent.click(screen.getByRole("tab", { name: /2\. Last Triple/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Phát animation: Insert góc từ phải" }));
     fireEvent.click(screen.getByRole("button", { name: "Đặt lại" }));
 
-    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-scramble", "R' D' R");
+    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-scramble", "R U R'");
     expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-animation", "");
   });
 });

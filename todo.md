@@ -1366,3 +1366,8 @@
 - [x] Thêm điều khiển phát/tạm dừng animation tuần tự cho công thức FTO trong lộ trình.
 - [x] Hiển thị nước đang chạy và đặt lại mô hình sau animation.
 - [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Công thức FTO nâng cao
+- [x] Nghiên cứu và xác minh bộ công thức FTO nâng cao theo notation hiện có.
+- [x] Thay nội dung cơ bản bằng công thức nâng cao kèm trường hợp dùng và animation.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.

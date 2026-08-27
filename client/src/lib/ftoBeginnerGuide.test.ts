@@ -2,14 +2,15 @@ import { FTO_BEGINNER_GUIDE, ftoGuideAlgorithmCount } from "./ftoBeginnerGuide";
 import { describe, expect, it } from "vitest";
 
 describe("FTO beginner guide", () => {
-  it("covers a complete beginner path from orientation through centres", () => {
-    expect(FTO_BEGINNER_GUIDE.map((step) => step.id)).toEqual(["orient", "up-edges", "middle-edges", "vertices", "centres", "finish"]);
+  it("covers an advanced Nautilus path from Last Triple to one-look progression", () => {
+    expect(FTO_BEGINNER_GUIDE.map((step) => step.id)).toEqual(["nautilus-grip", "last-triple", "l6x-two-look", "l3c", "one-look-path"]);
     expect(ftoGuideAlgorithmCount()).toBe(6);
   });
 
-  it("keeps the edge, vertex and centre algorithms visible in their respective steps", () => {
-    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "middle-edges")?.moves.map((move) => move.algorithm)).toEqual(["R' D R", "L D' L'"]);
-    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "centres")?.moves[0]?.algorithm).toBe("(r U r' U') × 5");
+  it("keeps verified advanced Last Triple, L6X and L3C algorithms in their respective stages", () => {
+    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "last-triple")?.moves.map((move) => move.algorithm)).toEqual(["R U' R'", "L' U L"]);
+    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "l6x-two-look")?.moves.map((move) => move.algorithm)).toEqual(["r U R' U' R r' L' U' L R U R'", "R' U' F U' R U R' F' U R"]);
+    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "l3c")?.moves[0]?.algorithm).toBe("U R' F' R U' BR U R' F' R U'");
   });
 
   it("provides one interactive visual and a selected source video for every guide step", () => {
@@ -17,10 +18,9 @@ describe("FTO beginner guide", () => {
     expect(new Set(FTO_BEGINNER_GUIDE.map((step) => step.video.youtubeId))).toEqual(new Set(["J8_9no7Ml78", "03L3P1a0Auc"]));
   });
 
-  it("uses inverse setup states so the documented algorithms restore the exact visual", () => {
-    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "middle-edges")?.visual.scramble).toBe("R' D' R");
-    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "vertices")?.visual.scramble).toBe("U' R U R'");
-    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "centres")?.visual.scramble).toBe("U r U' r' U r U' r' U r U' r' U r U' r' U r U' r'");
+  it("derives setup states as the exact inverse of every advanced algorithm", () => {
+    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "last-triple")?.moves[0]?.setupAlg).toBe("R U R'");
+    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "l3c")?.moves[0]?.setupAlg).toBe("U R' F R U' BR' U R' F R U'");
   });
 
   it("returns every replay setup to the exact FTO solved pattern with its documented formula", async () => {
