@@ -1337,6 +1337,128 @@
 - [x] Hiển thị preview phù hợp và bổ sung regression cho FTO.
 - [x] Kiểm tra TypeScript, build và lưu checkpoint.
 
+## Học FTO cơ bản
+- [x] Viết hướng dẫn notation FTO ngắn gọn, có ví dụ scramble và giải thích chiều xoay.
+- [x] Tạo chế độ luyện single-layer FTO với scramble theo mức độ nhập môn và đồng hồ riêng.
+- [x] Bổ sung regression, kiểm tra TypeScript, build và checkpoint.
+
+## Hướng dẫn giải FTO hoàn chỉnh
+- [x] Nghiên cứu và chuẩn hóa các bước giải FTO nhập môn cùng thuật toán cần thiết.
+- [x] Tích hợp lộ trình giải từng bước, mục tiêu quan sát và công thức vào Study.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Minh họa và video cho lộ trình FTO
+- [x] Chọn lọc video FTO phù hợp với từng bước của lộ trình nhập môn.
+- [x] Thêm minh họa 3D trực quan nêu rõ vùng cần quan sát và thao tác theo từng bước.
+- [x] Bổ sung regression, kiểm tra desktop/mobile, TypeScript, build và checkpoint.
+
+## Highlight mục tiêu và layout FTO
+- [x] Làm nổi bật các mảnh/vùng mục tiêu trên preview 3D theo từng bước FTO.
+- [x] Thu gọn phần tiến độ và tối ưu bố cục luyện FTO trên desktop, mobile.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Hiệu chỉnh minh họa 3D FTO
+- [x] Loại bỏ marker highlight vàng khỏi toàn bộ preview FTO.
+- [x] Đối chiếu và thay trạng thái minh họa để khớp chính xác mục tiêu từng bước.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Animation công thức FTO
+- [x] Thêm điều khiển phát/tạm dừng animation tuần tự cho công thức FTO trong lộ trình.
+- [x] Hiển thị nước đang chạy và đặt lại mô hình sau animation.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Công thức FTO nâng cao
+- [x] Nghiên cứu và xác minh bộ công thức FTO nâng cao theo notation hiện có.
+- [x] Thay nội dung cơ bản bằng công thức nâng cao kèm trường hợp dùng và animation.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Góc camera FTO
+- [x] Cố định orientation mặc định để mặt trắng nằm bên trái của preview FTO.
+- [x] Bảo toàn drag, zoom, inertia và bổ sung regression góc camera.
+- [x] Kiểm tra desktop/mobile, TypeScript, build và checkpoint.
+
+## Điều khiển dọc FTO
+- [x] Xoay FTO theo trục dọc khi kéo, tách biệt khỏi ánh xạ drag chuẩn của puzzle khác.
+- [x] Giữ pinch zoom, inertia và đặt lại góc nhìn hoạt động đúng.
+- [x] Bổ sung regression interaction, TypeScript, build và checkpoint.
+
+## Sửa mặt trắng FTO sang đúng bên trái
+- [x] Đảo orientation để mặt trắng hiển thị đúng bên trái theo góc nhìn người xem.
+- [x] Kiểm tra trực quan preview FTO và regression orientation.
+- [x] Kiểm tra TypeScript, build và lưu checkpoint.
+
+## Sửa ánh xạ kéo FTO
+- [x] Kéo ngang FTO phải xoay ngang, kéo dọc mới xoay dọc.
+- [x] Cập nhật regression trục kéo và bảo toàn inertia/zoom/reset.
+- [x] Kiểm tra TypeScript, build và checkpoint.
+
+## Giới hạn camera FTO theo trục
+- [x] Cho FTO xoay dọc tự do theo thao tác kéo lên/xuống.
+- [x] Chỉ giới hạn biên độ xoay ngang và giữ zoom/inertia/reset hoạt động đúng.
+- [x] Bổ sung regression, kiểm tra TypeScript, build và checkpoint.
+
+## Thiết kế lại hướng dẫn FTO cho người mới
+- [x] Viết lại hành trình học thành bài ngắn với điểm bắt đầu, thao tác và tiêu chí hoàn thành rõ ràng.
+- [x] Thêm so sánh 3D trước/sau công thức và hoạt động thực hành trực tiếp cho từng bài.
+- [x] Kiểm thử desktop/mobile, regression, TypeScript, build và checkpoint.
+
+## Lộ trình Nautilus FTO liên tục
+- [x] Bỏ điểm vào cơ bản và đặt Nautilus nâng cao làm hướng dẫn mặc định có tên phương pháp rõ ràng.
+- [x] Chọn một scramble cố định, xác minh đường giải liên tục qua First Block, Centers, Last Triple và Last Layer.
+- [x] Minh họa từng trạng thái trước/sau trên cùng một scramble, kèm điều khiển phát theo giai đoạn.
+- [x] Bổ sung regression, kiểm tra desktop/mobile, build và checkpoint.
+
+## Nautilus FTO nâng cao đầy đủ
+- [x] Thay walkthrough Baby/2-look bằng Last Triple, one-look L6X, one-look L3C và 1LLL của Nautilus nâng cao.
+- [x] Nghiên cứu catalogue case, điều kiện nhận diện và chuỗi thuật toán có thể parser/kiểm chứng cho walkthrough một scramble.
+- [x] Hiển thị mỗi stage nâng cao với trạng thái liên kết, công thức và nhận diện rõ trên 3D không dùng marker vàng.
+- [x] Bổ sung regression state/algorithm, kiểm tra desktop/mobile, build và checkpoint.
+
+## Mốc mặt trắng FTO trong walkthrough
+- [x] Bổ sung stage đầu đưa FTO từ scramble cố định về mặt trắng hoàn thành trước khi vào endgame nâng cao.
+- [x] Kiểm chứng state 3D của mốc mặt trắng và nối đúng với Last Triple, one-look L6X/L3C.
+- [x] Cập nhật hướng dẫn, regression, desktop/mobile và checkpoint.
+
+## Walkthrough FTO nâng cao bắt đầu mặt trắng
+- [x] Thay Nautilus bằng phương pháp nâng cao có stage đầu hoàn thành mặt trắng.
+- [x] Dựng một scramble cố định với checkpoint liên tục từ mặt trắng qua các stage nâng cao đến solved.
+- [x] Cập nhật tên phương pháp, hướng dẫn, 3D, regression, responsive và checkpoint.
+
+## Walkthrough Bencisco FTO
+- [x] Đặt Bencisco làm phương pháp mặc định và ghi đúng mốc white center/hexagon đầu tiên.
+- [x] Dựng một scramble cố định qua First Center, F2T, Centers, LBT và Last 3 Triples đến solved.
+- [x] Kiểm chứng white center/hexagon, minh họa 3D liên kết, regression, responsive và checkpoint.
+
+## Sửa màu tâm trắng trong minh họa Bencisco
+- [x] Xác định mapping màu–mặt khiến state stage đầu hiển thị tâm cam thay vì tâm trắng.
+- [x] Sửa state/camera minh họa để tâm trắng là tâm đầu tiên xuất hiện đúng trên 3D.
+- [x] Bổ sung regression, kiểm tra desktop/mobile và checkpoint.
+
+## Giữ tâm trắng trên preview Bencisco
+- [x] Phân tích các checkpoint sau F2T đang đưa tâm cam ra chính diện thay vì giữ mốc tâm trắng.
+- [x] Áp dụng góc nhìn nhất quán theo tâm trắng cho toàn bộ preview walkthrough liên quan.
+- [x] Kiểm chứng từng stage bằng hình ảnh, regression và checkpoint.
+
+## Sửa state mốc 3 Bencisco
+- [x] Đối chiếu state thuật toán “Trước mốc 3” để xác định vì sao tâm cam đang hoàn thành.
+- [x] Thay checkpoint/chuỗi stage để tâm trắng là tâm đã hoàn thành và tiếp tục được giữ làm mốc.
+- [x] Kiểm chứng mô hình 3D, regression và checkpoint.
+
+## Xác minh lại màu tâm Trước mốc 3
+- [x] Đo trực tiếp face màu và face đang hiện chính diện của renderer ở Trước mốc 3.
+- [x] Sửa state/camera chỉ theo mapping đã đo để tâm trắng xuất hiện thay vì tâm cam.
+- [x] Đối chiếu ảnh riêng của Trước mốc 3, regression và checkpoint trước khi báo hoàn tất.
+
+## Thứ tự Bencisco white–F2T–orange
+- [x] Đối chiếu tài liệu Bencisco để xác nhận white center → hai triple → tâm cam là thứ tự đúng.
+- [x] Điều chỉnh state/nhãn nếu checkpoint sau F2T không thể hiện white center và hai triple đã giữ lại.
+- [x] Kiểm chứng state 3D tuần tự, regression và checkpoint.
+
+## Hiển thị white center thật trên FTO 3D
+- [x] Bỏ sơ đồ trắng tách rời và xác định state/camera khiến white center thật không xuất hiện trong preview.
+- [x] Sửa framing và kích thước canvas để mặt trắng trên FTO 3D hiển thị lớn, dễ kiểm tra ở stage 1 và stage 3.
+- [x] Xác minh bằng ảnh riêng stage 1/stage 3, regression và checkpoint.
+
 ## Khôi phục tab FTO trong Study
 - [x] Truy vết điều kiện khiến tab FTO không xuất hiện hoặc deep-link `lane=fto` rơi về Last Layer.
 - [x] Khôi phục tab FTO có thể chọn trong Study và giữ deep-link mở đúng lane.
