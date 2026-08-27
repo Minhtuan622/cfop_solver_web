@@ -1473,3 +1473,8 @@
 - [x] Xác minh state Sau mốc 1 có đúng white center/hexagon 6 mảnh trắng, không gọi nhầm là mặt U hoàn chỉnh.
 - [x] Giữ orientation chuẩn cho preview scramble; chỉ walkthrough xoay mốc trắng sang bên trái.
 - [x] Bảo toàn kéo dọc để xoay theo chiều dọc, kiểm tra desktop/mobile, regression và checkpoint.
+
+## Loại bỏ hướng dẫn FTO khỏi Study
+- [x] Gỡ tab FTO cùng walkthrough, notation và bài luyện FTO khỏi Study.
+- [x] Xóa các import, state, test và deep-link chỉ còn phục vụ hướng dẫn FTO.
+- [x] Giữ nguyên event FTO, scramble và lịch sử ở Bấm giờ; kiểm tra desktop/mobile, regression và checkpoint.
