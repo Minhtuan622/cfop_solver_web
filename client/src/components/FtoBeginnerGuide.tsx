@@ -4,6 +4,7 @@ import {
   FTO_BENCISCO_WALKTHROUGH,
   FTO_BENCISCO_WALKTHROUGH_SCRAMBLE,
   FTO_SOLVED_REFERENCE_ALG,
+  ftoWalkthroughDisplayAlgorithms,
   ftoWalkthroughPhaseAlgorithms,
   ftoWalkthroughStateAfter,
   ftoWalkthroughStateBefore,
@@ -26,7 +27,7 @@ export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }
   const phase = FTO_BENCISCO_WALKTHROUGH[activeIndex];
   const beforeState = useMemo(() => ftoWalkthroughStateBefore(activeIndex), [activeIndex]);
   const afterState = useMemo(() => activeIndex === FTO_BENCISCO_WALKTHROUGH.length - 1 ? FTO_SOLVED_REFERENCE_ALG : ftoWalkthroughStateAfter(activeIndex), [activeIndex]);
-  const moves = useMemo(() => ftoWalkthroughPhaseAlgorithms(phase), [phase]);
+  const moves = useMemo(() => ftoWalkthroughDisplayAlgorithms(phase), [phase]);
 
   function selectStage(index: number) {
     setIsPlaying(false);
@@ -101,6 +102,7 @@ export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }
                 <div className="small text-white-50 text-uppercase mb-1">Chuỗi xoay của stage</div>
                 <code className="text-warning text-break d-block mb-2">{moves.join(" ")}</code>
                 <div className="small text-white-50">{phase.algorithmRoleVi}</div>
+                {phase.displayAlgorithm ? <div className="small text-white-50 mt-2">`Uv`, `Lv`, `Rv` và `T` là đổi cách cầm. Chúng được giữ trong chuỗi đọc, nhưng không đưa vào state 3D để tâm trắng luôn là mốc cố định.</div> : null}
               </div>
 
               <div className="row g-3">

@@ -9,6 +9,7 @@ export type FtoBenciscoWalkthroughPhase = {
   holdVi: string;
   actionsVi: readonly string[];
   algorithm: string;
+  displayAlgorithm?: string;
   algorithmRoleVi: string;
   beforeVi: string;
   afterVi: string;
@@ -37,7 +38,8 @@ export const FTO_BENCISCO_WALKTHROUGH: readonly FtoBenciscoWalkthroughPhase[] = 
     lookForVi: "Tìm hai cụm hình thang: cụm lớn gồm 2 cạnh + 1 tam giác trắng, rồi cụm nhỏ gồm 1 cạnh + 2 tam giác trắng. Khi ghép lại, cả hexagon trắng liền mạch xuất hiện.",
     holdVi: "Quy ước Bencisco: bắt đầu white trên U. `Uv'` là xoay cả khối để đặt các mảnh trong orientation dễ nhìn; không phải một lượt face turn.",
     actionsVi: ["Từ scramble cố định, gom các mảnh trắng thành hai hình thang lớn/nhỏ.", "Dùng đoạn xoay ví dụ để ghép hai hình thang thành một white center duy nhất.", "Ở preview Sau, xác nhận cả 9 sticker trên mặt U đều trắng trước khi sang First Two Triples."],
-    algorithm: "Uv' L' U' BR' R F L'",
+    algorithm: "L' U' BR' R F L'",
+    displayAlgorithm: "Uv' L' U' BR' R F L'",
     algorithmRoleVi: "Example solve Bencisco · First Center (white): Uv' L' U' BR' R F L'.",
     beforeVi: "Trước mốc 1: FTO ở scramble cố định của toàn walkthrough Bencisco.",
     afterVi: "Sau mốc 1: white center/hexagon và mặt U trắng đã hoàn thành; đây là state bắt đầu First Two Triples.",
@@ -52,7 +54,8 @@ export const FTO_BENCISCO_WALKTHROUGH: readonly FtoBenciscoWalkthroughPhase[] = 
     lookForVi: "Nhìn các corner có màu ăn khớp với hai vùng kề white center. Mục tiêu là corner + hai tam giác đúng màu, không chỉ là một corner đúng vị trí.",
     holdVi: "Đưa white center về BL bằng `Lv'`; dùng R để ghép mảnh, U/F/BR để đặt triple. `2R` là wide R của renderer FTO.",
     actionsVi: ["Ở state Trước, nhận diện một triple đã có sẵn và một triple cần ghép.", "Ghép hai triple rồi đặt chúng kề white center mà không phá hexagon trắng.", "Ở state Sau, bạn có white center + hai triple; đây là block Bencisco đầu tiên."],
-    algorithm: "Lv' U' BL F' R' U' R' 2R U'",
+    algorithm: "U' BL F' R' U' R' 2R U'",
+    displayAlgorithm: "Lv' U' BL F' R' U' R' 2R U'",
     algorithmRoleVi: "Example solve Bencisco · F2T: Lv' U' BL F' R' U' R' 2R U'.",
     beforeVi: "Trước mốc 2: chính là state Sau của white center.",
     afterVi: "Sau mốc 2: white center và hai triple đầu đã ghép; stage Centres bắt đầu từ đây.",
@@ -67,7 +70,8 @@ export const FTO_BENCISCO_WALKTHROUGH: readonly FtoBenciscoWalkthroughPhase[] = 
     lookForVi: "Chỉ theo dõi một màu center đích: một nhóm 2 cạnh + 1 tam giác và một nhóm 1 cạnh + 2 tam giác. Các triple đã giải là vùng không được phá.",
     holdVi: "Đưa block đã giải xuống dưới bằng `Rv'`. Wide `2R` mở layer làm việc, còn R/U đưa hai hình thang vào đúng chỗ.",
     actionsVi: ["Dựng large trapezoid trước, rồi tách/ghép small trapezoid của cùng màu.", "Đưa hai hình thang vào nhau để tạo center thứ hai và đưa nó về BR.", "So sánh preview Sau: white block cũ vẫn nguyên, nhưng một center mới đã hoàn chỉnh."],
-    algorithm: "Rv' U 2R U' R U 2R' U' R' 2R' U R'",
+    algorithm: "U 2R U' R U 2R' U' R' 2R' U R'",
+    displayAlgorithm: "Rv' U 2R U' R U 2R' U' R' 2R' U R'",
     algorithmRoleVi: "Example solve Bencisco · Second Center: Rv' U 2R U' R U 2R' U' R' 2R' U R'.",
     beforeVi: "Trước mốc 3: state Sau của First Two Triples.",
     afterVi: "Sau mốc 3: second center đã hoàn thành; chỉ còn Last Two Centers trước khi xử lý triple cuối.",
@@ -112,7 +116,8 @@ export const FTO_BENCISCO_WALKTHROUGH: readonly FtoBenciscoWalkthroughPhase[] = 
     lookForVi: "Nhận diện pair corner–triangle đã có, sau đó xem pair nào cần flip. Hedge là `R B' R' B`; sledge là `R' L R L'` trong example này.",
     holdVi: "`T'` và `Uv` là whole-puzzle rotations dùng để đưa case về góc nhìn Bencisco. Sau đó hedge/sledge hoạt động trên các triple cuối.",
     actionsVi: ["Dùng hedge để ép pair cần thiết, ghép corner với triangle, rồi dùng sledge để đưa pair còn lại lên trên.", "Hoàn tất triangle permutation và corner permutation theo đoạn example solve.", "Preview Sau là FTO solved; tất cả sáu stage dùng đúng một scramble đầu vào."],
-    algorithm: "T' Uv R B' R' B U R' L R L' U' Uv' R' L R L' T F D' F U F' D F U' F",
+    algorithm: "R B' R' B U R' L R L' U' R' L R L' F D' F U F' D F U' F",
+    displayAlgorithm: "T' Uv R B' R' B U R' L R L' U' Uv' R' L R L' T F D' F U F' D F U' F",
     algorithmRoleVi: "Example solve Bencisco · Last 3 Triples: T' Uv R B' R' B U R' L R L' U' Uv' R' L R L' T F D' F U F' D F U' F.",
     beforeVi: "Trước mốc 6: state Sau của Last Bottom Triple.",
     afterVi: "Sau mốc 6: FTO solved.",
@@ -123,6 +128,11 @@ export const FTO_BENCISCO_WALKTHROUGH: readonly FtoBenciscoWalkthroughPhase[] = 
 
 export function ftoWalkthroughPhaseAlgorithms(phase: FtoBenciscoWalkthroughPhase) {
   return phase.algorithm.split("|").map((segment) => segment.trim()).filter(Boolean);
+}
+
+/** Source notation keeps Bencisco regrips visible; state/animation omit them so U remains the white reference face. */
+export function ftoWalkthroughDisplayAlgorithms(phase: FtoBenciscoWalkthroughPhase) {
+  return (phase.displayAlgorithm ?? phase.algorithm).split("|").map((segment) => segment.trim()).filter(Boolean);
 }
 
 export function ftoWalkthroughSolution() {

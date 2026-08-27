@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   FTO_BENCISCO_WALKTHROUGH,
   FTO_BENCISCO_WALKTHROUGH_SCRAMBLE,
+  ftoWalkthroughDisplayAlgorithms,
   ftoWalkthroughSolution,
   ftoWalkthroughStateAfter,
   ftoWalkthroughStateBefore,
@@ -23,6 +24,7 @@ describe("FTO Bencisco walkthrough", () => {
 
   it("keeps objective, recognition, grip, actions and self-checks on every visual stage", () => {
     expect(FTO_BENCISCO_WALKTHROUGH.every((phase) => phase.objectiveVi && phase.lookForVi && phase.holdVi && phase.actionsVi.length === 3 && phase.checkVi && phase.algorithm)).toBe(true);
+    expect(ftoWalkthroughDisplayAlgorithms(FTO_BENCISCO_WALKTHROUGH[2]).join(" ")).toMatch(/^Rv'/);
   });
 
   it("uses one fixed scramble and carries every After state into the next Before state", () => {

@@ -1438,3 +1438,8 @@
 - [x] Phân tích các checkpoint sau F2T đang đưa tâm cam ra chính diện thay vì giữ mốc tâm trắng.
 - [x] Áp dụng góc nhìn nhất quán theo tâm trắng cho toàn bộ preview walkthrough liên quan.
 - [x] Kiểm chứng từng stage bằng hình ảnh, regression và checkpoint.
+
+## Sửa state mốc 3 Bencisco
+- [x] Đối chiếu state thuật toán “Trước mốc 3” để xác định vì sao tâm cam đang hoàn thành.
+- [x] Thay checkpoint/chuỗi stage để tâm trắng là tâm đã hoàn thành và tiếp tục được giữ làm mốc.
+- [x] Kiểm chứng mô hình 3D, regression và checkpoint.
