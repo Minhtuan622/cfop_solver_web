@@ -4,6 +4,7 @@ import { Check, Download, FileUp, Sparkles, TimerReset } from "@/components/Boot
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useLocation } from "wouter";
 import { BldStudyLab } from "@/components/BldStudyLab";
+import { FtoStudyLab } from "@/components/FtoStudyLab";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { CubeNet } from "@/components/CubeNet";
 import { LastLayerExplorer } from "@/components/LastLayerExplorer";
@@ -32,7 +33,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const [caseView, setCaseView] = useState<"2d" | "3d">("2d");
   const [celebrated, setCelebrated] = useState(false);
   const [importError, setImportError] = useState("");
-  const [studyLane, setStudyLane] = useState<"lastLayer" | "bld">("lastLayer");
+  const [studyLane, setStudyLane] = useState<"lastLayer" | "bld" | "fto">("lastLayer");
   const [solverSettings, setSolverSettings] = useState<SolverSettings>(() => readSolverSettings());
   const backupRef = useRef<HTMLInputElement>(null);
 
@@ -54,7 +55,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     setFamily(requestedCase.family);
     selectCase(match);
   }, [catalog, requestedCase]);
-  useEffect(() => { if (requestedLane === "bld") setStudyLane("bld"); }, [requestedLane]);
+  useEffect(() => { if (requestedLane === "bld" || requestedLane === "fto") setStudyLane(requestedLane); }, [requestedLane]);
   useEffect(() => { writeLastLayerStudy(study); }, [study]);
   useEffect(() => { writeMasteredCaseKeys(masteredKeys); }, [masteredKeys]);
 
@@ -78,7 +79,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   useEffect(() => { if (reviewedToday >= study.dailyGoal) setCelebrated(true); }, [reviewedToday, study.dailyGoal]);
   const onImport = async (event: ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (!file) return; try { const restored = importLastLayerStudy(JSON.parse(await file.text())); setStudy(restored.state); setMasteredKeys(restored.masteredKeys); setImportError(""); setCelebrated(false); } catch { setImportError(vi ? "Không thể đọc backup tiến độ này." : "This study backup could not be read."); } finally { event.target.value = ""; } };
 
-  return <section className="container py-4"><div className="nav nav-tabs" role="tablist" aria-label={vi ? "Loại luyện tập" : "Practice type"}><button type="button" role="tab" aria-selected={studyLane === "lastLayer"} className={studyLane === "lastLayer" ? "nav-link active" : "nav-link"} onClick={() => setStudyLane("lastLayer")}>LAST LAYER</button><button type="button" role="tab" aria-selected={studyLane === "bld"} className={studyLane === "bld" ? "nav-link active" : "nav-link"} onClick={() => setStudyLane("bld")}>3-STYLE BLD</button></div>{studyLane === "lastLayer" ? <>
+  return <section className="container py-4"><div className="nav nav-tabs" role="tablist" aria-label={vi ? "Loại luyện tập" : "Practice type"}><button type="button" role="tab" aria-selected={studyLane === "lastLayer"} className={studyLane === "lastLayer" ? "nav-link active" : "nav-link"} onClick={() => setStudyLane("lastLayer")}>LAST LAYER</button><button type="button" role="tab" aria-selected={studyLane === "bld"} className={studyLane === "bld" ? "nav-link active" : "nav-link"} onClick={() => setStudyLane("bld")}>3-STYLE BLD</button><button type="button" role="tab" aria-selected={studyLane === "fto"} className={studyLane === "fto" ? "nav-link active" : "nav-link"} onClick={() => setStudyLane("fto")}>FTO</button></div>{studyLane === "lastLayer" ? <>
     <div className="d-flex justify-content-end gap-2 my-3"><input ref={backupRef} onChange={onImport} accept="application/json,.json" type="file" className="d-none" /><button onClick={() => backupRef.current?.click()} aria-label={vi ? "Nhập tiến độ" : "Import progress"} className="btn btn-outline-secondary btn-sm"><FileUp className="h-4 w-4" /></button><button onClick={() => download("cfop-last-layer-study-backup.json", exportLastLayerStudy(study, masteredKeys))} aria-label={vi ? "Xuất tiến độ" : "Export progress"} className="btn btn-outline-secondary btn-sm"><Download className="h-4 w-4" /></button></div>
     {importError ? <StatusFeedback tone="danger" title={vi ? "Không thể nhập tiến độ" : "Could not import progress"}>{importError}</StatusFeedback> : null}
     <div className="position-sticky top-0 z-1 bg-body border-bottom py-2 mb-3"><div className="d-flex flex-wrap align-items-center justify-content-between gap-2"><div><span className="small text-body-secondary d-block">{vi ? "Mục tiêu hôm nay" : "Today\'s goal"}</span><strong>{reviewedToday}/{study.dailyGoal} · {dailyPercent}%</strong></div><button type="button" onClick={() => chooseNext()} disabled={!queue.length} className="btn btn-primary btn-sm">{vi ? "Case kế" : "Next case"}</button></div></div>
@@ -87,7 +88,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
       <aside className="col-12 col-xl-4"><div className="card card-body"><p className="h6">{vi ? "Mục tiêu hôm nay" : "Today's goal"}</p><div className="d-flex align-items-end justify-content-between"><p className="display-6 mb-0">{reviewedToday}/{study.dailyGoal}</p><span className="small text-muted">{vi ? "Cài trong Settings" : "Set in Settings"}</span></div><div className="progress mt-3"><div className="progress-bar" style={{ width: `${dailyPercent}%` }} /></div><p className="small text-muted mt-2">{dailyPercent}% · {queue.length} {vi ? "case ưu tiên" : "priority cases"}</p><hr /><div className="d-flex justify-content-between"><p className="h6">{vi ? "Lịch ôn · 7 ngày" : "Review · 7 days"}</p><span className="small text-muted">{weeklyTotal} {vi ? "cần ôn" : "due"}</span></div><div className="row row-cols-7 g-1" role="list" aria-label={vi ? "Lịch ôn tập tuần" : "Weekly review schedule"}>{weeklySchedule.map((day) => { const weekday = day.date.toLocaleDateString(vi ? "vi-VN" : "en-US", { weekday: "short" }).replace(".", ""); return <div key={day.date.toISOString()} role="listitem" className="col text-center small"><div className={day.isToday ? "border rounded p-1 bg-primary text-white" : "border rounded p-1"}><span className="d-block">{weekday}</span><b className="d-block">{day.date.getDate()}</b><strong>{day.dueCount}</strong></div></div>; })}</div>{celebrated && <div className="alert alert-success mt-3 mb-0"><Sparkles className="h-4 w-4" /> {vi ? "Hoàn thành mục tiêu hôm nay" : "Daily goal complete"}<button onClick={() => setCelebrated(false)} className="btn-close float-end" /></div>}<hr /><button onClick={() => chooseNext(true)} disabled={!weakest.length} aria-label={vi ? "Lấy case cần ôn" : "Pick weak case"} className="btn btn-outline-secondary"><TimerReset className="fs-6" /></button></div></aside>
       <div className="col-12"><LastLayerExplorer language={language} catalog={catalog} family={family} selectedCase={activeCase} masteredKeys={masteredKeys} onFamily={(next) => { setFamily(next); setActiveCase(null); }} onSelect={selectCase} /></div>
     </section>
-  </> : <BldStudyLab language={language} />}</section>;
+  </> : studyLane === "bld" ? <BldStudyLab language={language} /> : <FtoStudyLab language={language} />}</section>;
 }
 
 function GradeButton({ label, tone, onClick }: { label: string; tone: "red" | "ink" | "mint"; onClick: () => void }) { const classes = tone === "red" ? "btn btn-outline-danger w-100" : tone === "mint" ? "btn btn-primary w-100" : "btn btn-outline-secondary w-100"; return <button onClick={onClick} className={classes}>{label}</button>; }

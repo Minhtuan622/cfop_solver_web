@@ -1336,3 +1336,8 @@
 - [x] Thêm FTO vào danh mục event, scramble và lịch sử Timer.
 - [x] Hiển thị preview phù hợp và bổ sung regression cho FTO.
 - [x] Kiểm tra TypeScript, build và lưu checkpoint.
+
+## Học FTO cơ bản
+- [x] Viết hướng dẫn notation FTO ngắn gọn, có ví dụ scramble và giải thích chiều xoay.
+- [x] Tạo chế độ luyện single-layer FTO với scramble theo mức độ nhập môn và đồng hồ riêng.
+- [x] Bổ sung regression, kiểm tra TypeScript, build và checkpoint.
