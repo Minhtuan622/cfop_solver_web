@@ -1478,3 +1478,8 @@
 - [x] Gỡ tab FTO cùng walkthrough, notation và bài luyện FTO khỏi Study.
 - [x] Xóa các import, state, test và deep-link chỉ còn phục vụ hướng dẫn FTO.
 - [x] Giữ nguyên event FTO, scramble và lịch sử ở Bấm giờ; kiểm tra desktop/mobile, regression và checkpoint.
+
+## Phân biệt History theo loại Rubik
+- [x] Rà soát schema solve và History để xác định nhãn event đang thiếu trong danh sách tổng.
+- [x] Hiển thị rõ loại Rubik trên từng solve và thêm bộ lọc event có tùy chọn xem tất cả.
+- [x] Kiểm thử dữ liệu đa event, desktop/mobile, regression và checkpoint.
