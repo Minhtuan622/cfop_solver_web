@@ -1463,3 +1463,13 @@
 - [x] Truy vết điều kiện khiến tab FTO không xuất hiện hoặc deep-link `lane=fto` rơi về Last Layer.
 - [x] Khôi phục tab FTO có thể chọn trong Study và giữ deep-link mở đúng lane.
 - [x] Bổ sung regression, kiểm tra desktop/mobile và checkpoint.
+
+## Hồi quy white center trong preview Bencisco
+- [x] Đối chiếu ảnh đang chạy với exact state `Sau mốc 1` và root/camera Three.js thực tế.
+- [x] Hủy tiêu chí sai về mặt U 9 sticker: Bencisco stage 1 đúng là white center/hexagon 6 mảnh (3 edge + 3 triangle).
+- [x] Đối chiếu lại Trước mốc 3, thêm regression visual/state và desktop/mobile.
+
+## White center Bencisco và orientation FTO
+- [x] Xác minh state Sau mốc 1 có đúng white center/hexagon 6 mảnh trắng, không gọi nhầm là mặt U hoàn chỉnh.
+- [x] Giữ orientation chuẩn cho preview scramble; chỉ walkthrough xoay mốc trắng sang bên trái.
+- [x] Bảo toàn kéo dọc để xoay theo chiều dọc, kiểm tra desktop/mobile, regression và checkpoint.

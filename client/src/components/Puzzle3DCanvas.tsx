@@ -40,7 +40,7 @@ type FtoStickerMesh = Object3D & {
   geometry?: { attributes?: { position?: BufferAttribute; color?: BufferAttribute } };
 };
 
-/** Face the requested completed center toward the teaching camera, regardless of Bencisco regrips. */
+/** Place the requested completed center on the viewer's left in teaching previews, regardless of Bencisco regrips. */
 function focusActualFtoFace(THREE: typeof import("three"), puzzleObject: Object3D, puzzleBase: Object3D, target: FtoTeachingFace) {
   const normalCounts = new Map<string, { normal: InstanceType<typeof THREE.Vector3>; count: number }>();
   puzzleObject.updateWorldMatrix(true, true);
@@ -68,7 +68,7 @@ function focusActualFtoFace(THREE: typeof import("three"), puzzleObject: Object3
     }
   });
   const targetFace = Array.from(normalCounts.values()).sort((first, second) => second.count - first.count)[0];
-  if (targetFace) puzzleBase.quaternion.setFromUnitVectors(targetFace.normal, new THREE.Vector3(0, 0, 1));
+  if (targetFace) puzzleBase.quaternion.setFromUnitVectors(targetFace.normal, new THREE.Vector3(-0.62, 0, 0.78).normalize());
 }
 
 /** A teaching-only FTO framing that isolates the white U face without changing the user's default camera. */

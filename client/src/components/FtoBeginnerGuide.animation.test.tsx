@@ -18,10 +18,11 @@ describe("FtoBeginnerGuide Bencisco walkthrough", () => {
     expect(screen.getByText("Bencisco")).toBeTruthy();
     expect(screen.getByText("1. Bencisco · Hoàn thành white center / hexagon")).toBeTruthy();
     expect(screen.getByText(FTO_BENCISCO_WALKTHROUGH_SCRAMBLE)).toBeTruthy();
-    expect(screen.getByText(/Tìm trên chính mô hình 3D bên dưới/)).toBeTruthy();
+    expect(screen.getByText(/Tìm ở phía trái mô hình 3D/)).toBeTruthy();
     expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(0));
     expect(screen.getAllByTestId("fto-preview")[1].getAttribute("data-scramble")).toBe(ftoWalkthroughStateAfter(0));
-    expect(screen.getAllByTestId("fto-preview").every((preview) => preview.getAttribute("data-focus-white") === "true")).toBe(true);
+    expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-focus-white")).toBe("false");
+    expect(screen.getAllByTestId("fto-preview")[1].getAttribute("data-focus-white")).toBe("true");
   });
 
   it("plays the selected Bencisco phase from its displayed before checkpoint", () => {

@@ -50,7 +50,7 @@ export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }
               <span className="small text-body-secondary">Speed method · example solve cố định</span>
             </div>
             <h2 id="fto-bencisco-title" className="h4 mb-2">Giải FTO từ white center đến solved</h2>
-            <p className="mb-0 text-body-secondary">Toàn bộ sáu stage dùng một scramble cố định. Stage 1 dựng <strong className="text-body">white center/hexagon</strong>; ở checkpoint Sau, bạn sẽ thấy rõ <strong className="text-body">toàn bộ mặt U trắng</strong> để đối chiếu bằng mắt trước khi sang First Two Triples.</p>
+            <p className="mb-0 text-body-secondary">Toàn bộ sáu stage dùng một scramble cố định. Stage 1 dựng <strong className="text-body">white center/hexagon</strong> gồm 3 cạnh và 3 tam giác trắng; đây <strong className="text-body">không phải cả mặt U đã giải xong</strong>.</p>
           </div>
           <div className="bg-body rounded-3 p-3 text-lg-end flex-shrink-0">
             <div className="small text-uppercase text-body-secondary mb-1">Scramble cố định</div>
@@ -98,7 +98,7 @@ export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }
                 <div className="small text-white-50 text-uppercase mb-1">Chuỗi xoay của stage</div>
                 <code className="text-warning text-break d-block mb-2">{moves.join(" ")}</code>
                 <div className="small text-white-50">{phase.algorithmRoleVi}</div>
-                {phase.displayAlgorithm ? <div className="small text-white-50 mt-2">`Uv`, `Lv`, `Rv` và `T` là đổi cách cầm. Chúng được giữ trong chuỗi đọc, nhưng không đưa vào state 3D để tâm trắng luôn là mốc cố định.</div> : null}
+                {phase.displayAlgorithm ? <div className="small text-white-50 mt-2">`Uo`, `Lo`, `Ro` và `T` là đổi cách cầm trong tài liệu gốc. Preview dùng dạng notation tương đương mà renderer đọc được để bám đúng reconstruction.</div> : null}
               </div>
 
               <div className="row g-3">
@@ -108,7 +108,7 @@ export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }
                       <p className="small text-body-secondary px-1 mb-2">{phase.beforeVi}</p>
                       {activeIndex === 2 ? <div className="small text-primary fw-semibold px-1 mb-2">Đã xong: tâm trắng + 2 triple. Chưa dựng tâm cam.</div> : null}
                       <div className="ratio ratio-1x1 rounded-3 overflow-hidden bg-body">
-                      <PuzzleScramblePreview eventId="fto" scramble={beforeState} language={language} animationAlg={isPlaying ? phase.algorithm : undefined} animationRunId={animationRunId} focusFtoWhiteFace />
+                      <PuzzleScramblePreview eventId="fto" scramble={beforeState} language={language} animationAlg={isPlaying ? phase.algorithm : undefined} animationRunId={animationRunId} focusFtoWhiteFace={activeIndex !== 0} />
                     </div>
                   </div>
                 </div>
@@ -117,7 +117,7 @@ export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }
                       <div className="d-flex justify-content-between align-items-center px-1 pt-1"><strong className="small">Sau</strong><span className="badge text-bg-success">Mốc {activeIndex + 2}</span></div>
                       <p className="small text-body-secondary px-1 mb-2">{phase.afterVi}</p>
                       {activeIndex === 2 ? <div className="small text-success fw-semibold px-1 mb-2">Mới hoàn thành: tâm cam. Tâm trắng + 2 triple vẫn được giữ.</div> : null}
-                      {activeIndex === 0 ? <div className="small text-primary fw-semibold px-1 mb-2">Tìm trên chính mô hình 3D bên dưới: mặt tam giác lớn gồm 9 sticker trắng chính là white center đã hoàn thành.</div> : null}
+                      {activeIndex === 0 ? <div className="small text-primary fw-semibold px-1 mb-2">Tìm ở phía trái mô hình 3D: 3 cạnh hình thoi trắng + 3 tam giác trắng tạo thành white center/hexagon. Không tính 3 corner trắng xung quanh là triple đã giải.</div> : null}
                       <div className="ratio ratio-1x1 rounded-3 overflow-hidden bg-body"><PuzzleScramblePreview eventId="fto" scramble={afterState} language={language} focusFtoWhiteFace={activeIndex !== 2} focusFtoFace={activeIndex === 2 ? "orange" : undefined} /></div>
                   </div>
                 </div>
