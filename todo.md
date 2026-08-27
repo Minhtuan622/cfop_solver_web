@@ -1433,3 +1433,8 @@
 - [x] Xác định mapping màu–mặt khiến state stage đầu hiển thị tâm cam thay vì tâm trắng.
 - [x] Sửa state/camera minh họa để tâm trắng là tâm đầu tiên xuất hiện đúng trên 3D.
 - [x] Bổ sung regression, kiểm tra desktop/mobile và checkpoint.
+
+## Giữ tâm trắng trên preview Bencisco
+- [x] Phân tích các checkpoint sau F2T đang đưa tâm cam ra chính diện thay vì giữ mốc tâm trắng.
+- [x] Áp dụng góc nhìn nhất quán theo tâm trắng cho toàn bộ preview walkthrough liên quan.
+- [x] Kiểm chứng từng stage bằng hình ảnh, regression và checkpoint.

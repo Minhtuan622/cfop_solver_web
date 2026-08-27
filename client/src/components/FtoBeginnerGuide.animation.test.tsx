@@ -4,7 +4,7 @@ import { FTO_BENCISCO_WALKTHROUGH, FTO_BENCISCO_WALKTHROUGH_SCRAMBLE, ftoWalkthr
 import { FtoBeginnerGuide } from "./FtoBeginnerGuide";
 
 vi.mock("@/components/PuzzleScramblePreview", () => ({
-  PuzzleScramblePreview: ({ scramble, animationAlg }: { scramble: string; animationAlg?: string }) => <output data-testid="fto-preview" data-scramble={scramble} data-animation={animationAlg ?? ""} />,
+  PuzzleScramblePreview: ({ scramble, animationAlg, focusFtoWhiteFace }: { scramble: string; animationAlg?: string; focusFtoWhiteFace?: boolean }) => <output data-testid="fto-preview" data-scramble={scramble} data-animation={animationAlg ?? ""} data-focus-white={String(focusFtoWhiteFace ?? false)} />,
 }));
 
 afterEach(() => cleanup());
@@ -18,6 +18,7 @@ describe("FtoBeginnerGuide Bencisco walkthrough", () => {
     expect(screen.getByLabelText("Mặt U trắng đã hoàn thành")).toBeTruthy();
     expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(0));
     expect(screen.getAllByTestId("fto-preview")[1].getAttribute("data-scramble")).toBe(ftoWalkthroughStateAfter(0));
+    expect(screen.getAllByTestId("fto-preview").every((preview) => preview.getAttribute("data-focus-white") === "true")).toBe(true);
   });
 
   it("plays the selected Bencisco phase from its displayed before checkpoint", () => {

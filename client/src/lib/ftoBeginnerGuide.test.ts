@@ -49,4 +49,16 @@ describe("FTO Bencisco walkthrough", () => {
     const fills = [...uFace.matchAll(/fill: (#[0-9a-f]+);/gi)].map((match) => match[1].toLowerCase());
     expect(fills).toEqual(Array(9).fill("#ffffff"));
   });
+
+  it("keeps the white U face intact across every Bencisco checkpoint", async () => {
+    const [{ puzzles }, { Alg }] = await Promise.all([import("cubing/puzzles"), import("cubing/alg")]);
+    const kpuzzle = await puzzles.fto.kpuzzle();
+    for (let index = 0; index < FTO_BENCISCO_WALKTHROUGH.length; index += 1) {
+      const pattern = kpuzzle.defaultPattern().applyAlg(new Alg(ftoWalkthroughStateBefore(index)));
+      const svg = await puzzles.fto.svg(pattern);
+      const uFace = svg.match(/<g id="U"[^>]*>([\s\S]*?)<\/g>/)?.[1] ?? "";
+      const fills = [...uFace.matchAll(/fill: (#[0-9a-f]+);/gi)].map((match) => match[1].toLowerCase());
+      expect(fills).toEqual(Array(9).fill("#ffffff"));
+    }
+  });
 });
