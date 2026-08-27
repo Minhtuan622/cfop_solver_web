@@ -22,4 +22,16 @@ describe("FTO beginner guide", () => {
     expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "vertices")?.visual.scramble).toBe("U' R U R'");
     expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "centres")?.visual.scramble).toBe("U r U' r' U r U' r' U r U' r' U r U' r' U r U' r'");
   });
+
+  it("returns every replay setup to the exact FTO solved pattern with its documented formula", async () => {
+    const [{ puzzles }, { Alg }] = await Promise.all([import("cubing/puzzles"), import("cubing/alg")]);
+    const kpuzzle = await puzzles.fto.kpuzzle();
+    const solved = kpuzzle.defaultPattern();
+    for (const step of FTO_BEGINNER_GUIDE) {
+      for (const move of step.moves) {
+        const restored = solved.applyAlg(new Alg(`${move.setupAlg} ${move.algorithm.replace(" × 5", "5")}`));
+        expect(restored.patternData).toEqual(solved.patternData);
+      }
+    }
+  });
 });

@@ -1361,3 +1361,8 @@
 - [x] Loại bỏ marker highlight vàng khỏi toàn bộ preview FTO.
 - [x] Đối chiếu và thay trạng thái minh họa để khớp chính xác mục tiêu từng bước.
 - [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Animation công thức FTO
+- [x] Thêm điều khiển phát/tạm dừng animation tuần tự cho công thức FTO trong lộ trình.
+- [x] Hiển thị nước đang chạy và đặt lại mô hình sau animation.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.

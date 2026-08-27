@@ -1,4 +1,4 @@
-export type FtoGuideMove = { labelVi: string; algorithm: string; useVi: string };
+export type FtoGuideMove = { labelVi: string; algorithm: string; setupAlg: string; useVi: string };
 export type FtoGuideVideo = { youtubeId: string; title: string; focusVi: string };
 export type FtoGuideVisual = { scramble: string; focusVi: string };
 export type FtoGuideStep = { id: string; titleVi: string; goalVi: string; holdVi: string; actionsVi: readonly string[]; checkVi: string; moves: readonly FtoGuideMove[]; tipVi: string; visual: FtoGuideVisual; video: FtoGuideVideo };
@@ -35,7 +35,7 @@ export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
     holdVi: "Đặt ba cạnh U đã giải ở phía trên. Xoay D để đưa cạnh cần chèn ở tầng dưới vào đúng hướng setup.",
     actionsVi: ["Dùng D để đặt cạnh tầng dưới vào vị trí chuẩn bị.", "Chọn một trong hai công thức chèn theo vị trí đích; sau mỗi lần chèn, kiểm tra lại tam giác U.", "Lặp lại để lấp tầng giữa. Ba cạnh cuối thường chỉ cần xoay D để khớp."],
     checkVi: "Mười hai cạnh đều khớp hai màu với hai vùng lân cận; U vẫn nguyên vẹn.",
-    moves: [{ labelVi: "Chèn từ DL vào FR", algorithm: "R' D R", useVi: "Dùng khi cạnh cần chèn ở DL và đích là FR." }, { labelVi: "Chèn từ DR vào FL", algorithm: "L D' L'", useVi: "Dùng khi cạnh cần chèn ở DR và đích là FL." }],
+    moves: [{ labelVi: "Chèn từ DL vào FR", algorithm: "R' D R", setupAlg: "R' D' R", useVi: "Dùng khi cạnh cần chèn ở DL và đích là FR." }, { labelVi: "Chèn từ DR vào FL", algorithm: "L D' L'", setupAlg: "L D L'", useVi: "Dùng khi cạnh cần chèn ở DR và đích là FL." }],
     tipVi: "Nếu một cạnh tầng giữa sai, hãy dùng công thức chèn để đẩy nó xuống trước, rồi chèn lại đúng cách.",
     visual: { scramble: "R' D' R", focusVi: "Đây là trạng thái ngay trước công thức chèn. Thực hiện R' D R sẽ đưa minh họa này trở lại trạng thái đã giải; hãy xem cạnh di chuyển từ D lên tầng giữa." },
     video: { youtubeId: "J8_9no7Ml78", title: "QUICKEST FTO TUTORIAL | How to solve the Face-Turning Octahedron", focusVi: "Theo dõi cách setup cạnh ở tầng dưới trước khi dùng công thức chèn." },
@@ -47,7 +47,7 @@ export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
     holdVi: "Để U ở trên. Xoay cả khối nếu cần để vùng cần sửa nằm trong bộ ba vị trí của công thức.",
     actionsVi: ["Trước hết chỉ quan tâm mảnh đỉnh đang ở đúng vị trí, chưa cần đúng chiều.", "Dùng 3-cycle để đưa một đỉnh đúng vị trí mà không phá các đỉnh đã cố định.", "Khi tất cả đã đúng vị trí, đưa hai đỉnh cần lật cạnh nhau, thực hiện công thức lật, rồi hoàn tác setup nếu có."],
     checkVi: "Mỗi đỉnh vừa đúng vị trí vừa có ba màu hướng về đúng mặt tương ứng.",
-    moves: [{ labelVi: "3-cycle UR → UL → LR", algorithm: "R U' R' U", useVi: "Dùng để đưa đỉnh theo chiều thứ nhất." }, { labelVi: "3-cycle UB → UR → LR", algorithm: "R U R' U'", useVi: "Dùng để đưa đỉnh theo chiều thứ hai." }, { labelVi: "Lật cặp đỉnh kề nhau", algorithm: "R' U L' U' L U' R U", useVi: "Đưa hai đỉnh sai chiều về vị trí kề nhau trước khi thực hiện." }],
+    moves: [{ labelVi: "3-cycle UR → UL → LR", algorithm: "R U' R' U", setupAlg: "U' R U R'", useVi: "Dùng để đưa đỉnh theo chiều thứ nhất." }, { labelVi: "3-cycle UB → UR → LR", algorithm: "R U R' U'", setupAlg: "U R U' R'", useVi: "Dùng để đưa đỉnh theo chiều thứ hai." }, { labelVi: "Lật cặp đỉnh kề nhau", algorithm: "R' U L' U' L U' R U", setupAlg: "U' R' U L' U L U' R", useVi: "Đưa hai đỉnh sai chiều về vị trí kề nhau trước khi thực hiện." }],
     tipVi: "Đỉnh đối diện có thể được biến thành cặp kề bằng một setup move, lật cặp, rồi undo setup move.",
     visual: { scramble: "U' R U R'", focusVi: "Đây là trạng thái trước 3-cycle. Thực hiện R U' R' U sẽ khôi phục minh họa về trạng thái đã giải, cho thấy chính xác ba đỉnh được xử lý." },
     video: { youtubeId: "03L3P1a0Auc", title: "How to Solve the Face Turning Octahedron (FTO)", focusVi: "Xem cách tách hai việc: đặt đỉnh đúng vị trí trước, rồi mới sửa chiều." },
@@ -59,7 +59,7 @@ export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
     holdVi: "Chọn một tâm sai đang nằm ở L nhưng thuộc màu U. Dùng L và U để đưa hai tâm sai vào lớp r sát R.",
     actionsVi: ["Đặt tâm sai của màu U trên mặt L vào vị trí bên phải của lớp r.", "Đưa một tâm sai khác trên U vào vị trí kề trong lớp r.", "Thực hiện chuỗi hoán vị năm lần, sau đó hoàn tác các setup move U/L nếu đã dùng.", "Lặp cho đến khi mọi mặt đồng màu ở phần tâm."],
     checkVi: "Tất cả tâm cùng màu với mặt của chúng; cạnh và đỉnh vẫn giữ đúng vị trí.",
-    moves: [{ labelVi: "Hoán vị tâm", algorithm: "(r U r' U') × 5", useVi: "r là lớp giữa song song với R; lặp trọn chuỗi năm lần." }],
+    moves: [{ labelVi: "Hoán vị tâm", algorithm: "(r U r' U') × 5", setupAlg: "U r U' r' U r U' r' U r U' r' U r U' r' U r U' r'", useVi: "r là lớp giữa song song với R; lặp trọn chuỗi năm lần." }],
     tipVi: "Nếu một vòng làm sai nhiều hơn dự kiến, dừng lại và hoàn tác ngay setup/chuỗi vừa làm; cách cầm là phần quan trọng của bước này.",
     visual: { scramble: "U r U' r' U r U' r' U r U' r' U r U' r' U r U' r'", focusVi: "Đây là trạng thái trước chuỗi hoán vị tâm năm lần. Thực hiện (r U r' U') × 5 để đưa minh họa trở lại trạng thái đã giải." },
     video: { youtubeId: "03L3P1a0Auc", title: "How to Solve the Face Turning Octahedron (FTO)", focusVi: "Đối chiếu cách đưa hai tâm sai vào vùng thao tác trước khi lặp chuỗi năm lần." },

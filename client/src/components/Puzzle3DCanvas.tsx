@@ -56,6 +56,8 @@ type PuzzlePlayer = HTMLElement & {
   backView: "none";
   background: "none";
   experimentalCurrentThreeJSPuzzleObject: (callback: () => void) => Promise<unknown>;
+  play?: () => void;
+  pause?: () => void;
 };
 
 function startMountedTwistyPlayer(player: HTMLElement) {
@@ -70,7 +72,7 @@ function startMountedTwistyPlayer(player: HTMLElement) {
   }
 }
 
-export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventId: TimerEventId; puzzle: PuzzleId; scramble: string; language: "vi" | "en" }) {
+export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationAlg = "", animationRunId = 0 }: { eventId: TimerEventId; puzzle: PuzzleId; scramble: string; language: "vi" | "en"; animationAlg?: string; animationRunId?: number }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ x: number; y: number; yaw: number; pitch: number; lastX: number; lastY: number; lastAt: number; moved: boolean } | null>(null);
   const orbitRef = useRef({ yaw: -0.55, pitch: 0.32, distance: 5.4 });
@@ -109,7 +111,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
         player = document.createElement("twisty-player") as PuzzlePlayer;
         player.puzzle = puzzle;
         player.experimentalSetupAlg = scramble;
-        player.alg = "";
+        player.alg = animationAlg;
         player.visualization = "3D";
         player.hintFacelets = "none";
         player.controlPanel = "none";
@@ -164,6 +166,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
       observer.observe(host);
       resizeAndRender();
       setStatus("ready");
+      if (animationAlg.trim()) player?.play?.();
       if (sideEventAnimation) { sideEventAnimation.finish(); resizeAndRender(); }
       cleanup = () => {
         observer.disconnect();
@@ -191,7 +194,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventI
     });
 
     return () => { disposed = true; cleanup(); host.replaceChildren(); };
-  }, [puzzle, scramble]);
+  }, [puzzle, scramble, animationAlg, animationRunId]);
 
   const smoothZoom = () => {
     if (!renderRef.current) return;
