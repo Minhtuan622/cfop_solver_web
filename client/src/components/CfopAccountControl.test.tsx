@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const invalidate = vi.fn();
 const logoutMutate = vi.fn();
-let accountData: { displayName: string } | null = null;
+let accountData: { displayName: string; avatarUrl?: string | null } | null = null;
 
 vi.mock("@/lib/trpc", () => ({
   trpc: {
@@ -33,12 +33,14 @@ describe("CfopAccountControl", () => {
   });
 
   it("groups signed-in account actions inside a compact dropdown", () => {
-    accountData = { displayName: "Dr Who" };
+    accountData = { displayName: "Dr Who", avatarUrl: "https://example.test/dr-who.png" };
     render(<CfopAccountControl />);
 
     expect(screen.queryByRole("menu")).toBeNull();
+    expect(screen.getByRole("img", { name: "Ảnh đại diện của Dr Who" }).getAttribute("src")).toBe("https://example.test/dr-who.png");
     fireEvent.click(screen.getByRole("button", { name: /Dr Who/ }));
     expect(screen.getByRole("menu")).toBeTruthy();
+    expect(screen.getByRole("menu").className).toContain("mt-2");
     expect(screen.getByRole("menuitem", { name: /Hồ sơ/ })).toBeTruthy();
     fireEvent.click(screen.getByRole("menuitem", { name: /Đăng xuất/ }));
     expect(logoutMutate).toHaveBeenCalledOnce();

@@ -1488,3 +1488,8 @@
 - [x] Rà soát nút tài khoản, đăng nhập/đăng xuất và các route user đang hiển thị trên navigation.
 - [x] Gộp các thao tác tài khoản vào dropdown Bootstrap từ nút tên/ảnh đại diện.
 - [x] Kiểm thử thao tác desktop/mobile, accessibility, regression và checkpoint.
+
+## Avatar và dropdown tài khoản responsive
+- [x] Rà soát trường avatar của hồ sơ và fallback an toàn khi tài khoản chưa có ảnh.
+- [x] Thay icon mặc định trên navbar bằng avatar thật, rồi tối ưu vị trí/kích thước menu dropdown trên mobile.
+- [x] Kiểm thử desktop/mobile, accessibility, regression và checkpoint.
