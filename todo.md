@@ -1453,3 +1453,8 @@
 - [x] Đối chiếu tài liệu Bencisco để xác nhận white center → hai triple → tâm cam là thứ tự đúng.
 - [x] Điều chỉnh state/nhãn nếu checkpoint sau F2T không thể hiện white center và hai triple đã giữ lại.
 - [x] Kiểm chứng state 3D tuần tự, regression và checkpoint.
+
+## Hiển thị white center thật trên FTO 3D
+- [x] Bỏ sơ đồ trắng tách rời và xác định state/camera khiến white center thật không xuất hiện trong preview.
+- [x] Sửa framing và kích thước canvas để mặt trắng trên FTO 3D hiển thị lớn, dễ kiểm tra ở stage 1 và stage 3.
+- [x] Xác minh bằng ảnh riêng stage 1/stage 3, regression và checkpoint.

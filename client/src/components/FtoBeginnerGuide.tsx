@@ -10,16 +10,6 @@ import {
   ftoWalkthroughStateBefore,
 } from "@/lib/ftoBeginnerGuide";
 
-function WhiteFaceMilestone() {
-  return <div className="rounded-3 bg-dark text-white p-3 mb-2 text-center" aria-label="Mặt U trắng đã hoàn thành">
-    <div className="small fw-semibold mb-2">Mặt U sau stage 1: 9 sticker trắng</div>
-    <svg viewBox="0 0 180 156" className="d-block mx-auto" width="150" height="130" role="img" aria-label="Mặt tam giác U gồm chín sticker trắng đã hoàn thành">
-      <polygon points="90,6 12,148 168,148" fill="#ffffff" stroke="#212529" strokeWidth="4" strokeLinejoin="round" />
-      <path d="M64,53 L116,53 M38,100 L142,100 M64,53 L38,100 M116,53 L142,100 M90,6 L90,148 M12,148 L116,53 M168,148 L64,53" fill="none" stroke="#212529" strokeWidth="2" />
-    </svg>
-  </div>;
-}
-
 function initialBenciscoStage() {
   if (typeof window === "undefined") return 0;
   const requested = Number.parseInt(new URLSearchParams(window.location.search).get("ftoStage") ?? "", 10);
@@ -127,8 +117,8 @@ export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }
                       <div className="d-flex justify-content-between align-items-center px-1 pt-1"><strong className="small">Sau</strong><span className="badge text-bg-success">Mốc {activeIndex + 2}</span></div>
                       <p className="small text-body-secondary px-1 mb-2">{phase.afterVi}</p>
                       {activeIndex === 2 ? <div className="small text-success fw-semibold px-1 mb-2">Mới hoàn thành: tâm cam. Tâm trắng + 2 triple vẫn được giữ.</div> : null}
-                      {activeIndex === 0 ? <WhiteFaceMilestone /> : null}
-                    <div className="ratio ratio-1x1 rounded-3 overflow-hidden bg-body"><PuzzleScramblePreview eventId="fto" scramble={afterState} language={language} focusFtoWhiteFace /></div>
+                      {activeIndex === 0 ? <div className="small text-primary fw-semibold px-1 mb-2">Tìm trên chính mô hình 3D bên dưới: mặt tam giác lớn gồm 9 sticker trắng chính là white center đã hoàn thành.</div> : null}
+                      <div className="ratio ratio-1x1 rounded-3 overflow-hidden bg-body"><PuzzleScramblePreview eventId="fto" scramble={afterState} language={language} focusFtoWhiteFace={activeIndex !== 2} focusFtoFace={activeIndex === 2 ? "orange" : undefined} /></div>
                   </div>
                 </div>
               </div>

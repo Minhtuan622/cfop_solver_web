@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type PointerEvent, type WheelEvent } from "react";
-import type { Object3D, WebGLRenderer } from "three";
+import type { BufferAttribute, Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
 import { isSideEvent3DPuzzle, sideEvent3DAnimation, type SideEvent3DAnimation } from "@/components/SideEvent3DObject";
 
 type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "megaminx" | "fto" | "square1" | "clock";
+type FtoTeachingFace = "white" | "orange";
 export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 type Point = { x: number; y: number };
 const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
@@ -22,11 +23,55 @@ export function puzzleDefaultYaw(puzzle: PuzzleId) { return puzzle === "fto" ? 0
 
 /** Only the Bencisco white-center example faces U forward; ordinary FTO previews keep the user-approved left-face framing. */
 export function puzzleInitialOrbit(puzzle: PuzzleId, focusFtoWhiteFace = false) {
-  if (puzzle === "fto" && focusFtoWhiteFace) return { yaw: 0, pitch: Math.PI / 2 };
+  if (puzzle === "fto" && focusFtoWhiteFace) return { yaw: 0, pitch: 0 };
   return { yaw: puzzleDefaultYaw(puzzle), pitch: 0.32 };
 }
 
-/** A teaching-only FTO framing that places the white U face forward without changing the user's default camera. */
+export function puzzlePreviewDistance(puzzle: PuzzleId, defaultDistance: number, focusFtoWhiteFace = false) {
+  return puzzle === "fto" && focusFtoWhiteFace ? 3.9 : defaultDistance;
+}
+
+export function puzzlePreviewSetupAlgorithm(puzzle: PuzzleId, scramble: string, focusFtoWhiteFace = false) {
+  return scramble;
+}
+
+type FtoStickerMesh = Object3D & {
+  isMesh?: boolean;
+  geometry?: { attributes?: { position?: BufferAttribute; color?: BufferAttribute } };
+};
+
+/** Face the requested completed center toward the teaching camera, regardless of Bencisco regrips. */
+function focusActualFtoFace(THREE: typeof import("three"), puzzleObject: Object3D, puzzleBase: Object3D, target: FtoTeachingFace) {
+  const normalCounts = new Map<string, { normal: InstanceType<typeof THREE.Vector3>; count: number }>();
+  puzzleObject.updateWorldMatrix(true, true);
+  puzzleObject.traverse((child) => {
+    const mesh = child as FtoStickerMesh;
+    const position = mesh.geometry?.attributes?.position;
+    const color = mesh.geometry?.attributes?.color;
+    if (!mesh.isMesh || !position || !color) return;
+    for (let vertex = 0; vertex + 2 < position.count; vertex += 3) {
+      const average = [0, 1, 2].map((offset) => new THREE.Color(color.getX(vertex + offset), color.getY(vertex + offset), color.getZ(vertex + offset)).convertLinearToSRGB());
+      const isTarget = target === "white"
+        ? average.every((value) => value.r > 0.97 && value.g > 0.97 && value.b > 0.97)
+        : average.every((value, index) => index === 0 ? value.r > 0.97 : index === 1 ? value.g > 0.2 && value.g < 0.9 : value.b < 0.2);
+      if (!isTarget) continue;
+      const a = new THREE.Vector3(position.getX(vertex), position.getY(vertex), position.getZ(vertex)).applyMatrix4(mesh.matrixWorld);
+      const b = new THREE.Vector3(position.getX(vertex + 1), position.getY(vertex + 1), position.getZ(vertex + 1)).applyMatrix4(mesh.matrixWorld);
+      const c = new THREE.Vector3(position.getX(vertex + 2), position.getY(vertex + 2), position.getZ(vertex + 2)).applyMatrix4(mesh.matrixWorld);
+      const normal = b.sub(a).cross(c.sub(a)).normalize();
+      const center = a.add(b).add(c).multiplyScalar(1 / 3);
+      if (normal.dot(center) < 0) normal.negate();
+      const key = normal.toArray().map((value) => value.toFixed(2)).join(",");
+      const known = normalCounts.get(key);
+      if (known) known.count += 1;
+      else normalCounts.set(key, { normal, count: 1 });
+    }
+  });
+  const targetFace = Array.from(normalCounts.values()).sort((first, second) => second.count - first.count)[0];
+  if (targetFace) puzzleBase.quaternion.setFromUnitVectors(targetFace.normal, new THREE.Vector3(0, 0, 1));
+}
+
+/** A teaching-only FTO framing that isolates the white U face without changing the user's default camera. */
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 export function orbitFromDrag(start: PuzzleOrbit, deltaX: number, deltaY: number): PuzzleOrbit {
@@ -89,6 +134,7 @@ function gapBetween([first, second]: Point[]) { return Math.hypot(first.x - seco
 type PuzzlePlayer = HTMLElement & {
   puzzle: PuzzleId;
   experimentalSetupAlg: string;
+  experimentalModel: { currentPattern: { get: () => Promise<{ patternData: unknown }> } };
   alg: string;
   visualization: "3D";
   hintFacelets: "none";
@@ -112,7 +158,7 @@ function startMountedTwistyPlayer(player: HTMLElement) {
   }
 }
 
-export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationAlg = "", animationRunId = 0, focusFtoWhiteFace = false }: { eventId: TimerEventId; puzzle: PuzzleId; scramble: string; language: "vi" | "en"; animationAlg?: string; animationRunId?: number; focusFtoWhiteFace?: boolean }) {
+export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationAlg = "", animationRunId = 0, focusFtoWhiteFace = false, focusFtoFace }: { eventId: TimerEventId; puzzle: PuzzleId; scramble: string; language: "vi" | "en"; animationAlg?: string; animationRunId?: number; focusFtoWhiteFace?: boolean; focusFtoFace?: FtoTeachingFace }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ x: number; y: number; yaw: number; pitch: number; lastX: number; lastY: number; lastAt: number; moved: boolean } | null>(null);
   const orbitRef = useRef({ yaw: -0.55, pitch: 0.32, distance: 5.4 });
@@ -150,7 +196,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
         staging.style.cssText = "position:fixed;left:-10000px;top:-10000px;width:2px;height:2px;overflow:hidden;pointer-events:none";
         player = document.createElement("twisty-player") as PuzzlePlayer;
         player.puzzle = puzzle;
-        player.experimentalSetupAlg = scramble;
+        player.experimentalSetupAlg = puzzlePreviewSetupAlgorithm(puzzle, scramble, focusFtoWhiteFace);
         player.alg = animationAlg;
         player.visualization = "3D";
         player.hintFacelets = "none";
@@ -167,7 +213,6 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
         ]) as unknown as Object3D;
       }
       if (disposed) { sideEventAnimation?.dispose(); player?.remove(); staging?.remove(); return; }
-
       const activeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
       renderer = activeRenderer;
       activeRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -178,14 +223,18 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
 
       const scene = new THREE.Scene();
       const cameraConfig = defaultPuzzleCamera(puzzle);
+      const isFtoTeachingPreview = focusFtoWhiteFace || Boolean(focusFtoFace);
       const camera = new THREE.PerspectiveCamera(cameraConfig.fov, 1, 0.1, 100);
-      const initialOrbit = puzzleInitialOrbit(puzzle, focusFtoWhiteFace);
-      const orbit = orbitRef.current = { ...initialOrbit, distance: cameraConfig.distance };
+      const initialOrbit = puzzleInitialOrbit(puzzle, isFtoTeachingPreview);
+      const previewDistance = puzzlePreviewDistance(puzzle, cameraConfig.distance, isFtoTeachingPreview);
+      const orbit = orbitRef.current = { ...initialOrbit, distance: previewDistance };
       targetDistanceRef.current = orbit.distance;
       const root = new THREE.Group();
       const puzzleBase = new THREE.Group();
-      puzzleBase.rotation.z = puzzlePreviewBaseRoll(puzzle, focusFtoWhiteFace);
+      puzzleBase.rotation.z = puzzlePreviewBaseRoll(puzzle, isFtoTeachingPreview);
       puzzleBase.add(puzzleObject);
+      const teachingFace = focusFtoFace ?? (focusFtoWhiteFace ? "white" : undefined);
+      if (puzzle === "fto" && teachingFace) focusActualFtoFace(THREE, puzzleObject, puzzleBase, teachingFace);
       root.add(puzzleBase);
       scene.add(root);
       scene.add(new THREE.HemisphereLight(0xffffff, 0x1a2230, 2.4));
@@ -205,7 +254,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
         activeRenderer.render(scene, camera);
       };
       renderRef.current = resizeAndRender;
-      resetRef.current = () => { const nextOrbit = puzzleInitialOrbit(puzzle, focusFtoWhiteFace); orbit.yaw = nextOrbit.yaw; orbit.pitch = nextOrbit.pitch; orbit.distance = cameraConfig.distance; resizeAndRender(); };
+      resetRef.current = () => { const nextOrbit = puzzleInitialOrbit(puzzle, isFtoTeachingPreview); orbit.yaw = nextOrbit.yaw; orbit.pitch = nextOrbit.pitch; orbit.distance = previewDistance; resizeAndRender(); };
       const observer = new ResizeObserver(resizeAndRender);
       observer.observe(host);
       resizeAndRender();
@@ -238,7 +287,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
     });
 
     return () => { disposed = true; cleanup(); host.replaceChildren(); };
-  }, [puzzle, scramble, animationAlg, animationRunId, focusFtoWhiteFace]);
+  }, [puzzle, scramble, animationAlg, animationRunId, focusFtoWhiteFace, focusFtoFace]);
 
   const smoothZoom = () => {
     if (!renderRef.current) return;

@@ -4,7 +4,7 @@ import { FTO_BENCISCO_WALKTHROUGH, FTO_BENCISCO_WALKTHROUGH_SCRAMBLE, ftoWalkthr
 import { FtoBeginnerGuide } from "./FtoBeginnerGuide";
 
 vi.mock("@/components/PuzzleScramblePreview", () => ({
-  PuzzleScramblePreview: ({ scramble, animationAlg, focusFtoWhiteFace }: { scramble: string; animationAlg?: string; focusFtoWhiteFace?: boolean }) => <output data-testid="fto-preview" data-scramble={scramble} data-animation={animationAlg ?? ""} data-focus-white={String(focusFtoWhiteFace ?? false)} />,
+  PuzzleScramblePreview: ({ scramble, animationAlg, focusFtoWhiteFace, focusFtoFace }: { scramble: string; animationAlg?: string; focusFtoWhiteFace?: boolean; focusFtoFace?: string }) => <output data-testid="fto-preview" data-scramble={scramble} data-animation={animationAlg ?? ""} data-focus-white={String(focusFtoWhiteFace ?? false)} data-focus-face={focusFtoFace ?? ""} />,
 }));
 
 afterEach(() => {
@@ -18,7 +18,7 @@ describe("FtoBeginnerGuide Bencisco walkthrough", () => {
     expect(screen.getByText("Bencisco")).toBeTruthy();
     expect(screen.getByText("1. Bencisco · Hoàn thành white center / hexagon")).toBeTruthy();
     expect(screen.getByText(FTO_BENCISCO_WALKTHROUGH_SCRAMBLE)).toBeTruthy();
-    expect(screen.getByLabelText("Mặt U trắng đã hoàn thành")).toBeTruthy();
+    expect(screen.getByText(/Tìm trên chính mô hình 3D bên dưới/)).toBeTruthy();
     expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(0));
     expect(screen.getAllByTestId("fto-preview")[1].getAttribute("data-scramble")).toBe(ftoWalkthroughStateAfter(0));
     expect(screen.getAllByTestId("fto-preview").every((preview) => preview.getAttribute("data-focus-white") === "true")).toBe(true);
@@ -49,6 +49,7 @@ describe("FtoBeginnerGuide Bencisco walkthrough", () => {
     expect(screen.getByText("Đã xong: tâm trắng + 2 triple. Chưa dựng tâm cam.")).toBeTruthy();
     expect(screen.getByText("Mới hoàn thành: tâm cam. Tâm trắng + 2 triple vẫn được giữ.")).toBeTruthy();
     expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(2));
-    expect(screen.getAllByTestId("fto-preview").every((preview) => preview.getAttribute("data-focus-white") === "true")).toBe(true);
+    expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-focus-white")).toBe("true");
+    expect(screen.getAllByTestId("fto-preview")[1].getAttribute("data-focus-face")).toBe("orange");
   });
 });

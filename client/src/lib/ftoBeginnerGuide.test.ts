@@ -63,4 +63,5 @@ describe("FTO Bencisco walkthrough", () => {
       expect(fills).toEqual(Array(9).fill("#ffffff"));
     }
   });
+
 });
