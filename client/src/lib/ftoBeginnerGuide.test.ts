@@ -1,7 +1,13 @@
-import { FTO_BEGINNER_GUIDE, ftoGuideAlgorithmCount } from "./ftoBeginnerGuide";
+import { FTO_BEGINNER_GUIDE, FTO_BEGINNER_LESSONS, ftoBeginnerLessonAlgorithmCount, ftoGuideAlgorithmCount } from "./ftoBeginnerGuide";
 import { describe, expect, it } from "vitest";
 
 describe("FTO beginner guide", () => {
+  it("puts a concrete beginner flow before the Nautilus catalogue", () => {
+    expect(FTO_BEGINNER_LESSONS.map((step) => step.id)).toEqual(["white-edges", "first-triple", "remaining-centers", "last-white-corner", "finish-and-advance"]);
+    expect(ftoBeginnerLessonAlgorithmCount()).toBe(4);
+    expect(FTO_BEGINNER_LESSONS.slice(0, 4).every((step) => step.moves[0]?.setupAlg && step.moves[0]?.resultVi)).toBe(true);
+  });
+
   it("covers an advanced Nautilus path from Last Triple to one-look progression", () => {
     expect(FTO_BEGINNER_GUIDE.map((step) => step.id)).toEqual(["nautilus-grip", "last-triple", "l6x-two-look", "l3c", "one-look-path"]);
     expect(ftoGuideAlgorithmCount()).toBe(6);
@@ -30,6 +36,18 @@ describe("FTO beginner guide", () => {
     for (const step of FTO_BEGINNER_GUIDE) {
       for (const move of step.moves) {
         const restored = solved.applyAlg(new Alg(`${move.setupAlg} ${move.algorithm.replace(" × 5", "5")}`));
+        expect(restored.patternData).toEqual(solved.patternData);
+      }
+    }
+  });
+
+  it("returns every beginner demo setup to the exact FTO solved pattern", async () => {
+    const [{ puzzles }, { Alg }] = await Promise.all([import("cubing/puzzles"), import("cubing/alg")]);
+    const kpuzzle = await puzzles.fto.kpuzzle();
+    const solved = kpuzzle.defaultPattern();
+    for (const step of FTO_BEGINNER_LESSONS) {
+      for (const move of step.moves) {
+        const restored = solved.applyAlg(new Alg(`${move.setupAlg} ${move.algorithm}`));
         expect(restored.patternData).toEqual(solved.patternData);
       }
     }

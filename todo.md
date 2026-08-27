@@ -1396,3 +1396,8 @@
 - [x] Cho FTO xoay dọc tự do theo thao tác kéo lên/xuống.
 - [x] Chỉ giới hạn biên độ xoay ngang và giữ zoom/inertia/reset hoạt động đúng.
 - [x] Bổ sung regression, kiểm tra TypeScript, build và checkpoint.
+
+## Thiết kế lại hướng dẫn FTO cho người mới
+- [x] Viết lại hành trình học thành bài ngắn với điểm bắt đầu, thao tác và tiêu chí hoàn thành rõ ràng.
+- [x] Thêm so sánh 3D trước/sau công thức và hoạt động thực hành trực tiếp cho từng bài.
+- [x] Kiểm thử desktop/mobile, regression, TypeScript, build và checkpoint.

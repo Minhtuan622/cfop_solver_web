@@ -10,23 +10,35 @@ vi.mock("@/components/PuzzleScramblePreview", () => ({
 afterEach(() => cleanup());
 
 describe("FtoBeginnerGuide animation", () => {
-  it("starts a documented FTO formula from its matching setup state", () => {
+  it("opens on one concrete beginner action with a before-and-after FTO comparison", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    fireEvent.click(screen.getByRole("tab", { name: /2\. Last Triple/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Phát animation: Insert góc từ phải" }));
-
-    expect(screen.getByText("Đang phát: Insert góc từ phải · R U' R'")).toBeInTheDocument();
-    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-scramble", "R U R'");
-    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-animation", "R U' R'");
+    expect(screen.getByText("Bắt đầu từ đây")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /1\. Bắt đầu với ba cạnh trắng/i })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getAllByText(/Tìm một mảnh có hai màu/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Trước")).toBeInTheDocument();
+    expect(screen.getByText("Sau")).toBeInTheDocument();
+    const previews = screen.getAllByTestId("fto-preview");
+    expect(previews[0]).toHaveAttribute("data-scramble", "R U R'");
+    expect(previews[1]).toHaveAttribute("data-scramble", "U U U");
   });
 
-  it("restores the step illustration after the learner chooses reset", () => {
+  it("animates a beginner formula from the displayed before state one turn at a time", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    fireEvent.click(screen.getByRole("tab", { name: /2\. Last Triple/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Phát animation: Insert góc từ phải" }));
-    fireEvent.click(screen.getByRole("button", { name: "Đặt lại" }));
+    fireEvent.click(screen.getByRole("button", { name: "Xem nước kế tiếp: Chèn cạnh mẫu bên phải" }));
 
-    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-scramble", "R U R'");
-    expect(screen.getByTestId("fto-preview")).toHaveAttribute("data-animation", "");
+    expect(screen.getByText("Đang mô phỏng nước 1/3: R")).toBeInTheDocument();
+    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", "R U R'");
+    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-animation", "R");
+  });
+
+  it("keeps the advanced Nautilus catalogue available behind the experienced learner choice", () => {
+    render(<FtoBeginnerGuide language="vi" />);
+    fireEvent.click(screen.getByRole("button", { name: "Tôi đã biết cơ bản" }));
+    fireEvent.click(screen.getByRole("tab", { name: /2\. Last Triple/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Phát toàn bộ: Insert góc từ phải" }));
+
+    expect(screen.getByText("Đang phát: R U' R'")).toBeInTheDocument();
+    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", "R U R'");
+    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-animation", "R U' R'");
   });
 });
