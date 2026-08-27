@@ -15,6 +15,12 @@ export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? Mat
 /** A positive yaw brings the rolled-left white FTO face toward the viewer instead of hiding it behind the model. */
 export function puzzleDefaultYaw(puzzle: PuzzleId) { return puzzle === "fto" ? 0.55 : -0.55; }
 
+/** Only the Bencisco white-center example faces U forward; ordinary FTO previews keep the user-approved left-face framing. */
+export function puzzleInitialOrbit(puzzle: PuzzleId, focusFtoWhiteFace = false) {
+  if (puzzle === "fto" && focusFtoWhiteFace) return { yaw: 0, pitch: 0 };
+  return { yaw: puzzleDefaultYaw(puzzle), pitch: 0.32 };
+}
+
 /** A teaching-only FTO framing that places the white U face forward without changing the user's default camera. */
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -101,7 +107,7 @@ function startMountedTwistyPlayer(player: HTMLElement) {
   }
 }
 
-export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationAlg = "", animationRunId = 0 }: { eventId: TimerEventId; puzzle: PuzzleId; scramble: string; language: "vi" | "en"; animationAlg?: string; animationRunId?: number }) {
+export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationAlg = "", animationRunId = 0, focusFtoWhiteFace = false }: { eventId: TimerEventId; puzzle: PuzzleId; scramble: string; language: "vi" | "en"; animationAlg?: string; animationRunId?: number; focusFtoWhiteFace?: boolean }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ x: number; y: number; yaw: number; pitch: number; lastX: number; lastY: number; lastAt: number; moved: boolean } | null>(null);
   const orbitRef = useRef({ yaw: -0.55, pitch: 0.32, distance: 5.4 });
@@ -168,7 +174,8 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
       const scene = new THREE.Scene();
       const cameraConfig = defaultPuzzleCamera(puzzle);
       const camera = new THREE.PerspectiveCamera(cameraConfig.fov, 1, 0.1, 100);
-      const orbit = orbitRef.current = { yaw: puzzleDefaultYaw(puzzle), pitch: 0.32, distance: cameraConfig.distance };
+      const initialOrbit = puzzleInitialOrbit(puzzle, focusFtoWhiteFace);
+      const orbit = orbitRef.current = { ...initialOrbit, distance: cameraConfig.distance };
       targetDistanceRef.current = orbit.distance;
       const root = new THREE.Group();
       const puzzleBase = new THREE.Group();
@@ -193,7 +200,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
         activeRenderer.render(scene, camera);
       };
       renderRef.current = resizeAndRender;
-      resetRef.current = () => { orbit.yaw = puzzleDefaultYaw(puzzle); orbit.pitch = 0.32; orbit.distance = cameraConfig.distance; resizeAndRender(); };
+      resetRef.current = () => { const nextOrbit = puzzleInitialOrbit(puzzle, focusFtoWhiteFace); orbit.yaw = nextOrbit.yaw; orbit.pitch = nextOrbit.pitch; orbit.distance = cameraConfig.distance; resizeAndRender(); };
       const observer = new ResizeObserver(resizeAndRender);
       observer.observe(host);
       resizeAndRender();
@@ -226,7 +233,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
     });
 
     return () => { disposed = true; cleanup(); host.replaceChildren(); };
-  }, [puzzle, scramble, animationAlg, animationRunId]);
+  }, [puzzle, scramble, animationAlg, animationRunId, focusFtoWhiteFace]);
 
   const smoothZoom = () => {
     if (!renderRef.current) return;

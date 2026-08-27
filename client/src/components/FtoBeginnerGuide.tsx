@@ -118,7 +118,7 @@ export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }
                     <div className="d-flex justify-content-between align-items-center px-1 pt-1"><strong className="small">Sau</strong><span className="badge text-bg-success">Mốc {activeIndex + 2}</span></div>
                     <p className="small text-body-secondary px-1 mb-2">{phase.afterVi}</p>
                     {activeIndex === 0 ? <WhiteFaceMilestone /> : null}
-                    <div className="ratio ratio-1x1 rounded-3 overflow-hidden bg-body"><PuzzleScramblePreview eventId="fto" scramble={afterState} language={language} /></div>
+                    <div className="ratio ratio-1x1 rounded-3 overflow-hidden bg-body"><PuzzleScramblePreview eventId="fto" scramble={afterState} language={language} focusFtoWhiteFace={activeIndex === 0} /></div>
                   </div>
                 </div>
               </div>

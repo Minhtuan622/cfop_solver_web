@@ -1428,3 +1428,8 @@
 - [x] Đặt Bencisco làm phương pháp mặc định và ghi đúng mốc white center/hexagon đầu tiên.
 - [x] Dựng một scramble cố định qua First Center, F2T, Centers, LBT và Last 3 Triples đến solved.
 - [x] Kiểm chứng white center/hexagon, minh họa 3D liên kết, regression, responsive và checkpoint.
+
+## Sửa màu tâm trắng trong minh họa Bencisco
+- [x] Xác định mapping màu–mặt khiến state stage đầu hiển thị tâm cam thay vì tâm trắng.
+- [x] Sửa state/camera minh họa để tâm trắng là tâm đầu tiên xuất hiện đúng trên 3D.
+- [x] Bổ sung regression, kiểm tra desktop/mobile và checkpoint.

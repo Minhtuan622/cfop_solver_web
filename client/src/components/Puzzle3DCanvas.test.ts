@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { distanceFromPinch, inertiaStep, inertiaStepForPuzzle, orbitFromDrag, orbitFromPuzzleDrag, puzzleBaseRoll, puzzleDefaultYaw } from "./Puzzle3DCanvas";
+import { distanceFromPinch, inertiaStep, inertiaStepForPuzzle, orbitFromDrag, orbitFromPuzzleDrag, puzzleBaseRoll, puzzleDefaultYaw, puzzleInitialOrbit } from "./Puzzle3DCanvas";
 
 describe("Puzzle3DCanvas controls", () => {
   it("moves the vertical camera axis in the same direction as the pointer", () => {
@@ -28,6 +28,12 @@ describe("Puzzle3DCanvas controls", () => {
     expect(puzzleBaseRoll("square1")).toBe(0);
     expect(puzzleDefaultYaw("fto")).toBeGreaterThan(0);
     expect(puzzleDefaultYaw("pyraminx")).toBeLessThan(0);
+  });
+
+  it("reserves a face-forward orbit for the Bencisco white-center teaching example only", () => {
+    expect(puzzleInitialOrbit("fto", true)).toEqual({ yaw: 0, pitch: 0 });
+    expect(puzzleInitialOrbit("fto")).toEqual({ yaw: puzzleDefaultYaw("fto"), pitch: 0.32 });
+    expect(puzzleInitialOrbit("pyraminx", true)).toEqual({ yaw: puzzleDefaultYaw("pyraminx"), pitch: 0.32 });
   });
 
   it("keeps FTO drag intuitive: horizontal movement changes yaw and vertical movement changes pitch", () => {
