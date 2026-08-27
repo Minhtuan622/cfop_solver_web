@@ -1401,3 +1401,9 @@
 - [x] Viết lại hành trình học thành bài ngắn với điểm bắt đầu, thao tác và tiêu chí hoàn thành rõ ràng.
 - [x] Thêm so sánh 3D trước/sau công thức và hoạt động thực hành trực tiếp cho từng bài.
 - [x] Kiểm thử desktop/mobile, regression, TypeScript, build và checkpoint.
+
+## Lộ trình Nautilus FTO liên tục
+- [x] Bỏ điểm vào cơ bản và đặt Nautilus nâng cao làm hướng dẫn mặc định có tên phương pháp rõ ràng.
+- [x] Chọn một scramble cố định, xác minh đường giải liên tục qua First Block, Centers, Last Triple và Last Layer.
+- [x] Minh họa từng trạng thái trước/sau trên cùng một scramble, kèm điều khiển phát theo giai đoạn.
+- [x] Bổ sung regression, kiểm tra desktop/mobile, build và checkpoint.

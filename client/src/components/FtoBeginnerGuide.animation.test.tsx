@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { FTO_NAUTILUS_WALKTHROUGH_SCRAMBLE, ftoWalkthroughStateAfter, ftoWalkthroughStateBefore } from "@/lib/ftoBeginnerGuide";
 import { FtoBeginnerGuide } from "./FtoBeginnerGuide";
 
 vi.mock("@/components/PuzzleScramblePreview", () => ({
@@ -9,36 +10,40 @@ vi.mock("@/components/PuzzleScramblePreview", () => ({
 
 afterEach(() => cleanup());
 
-describe("FtoBeginnerGuide animation", () => {
-  it("opens on one concrete beginner action with a before-and-after FTO comparison", () => {
+describe("FtoBeginnerGuide Nautilus walkthrough", () => {
+  it("opens directly on the named Nautilus method and one fixed scramble", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    expect(screen.getByText("Bắt đầu từ đây")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /1\. Bắt đầu với ba cạnh trắng/i })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getAllByText(/Tìm một mảnh có hai màu/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Trước")).toBeInTheDocument();
-    expect(screen.getByText("Sau")).toBeInTheDocument();
-    const previews = screen.getAllByTestId("fto-preview");
-    expect(previews[0]).toHaveAttribute("data-scramble", "R U R'");
-    expect(previews[1]).toHaveAttribute("data-scramble", "U U U");
+    expect(screen.getByText("Nautilus · FTO Speedsolving")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /^First Block/ })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByText(FTO_NAUTILUS_WALKTHROUGH_SCRAMBLE)).toBeInTheDocument();
+    expect(screen.getByText("Trước mốc này")).toBeInTheDocument();
+    expect(screen.getByText("Sau mốc này")).toBeInTheDocument();
+    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", ftoWalkthroughStateBefore(0));
+    expect(screen.getAllByTestId("fto-preview")[1]).toHaveAttribute("data-scramble", ftoWalkthroughStateAfter(0));
   });
 
-  it("animates a beginner formula from the displayed before state one turn at a time", () => {
+  it("plays the current phase from its displayed checkpoint", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    fireEvent.click(screen.getByRole("button", { name: "Xem nước kế tiếp: Chèn cạnh mẫu bên phải" }));
+    fireEvent.click(screen.getByRole("button", { name: "Phát đoạn 1: R U' R' L' U L" }));
 
-    expect(screen.getByText("Đang mô phỏng nước 1/3: R")).toBeInTheDocument();
-    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", "R U R'");
-    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-animation", "R");
+    expect(screen.getByText("Đang chạy: R U' R' L' U L")).toBeInTheDocument();
+    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", ftoWalkthroughStateBefore(0));
+    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-animation", "R U' R' L' U L");
   });
 
-  it("keeps the advanced Nautilus catalogue available behind the experienced learner choice", () => {
+  it("shows the prior after state as the next phase before state", () => {
     render(<FtoBeginnerGuide language="vi" />);
-    fireEvent.click(screen.getByRole("button", { name: "Tôi đã biết cơ bản" }));
-    fireEvent.click(screen.getByRole("tab", { name: /2\. Last Triple/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Phát toàn bộ: Insert góc từ phải" }));
+    fireEvent.click(screen.getByRole("button", { name: "Giai đoạn tiếp" }));
 
-    expect(screen.getByText("Đang phát: R U' R'")).toBeInTheDocument();
-    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", "R U R'");
-    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-animation", "R U' R'");
+    expect(screen.getByRole("tab", { name: /^Centres/ })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getAllByTestId("fto-preview")[0]).toHaveAttribute("data-scramble", ftoWalkthroughStateBefore(1));
+    expect(ftoWalkthroughStateBefore(1)).toBe(ftoWalkthroughStateAfter(0));
+  });
+
+  it("splits the final Last Layer animation into L6X then L3C", () => {
+    render(<FtoBeginnerGuide language="vi" />);
+    fireEvent.click(screen.getByRole("tab", { name: /^Last Layer/ }));
+    expect(screen.getByRole("button", { name: /Phát đoạn 1: r U R'/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Phát đoạn 2: U R' F'/i })).toBeInTheDocument();
   });
 });
