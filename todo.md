@@ -1351,3 +1351,8 @@
 - [x] Chọn lọc video FTO phù hợp với từng bước của lộ trình nhập môn.
 - [x] Thêm minh họa 3D trực quan nêu rõ vùng cần quan sát và thao tác theo từng bước.
 - [x] Bổ sung regression, kiểm tra desktop/mobile, TypeScript, build và checkpoint.
+
+## Highlight mục tiêu và layout FTO
+- [x] Làm nổi bật các mảnh/vùng mục tiêu trên preview 3D theo từng bước FTO.
+- [x] Thu gọn phần tiến độ và tối ưu bố cục luyện FTO trên desktop, mobile.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
