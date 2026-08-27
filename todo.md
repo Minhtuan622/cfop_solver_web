@@ -1336,3 +1336,8 @@
 - [x] Thêm FTO vào danh mục event, scramble và lịch sử Timer.
 - [x] Hiển thị preview phù hợp và bổ sung regression cho FTO.
 - [x] Kiểm tra TypeScript, build và lưu checkpoint.
+
+## Khôi phục tab FTO trong Study
+- [x] Truy vết điều kiện khiến tab FTO không xuất hiện hoặc deep-link `lane=fto` rơi về Last Layer.
+- [x] Khôi phục tab FTO có thể chọn trong Study và giữ deep-link mở đúng lane.
+- [x] Bổ sung regression, kiểm tra desktop/mobile và checkpoint.
