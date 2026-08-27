@@ -1407,3 +1407,9 @@
 - [x] Chọn một scramble cố định, xác minh đường giải liên tục qua First Block, Centers, Last Triple và Last Layer.
 - [x] Minh họa từng trạng thái trước/sau trên cùng một scramble, kèm điều khiển phát theo giai đoạn.
 - [x] Bổ sung regression, kiểm tra desktop/mobile, build và checkpoint.
+
+## Nautilus FTO nâng cao đầy đủ
+- [x] Thay walkthrough Baby/2-look bằng Last Triple, one-look L6X, one-look L3C và 1LLL của Nautilus nâng cao.
+- [x] Nghiên cứu catalogue case, điều kiện nhận diện và chuỗi thuật toán có thể parser/kiểm chứng cho walkthrough một scramble.
+- [x] Hiển thị mỗi stage nâng cao với trạng thái liên kết, công thức và nhận diện rõ trên 3D không dùng marker vàng.
+- [x] Bổ sung regression state/algorithm, kiểm tra desktop/mobile, build và checkpoint.
