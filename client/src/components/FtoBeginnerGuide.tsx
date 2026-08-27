@@ -113,19 +113,21 @@ export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }
 
               <div className="row g-3">
                 <div className="col-12">
-                  <div className="rounded-3 bg-body-tertiary p-2 h-100">
-                    <div className="d-flex justify-content-between align-items-center px-1 pt-1"><strong className="small">Trước</strong><span className="badge text-bg-secondary">Mốc {activeIndex + 1}</span></div>
-                    <p className="small text-body-secondary px-1 mb-2">{phase.beforeVi}</p>
-                    <div className="ratio ratio-1x1 rounded-3 overflow-hidden bg-body">
+                    <div className="rounded-3 bg-body-tertiary p-2 h-100">
+                      <div className="d-flex justify-content-between align-items-center px-1 pt-1"><strong className="small">Trước</strong><span className="badge text-bg-secondary">Mốc {activeIndex + 1}</span></div>
+                      <p className="small text-body-secondary px-1 mb-2">{phase.beforeVi}</p>
+                      {activeIndex === 2 ? <div className="small text-primary fw-semibold px-1 mb-2">Đã xong: tâm trắng + 2 triple. Chưa dựng tâm cam.</div> : null}
+                      <div className="ratio ratio-1x1 rounded-3 overflow-hidden bg-body">
                       <PuzzleScramblePreview eventId="fto" scramble={beforeState} language={language} animationAlg={isPlaying ? phase.algorithm : undefined} animationRunId={animationRunId} focusFtoWhiteFace />
                     </div>
                   </div>
                 </div>
                 <div className="col-12">
-                  <div className="rounded-3 bg-body-tertiary p-2 h-100">
-                    <div className="d-flex justify-content-between align-items-center px-1 pt-1"><strong className="small">Sau</strong><span className="badge text-bg-success">Mốc {activeIndex + 2}</span></div>
-                    <p className="small text-body-secondary px-1 mb-2">{phase.afterVi}</p>
-                    {activeIndex === 0 ? <WhiteFaceMilestone /> : null}
+                    <div className="rounded-3 bg-body-tertiary p-2 h-100">
+                      <div className="d-flex justify-content-between align-items-center px-1 pt-1"><strong className="small">Sau</strong><span className="badge text-bg-success">Mốc {activeIndex + 2}</span></div>
+                      <p className="small text-body-secondary px-1 mb-2">{phase.afterVi}</p>
+                      {activeIndex === 2 ? <div className="small text-success fw-semibold px-1 mb-2">Mới hoàn thành: tâm cam. Tâm trắng + 2 triple vẫn được giữ.</div> : null}
+                      {activeIndex === 0 ? <WhiteFaceMilestone /> : null}
                     <div className="ratio ratio-1x1 rounded-3 overflow-hidden bg-body"><PuzzleScramblePreview eventId="fto" scramble={afterState} language={language} focusFtoWhiteFace /></div>
                   </div>
                 </div>

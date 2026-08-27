@@ -12,12 +12,17 @@ const FTO_HORIZONTAL_YAW_LIMIT = 1.35;
 /** The cubing FTO default has its white U face above the viewer; positive roll moves it to the viewer's left. */
 export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? Math.PI / 2 : 0; }
 
+/** The study preview needs the canonical U face forward; the normal FTO viewer still rolls U to viewer-left. */
+export function puzzlePreviewBaseRoll(puzzle: PuzzleId, focusFtoWhiteFace = false) {
+  return puzzle === "fto" && focusFtoWhiteFace ? 0 : puzzleBaseRoll(puzzle);
+}
+
 /** A positive yaw brings the rolled-left white FTO face toward the viewer instead of hiding it behind the model. */
 export function puzzleDefaultYaw(puzzle: PuzzleId) { return puzzle === "fto" ? 0.55 : -0.55; }
 
 /** Only the Bencisco white-center example faces U forward; ordinary FTO previews keep the user-approved left-face framing. */
 export function puzzleInitialOrbit(puzzle: PuzzleId, focusFtoWhiteFace = false) {
-  if (puzzle === "fto" && focusFtoWhiteFace) return { yaw: 0, pitch: 0 };
+  if (puzzle === "fto" && focusFtoWhiteFace) return { yaw: 0, pitch: Math.PI / 2 };
   return { yaw: puzzleDefaultYaw(puzzle), pitch: 0.32 };
 }
 
@@ -179,7 +184,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
       targetDistanceRef.current = orbit.distance;
       const root = new THREE.Group();
       const puzzleBase = new THREE.Group();
-      puzzleBase.rotation.z = puzzleBaseRoll(puzzle);
+      puzzleBase.rotation.z = puzzlePreviewBaseRoll(puzzle, focusFtoWhiteFace);
       puzzleBase.add(puzzleObject);
       root.add(puzzleBase);
       scene.add(root);

@@ -45,7 +45,9 @@ describe("FtoBeginnerGuide Bencisco walkthrough", () => {
     window.history.replaceState({}, "", "/study?lane=fto&ftoStage=3");
     render(<FtoBeginnerGuide language="vi" />);
 
-    expect(screen.getByText("3. Bencisco · Dựng center thứ hai")).toBeTruthy();
+    expect(screen.getByText("3. Bencisco · Dựng tâm cam (center thứ hai)")).toBeTruthy();
+    expect(screen.getByText("Đã xong: tâm trắng + 2 triple. Chưa dựng tâm cam.")).toBeTruthy();
+    expect(screen.getByText("Mới hoàn thành: tâm cam. Tâm trắng + 2 triple vẫn được giữ.")).toBeTruthy();
     expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(2));
     expect(screen.getAllByTestId("fto-preview").every((preview) => preview.getAttribute("data-focus-white") === "true")).toBe(true);
   });

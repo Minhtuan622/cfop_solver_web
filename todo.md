@@ -1448,3 +1448,8 @@
 - [x] Đo trực tiếp face màu và face đang hiện chính diện của renderer ở Trước mốc 3.
 - [x] Sửa state/camera chỉ theo mapping đã đo để tâm trắng xuất hiện thay vì tâm cam.
 - [x] Đối chiếu ảnh riêng của Trước mốc 3, regression và checkpoint trước khi báo hoàn tất.
+
+## Thứ tự Bencisco white–F2T–orange
+- [x] Đối chiếu tài liệu Bencisco để xác nhận white center → hai triple → tâm cam là thứ tự đúng.
+- [x] Điều chỉnh state/nhãn nếu checkpoint sau F2T không thể hiện white center và hai triple đã giữ lại.
+- [x] Kiểm chứng state 3D tuần tự, regression và checkpoint.
