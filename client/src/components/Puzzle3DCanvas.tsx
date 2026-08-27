@@ -8,8 +8,11 @@ export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 type Point = { x: number; y: number };
 const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
 
-/** The cubing FTO default has its white U face above the viewer; roll it left before orbit controls are applied. */
-export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? -Math.PI / 2 : 0; }
+/** The cubing FTO default has its white U face above the viewer; positive roll moves it to the viewer's left. */
+export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? Math.PI / 2 : 0; }
+
+/** A positive yaw brings the rolled-left white FTO face toward the viewer instead of hiding it behind the model. */
+export function puzzleDefaultYaw(puzzle: PuzzleId) { return puzzle === "fto" ? 0.55 : -0.55; }
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -147,7 +150,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
       const scene = new THREE.Scene();
       const cameraConfig = defaultPuzzleCamera(puzzle);
       const camera = new THREE.PerspectiveCamera(cameraConfig.fov, 1, 0.1, 100);
-      const orbit = orbitRef.current = { yaw: -0.55, pitch: 0.32, distance: cameraConfig.distance };
+      const orbit = orbitRef.current = { yaw: puzzleDefaultYaw(puzzle), pitch: 0.32, distance: cameraConfig.distance };
       targetDistanceRef.current = orbit.distance;
       const root = new THREE.Group();
       const puzzleBase = new THREE.Group();
@@ -172,7 +175,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
         activeRenderer.render(scene, camera);
       };
       renderRef.current = resizeAndRender;
-      resetRef.current = () => { orbit.yaw = -0.55; orbit.pitch = 0.32; orbit.distance = cameraConfig.distance; resizeAndRender(); };
+      resetRef.current = () => { orbit.yaw = puzzleDefaultYaw(puzzle); orbit.pitch = 0.32; orbit.distance = cameraConfig.distance; resizeAndRender(); };
       const observer = new ResizeObserver(resizeAndRender);
       observer.observe(host);
       resizeAndRender();

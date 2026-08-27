@@ -1381,3 +1381,8 @@
 - [x] Xoay FTO theo trục dọc khi kéo, tách biệt khỏi ánh xạ drag chuẩn của puzzle khác.
 - [x] Giữ pinch zoom, inertia và đặt lại góc nhìn hoạt động đúng.
 - [x] Bổ sung regression interaction, TypeScript, build và checkpoint.
+
+## Sửa mặt trắng FTO sang đúng bên trái
+- [x] Đảo orientation để mặt trắng hiển thị đúng bên trái theo góc nhìn người xem.
+- [x] Kiểm tra trực quan preview FTO và regression orientation.
+- [x] Kiểm tra TypeScript, build và lưu checkpoint.
