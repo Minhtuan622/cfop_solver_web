@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { distanceFromPinch, ftoTargetMarkerPositions, inertiaStep, orbitFromDrag } from "./Puzzle3DCanvas";
+import { distanceFromPinch, inertiaStep, orbitFromDrag } from "./Puzzle3DCanvas";
 
 describe("Puzzle3DCanvas controls", () => {
   it("moves the vertical camera axis in the same direction as the pointer", () => {
@@ -22,10 +22,4 @@ describe("Puzzle3DCanvas controls", () => {
     expect(next.velocity.pitch).toBeGreaterThan(-0.1);
   });
 
-  it("maps each FTO guide target to visible marker positions", () => {
-    expect(ftoTargetMarkerPositions("up-edges")).toHaveLength(3);
-    expect(ftoTargetMarkerPositions("middle-edges")).toHaveLength(2);
-    expect(ftoTargetMarkerPositions("vertices")).toHaveLength(3);
-    expect(ftoTargetMarkerPositions("centres")).toHaveLength(2);
-  });
 });

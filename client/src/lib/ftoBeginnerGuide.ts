@@ -1,6 +1,6 @@
 export type FtoGuideMove = { labelVi: string; algorithm: string; useVi: string };
 export type FtoGuideVideo = { youtubeId: string; title: string; focusVi: string };
-export type FtoGuideVisual = { scramble: string; focusVi: string; targetFocus: "orientation" | "up-edges" | "middle-edges" | "vertices" | "centres" | "finish" };
+export type FtoGuideVisual = { scramble: string; focusVi: string };
 export type FtoGuideStep = { id: string; titleVi: string; goalVi: string; holdVi: string; actionsVi: readonly string[]; checkVi: string; moves: readonly FtoGuideMove[]; tipVi: string; visual: FtoGuideVisual; video: FtoGuideVideo };
 
 export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
@@ -13,7 +13,7 @@ export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
     checkVi: "Bạn có thể chỉ đúng U, F, R, L và D mà không đổi cách cầm khối.",
     moves: [],
     tipVi: "FTO có tám mặt tam giác; không thể áp trực tiếp tư duy mặt vuông của 3×3 lên các cạnh kề nhau.",
-    visual: { scramble: "U", targetFocus: "orientation", focusVi: "Các điểm sáng vàng đánh dấu mặt U và F. Kéo để quan sát; khi học notation, luôn tưởng tượng bạn đang nhìn thẳng vào mặt đang xoay." },
+    visual: { scramble: "U U U", focusVi: "Đây là trạng thái đích đã giải để tập xác định cách cầm: đặt U ở trên và chọn một mặt kề làm F. Kéo khối để kiểm tra hướng mặt." },
     video: { youtubeId: "J8_9no7Ml78", title: "QUICKEST FTO TUTORIAL | How to solve the Face-Turning Octahedron", focusVi: "Xem phần giới thiệu để quen cách cầm FTO và hướng xoay của mặt." },
   },
   {
@@ -25,7 +25,7 @@ export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
     checkVi: "Ba cạnh quanh U có màu U và màu bên hông khớp theo thứ tự với các đỉnh xung quanh.",
     moves: [],
     tipVi: "Đừng chỉ nhìn màu U: một cạnh đúng màu nhưng sai thứ tự sẽ gây khó ở bước chèn cạnh giữa.",
-    visual: { scramble: "F U'", targetFocus: "up-edges", focusVi: "Ba điểm sáng vàng đánh dấu ba cạnh bao quanh U. Mục tiêu là đưa các cạnh màu U về đúng thứ tự, không chỉ đúng màu." },
+    visual: { scramble: "U U U", focusVi: "Đây là hình đích của bước: ba cạnh quanh U phải cùng màu với U và màu bên hông khớp với đỉnh kề. Xoay khối để kiểm tra đủ ba cạnh." },
     video: { youtubeId: "03L3P1a0Auc", title: "How to Solve the Face Turning Octahedron (FTO)", focusVi: "Tập trung vào phần tạo mặt đầu tiên và cách đối chiếu màu bên hông." },
   },
   {
@@ -37,7 +37,7 @@ export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
     checkVi: "Mười hai cạnh đều khớp hai màu với hai vùng lân cận; U vẫn nguyên vẹn.",
     moves: [{ labelVi: "Chèn từ DL vào FR", algorithm: "R' D R", useVi: "Dùng khi cạnh cần chèn ở DL và đích là FR." }, { labelVi: "Chèn từ DR vào FL", algorithm: "L D' L'", useVi: "Dùng khi cạnh cần chèn ở DR và đích là FL." }],
     tipVi: "Nếu một cạnh tầng giữa sai, hãy dùng công thức chèn để đẩy nó xuống trước, rồi chèn lại đúng cách.",
-    visual: { scramble: "R' D R", targetFocus: "middle-edges", focusVi: "Hai điểm sáng vàng đánh dấu vùng cạnh tầng giữa. Xoay 3D để xem công thức di chuyển cạnh từ đáy lên đây mà không động ba cạnh U." },
+    visual: { scramble: "R' D' R", focusVi: "Đây là trạng thái ngay trước công thức chèn. Thực hiện R' D R sẽ đưa minh họa này trở lại trạng thái đã giải; hãy xem cạnh di chuyển từ D lên tầng giữa." },
     video: { youtubeId: "J8_9no7Ml78", title: "QUICKEST FTO TUTORIAL | How to solve the Face-Turning Octahedron", focusVi: "Theo dõi cách setup cạnh ở tầng dưới trước khi dùng công thức chèn." },
   },
   {
@@ -49,7 +49,7 @@ export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
     checkVi: "Mỗi đỉnh vừa đúng vị trí vừa có ba màu hướng về đúng mặt tương ứng.",
     moves: [{ labelVi: "3-cycle UR → UL → LR", algorithm: "R U' R' U", useVi: "Dùng để đưa đỉnh theo chiều thứ nhất." }, { labelVi: "3-cycle UB → UR → LR", algorithm: "R U R' U'", useVi: "Dùng để đưa đỉnh theo chiều thứ hai." }, { labelVi: "Lật cặp đỉnh kề nhau", algorithm: "R' U L' U' L U' R U", useVi: "Đưa hai đỉnh sai chiều về vị trí kề nhau trước khi thực hiện." }],
     tipVi: "Đỉnh đối diện có thể được biến thành cặp kề bằng một setup move, lật cặp, rồi undo setup move.",
-    visual: { scramble: "R U' R' U", targetFocus: "vertices", focusVi: "Ba điểm sáng vàng đánh dấu bộ ba mảnh đỉnh đang được hoán vị. Xem vùng U/R/L để nhận ra cạnh đã giải vẫn ổn định." },
+    visual: { scramble: "U' R U R'", focusVi: "Đây là trạng thái trước 3-cycle. Thực hiện R U' R' U sẽ khôi phục minh họa về trạng thái đã giải, cho thấy chính xác ba đỉnh được xử lý." },
     video: { youtubeId: "03L3P1a0Auc", title: "How to Solve the Face Turning Octahedron (FTO)", focusVi: "Xem cách tách hai việc: đặt đỉnh đúng vị trí trước, rồi mới sửa chiều." },
   },
   {
@@ -61,7 +61,7 @@ export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
     checkVi: "Tất cả tâm cùng màu với mặt của chúng; cạnh và đỉnh vẫn giữ đúng vị trí.",
     moves: [{ labelVi: "Hoán vị tâm", algorithm: "(r U r' U') × 5", useVi: "r là lớp giữa song song với R; lặp trọn chuỗi năm lần." }],
     tipVi: "Nếu một vòng làm sai nhiều hơn dự kiến, dừng lại và hoàn tác ngay setup/chuỗi vừa làm; cách cầm là phần quan trọng của bước này.",
-    visual: { scramble: "r U r' U'", targetFocus: "centres", focusVi: "Hai điểm sáng vàng đánh dấu các tâm cạnh slice r sát mặt R. Đây là phần khác nhất so với các nước lớp ngoài ở bước trước." },
+    visual: { scramble: "U r U' r' U r U' r' U r U' r' U r U' r' U r U' r'", focusVi: "Đây là trạng thái trước chuỗi hoán vị tâm năm lần. Thực hiện (r U r' U') × 5 để đưa minh họa trở lại trạng thái đã giải." },
     video: { youtubeId: "03L3P1a0Auc", title: "How to Solve the Face Turning Octahedron (FTO)", focusVi: "Đối chiếu cách đưa hai tâm sai vào vùng thao tác trước khi lặp chuỗi năm lần." },
   },
   {
@@ -73,7 +73,7 @@ export const FTO_BEGINNER_GUIDE: readonly FtoGuideStep[] = [
     checkVi: "Tám mặt đều đồng màu và không có công thức nào bị thực hiện khi chưa xác định mục tiêu.",
     moves: [],
     tipVi: "Tốc độ đến từ nhìn trước bước kế tiếp; ở giai đoạn đầu, ưu tiên một lần giải đúng hơn là thời gian ngắn.",
-    visual: { scramble: "R U' R' U F", targetFocus: "finish", focusVi: "Ba điểm sáng vàng dẫn bạn kiểm tra các vùng xa nhau. Xoay preview qua nhiều mặt, thay vì chỉ nhìn U đã hoàn thành." },
+    visual: { scramble: "U U U", focusVi: "Trạng thái đích cuối cùng là toàn bộ FTO đã giải. Kéo qua các hướng khác nhau để kiểm tra đủ tám mặt, không chỉ mặt U." },
     video: { youtubeId: "J8_9no7Ml78", title: "QUICKEST FTO TUTORIAL | How to solve the Face-Turning Octahedron", focusVi: "Xem lại toàn bộ luồng giải một lượt, sau đó quay về bài single-layer để tăng độ chắc tay." },
   },
 ] as const;

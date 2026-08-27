@@ -13,7 +13,13 @@ describe("FTO beginner guide", () => {
   });
 
   it("provides one interactive visual and a selected source video for every guide step", () => {
-    expect(FTO_BEGINNER_GUIDE.every((step) => step.visual.scramble.trim() && step.visual.focusVi && step.visual.targetFocus && step.video.youtubeId && step.video.title && step.video.focusVi)).toBe(true);
+    expect(FTO_BEGINNER_GUIDE.every((step) => step.visual.scramble.trim() && step.visual.focusVi && step.video.youtubeId && step.video.title && step.video.focusVi)).toBe(true);
     expect(new Set(FTO_BEGINNER_GUIDE.map((step) => step.video.youtubeId))).toEqual(new Set(["J8_9no7Ml78", "03L3P1a0Auc"]));
+  });
+
+  it("uses inverse setup states so the documented algorithms restore the exact visual", () => {
+    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "middle-edges")?.visual.scramble).toBe("R' D' R");
+    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "vertices")?.visual.scramble).toBe("U' R U R'");
+    expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "centres")?.visual.scramble).toBe("U r U' r' U r U' r' U r U' r' U r U' r' U r U' r'");
   });
 });

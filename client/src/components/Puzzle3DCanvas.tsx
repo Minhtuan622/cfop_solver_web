@@ -4,22 +4,9 @@ import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
 import { isSideEvent3DPuzzle, sideEvent3DAnimation, type SideEvent3DAnimation } from "@/components/SideEvent3DObject";
 
 type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "megaminx" | "fto" | "square1" | "clock";
-export type FtoTargetFocus = "orientation" | "up-edges" | "middle-edges" | "vertices" | "centres" | "finish";
 export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 type Point = { x: number; y: number };
 const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
-
-const FTO_TARGET_MARKERS: Record<FtoTargetFocus, readonly [number, number, number][]> = {
-  orientation: [[0, 1, 0], [0, 0.25, 1]],
-  "up-edges": [[0, 1, 0.35], [-0.42, 0.86, 0.16], [0.42, 0.86, 0.16]],
-  "middle-edges": [[-0.64, 0.12, 0.34], [0.64, 0.12, 0.34]],
-  vertices: [[-0.54, 0.78, 0.16], [0.54, 0.78, 0.16], [0, 0.52, 0.78]],
-  centres: [[0.52, 0.02, 0.58], [-0.52, 0.02, 0.58]],
-  finish: [[0, 1, 0], [0, -0.72, 0.18], [0.7, 0, 0.25]],
-};
-
-/** Normalized marker positions: luminous points are projected just above the target FTO pieces. */
-export function ftoTargetMarkerPositions(focus: FtoTargetFocus) { return FTO_TARGET_MARKERS[focus]; }
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -83,7 +70,7 @@ function startMountedTwistyPlayer(player: HTMLElement) {
   }
 }
 
-export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, targetFocus }: { eventId: TimerEventId; puzzle: PuzzleId; scramble: string; language: "vi" | "en"; targetFocus?: FtoTargetFocus }) {
+export function Puzzle3DCanvas({ eventId, puzzle, scramble, language }: { eventId: TimerEventId; puzzle: PuzzleId; scramble: string; language: "vi" | "en" }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ x: number; y: number; yaw: number; pitch: number; lastX: number; lastY: number; lastAt: number; moved: boolean } | null>(null);
   const orbitRef = useRef({ yaw: -0.55, pitch: 0.32, distance: 5.4 });
@@ -154,24 +141,6 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, targetFocu
       targetDistanceRef.current = orbit.distance;
       const root = new THREE.Group();
       root.add(puzzleObject);
-      if (puzzle === "fto" && targetFocus) {
-        const bounds = new THREE.Box3().setFromObject(puzzleObject);
-        const centre = bounds.getCenter(new THREE.Vector3());
-        const size = bounds.getSize(new THREE.Vector3());
-        const radius = Math.max(0.08, Math.max(size.x, size.y, size.z) * 0.055);
-        const targetLayer = new THREE.Group();
-        targetLayer.name = "fto-target-highlights";
-        ftoTargetMarkerPositions(targetFocus).forEach(([x, y, z]) => {
-          const direction = new THREE.Vector3(x, y, z).normalize();
-          const markerPosition = centre.clone().addScaledVector(direction, Math.max(size.x, size.y, size.z) * 0.56);
-          const halo = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.7, 16, 12), new THREE.MeshBasicMaterial({ color: "#f8d347", transparent: true, opacity: 0.28, depthWrite: false }));
-          halo.position.copy(markerPosition);
-          const marker = new THREE.Mesh(new THREE.OctahedronGeometry(radius, 0), new THREE.MeshBasicMaterial({ color: "#fff1a3", transparent: true, opacity: 0.98, depthWrite: false }));
-          marker.position.copy(markerPosition);
-          targetLayer.add(halo, marker);
-        });
-        root.add(targetLayer);
-      }
       scene.add(root);
       scene.add(new THREE.HemisphereLight(0xffffff, 0x1a2230, 2.4));
       const key = new THREE.DirectionalLight(0xffffff, 2.8);
@@ -222,7 +191,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, targetFocu
     });
 
     return () => { disposed = true; cleanup(); host.replaceChildren(); };
-  }, [puzzle, scramble, targetFocus]);
+  }, [puzzle, scramble]);
 
   const smoothZoom = () => {
     if (!renderRef.current) return;

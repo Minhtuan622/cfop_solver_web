@@ -1356,3 +1356,8 @@
 - [x] Làm nổi bật các mảnh/vùng mục tiêu trên preview 3D theo từng bước FTO.
 - [x] Thu gọn phần tiến độ và tối ưu bố cục luyện FTO trên desktop, mobile.
 - [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Hiệu chỉnh minh họa 3D FTO
+- [x] Loại bỏ marker highlight vàng khỏi toàn bộ preview FTO.
+- [x] Đối chiếu và thay trạng thái minh họa để khớp chính xác mục tiêu từng bước.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
