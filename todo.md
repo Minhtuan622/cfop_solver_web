@@ -1483,3 +1483,8 @@
 - [x] Rà soát schema solve và History để xác định nhãn event đang thiếu trong danh sách tổng.
 - [x] Hiển thị rõ loại Rubik trên từng solve và thêm bộ lọc event có tùy chọn xem tất cả.
 - [x] Kiểm thử dữ liệu đa event, desktop/mobile, regression và checkpoint.
+
+## Dropdown tài khoản trên thanh điều hướng
+- [x] Rà soát nút tài khoản, đăng nhập/đăng xuất và các route user đang hiển thị trên navigation.
+- [x] Gộp các thao tác tài khoản vào dropdown Bootstrap từ nút tên/ảnh đại diện.
+- [x] Kiểm thử thao tác desktop/mobile, accessibility, regression và checkpoint.
