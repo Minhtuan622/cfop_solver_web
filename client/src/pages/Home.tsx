@@ -19,14 +19,12 @@ import { FieldGroup, PageHeader, StatusFeedback } from "@/components/BootstrapUI
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/lib/bldProfile";
 import { readMasteredCaseKeys, writeMasteredCaseKeys } from "@/lib/lastLayerStudy";
 import { analyzeBldInBrowser, listLastLayerCasesInBrowser, solveInBrowser, validateStateInBrowser, warmSolverInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerCatalogCase, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 
-const SCRAMBLE_FACES = ["U", "R", "F", "D", "L", "B"] as const;
-const SCRAMBLE_SUFFIXES = ["", "2", "'"] as const;
-function randomDefaultScramble(length = 20) { const moves: string[] = []; while (moves.length < length) { const face = SCRAMBLE_FACES[Math.floor(Math.random() * SCRAMBLE_FACES.length)]; const previous = moves.at(-1)?.[0]; const before = moves.at(-2)?.[0]; const sameAxis = (left?: string, right?: string) => !!left && !!right && ((left === "U" || left === "D") === (right === "U" || right === "D")) && ((left === "R" || left === "L") === (right === "R" || right === "L")); if (face === previous || (previous && before && sameAxis(face, previous) && sameAxis(face, before))) continue; moves.push(face + SCRAMBLE_SUFFIXES[Math.floor(Math.random() * SCRAMBLE_SUFFIXES.length)]); } return moves.join(" "); }
 const PHASE_COLORS: Record<string, string> = {
   cross: "bg-[#e7c34f] text-[#17221d]",
   xcross_FR: "bg-[#1ba77a] text-[#17221d]",
@@ -133,7 +131,7 @@ export default function Home() {
   const [lastLayer, setLastLayer] = useState<LastLayerMode>(() => readSolverSettings().lastLayer);
   const [preferredSlot, setPreferredSlot] = useState<F2LSlot | undefined>(() => readSolverSettings().preferredSlot);
   const [excludedSlots, setExcludedSlots] = useState<F2LSlot[]>(() => readSolverSettings().excludedSlots);
-  const [initialScramble] = useState(() => randomDefaultScramble());
+  const [initialScramble] = useState(() => randomThreeByThreeScramble());
   const [value, setValue] = useState(initialScramble);
   const [savedScramble, setSavedScramble] = useState(initialScramble);
   const [savedState, setSavedState] = useState(SOLVED_STATE);

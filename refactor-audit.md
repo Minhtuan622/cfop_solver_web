@@ -23,3 +23,11 @@ Dự án hiện có khoảng **19.471 dòng TypeScript/TSX** trong `client/src`,
 Các thao tác `localStorage` trực tiếp hiện nằm trong cả context, lib và một vài page/component. Đợt refactor tiếp theo sẽ chỉ hợp nhất các truy cập thuộc cùng miền dữ liệu vào helper sẵn có; không thay đổi key hoặc format persisted data trong khi người dùng đang sử dụng ứng dụng.
 
 Các component `AIChatBox`, `DashboardLayout`, `DashboardLayoutSkeleton` và `ManusDialog` chỉ tự tham chiếu lẫn nhau hoặc không có tham chiếu ngoài file định nghĩa. Chúng là phần template không được router hay feature hiện tại sử dụng, nên có thể gỡ trong chặng dọn dẹp đầu tiên. `SystemLeaderboard` đang được `Rooms.tsx` sử dụng và được giữ lại.
+
+## Hoàn thành: nền persistence và tiện ích Timer
+
+Đã thêm `client/src/lib/browserStorage.ts` làm biên truy cập browser storage có xử lý SSR, private mode và JSON lỗi. Sáu miền dữ liệu đang lưu lâu dài — cài đặt Solver, tín hiệu cloud sync, History, Last Layer Study, lộ trình BLD và BLD profile — cùng các preference của TimerLab đã chuyển sang helper này. **Toàn bộ key và schema cũ được giữ nguyên**, nên dữ liệu local/cloud hiện có không cần migration.
+
+`client/src/lib/timerEvents.ts` hiện dùng tập/map bất biến cho phân loại event 3×3 và puzzle preview. Generator scramble 3×3 dùng chung đã tách về `cubeScramble.ts`, thay cho hai bản sao trong Studio và Timer. Các phép tính progress, phase stability, TPS và hiệu suất solution được tách từ `TimerLab.tsx` sang `timerAnalysis.ts`; phần page chỉ giữ state, tương tác và trình bày. Regression mới khóa hành vi storage, Last Layer persistence, scramble và Timer analytics.
+
+Các caller `localStorage` còn lại ngoài phạm vi này cần được đánh giá theo từng miền (theme/language, cache auth và trạng thái UI), không gộp mù quáng vì một số có semantics session hoặc hydration riêng.

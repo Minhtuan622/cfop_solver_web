@@ -1,4 +1,5 @@
 export type SolvePenalty = "none" | "+2" | "DNF";
+import { readStoredJson, removeStoredValue, writeStoredValue } from "./browserStorage";
 import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
 import { formatMultiBlindTime, multiBlindResult, type MultiBlindAttempt } from "./multiBlind";
 import { normalizeTimerEventId, type TimerEventId } from "./timerEvents";
@@ -82,10 +83,10 @@ function normalize(item: Imported): SolveHistoryEntry {
     multiBlindScrambles: safeMultiBlindScrambles(item.multiBlindScrambles),
   };
 }
-function write(entries: SolveHistoryEntry[]) { localStorage.setItem(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); notifyCfopCloudStateChanged(); }
+function write(entries: SolveHistoryEntry[]) { writeStoredValue(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); notifyCfopCloudStateChanged(); }
 
 export function readSolveHistory(): SolveHistoryEntry[] {
-  try { return (JSON.parse(localStorage.getItem(KEY) ?? "[]") as Imported[]).filter((item) => item && typeof item === "object").map(normalize); } catch { return []; }
+  return readStoredJson<Imported[]>(KEY, []).filter((item) => item && typeof item === "object").map(normalize);
 }
 export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags" | "phaseSplits"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry {
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readSolveHistory()]); return item;
@@ -93,7 +94,7 @@ export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt
 export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
 export function deleteSolveHistory(id: string): SolveHistoryEntry[] { const next = readSolveHistory().filter((entry) => entry.id !== id); write(next); return next; }
 export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry[] { const selected = new Set(ids); const next = readSolveHistory().filter((entry) => !selected.has(entry.id)); write(next); return next; }
-export function clearSolveHistory() { localStorage.removeItem(KEY); notifyCfopCloudStateChanged(); }
+export function clearSolveHistory() { removeStoredValue(KEY); notifyCfopCloudStateChanged(); }
 export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
   const raw = Array.isArray(payload) ? payload : payload && typeof payload === "object" && Array.isArray((payload as { entries?: unknown }).entries) ? (payload as { entries: unknown[] }).entries : null;
   if (!raw) throw new Error("Invalid backup");

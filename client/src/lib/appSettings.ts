@@ -1,3 +1,5 @@
+import { readStoredJson, writeStoredValue } from "./browserStorage";
+
 export type SolverSettings = {
   crossColor: "U" | "R" | "F" | "D" | "L" | "B";
   opening: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross";
@@ -19,7 +21,7 @@ const SLOTS = new Set<NonNullable<SolverSettings["preferredSlot"]>>(["FR", "FL",
 
 export function readSolverSettings(): SolverSettings {
   try {
-    const raw = JSON.parse(localStorage.getItem(SOLVER_SETTINGS_KEY) ?? "{}") as Partial<SolverSettings>;
+    const raw = readStoredJson<Partial<SolverSettings>>(SOLVER_SETTINGS_KEY, {});
     return {
       crossColor: COLORS.has(raw.crossColor as SolverSettings["crossColor"]) ? raw.crossColor as SolverSettings["crossColor"] : DEFAULT_SOLVER_SETTINGS.crossColor,
       opening: OPENINGS.has(raw.opening as SolverSettings["opening"]) ? raw.opening as SolverSettings["opening"] : DEFAULT_SOLVER_SETTINGS.opening,
@@ -34,5 +36,5 @@ export function readSolverSettings(): SolverSettings {
 }
 
 export function writeSolverSettings(next: SolverSettings) {
-  localStorage.setItem(SOLVER_SETTINGS_KEY, JSON.stringify(next));
+  writeStoredValue(SOLVER_SETTINGS_KEY, JSON.stringify(next));
 }
