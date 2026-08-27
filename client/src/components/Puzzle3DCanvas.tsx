@@ -8,6 +8,9 @@ export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 type Point = { x: number; y: number };
 const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
 
+/** The cubing FTO default has its white U face above the viewer; roll it left before orbit controls are applied. */
+export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? -Math.PI / 2 : 0; }
+
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 export function orbitFromDrag(start: PuzzleOrbit, deltaX: number, deltaY: number): PuzzleOrbit {
@@ -142,7 +145,10 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
       const orbit = orbitRef.current = { yaw: -0.55, pitch: 0.32, distance: cameraConfig.distance };
       targetDistanceRef.current = orbit.distance;
       const root = new THREE.Group();
-      root.add(puzzleObject);
+      const puzzleBase = new THREE.Group();
+      puzzleBase.rotation.z = puzzleBaseRoll(puzzle);
+      puzzleBase.add(puzzleObject);
+      root.add(puzzleBase);
       scene.add(root);
       scene.add(new THREE.HemisphereLight(0xffffff, 0x1a2230, 2.4));
       const key = new THREE.DirectionalLight(0xffffff, 2.8);

@@ -1371,3 +1371,8 @@
 - [x] Nghiên cứu và xác minh bộ công thức FTO nâng cao theo notation hiện có.
 - [x] Thay nội dung cơ bản bằng công thức nâng cao kèm trường hợp dùng và animation.
 - [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Góc camera FTO
+- [x] Cố định orientation mặc định để mặt trắng nằm bên trái của preview FTO.
+- [x] Bảo toàn drag, zoom, inertia và bổ sung regression góc camera.
+- [x] Kiểm tra desktop/mobile, TypeScript, build và checkpoint.
