@@ -1497,5 +1497,5 @@
 ## Refactor toàn bộ dự án
 - [x] Lập bản đồ kiến trúc, các dependency, module trùng lặp, component quá lớn và mã không dùng.
 - [x] Refactor nền tảng dùng chung: types, event metadata, định dạng, navigation và dữ liệu local/cloud theo ranh giới rõ ràng.
-- [ ] Refactor theo nhóm Solver, Timer/History, Study/BLD, Account/Profile/Rooms/WCA; xóa mã không dùng sau khi chứng minh không còn tham chiếu.
-- [ ] Cập nhật regression, chạy full test/build, kiểm tra các route desktop/mobile và lưu checkpoint theo chặng.
+- [x] Refactor theo nhóm Solver, Timer/History, Study/BLD, Account/Profile/Rooms/WCA; xóa mã không dùng sau khi chứng minh không còn tham chiếu.
+- [x] Cập nhật regression, chạy full test/build, kiểm tra các route desktop/mobile và lưu checkpoint theo chặng.

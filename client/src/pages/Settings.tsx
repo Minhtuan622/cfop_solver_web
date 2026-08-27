@@ -4,6 +4,7 @@ import { Check, RotateCcw } from "@/components/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readLastLayerStudy, writeLastLayerStudy } from "@/lib/lastLayerStudy";
+import { readStoredValue, writeStoredValue } from "@/lib/browserStorage";
 
 type F2LSlot = NonNullable<SolverSettings["preferredSlot"]>;
 
@@ -23,9 +24,9 @@ export default function Settings() {
   const vi = language === "vi";
   const text = (vietnamese: string, english: string) => vi ? vietnamese : english;
   const [solver, setSolver] = useState<SolverSettings>(readSolverSettings);
-  const [sound, setSound] = useState(() => localStorage.getItem("cfop-inspection-sound") !== "off");
-  const [splits, setSplits] = useState(() => localStorage.getItem("cfop-space-splits") !== "off");
-  const [highlight, setHighlight] = useState(() => localStorage.getItem("cfop-cross-highlight") !== "off");
+  const [sound, setSound] = useState(() => readStoredValue("cfop-inspection-sound") !== "off");
+  const [splits, setSplits] = useState(() => readStoredValue("cfop-space-splits") !== "off");
+  const [highlight, setHighlight] = useState(() => readStoredValue("cfop-cross-highlight") !== "off");
   const [dailyGoal, setDailyGoal] = useState(() => readLastLayerStudy().dailyGoal);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const firstSave = useRef(true);
@@ -35,10 +36,10 @@ export default function Settings() {
     setSaveState("saving");
     const id = window.setTimeout(() => {
       writeSolverSettings(solver);
-      localStorage.setItem("cfop-inspection-color", solver.crossColor);
-      localStorage.setItem("cfop-inspection-sound", sound ? "on" : "off");
-      localStorage.setItem("cfop-space-splits", splits ? "on" : "off");
-      localStorage.setItem("cfop-cross-highlight", highlight ? "on" : "off");
+      writeStoredValue("cfop-inspection-color", solver.crossColor);
+      writeStoredValue("cfop-inspection-sound", sound ? "on" : "off");
+      writeStoredValue("cfop-space-splits", splits ? "on" : "off");
+      writeStoredValue("cfop-cross-highlight", highlight ? "on" : "off");
       writeLastLayerStudy({ ...readLastLayerStudy(), dailyGoal });
       setSaveState("saved");
     }, 350);

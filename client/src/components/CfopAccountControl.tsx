@@ -1,19 +1,11 @@
 import { useState } from "react";
-import { TRPCClientError } from "@trpc/client";
 import { BoxArrowRight, PersonCircle } from "@/components/BootstrapIcon";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/BootstrapDialog";
 import { trpc } from "@/lib/trpc";
+import { errorMessage, initials } from "@/lib/profilePresentation";
 import { Link } from "wouter";
 
 type AuthMode = "login" | "register";
-
-function messageFrom(error: unknown) {
-  return error instanceof TRPCClientError ? error.message : "Không thể hoàn tất. Hãy thử lại.";
-}
-
-function initials(name: string) {
-  return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("") || "CF";
-}
 
 export function CfopAccountControl() {
   const [open, setOpen] = useState(false);
@@ -26,8 +18,8 @@ export function CfopAccountControl() {
   const utils = trpc.useUtils();
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, { staleTime: 60_000, retry: false });
   const complete = async () => { await utils.cfopAccount.me.invalidate(); setOpen(false); setPassword(""); setError(""); };
-  const register = trpc.cfopAccount.register.useMutation({ onSuccess: complete, onError: (next) => setError(messageFrom(next)) });
-  const login = trpc.cfopAccount.login.useMutation({ onSuccess: complete, onError: (next) => setError(messageFrom(next)) });
+  const register = trpc.cfopAccount.register.useMutation({ onSuccess: complete, onError: (next) => setError(errorMessage(next)) });
+  const login = trpc.cfopAccount.login.useMutation({ onSuccess: complete, onError: (next) => setError(errorMessage(next)) });
   const logout = trpc.cfopAccount.logout.useMutation({ onSuccess: () => void utils.cfopAccount.me.invalidate() });
   const pending = register.isPending || login.isPending;
   const submit = (event: React.FormEvent) => {

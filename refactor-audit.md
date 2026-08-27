@@ -31,3 +31,11 @@ Các component `AIChatBox`, `DashboardLayout`, `DashboardLayoutSkeleton` và `Ma
 `client/src/lib/timerEvents.ts` hiện dùng tập/map bất biến cho phân loại event 3×3 và puzzle preview. Generator scramble 3×3 dùng chung đã tách về `cubeScramble.ts`, thay cho hai bản sao trong Studio và Timer. Các phép tính progress, phase stability, TPS và hiệu suất solution được tách từ `TimerLab.tsx` sang `timerAnalysis.ts`; phần page chỉ giữ state, tương tác và trình bày. Regression mới khóa hành vi storage, Last Layer persistence, scramble và Timer analytics.
 
 Các caller `localStorage` còn lại ngoài phạm vi này cần được đánh giá theo từng miền (theme/language, cache auth và trạng thái UI), không gộp mù quáng vì một số có semantics session hoặc hydration riêng.
+
+## Hoàn thành: tách theo feature và dọn dependency
+
+Studio hiện lấy metadata trình bày, nhãn mode, liên kết học liệu và JSON export từ `solverPresentation.ts`; generator scramble dùng chung phục vụ cả Studio, Timer và Study/BLD. Timer và History dùng chung `browserDownload.ts` cho download/CSV, trong khi `timerAnalysis.ts` chỉ giữ các phép tính analytics độc lập với JSX. Dữ liệu quiz notation BLD cũ không còn render sau yêu cầu xóa quiz đã được gỡ hẳn.
+
+Profile/WCA dùng `profilePresentation.ts` cho initials, mapping event, ranks và chênh lệch Timer/WCA. Navbar tài khoản dùng lại cùng formatter initials/error. Rooms dùng `competitionPresentation.ts` cho nhãn thể thức, event và result; state phòng, polling, quyền moderator và tất cả procedure tRPC không thay đổi.
+
+Sau hai lượt audit import, đã gỡ `Map.tsx` và toàn bộ `client/src/components/ui/` của template shadcn vì không có import từ code ứng dụng. Các thành phần Bootstrap và feature Rubik được giữ. `server/_core` không bị sửa; các test router/competition tiếp tục bảo vệ contract backend.

@@ -7,11 +7,10 @@ import { MoveComposer } from "@/components/MoveComposer";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/BootstrapDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TIMER_EVENTS, isThreeByThreeEvent, normalizeTimerEventId, timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
+import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";
 import { useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 
 function average(values: number[]) { return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0; }
-function saveFile(name: string, type: string, value: string) { const url = URL.createObjectURL(new Blob([value], { type })); const link = document.createElement("a"); link.href = url; link.download = name; link.click(); URL.revokeObjectURL(url); }
-function csvCell(value: string | number) { return `"${String(value).replaceAll('"', '""')}"`; }
 function initialStateFor(entry: SolveHistoryEntry) { return entry.inputKind === "state" && entry.input.length === 54 ? entry.input : stateFromScramble(entry.input); }
 
 export default function History() {

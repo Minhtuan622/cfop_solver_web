@@ -6,18 +6,15 @@ import { SystemLeaderboard } from "@/components/SystemLeaderboard";
 import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
 import { formatSolveTime } from "@/lib/solveHistory";
 import { DEFAULT_TIMER_EVENT, TIMER_EVENTS, isTimerEventId, timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
+import { competitionErrorText, competitionEventLabel, competitionResultLabel, formatDescriptions, formatLabels, type CompetitionPenalty, type RoomFormat } from "@/lib/competitionPresentation";
 import { trpc } from "@/lib/trpc";
 
-type RoomFormat = "best_of_3" | "ao5" | "ao12";
-type Penalty = "none" | "+2" | "DNF";
+type Penalty = CompetitionPenalty;
 type PendingSolve = Pick<TimerCompletion, "elapsedMs" | "inspectionMs" | "automaticPenalty">;
 type RoomMember = { accountId: number; displayName: string; role: "player" | "spectator" | "moderator" };
 type RemovalTarget = Pick<RoomMember, "accountId" | "displayName">;
-const formatLabels: Record<RoomFormat, string> = { best_of_3: "Best of 3", ao5: "Ao5", ao12: "Ao12" };
-const formatDescriptions: Record<RoomFormat, string> = { best_of_3: "3 lượt · lấy single tốt nhất", ao5: "5 lượt · bỏ nhanh nhất và chậm nhất", ao12: "12 lượt · bỏ nhanh nhất và chậm nhất" };
-function errorText(error: unknown) { return error instanceof Error ? error.message : "Không thể hoàn tất thao tác."; }
-function labelEvent(value: unknown) { return timerEventLabel(isTimerEventId(value) ? value : DEFAULT_TIMER_EVENT, "vi"); }
-function labelResult(result: { elapsedMs: number; penalty: Penalty; multiBlindScore?: number | null } | null | undefined, eventId: unknown) { if (!result || result.penalty === "DNF") return result ? "DNF" : "—"; if (eventId === "333mbf" && typeof result.multiBlindScore === "number") return `${result.multiBlindScore} điểm · ${formatMultiBlindTime(result.elapsedMs)}`; return `${formatSolveTime(result.elapsedMs + (result.penalty === "+2" ? 2_000 : 0))}${result.penalty === "+2" ? " +2" : ""}`; }
+const labelEvent = competitionEventLabel;
+const labelResult = competitionResultLabel;
 
 function MemberRoster({ members, onlineSpectators, host, moderator, grant, revoke, remove, notice }: { members: RoomMember[]; onlineSpectators: RoomMember[]; host: boolean; moderator: boolean; grant: (accountId: number) => void; revoke: (accountId: number) => void; remove: (member: RemovalTarget) => void; notice: string | null }) {
   return <><div className="list-group list-group-flush">{members.map((member) => <div key={member.accountId} className="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-2"><span>{member.displayName}<small className="d-block text-body-secondary">{member.role === "player" ? "Người thi" : member.role === "moderator" ? "Moderator" : "Khán giả"}</small></span><span className="d-flex gap-1">{host && member.role === "spectator" ? <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => grant(member.accountId)}>Cấp moderator</button> : null}{host && member.role === "moderator" ? <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => revoke(member.accountId)}>Gỡ quyền</button> : null}{(host || moderator) && member.role === "spectator" ? <button type="button" className="btn btn-outline-danger btn-sm" onClick={() => remove(member)}>Loại</button> : null}</span></div>)}</div><h3 className="h6 mt-4 mb-2">Đang xem ({onlineSpectators.length})</h3>{onlineSpectators.length ? <ol className="list-group list-group-numbered">{onlineSpectators.map((member) => <li key={member.accountId} className="list-group-item d-flex justify-content-between"><span>{member.displayName}</span><small className="text-body-secondary">{member.role === "moderator" ? "Moderator" : "Khán giả"}</small></li>)}</ol> : <p className="text-body-secondary small mb-0">Chưa có người xem trực tuyến.</p>}{notice ? <div className="alert alert-warning small mt-3 mb-0" role="status">{notice}</div> : null}</>;
@@ -33,19 +30,19 @@ export default function Rooms() {
   const mine = trpc.competition.listMine.useQuery(undefined, { enabled: Boolean(account.data), retry: false });
   const roomQuery = trpc.competition.state.useQuery(roomInput, { enabled: Boolean(account.data && code), refetchInterval: code ? 2_500 : false, retry: false });
   const refresh = async () => { if (code) await utils.competition.state.invalidate(roomInput); await utils.competition.listMine.invalidate(); };
-  const create = trpc.competition.create.useMutation({ onSuccess: (room) => setLocation(`/rooms/${room.code}`), onError: (next) => setError(errorText(next)) });
-  const join = trpc.competition.join.useMutation({ onSuccess: (room) => setLocation(`/rooms/${room.code}`), onError: (next) => setError(errorText(next)) });
-  const spectate = trpc.competition.spectate.useMutation({ onSuccess: (room) => setLocation(`/rooms/${room.code}`), onError: (next) => setError(errorText(next)) });
-  const leave = trpc.competition.leave.useMutation({ onSuccess: () => setLocation("/rooms"), onError: (next) => setError(errorText(next)) });
-  const deleteRoom = trpc.competition.delete.useMutation({ onSuccess: async () => { setLocation("/rooms"); await utils.competition.listMine.invalidate(); }, onError: (next) => setError(errorText(next)) });
-  const start = trpc.competition.startRound.useMutation({ onSuccess: async () => { setMessage("Đã mở lượt mới."); await refresh(); }, onError: (next) => setError(errorText(next)) });
-  const finish = trpc.competition.finish.useMutation({ onSuccess: async () => { setMessage("Đã hoàn tất thể thức."); await refresh(); }, onError: (next) => setError(errorText(next)) });
-  const rematch = trpc.competition.rematch.useMutation({ onSuccess: (room) => setLocation(`/rooms/${room.code}`), onError: (next) => setError(errorText(next)) });
-  const submit = trpc.competition.submit.useMutation({ onSuccess: async () => { setPendingMultiBlind(null); setMessage("Đã nộp kết quả."); await refresh(); }, onError: (next) => setError(errorText(next)) });
-  const send = trpc.competition.sendMessage.useMutation({ onSuccess: async () => { setChat(""); await refresh(); }, onError: (next) => setError(errorText(next)) });
-  const grantModerator = trpc.competition.grantModerator.useMutation({ onSuccess: refresh, onError: (next) => setError(errorText(next)) });
-  const revokeModerator = trpc.competition.revokeModerator.useMutation({ onSuccess: refresh, onError: (next) => setError(errorText(next)) });
-  const removeSpectator = trpc.competition.removeSpectator.useMutation({ onSuccess: async () => { setRemovalTarget(null); setRemovalReason(""); await refresh(); }, onError: (next) => setError(errorText(next)) });
+  const create = trpc.competition.create.useMutation({ onSuccess: (room) => setLocation(`/rooms/${room.code}`), onError: (next) => setError(competitionErrorText(next)) });
+  const join = trpc.competition.join.useMutation({ onSuccess: (room) => setLocation(`/rooms/${room.code}`), onError: (next) => setError(competitionErrorText(next)) });
+  const spectate = trpc.competition.spectate.useMutation({ onSuccess: (room) => setLocation(`/rooms/${room.code}`), onError: (next) => setError(competitionErrorText(next)) });
+  const leave = trpc.competition.leave.useMutation({ onSuccess: () => setLocation("/rooms"), onError: (next) => setError(competitionErrorText(next)) });
+  const deleteRoom = trpc.competition.delete.useMutation({ onSuccess: async () => { setLocation("/rooms"); await utils.competition.listMine.invalidate(); }, onError: (next) => setError(competitionErrorText(next)) });
+  const start = trpc.competition.startRound.useMutation({ onSuccess: async () => { setMessage("Đã mở lượt mới."); await refresh(); }, onError: (next) => setError(competitionErrorText(next)) });
+  const finish = trpc.competition.finish.useMutation({ onSuccess: async () => { setMessage("Đã hoàn tất thể thức."); await refresh(); }, onError: (next) => setError(competitionErrorText(next)) });
+  const rematch = trpc.competition.rematch.useMutation({ onSuccess: (room) => setLocation(`/rooms/${room.code}`), onError: (next) => setError(competitionErrorText(next)) });
+  const submit = trpc.competition.submit.useMutation({ onSuccess: async () => { setPendingMultiBlind(null); setMessage("Đã nộp kết quả."); await refresh(); }, onError: (next) => setError(competitionErrorText(next)) });
+  const send = trpc.competition.sendMessage.useMutation({ onSuccess: async () => { setChat(""); await refresh(); }, onError: (next) => setError(competitionErrorText(next)) });
+  const grantModerator = trpc.competition.grantModerator.useMutation({ onSuccess: refresh, onError: (next) => setError(competitionErrorText(next)) });
+  const revokeModerator = trpc.competition.revokeModerator.useMutation({ onSuccess: refresh, onError: (next) => setError(competitionErrorText(next)) });
+  const removeSpectator = trpc.competition.removeSpectator.useMutation({ onSuccess: async () => { setRemovalTarget(null); setRemovalReason(""); await refresh(); }, onError: (next) => setError(competitionErrorText(next)) });
   useEffect(() => { setPendingMultiBlind(null); setMultiBlindSolved(0); }, [roomQuery.data?.activeRound?.id]);
 
   if (account.isLoading) return <div className="container"><div className="placeholder-glow"><span className="placeholder col-5" /></div></div>;
