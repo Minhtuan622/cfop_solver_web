@@ -1341,3 +1341,8 @@
 - [x] Viết hướng dẫn notation FTO ngắn gọn, có ví dụ scramble và giải thích chiều xoay.
 - [x] Tạo chế độ luyện single-layer FTO với scramble theo mức độ nhập môn và đồng hồ riêng.
 - [x] Bổ sung regression, kiểm tra TypeScript, build và checkpoint.
+
+## Hướng dẫn giải FTO hoàn chỉnh
+- [x] Nghiên cứu và chuẩn hóa các bước giải FTO nhập môn cùng thuật toán cần thiết.
+- [x] Tích hợp lộ trình giải từng bước, mục tiêu quan sát và công thức vào Study.
+- [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
