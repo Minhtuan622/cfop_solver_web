@@ -7,7 +7,10 @@ vi.mock("@/components/PuzzleScramblePreview", () => ({
   PuzzleScramblePreview: ({ scramble, animationAlg, focusFtoWhiteFace }: { scramble: string; animationAlg?: string; focusFtoWhiteFace?: boolean }) => <output data-testid="fto-preview" data-scramble={scramble} data-animation={animationAlg ?? ""} data-focus-white={String(focusFtoWhiteFace ?? false)} />,
 }));
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  window.history.replaceState({}, "", "/");
+});
 
 describe("FtoBeginnerGuide Bencisco walkthrough", () => {
   it("opens with Bencisco and the white center as the first concrete milestone", () => {
@@ -36,5 +39,14 @@ describe("FtoBeginnerGuide Bencisco walkthrough", () => {
     expect(screen.getByText("2. Bencisco · First Two Triples (F2T)")).toBeTruthy();
     expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(1));
     expect(ftoWalkthroughStateBefore(1)).toBe(ftoWalkthroughStateAfter(0));
+  });
+
+  it("opens the exact Before checkpoint for stage 3 through its walkthrough deep-link", () => {
+    window.history.replaceState({}, "", "/study?lane=fto&ftoStage=3");
+    render(<FtoBeginnerGuide language="vi" />);
+
+    expect(screen.getByText("3. Bencisco · Dựng center thứ hai")).toBeTruthy();
+    expect(screen.getAllByTestId("fto-preview")[0].getAttribute("data-scramble")).toBe(ftoWalkthroughStateBefore(2));
+    expect(screen.getAllByTestId("fto-preview").every((preview) => preview.getAttribute("data-focus-white") === "true")).toBe(true);
   });
 });

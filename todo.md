@@ -1443,3 +1443,8 @@
 - [x] Đối chiếu state thuật toán “Trước mốc 3” để xác định vì sao tâm cam đang hoàn thành.
 - [x] Thay checkpoint/chuỗi stage để tâm trắng là tâm đã hoàn thành và tiếp tục được giữ làm mốc.
 - [x] Kiểm chứng mô hình 3D, regression và checkpoint.
+
+## Xác minh lại màu tâm Trước mốc 3
+- [x] Đo trực tiếp face màu và face đang hiện chính diện của renderer ở Trước mốc 3.
+- [x] Sửa state/camera chỉ theo mapping đã đo để tâm trắng xuất hiện thay vì tâm cam.
+- [x] Đối chiếu ảnh riêng của Trước mốc 3, regression và checkpoint trước khi báo hoàn tất.

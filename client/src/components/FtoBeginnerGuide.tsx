@@ -20,8 +20,14 @@ function WhiteFaceMilestone() {
   </div>;
 }
 
+function initialBenciscoStage() {
+  if (typeof window === "undefined") return 0;
+  const requested = Number.parseInt(new URLSearchParams(window.location.search).get("ftoStage") ?? "", 10);
+  return Number.isInteger(requested) && requested >= 1 && requested <= FTO_BENCISCO_WALKTHROUGH.length ? requested - 1 : 0;
+}
+
 export function FtoBeginnerGuide({ language = "vi" }: { language?: "vi" | "en" }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(initialBenciscoStage);
   const [animationRunId, setAnimationRunId] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const phase = FTO_BENCISCO_WALKTHROUGH[activeIndex];
