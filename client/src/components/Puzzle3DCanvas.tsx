@@ -21,6 +21,11 @@ export function orbitFromDrag(start: PuzzleOrbit, deltaX: number, deltaY: number
   };
 }
 
+/** FTO is presented with its white face on the left, so vertical travel is the primary yaw control. */
+export function orbitFromPuzzleDrag(puzzle: PuzzleId, start: PuzzleOrbit, deltaX: number, deltaY: number): PuzzleOrbit {
+  return puzzle === "fto" ? orbitFromDrag(start, deltaY, deltaX) : orbitFromDrag(start, deltaX, deltaY);
+}
+
 export function distanceFromPinch(startDistance: number, startGap: number, currentGap: number) {
   if (startGap <= 0 || currentGap <= 0) return clamp(startDistance, CAMERA_LIMITS.min, CAMERA_LIMITS.max);
   return clamp(startDistance * (startGap / currentGap), CAMERA_LIMITS.min, CAMERA_LIMITS.max);
@@ -268,7 +273,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
     drag.lastY = event.clientY;
     drag.lastAt = now;
     drag.moved = true;
-    const nextOrbit = orbitFromDrag({ yaw: drag.yaw, pitch: drag.pitch, distance: orbitRef.current.distance }, event.clientX - drag.x, event.clientY - drag.y);
+    const nextOrbit = orbitFromPuzzleDrag(puzzle, { yaw: drag.yaw, pitch: drag.pitch, distance: orbitRef.current.distance }, event.clientX - drag.x, event.clientY - drag.y);
     orbitRef.current.yaw = nextOrbit.yaw;
     orbitRef.current.pitch = nextOrbit.pitch;
     renderRef.current();

@@ -1376,3 +1376,8 @@
 - [x] Cố định orientation mặc định để mặt trắng nằm bên trái của preview FTO.
 - [x] Bảo toàn drag, zoom, inertia và bổ sung regression góc camera.
 - [x] Kiểm tra desktop/mobile, TypeScript, build và checkpoint.
+
+## Điều khiển dọc FTO
+- [x] Xoay FTO theo trục dọc khi kéo, tách biệt khỏi ánh xạ drag chuẩn của puzzle khác.
+- [x] Giữ pinch zoom, inertia và đặt lại góc nhìn hoạt động đúng.
+- [x] Bổ sung regression interaction, TypeScript, build và checkpoint.
