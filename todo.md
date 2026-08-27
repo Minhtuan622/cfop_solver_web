@@ -1391,3 +1391,8 @@
 - [x] Kéo ngang FTO phải xoay ngang, kéo dọc mới xoay dọc.
 - [x] Cập nhật regression trục kéo và bảo toàn inertia/zoom/reset.
 - [x] Kiểm tra TypeScript, build và checkpoint.
+
+## Giới hạn camera FTO theo trục
+- [x] Cho FTO xoay dọc tự do theo thao tác kéo lên/xuống.
+- [x] Chỉ giới hạn biên độ xoay ngang và giữ zoom/inertia/reset hoạt động đúng.
+- [x] Bổ sung regression, kiểm tra TypeScript, build và checkpoint.

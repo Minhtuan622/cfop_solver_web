@@ -7,6 +7,7 @@ type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "
 export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 type Point = { x: number; y: number };
 const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
+const FTO_HORIZONTAL_YAW_LIMIT = 1.35;
 
 /** The cubing FTO default has its white U face above the viewer; positive roll moves it to the viewer's left. */
 export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? Math.PI / 2 : 0; }
@@ -26,7 +27,11 @@ export function orbitFromDrag(start: PuzzleOrbit, deltaX: number, deltaY: number
 
 /** Keep drag direction intuitive even though the FTO model is rolled to show its white face on the left. */
 export function orbitFromPuzzleDrag(puzzle: PuzzleId, start: PuzzleOrbit, deltaX: number, deltaY: number): PuzzleOrbit {
-  void puzzle;
+  if (puzzle === "fto") return {
+    ...start,
+    yaw: clamp(start.yaw + deltaX * 0.012, -FTO_HORIZONTAL_YAW_LIMIT, FTO_HORIZONTAL_YAW_LIMIT),
+    pitch: start.pitch + deltaY * 0.012,
+  };
   return orbitFromDrag(start, deltaX, deltaY);
 }
 
@@ -41,6 +46,17 @@ export function inertiaStep(orbit: PuzzleOrbit, velocity: { yaw: number; pitch: 
     orbit: { ...orbit, yaw: orbit.yaw + nextVelocity.yaw, pitch: clamp(orbit.pitch + nextVelocity.pitch, -CAMERA_LIMITS.pitch, CAMERA_LIMITS.pitch) },
     velocity: nextVelocity,
   };
+}
+
+export function inertiaStepForPuzzle(puzzle: PuzzleId, orbit: PuzzleOrbit, velocity: { yaw: number; pitch: number }) {
+  if (puzzle === "fto") {
+    const nextVelocity = { yaw: velocity.yaw * 0.91, pitch: velocity.pitch * 0.91 };
+    return {
+      orbit: { ...orbit, yaw: clamp(orbit.yaw + nextVelocity.yaw, -FTO_HORIZONTAL_YAW_LIMIT, FTO_HORIZONTAL_YAW_LIMIT), pitch: orbit.pitch + nextVelocity.pitch },
+      velocity: nextVelocity,
+    };
+  }
+  return inertiaStep(orbit, velocity);
 }
 
 function defaultPuzzleCamera(puzzle: PuzzleId) {
@@ -235,7 +251,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
   const startInertia = () => {
     if (!renderRef.current || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     const advance = () => {
-      const next = inertiaStep(orbitRef.current, inertiaVelocityRef.current);
+      const next = inertiaStepForPuzzle(puzzle, orbitRef.current, inertiaVelocityRef.current);
       inertiaVelocityRef.current = next.velocity;
       if (Math.abs(next.velocity.yaw) < 0.0004 && Math.abs(next.velocity.pitch) < 0.0004) { cancelInertia(); return; }
       orbitRef.current.yaw = next.orbit.yaw;
