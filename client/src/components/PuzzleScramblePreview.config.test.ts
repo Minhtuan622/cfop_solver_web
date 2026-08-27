@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { puzzleScramblePreviewConfig } from "./PuzzleScramblePreview";
+import { previewNeedsExternal3DModule, puzzleScramblePreviewConfig } from "./PuzzleScramblePreview";
 
 describe("puzzleScramblePreviewConfig", () => {
   it("builds a static scrambled preview config for each supported puzzle", () => {
@@ -14,7 +14,11 @@ describe("puzzleScramblePreviewConfig", () => {
     expect(puzzleScramblePreviewConfig("777", "3Rw U2")).toMatchObject({ puzzle: "7x7x7", experimentalSetupAlg: "3Rw U2", visualization: "3D" });
   });
 
-  it("leaves the dedicated 3×3 preview outside the generic puzzle canvas", () => {
+  it("leaves CSS previews out of the external Cubing/Three chunk", () => {
     expect(puzzleScramblePreviewConfig("333", "R U")).toBeNull();
+    expect(previewNeedsExternal3DModule("333")).toBe(false);
+    expect(previewNeedsExternal3DModule("222")).toBe(false);
+    expect(previewNeedsExternal3DModule("444")).toBe(true);
+    expect(previewNeedsExternal3DModule("sq1")).toBe(true);
   });
 });

@@ -1499,3 +1499,8 @@
 - [x] Refactor nền tảng dùng chung: types, event metadata, định dạng, navigation và dữ liệu local/cloud theo ranh giới rõ ràng.
 - [x] Refactor theo nhóm Solver, Timer/History, Study/BLD, Account/Profile/Rooms/WCA; xóa mã không dùng sau khi chứng minh không còn tham chiếu.
 - [x] Cập nhật regression, chạy full test/build, kiểm tra các route desktop/mobile và lưu checkpoint theo chặng.
+
+## Ổn định E2E và tải theo nhu cầu
+- [x] Bổ sung kiểm thử E2E cô lập cho đăng nhập, đồng bộ dữ liệu Timer/Study và vòng đời phòng thi.
+- [x] Lazy-load Cubing/Three.js theo event và điểm mở preview 3D, giữ nguyên renderer và fallback hiện có.
+- [x] Chạy regression, build, kiểm tra tải/lazy boundary và các route desktop/mobile trước checkpoint.

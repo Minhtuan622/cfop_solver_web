@@ -39,3 +39,9 @@ Studio hiện lấy metadata trình bày, nhãn mode, liên kết học liệu v
 Profile/WCA dùng `profilePresentation.ts` cho initials, mapping event, ranks và chênh lệch Timer/WCA. Navbar tài khoản dùng lại cùng formatter initials/error. Rooms dùng `competitionPresentation.ts` cho nhãn thể thức, event và result; state phòng, polling, quyền moderator và tất cả procedure tRPC không thay đổi.
 
 Sau hai lượt audit import, đã gỡ `Map.tsx` và toàn bộ `client/src/components/ui/` của template shadcn vì không có import từ code ứng dụng. Các thành phần Bootstrap và feature Rubik được giữ. `server/_core` không bị sửa; các test router/competition tiếp tục bảo vệ contract backend.
+
+## Độ ổn định E2E và tải 3D theo nhu cầu
+
+`playwright.config.ts` và `e2e/account-sync-competition.spec.ts` kiểm tra trong Chromium một happy path xuyên UI: tạo tài khoản, mở Hồ sơ, đồng bộ thủ công, tạo phòng, bắt đầu lượt và nộp kết quả. Toàn bộ `/api/trpc` của kịch bản này được mô phỏng trong bộ nhớ nên không tạo tài khoản, session, cloud payload hoặc phòng thật. `e2e/lazy-3d-loading.spec.ts` kiểm tra Studio ban đầu không tải Cubing/Three.js, Timer mới tải Cubing để tạo scramble và event 4×4 mới tải Three.js khi canvas preview thực sự được yêu cầu.
+
+`PuzzleScramblePreview` nay dùng `React.lazy`/`Suspense` cho `Puzzle3DCanvas`: 2×2/3×3 CSS preview không kéo canvas chunk. Trong canvas, Square-1/Clock chỉ động tải `SideEvent3DObject` và dependency Cubing của side-event; các event còn lại động tải `cubing/twisty` cùng Three.js. Không thay đổi mapping event, renderer, fallback hoặc controls.

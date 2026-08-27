@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent, type WheelEvent } from "react";
 import type { BufferAttribute, Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
-import { isSideEvent3DPuzzle, sideEvent3DAnimation, type SideEvent3DAnimation } from "@/components/SideEvent3DObject";
+import type { SideEvent3DAnimation } from "@/components/SideEvent3DObject";
 
 type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "megaminx" | "fto" | "square1" | "clock";
 type FtoTeachingFace = "white" | "orange";
@@ -9,6 +9,10 @@ export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 type Point = { x: number; y: number };
 const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
 const FTO_HORIZONTAL_YAW_LIMIT = 1.35;
+
+function isCustomSideEvent(puzzle: PuzzleId) {
+  return puzzle === "square1" || puzzle === "clock";
+}
 
 /** The cubing FTO default has its white U face above the viewer; positive roll moves it to the viewer's left. */
 export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? Math.PI / 2 : 0; }
@@ -184,14 +188,17 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
     setStatus("loading");
 
     void (async () => {
-      const THREE = await import("three");
+      let THREE: typeof import("three");
       if (disposed) return;
       let puzzleObject: Object3D;
-      if (isSideEvent3DPuzzle(puzzle)) {
+      if (isCustomSideEvent(puzzle)) {
+        const [three, { sideEvent3DAnimation }] = await Promise.all([import("three"), import("@/components/SideEvent3DObject")]);
+        THREE = three;
         sideEventAnimation = await sideEvent3DAnimation(THREE, puzzle, scramble);
         puzzleObject = sideEventAnimation.object;
       } else {
-        await import("cubing/twisty");
+        const [three] = await Promise.all([import("three"), import("cubing/twisty")]);
+        THREE = three;
         staging = document.createElement("div");
         staging.style.cssText = "position:fixed;left:-10000px;top:-10000px;width:2px;height:2px;overflow:hidden;pointer-events:none";
         player = document.createElement("twisty-player") as PuzzlePlayer;
