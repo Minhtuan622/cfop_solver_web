@@ -1346,3 +1346,8 @@
 - [x] Nghiên cứu và chuẩn hóa các bước giải FTO nhập môn cùng thuật toán cần thiết.
 - [x] Tích hợp lộ trình giải từng bước, mục tiêu quan sát và công thức vào Study.
 - [x] Bổ sung regression, kiểm tra render, TypeScript, build và checkpoint.
+
+## Minh họa và video cho lộ trình FTO
+- [x] Chọn lọc video FTO phù hợp với từng bước của lộ trình nhập môn.
+- [x] Thêm minh họa 3D trực quan nêu rõ vùng cần quan sát và thao tác theo từng bước.
+- [x] Bổ sung regression, kiểm tra desktop/mobile, TypeScript, build và checkpoint.

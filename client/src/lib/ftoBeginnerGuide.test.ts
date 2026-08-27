@@ -11,4 +11,9 @@ describe("FTO beginner guide", () => {
     expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "middle-edges")?.moves.map((move) => move.algorithm)).toEqual(["R' D R", "L D' L'"]);
     expect(FTO_BEGINNER_GUIDE.find((step) => step.id === "centres")?.moves[0]?.algorithm).toBe("(r U r' U') × 5");
   });
+
+  it("provides one interactive visual and a selected source video for every guide step", () => {
+    expect(FTO_BEGINNER_GUIDE.every((step) => step.visual.scramble.trim() && step.visual.focusVi && step.video.youtubeId && step.video.title && step.video.focusVi)).toBe(true);
+    expect(new Set(FTO_BEGINNER_GUIDE.map((step) => step.video.youtubeId))).toEqual(new Set(["J8_9no7Ml78", "03L3P1a0Auc"]));
+  });
 });
