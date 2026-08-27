@@ -24,9 +24,10 @@ export function orbitFromDrag(start: PuzzleOrbit, deltaX: number, deltaY: number
   };
 }
 
-/** FTO is presented with its white face on the left, so vertical travel is the primary yaw control. */
+/** Keep drag direction intuitive even though the FTO model is rolled to show its white face on the left. */
 export function orbitFromPuzzleDrag(puzzle: PuzzleId, start: PuzzleOrbit, deltaX: number, deltaY: number): PuzzleOrbit {
-  return puzzle === "fto" ? orbitFromDrag(start, deltaY, deltaX) : orbitFromDrag(start, deltaX, deltaY);
+  void puzzle;
+  return orbitFromDrag(start, deltaX, deltaY);
 }
 
 export function distanceFromPinch(startDistance: number, startGap: number, currentGap: number) {

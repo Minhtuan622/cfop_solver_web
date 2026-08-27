@@ -1386,3 +1386,8 @@
 - [x] Đảo orientation để mặt trắng hiển thị đúng bên trái theo góc nhìn người xem.
 - [x] Kiểm tra trực quan preview FTO và regression orientation.
 - [x] Kiểm tra TypeScript, build và lưu checkpoint.
+
+## Sửa ánh xạ kéo FTO
+- [x] Kéo ngang FTO phải xoay ngang, kéo dọc mới xoay dọc.
+- [x] Cập nhật regression trục kéo và bảo toàn inertia/zoom/reset.
+- [x] Kiểm tra TypeScript, build và checkpoint.

@@ -30,10 +30,10 @@ describe("Puzzle3DCanvas controls", () => {
     expect(puzzleDefaultYaw("pyraminx")).toBeLessThan(0);
   });
 
-  it("uses vertical drag as the primary FTO yaw control without changing standard puzzle drag", () => {
+  it("keeps FTO drag intuitive: horizontal movement changes yaw and vertical movement changes pitch", () => {
     const start = { yaw: 0, pitch: 0, distance: 6 };
-    expect(orbitFromPuzzleDrag("fto", start, 0, 20).yaw).toBeGreaterThan(0);
-    expect(orbitFromPuzzleDrag("fto", start, 20, 0).pitch).toBeGreaterThan(0);
+    expect(orbitFromPuzzleDrag("fto", start, 20, 0).yaw).toBeGreaterThan(0);
+    expect(orbitFromPuzzleDrag("fto", start, 0, 20).pitch).toBeGreaterThan(0);
     expect(orbitFromPuzzleDrag("pyraminx", start, 20, 0).yaw).toBeGreaterThan(0);
     expect(orbitFromPuzzleDrag("pyraminx", start, 0, 20).pitch).toBeGreaterThan(0);
   });
