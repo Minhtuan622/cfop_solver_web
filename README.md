@@ -1,266 +1,431 @@
 # CFOP Solver Studio
 
-Ứng dụng web hỗ trợ giải và luyện Rubik 3×3. Giao diện được xây bằng **React + TypeScript + Vite + Bootstrap**; backend dùng **Express + tRPC + Drizzle/MySQL** cho tài khoản CFOP riêng. Thuật toán CFOP/BLD viết bằng Python được đóng gói vào trình duyệt và chạy trong **Pyodide Web Worker**, vì vậy luồng giải chính vẫn không gọi API.
+CFOP Solver Studio là ứng dụng web hỗ trợ giải, luyện tập và thi đấu Rubik trực tuyến. Dự án gồm frontend React/Vite, backend Express/tRPC, database MySQL/TiDB, solver CFOP/BLD chạy trong trình duyệt, cùng các module Timer, History, Study, tài khoản CFOP, WCA và Rooms.
 
-> **Mục tiêu triển khai:** sau khi sao chép đúng workspace gồm frontend và gói Python solver, bạn chỉ cần cài Node.js, `pnpm install`, rồi chạy `pnpm dev` hoặc `pnpm build`.
+> **Mục tiêu của tài liệu này:** giúp lập trình viên mới có thể clone project, cài dependency, chạy local, kiểm thử, build production và hiểu các ranh giới dữ liệu trước khi thay đổi mã nguồn.
 
-## Chức năng chính
+## 1. Tổng quan tính năng
 
-| Khu vực | Nội dung |
+| Khu vực | Phạm vi chính |
 |---|---|
-| **Giải Rubik** | Nhập scramble hoặc tô trạng thái 6 mặt, xem Cube 2D/3D và phát lại từng nước xoay. |
-| **CFOP** | Cross theo màu đã chọn, F2L, OLL/PLL; có lựa chọn XCross đến XXXXCross direct-only, ZBLL và 1LLL. |
-| **Timer** | Inspection, +2/DNF, Speed splits, thành tích cá nhân, lịch sử và phát lại solution. |
-| **Study** | Luyện Last Layer và 3-Style BLD, danh mục công thức, SRS, streak và drill. |
-| **Cài đặt** | Cross color, Opening, Last Layer, direct depth/node budget, F2L slot, Timer/Inspection và mục tiêu Study. |
+| **Studio / Solver** | Nhập scramble hoặc trạng thái sáu mặt, giải theo CFOP, Cross, F2L, OLL/PLL, XCross đến XXXXCross, ZBLL/1LLL và xem CubeNet/3D. |
+| **Timer** | Inspection, solve, +2/DNF, split, thành tích cá nhân, nhiều loại Rubik, scramble preview, replay solution và thống kê theo event. |
+| **History** | Lọc theo loại Rubik, analytics, chọn nhiều solve, export/import và quản lý dữ liệu solve tập trung. |
+| **Study** | Last Layer và 3-Style BLD, catalog công thức, SRS, drill, streak, learning path, profile học tập và tự kiểm tra bằng scramble. FTO Study không còn trong sản phẩm. |
+| **Profile / Account** | Đăng ký, đăng nhập, đổi mật khẩu, quên mật khẩu, avatar, mục tiêu cá nhân, đồng bộ Timer/Study và liên kết WCA. |
+| **Rooms** | Tạo/tham gia phòng, Best of 3/Ao5/Ao12, MBLD, chat, spectator, moderator, moderation log, rematch, lịch sử phòng và leaderboard. |
+| **WCA** | Lịch thi đấu, lọc quốc gia, hồ sơ WCA, OAuth WCA khi đủ cấu hình và so sánh thành tích. |
 
-## Kiến trúc
+## 2. Stack công nghệ
 
-```text
-┌────────────────────────────────────────────────────────────┐
-│ React 19 + TypeScript + Vite + Wouter + Bootstrap 5         │
-│  client/src/pages  → màn hình chính                         │
-│  client/src/lib    → worker, localStorage, cube utilities   │
-└───────────────────┬────────────────────────────────────────┘
-                    │ message
-┌───────────────────▼────────────────────────────────────────┐
-│ Pyodide Web Worker                                          │
-│  client/src/lib/solverWorker.ts                             │
-│  client/src/lib/embeddedSolver.ts (tự sinh)                │
-└───────────────────┬────────────────────────────────────────┘
-                    │ nạp mã Python đã nhúng
-┌───────────────────▼────────────────────────────────────────┐
-│ Python CFOP package (workspace anh em)                      │
-│  ../cfop_solver/cfop_solver                                 │
-└────────────────────────────────────────────────────────────┘
-                    │
-┌───────────────────▼────────────────────────────────────────┐
-│ Express + tRPC + MySQL/TiDB                                  │
-│  Tài khoản CFOP email/mật khẩu và phiên HTTP-only            │
-└────────────────────────────────────────────────────────────┘
-```
+| Lớp | Công nghệ |
+|---|---|
+| UI | React 19, TypeScript, Vite 7, Bootstrap 5.3, Bootstrap Icons, Wouter |
+| Data fetching | tRPC 11, TanStack Query, SuperJSON |
+| Backend | Node.js, Express 4, tRPC server |
+| Database | MySQL/TiDB, Drizzle ORM và Drizzle Kit |
+| Rubik | Cubing.js, Three.js, Pyodide Web Worker, solver bundle Python đã nhúng |
+| Kiểm thử | Vitest, Testing Library, Playwright E2E |
+| Build | Vite cho frontend và esbuild cho Express server |
+| Deploy mẫu | `railway.json` dùng Railpack, `pnpm build`, `pnpm start` |
 
-## Yêu cầu môi trường
+Ứng dụng thông thường chạy dưới dạng **một Node process**: Express mount tRPC tại `/api/trpc`, phục vụ SPA và các route OAuth/WCA; trong development process này dùng Vite middleware, còn production phục vụ `dist/public`.
 
-| Công cụ | Phiên bản khuyến nghị | Dùng để làm gì |
+## 3. Yêu cầu môi trường
+
+| Công cụ | Phiên bản khuyến nghị | Ghi chú |
 |---|---:|---|
-| Node.js | 22 LTS trở lên | Chạy Vite, build và production server. |
-| pnpm | 10 trở lên | Cài dependency đúng theo lockfile. |
-| Python | 3.11 trở lên | Chạy test cho thuật toán solver; không bắt buộc khi chỉ chạy bản web đã build. |
-| MySQL/TiDB | MySQL 8 trở lên | Bắt buộc khi bật đăng ký/đăng nhập tài khoản CFOP riêng. |
-| Git | Bản mới | Sao chép/sync source code. |
+| Node.js | 22 LTS trở lên | Dùng cho Vite, server và build. |
+| pnpm | 10 trở lên | Phải dùng lockfile hiện tại; không trộn npm/yarn trong project. |
+| Git | Phiên bản mới | Dùng để clone và quản lý thay đổi. |
+| MySQL/TiDB | MySQL 8 hoặc tương thích | Cần khi bật tài khoản, cloud sync, WCA account và Rooms. |
+| Python | 3.11 trở lên | Chỉ cần nếu sửa hoặc tái tạo solver Python; không cần để chạy bundle web đã có. |
+| Chromium | Bản cài hệ thống | Cần cho `pnpm test:e2e`; cấu hình hiện tại dùng `/usr/bin/chromium`. |
 
-Lệnh kiểm tra nhanh:
+Kiểm tra nhanh:
 
 ```bash
 node --version
 pnpm --version
-python3 --version
 git --version
+mysql --version
+python3 --version       # chỉ cần cho Python solver
 ```
 
-## Cấu trúc workspace bắt buộc
+Nếu không dùng Python solver, dòng `python3 --version` có thể bỏ qua.
 
-Script `embed-solver` mặc định lấy Python package từ **thư mục anh em** của web project. Hãy giữ cấu trúc này khi chuyển sang máy hoặc máy chủ khác:
-
-```text
-rubik-workspace/
-├── cfop_solver_web/              # repository này
-│   ├── client/                    # React/Vite frontend
-│   ├── server/                    # Express/tRPC backend và production server
-│   ├── drizzle/                   # Schema/migration MySQL cho tài khoản CFOP
-│   ├── scripts/embed-solver.mjs   # nạp Python source vào web bundle
-│   ├── package.json
-│   └── pnpm-lock.yaml
-└── cfop_solver/                   # Python solver repository/package
-    ├── cfop_solver/               # __init__.py, cube.py, search.py, solver.py, ...
-    └── tests/                     # regression tests Python
-```
-
-> Nếu `cfop_solver` không nằm cùng cấp với `cfop_solver_web`, `pnpm run embed-solver` và `pnpm build` sẽ không tìm thấy Python source.
-
-## Cài đặt lần đầu
-
-### 1. Chuẩn bị source code
-
-Sao chép hoặc clone cả hai thư mục vào cùng một workspace. Nếu dùng Git, hãy clone hai repository cạnh nhau; nếu dùng file nén, giải nén sao cho đường dẫn có dạng ở phần trên.
-
-### 2. Cài dependency frontend
+## 4. Clone và cài dependency
 
 ```bash
-cd rubik-workspace/cfop_solver_web
+git clone <URL_REPOSITORY> cfop_solver_web
+cd cfop_solver_web
 corepack enable
 pnpm install --frozen-lockfile
 ```
 
-`pnpm-lock.yaml` cần được giữ nguyên để tái lập đúng dependency đã kiểm thử. Không dùng `npm install` hoặc `yarn install` trong cùng project vì sẽ tạo lockfile khác.
+Không commit các file sau:
 
-### 3. Chuẩn bị database cho tài khoản CFOP (tùy chọn nhưng cần nếu dùng đăng nhập)
+```text
+.env
+.env.local
+.env.*.local
+node_modules/
+dist/
+test-results/
+```
 
-Tạo một database MySQL/TiDB rỗng, đặt `DATABASE_URL` trong environment của server, sau đó áp dụng migration:
+Các file media lớn không nên đặt trong `client/public` hoặc `client/src/assets`. Dùng object storage/CDN phù hợp và chỉ lưu URL/metadata trong ứng dụng.
+
+## 5. Cấu hình biến môi trường
+
+Tạo `.env.local` cho local development. Không commit file này vào Git.
+
+### 5.1. Tối thiểu cho server full-stack
+
+```dotenv
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=mysql://username:password@127.0.0.1:3306/cfop_solver
+JWT_SECRET=replace-with-a-long-random-secret
+```
+
+`DATABASE_URL` và `JWT_SECRET` cần thiết cho account CFOP, cloud sync, profile và Rooms. Luồng solver, Timer và History local có thể chạy mà không cần database, nhưng các route server vẫn nên được kiểm tra với cấu hình đầy đủ.
+
+### 5.2. WCA OAuth tùy chọn
+
+```dotenv
+WCA_CLIENT_ID=
+WCA_CLIENT_SECRET=
+WCA_OAUTH_REDIRECT_URI=https://your-domain.example/api/wca/oauth/callback
+```
+
+Chỉ điền các giá trị này sau khi đã đăng ký OAuth application tương ứng. Redirect URI phải trùng với domain đang chạy; local và production thường cần hai cấu hình riêng.
+
+### 5.3. Quên mật khẩu tùy chọn
+
+```dotenv
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+CFOP_APP_URL=http://localhost:3000
+```
+
+Nếu thiếu một trong ba biến này, tài khoản vẫn có thể đăng ký/đăng nhập nhưng email đặt lại mật khẩu sẽ không được bật.
+
+### 5.4. Storage tùy chọn
+
+```dotenv
+BUILT_IN_FORGE_API_URL=
+BUILT_IN_FORGE_API_KEY=
+```
+
+Các biến này phục vụ storage proxy/tích hợp storage đã cấu hình. Không đưa key thật vào README, `.env.example` hoặc commit.
+
+### 5.5. Các biến Manus/OAuth hệ thống
+
+Khi chạy trong hosting tích hợp, các biến hệ thống có thể đã được cấp sẵn. Khi tự host, chỉ cấu hình những biến mà flow tương ứng sử dụng:
+
+```dotenv
+VITE_APP_ID=
+OAUTH_SERVER_URL=
+OWNER_OPEN_ID=
+VITE_OAUTH_PORTAL_URL=
+VITE_FRONTEND_FORGE_API_URL=
+VITE_FRONTEND_FORGE_API_KEY=
+```
+
+Không tự đặt giá trị giả cho production. Auth Manus và account CFOP là hai ranh giới khác nhau; account CFOP dùng email/mật khẩu và bảng `cfop_*`, không dùng `openId` của Manus.
+
+## 6. Database và migration
+
+Schema nằm trong `drizzle/schema.ts`; migration SQL nằm trong `drizzle/`. Database hiện có các nhóm dữ liệu sau:
+
+| Nhóm bảng | Vai trò |
+|---|---|
+| `users` | Bảng tương thích Manus/platform auth. |
+| `cfop_accounts`, `cfop_account_sessions` | Account CFOP riêng và session hash. |
+| `cfop_account_cloud_states` | Snapshot versioned của Timer/Study để đồng bộ tài khoản. |
+| `cfop_password_reset_tokens`, `cfop_wca_oauth_states` | Token reset/OAuth dạng hash, có thời hạn. |
+| `cfop_competition_rooms`, `members`, `rounds`, `results`, `messages` | Phòng thi, thành viên, lượt thi, kết quả và chat. |
+| `cfop_competition_moderation_logs` | Nhật ký moderator loại spectator. |
+
+Với môi trường self-host có quyền chạy migration:
 
 ```bash
 pnpm drizzle-kit migrate
 ```
 
-Migration tạo ba bảng: `cfop_accounts`, `cfop_account_sessions` và `users`. Hai bảng bắt đầu bằng `cfop_` là **tài khoản CFOP độc lập**; chúng không dùng `openId`, OAuth, hay thông tin tài khoản Manus. Mật khẩu chỉ được lưu bằng scrypt hash; session browser chỉ chứa random token HTTP-only, còn database chỉ lưu SHA-256 hash của token.
-
-### 4. Đồng bộ Python solver vào frontend
+Hoặc dùng script hiện có:
 
 ```bash
-pnpm run embed-solver
+pnpm db:push
 ```
 
-Lệnh này đọc 15 module Python từ `../cfop_solver/cfop_solver/` và sinh `client/src/lib/embeddedSolver.ts`.
+`db:push` chạy `drizzle-kit generate && drizzle-kit migrate`. Trước migration production, hãy backup database, đọc SQL được sinh ra và chạy thử trên staging. Không dùng lệnh destructive hoặc tự động migration trong bước deploy nếu chưa có quy trình backup/rollback.
 
-> **Không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`.** File này sẽ bị ghi đè ở lần chạy `embed-solver` hoặc `build` kế tiếp.
-
-### 5. Chạy môi trường phát triển
+## 7. Chạy development
 
 ```bash
 pnpm dev
 ```
 
-Mặc định ứng dụng chạy tại `http://localhost:3000`. Nếu cổng 3000 đang bận, Express sẽ tự chọn cổng kế tiếp. Dev server gồm cả Vite middleware và tRPC API `/api/trpc`.
+Server mặc định bắt đầu từ `PORT` hoặc cổng `3000`. Nếu cổng ưu tiên bận, bootstrap hiện tại tìm một cổng trống trong phạm vi kế tiếp. Development dùng Vite middleware và vẫn mount API tại `/api/trpc`.
 
-## Lệnh thường dùng
+Các route chính:
+
+```text
+/              Studio / CFOP Solver
+/timer         Timer Lab
+/study         Study Lab
+/history       History
+/settings      Settings
+/profile       Profile và account CFOP
+/rooms         Danh sách/tạo phòng
+/rooms/:code   Phòng thi cụ thể
+/wca           WCA competitions
+```
+
+## 8. Scripts thường dùng
 
 | Lệnh | Mục đích |
 |---|---|
-| `pnpm dev` | Mở Express development server, Vite middleware và tRPC API. |
-| `pnpm run embed-solver` | Sinh lại Python solver đã nhúng sau khi sửa Python source. |
-| `pnpm check` | Kiểm tra TypeScript, không tạo file build. |
-| `pnpm test` | Chạy toàn bộ test server, bảo mật tài khoản và giao diện. |
-| `pnpm build` | Nhúng solver, build frontend vào `dist/public`, rồi bundle Express/tRPC server vào `dist/index.js`. |
-| `PORT=8080 pnpm start` | Chạy Express/tRPC production server tại cổng 8080. |
-| `pnpm format` | Format code bằng Prettier. |
+| `pnpm dev` | Chạy Express + Vite development server. |
+| `pnpm check` | TypeScript check, không tạo output. |
+| `pnpm test` | Chạy toàn bộ Vitest server/client. |
+| `pnpm test:e2e` | Chạy Playwright bằng Chromium hệ thống. |
+| `pnpm build` | Build frontend và bundle Express server production. |
+| `pnpm start` | Chạy `dist/index.js` ở production mode. |
+| `pnpm run embed-solver` | Tái tạo bundle solver từ Python source bên ngoài; chỉ cần khi sửa Python solver. |
+| `pnpm db:push` | Generate và apply Drizzle migration; không chạy tự động trong deploy nếu chưa kiểm soát. |
+| `pnpm format` | Format bằng Prettier. |
 
-## Kiểm thử trước khi commit hoặc triển khai
+### Lưu ý quan trọng về `pnpm build`
 
-### Frontend
+`pnpm build` **không gọi** `embed-solver`. Lý do là source Python solver lịch sử nằm ngoài repository web; container production không có đường dẫn đó. File `client/src/lib/embeddedSolver.ts` hiện là bundle đã được theo dõi trong repository và được dùng trực tiếp khi build.
 
-```bash
-cd rubik-workspace/cfop_solver_web
-pnpm check
-pnpm exec vitest run
-pnpm build
-```
-
-### Python solver
-
-```bash
-cd rubik-workspace/cfop_solver
-PYTHONPATH=. pytest -q tests/test_xcross.py
-```
-
-Test Python này đặc biệt quan trọng khi sửa thuật toán Opening. Nó bảo vệ invariant: **XCross/XXCross/XXXCross/XXXXCross chỉ được ghi nhận nếu một chuỗi direct nguyên tử từ state ban đầu đạt Cross và đủ F2L slot mục tiêu; không được gắn nhãn cao cho Cross rồi F2L tuần tự.**
-
-## Quy trình sửa thuật toán solver
-
-1. Sửa mã tại `../cfop_solver/cfop_solver/`, thường là `search.py`, `solver.py`, `predicates.py` hoặc module database.
-2. Chạy test Python ở repository solver.
-3. Quay về `cfop_solver_web` và chạy `pnpm run embed-solver`.
-4. Chạy `pnpm check`, `pnpm exec vitest run` và `pnpm build`.
-5. Kiểm tra trực tiếp các scramble liên quan trong giao diện trước khi phát hành.
-
-Các tệp Python được nhúng hiện tại là:
+Khi thực sự sửa Python solver, cần có workspace đúng cấu trúc:
 
 ```text
-__init__.py, cube.py, notation.py, validation.py, bld.py,
-predicates.py, f2l_macros.py, f2l_symmetry.py, cross_table.py,
-search.py, phases.py, solver.py, full_database.py,
-one_look_database.py, full_last_layer.py
+rubik-workspace/
+├── cfop_solver_web/
+│   └── scripts/embed-solver.mjs
+└── cfop_solver/
+    └── cfop_solver/
+        ├── __init__.py
+        ├── cube.py
+        ├── solver.py
+        └── ...
 ```
 
-Nếu thêm module Python mới được import trong solver, hãy thêm tên module đó vào mảng `files` trong `scripts/embed-solver.mjs`, sau đó chạy lại build.
-
-## Dữ liệu người dùng và localStorage
-
-Timer history, setting, tiến độ Study/SRS, mastered case và một số lựa chọn UI vẫn được lưu trong **`localStorage` của trình duyệt**. Đăng ký/đăng nhập chỉ lưu danh tính CFOP và phiên vào database; bản hiện tại chưa tự đồng bộ Timer/Study localStorage giữa các thiết bị.
-
-Điều này có nghĩa là dữ liệu được tách theo trình duyệt, thiết bị và origin. Khi chạy ở domain khác hoặc xoá dữ liệu trình duyệt, lịch sử local có thể không còn hiện. Các chức năng xuất/nhập của History và Study nên được dùng để sao lưu định kỳ trước khi chuyển máy.
-
-> Không chạy `localStorage.clear()` trong code production hoặc trong console của trình duyệt đang chứa dữ liệu người dùng.
-
-## Build và chạy production
+Sau khi sửa và kiểm thử Python:
 
 ```bash
 cd rubik-workspace/cfop_solver_web
+pnpm run embed-solver
+pnpm check
+pnpm test
 pnpm build
-PORT=3000 pnpm start
 ```
 
-Sau build:
+Không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`; đây là output được sinh từ solver source.
+
+## 9. Kiểm thử trước khi commit
+
+Chạy tối thiểu:
+
+```bash
+pnpm check
+pnpm test
+pnpm test:e2e
+pnpm build
+git diff --check
+```
+
+Playwright dùng `playwright.config.ts`, tự khởi động hoặc tái sử dụng `pnpm dev`, chạy Chromium headless và mặc định truy cập `http://127.0.0.1:3000`. E2E account/Room dùng fixture tRPC trong bộ nhớ, không ghi account, cloud state hoặc phòng thật. E2E lazy-load kiểm tra Studio không tải Cubing/Three.js ban đầu, Timer tải Cubing khi cần scramble và event 3D tải Three.js khi mở canvas.
+
+Khi thay đổi schema, router hoặc Room state, cần bổ sung regression tương ứng trước khi chạy full suite. Khi thay đổi localStorage, phải giữ nguyên key/schema hiện hữu hoặc viết migration có test; không dùng `localStorage.clear()`.
+
+## 10. Persistence và dữ liệu người dùng
+
+Các dữ liệu Timer, History, Settings, Study/SRS, mastered case và BLD profile được lưu local bằng các helper trong `client/src/lib/browserStorage.ts`. Helper này có guard cho SSR/private mode và giữ nguyên key/schema cũ.
+
+Account CFOP lưu profile/session trong MySQL. Khi người dùng đăng nhập, cloud sync có thể lưu snapshot versioned gồm Timer, Last Layer, BLD profile và learning path vào `cfop_account_cloud_states`. Dữ liệu local và cloud cần được xem như hai lớp khác nhau:
+
+1. Local browser là nguồn thao tác nhanh và vẫn phải được export trước khi đổi origin hoặc thiết bị.
+2. Cloud account là snapshot đồng bộ, không nên bị ghi đè bằng payload chưa kiểm tra.
+3. Không thay đổi key localStorage, shape cloud payload hoặc version mà không có migration và regression.
+4. Trước migration database hoặc thay đổi sync, phải backup dữ liệu và kiểm tra conflict/last-write behavior.
+
+## 11. Build production và Railway
+
+Build production:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm build
+NODE_ENV=production PORT=3000 pnpm start
+```
+
+Output:
 
 ```text
 dist/
-├── index.js       # Express/tRPC server với SPA fallback
-└── public/        # HTML, JavaScript, CSS và assets tĩnh
+├── index.js       # Express/tRPC production server
+└── public/        # Vite static assets
 ```
 
-`server/_core/index.ts` mount tRPC ở `/api/trpc`, sau đó phục vụ file tĩnh và gửi lại `index.html` cho các route SPA như `/timer`, `/history`, `/study` và `/settings`. Solver vẫn chạy ở trình duyệt thông qua Web Worker.
+`railway.json` đã có sẵn cấu hình mẫu:
 
-Khi bật tài khoản CFOP, **không dùng static host thuần**: cần Node server chạy `pnpm start` cùng MySQL/TiDB. Nếu tắt hoàn toàn phần tài khoản, vẫn có thể tách `dist/public/` sang static host với SPA fallback.
-
-## Biến môi trường
-
-Luồng giải Rubik, Timer, History và Study **không cần secret** để hoạt động. Tài khoản CFOP cần `DATABASE_URL`; server core cũng cần `JWT_SECRET` ngẫu nhiên, ổn định khi tự host. Cấu hình Vite có một storage proxy phát triển tại `/manus-storage`; proxy đó chỉ cần biến `BUILT_IN_FORGE_API_URL` và `BUILT_IN_FORGE_API_KEY` khi dự án thực sự sử dụng asset trên storage tương ứng.
-
-Không đưa key, token hoặc file `.env` thật vào Git. Nếu bổ sung tích hợp bên thứ ba về sau, hãy mô tả biến môi trường mới trong README này và cung cấp `.env.example` không chứa secret.
-
-### Thiết lập local
-
-`NODE_ENV` và `PORT` chỉ ảnh hưởng runner/server; `pnpm dev` vẫn chạy được nếu không có `.env.local`. Hai biến `BUILT_IN_FORGE_*` chỉ cần cho storage proxy, còn `VITE_OAUTH_PORTAL_URL` và `VITE_APP_ID` chỉ cần khi bạn tự tích hợp login. Để trống các biến tùy chọn nếu chưa dùng chúng.
-
-Khi tự triển khai ngoài workspace được quản lý, tạo `.env.local` với các biến sau nếu cần:
-
-```dotenv
-NODE_ENV=development
-PORT=3000
-
-# Cần khi bật tài khoản CFOP email/mật khẩu
-DATABASE_URL=mysql://username:password@127.0.0.1:3306/cfop_solver
-JWT_SECRET=replace-with-a-long-random-secret
-
-# Chỉ cần khi dùng /manus-storage/<path>
-BUILT_IN_FORGE_API_URL=
-BUILT_IN_FORGE_API_KEY=
-
-# Chỉ cần khi tự tích hợp OAuth
-VITE_OAUTH_PORTAL_URL=
-VITE_APP_ID=
+```text
+builder: Railpack
+build:   pnpm build
+start:   pnpm start
+restart: ON_FAILURE, tối đa 3 lần
 ```
 
-## Lưu ý về tài nguyên tĩnh
+Khi deploy, cần khai báo secret/database trong dashboard của nhà cung cấp, không commit vào repository. Phải chạy production Node server; static host thuần như GitHub Pages hoặc Cloudflare Pages chỉ phù hợp cho `dist/public` nếu tách backend riêng, không đủ cho account, sync và Rooms.
 
-Không để ảnh, video hoặc file lớn trong `client/public/` hay `client/src/assets/`. Với môi trường Manus, asset lớn cần được đưa ra storage webdev. Với self-host độc lập, nên dùng CDN/object storage riêng và tham chiếu qua URL ổn định.
+## 12. Cấu trúc thư mục bàn giao
 
-## Xử lý sự cố phổ biến
+```text
+cfop_solver_web/
+├── client/
+│   ├── index.html
+│   └── src/
+│       ├── components/       # AppNav, Bootstrap UI, Cube/3D, Account, Study, Rooms...
+│       ├── contexts/         # Language/theme và context dùng chung
+│       ├── hooks/             # React hooks dùng chung
+│       ├── lib/               # persistence, solver, scramble, analytics, download, presentation
+│       ├── pages/             # Home, TimerLab, History, Settings, Profile, Rooms, WCA
+│       ├── App.tsx            # App shell, routes, lazy page loading
+│       ├── main.tsx           # React providers và tRPC client
+│       └── index.css          # Global styles Bootstrap-compatible
+├── server/
+│   ├── _core/                # Framework/runtime; không sửa tùy tiện
+│   ├── db.ts                 # Query helpers và data access
+│   ├── routers.ts            # tRPC contracts và feature procedures
+│   ├── competition.ts        # Rule/score helper cho Rooms
+│   ├── cfopAccountAuth.ts    # Hash/session/account helper
+│   ├── cfopPasswordResetMail.ts
+│   ├── wcaApi.ts
+│   ├── wcaOAuth.ts
+│   ├── storage.ts
+│   └── *.test.ts              # Backend regression
+├── shared/
+│   ├── timerEvents.ts        # Event IDs/metadata dùng chung
+│   ├── multiBlind.ts
+│   └── types.ts
+├── drizzle/
+│   ├── schema.ts              # MySQL schema và types
+│   ├── *.sql                  # Migration đã sinh
+│   └── meta/                  # Drizzle metadata
+├── scripts/
+│   ├── embed-solver.mjs       # Tái tạo solver bundle khi có Python source
+│   └── ...                    # Validation/build utilities
+├── e2e/                       # Playwright browser workflows
+├── railway.json               # Deploy config mẫu cho Node/Express
+├── playwright.config.ts
+├── vite.config.ts
+├── vitest.config.ts
+├── tsconfig.json
+├── drizzle.config.ts
+├── package.json
+├── pnpm-lock.yaml
+├── refactor-audit.md          # Ranh giới và lịch sử refactor
+├── todo.md                    # Checklist thay đổi
+└── README.md
+```
 
-| Hiện tượng | Nguyên nhân thường gặp | Cách xử lý |
-|---|---|---|
-| `ENOENT` khi chạy `embed-solver` | Thiếu thư mục Python solver hoặc sai cấu trúc workspace. | Kiểm tra `../cfop_solver/cfop_solver/` từ thư mục web project. |
-| Web chạy nhưng solver không tải | `embeddedSolver.ts` cũ hoặc build chưa chạy lại sau khi sửa Python. | Chạy `pnpm run embed-solver`, sau đó restart `pnpm dev`. |
-| `pnpm install` khác với máy cũ | Dùng pnpm/version khác hoặc lockfile bị sửa. | Bật Corepack, dùng pnpm 10 và chạy `pnpm install --frozen-lockfile`. |
-| Trang con trả 404 khi deploy static | Host chưa bật SPA fallback. | Cấu hình route fallback trả về `index.html`. |
-| Lịch sử Timer biến mất | Đổi domain/browser hoặc xoá localStorage. | Import bản sao lưu JSON trước đó hoặc dùng cùng origin cũ. |
-| Direct Opening chậm | Direct depth/node budget đang cao. | Hạ `node budget direct`, giảm depth hoặc chọn Opening tier thấp hơn. |
-| Đăng ký/đăng nhập lỗi | Chưa cấu hình `DATABASE_URL` hoặc chưa chạy migration. | Kiểm tra kết nối MySQL/TiDB, rồi chạy `pnpm drizzle-kit migrate`. |
+`server/_core/` là framework plumbing của template, gồm bootstrap, OAuth, Vite bridge, tRPC context và storage proxy. Không chỉnh sửa thư mục này trong feature work nếu chưa hiểu rõ contract runtime.
 
-## Checklist chuyển dự án sang máy khác
+## 13. Quy tắc phát triển an toàn
 
-- [ ] Có cả `cfop_solver_web/` và `cfop_solver/` ở cùng workspace.
-- [ ] Node.js 22+ và pnpm 10+ đã sẵn sàng.
-- [ ] `pnpm install --frozen-lockfile` chạy thành công.
-- [ ] `pnpm run embed-solver` sinh được `client/src/lib/embeddedSolver.ts`.
-- [ ] `pnpm check`, `pnpm exec vitest run` và `pnpm build` đều pass.
-- [ ] Nếu dùng tài khoản CFOP: MySQL/TiDB sẵn sàng, `DATABASE_URL`/`JWT_SECRET` đã đặt và migration đã chạy.
-- [ ] Node host chạy `pnpm start`; không dùng static host thuần khi bật tài khoản.
-- [ ] Dữ liệu local quan trọng đã export trước khi đổi domain/trình duyệt.
+Khi thêm tính năng, trước hết xác định module sở hữu state và data contract. Tách pure helper khỏi page/component lớn, tái sử dụng metadata trong `shared/` hoặc `client/src/lib/`, và giữ UI feature ở `components/`/`pages/` phù hợp.
 
-## Tài liệu nền tảng
+Tất cả backend call phải đi qua tRPC hiện có; không thêm fetch/Axios wrapper riêng cho API app. Database schema phải được cập nhật trước, migration phải được review và feature cần regression server/client tương ứng. Các thao tác auth, cloud sync, avatar, WCA và Rooms phải được kiểm tra với trạng thái lỗi, loading, unauthorized và dữ liệu rỗng.
+
+Khi thay đổi solver, giữ invariant direct search: XCross đến XXXXCross chỉ được ghi nhận nếu chuỗi direct từ state ban đầu đồng thời đạt Cross và đủ slot mục tiêu. Khi thay đổi Timer/History, giữ event ID, storage key, penalty và format export hiện có.
+
+## 14. Chiến lược scale Rooms
+
+Rooms hiện là mô hình server-backed trong MySQL. State quan trọng gồm room, member, round, result, message và moderation log; presence hiện dựa trên `lastSeen` với cửa sổ online ngắn. Vì vậy, điểm nghẽn đầu tiên khi số người thi tăng thường là polling state, các lần cập nhật presence, query lặp lại theo room và kết nối database, không phải renderer 3D phía client.
+
+### Giai đoạn 1: ổn định trên một service Node
+
+Giữ API Node stateless ở mức có thể, đặt pool kết nối MySQL có giới hạn, bật timeout và đo p95 latency. Bổ sung metric cho `competition.state`, `startRound`, `submit`, `sendMessage`, số member/room, lỗi database và thời gian query. Xác nhận các index room/member/round/result/message hiện có bằng `EXPLAIN`; bổ sung index theo workload thực tế, không tạo index tùy tiện.
+
+Giới hạn tần suất gửi chat và state refresh ở server. Presence không cần ghi database ở mọi request nếu có thể gom nhịp; giữ MySQL làm nguồn sự thật cho membership, result và moderation. Đặt giới hạn `maxPlayers`, độ dài message và kích thước cloud payload như validation hiện có.
+
+### Giai đoạn 2: giảm tải polling
+
+Khi polling bắt đầu chiếm nhiều request, chuyển notification state sang WebSocket hoặc SSE. Database vẫn lưu round/result/message; kênh realtime chỉ phát event như `round_started`, `result_submitted`, `member_joined` và `message_created`. Nếu chạy nhiều instance Node, dùng Redis Pub/Sub hoặc dịch vụ realtime managed để fan-out event; không giữ state phòng duy nhất trong RAM của một process.
+
+Tách presence ngắn hạn sang Redis với TTL nếu `lastSeen` trở thành write hotspot. Chỉ ghi snapshot/presence tổng hợp vào database khi cần audit. Đây là thay đổi hạ tầng, cần E2E cho reconnect, duplicate event, tab đóng đột ngột và moderator removal.
+
+### Giai đoạn 3: scale ngang
+
+Đặt load balancer trước nhiều instance API. Mỗi instance phải đọc state từ database/cache chung; không phụ thuộc sticky session nếu session là HTTP-only cookie và state phòng nằm ở MySQL/Redis. Cache dữ liệu ít thay đổi như event metadata, country list và leaderboard theo period; không cache kết quả submit theo cách có thể gây race.
+
+Dùng optimistic concurrency hoặc unique constraint hiện có để bảo vệ submit một lần/người/lượt. Khi start round hoặc submit đồng thời, kiểm tra transaction/isolation và retry có giới hạn. Giữ kết quả bất biến sau submit; việc chốt round/room cần idempotency để retry không tạo round hoặc result trùng.
+
+### Giai đoạn 4: tách workload
+
+Khi Rooms và WCA tăng cùng lúc, tách các workload đọc nặng: leaderboard/history có thể đi qua read replica hoặc bảng aggregate; WCA calendar có thể cache theo khoảng ngày/quốc gia; chat có thể archive theo room. Các tác vụ không cần phản hồi tức thì như aggregate thống kê, email reset và cleanup token nên đi qua worker/queue.
+
+CDN chỉ nên phục vụ static assets và chunk Cubing/Three.js. Lazy-load theo event hiện có giúp giảm tải ban đầu nhưng không giải quyết database contention. Không đưa dữ liệu auth, room state hoặc kết quả thi vào CDN cache công khai.
+
+### Thứ tự ưu tiên đề xuất
+
+| Ưu tiên | Việc nên làm | Điều kiện kích hoạt |
+|---:|---|---|
+| 1 | Metrics, slow query log, EXPLAIN, connection pool và rate limit | Ngay trước khi tăng traffic |
+| 2 | Giảm polling/presence writes, thêm cache event/leaderboard | p95 state hoặc DB write tăng |
+| 3 | WebSocket/SSE + Redis Pub/Sub, test reconnect/idempotency | Cần nhiều instance hoặc polling quá lớn |
+| 4 | Load balancer, worker queue, read replica/aggregate | DB/API trở thành bottleneck ổn định |
+| 5 | Sharding theo room/event và data retention | Chỉ khi một database/partition không còn đủ |
+
+Đừng sharding quá sớm. Với dữ liệu thi đấu cần tính toàn vẹn, một MySQL primary có index và transaction đúng thường dễ vận hành hơn nhiều database phân mảnh. Hãy load-test các flow `state → startRound → submit → state` bằng dữ liệu tổng hợp trước khi chọn ngưỡng scale thực tế.
+
+## 15. Tài liệu tham khảo kỹ thuật
 
 - [React documentation](https://react.dev/learn)
-- [Vite documentation](https://vite.dev/guide/)
+- [Vite guide](https://vite.dev/guide/)
 - [Bootstrap documentation](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
-- [Pyodide documentation](https://pyodide.org/en/stable/)
+- [tRPC documentation](https://trpc.io/docs)
+- [Drizzle ORM documentation](https://orm.drizzle.team/docs/overview)
+- [Playwright documentation](https://playwright.dev/docs/intro)
+- [Railway configuration reference](https://docs.railway.com/config-as-code/reference)
+- [MySQL indexing documentation](https://dev.mysql.com/doc/refman/8.4/en/mysql-indexes.html)
+
+## 16. Checklist bàn giao
+
+- [ ] Clone đúng repository và cài bằng `pnpm install --frozen-lockfile`.
+- [ ] Đã cấu hình `DATABASE_URL` và `JWT_SECRET` nếu dùng account/Rooms.
+- [ ] Đã chạy migration trên database staging trước production.
+- [ ] `pnpm check` đạt.
+- [ ] `pnpm test` đạt.
+- [ ] `pnpm test:e2e` đạt với Chromium.
+- [ ] `pnpm build` đạt trong môi trường không có source Python ngoài repository.
+- [ ] Đã kiểm tra `git diff --check`.
+- [ ] Đã backup/export dữ liệu local quan trọng trước khi đổi origin/domain.
+- [ ] Đã kiểm tra redirect URI, cookie domain, CORS và secrets trên host thật.
+- [ ] Đã xác nhận rollback/checkpoint trước thay đổi schema hoặc realtime Rooms.
+
+## License
+
+Giữ license hiện có của repository khi phát hành hoặc fork dự án. Nếu chưa có policy riêng, hãy bổ sung license và quy tắc đóng góp trước khi mở repository công khai.
+
+---
+
+**Maintainer note:** `README.md` mô tả cấu trúc và scripts tại thời điểm bàn giao. Khi thay đổi package scripts, environment variables, schema, routes hoặc deployment provider, hãy cập nhật README và bổ sung regression tương ứng trong cùng một pull request.
+
+
+### References
+
+[1]: https://react.dev/learn "React documentation"
+[2]: https://vite.dev/guide/ "Vite guide"
+[3]: https://getbootstrap.com/docs/5.3/getting-started/introduction/ "Bootstrap documentation"
+[4]: https://trpc.io/docs "tRPC documentation"
+[5]: https://orm.drizzle.team/docs/overview "Drizzle ORM documentation"
+[6]: https://playwright.dev/docs/intro "Playwright documentation"
+[7]: https://docs.railway.com/config-as-code/reference "Railway configuration reference"
+[8]: https://dev.mysql.com/doc/refman/8.4/en/mysql-indexes.html "MySQL indexing documentation"
