@@ -1508,3 +1508,7 @@
 ## Cấu hình triển khai Node
 - [x] Thêm cấu hình Railway mẫu, dùng lệnh build/start hiện tại và không đưa secret hoặc dữ liệu database vào repository.
 - [x] Kiểm tra cấu hình triển khai và lưu checkpoint.
+
+## Khắc phục build triển khai
+- [x] Loại bỏ phụ thuộc build vào đường dẫn solver Python nằm ngoài project, giữ nguyên bundle solver runtime.
+- [x] Chạy regression, build production và lưu checkpoint để triển khai lại.
