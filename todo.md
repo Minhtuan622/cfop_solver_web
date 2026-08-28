@@ -1504,3 +1504,7 @@
 - [x] Bổ sung kiểm thử E2E cô lập cho đăng nhập, đồng bộ dữ liệu Timer/Study và vòng đời phòng thi.
 - [x] Lazy-load Cubing/Three.js theo event và điểm mở preview 3D, giữ nguyên renderer và fallback hiện có.
 - [x] Chạy regression, build, kiểm tra tải/lazy boundary và các route desktop/mobile trước checkpoint.
+
+## Cấu hình triển khai Node
+- [x] Thêm cấu hình Railway mẫu, dùng lệnh build/start hiện tại và không đưa secret hoặc dữ liệu database vào repository.
+- [x] Kiểm tra cấu hình triển khai và lưu checkpoint.
