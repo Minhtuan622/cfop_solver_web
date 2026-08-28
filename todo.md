@@ -1514,6 +1514,6 @@
 - [x] Chạy regression, build production và lưu checkpoint để triển khai lại.
 
 ## Bàn giao kỹ thuật
-- [ ] Kiểm kê cấu trúc thư mục và file cấu hình; ghi nhận các điều kiện setup/triển khai cần thiết.
-- [ ] Viết README.md hoàn chỉnh cho lập trình viên mới: cài đặt, cấu hình, chạy, test, build, dữ liệu và deploy.
-- [ ] Xác thực README, đưa ra chiến lược scale Rooms theo giai đoạn và lưu checkpoint bàn giao.
+- [x] Kiểm kê cấu trúc thư mục và file cấu hình; ghi nhận các điều kiện setup/triển khai cần thiết.
+- [x] Viết README.md hoàn chỉnh cho lập trình viên mới: cài đặt, cấu hình, chạy, test, build, dữ liệu và deploy.
+- [x] Xác thực README, đưa ra chiến lược scale Rooms theo giai đoạn và lưu checkpoint bàn giao.
