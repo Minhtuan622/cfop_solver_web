@@ -93,6 +93,24 @@ describe("competition router", () => {
     expect(history[0]).toMatchObject({ room: { code: room.code }, myRank: 1 });
   });
 
+  it("trả chi tiết từng vòng trong lịch sử của một người chơi", async () => {
+    const finishedRoom = { ...room, status: "finished" as const, currentRound: 3 };
+    vi.mocked(listFinishedCompetitionRoomsForAccount).mockResolvedValue([{ room: finishedRoom, joinedAt: new Date("2026-08-28T10:00:00Z") }]);
+    vi.mocked(findCompetitionRoomByCode).mockResolvedValue(finishedRoom);
+    vi.mocked(findCompetitionMember).mockResolvedValue({ id: 3, roomId: room.id, accountId: 1, role: "player", joinedAt: new Date() });
+    vi.mocked(listCompetitionMembers).mockResolvedValue([{ accountId: 1, displayName: "Host", avatarUrl: "", role: "player", joinedAt: new Date(), lastSeen: new Date() }, { accountId: 2, displayName: "Cuber", avatarUrl: "", role: "player", joinedAt: new Date(), lastSeen: new Date() }]);
+    vi.mocked(getCompetitionActiveRound).mockResolvedValue(null);
+    vi.mocked(listCompetitionMessages).mockResolvedValue([]);
+    vi.mocked(listCompetitionModerationLogs).mockResolvedValue([]);
+    vi.mocked(listCompetitionResults).mockResolvedValue([
+      { roundSequence: 1, roundId: 11, accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 10_000, inspectionMs: 8_000, penalty: "none", submittedAt: new Date("2026-08-28T10:01:00Z") },
+      { roundSequence: 1, roundId: 11, accountId: 2, displayName: "Cuber", avatarUrl: "", elapsedMs: 12_000, inspectionMs: 7_000, penalty: "none", submittedAt: new Date("2026-08-28T10:01:05Z") },
+      { roundSequence: 2, roundId: 12, accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 11_000, inspectionMs: 6_000, penalty: "+2", submittedAt: new Date("2026-08-28T10:02:00Z") },
+    ]);
+    const history = await appRouter.createCaller(ctx).competition.playerHistory({ accountId: 1 });
+    expect(history[0]).toMatchObject({ room: { code: room.code }, myRank: 2, results: [expect.objectContaining({ roundSequence: 1, accountId: 1, inspectionMs: 8_000 }), expect.objectContaining({ roundSequence: 1, accountId: 2 }), expect.objectContaining({ roundSequence: 2, penalty: "+2" })] });
+  });
+
   it("cho khán giả vào phòng nhưng cấm nộp kết quả", async () => {
     vi.mocked(findCompetitionRoomByCode).mockResolvedValue(room);
     vi.mocked(findCompetitionMember).mockResolvedValueOnce(null).mockResolvedValueOnce({ id: 6, roomId: room.id, accountId: 1, role: "spectator", joinedAt: new Date() });

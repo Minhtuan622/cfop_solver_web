@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { COOKIE_NAME } from "../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "./cfopAccountAuth";
-import { buildCompetitionLeaderboard, compareCompetitionResults, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScrambleBundle, effectiveCompetitionTime } from "./competition";
+import { buildCompetitionLeaderboard, compareCompetitionResults, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScrambleBundle, effectiveCompetitionTime, type CompetitionFormat } from "./competition";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "./cfopPasswordResetMail";
 import { consumeCfopPasswordResetToken, createCfopAccount, createCfopPasswordResetToken, createCompetitionMessage, createCompetitionModerationLog, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCfopAccountByEmail, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, findLatestCompetitionModerationLog, finishCompetitionRoom, finishCompetitionRound, getCfopAccountCloudState, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCfopAccountSignedIn, markCompetitionSpectatorRemoved, saveCfopAccountCloudState, startCompetitionRound, submitCompetitionResult, touchCompetitionMember, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, updateCfopAccountWcaId, updateCompetitionMemberRole } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -42,7 +42,7 @@ function normalizeRoomCode(value: string) { return value.toUpperCase().replace(/
 function roomError() { return new TRPCError({ code: "NOT_FOUND", message: "Không tìm thấy phòng thi đấu này." }); }
 async function requireCompetitionRoom(code: string) { const room = await findCompetitionRoomByCode(normalizeRoomCode(code)); if (!room) throw roomError(); return room; }
 async function requireCompetitionMember(roomId: number, accountId: number) { const member = await findCompetitionMember(roomId, accountId); if (!member) throw new TRPCError({ code: "FORBIDDEN", message: "Bạn chưa tham gia phòng này." }); if (member.removedAt) throw new TRPCError({ code: "FORBIDDEN", message: "Bạn đã bị quản trị viên loại khỏi phòng." }); return member; }
-async function competitionRoomState(code: string, accountId: number) {
+async function competitionRoomState(code: string, accountId: number, options: { includeResults?: boolean } = {}) {
   const room = await requireCompetitionRoom(code);
   const removedMembership = await findCompetitionMember(room.id, accountId);
   if (removedMembership?.removedAt) {
@@ -67,7 +67,7 @@ async function competitionRoomState(code: string, accountId: number) {
   const onlineSpectators = members.filter((member) => member.role !== "player" && member.lastSeen.getTime() >= Date.now() - 20_000);
   const isHost = room.hostAccountId === accountId;
   const isModerator = membership.role === "moderator";
-  return { room, members, isHost, isSpectator: membership.role !== "player", isModerator, onlineSpectatorCount: onlineSpectators.length, onlineSpectators, roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, messages, moderationLogs: isHost || isModerator ? moderationLogs : [] };
+  return { room, members, isHost, isSpectator: membership.role !== "player", isModerator, onlineSpectatorCount: onlineSpectators.length, onlineSpectators, roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, ...(options.includeResults ? { results } : {}), messages, moderationLogs: isHost || isModerator ? moderationLogs : [] };
 }
 
 async function competitionHistory(accountId: number) {
@@ -77,6 +77,18 @@ async function competitionHistory(accountId: number) {
     const mine = state.standings.find((player) => player.accountId === accountId);
     return { room: state.room, roundLimit: state.roundLimit, standings: state.standings, myRank: mine?.rank ?? null, myScore: mine?.score ?? undefined };
   }));
+}
+
+type CompetitionResultRow = Awaited<ReturnType<typeof listCompetitionResults>>[number];
+
+function standingsFromResults(format: CompetitionFormat, eventId: string, results: CompetitionResultRow[]) {
+  const players = new Map<number, CompetitionResultRow[]>();
+  for (const result of results) players.set(result.accountId, [...(players.get(result.accountId) ?? []), result]);
+  return Array.from(players.entries()).map(([accountId, history]) => {
+    const lastResult = history.at(-1) ?? null;
+    const score = competitionFormatScore(format, history.map((result) => ({ elapsedMs: result.elapsedMs, penalty: result.penalty, multiBlindScore: result.multiBlindScore, multiBlindAttempted: result.multiBlindAttempted, multiBlindSolved: result.multiBlindSolved })), eventId);
+    return { accountId, displayName: history[0].displayName, avatarUrl: history[0].avatarUrl, solves: history.length, score, lastResult: lastResult ? { elapsedMs: lastResult.elapsedMs, inspectionMs: lastResult.inspectionMs, penalty: lastResult.penalty, multiBlindAttempted: lastResult.multiBlindAttempted, multiBlindSolved: lastResult.multiBlindSolved, multiBlindScore: lastResult.multiBlindScore, submittedAt: lastResult.submittedAt, roundSequence: lastResult.roundSequence } : null, history };
+  }).filter((player) => player.lastResult).sort((left, right) => compareCompetitionResults(eventId, left.lastResult!, right.lastResult!)).map((player, index) => ({ ...player, rank: index + 1 }));
 }
 
 function leaderboardRange(period: "week" | "month", now = new Date()) {
@@ -214,6 +226,17 @@ export const appRouter = router({
       const { startAt, endAt } = leaderboardRange(input.period);
       const results = await listFinishedCompetitionResultsBetween(startAt, endAt, input.eventId ?? null);
       return { period: input.period, eventId: input.eventId ?? null, startAt, endAt, players: buildCompetitionLeaderboard(results).slice(0, 50) };
+    }),
+    playerHistory: publicProcedure.input(z.object({ accountId: z.number().int().positive() })).query(async ({ input }) => {
+      const rooms = await listFinishedCompetitionRoomsForAccount(input.accountId);
+      const history = await Promise.all(rooms.map(async ({ room, joinedAt }) => {
+        const results = await listCompetitionResults(room.id);
+        const standings = standingsFromResults(room.format, room.eventId, results);
+        const mine = standings.find((player) => player.accountId === input.accountId);
+        if (!mine) return null;
+        return { room, joinedAt, roundLimit: competitionRoundLimit(room.format, room.eventId), standings, results, myRank: mine.rank, myScore: mine.score ?? undefined };
+      }));
+      return history.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
     }),
     listMine: cfopAccountProcedure.query(({ ctx }) => listCompetitionRoomsForAccount(ctx.cfopAccount.id)),
     history: cfopAccountProcedure.query(({ ctx }) => competitionHistory(ctx.cfopAccount.id)),

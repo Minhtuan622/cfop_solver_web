@@ -1517,3 +1517,11 @@
 - [x] Kiểm kê cấu trúc thư mục và file cấu hình; ghi nhận các điều kiện setup/triển khai cần thiết.
 - [x] Viết README.md hoàn chỉnh cho lập trình viên mới: cài đặt, cấu hình, chạy, test, build, dữ liệu và deploy.
 - [x] Xác thực README, đưa ra chiến lược scale Rooms theo giai đoạn và lưu checkpoint bàn giao.
+
+## Leaderboard và lịch sử thi đấu theo người chơi
+- [x] Thiết kế query data cho leaderboard và lịch sử cá nhân từ kết quả Rooms hiện có, không làm thay đổi dữ liệu cũ.
+- [x] Bổ sung tRPC procedures, chỉ mục cần thiết nếu có và regression backend cho xếp hạng/lịch sử.
+- [x] Tạo trang leaderboard/lịch sử người chơi, route và liên kết điều hướng bằng Bootstrap, có loading/empty/error state và responsive.
+- [x] Kiểm thử UI/E2E, typecheck, full test, build, kiểm tra desktop/mobile và lưu checkpoint.
+
+> Hạng mục phát triển mới: các checkbox trên sẽ được đánh dấu khi từng phần thực sự hoàn tất.

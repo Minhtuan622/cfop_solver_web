@@ -11,6 +11,7 @@ const Home = lazy(() => import("./pages/Home"));
 const History = lazy(() => import("./pages/History"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Rooms = lazy(() => import("./pages/Rooms"));
+const CompetitionLeaderboard = lazy(() => import("./pages/CompetitionLeaderboard"));
 const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
 const WcaCompetitions = lazy(() => import("./pages/WcaCompetitions"));
@@ -29,6 +30,8 @@ function Router() {
     <Route path="/profile" component={Profile} />
     <Route path="/rooms/:code" component={Rooms} />
     <Route path="/rooms" component={Rooms} />
+    <Route path="/competition/player/:accountId" component={CompetitionLeaderboard} />
+    <Route path="/competition" component={CompetitionLeaderboard} />
     <Route path="/wca" component={WcaCompetitions} />
     <Route path="/404" component={NotFound} />
     <Route component={NotFound} />
