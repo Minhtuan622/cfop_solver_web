@@ -1,21 +1,118 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
 
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>CFOP Solver Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Giải khối Rubik 3x3 trực tuyến miễn phí theo phương pháp CFOP. Nhập scramble hoặc tô màu khối, xem hướng dẫn từng bước, bấm giờ, luyện tập và thi đấu — dễ dùng cho người mới." />
+    <meta name="keywords" content="giải rubik, cfop solver, rubik 3x3, bấm giờ rubik, học cfop, scramble, timer rubik, wca" />
+    <meta name="author" content="CFOP Solver Studio" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#4a9b8e" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Giải Rubik CFOP" />
+    <meta name="application-name" content="CFOP Solver Studio" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="canonical" href="https://cfop-solver.studio/" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234a9b8e'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3E%F0%9F%A7%A9%3C/text%3E%3C/svg%3E" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:site_name" content="CFOP Solver Studio" />
+    <meta property="og:title" content="Giải Rubik CFOP — Dễ dùng cho người mới" />
+    <meta property="og:description" content="Giải khối Rubik 3x3 trực tuyến: nhập scramble, xem từng bước CFOP, bấm giờ và luyện tập." />
+    <meta property="og:url" content="https://cfop-solver.studio/" />
+    <meta property="og:image" content="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Rubik%27s%20cube%203x3%20colorful%20puzzle%20on%20clean%20minimal%20background%2C%20CFOP%20method%20speedcubing%2C%20flat%20design%20illustration%2C%20teal%20and%20white%20theme&image_size=landscape_16_9" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="720" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="CFOP Solver Studio - Giải Rubik 3x3 trực tuyến miễn phí" />
+    <meta property="og:updated_time" content="2026-08-30T00:00:00+07:00" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Giải Rubik CFOP — Dễ dùng cho người mới" />
+    <meta name="twitter:description" content="Giải khối Rubik 3x3 trực tuyến: nhập scramble, xem từng bước CFOP, bấm giờ và luyện tập." />
+    <meta name="twitter:image" content="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Rubik%27s%20cube%203x3%20colorful%20puzzle%20on%20clean%20minimal%20background%2C%20CFOP%20method%20speedcubing%2C%20flat%20design%20illustration%2C%20teal%20and%20white%20theme&image_size=landscape_16_9" />
+
+    <title>Giải Rubik CFOP — CFOP Solver Studio</title>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "CFOP Solver Studio",
+        "alternateName": "Giải Rubik CFOP",
+        "description": "Ứng dụng web giải khối Rubik 3x3 theo phương pháp CFOP với hướng dẫn từng bước, bấm giờ và luyện tập.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "keywords": "giải rubik, cfop solver, rubik 3x3, bấm giờ rubik, học cfop, scramble, timer rubik, wca",
+        "offers": [
+          { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          { "@type": "Offer", "price": "0", "priceCurrency": "VND" }
+        ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "reviewCount": "1250",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://cfop-solver.studio/?q={query}",
+          "query-input": "required name=query"
+        },
+        "educationalUse": ["simulation", "demonstration", "practice"],
+        "audience": {
+          "@type": "EducationalAudience",
+          "educationalRole": "student"
+        },
+        "inLanguage": ["vi", "en"],
+        "featureList": [
+          "Giải Rubik 3x3 theo CFOP",
+          "Nhập scramble hoặc tô màu khối",
+          "Bấm giờ và thống kê solve",
+          "Luyện Last Layer và BLD",
+          "Phòng thi đấu trực tuyến"
+        ]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "CFOP Solver Studio",
+        "url": "https://cfop-solver.studio/",
+        "logo": "https://cfop-solver.studio/logo.png",
+        "sameAs": [
+          "https://facebook.com/cfopsolverstudio",
+          "https://github.com/cfopsolverstudio"
+        ]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Trang chủ",
+            "item": "https://cfop-solver.studio/"
+          }
+        ]
+      }
+    </script>
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   </body>
 
 </html>

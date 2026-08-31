@@ -4,13 +4,13 @@ import { downloadFile } from "./browserDownload";
 export { downloadFile as saveBlob } from "./browserDownload";
 
 export const PHASE_COLORS: Record<string, string> = {
-  cross: "bg-[#e7c34f] text-[#17221d]",
-  xcross_FR: "bg-[#1ba77a] text-[#17221d]", xcross_FL: "bg-[#1ba77a] text-[#17221d]", xcross_BL: "bg-[#1ba77a] text-[#17221d]", xcross_BR: "bg-[#1ba77a] text-[#17221d]",
-  xxcross_FR_FL: "bg-[#1ba77a] text-[#17221d]", xxcross_FR_BL: "bg-[#1ba77a] text-[#17221d]", xxcross_FR_BR: "bg-[#1ba77a] text-[#17221d]", xxcross_FL_BL: "bg-[#1ba77a] text-[#17221d]", xxcross_FL_BR: "bg-[#1ba77a] text-[#17221d]", xxcross_BL_BR: "bg-[#1ba77a] text-[#17221d]",
-  xxxcross_FR_FL_BL: "bg-[#1ba77a] text-[#17221d]", xxxcross_FR_FL_BR: "bg-[#1ba77a] text-[#17221d]", xxxcross_FR_BL_BR: "bg-[#1ba77a] text-[#17221d]", xxxcross_FL_BL_BR: "bg-[#1ba77a] text-[#17221d]",
-  xxxxcross_FR_FL_BL_BR: "bg-[#1ba77a] text-[#17221d]",
-  f2l_FR: "bg-[#ed8e42] text-[#17221d]", f2l_FL: "bg-[#d95743] text-white", f2l_BL: "bg-[#3b6fc7] text-white", f2l_BR: "bg-[#c9c2b1] text-[#17221d]",
-  oll: "bg-[#f4f0e8] text-[#17221d]", pll: "bg-[#17221d] text-[#f4f0e8]", zbll: "bg-[#1ba77a] text-[#17221d]", "1lll": "bg-[#17221d] text-[#f4f0e8]",
+  cross: "phase-badge-cross",
+  xcross_FR: "phase-badge-opening", xcross_FL: "phase-badge-opening", xcross_BL: "phase-badge-opening", xcross_BR: "phase-badge-opening",
+  xxcross_FR_FL: "phase-badge-opening", xxcross_FR_BL: "phase-badge-opening", xxcross_FR_BR: "phase-badge-opening", xxcross_FL_BL: "phase-badge-opening", xxcross_FL_BR: "phase-badge-opening", xxcross_BL_BR: "phase-badge-opening",
+  xxxcross_FR_FL_BL: "phase-badge-opening", xxxcross_FR_FL_BR: "phase-badge-opening", xxxcross_FR_BL_BR: "phase-badge-opening", xxxcross_FL_BL_BR: "phase-badge-opening",
+  xxxxcross_FR_FL_BL_BR: "phase-badge-opening",
+  f2l_FR: "phase-badge-f2l-fr", f2l_FL: "phase-badge-f2l-fl", f2l_BL: "phase-badge-f2l-bl", f2l_BR: "phase-badge-f2l-br",
+  oll: "phase-badge-oll", pll: "phase-badge-pll", zbll: "phase-badge-zbll", "1lll": "phase-badge-1lll",
 };
 
 export const CROSS_COLORS: { value: CrossColor; vi: string; en: string; hex: string }[] = [

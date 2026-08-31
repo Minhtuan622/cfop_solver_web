@@ -40,7 +40,7 @@ export function CubeStateEditor({ state, onChange, disabled = false, canUndo = f
   return <div className="card bg-body-tertiary"><div className="card-body p-3">
     <div className="d-flex flex-wrap align-items-center justify-content-between gap-2"><p className="small text-uppercase fw-semibold text-body-secondary mb-0">Màu tô</p><div className="btn-group btn-group-sm"><button type="button" disabled={disabled || !canUndo} onClick={onUndo} className="btn btn-outline-secondary" aria-label="Undo sticker edit" title="Undo · Ctrl/Cmd + Z"><Undo2 className="fs-6" /></button><button type="button" disabled={disabled || !canRedo} onClick={onRedo} className="btn btn-outline-secondary" aria-label="Redo sticker edit" title="Redo · Ctrl/Cmd + Shift + Z"><Redo2 className="fs-6" /></button><button type="button" disabled={disabled} onClick={() => onChange(SOLVED_STATE)} className="btn btn-outline-secondary" aria-label="Reset sticker state"><RotateCcw className="fs-6" /></button></div></div>
     <div className="row g-2 mt-2" role="radiogroup" aria-label="Bảng màu và số lượng sticker">{FACE_ORDER.map((face) => <div className="col-4" key={face}><PaletteButton face={face} count={stickerCounts[face]} selected={selectedColor === face} onSelect={setSelectedColor} disabled={disabled} /></div>)}</div>
-    {!controlsOnly && <><div className="mt-4 grid grid-cols-4 grid-rows-3 gap-1.5 rounded border bg-body p-3">
+    {!controlsOnly && <><div className="cube-editor-grid mt-4">
       {FACE_ORDER.map((face) => <EditorFace key={face} face={face} state={safeState} selectedColor={selectedColor} disabled={disabled} onPaint={paintSticker} onFill={fillFace} />)}
     </div><p className="small text-body-secondary mt-3 mb-0">Chọn màu rồi tô sticker; nhấn tên mặt để tô cả mặt. Tâm mỗi mặt luôn khóa.</p></>}</div></div>;
 }
@@ -50,8 +50,8 @@ function PaletteButton({ face, count, selected, onSelect, disabled }: { face: Fa
 }
 
 function EditorFace({ face, state, selectedColor, disabled, onPaint, onFill }: { face: Face; state: string; selectedColor: Face; disabled: boolean; onPaint: (face: Face, index: number, color: Face) => void; onFill: (face: Face, color: Face) => void }) {
-  return <div className={cn("relative aspect-square", FACE_GRID[face])} data-cube-face={face}>
-    <button type="button" disabled={disabled} onClick={() => onFill(face, selectedColor)} className="position-absolute top-0 start-0 translate-middle btn btn-outline-secondary btn-sm py-0 px-1">{face}</button>
-    <div className="grid h-full grid-cols-3 gap-[2px] rounded border bg-body-secondary p-[2px]">{Array.from({ length: 9 }, (_, index) => { const sticker = state[FACE_OFFSET[face] + index] as Face; const locked = index === 4; return <button type="button" key={index} disabled={disabled || locked} onClick={() => onPaint(face, index, selectedColor)} aria-label={`${face} sticker ${index + 1}: ${sticker}${locked ? ", tâm khóa" : ""}`} className={cn("rounded-[2px] border border-black/20 shadow-[inset_0_-2px_0_rgba(0,0,0,0.14)]", locked && "ring-1 ring-white/80", !locked && "hover:brightness-110 active:scale-90 disabled:opacity-65")} style={{ background: CUBE_COLOR[sticker] ?? "#888" }} />; })}</div>
+  return <div className={cn("cube-net-face", FACE_GRID[face])} data-cube-face={face}>
+    <button type="button" disabled={disabled} onClick={() => onFill(face, selectedColor)} className="cube-editor-face-label btn btn-outline-secondary btn-sm py-0 px-1">{face}</button>
+    <div className="cube-net-stickers">{Array.from({ length: 9 }, (_, index) => { const sticker = state[FACE_OFFSET[face] + index] as Face; const locked = index === 4; return <button type="button" key={index} disabled={disabled || locked} onClick={() => onPaint(face, index, selectedColor)} aria-label={`${face} sticker ${index + 1}: ${sticker}${locked ? ", tâm khóa" : ""}`} className={cn("cube-sticker", locked && "cube-sticker--center", !locked && "cube-sticker--editable")} style={{ background: CUBE_COLOR[sticker] ?? "#888" }} />; })}</div>
   </div>;
 }

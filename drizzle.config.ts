@@ -1,5 +1,8 @@
 import { defineConfig } from "drizzle-kit";
+import dotenv from "dotenv";
 
+dotenv.config();
+dotenv.config({ path: ".env.local", override: true });
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error("DATABASE_URL is required to run drizzle commands");

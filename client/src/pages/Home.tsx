@@ -20,7 +20,7 @@ import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
-import { CROSS_COLORS, exportCFOPJson, F2L_SLOTS, LAST_LAYER_OPTIONS, lastLayerModeLabel, OPENING_OPTIONS, openingModeLabel, PHASE_COLORS, phaseLessonUrl, phaseStudyNote, saveBlob } from "@/lib/solverPresentation";
+import { CROSS_COLORS, exportCFOPJson, F2L_SLOTS, LAST_LAYER_OPTIONS, lastLayerModeLabel, OPENING_OPTIONS, openingModeLabel, phaseLessonUrl, phaseStudyNote, saveBlob } from "@/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/lib/bldProfile";
 import { readMasteredCaseKeys, writeMasteredCaseKeys } from "@/lib/lastLayerStudy";
@@ -301,7 +301,7 @@ export default function Home() {
   };
 
   return (
-    <div className="studio-page bs-page overflow-x-hidden">
+    <div className="studio-page bs-page">
       <div className="container py-4">
         <section className="row g-4">
           <header className="col-12 d-flex flex-wrap align-items-center gap-3">
@@ -313,7 +313,7 @@ export default function Home() {
               {(["scramble", "state"] as const).map((item) => <button key={item} type="button" role="tab" aria-selected={mode === item} onClick={() => switchInputMode(item)} className={mode === item ? "btn btn-primary" : "btn btn-outline-primary"}>{item === "scramble" ? t("input.scramble") : t("input.state")}</button>)}
             </div>
             {loading ? <div className="alert alert-primary py-2 px-3 mb-0 ms-lg-auto d-flex align-items-center gap-2" role="status" aria-live="polite"><span className="spinner-border spinner-border-sm" aria-hidden="true" /><span className="small">{solverStatus}</span></div> : null}
-            {solverKind === "cfop" ? <div className="alert alert-secondary small d-flex flex-wrap align-items-center gap-2 w-100 mb-0"><span>{language === "vi" ? "Chỉ cần nhập khối và bấm “Tìm cách giải”. Các lựa chọn thêm là không bắt buộc." : "Just enter the cube and choose Find a solution. Extra options are optional."}</span><button type="button" className="btn btn-outline-secondary btn-sm ms-sm-auto" onClick={() => { const defaults = readSolverSettings(); setCrossColor(defaults.crossColor); setOpening(defaults.opening); setOpeningDepth(defaults.openingDepth); setOpeningFindResult(defaults.openingFindResult); setDirectNodeBudget(defaults.directNodeBudget); setLastLayer(defaults.lastLayer); setPreferredSlot(defaults.preferredSlot); setExcludedSlots(defaults.excludedSlots); }}>{language === "vi" ? "Đặt lại lựa chọn" : "Reset choices"}</button></div> : null}
+            {solverKind === "cfop" ? <div className="beginner-hint small d-flex flex-wrap align-items-center gap-2 w-100 mb-0 p-3"><span>{language === "vi" ? "Chỉ cần nhập khối và bấm “Tìm cách giải”. Các lựa chọn thêm là không bắt buộc." : "Just enter the cube and choose Find a solution. Extra options are optional."}</span><button type="button" className="btn btn-outline-secondary btn-sm ms-sm-auto" onClick={() => { const defaults = readSolverSettings(); setCrossColor(defaults.crossColor); setOpening(defaults.opening); setOpeningDepth(defaults.openingDepth); setOpeningFindResult(defaults.openingFindResult); setDirectNodeBudget(defaults.directNodeBudget); setLastLayer(defaults.lastLayer); setPreferredSlot(defaults.preferredSlot); setExcludedSlots(defaults.excludedSlots); }}>{language === "vi" ? "Đặt lại lựa chọn" : "Reset choices"}</button></div> : null}
           </header>
           <aside className="col-12 col-lg-4"><section className="card"><div className="card-header"><h2 className="h5 mb-0">{mode === "scramble" ? (language === "vi" ? "Khối đang bị xáo trộn như thế nào?" : "How was the cube mixed?") : (language === "vi" ? "Tô màu khối của bạn" : "Color your cube")}</h2></div><div className="card-body">
                 {solverKind === "bld" && <div className="alert alert-info small">BUFFER / UF (C) · UBL (A) — {language === "vi" ? "Chuẩn bị trace memo và execution key." : "Prepare memo trace and execution key."}</div>}
@@ -346,10 +346,10 @@ export default function Home() {
                 <div className="d-flex justify-content-center mt-3">{cubeView === "2d" ? <CubeNet state={solverKind === "bld" ? (bldResult?.initial_state ?? currentState) : mode === "state" ? (value.length === 54 ? value : SOLVED_STATE) : currentState} editable={mode === "state" && solverKind !== "bld"} selectedColor={paintColor} onStateChange={applyStateEdit} disabled={loading} emphasis="studio" /> : <Cube3DGuide state={solverKind === "bld" ? (bldResult?.initial_state ?? currentState) : currentState} previousState={previousState} move={solverKind === "bld" ? undefined : currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} lastLayerCase={activeLastLayerCase} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} />}</div>
               </div></div>
               {solverKind !== "bld" && <><div className="d-flex flex-wrap align-items-center gap-2 mt-4">
-                <button onClick={() => selectCursor(Math.max(0, cursor - 1), "step")} disabled={cursor === 0} aria-label={t("guide.previous")} className="btn btn-outline-secondary"><ArrowLeft className="h-4 w-4" /></button>
-                <button onClick={() => setPlaying((value) => !value)} disabled={!result || cursor === totalMoves} aria-label={playing ? t("guide.pause") : t("guide.play")} className="btn btn-primary">{playing ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}</button>
-                <button onClick={() => selectCursor(Math.min(totalMoves, cursor + 1), "step")} disabled={!result || cursor === totalMoves} aria-label={t("guide.next")} className="btn btn-outline-secondary"><ArrowRight className="h-4 w-4" /></button>
-                <button onClick={() => selectCursor(0, "reset")} disabled={!result} aria-label={t("guide.reset")} className="btn btn-outline-secondary ms-auto"><RotateCcw className="h-3.5 w-3.5" /></button>
+                <button onClick={() => selectCursor(Math.max(0, cursor - 1), "step")} disabled={cursor === 0} aria-label={t("guide.previous")} className="btn btn-outline-secondary"><ArrowLeft className="fs-6" /></button>
+                <button onClick={() => setPlaying((value) => !value)} disabled={!result || cursor === totalMoves} aria-label={playing ? t("guide.pause") : t("guide.play")} className="btn btn-primary">{playing ? <RotateCcw className="fs-6" /> : <Play className="fs-6" />}</button>
+                <button onClick={() => selectCursor(Math.min(totalMoves, cursor + 1), "step")} disabled={!result || cursor === totalMoves} aria-label={t("guide.next")} className="btn btn-outline-secondary"><ArrowRight className="fs-6" /></button>
+                <button onClick={() => selectCursor(0, "reset")} disabled={!result} aria-label={t("guide.reset")} className="btn btn-outline-secondary ms-auto"><RotateCcw className="fs-6" /></button>
               </div>
               {openingOutcome && <div className={openingTelemetry?.did_fallback ? "alert alert-warning mt-3 mb-0" : "alert alert-success mt-3 mb-0"}><strong>{language === "vi" ? "Bước đầu đã sẵn sàng:" : "First steps are ready:"}</strong> {openingOutcome.moves} {language === "vi" ? "lượt xoay" : "turns"}{openingTelemetry?.did_fallback ? ` · ${language === "vi" ? "Ứng dụng đã tự chọn cách phù hợp." : "The app chose a suitable method automatically."}` : ""}</div>}
               {lastLayerTelemetry && <div className={lastLayerTelemetry.did_fallback ? "alert alert-warning mt-3 mb-0" : "alert alert-success mt-3 mb-0"}><strong>{language === "vi" ? "Phần cuối:" : "Final part:"}</strong> {lastLayerModeLabel(lastLayerTelemetry.achieved, language)}</div>}

@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import CompetitionLeaderboard from "./CompetitionLeaderboard";
 

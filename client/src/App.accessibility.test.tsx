@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/dom";
 import { afterEach, describe, expect, it } from "vitest";
 import { BootstrapControlEnhancer } from "./App";
 

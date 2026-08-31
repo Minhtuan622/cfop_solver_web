@@ -1,4 +1,4 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
@@ -9,6 +9,9 @@ import { registerWcaOAuthRoutes } from "../wcaOAuthRoutes";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+
+dotenv.config();
+dotenv.config({ path: ".env.local", override: true });
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {

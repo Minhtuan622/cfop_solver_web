@@ -69,14 +69,39 @@ export function BootstrapControlEnhancer() {
   return null;
 }
 
+function AppFooter() {
+  return (
+    <footer className="app-footer py-4 mt-auto">
+      <div className="container">
+        <div className="row g-3 align-items-center">
+          <div className="col-12 col-md">
+            <p className="mb-1 fw-semibold text-body">CFOP Solver Studio</p>
+            <p className="mb-0">Giải Rubik 3x3, bấm giờ và luyện tập — miễn phí, dễ dùng cho người mới.</p>
+          </div>
+          <nav className="col-12 col-md-auto d-flex flex-wrap gap-3" aria-label="Liên kết nhanh">
+            <a href="/">Giải Rubik</a>
+            <a href="/timer">Bấm giờ</a>
+            <a href="/study">Học thêm</a>
+            <a href="/history">Kết quả</a>
+            <a href="/settings">Cài đặt</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 function App() {
   return <ErrorBoundary><LanguageProvider>
-    <BootstrapControlEnhancer />
-    <CfopCloudSync />
-    <CompetitionOutcomeCelebration />
-    <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">Bỏ qua điều hướng</a>
-    <AppNav />
-    <main id="main-content" className="py-4 py-lg-5"><Router /></main>
+    <div className="d-flex flex-column min-vh-100 bs-page">
+      <BootstrapControlEnhancer />
+      <CfopCloudSync />
+      <CompetitionOutcomeCelebration />
+      <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">Bỏ qua điều hướng</a>
+      <AppNav />
+      <main id="main-content" className="py-4 py-lg-5 flex-grow-1"><Router /></main>
+      <AppFooter />
+    </div>
   </LanguageProvider></ErrorBoundary>;
 }
 

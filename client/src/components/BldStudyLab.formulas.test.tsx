@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/dom";
 import { beforeEach, describe, expect, it } from "vitest";
 import { BldStudyLab } from "./BldStudyLab";
 import { BldTargetSelfCheck } from "./BldTargetSelfCheck";

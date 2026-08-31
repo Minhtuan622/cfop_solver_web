@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/dom";
 import { describe, expect, it, vi } from "vitest";
 import { BldNextReview } from "./BldNextReview";
 import { BldSightedCommutator } from "./BldSightedCommutator";

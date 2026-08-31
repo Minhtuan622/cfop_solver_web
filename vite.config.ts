@@ -1,9 +1,8 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
-import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
-import { defineConfig, type Plugin, type ViteDevServer } from "vite";
+import { defineConfig, loadEnv, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 
 // =============================================================================
@@ -150,7 +149,46 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+function vitePluginOptionalAnalytics(endpoint?: string, websiteId?: string): Plugin {
+  return {
+    name: "optional-analytics",
+    transformIndexHtml(html) {
+      const baseUrl = endpoint?.trim().replace(/\/$/, "");
+      const id = websiteId?.trim();
+
+      if (!baseUrl || !id) {
+        return html;
+      }
+
+      return {
+        html,
+        tags: [
+          {
+            tag: "script",
+            attrs: {
+              defer: true,
+              src: `${baseUrl}/umami`,
+              "data-website-id": id,
+            },
+            injectTo: "body",
+          },
+        ],
+      };
+    },
+  };
+}
+
+const projectRoot = import.meta.dirname;
+const environment = loadEnv(process.env.NODE_ENV === "production" ? "production" : "development", projectRoot, "");
+const analyticsEndpoint = process.env.VITE_ANALYTICS_ENDPOINT ?? environment.VITE_ANALYTICS_ENDPOINT;
+const analyticsWebsiteId = process.env.VITE_ANALYTICS_WEBSITE_ID ?? environment.VITE_ANALYTICS_WEBSITE_ID;
+const plugins = [
+  react(),
+  jsxLocPlugin(),
+  vitePluginManusRuntime(),
+  vitePluginManusDebugCollector(),
+  vitePluginOptionalAnalytics(analyticsEndpoint, analyticsWebsiteId),
+];
 
 export default defineConfig({
   plugins,
