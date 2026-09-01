@@ -31,6 +31,7 @@ function Router() {
     <Route path="/rooms/:code" component={Rooms} />
     <Route path="/rooms" component={Rooms} />
     <Route path="/competition/player/:accountId" component={CompetitionLeaderboard} />
+    <Route path="/leaderboard" component={CompetitionLeaderboard} />
     <Route path="/competition" component={CompetitionLeaderboard} />
     <Route path="/wca" component={WcaCompetitions} />
     <Route path="/404" component={NotFound} />

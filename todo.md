@@ -1525,3 +1525,11 @@
 - [x] Kiểm thử UI/E2E, typecheck, full test, build, kiểm tra desktop/mobile và lưu checkpoint.
 
 > Hạng mục phát triển mới: các checkbox trên sẽ được đánh dấu khi từng phần thực sự hoàn tất.
+- [x] Sửa alias route `/leaderboard` đang được navbar sử dụng nhưng chưa đăng ký, giữ `/competition` và deep-link người chơi tương thích.
+
+## Refactor toàn bộ lần bàn giao mới
+- [x] Kiểm toán lại cấu trúc, dependency, import graph và baseline test/build sau leaderboard.
+- [x] Chuẩn hóa helper và ranh giới module còn phân mảnh mà không đổi storage key, route hoặc tRPC contract.
+- [x] Tách module feature, loại bỏ mã không dùng sau reference audit và bổ sung regression tương ứng.
+- [x] Sửa alias route `/leaderboard` đang được navbar sử dụng nhưng chưa đăng ký, giữ `/competition` và deep-link người chơi tương thích.
+- [x] Chạy full test/typecheck/build/diff, kiểm tra route desktop/mobile và lưu checkpoint cuối.
