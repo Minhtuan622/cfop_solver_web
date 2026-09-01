@@ -1542,3 +1542,4 @@
 - [x] Giữ `server/routers.ts` làm barrel appRouter và bổ sung regression cho cấu trúc, contract và lỗi import.
 - [x] Đồng bộ pnpm lockfile/patch configuration để deployment install không còn lỗi.
 - [x] Chạy full test, typecheck, production build, kiểm tra diff và lưu checkpoint.
+- [x] Sửa import dev-only `@react-buddy/ide-toolbox` bị thiếu sau khi đồng bộ pnpm dependencies và xác minh preview không còn Vite overlay.
