@@ -1533,3 +1533,12 @@
 - [x] Tách module feature, loại bỏ mã không dùng sau reference audit và bổ sung regression tương ứng.
 - [x] Sửa alias route `/leaderboard` đang được navbar sử dụng nhưng chưa đăng ký, giữ `/competition` và deep-link người chơi tương thích.
 - [x] Chạy full test/typecheck/build/diff, kiểm tra route desktop/mobile và lưu checkpoint cuối.
+
+## Tách domain routers Account, Competition và WCA
+- [x] Kiểm kê procedure hiện có trong `server/routers.ts` và lập bản đồ dependency theo domain.
+- [x] Tách router Account thành module riêng, giữ nguyên tên procedure, input, output và auth middleware.
+- [x] Tách router Competition thành module riêng, giữ nguyên leaderboard, player history, rooms và moderation contract.
+- [x] Tách router WCA thành module riêng, giữ nguyên OAuth, lịch thi đấu và dữ liệu thành tích.
+- [x] Giữ `server/routers.ts` làm barrel appRouter và bổ sung regression cho cấu trúc, contract và lỗi import.
+- [x] Đồng bộ pnpm lockfile/patch configuration để deployment install không còn lỗi.
+- [x] Chạy full test, typecheck, production build, kiểm tra diff và lưu checkpoint.
