@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { COOKIE_NAME } from "../../shared/const";
-import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "../cfopAccountAuth";
+import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "../cfopAccountAuth";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../cfopPasswordResetMail";
 import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
 import { getSessionCookieOptions } from "../_core/cookies";
@@ -35,23 +35,24 @@ export const accountRouter = router({
     if (await findCfopAccountByEmail(email)) throw new TRPCError({ code: "CONFLICT", message: "Email này đã có tài khoản CFOP." });
     const account = await createCfopAccount({ email, displayName: input.displayName, passwordHash: await hashPassword(input.password) });
     await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
-    return toPublicCfopAccount(account);
+    return findCfopAccountPublicById(account.id);
   }),
   login: publicProcedure.input(credentialsInput).mutation(async ({ ctx, input }) => {
     const account = await findCfopAccountByEmail(normalizeEmail(input.email));
     if (!account || !(await verifyPassword(input.password, account.passwordHash))) throw new TRPCError({ code: "UNAUTHORIZED", message: "Email hoặc mật khẩu không đúng." });
     await markCfopAccountSignedIn(account.id);
     await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
-    return toPublicCfopAccount({ ...account, lastSignedIn: new Date() });
+    return findCfopAccountPublicById(account.id);
   }),
   logout: publicProcedure.mutation(async ({ ctx }) => { await clearCfopAccountBrowserSession(ctx.req, ctx.res); return { success: true } as const; }),
   profile: cfopAccountProcedure.query(async ({ ctx }) => findCfopAccountPublicById(ctx.cfopAccount.id)),
-  updateProfile: cfopAccountProcedure.input(profileInput).mutation(async ({ ctx, input }) => toPublicCfopAccount(await updateCfopAccountProfile(ctx.cfopAccount.id, input))),
+  updateProfile: cfopAccountProcedure.input(profileInput).mutation(async ({ ctx, input }) => { await updateCfopAccountProfile(ctx.cfopAccount.id, input); return findCfopAccountPublicById(ctx.cfopAccount.id); }),
   uploadAvatar: cfopAccountProcedure.input(avatarInput).mutation(async ({ ctx, input }) => {
     const bytes = validateAvatarBytes(input.data, input.contentType);
     const extension = input.contentType === "image/jpeg" ? "jpg" : input.contentType.slice("image/".length);
     const stored = await storagePut(`cfop-accounts/${ctx.cfopAccount.id}/avatar.${extension}`, bytes, input.contentType);
-    return toPublicCfopAccount(await updateCfopAccountAvatar(ctx.cfopAccount.id, stored.url));
+    await updateCfopAccountAvatar(ctx.cfopAccount.id, stored.url);
+    return findCfopAccountPublicById(ctx.cfopAccount.id);
   }),
   cloudState: router({
     get: cfopAccountProcedure.query(async ({ ctx }) => { const state = await getCfopAccountCloudState(ctx.cfopAccount.id); return state ? { payload: state.payload, updatedAt: state.updatedAt } : null; }),
@@ -77,7 +78,7 @@ export const accountRouter = router({
     const account = await consumeCfopPasswordResetToken(hashSessionToken(input.token), await hashPassword(input.newPassword));
     if (!account) throw new TRPCError({ code: "BAD_REQUEST", message: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn." });
     await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
-    return toPublicCfopAccount(account);
+    return findCfopAccountPublicById(account.id);
   }),
   wca: accountWcaRouter,
 });

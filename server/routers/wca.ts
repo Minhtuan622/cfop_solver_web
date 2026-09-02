@@ -3,8 +3,7 @@ import { z } from "zod";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
 import { getWcaCompetitions, getWcaCountries, getWcaProfile, normalizeWcaId, WcaApiError } from "../wcaApi";
 import { beginWcaOAuth, wcaOAuthConfigured, WcaOAuthError } from "../wcaOAuth";
-import { findCfopAccountWcaById, updateCfopAccountWcaId } from "../db";
-import { toPublicCfopAccount } from "../cfopAccountAuth";
+import { findCfopAccountPublicById, findCfopAccountWcaById, updateCfopAccountWcaId } from "../db";
 import { wcaCalendarInput, wcaIdInput } from "./inputs";
 
 export function wcaError(error: unknown): never {
@@ -20,17 +19,18 @@ export const accountWcaRouter = router({
     try { return await getWcaProfile(account.wcaId); } catch (error) { return wcaError(error); }
   }),
   setId: cfopAccountProcedure.input(wcaIdInput).mutation(async ({ ctx, input }) => {
-    if (!input.wcaId) return toPublicCfopAccount(await updateCfopAccountWcaId(ctx.cfopAccount.id, null));
+    if (!input.wcaId) { await updateCfopAccountWcaId(ctx.cfopAccount.id, null); return findCfopAccountPublicById(ctx.cfopAccount.id); }
     try {
       const profile = await getWcaProfile(normalizeWcaId(input.wcaId));
-      return toPublicCfopAccount(await updateCfopAccountWcaId(ctx.cfopAccount.id, profile.wcaId));
+      await updateCfopAccountWcaId(ctx.cfopAccount.id, profile.wcaId);
+      return findCfopAccountPublicById(ctx.cfopAccount.id);
     } catch (error) { return wcaError(error); }
   }),
   oauthStatus: cfopAccountProcedure.query(() => ({ configured: wcaOAuthConfigured() })),
   startOAuth: cfopAccountProcedure.mutation(async ({ ctx }) => {
     try { return { url: await beginWcaOAuth(ctx.cfopAccount.id) }; } catch (error) { return wcaError(error); }
   }),
-  unlink: cfopAccountProcedure.mutation(async ({ ctx }) => toPublicCfopAccount(await updateCfopAccountWcaId(ctx.cfopAccount.id, null))),
+  unlink: cfopAccountProcedure.mutation(async ({ ctx }) => { await updateCfopAccountWcaId(ctx.cfopAccount.id, null); return findCfopAccountPublicById(ctx.cfopAccount.id); }),
 });
 
 export const wcaRouter = router({

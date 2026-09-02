@@ -1564,3 +1564,10 @@
 - [x] Tích hợp selector vào các query hiện có, giữ nguyên result shape và export contract.
 - [x] Bổ sung regression cho selector Account/WCA.
 - [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
+
+## Cập nhật API dùng selector và kiểm tra data flow
+- [x] Lập bản đồ procedure tRPC, selector và client consumer cho Account/WCA/Competition.
+- [x] Cập nhật Account/WCA endpoint để response public dùng selector phù hợp, không lộ field nhạy cảm.
+- [x] Cập nhật Competition endpoint và kiểm tra response mapping với leaderboard, history, rooms.
+- [x] Bổ sung contract/data-flow regression từ procedure đến client consumer.
+- [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.

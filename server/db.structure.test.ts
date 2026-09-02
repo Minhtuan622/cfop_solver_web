@@ -11,6 +11,8 @@ describe("database domain composition", () => {
     expect(db.requireDb).toBe(core.requireDb);
     expect(db.upsertUser).toBe(core.upsertUser);
     expect(db.findCfopAccountByEmail).toBe(account.findCfopAccountByEmail);
+    expect(db.findCfopAccountPublicById).toBe(account.findCfopAccountPublicById);
+    expect(db.findCfopAccountWcaById).toBe(account.findCfopAccountWcaById);
     expect(db.saveCfopAccountCloudState).toBe(account.saveCfopAccountCloudState);
     expect(db.createCfopWcaOauthState).toBe(wca.createCfopWcaOauthState);
     expect(db.consumeCfopWcaOauthState).toBe(wca.consumeCfopWcaOauthState);
