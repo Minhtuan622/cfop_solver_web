@@ -1543,3 +1543,10 @@
 - [x] Đồng bộ pnpm lockfile/patch configuration để deployment install không còn lỗi.
 - [x] Chạy full test, typecheck, production build, kiểm tra diff và lưu checkpoint.
 - [x] Sửa import dev-only `@react-buddy/ide-toolbox` bị thiếu sau khi đồng bộ pnpm dependencies và xác minh preview không còn Vite overlay.
+
+## Tách database helpers theo domain
+- [x] Kiểm kê export, schema table và call site của `server/db.ts` theo Account, Competition, WCA và system.
+- [x] Tách helper Account và WCA sang module riêng, giữ nguyên export và hành vi truy vấn.
+- [x] Tách helper Competition cùng các helper standings/room sang module riêng, giữ nguyên export và hành vi truy vấn.
+- [x] Giữ `server/db.ts` làm compatibility barrel và thêm regression kiểm tra export/call contract.
+- [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
