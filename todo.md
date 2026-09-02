@@ -1550,3 +1550,10 @@
 - [x] Tách helper Competition cùng các helper standings/room sang module riêng, giữ nguyên export và hành vi truy vấn.
 - [x] Giữ `server/db.ts` làm compatibility barrel và thêm regression kiểm tra export/call contract.
 - [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
+
+## Typed query selectors dùng chung
+- [x] Kiểm kê các projection Drizzle dài/lặp lại và đối chiếu result shape với router/tests.
+- [x] Tạo typed selectors dùng chung cho account/member/competition result và message data.
+- [x] Thay projection inline bằng selector, giữ nguyên key và kiểu dữ liệu trả về.
+- [x] Bổ sung regression cho selector và compatibility barrel.
+- [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
