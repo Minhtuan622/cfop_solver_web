@@ -29,13 +29,14 @@ vi.mock("./db", () => ({
 }));
 
 import { appRouter } from "./routers";
+import { leaderboardCache } from "./routers/competition";
 import { createCompetitionMessage, createCompetitionModerationLog, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, findLatestCompetitionModerationLog, getCompetitionActiveRound, joinCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCompetitionSpectatorRemoved, startCompetitionRound, submitCompetitionResult, touchCompetitionMember, updateCompetitionMemberRole } from "./db";
 
 const room = { id: 9, code: "ABC123", name: "Test room", hostAccountId: 1, status: "waiting", format: "ao5" as const, eventId: "333", multiBlindCubes: 2, maxPlayers: 8, currentRound: 0, createdAt: new Date(), updatedAt: new Date() };
 const ctx = { cfopAccount: { id: 1, email: "host@example.com", displayName: "Host", bio: "", avatarUrl: "", goalMs: null, createdAt: new Date(), lastSignedIn: new Date() }, req: {}, res: {} } as unknown as TrpcContext;
 
 describe("competition router", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => { vi.clearAllMocks(); leaderboardCache.invalidate(); });
 
   it("lưu event Timer được chọn khi tạo phòng", async () => {
     vi.mocked(findCompetitionRoomByCode).mockResolvedValue(null);
@@ -170,6 +171,9 @@ describe("competition router", () => {
       { roomId: 1, roomFormat: "best_of_3", accountId: 2, displayName: "Cuber", avatarUrl: "", elapsedMs: 15_000, penalty: "none", roundSequence: 3 },
     ]);
     const result = await appRouter.createCaller(ctx).competition.leaderboard({ period: "week" });
+    const cachedResult = await appRouter.createCaller(ctx).competition.leaderboard({ period: "week" });
     expect(result.players[0]).toMatchObject({ rank: 1, accountId: 1, points: 10 });
+    expect(cachedResult).toEqual(result);
+    expect(listFinishedCompetitionResultsBetween).toHaveBeenCalledTimes(1);
   });
 });

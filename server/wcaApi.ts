@@ -1,6 +1,6 @@
 const WCA_API_BASE = "https://www.worldcubeassociation.org/api/v0";
 
-type CacheEntry<T> = { expiresAt: number; value: T };
+type CacheEntry<T> = { expiresAt: number; value?: T; pending?: Promise<T> };
 const memoryCache = new Map<string, CacheEntry<unknown>>();
 
 export type WcaCountry = { id: string; name: string; iso2: string };
@@ -86,22 +86,35 @@ function normalizeRecord(value: number | null | undefined) {
 async function fetchWcaJson<T>(path: string, cacheTtlMs: number): Promise<T> {
   const url = `${WCA_API_BASE}${path}`;
   const cached = memoryCache.get(url) as CacheEntry<T> | undefined;
-  if (cached && cached.expiresAt > Date.now()) return cached.value;
+  if (cached && cached.expiresAt > Date.now()) {
+    if (cached.pending) return cached.pending;
+    if (cached.value !== undefined) return cached.value;
+  }
+  if (cached?.pending) return cached.pending;
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12_000);
+  const pending = (async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12_000);
+    try {
+      const response = await fetch(url, { headers: { Accept: "application/json" }, signal: controller.signal });
+      if (response.status === 404) throw new WcaApiError("NOT_FOUND", "Không tìm thấy WCA ID hoặc dữ liệu WCA.");
+      if (!response.ok) throw new WcaApiError("UNAVAILABLE", "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau.");
+      const value = await response.json() as T;
+      memoryCache.set(url, { value, expiresAt: Date.now() + cacheTtlMs });
+      return value;
+    } catch (error) {
+      if (error instanceof WcaApiError) throw error;
+      throw new WcaApiError("UNAVAILABLE", "Không thể kết nối WCA lúc này. Hãy thử lại sau.");
+    } finally {
+      clearTimeout(timeout);
+    }
+  })();
+  memoryCache.set(url, { pending, expiresAt: Number.POSITIVE_INFINITY });
   try {
-    const response = await fetch(url, { headers: { Accept: "application/json" }, signal: controller.signal });
-    if (response.status === 404) throw new WcaApiError("NOT_FOUND", "Không tìm thấy WCA ID hoặc dữ liệu WCA.");
-    if (!response.ok) throw new WcaApiError("UNAVAILABLE", "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau.");
-    const value = await response.json() as T;
-    memoryCache.set(url, { value, expiresAt: Date.now() + cacheTtlMs });
-    return value;
+    return await pending;
   } catch (error) {
-    if (error instanceof WcaApiError) throw error;
-    throw new WcaApiError("UNAVAILABLE", "Không thể kết nối WCA lúc này. Hãy thử lại sau.");
-  } finally {
-    clearTimeout(timeout);
+    memoryCache.delete(url);
+    throw error;
   }
 }
 

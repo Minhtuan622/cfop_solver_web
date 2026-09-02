@@ -25,6 +25,14 @@ describe("WCA public API adapter", () => {
     expect(profile.personalRecords).toEqual([{ eventId: "333", singleCentiseconds: 987, averageCentiseconds: 1_234, singleRanks: { world: 1_000, continental: 120, country: 12 }, averageRanks: { world: 1_200, continental: 150, country: 16 } }]);
   });
 
+  it("deduplicates concurrent profile requests for the same WCA ID", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(mockJson({ person: { name: "Nguyen Cubing", wca_id: "2020NGUY01", country: { name: "Vietnam", iso2: "VN" } } }));
+    vi.stubGlobal("fetch", fetchMock);
+    const [first, second] = await Promise.all([getWcaProfile("2020nguy01"), getWcaProfile("2020NGUY01")]);
+    expect(first).toEqual(second);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("passes the country filter to the competition endpoint and maps public fields", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(mockJson([{ id: "HanoiOpen2026", name: "Hanoi Open 2026", start_date: "2026-09-12", end_date: "2026-09-13", city: "Hanoi", venue: "Cube Hall", status: "approved", country_iso2: "VN" }]))

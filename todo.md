@@ -1571,3 +1571,10 @@
 - [x] Cập nhật Competition endpoint và kiểm tra response mapping với leaderboard, history, rooms.
 - [x] Bổ sung contract/data-flow regression từ procedure đến client consumer.
 - [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
+
+## Cache leaderboard và WCA profile
+- [x] Kiểm kê query cost, nguồn dữ liệu và cache lifecycle của leaderboard/WCA profile.
+- [x] Thiết kế cache key, TTL, giới hạn bộ nhớ và invalidation an toàn theo dữ liệu.
+- [x] Tích hợp cache cho endpoint leaderboard và WCA profile, giữ nguyên response contract.
+- [x] Bổ sung test hit/miss/expiry/invalidation và kiểm tra không cache nhầm dữ liệu người dùng.
+- [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
