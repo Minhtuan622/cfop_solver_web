@@ -1,6 +1,7 @@
 import { and, eq, gt } from "drizzle-orm";
 import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopPasswordResetTokens } from "../../drizzle/schema";
 import { requireDb, getDb } from "./core";
+import { cfopAccountPublicSelect, cfopAccountWcaSelect } from "./accountSelectors";
 
 export async function findCfopAccountByEmail(email: string) {
   const db = await requireDb();
@@ -10,6 +11,16 @@ export async function findCfopAccountByEmail(email: string) {
 export async function findCfopAccountById(id: number) {
   const db = await requireDb();
   return (await db.select().from(cfopAccounts).where(eq(cfopAccounts.id, id)).limit(1))[0];
+}
+
+export async function findCfopAccountPublicById(id: number) {
+  const db = await requireDb();
+  return (await db.select(cfopAccountPublicSelect).from(cfopAccounts).where(eq(cfopAccounts.id, id)).limit(1))[0] ?? null;
+}
+
+export async function findCfopAccountWcaById(id: number) {
+  const db = await requireDb();
+  return (await db.select(cfopAccountWcaSelect).from(cfopAccounts).where(eq(cfopAccounts.id, id)).limit(1))[0] ?? null;
 }
 
 export async function createCfopAccount(values: { email: string; displayName: string; passwordHash: string }) {

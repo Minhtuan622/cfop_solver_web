@@ -3,7 +3,7 @@ import { z } from "zod";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
 import { getWcaCompetitions, getWcaCountries, getWcaProfile, normalizeWcaId, WcaApiError } from "../wcaApi";
 import { beginWcaOAuth, wcaOAuthConfigured, WcaOAuthError } from "../wcaOAuth";
-import { updateCfopAccountWcaId } from "../db";
+import { findCfopAccountWcaById, updateCfopAccountWcaId } from "../db";
 import { toPublicCfopAccount } from "../cfopAccountAuth";
 import { wcaCalendarInput, wcaIdInput } from "./inputs";
 
@@ -15,8 +15,9 @@ export function wcaError(error: unknown): never {
 
 export const accountWcaRouter = router({
   profile: cfopAccountProcedure.query(async ({ ctx }) => {
-    if (!ctx.cfopAccount.wcaId) return null;
-    try { return await getWcaProfile(ctx.cfopAccount.wcaId); } catch (error) { return wcaError(error); }
+    const account = await findCfopAccountWcaById(ctx.cfopAccount.id);
+    if (!account?.wcaId) return null;
+    try { return await getWcaProfile(account.wcaId); } catch (error) { return wcaError(error); }
   }),
   setId: cfopAccountProcedure.input(wcaIdInput).mutation(async ({ ctx, input }) => {
     if (!input.wcaId) return toPublicCfopAccount(await updateCfopAccountWcaId(ctx.cfopAccount.id, null));

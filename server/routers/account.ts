@@ -4,7 +4,7 @@ import { z } from "zod";
 import { COOKIE_NAME } from "../../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, toPublicCfopAccount, verifyPassword } from "../cfopAccountAuth";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../cfopPasswordResetMail";
-import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
+import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
 import { getSessionCookieOptions } from "../_core/cookies";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
 import { storagePut } from "../storage";
@@ -29,7 +29,7 @@ function validateAvatarBytes(data: string, contentType: "image/jpeg" | "image/pn
 }
 
 export const accountRouter = router({
-  me: publicProcedure.query(({ ctx }) => ctx.cfopAccount),
+  me: publicProcedure.query(async ({ ctx }) => ctx.cfopAccount ? findCfopAccountPublicById(ctx.cfopAccount.id) : null),
   register: publicProcedure.input(credentialsInput.extend({ displayName: z.string().trim().min(2, "Tên hiển thị cần ít nhất 2 ký tự.").max(80) })).mutation(async ({ ctx, input }) => {
     const email = normalizeEmail(input.email);
     if (await findCfopAccountByEmail(email)) throw new TRPCError({ code: "CONFLICT", message: "Email này đã có tài khoản CFOP." });
@@ -45,7 +45,7 @@ export const accountRouter = router({
     return toPublicCfopAccount({ ...account, lastSignedIn: new Date() });
   }),
   logout: publicProcedure.mutation(async ({ ctx }) => { await clearCfopAccountBrowserSession(ctx.req, ctx.res); return { success: true } as const; }),
-  profile: cfopAccountProcedure.query(({ ctx }) => ctx.cfopAccount),
+  profile: cfopAccountProcedure.query(async ({ ctx }) => findCfopAccountPublicById(ctx.cfopAccount.id)),
   updateProfile: cfopAccountProcedure.input(profileInput).mutation(async ({ ctx, input }) => toPublicCfopAccount(await updateCfopAccountProfile(ctx.cfopAccount.id, input))),
   uploadAvatar: cfopAccountProcedure.input(avatarInput).mutation(async ({ ctx, input }) => {
     const bytes = validateAvatarBytes(input.data, input.contentType);

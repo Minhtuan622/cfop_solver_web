@@ -1557,3 +1557,10 @@
 - [x] Thay projection inline bằng selector, giữ nguyên key và kiểu dữ liệu trả về.
 - [x] Bổ sung regression cho selector và compatibility barrel.
 - [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
+
+## Typed selectors Account và WCA
+- [x] Kiểm kê projection Account/WCA và các call site đang lặp lại.
+- [x] Tạo selector typed cho account profile/public data và WCA-linked data phù hợp.
+- [x] Tích hợp selector vào các query hiện có, giữ nguyên result shape và export contract.
+- [x] Bổ sung regression cho selector Account/WCA.
+- [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
