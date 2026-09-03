@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { RefreshIndicator } from "@/components/BootstrapUI";
 import { trpc } from "@/lib/trpc";
 
 function dateInputValue(date: Date) {
@@ -42,6 +43,7 @@ export default function WcaCompetitions() {
       <label className="col-12 col-md-4 form-label mb-0">Quốc gia<select className="form-select mt-1" value={countryIso2} onChange={(event) => setCountryIso2(event.target.value)} disabled={countriesQuery.isLoading}><option value="">Tất cả quốc gia</option>{countriesQuery.data?.map((country) => <option key={country.iso2} value={country.iso2}>{country.name}</option>)}</select></label>
     </form></div></section>
     {end < start ? <div className="alert alert-warning">Ngày kết thúc cần sau hoặc bằng ngày bắt đầu.</div> : null}
+    {competitionsQuery.isFetching && competitionsQuery.data ? <div className="mb-3"><RefreshIndicator label="Đang cập nhật lịch giải WCA" /></div> : null}
     {competitionsQuery.isLoading ? <div className="row g-3" aria-live="polite">{Array.from({ length: 4 }, (_, index) => <div className="col-12 col-lg-6" key={index}><div className="card"><div className="card-body placeholder-glow"><span className="placeholder col-7" /><span className="placeholder col-10 d-block mt-3" /><span className="placeholder col-5 d-block mt-2" /></div></div></div>)}</div> : null}
     {competitionsQuery.isError ? <div className="alert alert-danger" role="alert">{messageFor(competitionsQuery.error)}</div> : null}
     {competitionsQuery.data && !competitionsQuery.data.length ? <div className="alert alert-secondary">Chưa có giải WCA phù hợp trong khoảng thời gian này.</div> : null}

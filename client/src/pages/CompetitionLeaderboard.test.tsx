@@ -52,6 +52,12 @@ describe("CompetitionLeaderboard", () => {
     expect(screen.getByLabelText("Bộ môn")).toHaveValue("333");
   });
 
+  it("hiển thị skeleton khi đang tải bảng xếp hạng", () => {
+    mocks.leaderboard = { data: undefined, isLoading: true, isError: false };
+    render(<CompetitionLeaderboard />);
+    expect(screen.getByRole("status", { name: "Đang tải bảng xếp hạng" })).toBeInTheDocument();
+  });
+
   it("hiển thị chi tiết các vòng và bảng xếp hạng của một phòng", () => {
     mocks.routeMatch = true;
     mocks.routeParams = { accountId: "42" };

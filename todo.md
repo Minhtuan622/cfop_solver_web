@@ -1578,3 +1578,10 @@
 - [x] Tích hợp cache cho endpoint leaderboard và WCA profile, giữ nguyên response contract.
 - [x] Bổ sung test hit/miss/expiry/invalidation và kiểm tra không cache nhầm dữ liệu người dùng.
 - [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
+
+## Loading UI cho dữ liệu API
+- [x] Kiểm kê query loading states và các màn hình client nhận dữ liệu API.
+- [x] Xây dựng primitives/skeleton loading dùng chung, có aria-label và reduced-motion phù hợp.
+- [x] Tích hợp loading state cho leaderboard, WCA, profile, history và rooms.
+- [x] Bổ sung UI regression và kiểm tra responsive/accessibility.
+- [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.

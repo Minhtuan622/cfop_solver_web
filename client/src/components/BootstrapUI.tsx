@@ -66,6 +66,27 @@ export function SkeletonList({ rows = 4, label = "Đang tải danh sách" }: { r
   );
 }
 
+export function SkeletonTable({ rows = 5, columns = 4, label = "Đang tải bảng dữ liệu" }: { rows?: number; columns?: number; label?: string }) {
+  return (
+    <div className="table-responsive placeholder-glow" role="status" aria-label={label}>
+      <table className="table align-middle mb-0">
+        <tbody>
+          {Array.from({ length: rows }, (_, row) => (
+            <tr key={row}>
+              {Array.from({ length: columns }, (_, column) => <td key={column}><span className={`placeholder ${column === 0 ? "col-4" : "col-8"}`} /></td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <span className="visually-hidden">{label}</span>
+    </div>
+  );
+}
+
+export function RefreshIndicator({ label = "Đang cập nhật" }: { label?: string }) {
+  return <span className="d-inline-flex align-items-center gap-2 small text-body-secondary" role="status" aria-live="polite"><span className="spinner-border spinner-border-sm" aria-hidden="true" />{label}</span>;
+}
+
 export function SkeletonChart({ height = "18rem", label = "Đang tải biểu đồ" }: { height?: string; label?: string }) {
   return (
     <div className="border rounded p-3 placeholder-glow text-body-secondary" style={{ height }} role="status" aria-label={label}>
