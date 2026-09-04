@@ -45,3 +45,7 @@ Sau hai lượt audit import, đã gỡ `Map.tsx` và toàn bộ `client/src/com
 `playwright.config.ts` và `e2e/account-sync-competition.spec.ts` kiểm tra trong Chromium một happy path xuyên UI: tạo tài khoản, mở Hồ sơ, đồng bộ thủ công, tạo phòng, bắt đầu lượt và nộp kết quả. Toàn bộ `/api/trpc` của kịch bản này được mô phỏng trong bộ nhớ nên không tạo tài khoản, session, cloud payload hoặc phòng thật. `e2e/lazy-3d-loading.spec.ts` kiểm tra Studio ban đầu không tải Cubing/Three.js, Timer mới tải Cubing để tạo scramble và event 4×4 mới tải Three.js khi canvas preview thực sự được yêu cầu.
 
 `PuzzleScramblePreview` nay dùng `React.lazy`/`Suspense` cho `Puzzle3DCanvas`: 2×2/3×3 CSS preview không kéo canvas chunk. Trong canvas, Square-1/Clock chỉ động tải `SideEvent3DObject` và dependency Cubing của side-event; các event còn lại động tải `cubing/twisty` cùng Three.js. Không thay đổi mapping event, renderer, fallback hoặc controls.
+
+## Refactor cấu trúc: feature timer
+
+Đợt này tạo boundary `client/src/features/timer/` với public barrel `index.ts`. `MetricButton`, `MetricDark` và `TimerHistoryRow` được chuyển khỏi `TimerLab.tsx`; page chỉ giữ state, orchestration và các hàm nghiệp vụ, còn feature folder giữ presentation có props typed. Không đổi route `/timer`, `/study`, persistence key, timer event mapping, replay, penalty hay response API. Các feature tiếp theo có thể mở rộng cùng mẫu `features/<domain>/index.ts` mà không cần làm phình page hoặc import trực tiếp file nội bộ.

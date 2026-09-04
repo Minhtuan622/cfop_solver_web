@@ -1592,3 +1592,11 @@
 - [x] Tích hợp transition vào các vùng dữ liệu API chính, tránh nhấp nháy khi refetch.
 - [x] Bổ sung regression cho trạng thái loading/loaded và kiểm tra responsive/accessibility.
 - [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
+
+## Refactor cấu trúc toàn project
+- [x] Kiểm toán cấu trúc thư mục, dependency graph và các file quá lớn.
+- [x] Xác định ranh giới frontend theo feature và shared UI.
+- [x] Xác định ranh giới backend theo domain và infrastructure.
+- [x] Di chuyển/đổi tên module theo từng nhóm, giữ compatibility boundaries.
+- [x] Bổ sung regression import graph và kiểm tra toàn bộ luồng.
+- [x] Cập nhật tài liệu cấu trúc, chạy full validation và lưu checkpoint.

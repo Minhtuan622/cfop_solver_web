@@ -31,6 +31,14 @@ CFOP Solver Studio là ứng dụng web hỗ trợ giải, luyện tập và thi
 
 Ứng dụng thông thường chạy dưới dạng **một Node process**: Express mount tRPC tại `/api/trpc`, phục vụ SPA và các route OAuth/WCA; trong development process này dùng Vite middleware, còn production phục vụ `dist/public`.
 
+## 2.1. Ranh giới module
+
+Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, state orchestration và kết nối tRPC; các component có tính trình bày hoặc thuộc một feature cụ thể nên đặt trong `client/src/features/<feature>/` và được xuất qua `index.ts`. Ví dụ, `client/src/features/timer/` chứa các metric card và dòng lịch sử Timer, trong khi `TimerLab.tsx` chỉ điều phối state và nghiệp vụ.
+
+Backend tách theo domain và hạ tầng. `server/routers/` chứa procedure Account, Competition và WCA; `server/db/` chứa helper truy vấn theo domain; `server/infrastructure/` chứa các tiện ích dùng chung như cache. Các file barrel (`server/routers.ts`, `server/db.ts`, `server/cache.ts`) được giữ lại để bảo toàn import cũ và giảm rủi ro khi mở rộng module.
+
+Khi thêm tính năng mới, ưu tiên tạo module trong boundary phù hợp, expose API qua barrel của feature/domain và bổ sung regression cho import boundary trước khi thay đổi page hoặc router hiện hữu.
+
 ## 3. Yêu cầu môi trường
 
 | Công cụ | Phiên bản khuyến nghị | Ghi chú |

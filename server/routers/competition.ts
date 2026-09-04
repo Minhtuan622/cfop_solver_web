@@ -7,7 +7,7 @@ import { isTimerEventId, DEFAULT_TIMER_EVENT } from "../../shared/timerEvents";
 import { multiBlindResult } from "../../shared/multiBlind";
 import { createRoomInput, leaderboardInput, memberTargetInput, messageInput, removeSpectatorInput, resultInput, roomCodeInput } from "./inputs";
 import { competitionHistory, competitionRoomState, leaderboardRange, requireCompetitionMember, requireCompetitionRoom, standingsFromResults } from "./competitionShared";
-import { cacheKey, TtlCache } from "../cache";
+import { cacheKey, TtlCache } from "../infrastructure/cache";
 
 type LeaderboardResponse = { period: "week" | "month"; eventId: string | null; startAt: Date; endAt: Date; players: ReturnType<typeof buildCompetitionLeaderboard> };
 export const leaderboardCache = new TtlCache<LeaderboardResponse>({ ttlMs: 30_000, maxEntries: 64 });
