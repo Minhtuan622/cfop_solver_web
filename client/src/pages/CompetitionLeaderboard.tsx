@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { CompetitionLeaderboardFilters, type CompetitionPeriod } from "@/components/CompetitionLeaderboardFilters";
-import { PageHeader, RefreshIndicator, SectionCard, SkeletonCard, SkeletonList, SkeletonTable, StatusFeedback } from "@/components/BootstrapUI";
+import { LoadingTransition, PageHeader, RefreshIndicator, SectionCard, SkeletonCard, SkeletonList, SkeletonTable, StatusFeedback } from "@/components/BootstrapUI";
 import { competitionEventLabel, competitionResultLabel, formatLabels } from "@/lib/competitionPresentation";
 import { formatSolveTime } from "@/lib/solveHistory";
 import { trpc } from "@/lib/trpc";
@@ -17,7 +17,7 @@ function playerScoreLabel(score: number | null | undefined, eventId: string) {
 }
 
 function LeaderboardTable({ players }: { players: Array<{ accountId: number; displayName: string; avatarUrl: string | null; points: number; wins: number; rooms: number; rank: number }> }) {
-  return <div className="table-responsive"><table className="table align-middle mb-0"><caption className="visually-hidden">Bảng xếp hạng người chơi</caption><thead><tr><th scope="col">Hạng</th><th scope="col">Người chơi</th><th scope="col">Chiến thắng</th><th scope="col">Phòng</th><th scope="col" className="text-end">Điểm</th></tr></thead><tbody>{players.map((player) => <tr key={player.accountId}><th scope="row">{player.rank}</th><td><Link href={`/competition/player/${player.accountId}`} className="d-inline-flex align-items-center gap-2 text-decoration-none"><span className="rounded-circle bg-body-secondary d-inline-flex align-items-center justify-content-center flex-shrink-0" style={{ width: 32, height: 32 }}>{player.avatarUrl ? <img src={player.avatarUrl} alt="" className="rounded-circle w-100 h-100 object-fit-cover" /> : <i className="bi bi-person text-body-secondary" aria-hidden="true" />}</span><span className="text-body">{player.displayName}</span></Link></td><td>{player.wins}</td><td>{player.rooms}</td><td className="text-end"><span className="badge text-bg-primary">{player.points}</span></td></tr>)}</tbody></table></div>;
+  return <LoadingTransition><div className="table-responsive"><table className="table align-middle mb-0"><caption className="visually-hidden">Bảng xếp hạng người chơi</caption><thead><tr><th scope="col">Hạng</th><th scope="col">Người chơi</th><th scope="col">Chiến thắng</th><th scope="col">Phòng</th><th scope="col" className="text-end">Điểm</th></tr></thead><tbody>{players.map((player) => <tr key={player.accountId}><th scope="row">{player.rank}</th><td><Link href={`/competition/player/${player.accountId}`} className="d-inline-flex align-items-center gap-2 text-decoration-none"><span className="rounded-circle bg-body-secondary d-inline-flex align-items-center justify-content-center flex-shrink-0" style={{ width: 32, height: 32 }}>{player.avatarUrl ? <img src={player.avatarUrl} alt="" className="rounded-circle w-100 h-100 object-fit-cover" /> : <i className="bi bi-person text-body-secondary" aria-hidden="true" />}</span><span className="text-body">{player.displayName}</span></Link></td><td>{player.wins}</td><td>{player.rooms}</td><td className="text-end"><span className="badge text-bg-primary">{player.points}</span></td></tr>)}</tbody></table></div></LoadingTransition>;
 }
 
 function PlayerHistory({ accountId }: { accountId: number }) {

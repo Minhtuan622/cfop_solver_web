@@ -1,5 +1,14 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+
+export function LoadingTransition({ children, className }: { children: ReactNode; className?: string }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setVisible(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+  return <div className={cn("loading-content", visible && "loading-content-ready", className)}>{children}</div>;
+}
 
 export function PageHeader({ title, description, actions, className }: { title: string; description?: string; actions?: ReactNode; className?: string }) {
   return (

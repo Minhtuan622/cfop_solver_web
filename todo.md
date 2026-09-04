@@ -1585,3 +1585,10 @@
 - [x] Tích hợp loading state cho leaderboard, WCA, profile, history và rooms.
 - [x] Bổ sung UI regression và kiểm tra responsive/accessibility.
 - [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.
+
+## Transition khi dữ liệu tải xong
+- [x] Kiểm tra skeleton hiện có, layout stability và stylesheet animation.
+- [x] Tạo loading transition dùng chung chỉ animate opacity/transform và hỗ trợ reduced-motion.
+- [x] Tích hợp transition vào các vùng dữ liệu API chính, tránh nhấp nháy khi refetch.
+- [x] Bổ sung regression cho trạng thái loading/loaded và kiểm tra responsive/accessibility.
+- [x] Chạy full Vitest, typecheck, production build, frozen install, diff check và lưu checkpoint.

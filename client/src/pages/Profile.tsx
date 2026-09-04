@@ -4,7 +4,7 @@ import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { ProfileProgressChart } from "@/components/ProfileProgressChart";
 import { createCfopCloudState } from "@/lib/cloudSync";
 import { filterProfileProgress, meetsAo5Goal, profileProgressByDay, type ProfileProgressRange } from "@/lib/profileProgress";
-import { RefreshIndicator, SkeletonCard } from "@/components/BootstrapUI";
+import { LoadingTransition, RefreshIndicator, SkeletonCard } from "@/components/BootstrapUI";
 import { trpc } from "@/lib/trpc";
 import { readSolveHistory, effectiveTime, formatSolveTime } from "@/lib/solveHistory";
 import { rollingAverage } from "@/lib/timerRecords";
@@ -26,7 +26,7 @@ function WcaTimerComparison({ entries, record }: { entries: ReturnType<typeof re
 function WcaProfileDetails({ profile, entries }: { profile: WcaProfileData; entries: ReturnType<typeof readSolveHistory> }) {
   const [showAllRecords, setShowAllRecords] = useState(false);
   const threeByThree = profile.personalRecords.find((record) => record.eventId === "333");
-  return <div className="mt-3">
+  return <LoadingTransition className="mt-3">
     <div className="d-flex flex-wrap align-items-center gap-3">
       <div className="rounded-circle bg-body-secondary overflow-hidden flex-shrink-0 d-flex align-items-center justify-content-center" style={{ width: 58, height: 58 }}>
         {profile.avatarUrl ? <img src={profile.avatarUrl} alt={`Ảnh WCA của ${profile.name}`} className="w-100 h-100 object-fit-cover" referrerPolicy="no-referrer" /> : <i className="bi bi-person fs-3" aria-hidden="true" />}
@@ -44,7 +44,7 @@ function WcaProfileDetails({ profile, entries }: { profile: WcaProfileData; entr
     <WcaTimerComparison entries={entries} record={threeByThree ?? { singleCentiseconds: null, averageCentiseconds: null }} />
     <button type="button" className="btn btn-outline-secondary btn-sm mt-3" aria-expanded={showAllRecords} onClick={() => setShowAllRecords((value) => !value)}>{showAllRecords ? "Ẩn thành tích theo event" : `Xem ${profile.personalRecords.length} event`}</button>
     {showAllRecords ? <div className="table-responsive mt-3"><table className="table table-sm align-middle mb-0"><thead><tr><th scope="col">Event</th><th scope="col">Single</th><th scope="col">Average</th><th scope="col">Rank single</th><th scope="col">Rank average</th></tr></thead><tbody>{profile.personalRecords.map((record) => <tr key={record.eventId}><th scope="row">{wcaEventName(record.eventId)}</th><td>{formatWcaTime(record.singleCentiseconds)}</td><td>{formatWcaTime(record.averageCentiseconds)}</td><td className="small">{rankSummary(record.singleRanks)}</td><td className="small">{rankSummary(record.averageRanks)}</td></tr>)}</tbody></table></div> : null}
-  </div>;
+  </LoadingTransition>;
 }
 
 export default function Profile() {

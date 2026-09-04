@@ -65,6 +65,26 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
 }
 
+/* ---- Loading transitions ---- */
+.loading-content {
+  opacity: 0;
+  transform: translateY(0.25rem);
+  transition: opacity 180ms cubic-bezier(0.23, 1, 0.32, 1), transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.loading-content-ready {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-content {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* ---- App shell ---- */
 .bs-page {
   background: var(--bs-body-bg);
