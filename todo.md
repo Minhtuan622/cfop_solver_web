@@ -1600,3 +1600,10 @@
 - [x] Di chuyển/đổi tên module theo từng nhóm, giữ compatibility boundaries.
 - [x] Bổ sung regression import graph và kiểm tra toàn bộ luồng.
 - [x] Cập nhật tài liệu cấu trúc, chạy full validation và lưu checkpoint.
+
+## Tách practiceCases theo danh mục và thuật toán
+- [x] Khảo sát `practiceCases.ts`, các caller và shape dữ liệu hiện tại.
+- [x] Thiết kế taxonomy module theo danh mục và thuật toán.
+- [x] Tách dữ liệu/helper thành module con với compatibility barrel.
+- [x] Cập nhật caller và bổ sung regression cho đủ case/export/thứ tự dữ liệu.
+- [x] Chạy full validation, cập nhật audit và lưu checkpoint.

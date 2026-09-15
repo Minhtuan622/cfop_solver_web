@@ -49,3 +49,7 @@ Sau hai lượt audit import, đã gỡ `Map.tsx` và toàn bộ `client/src/com
 ## Refactor cấu trúc: feature timer
 
 Đợt này tạo boundary `client/src/features/timer/` với public barrel `index.ts`. `MetricButton`, `MetricDark` và `TimerHistoryRow` được chuyển khỏi `TimerLab.tsx`; page chỉ giữ state, orchestration và các hàm nghiệp vụ, còn feature folder giữ presentation có props typed. Không đổi route `/timer`, `/study`, persistence key, timer event mapping, replay, penalty hay response API. Các feature tiếp theo có thể mở rộng cùng mẫu `features/<domain>/index.ts` mà không cần làm phình page hoặc import trực tiếp file nội bộ.
+
+## Refactor practice case catalog
+
+`client/src/lib/practiceCases.ts` hiện là compatibility barrel. Dữ liệu được tách thành `client/src/lib/practiceCases/types.ts`, `oll.ts` và `pll.ts`; `catalog.ts` cung cấp `LAST_LAYER_CASES`, `practiceCasesByKind` và `practiceCasesByGroup` để caller không tự ghép hoặc lọc dữ liệu. Timer dùng catalog tổng hợp qua public export, giữ nguyên 78 case, thứ tự OLL trước PLL, mã case, thuật toán, setup và kind. Đây là mẫu để bổ sung danh mục luyện tập mới mà không làm phình một file dữ liệu duy nhất.
