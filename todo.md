@@ -1607,3 +1607,10 @@
 - [x] Tách dữ liệu/helper thành module con với compatibility barrel.
 - [x] Cập nhật caller và bổ sung regression cho đủ case/export/thứ tự dữ liệu.
 - [x] Chạy full validation, cập nhật audit và lưu checkpoint.
+
+## Tách OLL/PLL theo nhóm hình dạng
+- [x] Kiểm kê group hiện có và xác định module hình dạng.
+- [x] Tách các nhóm OLL thành module dữ liệu riêng.
+- [x] Tách các nhóm PLL thành module dữ liệu riêng.
+- [x] Ghép lại catalog và bổ sung regression theo nhóm.
+- [x] Chạy full validation, cập nhật audit và lưu checkpoint.
