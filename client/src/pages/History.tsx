@@ -1,10 +1,10 @@
-import { ArrowLeft, BarChart3, Check, Clock3, Download, FileDown, FileUp, Pencil, Play, Search, Tag, Trash2 } from "@/components/BootstrapIcon";
+import { ArrowLeft, BarChart3, Check, Clock3, Download, FileDown, FileUp, Pencil, Play, Search, Tag, Trash2 } from "@/components/ui/BootstrapIcon";
 import { Link } from "wouter";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { deleteSolveHistory, deleteSolveHistoryMany, effectiveTime, exportSolveHistory, formatSolveResult, formatSolveTime, importSolveHistory, readSolveHistory, type SolveHistoryEntry, type SolvePenalty, updateSolveHistory } from "@/lib/solveHistory";
 import { SOLVED_FAST_STATE, stateFromScramble, validateRecordedSolution } from "@/lib/fastCube";
-import { MoveComposer } from "@/components/MoveComposer";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/BootstrapDialog";
+import { MoveComposer } from "@/components/common/MoveComposer";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/BootstrapDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TIMER_EVENTS, isThreeByThreeEvent, normalizeTimerEventId, timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
 import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";

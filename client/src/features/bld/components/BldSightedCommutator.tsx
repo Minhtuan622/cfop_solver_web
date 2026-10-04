@@ -1,6 +1,6 @@
 /* Bootstrap-only Study exercise: sighted execution before blindfolded recall, using the existing fast cube trace. */
-import { ArrowLeft, ArrowRight, Check, Redo2 } from "@/components/BootstrapIcon";
-import { Cube3DGuide } from "@/components/Cube3DGuide";
+import { ArrowLeft, ArrowRight, Check, Redo2 } from "@/components/ui/BootstrapIcon";
+import { Cube3DGuide } from "@/components/common/Cube3DGuide";
 import type { StarterFormula } from "@/features/bldStudyLab";
 import { SOLVED_FAST_STATE, traceFastMoves } from "@/lib/fastCube";
 import { useEffect, useMemo, useState } from "react";

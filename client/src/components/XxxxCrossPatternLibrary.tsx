@@ -1,6 +1,6 @@
 /** Bootstrap sample shelf: verified cube examples that a beginner can load and try. */
 import { useState } from "react";
-import { Check, ClipboardCopy, ShieldCheck } from "@/components/BootstrapIcon";
+import { Check, ClipboardCopy, ShieldCheck } from "@/components/ui/BootstrapIcon";
 
 type Pattern = { id: string; name: string; scramble: string; algorithm: string; moveCount: number };
 

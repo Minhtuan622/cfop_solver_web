@@ -1,14 +1,14 @@
 /** Xưởng Cơ Khí Tốc Độ — Study là nhà duy nhất cho SRS lẫn catalog Last Layer. */
 /* Xưởng Cơ Khí Tốc Độ — algorithm notation is independently scalable; the study apparatus and timer chrome remain calibrated. */
-import { Check, Download, FileUp, Sparkles, TimerReset } from "@/components/BootstrapIcon";
+import { Check, Download, FileUp, Sparkles, TimerReset } from "@/components/ui/BootstrapIcon";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useLocation } from "wouter";
 import { BldStudyLab } from "@/features/bld";
-import { Cube3DGuide } from "@/components/Cube3DGuide";
-import { CubeNet } from "@/components/CubeNet";
+import { Cube3DGuide } from "@/components/common/Cube3DGuide";
+import { CubeNet } from "@/components/common/CubeNet";
 import { LastLayerExplorer } from "@/features/last-layer";
-import { SolveTimer, type TimerCompletion } from "@/components/SolveTimer";
-import { StatusFeedback } from "@/components/BootstrapUI";
+import { SolveTimer, type TimerCompletion } from "@/components/common/SolveTimer";
+import { StatusFeedback } from "@/components/ui/BootstrapUI";
 import { caseKey, dueAndWeakCases, exportLastLayerStudy, gradeCase, importLastLayerStudy, prioritizeStudyQueue, readLastLayerStudy, readMasteredCaseKeys, todayReviewCount, weeklyReviewSchedule, writeLastLayerStudy, writeMasteredCaseKeys, type StudyGrade, type StudyState } from "@/features/last-layer";
 import { listLastLayerCasesInBrowser, type LastLayerCatalogCase } from "@/lib/solverRuntime";
 import { readSolverSettings, type SolverSettings } from "@/lib/appSettings";

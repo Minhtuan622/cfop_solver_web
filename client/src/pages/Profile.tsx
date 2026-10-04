@@ -4,7 +4,7 @@ import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { ProfileProgressChart } from "@/features/profile";
 import { createCfopCloudState } from "@/features/profile";
 import { filterProfileProgress, meetsAo5Goal, profileProgressByDay, type ProfileProgressRange } from "@/features/profile";
-import { LoadingTransition, RefreshIndicator, SkeletonCard } from "@/components/BootstrapUI";
+import { LoadingTransition, RefreshIndicator, SkeletonCard } from "@/components/ui/BootstrapUI";
 import { trpc } from "@/lib/trpc";
 import { readSolveHistory, effectiveTime, formatSolveTime } from "@/lib/solveHistory";
 import { rollingAverage } from "@/lib/timerRecords";

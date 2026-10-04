@@ -6,10 +6,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import type { SolveHistoryEntry } from "@/lib/solveHistory";
 
-vi.mock("@/components/Cube3DGuide", () => ({ Cube3DGuide: ({ move, step }: { move?: string; step: number }) => <div data-testid="cube-guide">{move ?? "ready"} · {step}</div> }));
-vi.mock("@/components/CubeNet", () => ({ CubeNet: () => <div data-testid="cube-net" />, CUBE_COLOR: { U: "#fff", R: "#f00", F: "#0a0", D: "#ff0", L: "#f80", B: "#00f" } }));
-vi.mock("@/components/PuzzleScramblePreview", () => ({ PuzzleScramblePreview: ({ eventId }: { eventId: string }) => <div data-testid="puzzle-preview">{eventId} preview</div> }));
-vi.mock("@/components/SolveTimer", async () => {
+vi.mock("@/components/common/Cube3DGuide", () => ({ Cube3DGuide: ({ move, step }: { move?: string; step: number }) => <div data-testid="cube-guide">{move ?? "ready"} · {step}</div> }));
+vi.mock("@/components/common/CubeNet", () => ({ CubeNet: () => <div data-testid="cube-net" />, CUBE_COLOR: { U: "#fff", R: "#f00", F: "#0a0", D: "#ff0", L: "#f80", B: "#00f" } }));
+vi.mock("@/components/common/PuzzleScramblePreview", () => ({ PuzzleScramblePreview: ({ eventId }: { eventId: string }) => <div data-testid="puzzle-preview">{eventId} preview</div> }));
+vi.mock("@/components/common/SolveTimer", async () => {
   const { useState } = await import("react");
   return { SolveTimer: ({ onComplete }: { onComplete: (completion: { elapsedMs: number; inspectionMs: number; automaticPenalty: "none"; phaseSplits: [] }) => void }) => { const [readout, setReadout] = useState("00:00.00"); return <button data-testid="solve-timer" onClick={() => { setReadout("00:30.00"); onComplete({ elapsedMs: 30_000, inspectionMs: 0, automaticPenalty: "none", phaseSplits: [] }); }}>{readout}</button>; } };
 });

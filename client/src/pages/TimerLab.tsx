@@ -2,16 +2,16 @@
  * Xưởng Cơ Khí Tốc Độ — Timer Lab chia hai apparatus rõ ràng: timer competition và study bay Last Layer.
  * Competition giữ scramble/inspection/history; Study bay dùng score-strip, mint progress và case-first repetition.
  */
-import { ClipboardCheck, Download, Dices, Eye, EyeOff, FileDown, FileUp, ImageDown, Maximize2, Pause, Play, RotateCcw, Search, Trophy, X } from "@/components/BootstrapIcon";
+import { ClipboardCheck, Download, Dices, Eye, EyeOff, FileDown, FileUp, ImageDown, Maximize2, Pause, Play, RotateCcw, Search, Trophy, X } from "@/components/ui/BootstrapIcon";
 import { Link, useLocation } from "wouter";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Cube3DGuide } from "@/components/Cube3DGuide";
-import { CUBE_COLOR, CubeNet } from "@/components/CubeNet";
-import { PuzzleScramblePreview } from "@/components/PuzzleScramblePreview";
+import { Cube3DGuide } from "@/components/common/Cube3DGuide";
+import { CUBE_COLOR, CubeNet } from "@/components/common/CubeNet";
+import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
 import { LastLayerStudyLab } from "@/features/last-layer";
-import { MoveComposer } from "@/components/MoveComposer";
-import { SolveTimer, type TimerCompletion } from "@/components/SolveTimer";
+import { MoveComposer } from "@/components/common/MoveComposer";
+import { SolveTimer, type TimerCompletion } from "@/components/common/SolveTimer";
 import { SOLVED_FAST_STATE, stateFromScramble, traceFastMoves, validateRecordedSolution } from "@/lib/fastCube";
 import { detectPersonalRecords, metricEvidence, rollingAverage, type PersonalRecord, type TimerMetricKey } from "@/lib/timerRecords";
 import { DEFAULT_TIMER_EVENT, TIMER_EVENTS, filterTimerEventEntries, generateTimerScramble, isThreeByThreeEvent, normalizeTimerEventId, timerEventLabel, timerPreviewPuzzleId, type TimerEventId } from "@/lib/timerEvents";
@@ -25,7 +25,7 @@ import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";
 import { LAST_LAYER_CASES, type PracticeCase } from "@/features/last-layer";
 import { addSolveHistory, deleteSolveHistory, deleteSolveHistoryMany, effectiveTime, exportSolveHistory, formatSolveResult, formatSolveTime, importSolveHistory, readSolveHistory, type SolveHistoryEntry, type SolvePenalty, type SplitPhase, updateSolveHistory } from "@/lib/solveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/BootstrapDialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/BootstrapDialog";
 import { MetricButton, MetricDark, TimerHistoryRow } from "@/features/timer";
 
 const FACES = ["U", "R", "F", "D", "L", "B"] as const;

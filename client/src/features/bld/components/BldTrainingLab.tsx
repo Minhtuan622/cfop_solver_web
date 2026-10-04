@@ -2,8 +2,8 @@
  * Soft Focus Workspace — the first BLD practice is intentionally one calm recall task.
  * Advanced labels remain secondary; grading continues to feed the existing BLD SRS profile.
  */
-import { Eye, EyeOff, RefreshCw } from "@/components/BootstrapIcon";
-import { SkeletonCard } from "@/components/BootstrapUI";
+import { Eye, EyeOff, RefreshCw } from "@/components/ui/BootstrapIcon";
+import { SkeletonCard } from "@/components/ui/BootstrapUI";
 import { useEffect, useMemo, useState } from "react";
 import { gradeMemo, preferenceKey, recordDrillAttempt, type BldDrillKind, type BldProfile } from "@/features/bldProfile";
 import type { BldResult } from "@/lib/solverRuntime";

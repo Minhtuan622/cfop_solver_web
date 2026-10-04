@@ -2,7 +2,7 @@
  * Soft Focus Workspace — physical layer-turns accelerate, lock into place, then settle;
  * drag orbit remains direct with no transition lag and Cube 3D is the only rich motion.
  */
-import { Rotate3D } from "@/components/BootstrapIcon";
+import { Rotate3D } from "@/components/ui/BootstrapIcon";
 import { useEffect, useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 

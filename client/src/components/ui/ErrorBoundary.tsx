@@ -1,5 +1,5 @@
 /** Bootstrap-native application error fallback. */
-import { AlertTriangle, RotateCcw } from "@/components/BootstrapIcon";
+import { AlertTriangle, RotateCcw } from "@/components/ui/BootstrapIcon";
 import { Component, type ReactNode } from "react";
 
 interface Props { children: ReactNode; }

@@ -1,7 +1,7 @@
 /** Xưởng Cơ Khí Tốc Độ — local-only six-face camera scanner with center-color calibration. */
 import { useEffect, useRef, useState } from "react";
 /** Bootstrap-native camera card; only the live-video sampling frame remains functional layout. */
-import { Camera, Check, RotateCcw, ScanLine, X } from "@/components/BootstrapIcon";
+import { Camera, Check, RotateCcw, ScanLine, X } from "@/components/ui/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const ORDER = ["U", "R", "F", "D", "L", "B"] as const;

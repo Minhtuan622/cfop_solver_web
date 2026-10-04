@@ -1,4 +1,4 @@
-import { CUBE_COLOR } from "@/components/CubeNet";
+import { CUBE_COLOR } from "@/components/common/CubeNet";
 
 type Props = {
   state: string;

@@ -1,8 +1,8 @@
 /* Bootstrap-first 3×3 BLD route: orient → formulas → memo → drill → review. */
-import { ArrowLeft, ArrowRight, BookOpenCheck, Check, ChevronRight, Dices, Layers3, Loader2, Redo2, Sparkles } from "@/components/BootstrapIcon";
-import { SkeletonCard, StatusFeedback } from "@/components/BootstrapUI";
-import { Cube3DGuide } from "@/components/Cube3DGuide";
-import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
+import { ArrowLeft, ArrowRight, BookOpenCheck, Check, ChevronRight, Dices, Layers3, Loader2, Redo2, Sparkles } from "@/components/ui/BootstrapIcon";
+import { SkeletonCard, StatusFeedback } from "@/components/ui/BootstrapUI";
+import { Cube3DGuide } from "@/components/common/Cube3DGuide";
+import { CubeNet, SOLVED_STATE } from "@/components/common/CubeNet";
 import { BldMemoLab } from "@/features/bld";
 import { BldProfilePanel } from "@/features/bld";
 import { BldTrainingLab } from "@/features/bld";

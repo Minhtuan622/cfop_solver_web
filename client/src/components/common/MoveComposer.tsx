@@ -1,6 +1,6 @@
 /** Xưởng Cơ Khí Tốc Độ — move pad dùng mono telemetry, chip vuông và mint chỉ cho hành động hợp lệ. */
 import { useState } from "react";
-import { RotateCcw, Undo2, X } from "@/components/BootstrapIcon";
+import { RotateCcw, Undo2, X } from "@/components/ui/BootstrapIcon";
 
 const BASE_MOVES = ["U", "R", "F", "D", "L", "B", "M", "E", "S", "x", "y", "z"];
 const MOVE_PATTERN = /(?:[URFDLBMESxyz](?:w)?(?:2|')?)/g;

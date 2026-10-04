@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent, type WheelEvent } from "react";
 import type { BufferAttribute, Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
-import type { SideEvent3DAnimation } from "@/components/SideEvent3DObject";
+import type { SideEvent3DAnimation } from "@/components/common/SideEvent3DObject";
 
 type PuzzleId = "4x4x4" | "5x5x5" | "6x6x6" | "7x7x7" | "pyraminx" | "skewb" | "megaminx" | "fto" | "square1" | "clock";
 type FtoTeachingFace = "white" | "orange";
@@ -192,7 +192,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
       if (disposed) return;
       let puzzleObject: Object3D;
       if (isCustomSideEvent(puzzle)) {
-        const [three, { sideEvent3DAnimation }] = await Promise.all([import("three"), import("@/components/SideEvent3DObject")]);
+        const [three, { sideEvent3DAnimation }] = await Promise.all([import("three"), import("@/components/common/SideEvent3DObject")]);
         THREE = three;
         sideEventAnimation = await sideEvent3DAnimation(THREE, puzzle, scramble);
         puzzleObject = sideEventAnimation.object;

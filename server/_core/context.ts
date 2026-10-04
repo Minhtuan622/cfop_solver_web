@@ -1,7 +1,7 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
-import type { PublicCfopAccount } from "../cfopAccountAuth";
-import { getCfopAccountFromRequest, toPublicCfopAccount } from "../cfopAccountAuth";
+import type { PublicCfopAccount } from "../services/cfopAccountAuth";
+import { getCfopAccountFromRequest, toPublicCfopAccount } from "../services/cfopAccountAuth";
 import { sdk } from "./sdk";
 
 export type TrpcContext = {

@@ -1,6 +1,6 @@
 /** Bootstrap settings for cubers: CFOP defaults first, then timer and study preferences. */
 import { useEffect, useRef, useState } from "react";
-import { Check, RotateCcw } from "@/components/BootstrapIcon";
+import { Check, RotateCcw } from "@/components/ui/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readLastLayerStudy, writeLastLayerStudy } from "@/features/last-layer";

@@ -1,6 +1,6 @@
 /* Bootstrap-first self-check: the target state is the inverse of the chosen starter algorithm. */
 import type { StarterFormula } from "@/features/bldStudyLab";
-import { Check, Dices } from "@/components/BootstrapIcon";
+import { Check, Dices } from "@/components/ui/BootstrapIcon";
 import { parseFastMoves, stateFromScramble, validateRecordedSolution } from "@/lib/fastCube";
 import { useEffect, useMemo, useState } from "react";
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/BootstrapDialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/BootstrapDialog";
 import { AVATAR_CROP_FRAME, AvatarCropPlacement, centeredAvatarCrop, clampAvatarCrop, renderAvatarCrop, zoomAvatarCrop } from "@/lib/avatarCrop";
 
 type ImageType = "image/jpeg" | "image/png" | "image/webp";

@@ -1,6 +1,6 @@
 import type { Express } from "express";
-import { getCfopAccountFromRequest } from "./cfopAccountAuth";
-import { completeWcaOAuth, wcaOAuthCallbackReturnPath } from "./wcaOAuth";
+import { getCfopAccountFromRequest } from "./services/cfopAccountAuth";
+import { completeWcaOAuth, wcaOAuthCallbackReturnPath } from "./services/wcaOAuth";
 
 function firstQueryValue(value: unknown) {
   return typeof value === "string" ? value : "";

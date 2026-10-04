@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { CompetitionLeaderboardFilters, type CompetitionPeriod } from "@/features/competitionLeaderboardFilters";
-import { LoadingTransition, PageHeader, RefreshIndicator, SectionCard, SkeletonCard, SkeletonList, SkeletonTable, StatusFeedback } from "@/components/BootstrapUI";
+import { LoadingTransition, PageHeader, RefreshIndicator, SectionCard, SkeletonCard, SkeletonList, SkeletonTable, StatusFeedback } from "@/components/ui/BootstrapUI";
 import { competitionEventLabel, competitionResultLabel, formatLabels } from "@/features/competition";
 import { formatSolveTime } from "@/lib/solveHistory";
 import { trpc } from "@/lib/trpc";

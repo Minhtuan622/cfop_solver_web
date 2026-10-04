@@ -3,8 +3,8 @@
  * calibrated faces and fixed centers make a valid CFOP input inspectable.
  */
 import { useEffect, useMemo, useState } from "react";
-import { Redo2, RotateCcw, Undo2 } from "@/components/BootstrapIcon";
-import { CUBE_COLOR, FACE_GRID, FACE_OFFSET, FACE_ORDER, SOLVED_STATE } from "@/components/CubeNet";
+import { Redo2, RotateCcw, Undo2 } from "@/components/ui/BootstrapIcon";
+import { CUBE_COLOR, FACE_GRID, FACE_OFFSET, FACE_ORDER, SOLVED_STATE } from "@/components/common/CubeNet";
 import { cn } from "@/lib/utils";
 
 type Face = (typeof FACE_ORDER)[number];

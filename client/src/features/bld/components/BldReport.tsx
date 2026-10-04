@@ -1,6 +1,6 @@
 /** Bootstrap-native BLD report; specialized logic is retained while presentation uses cards and standard forms. */
-import { ExternalLink, Link2, ShieldCheck, X } from "@/components/BootstrapIcon";
-import { SkeletonList } from "@/components/BootstrapUI";
+import { ExternalLink, Link2, ShieldCheck, X } from "@/components/ui/BootstrapIcon";
+import { SkeletonList } from "@/components/ui/BootstrapUI";
 import { useEffect, useMemo, useState } from "react";
 import { Link as RouteLink } from "wouter";
 import { preferenceKey, setPreferredAlgorithm, type BldProfile } from "@/features/bldProfile";
