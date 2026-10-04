@@ -13,7 +13,7 @@ vi.mock("@/components/SolveTimer", async () => {
   const { useState } = await import("react");
   return { SolveTimer: ({ onComplete }: { onComplete: (completion: { elapsedMs: number; inspectionMs: number; automaticPenalty: "none"; phaseSplits: [] }) => void }) => { const [readout, setReadout] = useState("00:00.00"); return <button data-testid="solve-timer" onClick={() => { setReadout("00:30.00"); onComplete({ elapsedMs: 30_000, inspectionMs: 0, automaticPenalty: "none", phaseSplits: [] }); }}>{readout}</button>; } };
 });
-vi.mock("@/components/LastLayerStudyLab", () => ({ LastLayerStudyLab: () => <div data-testid="last-layer-study" /> }));
+vi.mock("@/features/last-layerStudyLab", () => ({ LastLayerStudyLab: () => <div data-testid="last-layer-study" /> }));
 vi.mock("recharts", () => ({ Bar: () => null, BarChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Line: () => null, LineChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Tooltip: () => null, XAxis: () => null, YAxis: () => null }));
 vi.mock("@/lib/timerEvents", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/timerEvents")>()), generateTimerScramble: async (eventId: string) => `${eventId} scramble` }));
 vi.mock("@/lib/trpc", () => ({ trpc: { cfopAccount: { me: { useQuery: () => ({ data: null, isLoading: false, isError: false }) }, wca: { profile: { useQuery: () => ({ data: null, isLoading: false, isError: false }) } } } } }));

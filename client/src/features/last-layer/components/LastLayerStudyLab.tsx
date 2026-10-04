@@ -3,13 +3,13 @@
 import { Check, Download, FileUp, Sparkles, TimerReset } from "@/components/BootstrapIcon";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useLocation } from "wouter";
-import { BldStudyLab } from "@/components/BldStudyLab";
+import { BldStudyLab } from "@/features/bld";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { CubeNet } from "@/components/CubeNet";
-import { LastLayerExplorer } from "@/components/LastLayerExplorer";
+import { LastLayerExplorer } from "@/features/last-layer";
 import { SolveTimer, type TimerCompletion } from "@/components/SolveTimer";
 import { StatusFeedback } from "@/components/BootstrapUI";
-import { caseKey, dueAndWeakCases, exportLastLayerStudy, gradeCase, importLastLayerStudy, prioritizeStudyQueue, readLastLayerStudy, readMasteredCaseKeys, todayReviewCount, weeklyReviewSchedule, writeLastLayerStudy, writeMasteredCaseKeys, type StudyGrade, type StudyState } from "@/lib/lastLayerStudy";
+import { caseKey, dueAndWeakCases, exportLastLayerStudy, gradeCase, importLastLayerStudy, prioritizeStudyQueue, readLastLayerStudy, readMasteredCaseKeys, todayReviewCount, weeklyReviewSchedule, writeLastLayerStudy, writeMasteredCaseKeys, type StudyGrade, type StudyState } from "@/features/last-layer";
 import { listLastLayerCasesInBrowser, type LastLayerCatalogCase } from "@/lib/solverRuntime";
 import { readSolverSettings, type SolverSettings } from "@/lib/appSettings";
 

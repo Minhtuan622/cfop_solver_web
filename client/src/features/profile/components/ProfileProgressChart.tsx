@@ -1,6 +1,6 @@
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatSolveTime } from "@/lib/solveHistory";
-import { ProfileProgressPoint } from "@/lib/profileProgress";
+import { ProfileProgressPoint } from "@/features/profile";
 
 export function ProfileProgressChart({ data }: { data: ProfileProgressPoint[] }) {
   if (!data.length) return <p className="text-body-secondary mb-0">Hoàn thành vài lượt solve để xem đường tiến bộ Best và Ao5 theo ngày.</p>;

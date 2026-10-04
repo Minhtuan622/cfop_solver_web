@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Check, RotateCcw } from "@/components/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
-import { readLastLayerStudy, writeLastLayerStudy } from "@/lib/lastLayerStudy";
+import { readLastLayerStudy, writeLastLayerStudy } from "@/features/last-layer";
 import { readStoredValue, writeStoredValue } from "@/lib/browserStorage";
 
 type F2LSlot = NonNullable<SolverSettings["preferredSlot"]>;

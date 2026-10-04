@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
-import { CompetitionLeaderboardFilters, type CompetitionPeriod } from "@/components/CompetitionLeaderboardFilters";
+import { CompetitionLeaderboardFilters, type CompetitionPeriod } from "@/features/competitionLeaderboardFilters";
 import { LoadingTransition, RefreshIndicator, SkeletonList } from "@/components/BootstrapUI";
 import { trpc } from "@/lib/trpc";
 import { type TimerEventId } from "@/lib/timerEvents";

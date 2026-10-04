@@ -9,7 +9,7 @@ import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { Cube3DGuide } from "@/components/Cube3DGuide";
 import { CUBE_COLOR, CubeNet } from "@/components/CubeNet";
 import { PuzzleScramblePreview } from "@/components/PuzzleScramblePreview";
-import { LastLayerStudyLab } from "@/components/LastLayerStudyLab";
+import { LastLayerStudyLab } from "@/features/last-layer";
 import { MoveComposer } from "@/components/MoveComposer";
 import { SolveTimer, type TimerCompletion } from "@/components/SolveTimer";
 import { SOLVED_FAST_STATE, stateFromScramble, traceFastMoves, validateRecordedSolution } from "@/lib/fastCube";
@@ -22,7 +22,7 @@ import { trpc } from "@/lib/trpc";
 import { readStoredJson, readStoredValue, writeStoredValue } from "@/lib/browserStorage";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";
-import { LAST_LAYER_CASES, type PracticeCase } from "@/lib/practiceCases";
+import { LAST_LAYER_CASES, type PracticeCase } from "@/features/last-layer";
 import { addSolveHistory, deleteSolveHistory, deleteSolveHistoryMany, effectiveTime, exportSolveHistory, formatSolveResult, formatSolveTime, importSolveHistory, readSolveHistory, type SolveHistoryEntry, type SolvePenalty, type SplitPhase, updateSolveHistory } from "@/lib/solveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/BootstrapDialog";

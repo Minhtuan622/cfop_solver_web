@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BoxArrowRight, PersonCircle } from "@/components/BootstrapIcon";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/BootstrapDialog";
 import { trpc } from "@/lib/trpc";
-import { errorMessage, initials } from "@/lib/profilePresentation";
+import { errorMessage, initials } from "@/features/profile";
 import { Link } from "wouter";
 
 type AuthMode = "login" | "register";
