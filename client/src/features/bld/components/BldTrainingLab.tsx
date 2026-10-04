@@ -5,7 +5,7 @@
 import { Eye, EyeOff, RefreshCw } from "@/components/BootstrapIcon";
 import { SkeletonCard } from "@/components/BootstrapUI";
 import { useEffect, useMemo, useState } from "react";
-import { gradeMemo, preferenceKey, recordDrillAttempt, type BldDrillKind, type BldProfile } from "@/lib/bldProfile";
+import { gradeMemo, preferenceKey, recordDrillAttempt, type BldDrillKind, type BldProfile } from "@/features/bldProfile";
 import type { BldResult } from "@/lib/solverRuntime";
 
 type CatalogEntry = { key: string; algorithm: string; kind: BldDrillKind };

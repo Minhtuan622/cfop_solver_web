@@ -1,5 +1,5 @@
 /* Bootstrap-only Study checklist: persistent, explicit completion state for the five BLD stages. */
-import type { BldLearningPathProgress } from "@/lib/bldLearningPath";
+import type { BldLearningPathProgress } from "@/features/bldLearningPath";
 
 type Item = { key: "orientationDone" | "sightedDone" | "memoDone" | "selfCheckDone" | "reviewDone"; vi: string; en: string };
 const items: Item[] = [

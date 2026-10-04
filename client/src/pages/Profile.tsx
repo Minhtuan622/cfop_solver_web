@@ -10,7 +10,7 @@ import { readSolveHistory, effectiveTime, formatSolveTime } from "@/lib/solveHis
 import { rollingAverage } from "@/lib/timerRecords";
 import { DEFAULT_TIMER_EVENT, normalizeTimerEventId } from "@/lib/timerEvents";
 import { wcaTimerComparison } from "@/lib/wcaTimerComparison";
-import { dueMemoRecords, readBldProfile, reviewStreak } from "@/lib/bldProfile";
+import { dueMemoRecords, readBldProfile, reviewStreak } from "@/features/bldProfile";
 import { readLastLayerStudy, todayReviewCount } from "@/lib/lastLayerStudy";
 import { comparisonMessage, errorMessage, formatWcaTime, initials, rankSummary, wcaEventName, type WcaProfileData, type WcaRecordRow } from "@/lib/profilePresentation";
 

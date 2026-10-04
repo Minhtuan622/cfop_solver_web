@@ -3,10 +3,10 @@ import { render } from "@testing-library/react";
 import { fireEvent, screen } from "@testing-library/dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BldFullAlgorithmCatalog } from "./BldFullAlgorithmCatalog";
-import { loadFullBldCatalog, type BldCatalogCase } from "@/lib/bldFullCatalog";
+import { loadFullBldCatalog, type BldCatalogCase } from "@/features/bldFullCatalog";
 
-vi.mock("@/lib/bldFullCatalog", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/bldFullCatalog")>("@/lib/bldFullCatalog");
+vi.mock("@/features/bldFullCatalog", async () => {
+  const actual = await vi.importActual<typeof import("@/features/bldFullCatalog")>("@/features/bldFullCatalog");
   return { ...actual, loadFullBldCatalog: vi.fn() };
 });
 

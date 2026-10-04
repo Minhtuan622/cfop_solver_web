@@ -3,7 +3,7 @@ import { ExternalLink, Link2, ShieldCheck, X } from "@/components/BootstrapIcon"
 import { SkeletonList } from "@/components/BootstrapUI";
 import { useEffect, useMemo, useState } from "react";
 import { Link as RouteLink } from "wouter";
-import { preferenceKey, setPreferredAlgorithm, type BldProfile } from "@/lib/bldProfile";
+import { preferenceKey, setPreferredAlgorithm, type BldProfile } from "@/features/bldProfile";
 import type { BldResult } from "@/lib/solverRuntime";
 
 type Catalog = Record<string, string>;

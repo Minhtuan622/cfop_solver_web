@@ -5,8 +5,8 @@ import { describe, expect, it, vi } from "vitest";
 import { BldNextReview } from "./BldNextReview";
 import { BldSightedCommutator } from "./BldSightedCommutator";
 import { BldStageChecklist } from "./BldStageChecklist";
-import { emptyBldProfile } from "@/lib/bldProfile";
-import type { BldLearningPathProgress } from "@/lib/bldLearningPath";
+import { emptyBldProfile } from "@/features/bldProfile";
+import type { BldLearningPathProgress } from "@/features/bldLearningPath";
 import type { StarterFormula } from "./BldStudyLab";
 
 const starter: StarterFormula = { group: "edge", kind: "edge", key: "ACE", titleVi: "Cạnh · setup với S", titleEn: "Edges · S-slice setup", algorithm: "L2 U L2 S' L2 S U' L2", noteVi: "", noteEn: "" };

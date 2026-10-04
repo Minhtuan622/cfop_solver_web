@@ -1,7 +1,7 @@
 /* Xưởng Cơ Khí Tốc Độ — memo recall is a measured relay: prompt, conceal, self-grade, then schedule. */
 import { Eye, EyeOff, RotateCcw, Volume2, VolumeX } from "@/components/BootstrapIcon";
 import { useEffect, useMemo, useState } from "react";
-import { dueMemoRecords, gradeMemo, type BldGrade, type BldMemoRecord, type BldProfile } from "@/lib/bldProfile";
+import { dueMemoRecords, gradeMemo, type BldGrade, type BldMemoRecord, type BldProfile } from "@/features/bldProfile";
 import type { BldResult } from "@/lib/solverRuntime";
 
 type Prompt = Pick<BldMemoRecord, "key" | "memo" | "kind">;

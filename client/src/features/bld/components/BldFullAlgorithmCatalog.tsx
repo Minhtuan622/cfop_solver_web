@@ -1,8 +1,8 @@
 /* Bootstrap-first full BLD library: fetches only when the learner opens the full catalog. */
 import { ChevronLeftIcon, ChevronRight, Loader2, Search } from "@/components/BootstrapIcon";
 import { SkeletonList } from "@/components/BootstrapUI";
-import { loadFullBldCatalog, type BldCatalogCase, type BldCatalogGroup } from "@/lib/bldFullCatalog";
-import type { StarterFormula } from "@/components/BldStudyLab";
+import { loadFullBldCatalog, type BldCatalogCase, type BldCatalogGroup } from "@/features/bldFullCatalog";
+import type { StarterFormula } from "@/features/bldStudyLab";
 import { useEffect, useMemo, useState } from "react";
 
 const PAGE_SIZE = 24;

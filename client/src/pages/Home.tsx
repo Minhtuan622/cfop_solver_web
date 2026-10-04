@@ -12,7 +12,7 @@ import { Timer } from "@/components/BootstrapIcon";
 import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
 import { Cube3DGuide } from "@/components/Cube3DGuide";
-import { BldReport } from "@/components/BldReport";
+import { BldReport } from "@/features/bldReport";
 import { CubeStateEditor } from "@/components/CubeStateEditor";
 import { CameraScanner } from "@/components/CameraScanner";
 import { FieldGroup, PageHeader, StatusFeedback } from "@/components/BootstrapUI";
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { CROSS_COLORS, exportCFOPJson, F2L_SLOTS, LAST_LAYER_OPTIONS, lastLayerModeLabel, OPENING_OPTIONS, openingModeLabel, phaseLessonUrl, phaseStudyNote, saveBlob } from "@/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
-import { readBldProfile, writeBldProfile } from "@/lib/bldProfile";
+import { readBldProfile, writeBldProfile } from "@/features/bldProfile";
 import { readMasteredCaseKeys, writeMasteredCaseKeys } from "@/lib/lastLayerStudy";
 import { analyzeBldInBrowser, listLastLayerCasesInBrowser, solveInBrowser, validateStateInBrowser, warmSolverInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerCatalogCase, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 

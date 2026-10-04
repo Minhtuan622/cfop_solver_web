@@ -1,6 +1,6 @@
 /* Bootstrap-only Study streak: derived only from actual self-grades recorded by BLD SRS. */
 import { Trophy } from "@/components/BootstrapIcon";
-import { reviewStreak, type BldProfile } from "@/lib/bldProfile";
+import { reviewStreak, type BldProfile } from "@/features/bldProfile";
 
 export function BldReviewStreak({ profile, language }: { profile: BldProfile; language: "vi" | "en" }) {
   const vi = language === "vi";

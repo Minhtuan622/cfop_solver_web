@@ -1,7 +1,7 @@
 /* Xưởng Cơ Khí Tốc Độ — a compact local record sheet for portable BLD preferences. */
 import { Download, FileUp, Volume2, VolumeX } from "@/components/BootstrapIcon";
 import { useRef, useState, type ChangeEvent } from "react";
-import { importBldProfile, profileExport, type BldProfile } from "@/lib/bldProfile";
+import { importBldProfile, profileExport, type BldProfile } from "@/features/bldProfile";
 
 function downloadProfile(profile: BldProfile) { const url = URL.createObjectURL(new Blob([JSON.stringify(profileExport(profile), null, 2)], { type: "application/json" })); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "cfop-bld-profile.json"; anchor.click(); window.setTimeout(() => URL.revokeObjectURL(url), 0); }
 
