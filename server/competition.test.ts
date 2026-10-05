@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCompetitionLeaderboard, compareCompetitionResults, competitionAo5, competitionAo12, competitionBestOf3, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScramble, createCompetitionScrambleBundle, createSharedScramble, effectiveCompetitionTime } from "./competition";
+import { buildCompetitionLeaderboard, compareCompetitionResults, competitionAo5, competitionAo12, competitionBestOf3, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScramble, createCompetitionScrambleBundle, createSharedScramble, effectiveCompetitionTime } from "./services/competition";
 
 describe("competition helpers", () => {
   it("tạo mã phòng dễ đọc và scramble 3×3 không lặp mặt liền nhau", () => {

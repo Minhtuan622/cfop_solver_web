@@ -2,12 +2,12 @@ import { TRPCError } from "@trpc/server";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { COOKIE_NAME } from "../../shared/const";
-import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "../cfopAccountAuth";
-import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../cfopPasswordResetMail";
+import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "../services/cfopAccountAuth";
+import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../services/cfopPasswordResetMail";
 import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
 import { getSessionCookieOptions } from "../_core/cookies";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
-import { storagePut } from "../storage";
+import { storagePut } from "../services/storage";
 import { accountWcaRouter } from "./wca";
 import { avatarInput, cloudStateInput, credentialsInput, passwordInput, profileInput } from "./inputs";
 

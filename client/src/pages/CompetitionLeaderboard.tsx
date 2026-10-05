@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link, useRoute } from "wouter";
-import { CompetitionLeaderboardFilters, type CompetitionPeriod } from "@/components/CompetitionLeaderboardFilters";
-import { LoadingTransition, PageHeader, RefreshIndicator, SectionCard, SkeletonCard, SkeletonList, SkeletonTable, StatusFeedback } from "@/components/BootstrapUI";
-import { competitionEventLabel, competitionResultLabel, formatLabels } from "@/lib/competitionPresentation";
+import { CompetitionLeaderboardFilters, type CompetitionPeriod } from "@/features/competition";
+import { LoadingTransition, PageHeader, RefreshIndicator, SectionCard, SkeletonCard, SkeletonList, SkeletonTable, StatusFeedback } from "@/components/ui/BootstrapUI";
+import { competitionEventLabel, competitionResultLabel, formatLabels } from "@/features/competition";
 import { formatSolveTime } from "@/lib/solveHistory";
 import { trpc } from "@/lib/trpc";
 import { type TimerEventId } from "@/lib/timerEvents";

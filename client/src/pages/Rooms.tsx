@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { SolveTimer, type TimerCompletion } from "@/components/SolveTimer";
-import { PuzzleScramblePreview } from "@/components/PuzzleScramblePreview";
-import { SystemLeaderboard } from "@/components/SystemLeaderboard";
+import { SolveTimer, type TimerCompletion } from "@/components/common/SolveTimer";
+import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
+import { SystemLeaderboard } from "@/features/competition";
 import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
 import { formatSolveTime } from "@/lib/solveHistory";
 import { DEFAULT_TIMER_EVENT, TIMER_EVENTS, isTimerEventId, timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
-import { competitionErrorText, competitionEventLabel, competitionResultLabel, formatDescriptions, formatLabels, type CompetitionPenalty, type RoomFormat } from "@/lib/competitionPresentation";
-import { LoadingTransition, RefreshIndicator, SkeletonCard, SkeletonList } from "@/components/BootstrapUI";
+import { competitionErrorText, competitionEventLabel, competitionResultLabel, formatDescriptions, formatLabels, type CompetitionPenalty, type RoomFormat } from "@/features/competition";
+import { LoadingTransition, RefreshIndicator, SkeletonCard, SkeletonList } from "@/components/ui/BootstrapUI";
 import { trpc } from "@/lib/trpc";
 
 type Penalty = CompetitionPenalty;

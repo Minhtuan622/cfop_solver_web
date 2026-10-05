@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cfopAccountCookieOptions, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "./cfopAccountAuth";
+import { cfopAccountCookieOptions, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "./services/cfopAccountAuth";
 
 describe("CFOP native account security helpers", () => {
   it("normalizes email consistently", () => {

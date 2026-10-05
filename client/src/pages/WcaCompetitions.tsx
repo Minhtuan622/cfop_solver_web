@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { LoadingTransition, RefreshIndicator } from "@/components/BootstrapUI";
+import { LoadingTransition, RefreshIndicator } from "@/components/ui/BootstrapUI";
 import { trpc } from "@/lib/trpc";
 
 function dateInputValue(date: Date) {

@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
-import { ProfileProgressChart } from "@/components/ProfileProgressChart";
+import { ProfileProgressChart } from "@/features/profile";
 import { createCfopCloudState } from "@/lib/cloudSync";
-import { filterProfileProgress, meetsAo5Goal, profileProgressByDay, type ProfileProgressRange } from "@/lib/profileProgress";
-import { LoadingTransition, RefreshIndicator, SkeletonCard } from "@/components/BootstrapUI";
+import { filterProfileProgress, meetsAo5Goal, profileProgressByDay, type ProfileProgressRange } from "@/features/profile";
+import { LoadingTransition, RefreshIndicator, SkeletonCard } from "@/components/ui/BootstrapUI";
 import { trpc } from "@/lib/trpc";
 import { readSolveHistory, effectiveTime, formatSolveTime } from "@/lib/solveHistory";
 import { rollingAverage } from "@/lib/timerRecords";
 import { DEFAULT_TIMER_EVENT, normalizeTimerEventId } from "@/lib/timerEvents";
 import { wcaTimerComparison } from "@/lib/wcaTimerComparison";
-import { dueMemoRecords, readBldProfile, reviewStreak } from "@/lib/bldProfile";
-import { readLastLayerStudy, todayReviewCount } from "@/lib/lastLayerStudy";
-import { comparisonMessage, errorMessage, formatWcaTime, initials, rankSummary, wcaEventName, type WcaProfileData, type WcaRecordRow } from "@/lib/profilePresentation";
+import { dueMemoRecords, readBldProfile, reviewStreak } from "@/features/bld";
+import { readLastLayerStudy, todayReviewCount } from "@/features/last-layer";
+import { comparisonMessage, errorMessage, formatWcaTime, initials, rankSummary, wcaEventName, type WcaProfileData, type WcaRecordRow } from "@/features/profile";
 
 function AccountMetric({ label, value, detail }: { label: string; value: string; detail: string }) {
   return <article className="col-6 col-lg-3"><div className="card h-100"><div className="card-body"><p className="small text-body-secondary mb-1">{label}</p><p className="h4 mb-1">{value}</p><p className="small text-body-secondary mb-0">{detail}</p></div></div></article>;

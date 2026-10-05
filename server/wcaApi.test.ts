@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { clearWcaMemoryCache, getWcaCompetitions, getWcaCountries, getWcaProfile, normalizeWcaId } from "./wcaApi";
+import { clearWcaMemoryCache, getWcaCompetitions, getWcaCountries, getWcaProfile, normalizeWcaId } from "./services/wcaApi";
 
 function mockJson(value: unknown, status = 200) {
   return { ok: status >= 200 && status < 300, status, json: async () => value } as Response;

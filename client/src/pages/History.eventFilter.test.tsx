@@ -9,8 +9,8 @@ const entries = [
 ];
 
 vi.mock("@/contexts/LanguageContext", () => ({ useLanguage: () => ({ language: "vi" }) }));
-vi.mock("@/components/MoveComposer", () => ({ MoveComposer: () => null }));
-vi.mock("@/components/BootstrapDialog", () => ({ Dialog: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogContent: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogDescription: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogFooter: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogHeader: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogTitle: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
+vi.mock("@/components/common/MoveComposer", () => ({ MoveComposer: () => null }));
+vi.mock("@/components/ui/BootstrapDialog", () => ({ Dialog: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogContent: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogDescription: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogFooter: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogHeader: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogTitle: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
 vi.mock("recharts", () => ({ Line: () => null, LineChart: ({ children }: { children: React.ReactNode }) => <>{children}</>, ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <>{children}</>, Tooltip: () => null, XAxis: () => null, YAxis: () => null }));
 vi.mock("@/lib/fastCube", () => ({ SOLVED_FAST_STATE: "", stateFromScramble: () => "", validateRecordedSolution: () => ({ valid: true, normalized: "", moves: [] }) }));
 vi.mock("@/lib/timerEvents", () => ({ TIMER_EVENTS: [{ id: "333", labelVi: "3×3×3" }, { id: "fto", labelVi: "FTO" }], isThreeByThreeEvent: () => true, normalizeTimerEventId: (id: string | undefined) => id === "fto" ? "fto" : "333", timerEventLabel: (id: string) => id === "fto" ? "FTO" : "3×3×3" }));

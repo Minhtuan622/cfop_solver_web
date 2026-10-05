@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CfopAccountControl } from "@/components/CfopAccountControl";
+import { CfopAccountControl } from "@/features/profile";
 
 const navItems = [
   { href: "/", label: "Giải Rubik", labelEn: "Solve", active: (path: string) => path === "/" },

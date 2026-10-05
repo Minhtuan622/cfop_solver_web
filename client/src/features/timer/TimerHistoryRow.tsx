@@ -1,4 +1,4 @@
-import { Pencil, Play, Tag, Trash2 } from "@/components/BootstrapIcon";
+import { Pencil, Play, Tag, Trash2 } from "@/components/ui/BootstrapIcon";
 import { formatSolveResult, type SolveHistoryEntry, type SolvePenalty, type SplitPhase } from "@/lib/solveHistory";
 
 type TimerHistoryRowProps = {

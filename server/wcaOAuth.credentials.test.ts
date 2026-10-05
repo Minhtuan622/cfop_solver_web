@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { wcaOAuthConfigured } from "./wcaOAuth";
+import { wcaOAuthConfigured } from "./services/wcaOAuth";
 
 const originalRedirectUri = process.env.WCA_OAUTH_REDIRECT_URI;
 

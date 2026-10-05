@@ -7,23 +7,23 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import {
   ArrowLeft, ArrowRight, Check, ChevronRight, CircleGauge, ClipboardCopy,
   Cpu, FileJson, History, ImageDown, Info, Layers3, Loader2, Play, RotateCcw, Search, ShieldCheck, Sparkles, Trash2,
-} from "@/components/BootstrapIcon";
-import { Timer } from "@/components/BootstrapIcon";
+} from "@/components/ui/BootstrapIcon";
+import { Timer } from "@/components/ui/BootstrapIcon";
 import { Link } from "wouter";
-import { CubeNet, SOLVED_STATE } from "@/components/CubeNet";
-import { Cube3DGuide } from "@/components/Cube3DGuide";
-import { BldReport } from "@/components/BldReport";
-import { CubeStateEditor } from "@/components/CubeStateEditor";
-import { CameraScanner } from "@/components/CameraScanner";
-import { FieldGroup, PageHeader, StatusFeedback } from "@/components/BootstrapUI";
+import { CubeNet, SOLVED_STATE } from "@/components/common/CubeNet";
+import { Cube3DGuide } from "@/components/common/Cube3DGuide";
+import { BldReport } from "@/features/bld";
+import { CubeStateEditor } from "@/components/common/CubeStateEditor";
+import { CameraScanner } from "@/components/common/CameraScanner";
+import { FieldGroup, PageHeader, StatusFeedback } from "@/components/ui/BootstrapUI";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { CROSS_COLORS, exportCFOPJson, F2L_SLOTS, LAST_LAYER_OPTIONS, lastLayerModeLabel, OPENING_OPTIONS, openingModeLabel, phaseLessonUrl, phaseStudyNote, saveBlob } from "@/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
-import { readBldProfile, writeBldProfile } from "@/lib/bldProfile";
-import { readMasteredCaseKeys, writeMasteredCaseKeys } from "@/lib/lastLayerStudy";
+import { readBldProfile, writeBldProfile } from "@/features/bld";
+import { readMasteredCaseKeys, writeMasteredCaseKeys } from "@/features/last-layer";
 import { analyzeBldInBrowser, listLastLayerCasesInBrowser, solveInBrowser, validateStateInBrowser, warmSolverInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerCatalogCase, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 
 type CubeMotionKind = "idle" | "move" | "seek" | "phase" | "reset";

@@ -1,12 +1,12 @@
 import { lazy, Suspense, useEffect } from "react";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
-import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorBoundary from "./components/ui/ErrorBoundary";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AppNav } from "./components/AppNav";
-import { SkeletonCard } from "./components/BootstrapUI";
-import { CfopCloudSync } from "./components/CfopCloudSync";
-import { CompetitionOutcomeCelebration } from "./components/CompetitionOutcomeCelebration";
+import { SkeletonCard } from "./components/ui/BootstrapUI";
+import { CfopCloudSync } from "./features/profile/components/CfopCloudSync";
+import { CompetitionOutcomeCelebration } from "./features/competition/components/CompetitionOutcomeCelebration";
 const Home = lazy(() => import("./pages/Home"));
 const History = lazy(() => import("./pages/History"));
 const Profile = lazy(() => import("./pages/Profile"));

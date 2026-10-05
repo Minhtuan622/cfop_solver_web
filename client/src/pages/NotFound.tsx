@@ -1,5 +1,5 @@
 /** Bootstrap-native fallback page: concise, responsive, and consistent with the application shell. */
-import { AlertCircle, Home } from "@/components/BootstrapIcon";
+import { AlertCircle, Home } from "@/components/ui/BootstrapIcon";
 import { useLocation } from "wouter";
 
 export default function NotFound() {
