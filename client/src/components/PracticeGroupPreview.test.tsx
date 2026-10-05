@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { PracticeGroupPreview } from "./PracticeGroupPreview";
 
 describe("PracticeGroupPreview", () => {
@@ -14,5 +14,16 @@ describe("PracticeGroupPreview", () => {
     render(<PracticeGroupPreview state="invalid" label="Fallback" />);
 
     expect(screen.getByRole("img", { name: "Fallback: mặt trên 3x3" })).toBeTruthy();
+  });
+
+  it("opens from click and keyboard activation when interactive", () => {
+    const onClick = vi.fn();
+    render(<PracticeGroupPreview state="UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB" label="T" onClick={onClick} />);
+
+    const preview = screen.getByRole("button", { name: "Preview T" });
+    fireEvent.click(preview);
+    fireEvent.keyDown(preview, { key: "Enter" });
+
+    expect(onClick).toHaveBeenCalledTimes(2);
   });
 });

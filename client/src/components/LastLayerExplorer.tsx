@@ -1,5 +1,6 @@
 /** Xưởng Cơ Khí Tốc Độ — one last-layer catalog drawer, shared with the Study SRS store. */
 import { Dices, Search } from "@/components/BootstrapIcon";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/BootstrapDialog";
 import { PracticeGroupPreview } from "@/components/PracticeGroupPreview";
 import { useMemo, useState } from "react";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
@@ -23,6 +24,7 @@ export function LastLayerExplorer({ language, catalog, family, selectedCase, mas
   const [query, setQuery] = useState("");
   const [onlyUnmastered, setOnlyUnmastered] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [previewCase, setPreviewCase] = useState<LastLayerCatalogCase | null>(null);
   const groups = useMemo(() => Array.from(new Set(catalog.filter((item) => family === "all" || item.family === family).map((item) => item.group))).sort((a, b) => a.localeCompare(b)), [catalog, family]);
   const scoped = useMemo(() => catalog.filter((item) => {
     const matchesFamily = family === "all" || item.family === family;
@@ -48,6 +50,7 @@ export function LastLayerExplorer({ language, catalog, family, selectedCase, mas
     if (next.has(name)) next.delete(name); else next.add(name);
     return next;
   });
+  const selectCase = (catalogCase: LastLayerCatalogCase) => { onSelect(catalogCase); setPreviewCase(null); };
 
   return <section className="card">
     <div className="card-header d-flex flex-wrap align-items-center justify-content-between gap-2"><div><h2 className="h5 mb-0">Last Layer · Catalog</h2><small className="text-body-secondary">{vi ? "Tra cứu & chọn case" : "Browse & select cases"}</small></div><span className="badge text-bg-secondary">{masteredKeys.size}/{catalog.length} ✓</span></div>
@@ -64,11 +67,18 @@ export function LastLayerExplorer({ language, catalog, family, selectedCase, mas
           {expanded && <div className="card-body border-top"><div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">{item.items.map((catalogCase) => {
             const mastered = masteredKeys.has(keyOf(catalogCase));
             const active = selectedCase?.id === catalogCase.id && selectedCase?.family === catalogCase.family;
-            return <button key={`${catalogCase.family}:${catalogCase.id}`} type="button" onClick={() => onSelect(catalogCase)} className={`col card h-100 text-start p-0 ${active ? "border-primary" : ""}`} aria-label={vi ? `Chọn case ${catalogCase.id}` : `Select case ${catalogCase.id}`}><div className="card-body"><div className="d-flex justify-content-between align-items-start gap-2"><PracticeGroupPreview state={catalogCase.state} label={catalogCase.id} compact />{mastered && <span className={active ? "badge text-bg-primary" : "badge text-bg-success"}>✓</span>}</div><strong className="d-block mt-3">{catalogCase.id}</strong><small className="text-body-secondary d-block">{catalogCase.family.toUpperCase()} · {catalogCase.group}</small><code className="d-block small text-body-secondary text-truncate mt-2" title={catalogCase.algorithm}>{catalogCase.algorithm}</code></div></button>;
+            return <div key={`${catalogCase.family}:${catalogCase.id}`} className={`col`}><div className={`card h-100 ${active ? "border-primary" : ""}`}><div className="card-body"><div className="d-flex justify-content-between align-items-start gap-2"><PracticeGroupPreview state={catalogCase.state} label={catalogCase.id} compact onClick={() => setPreviewCase(catalogCase)} />{mastered && <span className={active ? "badge text-bg-primary" : "badge text-bg-success"}>✓</span>}</div><strong className="d-block mt-3">{catalogCase.id}</strong><small className="text-body-secondary d-block">{catalogCase.family.toUpperCase()} · {catalogCase.group}</small><code className="d-block small text-body-secondary text-truncate mt-2" title={catalogCase.algorithm}>{catalogCase.algorithm}</code><button type="button" onClick={() => selectCase(catalogCase)} className="btn btn-outline-primary btn-sm mt-3">{vi ? "Học case này" : "Study this case"}</button></div></div></div>;
           })}</div></div>}
         </div>;
       })}</div>
       <div className="list-group mt-3">{scoped.length ? scoped.slice(0, 48).map((item) => { const mastered = masteredKeys.has(keyOf(item)); const active = selectedCase?.id === item.id && selectedCase?.family === item.family; return <button key={`${item.family}:${item.id}`} type="button" onClick={() => onSelect(item)} className={active ? "list-group-item list-group-item-action active" : "list-group-item list-group-item-action"}><span className="d-flex justify-content-between align-items-center gap-2"><span><strong>{item.id}</strong><small className="d-block">{item.family.toUpperCase()} · {item.group}</small></span>{mastered && <span className={active ? "badge text-bg-light" : "badge text-bg-success"}>✓</span>}</span></button>; }) : <div className="alert alert-secondary mb-0">{vi ? "Không có case phù hợp bộ lọc." : "No cases match this filter."}</div>}</div>
     </div>
+    <Dialog open={Boolean(previewCase)} onOpenChange={(open) => { if (!open) setPreviewCase(null); }}>
+      <DialogContent>
+        <DialogHeader><div><DialogTitle>{previewCase ? `${previewCase.family.toUpperCase()} · ${previewCase.id}` : "Preview"}</DialogTitle><DialogDescription>{vi ? "Nhấp vào preview để xem lớn hơn. Đây là mặt U đại diện của case." : "Enlarged case preview. This shows the representative U face."}</DialogDescription></div><button type="button" className="btn-close" aria-label={vi ? "Đóng preview" : "Close preview"} onClick={() => setPreviewCase(null)} /></DialogHeader>
+        {previewCase && <div className="modal-body d-flex flex-column align-items-center gap-3 p-4"><PracticeGroupPreview state={previewCase.state} label={previewCase.id} /><div className="text-center"><strong>{previewCase.group}</strong><code className="d-block small text-body-secondary mt-2 text-break">{previewCase.algorithm}</code></div></div>}
+        <DialogFooter><button type="button" className="btn btn-outline-secondary" onClick={() => setPreviewCase(null)}>{vi ? "Đóng" : "Close"}</button>{previewCase && <button type="button" className="btn btn-primary" onClick={() => selectCase(previewCase)}>{vi ? "Học case này" : "Study this case"}</button>}</DialogFooter>
+      </DialogContent>
+    </Dialog>
   </section>;
 }
