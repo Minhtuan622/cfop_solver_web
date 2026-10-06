@@ -291,7 +291,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .cfop-auth-dialog > form {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cfop-auth-dialog > form > .modal-body {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@media (min-width: 576px) {
+  .cfop-auth-dialog-shell.modal-dialog-centered {
+    align-items: flex-start;
+    min-height: 0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
 }
 
 /* ---- Beginner hint banner ---- */
