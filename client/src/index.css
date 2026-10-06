@@ -281,6 +281,19 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--cfop-shadow-card);
 }
 
+.cfop-auth-dialog {
+  width: min(100%, 34rem);
+  margin-inline: auto;
+}
+
+.cfop-auth-dialog-shell {
+  max-width: 34rem;
+}
+
+.cfop-auth-dialog > form {
+  min-width: 0;
+}
+
 /* ---- Beginner hint banner ---- */
 .beginner-hint {
   background: var(--cfop-accent-soft);
@@ -588,6 +601,10 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1rem;
   }
 
+  .cfop-auth-dialog-shell {
+    max-width: none;
+  }
+}
   .cfop-toolbar,
   .cfop-action-row {
     gap: 0.4rem;
