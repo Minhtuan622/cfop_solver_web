@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { comparisonMessage, formatWcaTime, initials, rankSummary, wcaEventName } from "./profilePresentation";
+import { comparisonMessage, formatWcaTime, initials, rankSummary, wcaEventName } from "@/features/profile/lib/profilePresentation";
 
 describe("profilePresentation", () => {
   it("formats stable account and WCA labels", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { competitionEventLabel, competitionResultLabel, formatDescriptions, formatLabels } from "./competitionPresentation";
+import { competitionEventLabel, competitionResultLabel, formatDescriptions, formatLabels } from "@/features/competition/lib/competitionPresentation";
 
 describe("competitionPresentation", () => {
   it("keeps competition format labels and legacy event fallback", () => {

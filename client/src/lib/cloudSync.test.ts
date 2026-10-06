@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { emptyBldProfile } from "./bldProfile";
+import { emptyBldProfile } from "@/features/bld";
 import { mergeCfopCloudStates, type CfopCloudState } from "./cloudSync";
 import type { SolveHistoryEntry } from "./solveHistory";
 
