@@ -25,7 +25,7 @@ export function PracticeGroupPreview({ state, label, compact = false, onClick }:
       onKeyDown={handleKeyDown}
       title={interactive ? `Phóng to preview ${label}` : undefined}
       className={`${compact ? "d-flex flex-shrink-0 align-items-center justify-content-center rounded-2 bg-dark p-2" : "d-flex align-items-center justify-content-center rounded-2 bg-dark p-2"}${interactive ? " cursor-pointer" : ""}`}
-      style={{ width: compact ? "5.25rem" : "min(22rem, 100%)", height: compact ? "5.25rem" : "min(22rem, 100%)" }}
+      style={{ width: compact ? "5.25rem" : "min(22rem, 100%)", aspectRatio: "1" }}
     >
       <div className="ratio ratio-1x1 w-100" role="img" aria-label={`${label}: mặt trên 3x3`}>
         <div className="row row-cols-3 g-1 m-0 h-100">
