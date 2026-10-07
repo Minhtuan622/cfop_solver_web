@@ -288,17 +288,21 @@ h1, h2, h3, h4, h5, h6 {
 
 .cfop-auth-dialog-shell {
   max-width: 34rem;
+  height: auto;
+  min-height: 0;
 }
 
 .cfop-auth-dialog > form {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
 }
 
 .cfop-auth-dialog > form > .modal-body {
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
 }
