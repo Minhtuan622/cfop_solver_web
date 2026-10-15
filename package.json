@@ -12,7 +12,11 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:e2e": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium playwright test",
-    "db:push": "drizzle-kit generate && drizzle-kit migrate"
+    "db:push": "drizzle-kit generate && drizzle-kit migrate",
+    "db:setup": "node scripts/setup-local-db.mjs",
+    "db:stop": "docker compose -f compose.local.yaml down",
+    "db:reset": "docker compose -f compose.local.yaml down -v",
+    "db:logs": "docker compose -f compose.local.yaml logs -f database"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",

@@ -1,0 +1,22 @@
+services:
+  database:
+    image: mariadb:11.8
+    container_name: cfop-solver-db-local
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: cfop_solver
+      MARIADB_USER: cfop
+      MARIADB_PASSWORD: cfop_local
+      MARIADB_ROOT_PASSWORD: cfop_root_local
+    ports:
+      - "3307:3306"
+    volumes:
+      - cfop_solver_local_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u cfop -pcfop_local --silent"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  cfop_solver_local_db:

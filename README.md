@@ -93,7 +93,7 @@ Tạo `.env.local` cho local development. Không commit file này vào Git.
 ```dotenv
 NODE_ENV=development
 PORT=3000
-DATABASE_URL=mysql://username:password@127.0.0.1:3306/cfop_solver
+DATABASE_URL=mysql://cfop:cfop_local@127.0.0.1:3307/cfop_solver
 JWT_SECRET=replace-with-a-long-random-secret
 ```
 
@@ -143,7 +143,36 @@ VITE_FRONTEND_FORGE_API_KEY=
 
 Không tự đặt giá trị giả cho production. Auth Manus và account CFOP là hai ranh giới khác nhau; account CFOP dùng email/mật khẩu và bảng `cfop_*`, không dùng `openId` của Manus.
 
-## 6. Database và migration
+## 6. Database local nhanh bằng Docker
+
+Để tránh phải cài MySQL/MariaDB riêng trên cả macOS và Windows, môi trường phát triển dùng **MariaDB trong Docker Compose**. Schema và query vẫn giữ dialect MySQL hiện tại, vì vậy không tạo thêm nhánh SQLite khác với production.
+
+Yêu cầu duy nhất là [Docker Desktop](https://www.docker.com/products/docker-desktop/) đang chạy. Từ thư mục project, chạy:
+
+```bash
+pnpm install
+pnpm db:setup
+pnpm dev
+```
+
+`pnpm db:setup` sẽ tự động:
+
+1. Khởi động container MariaDB local trên `127.0.0.1:3307`.
+2. Tạo `.env.local` nếu chưa có và sinh `JWT_SECRET` ngẫu nhiên.
+3. Chờ database healthy.
+4. Sinh và áp dụng Drizzle migration.
+
+Dữ liệu được giữ trong Docker volume `cfop_solver_local_db`, nên có thể tắt/mở Docker Desktop mà không mất dữ liệu. Các lệnh hữu ích:
+
+```bash
+pnpm db:stop   # dừng container, giữ dữ liệu
+pnpm db:logs   # xem log MariaDB
+pnpm db:reset  # xóa container và toàn bộ database local rồi tạo lại
+```
+
+Không cần chạy các lệnh này trong production. Khi deploy production, chỉ cần cung cấp `DATABASE_URL` MySQL/TiDB thật và chạy migration theo quy trình backup/staging.
+
+## 7. Database và migration
 
 Schema nằm trong `drizzle/schema.ts`; migration SQL nằm trong `drizzle/`. Database hiện có các nhóm dữ liệu sau:
 
@@ -170,7 +199,7 @@ pnpm db:push
 
 `db:push` chạy `drizzle-kit generate && drizzle-kit migrate`. Trước migration production, hãy backup database, đọc SQL được sinh ra và chạy thử trên staging. Không dùng lệnh destructive hoặc tự động migration trong bước deploy nếu chưa có quy trình backup/rollback.
 
-## 7. Chạy development
+## 8. Chạy development
 
 ```bash
 pnpm dev
@@ -192,7 +221,7 @@ Các route chính:
 /wca           WCA competitions
 ```
 
-## 8. Scripts thường dùng
+## 9. Scripts thường dùng
 
 | Lệnh | Mục đích |
 |---|---|
@@ -236,7 +265,7 @@ pnpm build
 
 Không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`; đây là output được sinh từ solver source.
 
-## 9. Kiểm thử trước khi commit
+## 10. Kiểm thử trước khi commit
 
 Chạy tối thiểu:
 
@@ -252,7 +281,7 @@ Playwright dùng `playwright.config.ts`, tự khởi động hoặc tái sử d�
 
 Khi thay đổi schema, router hoặc Room state, cần bổ sung regression tương ứng trước khi chạy full suite. Khi thay đổi localStorage, phải giữ nguyên key/schema hiện hữu hoặc viết migration có test; không dùng `localStorage.clear()`.
 
-## 10. Persistence và dữ liệu người dùng
+## 11. Persistence và dữ liệu người dùng
 
 Các dữ liệu Timer, History, Settings, Study/SRS, mastered case và BLD profile được lưu local bằng các helper trong `client/src/lib/browserStorage.ts`. Helper này có guard cho SSR/private mode và giữ nguyên key/schema cũ.
 
@@ -263,7 +292,7 @@ Account CFOP lưu profile/session trong MySQL. Khi người dùng đăng nhập,
 3. Không thay đổi key localStorage, shape cloud payload hoặc version mà không có migration và regression.
 4. Trước migration database hoặc thay đổi sync, phải backup dữ liệu và kiểm tra conflict/last-write behavior.
 
-## 11. Build production và Railway
+## 12. Build production và Railway
 
 Build production:
 
@@ -292,7 +321,7 @@ restart: ON_FAILURE, tối đa 3 lần
 
 Khi deploy, cần khai báo secret/database trong dashboard của nhà cung cấp, không commit vào repository. Phải chạy production Node server; static host thuần như GitHub Pages hoặc Cloudflare Pages chỉ phù hợp cho `dist/public` nếu tách backend riêng, không đủ cho account, sync và Rooms.
 
-## 12. Cấu trúc thư mục bàn giao
+## 13. Cấu trúc thư mục bàn giao
 
 ```text
 cfop_solver_web/
@@ -345,7 +374,7 @@ cfop_solver_web/
 
 `server/_core/` là framework plumbing của template, gồm bootstrap, OAuth, Vite bridge, tRPC context và storage proxy. Không chỉnh sửa thư mục này trong feature work nếu chưa hiểu rõ contract runtime.
 
-## 13. Quy tắc phát triển an toàn
+## 14. Quy tắc phát triển an toàn
 
 Khi thêm tính năng, trước hết xác định module sở hữu state và data contract. Tách pure helper khỏi page/component lớn, tái sử dụng metadata trong `shared/` hoặc `client/src/lib/`, và giữ UI feature ở `components/`/`pages/` phù hợp.
 
@@ -353,7 +382,7 @@ Tất cả backend call phải đi qua tRPC hiện có; không thêm fetch/Axios
 
 Khi thay đổi solver, giữ invariant direct search: XCross đến XXXXCross chỉ được ghi nhận nếu chuỗi direct từ state ban đầu đồng thời đạt Cross và đủ slot mục tiêu. Khi thay đổi Timer/History, giữ event ID, storage key, penalty và format export hiện có.
 
-## 14. Chiến lược scale Rooms
+## 15. Chiến lược scale Rooms
 
 Rooms hiện là mô hình server-backed trong MySQL. State quan trọng gồm room, member, round, result, message và moderation log; presence hiện dựa trên `lastSeen` với cửa sổ online ngắn. Vì vậy, điểm nghẽn đầu tiên khi số người thi tăng thường là polling state, các lần cập nhật presence, query lặp lại theo room và kết nối database, không phải renderer 3D phía client.
 
@@ -393,7 +422,7 @@ CDN chỉ nên phục vụ static assets và chunk Cubing/Three.js. Lazy-load th
 
 Đừng sharding quá sớm. Với dữ liệu thi đấu cần tính toàn vẹn, một MySQL primary có index và transaction đúng thường dễ vận hành hơn nhiều database phân mảnh. Hãy load-test các flow `state → startRound → submit → state` bằng dữ liệu tổng hợp trước khi chọn ngưỡng scale thực tế.
 
-## 15. Tài liệu tham khảo kỹ thuật
+## 16. Tài liệu tham khảo kỹ thuật
 
 - [React documentation](https://react.dev/learn)
 - [Vite guide](https://vite.dev/guide/)
@@ -404,7 +433,7 @@ CDN chỉ nên phục vụ static assets và chunk Cubing/Three.js. Lazy-load th
 - [Railway configuration reference](https://docs.railway.com/config-as-code/reference)
 - [MySQL indexing documentation](https://dev.mysql.com/doc/refman/8.4/en/mysql-indexes.html)
 
-## 16. Checklist bàn giao
+## 17. Checklist bàn giao
 
 - [ ] Clone đúng repository và cài bằng `pnpm install --frozen-lockfile`.
 - [ ] Đã cấu hình `DATABASE_URL` và `JWT_SECRET` nếu dùng account/Rooms.
