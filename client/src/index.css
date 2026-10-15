@@ -1194,3 +1194,59 @@ h6 {
     transform: none;
   }
 }
+
+/* ---- Compact History page ---- */
+.history-page > .card > .card-header {
+  padding: 0.85rem 1.1rem;
+}
+
+.history-page > .card > .card-body {
+  padding: 1rem;
+}
+
+.history-metrics .card-body {
+  padding: 0.9rem 1rem;
+}
+
+.history-chart {
+  height: 14rem;
+}
+
+.history-filter-bar {
+  padding: 0.75rem;
+  margin: 0;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  background: var(--bs-tertiary-bg);
+}
+
+.history-solve-list .history-solve-row {
+  padding: 0.8rem 1rem;
+}
+
+.history-solve-row .font-monospace {
+  font-size: 0.84rem;
+}
+
+.history-solve-actions .btn,
+.history-solve-result strong {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 767.98px) {
+  .history-page > .card > .card-body {
+    padding: 0.75rem;
+  }
+
+  .history-chart {
+    height: 11rem;
+  }
+
+  .history-solve-list .history-solve-row {
+    padding: 0.75rem;
+  }
+
+  .history-solve-result {
+    margin-left: auto;
+  }
+}
