@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BoxArrowRight, PersonCircle } from "@/components/ui/BootstrapIcon";
 import {
   Dialog,
@@ -10,11 +10,22 @@ import {
 } from "@/components/ui/BootstrapDialog";
 import { trpc } from "@/lib/trpc";
 import { errorMessage, initials } from "@/features/profile";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 type AuthMode = "login" | "register";
+export type AccountNavItem = {
+  href: string;
+  label: string;
+  labelEn: string;
+  active: (path: string) => boolean;
+};
 
-export function CfopAccountControl() {
+type CfopAccountControlProps = {
+  navItems?: AccountNavItem[];
+  language?: "vi" | "en";
+};
+
+export function CfopAccountControl({ navItems = [], language = "vi" }: CfopAccountControlProps) {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -22,6 +33,9 @@ export function CfopAccountControl() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState("");
+  const [location] = useLocation();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const vi = language === "vi";
   const utils = trpc.useUtils();
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, {
     staleTime: 60_000,
@@ -57,10 +71,20 @@ export function CfopAccountControl() {
     setOpen(true);
   };
   const account = accountQuery.data;
+  const [path] = location.split("?");
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
+  }, [menuOpen]);
 
   if (account)
     return (
-      <div className="dropdown d-grid d-lg-block">
+      <div ref={menuRef} className="dropdown d-grid d-lg-block">
         <button
           type="button"
           className="btn btn-outline-secondary btn-sm dropdown-toggle d-inline-flex align-items-center justify-content-center"
@@ -94,6 +118,11 @@ export function CfopAccountControl() {
             className="dropdown-menu dropdown-menu-end show mt-2"
             role="menu"
           >
+            {navItems.map(item => {
+              const active = item.active(path);
+              return <li key={item.href}><Link href={item.href} role="menuitem" className={active ? "dropdown-item active py-2" : "dropdown-item py-2"} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)}>{vi ? item.label : item.labelEn}</Link></li>;
+            })}
+            {navItems.length ? <li><hr className="dropdown-divider" /></li> : null}
             <li>
               <Link
                 href="/profile"
@@ -130,14 +159,22 @@ export function CfopAccountControl() {
 
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-outline-secondary btn-sm"
-        onClick={() => show("login")}
-      >
-        <PersonCircle className="fs-6 me-1" />
-        Đăng nhập
-      </button>
+      <div ref={menuRef} className="dropdown d-grid d-lg-block">
+        <button type="button" className="btn btn-outline-secondary btn-sm dropdown-toggle" onClick={() => setMenuOpen(value => !value)} aria-expanded={menuOpen} aria-haspopup="menu" aria-controls="cfop-account-menu">
+          <PersonCircle className="fs-6 me-1" />
+          {vi ? "Đăng nhập" : "Sign in"}
+        </button>
+        {menuOpen ? (
+          <ul id="cfop-account-menu" className="dropdown-menu dropdown-menu-end show mt-2" role="menu">
+            {navItems.map(item => {
+              const active = item.active(path);
+              return <li key={item.href}><Link href={item.href} role="menuitem" className={active ? "dropdown-item active py-2" : "dropdown-item py-2"} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)}>{vi ? item.label : item.labelEn}</Link></li>;
+            })}
+            {navItems.length ? <li><hr className="dropdown-divider" /></li> : null}
+            <li><button type="button" role="menuitem" className="dropdown-item py-2" onClick={() => { setMenuOpen(false); show("login"); }}>{vi ? "Đăng nhập" : "Sign in"}</button></li>
+          </ul>
+        ) : null}
+      </div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader className="align-items-start gap-3">

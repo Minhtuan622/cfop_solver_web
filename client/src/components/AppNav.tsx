@@ -22,16 +22,13 @@ export function AppNav() {
   const [location] = useLocation();
   const { language } = useLanguage();
   const [expanded, setExpanded] = useState(false);
-  const [moreExpanded, setMoreExpanded] = useState(false);
   const vi = language === "vi";
   const [path] = location.split("?");
-  const secondaryActive = secondaryNavItems.some((item) => item.active(path));
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setExpanded(false);
-        setMoreExpanded(false);
       }
     };
     window.addEventListener("keydown", closeOnEscape);
@@ -40,7 +37,6 @@ export function AppNav() {
 
   const closeMenus = () => {
     setExpanded(false);
-    setMoreExpanded(false);
   };
 
   return (
@@ -59,19 +55,8 @@ export function AppNav() {
               const active = item.active(path);
               return <Link key={item.href} href={item.href} onClick={closeMenus} className={active ? "nav-link active" : "nav-link"} aria-current={active ? "page" : undefined}>{vi ? item.label : item.labelEn}</Link>;
             })}
-            <div className="nav-item dropdown">
-              <button type="button" className={secondaryActive ? "nav-link dropdown-toggle active" : "nav-link dropdown-toggle"} aria-expanded={moreExpanded} onClick={() => setMoreExpanded((value) => !value)}>
-                {vi ? "Thêm" : "More"}
-              </button>
-              <div className={moreExpanded ? "dropdown-menu dropdown-menu-end show" : "dropdown-menu dropdown-menu-end"}>
-                {secondaryNavItems.map((item) => {
-                  const active = item.active(path);
-                  return <Link key={item.href} href={item.href} onClick={closeMenus} className={active ? "dropdown-item active" : "dropdown-item"} aria-current={active ? "page" : undefined}>{vi ? item.label : item.labelEn}</Link>;
-                })}
-              </div>
-            </div>
             <div className="ms-lg-2 mt-2 mt-lg-0">
-              <CfopAccountControl />
+              <CfopAccountControl navItems={secondaryNavItems} language={language} />
             </div>
           </nav>
         </div>
