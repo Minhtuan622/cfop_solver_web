@@ -1,0 +1,16 @@
+{
+  "routes": [
+    { "path": "/", "title": "CFOP Solver Studio" },
+    { "path": "/timer", "title": "Timer" },
+    { "path": "/study", "title": "Study" },
+    { "path": "/settings", "title": "Settings" },
+    { "path": "/history", "title": "History" },
+    { "path": "/profile", "title": "Profile" },
+    { "path": "/rooms", "title": "Rooms" },
+    { "path": "/rooms/:code", "title": "Room" },
+    { "path": "/competition", "title": "Competition" },
+    { "path": "/competition/player/:accountId", "title": "Competition leaderboard" },
+    { "path": "/leaderboard", "title": "Leaderboard" },
+    { "path": "/wca", "title": "WCA competitions" }
+  ]
+}
