@@ -54,7 +54,8 @@ function isSecureRequest(req: Request) {
 }
 
 export function cfopAccountCookieOptions(req: Request) {
-  return { httpOnly: true, path: "/", sameSite: "lax" as const, secure: isSecureRequest(req), maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000 };
+  const secure = isSecureRequest(req);
+  return { httpOnly: true, path: "/", sameSite: secure ? ("none" as const) : ("lax" as const), secure, maxAge: SESSION_DAYS * 24 * 60 * 60 * 1000 };
 }
 
 export async function createCfopAccountBrowserSession(req: Request, res: Response, accountId: number) {
