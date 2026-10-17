@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_TIMER_EVENT, filterTimerEventEntries, isThreeByThreeEvent, isTimerEventId, normalizeTimerEventId, timerEventLabel, timerPreviewPuzzleId } from "./timerEvents";
+import { DEFAULT_TIMER_EVENT, filterTimerEventEntries, generateTimerScramble, isThreeByThreeEvent, isTimerEventId, normalizeTimerEventId, timerEventLabel, timerPreviewPuzzleId } from "./timerEvents";
 
 describe("timer events", () => {
   it("recognizes supported event IDs and defaults missing legacy history to 3×3", () => {
@@ -50,5 +50,11 @@ describe("timer events", () => {
     expect(timerPreviewPuzzleId("555bf")).toBe("5x5x5");
     expect(timerPreviewPuzzleId("666")).toBe("6x6x6");
     expect(timerPreviewPuzzleId("777")).toBe("7x7x7");
+  });
+
+  it("always returns a usable scramble for 3×3 modes", async () => {
+    const scramble = await generateTimerScramble("333");
+    expect(scramble.trim()).not.toBe("");
+    expect(scramble.split(/\s+/).length).toBeGreaterThanOrEqual(20);
   });
 });

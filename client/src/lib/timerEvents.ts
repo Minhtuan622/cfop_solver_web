@@ -1,4 +1,5 @@
 import { DEFAULT_TIMER_EVENT, TIMER_EVENTS, isTimerEventId, timerEventLabel, type TimerEventId } from "@shared/timerEvents";
+import { randomThreeByThreeScramble } from "./cubeScramble";
 
 export { DEFAULT_TIMER_EVENT, TIMER_EVENTS, isTimerEventId, timerEventLabel };
 export type { TimerEventId };
@@ -29,6 +30,13 @@ export function filterTimerEventEntries<T extends { eventId?: unknown }>(entries
 
 /** cubing.js generates random-state scrambles in a worker for official WCA event codes. */
 export async function generateTimerScramble(eventId: TimerEventId) {
-  const { randomScrambleForEvent } = await import("cubing/scramble");
-  return (await randomScrambleForEvent(eventId)).toString();
+  try {
+    const { randomScrambleForEvent } = await import("cubing/scramble");
+    return (await randomScrambleForEvent(eventId)).toString();
+  } catch (error) {
+    // Some production browsers block the cubing.js worker/module boot. Keep the
+    // timer usable for every 3×3 mode instead of clearing the active scramble.
+    if (isThreeByThreeEvent(eventId)) return randomThreeByThreeScramble();
+    throw error;
+  }
 }
