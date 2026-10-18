@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_TIMER_EVENT, filterTimerEventEntries, generateTimerScramble, isThreeByThreeEvent, isTimerEventId, normalizeTimerEventId, timerEventLabel, timerPreviewPuzzleId } from "./timerEvents";
+import { DEFAULT_TIMER_EVENT, fallbackTimerScramble, filterTimerEventEntries, generateTimerScramble, isThreeByThreeEvent, isTimerEventId, normalizeTimerEventId, timerEventLabel, timerPreviewPuzzleId } from "./timerEvents";
 
 describe("timer events", () => {
   it("recognizes supported event IDs and defaults missing legacy history to 3×3", () => {
@@ -56,5 +56,11 @@ describe("timer events", () => {
     const scramble = await generateTimerScramble("333");
     expect(scramble.trim()).not.toBe("");
     expect(scramble.split(/\s+/).length).toBeGreaterThanOrEqual(20);
+  });
+
+  it("has a non-empty local fallback for every event in the selector", () => {
+    for (const eventId of ["222", "333", "333oh", "333bf", "333fm", "333mbf", "444", "444bf", "555", "555bf", "666", "777", "pyram", "skewb", "minx", "fto", "sq1", "clock"] as const) {
+      expect(fallbackTimerScramble(eventId), eventId).not.toBe("");
+    }
   });
 });
