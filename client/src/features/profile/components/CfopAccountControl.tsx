@@ -172,6 +172,7 @@ export function CfopAccountControl({ navItems = [], language = "vi" }: CfopAccou
             })}
             {navItems.length ? <li><hr className="dropdown-divider" /></li> : null}
             <li><button type="button" role="menuitem" className="dropdown-item py-2" onClick={() => { setMenuOpen(false); show("login"); }}>{vi ? "Đăng nhập" : "Sign in"}</button></li>
+            <li><button type="button" role="menuitem" className="dropdown-item py-2" onClick={() => { setMenuOpen(false); show("register"); }}>{vi ? "Đăng ký" : "Create account"}</button></li>
           </ul>
         ) : null}
       </div>
