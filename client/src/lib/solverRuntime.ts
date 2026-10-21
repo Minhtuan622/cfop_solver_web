@@ -51,12 +51,6 @@ export function analyzeBldInBrowser(kind: "scramble" | "state", value: string): 
   return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve(result as BldResult), reject }));
 }
 
-export function getCaseStateInBrowser(setup: string): Promise<string> {
-  const id = nextId++;
-  getWorker().postMessage({ id, command: "case", value: setup });
-  return new Promise((resolve, reject) => pending.set(id, { resolve: (result) => resolve((result as { state: string }).state), reject }));
-}
-
 export function validateStateInBrowser(value: string): Promise<CubeValidation> {
   const id = nextId++;
   getWorker().postMessage({ id, command: "validate", value });

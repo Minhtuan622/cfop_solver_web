@@ -1,4 +1,4 @@
-import { effectiveTime, formatSolveTime, type SolveHistoryEntry, type SplitPhase } from "./solveHistory";
+import { effectiveTime, type SolveHistoryEntry, type SplitPhase } from "./solveHistory";
 import { rollingAverage } from "./timerRecords";
 
 export const TIMER_AVERAGE_SIZES = [5, 12, 50, 100] as const;
@@ -69,8 +69,4 @@ export function phaseTpsFromSolution(solution: string): PhaseTps[] {
     const item = buckets.get(phase);
     return item ? [{ phase, ...item, tps: item.moves / item.seconds }] : [];
   });
-}
-
-export function formatPhaseTarget(value: number | undefined) {
-  return value === undefined ? "—" : formatSolveTime(value);
 }

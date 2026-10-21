@@ -3,11 +3,12 @@ import { parse } from "cookie";
 import type { Request, Response } from "express";
 import type { CfopAccount } from "../../drizzle/schema";
 import { createCfopAccountSession, findCfopAccountBySessionHash, revokeCfopAccountSession } from "../db";
+import { isSecureRequest } from "../_core/cookies";
 
 const HASH_PREFIX = "scrypt";
 const HASH_PARAMS = { N: 16_384, r: 8, p: 1, keyLength: 64 };
 const SESSION_DAYS = 30;
-export const CFOP_ACCOUNT_COOKIE = "cfop_account_session";
+const CFOP_ACCOUNT_COOKIE = "cfop_account_session";
 
 export type PublicCfopAccount = Pick<CfopAccount, "id" | "email" | "displayName" | "bio" | "avatarUrl" | "goalMs" | "wcaId" | "createdAt" | "lastSignedIn">;
 
@@ -45,12 +46,6 @@ export async function verifyPassword(password: string, encoded: string) {
 
 export function hashSessionToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
-}
-
-function isSecureRequest(req: Request) {
-  if (req.protocol === "https") return true;
-  const forwarded = req.headers["x-forwarded-proto"];
-  return typeof forwarded === "string" && forwarded.split(",").some((value) => value.trim() === "https");
 }
 
 export function cfopAccountCookieOptions(req: Request) {
