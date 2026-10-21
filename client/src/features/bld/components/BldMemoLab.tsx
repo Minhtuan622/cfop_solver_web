@@ -1,12 +1,11 @@
 /* Xưởng Cơ Khí Tốc Độ — memo recall is a measured relay: prompt, conceal, self-grade, then schedule. */
 import { Eye, EyeOff, RotateCcw, Volume2, VolumeX } from "@/components/ui/BootstrapIcon";
 import { useEffect, useMemo, useState } from "react";
-import { dueMemoRecords, gradeMemo, type BldGrade, type BldMemoRecord, type BldProfile } from "@/features/bld";
+import { dueMemoRecords, gradeMemo, reviewedToday, type BldGrade, type BldMemoRecord, type BldProfile } from "@/features/bld";
 import type { BldResult } from "@/lib/solverRuntime";
 
 type Prompt = Pick<BldMemoRecord, "key" | "memo" | "kind">;
 function textForSpeech(memo: string, language: "vi" | "en") { return memo.split("").filter((letter) => letter !== "•").join(language === "vi" ? ", " : " "); }
-function reviewedToday(profile: BldProfile) { const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); return Object.values(profile.memoRecords).filter((record) => record.lastReviewedAt >= start).length; }
 
 export function BldMemoLab({ result, profile, onProfile, language }: { result: BldResult | null; profile: BldProfile; onProfile: (profile: BldProfile) => void; language: "vi" | "en" }) {
   const vi = language === "vi"; const [cursor, setCursor] = useState(0); const [revealed, setRevealed] = useState(false); const [audioError, setAudioError] = useState("");

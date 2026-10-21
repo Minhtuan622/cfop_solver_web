@@ -1,8 +1,8 @@
 import { ArrowLeft, BarChart3, Check, Clock3, Download, FileDown, FileUp, Pencil, Play, Search, Tag, Trash2 } from "@/components/ui/BootstrapIcon";
 import { Link } from "wouter";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { deleteSolveHistory, deleteSolveHistoryMany, effectiveTime, exportSolveHistory, formatSolveResult, formatSolveTime, importSolveHistory, readSolveHistory, type SolveHistoryEntry, type SolvePenalty, updateSolveHistory } from "@/lib/solveHistory";
-import { stateFromScramble, validateRecordedSolution } from "@/lib/fastCube";
+import { deleteSolveHistory, deleteSolveHistoryMany, effectiveTime, exportSolveHistory, formatSolveResult, formatSolveTime, importSolveHistory, initialStateFor, readSolveHistory, type SolveHistoryEntry, type SolvePenalty, updateSolveHistory } from "@/lib/solveHistory";
+import { validateRecordedSolution } from "@/lib/fastCube";
 import { MoveComposer } from "@/components/common/MoveComposer";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/BootstrapDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,7 +11,6 @@ import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";
 import { useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 
 function average(values: number[]) { return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0; }
-function initialStateFor(entry: SolveHistoryEntry) { return entry.inputKind === "state" && entry.input.length === 54 ? entry.input : stateFromScramble(entry.input); }
 
 export default function History() {
   const { language } = useLanguage();

@@ -1,9 +1,8 @@
 /* Bootstrap-only Study suggestion: rank actual due SRS prompts before upcoming prompts, with an honest empty state. */
-import { dueMemoRecords, type BldMemoRecord, type BldProfile } from "@/features/bld";
+import { dueMemoRecords, reviewedToday, type BldMemoRecord, type BldProfile } from "@/features/bld";
 import { useMemo } from "react";
 import { BldReviewStreak } from "@/features/bld";
 
-function reviewedToday(profile: BldProfile) { const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); return Object.values(profile.memoRecords).filter((record) => record.lastReviewedAt >= start).length; }
 function formatDue(record: BldMemoRecord, vi: boolean) { if (!record.dueAt) return vi ? "Sẵn sàng ôn" : "Ready to review"; const delta = record.dueAt - Date.now(); if (delta <= 0) return vi ? "Đến hạn" : "Due now"; const hours = Math.max(1, Math.ceil(delta / 3_600_000)); return vi ? `Sau khoảng ${hours} giờ` : `In about ${hours} hours`; }
 
 export function BldNextReview({ profile, language }: { profile: BldProfile; language: "vi" | "en" }) {
