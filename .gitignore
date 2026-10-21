@@ -101,6 +101,10 @@ jspm_packages/
 tmp/
 temp/
 
+# Playwright test artifacts
+test-results/
+playwright-report/
+
 # Database
 *.db
 *.sqlite
