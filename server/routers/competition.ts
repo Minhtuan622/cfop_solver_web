@@ -1,8 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
-import { buildCompetitionLeaderboard, compareCompetitionResults, competitionFormatScore, competitionRoundLimit, createCompetitionCode, createCompetitionScrambleBundle } from "../services/competition";
-import { createCompetitionMessage, createCompetitionModerationLog, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCompetitionSpectatorRemoved, startCompetitionRound, submitCompetitionResult, updateCompetitionMemberRole } from "../db";
+import { buildCompetitionLeaderboard, competitionRoundLimit, createCompetitionCode, createCompetitionScrambleBundle } from "../services/competition";
+import { createCompetitionMessage, createCompetitionModerationLog, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionResults, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCompetitionSpectatorRemoved, startCompetitionRound, submitCompetitionResult, updateCompetitionMemberRole } from "../db";
 import { isTimerEventId, DEFAULT_TIMER_EVENT } from "../../shared/timerEvents";
 import { multiBlindResult } from "../../shared/multiBlind";
 import { createRoomInput, leaderboardInput, memberTargetInput, messageInput, removeSpectatorInput, resultInput, roomCodeInput } from "./inputs";
