@@ -1,5 +1,5 @@
 /* Bootstrap-first full BLD library: fetches only when the learner opens the full catalog. */
-import { ChevronLeftIcon, ChevronRight, Loader2, Search } from "@/components/ui/BootstrapIcon";
+import { ChevronLeftIcon, ChevronRight, Search } from "@/components/ui/BootstrapIcon";
 import { SkeletonList } from "@/components/ui/BootstrapUI";
 import { loadFullBldCatalog, type BldCatalogCase, type BldCatalogGroup } from "@/features/bld";
 import type { StarterFormula } from "@/features/bld";
