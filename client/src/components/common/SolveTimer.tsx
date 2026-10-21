@@ -2,9 +2,7 @@
 /* Xưởng Cơ Khí Tốc Độ — timer là apparatus thao tác: mint chỉ báo arm, Space thả mới khởi động. */
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { SPLIT_PHASES, type SolvePhaseSplit, type SplitPhase } from "@/lib/solveHistory";
-
-function format(ms: number) { const total = Math.max(0, ms) / 1000; return `${Math.floor(total / 60).toString().padStart(2, "0")}:${Math.floor(total % 60).toString().padStart(2, "0")}.${Math.floor((total % 1) * 100).toString().padStart(2, "0")}`; }
+import { formatTimerReadout, SPLIT_PHASES, type SolvePhaseSplit, type SplitPhase } from "@/lib/solveHistory";
 
 export type TimerCompletion = { elapsedMs: number; inspectionMs: number; automaticPenalty: "none" | "+2" | "DNF"; phaseSplits: SolvePhaseSplit[] };
 
@@ -59,7 +57,7 @@ export function SolveTimer({ onComplete, soundEnabled = true, splitEnabled = fal
     return () => { window.removeEventListener("keydown", onKeyDown); window.removeEventListener("keyup", onKeyUp); window.removeEventListener("blur", onWindowBlur); };
   });
   const isInspection = mode === "inspection";
-  const readout = isInspection ? format(inspectionRemaining) : format(elapsed);
+  const readout = isInspection ? formatTimerReadout(inspectionRemaining) : formatTimerReadout(elapsed);
   const inspectionPenalty = penaltyForInspection(inspectionElapsed);
   const helper = isInspection ? (inspectionPenalty === "DNF" ? labels.inspectionDnf : inspectionPenalty === "+2" ? labels.inspectionPlusTwo : "") : "";
   return <section onPointerDown={touchStart} onPointerUp={touchEnd} onPointerCancel={() => { armedRef.current = false; setArmed(false); }} className={`card card-body text-center ${isInspection ? "border-warning" : ""} ${armed ? "border-primary" : ""}`} aria-live="polite"><div className="d-flex flex-column align-items-center justify-content-center gap-3"><p className="display-4 font-monospace fw-bold mb-0">{readout}</p>{!inspectionEnabled && <button type="button" onClick={toggle} className={mode === "running" ? "btn btn-outline-danger" : "btn btn-primary"}>{mode === "running" ? (language === "vi" ? "Dừng" : "Stop") : (language === "vi" ? "Bắt đầu" : "Start")}</button>}</div>{armed && <div className="mt-3 small fw-semibold text-primary">{labels.armed}</div>}{isInspection && <p className="mt-3 mb-0 small text-body-secondary">{labels.cancelInspection}</p>}{splitEnabled && mode === "running" && <div className="mt-4 d-flex flex-wrap align-items-center justify-content-center gap-2 border-top pt-3 small"><span className="fw-semibold text-primary">{labels.split}</span><span className="text-body-secondary">{labels.next}</span><span className="badge text-bg-secondary">{splitPhases[splitIndex] ?? splitPhases.at(-1) ?? "—"}</span><span className="text-body-secondary">{phaseSplits.current.map((split) => split.phase).join(" · ") || "—"}</span></div>}{helper && <div className="alert alert-warning py-2 px-3 mt-3 mb-0 text-start">{helper}</div>}</section>;

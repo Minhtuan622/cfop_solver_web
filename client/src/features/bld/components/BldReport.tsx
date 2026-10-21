@@ -3,7 +3,7 @@ import { ExternalLink, Link2, ShieldCheck, X } from "@/components/ui/BootstrapIc
 import { SkeletonList } from "@/components/ui/BootstrapUI";
 import { useEffect, useMemo, useState } from "react";
 import { Link as RouteLink } from "wouter";
-import { preferenceKey, setPreferredAlgorithm, type BldProfile } from "@/features/bld";
+import { firstCatalogAlgorithm, preferenceKey, setPreferredAlgorithm, type BldProfile } from "@/features/bld";
 import type { BldResult } from "@/lib/solverRuntime";
 
 type Catalog = Record<string, string>;
@@ -21,8 +21,7 @@ const TWIST_ORDER = ["UFL", "UBL", "UBR", "UFR", "DFL", "DBL", "DBR", "DFR"];
 const TWIST_CODE: Record<string, Record<"cw" | "ccw", string>> = { UFR: { cw: "L", ccw: "K" }, UBR: { cw: "I", ccw: "H" }, UFL: { cw: "C", ccw: "B" }, UBL: { cw: "F", ccw: "E" }, DFR: { cw: "Z", ccw: "Y" }, DBR: { cw: "T", ccw: "S" }, DFL: { cw: "N", ccw: "M" }, DBL: { cw: "Q", ccw: "P" } };
 
 function sourceToSpeffz(kind: "edge" | "corner") { const map = new Map<string, string>(); POSITIONS.forEach((position, index) => { if (position.length === (kind === "edge" ? 2 : 3) && CHICHU[index] !== " ") map.set(CHICHU[index], SPEFFZ[index]); }); return (key: string) => Array.from(key, (letter) => map.get(letter) ?? letter).join(""); }
-function firstAlgorithm(value: unknown): string | undefined { if (typeof value === "string" && value.trim()) return value; if (Array.isArray(value)) { for (const item of value) { const algorithm = firstAlgorithm(item); if (algorithm) return algorithm; } } return undefined; }
-function parseCatalog(raw: Record<string, unknown>, convert?: (key: string) => string): Catalog { return Object.fromEntries(Object.entries(raw).map(([key, variants]) => [convert ? convert(key) : key, firstAlgorithm(variants)]).filter((entry): entry is [string, string] => typeof entry[1] === "string")); }
+function parseCatalog(raw: Record<string, unknown>, convert?: (key: string) => string): Catalog { return Object.fromEntries(Object.entries(raw).map(([key, variants]) => [convert ? convert(key) : key, firstCatalogAlgorithm(variants)]).filter((entry): entry is [string, string] => typeof entry[1] === "string")); }
 function algorithmText(algorithm: string | undefined, loading: boolean, failed: boolean, vi: boolean) { return algorithm ?? (failed ? (vi ? "Không tải được catalog runtime." : "Runtime catalog unavailable.") : loading ? (vi ? "Đang đối chiếu catalog…" : "Matching catalog…") : (vi ? "Chưa có exact match trong catalog." : "No exact catalog match.")); }
 
 function MemoTokens({ title, memo, buffer }: { title: string; memo: string[]; buffer: string }) { return <section className="col-12 col-lg-6"><div className="card bg-body-tertiary h-100"><div className="card-body"><div className="d-flex justify-content-between align-items-center"><h3 className="h6 mb-0">{title}</h3><span className="badge text-bg-secondary">Buffer {buffer}</span></div><div className="d-flex flex-wrap gap-1 mt-3">{memo.length ? memo.map((pair, index) => <span key={`${pair}-${index}`} className="badge text-bg-light border font-monospace">{pair}</span>) : <span className="text-body-secondary">Solved</span>}</div></div></div></section>; }

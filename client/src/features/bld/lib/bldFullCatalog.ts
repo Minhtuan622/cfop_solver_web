@@ -12,6 +12,22 @@ function nestedAlgorithms(value: unknown) {
   return value.flatMap((variant) => Array.isArray(variant) && Array.isArray(variant[0]) ? variant[0].filter((item): item is string => typeof item === "string" && Boolean(item.trim())) : []);
 }
 function directAlgorithms(value: unknown) { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string" && Boolean(item.trim())) : []; }
+
+/**
+ * Picks the first usable algorithm out of a BLDDB entry.
+ *
+ * A catalog entry holds either one algorithm or a list of variants, so the
+ * first non-empty string is the one the drill and the report both display.
+ */
+export function firstCatalogAlgorithm(value: unknown): string | undefined {
+  if (typeof value === "string") return value.trim() ? value.trim() : undefined;
+  if (!Array.isArray(value)) return undefined;
+  for (const item of value) {
+    const algorithm = firstCatalogAlgorithm(item);
+    if (algorithm) return algorithm;
+  }
+  return undefined;
+}
 function toCases(raw: RawCatalog, group: BldCatalogGroup, kind: BldCatalogKind, nested: boolean): BldCatalogCase[] {
   return Object.entries(raw).map(([key, value]) => ({
     group,
