@@ -10,7 +10,6 @@ import type { BldResult } from "@/lib/solverRuntime";
 
 type CatalogEntry = { key: string; algorithm: string; kind: BldDrillKind };
 type RawCatalog = Record<string, unknown>;
-const V2 = "https://raw.githubusercontent.com/nbwzx/blddb/v2/public/data/";
 const MAIN = "https://raw.githubusercontent.com/nbwzx/blddb/main/assets/json/";
 const labels: Record<BldDrillKind, { vi: string; en: string; noteVi: string; noteEn: string }> = {
   parity: { vi: "Một mảnh bị lẻ", en: "One odd piece", noteVi: "Đây là tình huống có một lần đổi chỗ lẻ; bạn sẽ gặp nó trong một số lượt giải bịt mắt.", noteEn: "This is an odd swap situation that appears in some blindfolded solves." },

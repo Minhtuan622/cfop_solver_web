@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { buildCompetitionLeaderboard, compareCompetitionResults, competitionFormatScore, competitionRoundLimit, type CompetitionFormat } from "../services/competition";
+import { compareCompetitionResults, competitionFormatScore, competitionRoundLimit, type CompetitionFormat } from "../services/competition";
 import { findCompetitionMember, findCompetitionRoomByCode, findLatestCompetitionModerationLog, getCompetitionActiveRound, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listFinishedCompetitionRoomsForAccount, touchCompetitionMember } from "../db";
 
 type CompetitionResultRow = Awaited<ReturnType<typeof listCompetitionResults>>[number];

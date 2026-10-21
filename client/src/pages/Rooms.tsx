@@ -7,12 +7,10 @@ import {
 import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
 import { SystemLeaderboard } from "@/features/competition";
 import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
-import { formatSolveTime } from "@/lib/solveHistory";
 import {
   DEFAULT_TIMER_EVENT,
   TIMER_EVENTS,
   isTimerEventId,
-  timerEventLabel,
   type TimerEventId,
 } from "@/lib/timerEvents";
 import {
@@ -21,7 +19,6 @@ import {
   competitionResultLabel,
   formatDescriptions,
   formatLabels,
-  type CompetitionPenalty,
   type RoomFormat,
 } from "@/features/competition";
 import {
@@ -40,7 +37,6 @@ import {
   DialogTitle,
 } from "@/components/ui/BootstrapDialog";
 
-type Penalty = CompetitionPenalty;
 type PendingSolve = Pick<
   TimerCompletion,
   "elapsedMs" | "inspectionMs" | "automaticPenalty"

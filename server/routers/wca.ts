@@ -1,5 +1,4 @@
 import { TRPCError } from "@trpc/server";
-import { z } from "zod";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
 import { getWcaCompetitions, getWcaCountries, getWcaProfile, normalizeWcaId, WcaApiError } from "../services/wcaApi";
 import { beginWcaOAuth, wcaOAuthConfigured, WcaOAuthError } from "../services/wcaOAuth";
