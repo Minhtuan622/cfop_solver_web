@@ -6,10 +6,23 @@ import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPa
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../services/cfopPasswordResetMail";
 import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
 import { getSessionCookieOptions } from "../_core/cookies";
-import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
+import { cfopAccountProcedure, publicProcedure, rateLimitMiddleware, router } from "../_core/trpc";
 import { storagePut } from "../services/storage";
 import { accountWcaRouter } from "./wca";
 import { avatarInput, cloudStateInput, credentialsInput, passwordInput, profileInput } from "./inputs";
+
+/**
+ * Rate limit bucket subject for the email based auth endpoints.
+ *
+ * The address is normalized so `A@x.com` and `a@x.com` share one bucket.
+ * Anything that is not a usable email falls back to the address alone, which
+ * the limiter already mixes into the key.
+ */
+function emailSubject(input: unknown) {
+  const email = (input as { email?: unknown } | null)?.email;
+  if (typeof email !== "string" || !email.trim()) return "";
+  return normalizeEmail(email);
+}
 
 function validateCloudPayload(payload: unknown) {
   const size = Buffer.byteLength(JSON.stringify(payload), "utf8");
@@ -30,14 +43,14 @@ function validateAvatarBytes(data: string, contentType: "image/jpeg" | "image/pn
 
 export const accountRouter = router({
   me: publicProcedure.query(async ({ ctx }) => ctx.cfopAccount ? findCfopAccountPublicById(ctx.cfopAccount.id) : null),
-  register: publicProcedure.input(credentialsInput.extend({ displayName: z.string().trim().min(2, "Tên hiển thị cần ít nhất 2 ký tự.").max(80) })).mutation(async ({ ctx, input }) => {
+  register: publicProcedure.input(credentialsInput.extend({ displayName: z.string().trim().min(2, "Tên hiển thị cần ít nhất 2 ký tự.").max(80) })).use(rateLimitMiddleware("register", (input) => emailSubject(input))).mutation(async ({ ctx, input }) => {
     const email = normalizeEmail(input.email);
     if (await findCfopAccountByEmail(email)) throw new TRPCError({ code: "CONFLICT", message: "Email này đã có tài khoản CFOP." });
     const account = await createCfopAccount({ email, displayName: input.displayName, passwordHash: await hashPassword(input.password) });
     await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
     return findCfopAccountPublicById(account.id);
   }),
-  login: publicProcedure.input(credentialsInput).mutation(async ({ ctx, input }) => {
+  login: publicProcedure.input(credentialsInput).use(rateLimitMiddleware("login", (input) => emailSubject(input))).mutation(async ({ ctx, input }) => {
     const account = await findCfopAccountByEmail(normalizeEmail(input.email));
     if (!account || !(await verifyPassword(input.password, account.passwordHash))) throw new TRPCError({ code: "UNAUTHORIZED", message: "Email hoặc mật khẩu không đúng." });
     await markCfopAccountSignedIn(account.id);
@@ -65,7 +78,7 @@ export const accountRouter = router({
     await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
     return { success: true } as const;
   }),
-  requestPasswordReset: publicProcedure.input(z.object({ email: z.string().trim().email("Email không hợp lệ.").max(320) })).mutation(async ({ input }) => {
+  requestPasswordReset: publicProcedure.input(z.object({ email: z.string().trim().email("Email không hợp lệ.").max(320) })).use(rateLimitMiddleware("requestPasswordReset", (input) => emailSubject(input))).mutation(async ({ input }) => {
     const account = await findCfopAccountByEmail(normalizeEmail(input.email));
     if (account && passwordResetEmailConfigured()) {
       const rawToken = randomBytes(32).toString("base64url");
@@ -74,7 +87,7 @@ export const accountRouter = router({
     }
     return { success: true, emailConfigured: passwordResetEmailConfigured() } as const;
   }),
-  resetPassword: publicProcedure.input(z.object({ token: z.string().min(32).max(160), newPassword: passwordInput })).mutation(async ({ ctx, input }) => {
+  resetPassword: publicProcedure.input(z.object({ token: z.string().min(32).max(160), newPassword: passwordInput })).use(rateLimitMiddleware("resetPassword", () => "")).mutation(async ({ ctx, input }) => {
     const account = await consumeCfopPasswordResetToken(hashSessionToken(input.token), await hashPassword(input.newPassword));
     if (!account) throw new TRPCError({ code: "BAD_REQUEST", message: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn." });
     await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
