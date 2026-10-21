@@ -1,6 +1,5 @@
-import { systemRouter } from "./_core/systemRouter";
 import { router } from "./_core/trpc";
-import { accountRouter, authRouter } from "./routers/account";
+import { accountRouter } from "./routers/account";
 import { competitionRouter } from "./routers/competition";
 import { wcaRouter } from "./routers/wca";
 
@@ -9,8 +8,6 @@ import { wcaRouter } from "./routers/wca";
  * preserves the public API tree consumed by the frontend and server adapter.
  */
 export const appRouter = router({
-  system: systemRouter,
-  auth: authRouter,
   cfopAccount: accountRouter,
   wca: wcaRouter,
   competition: competitionRouter,

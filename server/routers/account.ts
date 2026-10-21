@@ -1,11 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
-import { COOKIE_NAME } from "../../shared/const";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "../services/cfopAccountAuth";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../services/cfopPasswordResetMail";
 import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
-import { getSessionCookieOptions } from "../_core/cookies";
 import { cfopAccountProcedure, publicProcedure, rateLimitMiddleware, router } from "../_core/trpc";
 import { storagePut } from "../services/storage";
 import { accountWcaRouter } from "./wca";
@@ -94,9 +92,4 @@ export const accountRouter = router({
     return findCfopAccountPublicById(account.id);
   }),
   wca: accountWcaRouter,
-});
-
-export const authRouter = router({
-  me: publicProcedure.query(opts => opts.ctx.user),
-  logout: publicProcedure.mutation(({ ctx }) => { const cookieOptions = getSessionCookieOptions(ctx.req); ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 }); return { success: true } as const; }),
 });

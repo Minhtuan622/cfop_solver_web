@@ -3,7 +3,6 @@ import express from "express";
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { registerWcaOAuthRoutes } from "../services/wcaOAuthRoutes";
 import { appRouter } from "../routers";
@@ -42,7 +41,6 @@ async function startServer() {
     res.status(200).json({ ok: true });
   });
   registerStorageProxy(app);
-  registerOAuthRoutes(app);
   registerWcaOAuthRoutes(app);
   // tRPC API
   app.use(

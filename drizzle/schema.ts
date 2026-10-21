@@ -1,17 +1,4 @@
-import { index, int, json, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
-
-/** Existing platform-auth user table. CFOP email/password accounts intentionally do not use this table. */
-export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
-  name: text("name"),
-  email: varchar("email", { length: 320 }),
-  loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
-});
+import { index, int, json, mysqlEnum, mysqlTable, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 /** Native CFOP account. It is deliberately separate from Manus/OAuth users. */
 export const cfopAccounts = mysqlTable("cfop_accounts", {
@@ -137,8 +124,6 @@ export const cfopCompetitionMessages = mysqlTable("cfop_competition_messages", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => [index("cfop_competition_messages_room_created_idx").on(table.roomId, table.createdAt), index("cfop_competition_messages_account_idx").on(table.accountId)]);
 
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
 export type CfopAccount = typeof cfopAccounts.$inferSelect;
 export type InsertCfopAccount = typeof cfopAccounts.$inferInsert;
 export type CfopAccountCloudState = typeof cfopAccountCloudStates.$inferSelect;

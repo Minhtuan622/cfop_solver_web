@@ -9,7 +9,6 @@ describe("database domain composition", () => {
   it("keeps the legacy db.ts import boundary intact", () => {
     expect(db.getDb).toBe(core.getDb);
     expect(db.requireDb).toBe(core.requireDb);
-    expect(db.upsertUser).toBe(core.upsertUser);
     expect(db.findCfopAccountByEmail).toBe(account.findCfopAccountByEmail);
     expect(db.findCfopAccountPublicById).toBe(account.findCfopAccountPublicById);
     expect(db.findCfopAccountWcaById).toBe(account.findCfopAccountWcaById);

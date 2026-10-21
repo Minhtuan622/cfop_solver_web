@@ -94,10 +94,9 @@ Tạo `.env.local` cho local development. Không commit file này vào Git.
 NODE_ENV=development
 PORT=3000
 DATABASE_URL=mysql://cfop:cfop_local@127.0.0.1:3307/cfop_solver
-JWT_SECRET=replace-with-a-long-random-secret
 ```
 
-`DATABASE_URL` và `JWT_SECRET` cần thiết cho account CFOP, cloud sync, profile và Rooms. Luồng solver, Timer và History local có thể chạy mà không cần database, nhưng các route server vẫn nên được kiểm tra với cấu hình đầy đủ.
+`DATABASE_URL` cần thiết cho account CFOP, cloud sync, profile và Rooms. Luồng solver, Timer và History local có thể chạy mà không cần database, nhưng các route server vẫn nên được kiểm tra với cấu hình đầy đủ. Account CFOP dùng `scrypt` để băm mật khẩu và SHA-256 cho session token nên **không cần secret nào** — không có `JWT_SECRET` trong cấu hình.
 
 ### 5.2. WCA OAuth tùy chọn
 
@@ -158,7 +157,7 @@ pnpm dev
 `pnpm db:setup` sẽ tự động:
 
 1. Khởi động container MariaDB local trên `127.0.0.1:3307`.
-2. Tạo `.env.local` nếu chưa có và sinh `JWT_SECRET` ngẫu nhiên.
+2. Tạo `.env.local` nếu chưa có với `DATABASE_URL` trỏ vào container local.
 3. Chờ database healthy.
 4. Sinh và áp dụng Drizzle migration.
 
@@ -436,7 +435,7 @@ CDN chỉ nên phục vụ static assets và chunk Cubing/Three.js. Lazy-load th
 ## 17. Checklist bàn giao
 
 - [ ] Clone đúng repository và cài bằng `pnpm install --frozen-lockfile`.
-- [ ] Đã cấu hình `DATABASE_URL` và `JWT_SECRET` nếu dùng account/Rooms.
+- [ ] Đã cấu hình `DATABASE_URL` nếu dùng account/Rooms.
 - [ ] Đã chạy migration trên database staging trước production.
 - [ ] `pnpm check` đạt.
 - [ ] `pnpm test` đạt.

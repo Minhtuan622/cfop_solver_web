@@ -1,4 +1,3 @@
-import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from '@shared/const';
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { clientAddress, RateLimiter, type RateLimitRule } from "../infrastructure/rateLimit";
@@ -87,43 +86,9 @@ export function rateLimitMiddleware<TAction extends AuthRateLimitAction>(action:
   });
 }
 
-const requireUser = t.middleware(async opts => {
-  const { ctx, next } = opts;
-
-  if (!ctx.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
-  }
-
-  return next({
-    ctx: {
-      ...ctx,
-      user: ctx.user,
-    },
-  });
-});
-
-export const protectedProcedure = t.procedure.use(requireUser);
-
 export const cfopAccountProcedure = t.procedure.use(
   t.middleware(async ({ ctx, next }) => {
     if (!ctx.cfopAccount) throw new TRPCError({ code: "UNAUTHORIZED", message: "CFOP_ACCOUNT_REQUIRED" });
     return next({ ctx: { ...ctx, cfopAccount: ctx.cfopAccount } });
-  }),
-);
-
-export const adminProcedure = t.procedure.use(
-  t.middleware(async opts => {
-    const { ctx, next } = opts;
-
-    if (!ctx.user || ctx.user.role !== 'admin') {
-      throw new TRPCError({ code: "FORBIDDEN", message: NOT_ADMIN_ERR_MSG });
-    }
-
-    return next({
-      ctx: {
-        ...ctx,
-        user: ctx.user,
-      },
-    });
   }),
 );

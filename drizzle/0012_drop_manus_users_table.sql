@@ -1,0 +1,14 @@
+-- Intentionally empty.
+--
+-- The Manus `users` table was removed from `drizzle/schema.ts` because the
+-- Manus OAuth session layer it belonged to is no longer part of the app. The
+-- CFOP account system (`cfop_accounts` and friends) never read from it.
+--
+-- This migration deliberately does NOT drop the physical table. The schema
+-- snapshot no longer contains `users`, so drizzle-kit will not try to drop it
+-- again on any future `drizzle-kit generate`; the table simply stays in the
+-- database as an inert leftover, and no data is lost.
+--
+-- If you ever want the physical table gone, drop it by hand:
+--
+--   DROP TABLE `users`;

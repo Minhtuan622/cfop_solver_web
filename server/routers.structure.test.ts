@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import { accountRouter, authRouter } from "./routers/account";
+import { accountRouter } from "./routers/account";
 import { competitionRouter } from "./routers/competition";
 import { wcaRouter } from "./routers/wca";
 
@@ -31,14 +31,11 @@ describe("domain router composition", () => {
     ]);
     expect(Object.keys(competitionRouter._def.procedures).sort()).toHaveLength(18);
     expect(Object.keys(wcaRouter._def.procedures).sort()).toEqual(["competitions", "countries"]);
-    expect(Object.keys(authRouter._def.procedures).sort()).toEqual(["logout", "me"]);
   });
 
   it("preserves the public tRPC namespace consumed by the frontend", () => {
-    expect(Object.keys(appRouter._def.record).sort()).toEqual(["auth", "cfopAccount", "competition", "system", "wca"]);
+    expect(Object.keys(appRouter._def.record).sort()).toEqual(["cfopAccount", "competition", "wca"]);
     expect(procedureKeys(appRouter as typeof appRouter)).toEqual(expect.arrayContaining([
-      "auth.logout",
-      "auth.me",
       "cfopAccount.login",
       "cfopAccount.wca.profile",
       "competition.leaderboard",

@@ -85,6 +85,13 @@
       "when": 1787752797847,
       "tag": "0011_dry_harry_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1792626807989,
+      "tag": "0012_drop_manus_users_table",
+      "breakpoints": true
     }
   ]
 }

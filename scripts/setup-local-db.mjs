@@ -1,4 +1,3 @@
-import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -31,7 +30,6 @@ function ensureEnv() {
   const current = existsSync(envFile) ? readFileSync(envFile, "utf8") : "";
   const additions = [];
   if (!/^DATABASE_URL=/m.test(current)) additions.push(`DATABASE_URL=${databaseUrl}`);
-  if (!/^JWT_SECRET=/m.test(current)) additions.push(`JWT_SECRET=${randomBytes(32).toString("hex")}`);
   if (!/^NODE_ENV=/m.test(current)) additions.push("NODE_ENV=development");
   if (!/^PORT=/m.test(current)) additions.push("PORT=3000");
   if (additions.length) writeFileSync(envFile, `${current.trimEnd()}${current.trimEnd() ? "\n" : ""}${additions.join("\n")}\n`);
