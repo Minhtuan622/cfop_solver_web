@@ -2,7 +2,7 @@ import { ArrowLeft, BarChart3, Check, Clock3, Download, FileDown, FileUp, Pencil
 import { Link } from "wouter";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { deleteSolveHistory, deleteSolveHistoryMany, effectiveTime, exportSolveHistory, formatSolveResult, formatSolveTime, importSolveHistory, readSolveHistory, type SolveHistoryEntry, type SolvePenalty, updateSolveHistory } from "@/lib/solveHistory";
-import { SOLVED_FAST_STATE, stateFromScramble, validateRecordedSolution } from "@/lib/fastCube";
+import { stateFromScramble, validateRecordedSolution } from "@/lib/fastCube";
 import { MoveComposer } from "@/components/common/MoveComposer";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/BootstrapDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
