@@ -1,8 +1,9 @@
 export type SolvePenalty = "none" | "+2" | "DNF";
-import { readStoredJson, removeStoredValue, writeStoredValue } from "./browserStorage";
+import { readStoredJson, writeStoredValue } from "./browserStorage";
 import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
 import { formatMultiBlindTime, multiBlindResult, type MultiBlindAttempt } from "./multiBlind";
 import { normalizeTimerEventId, type TimerEventId } from "./timerEvents";
+import { stateFromScramble } from "./fastCube";
 
 export const SPLIT_PHASES = ["Cross", "F2L", "OLL", "PLL"] as const;
 export type SplitPhase = (typeof SPLIT_PHASES)[number];
@@ -94,7 +95,6 @@ export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt
 export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
 export function deleteSolveHistory(id: string): SolveHistoryEntry[] { const next = readSolveHistory().filter((entry) => entry.id !== id); write(next); return next; }
 export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry[] { const selected = new Set(ids); const next = readSolveHistory().filter((entry) => !selected.has(entry.id)); write(next); return next; }
-export function clearSolveHistory() { removeStoredValue(KEY); notifyCfopCloudStateChanged(); }
 export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
   const raw = Array.isArray(payload) ? payload : payload && typeof payload === "object" && Array.isArray((payload as { entries?: unknown }).entries) ? (payload as { entries: unknown[] }).entries : null;
   if (!raw) throw new Error("Invalid backup");
@@ -105,6 +105,14 @@ export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
 export function exportSolveHistory() { return { schema: "cfop-solver-timer-history", version: 2, exportedAt: new Date().toISOString(), entries: readSolveHistory() }; }
 export function effectiveTime(entry: SolveHistoryEntry): number | null { return entry.penalty === "DNF" ? null : entry.elapsedMs + (entry.penalty === "+2" ? 2000 : 0); }
 export function formatSolveTime(ms: number) { const total = ms / 1000; return `${Math.floor(total / 60).toString().padStart(2, "0")}:${Math.floor(total % 60).toString().padStart(2, "0")}.${Math.floor((total % 1) * 100).toString().padStart(2, "0")}`; }
+/**
+ * Formats a running timer readout.
+ *
+ * Unlike `formatSolveTime`, a negative duration is clamped to zero: the live
+ * readout never shows a negative time, not even for the frame between a clock
+ * adjustment and the next animation tick.
+ */
+export function formatTimerReadout(ms: number) { return formatSolveTime(Math.max(0, ms)); }
 export function formatSolveResult(entry: SolveHistoryEntry) {
   const time = effectiveTime(entry);
   if (entry.multiBlind) {
@@ -113,4 +121,14 @@ export function formatSolveResult(entry: SolveHistoryEntry) {
     return time === null || !result.valid ? `DNF · ${summary}` : summary;
   }
   return time === null ? "DNF" : `${formatSolveTime(time)}${entry.penalty === "+2" ? "+" : ""}`;
+}
+
+/**
+ * Resolves the cube state a solve started from.
+ *
+ * A solve is stored either as a scramble or as a full state, so the state is
+ * only replayed when the entry already carries one.
+ */
+export function initialStateFor(entry: SolveHistoryEntry) {
+  return entry.inputKind === "state" && entry.input.length === 54 ? entry.input : stateFromScramble(entry.input);
 }

@@ -1,6 +1,12 @@
 import type { CookieOptions, Request } from "express";
 
-function isSecureRequest(req: Request) {
+/**
+ * Tells whether the request reached the app over https.
+ *
+ * The app runs behind a proxy, so the scheme is read from the forwarded
+ * protocol header when the socket itself is not secure.
+ */
+export function isSecureRequest(req: Request) {
   if (req.protocol === "https") return true;
 
   const forwardedProto = req.headers["x-forwarded-proto"];

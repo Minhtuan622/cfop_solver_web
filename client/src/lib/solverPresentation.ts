@@ -1,23 +1,6 @@
-import type { CrossColor, F2LSlot, LastLayerMode, OpeningMode, SolverResult } from "./solverRuntime";
+import type { F2LSlot, LastLayerMode, OpeningMode, SolverResult } from "./solverRuntime";
 import { downloadFile } from "./browserDownload";
 
-export { downloadFile as saveBlob } from "./browserDownload";
-
-export const PHASE_COLORS: Record<string, string> = {
-  cross: "phase-badge-cross",
-  xcross_FR: "phase-badge-opening", xcross_FL: "phase-badge-opening", xcross_BL: "phase-badge-opening", xcross_BR: "phase-badge-opening",
-  xxcross_FR_FL: "phase-badge-opening", xxcross_FR_BL: "phase-badge-opening", xxcross_FR_BR: "phase-badge-opening", xxcross_FL_BL: "phase-badge-opening", xxcross_FL_BR: "phase-badge-opening", xxcross_BL_BR: "phase-badge-opening",
-  xxxcross_FR_FL_BL: "phase-badge-opening", xxxcross_FR_FL_BR: "phase-badge-opening", xxxcross_FR_BL_BR: "phase-badge-opening", xxxcross_FL_BL_BR: "phase-badge-opening",
-  xxxxcross_FR_FL_BL_BR: "phase-badge-opening",
-  f2l_FR: "phase-badge-f2l-fr", f2l_FL: "phase-badge-f2l-fl", f2l_BL: "phase-badge-f2l-bl", f2l_BR: "phase-badge-f2l-br",
-  oll: "phase-badge-oll", pll: "phase-badge-pll", zbll: "phase-badge-zbll", "1lll": "phase-badge-1lll",
-};
-
-export const CROSS_COLORS: { value: CrossColor; vi: string; en: string; hex: string }[] = [
-  { value: "U", vi: "Trắng", en: "White", hex: "#f7f3e9" }, { value: "D", vi: "Vàng", en: "Yellow", hex: "#e7c34f" },
-  { value: "F", vi: "Xanh lá", en: "Green", hex: "#1ba77a" }, { value: "B", vi: "Xanh dương", en: "Blue", hex: "#3b6fc7" },
-  { value: "R", vi: "Đỏ", en: "Red", hex: "#d95743" }, { value: "L", vi: "Cam", en: "Orange", hex: "#ed8e42" },
-];
 export const F2L_SLOTS: F2LSlot[] = ["FR", "FL", "BL", "BR"];
 export const OPENING_OPTIONS: { value: OpeningMode; vi: string; en: string; compact: string }[] = [
   { value: "cross", vi: "Cross chuẩn", en: "Standard Cross", compact: "CROSS" }, { value: "auto", vi: "XCross · Cross + 1 F2L", en: "XCross · Cross + 1 F2L", compact: "XCROSS" },

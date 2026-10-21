@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { CROSS_COLORS, F2L_SLOTS, LAST_LAYER_OPTIONS, OPENING_OPTIONS, lastLayerModeLabel, openingModeLabel, phaseLessonUrl, phaseStudyNote } from "./solverPresentation";
+import { F2L_SLOTS, LAST_LAYER_OPTIONS, OPENING_OPTIONS, lastLayerModeLabel, openingModeLabel, phaseLessonUrl, phaseStudyNote } from "./solverPresentation";
 
 describe("solverPresentation", () => {
-  it("keeps the six selectable Cross colors and four F2L slot identifiers", () => {
-    expect(CROSS_COLORS.map((color) => color.value)).toEqual(["U", "D", "F", "B", "R", "L"]);
+  it("keeps the four F2L slot identifiers and the selectable opening modes", () => {
     expect(F2L_SLOTS).toEqual(["FR", "FL", "BL", "BR"]);
     expect(OPENING_OPTIONS.map((option) => option.value)).toContain("xxxxcross");
     expect(LAST_LAYER_OPTIONS.map((option) => option.value)).toContain("1lll");

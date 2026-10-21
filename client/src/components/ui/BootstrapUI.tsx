@@ -96,30 +96,5 @@ export function RefreshIndicator({ label = "Đang cập nhật" }: { label?: str
   return <span className="d-inline-flex align-items-center gap-2 small text-body-secondary" role="status" aria-live="polite"><span className="spinner-border spinner-border-sm" aria-hidden="true" />{label}</span>;
 }
 
-export function SkeletonChart({ height = "18rem", label = "Đang tải biểu đồ" }: { height?: string; label?: string }) {
-  return (
-    <div className="border rounded p-3 placeholder-glow text-body-secondary" style={{ height }} role="status" aria-label={label}>
-      <div className="h-100 d-flex flex-column justify-content-between">
-        <span className="placeholder col-3" />
-        <span className="placeholder col-12" style={{ height: "65%" }} />
-        <span className="placeholder col-5" />
-      </div>
-      <span className="visually-hidden">{label}</span>
-    </div>
-  );
-}
 
-export function FieldGroup({ id, label, hint, error, children }: { id: string; label: string; hint?: string; error?: string; children: ReactNode }) {
-  return (
-    <div className="mb-3">
-      <label className="form-label" htmlFor={id}>{label}</label>
-      {children}
-      {error ? <div id={`${id}-error`} className="invalid-feedback d-block">{error}</div> : null}
-      {!error && hint ? <div id={`${id}-hint`} className="form-text">{hint}</div> : null}
-    </div>
-  );
-}
 
-export function BeginnerHint({ children }: { children: ReactNode }) {
-  return <div className="beginner-hint p-3 small mb-0">{children}</div>;
-}

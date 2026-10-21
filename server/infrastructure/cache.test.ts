@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { TtlCache, cacheKey } from "./services/cache";
+import { TtlCache, cacheKey } from "./cache";
 
 describe("TtlCache", () => {
   it("deduplicates concurrent loads and reuses the value until expiry", async () => {

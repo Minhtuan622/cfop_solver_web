@@ -1,7 +1,7 @@
 export type AvatarCropPlacement = { x: number; y: number; zoom: number };
 
 export const AVATAR_CROP_FRAME = 280;
-export const AVATAR_OUTPUT_SIZE = 512;
+const AVATAR_OUTPUT_SIZE = 512;
 
 function clamp(value: number, minimum: number, maximum: number) { return Math.min(maximum, Math.max(minimum, value)); }
 

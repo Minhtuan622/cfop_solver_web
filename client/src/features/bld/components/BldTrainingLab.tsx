@@ -5,7 +5,7 @@
 import { Eye, EyeOff, RefreshCw } from "@/components/ui/BootstrapIcon";
 import { SkeletonCard } from "@/components/ui/BootstrapUI";
 import { useEffect, useMemo, useState } from "react";
-import { gradeMemo, preferenceKey, recordDrillAttempt, type BldDrillKind, type BldProfile } from "@/features/bld";
+import { firstCatalogAlgorithm, gradeMemo, preferenceKey, recordDrillAttempt, type BldDrillKind, type BldProfile } from "@/features/bld";
 import type { BldResult } from "@/lib/solverRuntime";
 
 type CatalogEntry = { key: string; algorithm: string; kind: BldDrillKind };
@@ -16,8 +16,7 @@ const labels: Record<BldDrillKind, { vi: string; en: string; noteVi: string; not
   flip: { vi: "Hai cạnh bị lật", en: "Two flipped edges", noteVi: "Đây là tình huống hai cạnh quay sai hướng cùng lúc.", noteEn: "This is when two edges are flipped at the same time." },
   twist: { vi: "Một góc bị xoay", en: "One twisted corner", noteVi: "Đây là tình huống một góc quay sai hướng.", noteEn: "This is when one corner is twisted the wrong way." },
 };
-function firstAlgorithm(value: unknown): string | undefined { if (typeof value === "string" && value.trim()) return value.trim(); if (Array.isArray(value)) { for (const item of value) { const found = firstAlgorithm(item); if (found) return found; } } return undefined; }
-function entries(raw: RawCatalog, kind: BldDrillKind): CatalogEntry[] { return Object.entries(raw).map(([key, value]) => ({ key, algorithm: firstAlgorithm(value) ?? "", kind })).filter((item) => item.algorithm).slice(0, 360); }
+function entries(raw: RawCatalog, kind: BldDrillKind): CatalogEntry[] { return Object.entries(raw).map(([key, value]) => ({ key, algorithm: firstCatalogAlgorithm(value) ?? "", kind })).filter((item) => item.algorithm).slice(0, 360); }
 
 export function BldTrainingLab({ result, profile, onProfile, language }: { result: BldResult | null; profile: BldProfile; onProfile: (profile: BldProfile) => void; language: "vi" | "en" }) {
   const vi = language === "vi";
