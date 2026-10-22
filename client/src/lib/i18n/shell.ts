@@ -77,6 +77,11 @@ export const shellWords: Dictionary = {
     "You need to sign in to do this.",
   ],
 
+  "language.change": ["Đổi ngôn ngữ", "Change the language"],
+  "language.label": ["Ngôn ngữ", "Language"],
+  "language.vietnamese": ["Tiếng Việt", "Vietnamese"],
+  "language.english": ["Tiếng Anh", "English"],
+
   "notFound.title": ["Không tìm thấy trang", "Page Not Found"],
   "notFound.detail": [
     "Rất tiếc, trang bạn tìm không tồn tại. Có thể nó đã được chuyển hoặc xóa.",

@@ -6,6 +6,8 @@
     <script>
       // Apply the saved theme before the first paint, so a visitor who chose the
       // dark palette never sees a white flash while the bundle is still loading.
+      // The saved language is applied the same way, so screen readers start in
+      // the right language instead of the one the markup was written in.
       (function () {
         try {
           var stored = window.localStorage.getItem("cfop-theme");
@@ -13,6 +15,8 @@
             ? stored
             : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
           document.documentElement.dataset.bsTheme = theme;
+          var language = window.localStorage.getItem("cfop-language");
+          document.documentElement.lang = language === "en" ? "en" : "vi";
         } catch (error) {
           document.documentElement.dataset.bsTheme = "light";
         }

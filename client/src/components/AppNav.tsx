@@ -4,6 +4,7 @@ import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CfopAccountControl, type AccountNavItem } from "@/features/profile";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 /**
  * Every route of the app lives in the navbar. The account dropdown only holds
@@ -57,6 +58,7 @@ export function AppNav() {
               return <Link key={item.href} href={item.href} onClick={closeMenus} className={active ? "nav-link active" : "nav-link"} aria-current={active ? "page" : undefined}>{t(item.labelKey)}</Link>;
             })}
             <div className="d-flex align-items-center gap-2 ms-lg-2 mt-2 mt-lg-0">
+              <LanguageSwitcher />
               <ThemeSwitcher />
               <CfopAccountControl />
             </div>

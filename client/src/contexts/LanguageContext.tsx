@@ -1,5 +1,5 @@
 /** The bilingual vocabulary of the CFOP Solver Studio interface. */
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { translate, type Language, type WordParams } from "@/lib/i18n";
 
 export type { Language };
@@ -27,6 +27,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored === "en" ? "en" : "vi";
   });
+
+  // The document language follows the interface, so a screen reader reads the
+  // page with the right voice instead of the one the markup was written in.
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   const value = useMemo<LanguageValue>(
     () => ({
       language,

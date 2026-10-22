@@ -60,6 +60,7 @@ export const Square = icon("square");
 export const SunFill = icon("sun-fill");
 export const Tag = icon("tag");
 export const Timer = icon("stopwatch");
+export const Translate = icon("translate");
 export const TimerReset = icon("stopwatch");
 export const Trash2 = icon("trash3");
 export const Trophy = icon("trophy");
