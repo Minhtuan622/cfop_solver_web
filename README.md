@@ -42,6 +42,7 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 | `features/profile/` | Điều khiển tài khoản, dropdown, hộp thoại đăng nhập/đăng ký, biểu đồ tiến bộ, cloud sync. |
 | `features/puzzle-3d/` | Canvas 3D, toán camera, framing theo puzzle, hình học Square-1/Clock. |
 | `features/solver/` | Báo cáo CFOP và thẻ số liệu của trang Giải Rubik. |
+| `features/settings/` | Nhóm cài đặt, panel theo nhóm và state tự lưu của trang Cài đặt. |
 | `features/competition/` | Bộ lọc bảng xếp hạng, lễ kỳ hoàn thành phòng, bảng xếp hạng toàn hệ thống. |
 | `features/bld/`, `features/last-layer/` | Catalog 3-Style, lộ trình học, bảng Last Layer. |
 
@@ -85,6 +86,8 @@ Component trình bày dùng chung nằm ở `client/src/components/ui/`. Dùng l
 | `SkeletonCard`, `SkeletonList`, `SkeletonTable` | Trạng thái loading. |
 | `Dialog` + `DialogContent/Header/Title/Description/Footer` | Hộp thoại theo WAI-ARIA dialog pattern. |
 | `ConfirmDialog` | Xác nhận thay cho `window.confirm`. |
+| `Dropdown` | Menu thả xuống dùng chung (`role="menu"`, đóng bằng Escape và bấm ra ngoài). |
+| `Switch` | Công tắc bật/tắt (`role="switch"`) kèm nhãn và phần giải thích. |
 
 Quy tắc khi viết primitive:
 
@@ -107,6 +110,26 @@ Một convention duy nhất: **`t("namespace.key")`**.
 ### Thông báo
 
 `sonner` là toast service duy nhất, mount một lần qua `<AppToaster />` trong `AppShell`. Màu toast được tie vào Bootstrap token trong `index.css` nên đọc đúng ở cả hai palette. Không tự dựng banner toast trong page.
+
+### Điều hướng
+
+Navbar theo phong cách **tối giản**: chỉ những gì cần để biết "mình đang ở đâu" và "chuyển sang đâu".
+
+- **4 route dùng hằng ngày** nằm trực tiếp trên thanh: Giải · Bấm giờ · Kết quả · Học thêm.
+- **4 route còn lại** (Thi đấu, Xếp hạng, Giải WCA, Cài đặt) nằm trong menu **“Thêm”** ngay trên thanh — không giấu sau avatar, nên vẫn tới được khi chưa đăng nhập.
+- Nút **ngôn ngữ** và **giao diện** chỉ còn **một biểu tượng** (`aria-label` vẫn đầy đủ cho screen reader); tên hiện tại hiện ở dạng đầy đủ trong trang Cài đặt.
+- Nút tài khoản hiện avatar, chỉ hiện **tên bị cắt 10 ký tự** từ `xl` trở lên; `aria-label` là tên đầy đủ nên locator E2E `getByRole("button", { name: displayName })` vẫn khớp.
+- Menu nào cũng dùng chung primitive `Dropdown` (`components/ui/Dropdown.tsx`) — `role="menu"`, `menuitem`/`menuitemradio`, đóng bằng Escape và bấm ra ngoài.
+
+### Trang cài đặt
+
+Trang Cài đặt chia theo **nhóm** thay vì một dải cài đặt dài:
+
+- Danh sách nhóm là `role="tablist"` (`features/settings/components/SettingsGroupTabs.tsx`), mỗi nhóm một `role="tabpanel"`; **chỉ một panel hiện tại một lúc**, điều hướng bằng phím mũi tên.
+- Bốn nhóm: **Lời giải** (solver) · **Bấm giờ** (timer) · **Học tập** (study) · **Giao diện** (appearance).
+- Mọi thay đổi vẫn **tự lưu** (debounce 350 ms) — xem `features/settings/lib/useSettingsState.ts`; trạng thái lưu nằm ở `actions` của `PageHeader`.
+- Giải thích dài được **gập lại** trong `<details class="cfop-settings-note">` thay vì để nguyên một khối màu xanh.
+- Nút “Khôi phục mặc định” hạ xuống thành **link** dưới danh sách nhóm, không còn nút lớn ở giữa trang.
 
 ## 3. Yêu cầu môi trường
 
@@ -397,7 +420,7 @@ cfop_solver_web/
 │   ├── index.html
 │   └── src/
 │       ├── components/       # AppNav, Bootstrap UI, Cube/3D, Account, Study, Rooms...
-│       ├── features/         # Feature boundary: timer, rooms, profile, puzzle-3d, solver, bld, competition
+│       ├── features/         # Feature boundary: timer, rooms, profile, puzzle-3d, solver, settings, bld, competition
 │       ├── contexts/         # Language/theme và context dùng chung
 │       ├── hooks/             # React hooks dùng chung
 │       ├── lib/               # persistence, solver, scramble, analytics, download, presentation

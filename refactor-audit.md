@@ -145,3 +145,29 @@ Nhánh `refactor/round-3-uiux`, 3 commit, **11 file, +800 / −90 dòng**. Hai v
 **Một test đang chập chờn được sửa.** `timerEvents.test.ts` đòi scramble 3×3 có ít nhất 20 nước, nhưng cubing.js sinh scramble ngẫu nhiên 17–21 nước (đo 300 lần: 17×1, 18×4, 19×15, 20×83, 21×197) — test fail khoảng 1 lần trong 20. Mốc hạ xuống 17 (scramble 17 nước vẫn xáo đủ).
 
 **Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **69 file / 234 test** đạt; production build đạt; Playwright 2 kịch bản đạt. Ngoài ra đã chạy trình duyệt thật: đổi sang tiếng Anh thì navbar đổi hết (Solve / Timer / History / Study / Rooms / Rankings / WCA / Settings), `<html lang>` đổi theo, tải lại vẫn giữ, đổi lại tiếng Việt thì trở về nguyên trạng, và trang cài đặt dịch theo; không có lỗi console.
+
+## Đợt 5: thiết kế lại navbar và trang cài đặt
+
+Nhánh `redesign/settings-navbar`, 27 file, **+917 / −219 dòng**. Yêu cầu: navbar gọn gàng theo phong cách tối giản, không lộ liễu nhiều thông tin lên giao diện; trang cài đặt được thiết kế lại từ đầu. **URL, route, contract tRPC, persistence key và locator E2E không đổi.**
+
+**Navbar.** Trước đây thanh điều hướng để tên brand ("Giải Rubik") trùng với mục "Giải Rubik" của trang chính, và bốn route còn lại nằm dạng chữ trần rải rác cùng nhóm nút. Nay:
+
+- **4 route dùng hằng ngày** nằm trực tiếp trên thanh — Giải · Bấm giờ · Kết quả · Học thêm.
+- **4 route còn lại** (Thi đấu, Xếp hạng, Giải WCA, Cài đặt) nằm trong menu **"Thêm"** ngay trên thanh (`components/NavOverflowMenu.tsx`). Menu nằm trong navbar chứ không giấu sau avatar, nên vẫn tới được khi chưa đăng nhập.
+- Nút **ngôn ngữ** và **giao diện** thu gọn còn **một biểu tượng** (`compact`), accessible name giữ nguyên nên screen reader vẫn đọc được. Trang cài đặt vẫn hiện tên đầy đủ.
+- Nút tài khoản chỉ hiện **avatar** dưới `xl`; từ `xl` trở lên hiện thêm tên bị cắt ở 10 ký tự. `aria-label` là tên đầy đủ nên locator E2E `getByRole("button", { name: displayName })` vẫn khớp chính xác.
+- `nav.solve` đổi từ "Giải Rubik" thành "Giải" để không lặp với brand.
+
+**Một primitive dropdown dùng chung.** `components/ui/Dropdown.tsx` gom phần plumbing đã lặp ở bảy chỗ: `role="menu"` + `aria-expanded`/`aria-haspopup`/`aria-controls`, đóng bằng **Escape** và bấm ra ngoài, tự đóng sau khi chọn. `LanguageSwitcher`, `ThemeSwitcher` và menu "Thêm" nay dùng chung nó; mỗi menu vẫn có `menuLabel` riêng để không mất nhãn.
+
+**Trang cài đặt.** Trước đây là ba section `accordion` dài, phần giải thích dài hơn phần điều khiển, và mọi thay đổi phải nhìn vào một khối text. Nay:
+
+- Danh sách **4 nhóm** là `role="tablist"` (`features/settings/components/SettingsGroupTabs.tsx`) — Lời giải · Bấm giờ · Học tập · Giao diện — mỗi nhóm một `role="tabpanel"`, **chỉ một panel hiện tại một lúc**, có `roving tabindex` và điều hướng bằng phím mũi tên.
+- Bốn panel nằm trong feature mới `client/src/features/settings/` (`SolverSettingsGroup`, `TimerSettingsGroup`, `StudySettingsGroup`, `AppearanceSettingsGroup`); state và cơ chế tự lưu (debounce 350 ms) gom vào `lib/useSettingsState.ts`. Trang `pages/Settings.tsx` còn lại đúng phần shell.
+- Khối giải thích màu xanh về direct Opening (một `<aside class="alert alert-info">` riêng bên cạnh) được **gập lại** trong `<details class="cfop-settings-note">`; "Khôi phục mặc định" hạ xuống thành link dưới danh sách nhóm; trạng thái tự lưu chuyển vào `actions` của `PageHeader` với `role="status"`.
+- Nhóm **Giao diện** gom ngôn ngữ và theme. Trước đó ngôn ngữ nằm lẫn trong nhóm "Học tập" còn theme chỉ nằm ở navbar, nên không có chỗ nào gom hai thứ quyết định cách nhìn giao diện lại với nhau.
+- Switch dùng primitive `Switch` (`role="switch"`) mới trong `BootstrapUI.tsx` thay cho component `Switch` chỉ dùng trong trang này.
+
+**Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **72 file / 246 test** đạt (thêm `Dropdown.test.tsx`, `AppNav.test.tsx` viết lại, `Settings.test.tsx`, `features/settings/index.test.ts`); production build đạt; Playwright 2 kịch bản đạt (`account-sync-competition`, `lazy-3d-loading`). Ngoài ra đã chạy trình duyệt thật trên **bản production build**: không có lỗi trang, biểu tượng Bootstrap Icons hiện đúng (font được phát ra `/assets/bootstrap-icons-*.woff2`), menu "Thêm" mở đúng vị trí, trang cài đặt hiện đúng một panel mỗi lần, và bố cục 420 px không tràn ngang.
+
+> Lưu ý khi chạy dev server **trong worktree tạm**: `node_modules` là symlink sang repo chính nên Vite chặn đường dẫn font nằm trong thư mục `.pnpm` (403 → biểu tượng hiện thành ô vuông). Đây là hiện tượng của `server.fs.deny` trong Vite dev, **không phải hồi quy** — bản production build phát font đúng và hiển thị chuẩn.
