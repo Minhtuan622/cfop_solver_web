@@ -3,7 +3,7 @@ import { Cube3DGuide } from "@/components/common/Cube3DGuide";
 import { SOLVED_FAST_STATE, stateFromScramble } from "@/lib/fastCube";
 import { timerPreviewPuzzleId, type TimerEventId } from "@/lib/timerEvents";
 
-const Puzzle3DCanvas = lazy(async () => ({ default: (await import("@/components/common/Puzzle3DCanvas")).Puzzle3DCanvas }));
+const Puzzle3DCanvas = lazy(async () => ({ default: (await import("@/features/puzzle-3d/components/Puzzle3DCanvas")).Puzzle3DCanvas }));
 
 export function puzzleScramblePreviewConfig(eventId: TimerEventId, scramble: string) {
   const puzzle = timerPreviewPuzzleId(eventId);

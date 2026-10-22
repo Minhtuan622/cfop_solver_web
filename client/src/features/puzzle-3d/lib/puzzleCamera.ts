@@ -1,7 +1,7 @@
 import type { PuzzleId } from "./puzzleIds";
 
 export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
-export type Point = { x: number; y: number };
+export type PointerPoint = { x: number; y: number };
 
 export const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
 const FTO_HORIZONTAL_YAW_LIMIT = 1.35;
@@ -54,7 +54,7 @@ export function inertiaStepForPuzzle(puzzle: PuzzleId, orbit: PuzzleOrbit, veloc
   return inertiaStep(orbit, velocity);
 }
 
-export function gapBetween([first, second]: Point[]) { return Math.hypot(first.x - second.x, first.y - second.y); }
+export function gapBetween([first, second]: PointerPoint[]) { return Math.hypot(first.x - second.x, first.y - second.y); }
 
 export function defaultPuzzleCamera(puzzle: PuzzleId) {
   if (puzzle === "megaminx") return { fov: 29, distance: 6.1, height: "18rem" };

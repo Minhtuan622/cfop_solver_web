@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent, type WheelEvent } from "react";
 import type { Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
-import { isSideEvent3DPuzzle, type FtoTeachingFace, type PuzzleId } from "@/features/puzzle-3d/lib/puzzleIds";
+import { isSideEvent3DPuzzle, type FtoTeachingFace, type PuzzleId } from "../lib/puzzleIds";
 import {
   clampDistance,
   defaultPuzzleCamera,
@@ -9,16 +9,16 @@ import {
   gapBetween,
   inertiaStepForPuzzle,
   orbitFromPuzzleDrag,
-  type Point,
-} from "@/features/puzzle-3d/lib/puzzleCamera";
+  type PointerPoint,
+} from "../lib/puzzleCamera";
 import {
   focusActualFtoFace,
   puzzleInitialOrbit,
   puzzlePreviewBaseRoll,
   puzzlePreviewDistance,
   puzzlePreviewSetupAlgorithm,
-} from "@/features/puzzle-3d/lib/puzzleFraming";
-import type { SideEvent3DAnimation } from "@/features/puzzle-3d/lib/sideEventAnimation";
+} from "../lib/puzzleFraming";
+import type { SideEvent3DAnimation } from "../lib/sideEventAnimation";
 
 type PuzzlePlayer = HTMLElement & {
   puzzle: PuzzleId;
@@ -52,7 +52,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
   const dragRef = useRef<{ x: number; y: number; yaw: number; pitch: number; lastX: number; lastY: number; lastAt: number; moved: boolean } | null>(null);
   const orbitRef = useRef({ yaw: -0.55, pitch: 0.32, distance: 5.4 });
   const targetDistanceRef = useRef(5.4);
-  const pointersRef = useRef(new Map<number, Point>());
+  const pointersRef = useRef(new Map<number, PointerPoint>());
   const pinchRef = useRef<{ gap: number; distance: number } | null>(null);
   const zoomFrameRef = useRef<number | null>(null);
   const inertiaFrameRef = useRef<number | null>(null);
@@ -77,7 +77,7 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
       if (disposed) return;
       let puzzleObject: Object3D;
       if (isSideEvent3DPuzzle(puzzle)) {
-        const [three, { sideEvent3DAnimation }] = await Promise.all([import("three"), import("@/features/puzzle-3d/lib/sideEventAnimation")]);
+        const [three, { sideEvent3DAnimation }] = await Promise.all([import("three"), import("../lib/sideEventAnimation")]);
         THREE = three;
         sideEventAnimation = await sideEvent3DAnimation(THREE, puzzle, scramble);
         puzzleObject = sideEventAnimation.object;
