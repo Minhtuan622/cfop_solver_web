@@ -73,7 +73,7 @@ export function StudyCasePanel({
     <section className="card cfop-card-surface h-100" aria-label={t("study.caseLabel")}>
       <div className="cfop-solver-panel__header">
         <div className="cfop-solver-panel__heading">
-          <p className="cfop-solver-eyebrow mb-1">{t("study.queueLabel")}</p>
+          <p className="cfop-solver-eyebrow mb-1">{t("study.caseLabel")}</p>
           <h2 className="h5 mb-0">
             {activeCase.family.toUpperCase()} · {activeCase.group} · {activeCase.id}
           </h2>
