@@ -35,6 +35,18 @@ CFOP Solver Studio là ứng dụng web hỗ trợ giải, luyện tập và thi
 
 Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, state orchestration và kết nối tRPC; các component có tính trình bày hoặc thuộc một feature cụ thể nên đặt trong `client/src/features/<feature>/` và được xuất qua `index.ts`. Ví dụ, `client/src/features/timer/` chứa các metric card và dòng lịch sử Timer, trong khi `TimerLab.tsx` chỉ điều phối state và nghiệp vụ.
 
+| Feature | Phạm vi |
+|---|---|
+| `features/timer/` | Metric card và dòng lịch sử của Timer. |
+| `features/rooms/` | Lobby, danh sách thành viên, panel lượt thi, sidebar và hộp thoại xoá spectator. |
+| `features/profile/` | Điều khiển tài khoản, dropdown, hộp thoại đăng nhập/đăng ký, biểu đồ tiến bộ, cloud sync. |
+| `features/puzzle-3d/` | Canvas 3D, toán camera, framing theo puzzle, hình học Square-1/Clock. |
+| `features/solver/` | Báo cáo CFOP và thẻ số liệu của trang Giải Rubik. |
+| `features/competition/` | Bộ lọc bảng xếp hạng, lễ kỳ hoàn thành phòng, bảng xếp hạng toàn hệ thống. |
+| `features/bld/`, `features/last-layer/` | Catalog 3-Style, lộ trình học, bảng Last Layer. |
+
+**Quy tắc import.** Bên trong một feature dùng đường dẫn tương đối (`./X`, `../lib/X`); chỉ dùng barrel `@/features/<x>` khi import từ **bên ngoài** feature đó. Nhờ vậy không phát sinh cycle barrel↔member. Riêng đường dẫn 3D có ngoại lệ: import động của Three.js/Cubing phải trỏ **module path cụ thể**, không bao giờ trỏ barrel, để giữ nguyên ranh giới chunk — `e2e/lazy-3d-loading.spec.ts` khóa hành vi này.
+
 Backend tách theo domain và hạ tầng. `server/routers/` chứa procedure Account, Competition và WCA; `server/db/` chứa helper truy vấn theo domain; `server/infrastructure/` chứa các tiện ích dùng chung như cache. Các file barrel (`server/routers.ts`, `server/db.ts`, `server/cache.ts`) được giữ lại để bảo toàn import cũ và giảm rủi ro khi mở rộng module.
 
 Khi thêm tính năng mới, ưu tiên tạo module trong boundary phù hợp, expose API qua barrel của feature/domain và bổ sung regression cho import boundary trước khi thay đổi page hoặc router hiện hữu.
@@ -48,7 +60,7 @@ Khi thêm tính năng mới, ưu tiên tạo module trong boundary phù hợp, e
 | Git | Phiên bản mới | Dùng để clone và quản lý thay đổi. |
 | MySQL/TiDB | MySQL 8 hoặc tương thích | Cần khi bật tài khoản, cloud sync, WCA account và Rooms. |
 | Python | 3.11 trở lên | Chỉ cần nếu sửa hoặc tái tạo solver Python; không cần để chạy bundle web đã có. |
-| Chromium | Bản cài hệ thống | Cần cho `pnpm test:e2e`; cấu hình hiện tại dùng `/usr/bin/chromium`. |
+| Chromium | Chromium của Playwright hoặc bản cài hệ thống | `pnpm test:e2e` ép dùng `/usr/bin/chromium`; nếu máy không có Chromium ở đường dẫn đó thì chạy `npx playwright test` để dùng browser do Playwright quản lý. |
 
 Kiểm tra nhanh:
 
@@ -227,7 +239,7 @@ Các route chính:
 | `pnpm dev` | Chạy Express + Vite development server. |
 | `pnpm check` | TypeScript check, không tạo output. |
 | `pnpm test` | Chạy toàn bộ Vitest server/client. |
-| `pnpm test:e2e` | Chạy Playwright bằng Chromium hệ thống. |
+| `pnpm test:e2e` | Chạy Playwright bằng Chromium hệ thống tại `/usr/bin/chromium`; dùng `npx playwright test` nếu máy không có Chromium ở đường dẫn đó. |
 | `pnpm build` | Build frontend và bundle Express server production. |
 | `pnpm start` | Chạy `dist/index.js` ở production mode. |
 | `pnpm run embed-solver` | Tái tạo bundle solver từ Python source bên ngoài; chỉ cần khi sửa Python solver. |
@@ -328,6 +340,7 @@ cfop_solver_web/
 │   ├── index.html
 │   └── src/
 │       ├── components/       # AppNav, Bootstrap UI, Cube/3D, Account, Study, Rooms...
+│       ├── features/         # Feature boundary: timer, rooms, profile, puzzle-3d, solver, bld, competition
 │       ├── contexts/         # Language/theme và context dùng chung
 │       ├── hooks/             # React hooks dùng chung
 │       ├── lib/               # persistence, solver, scramble, analytics, download, presentation
@@ -371,7 +384,7 @@ cfop_solver_web/
 └── README.md
 ```
 
-`server/_core/` là framework plumbing của template, gồm bootstrap, OAuth, Vite bridge, tRPC context và storage proxy. Không chỉnh sửa thư mục này trong feature work nếu chưa hiểu rõ contract runtime.
+`server/_core/` là framework plumbing của template, gồm bootstrap, Vite bridge, tRPC context, cookie helper và storage proxy. Không chỉnh sửa thư mục này trong feature work nếu chưa hiểu rõ contract runtime.
 
 ## 14. Quy tắc phát triển an toàn
 
