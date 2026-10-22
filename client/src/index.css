@@ -374,6 +374,16 @@ h6 {
   color: var(--bs-danger);
 }
 
+/* ---- CFOP: Icon button ---- */
+.cfop-icon-button {
+  padding: 0.5rem;
+}
+
+button:disabled:not(.btn) {
+  color: var(--bs-secondary-color);
+  cursor: not-allowed;
+}
+
 /* ---- CFOP: Guide pill ---- */
 .cfop-guide-pill {
   display: inline-flex;

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 /** Bootstrap-native camera card; only the live-video sampling frame remains functional layout. */
 import { Camera, Check, RotateCcw, ScanLine, X } from "@/components/ui/BootstrapIcon";
+import { IconButton } from "@/components/ui/BootstrapUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const ORDER = ["U", "R", "F", "D", "L", "B"] as const;
@@ -105,7 +106,7 @@ export function CameraScanner({ onState }: { onState: (state: string) => void })
       </div>}
       <div className="d-flex flex-wrap gap-2 mt-3" aria-label={language === "vi" ? "Tiến độ quét các mặt" : "Face scan progress"}>{ORDER.map((face) => <span key={face} className={`badge border ${captures[face] ? "text-bg-success" : face === currentFace ? "border-primary text-primary" : "border-secondary text-body-secondary"}`}>{captures[face] ? <Check className="fs-6" /> : face}</span>)}</div>
       <p className="small text-body-secondary mt-3 mb-0">{message}</p>
-      <div className="d-flex flex-wrap gap-2 mt-3">{!active ? <button type="button" onClick={start} aria-label={t("camera.open")} className="btn btn-primary btn-sm"><Camera className="fs-6" /></button> : <><button type="button" onClick={capture} aria-label={`${t("camera.capture")} ${currentFace}`} className="btn btn-primary btn-sm"><ScanLine className="fs-6" /></button><button type="button" onClick={stop} aria-label={t("camera.stop")} className="btn btn-outline-secondary btn-sm"><X className="fs-6" /></button></>}<button type="button" onClick={reset} aria-label={t("camera.reset")} className="btn btn-outline-secondary btn-sm"><RotateCcw className="fs-6" /></button></div>
+      <div className="d-flex flex-wrap gap-2 mt-3">{!active ? <IconButton label={t("camera.open")} icon={<Camera className="fs-6" />} onClick={start} className="btn btn-primary btn-sm" /> : <><IconButton label={`${t("camera.capture")} ${currentFace}`} icon={<ScanLine className="fs-6" />} onClick={capture} className="btn btn-primary btn-sm" /><IconButton label={t("camera.stop")} icon={<X className="fs-6" />} onClick={stop} className="btn btn-outline-secondary btn-sm" /></>}<IconButton label={t("camera.reset")} icon={<RotateCcw className="fs-6" />} onClick={reset} className="btn btn-outline-secondary btn-sm" /></div>
       {Object.values(captures).length > 0 && <div className="d-flex gap-1 mt-3">{ORDER.filter((face) => captures[face]).map((face) => <span key={face} className="rounded flex-fill" style={{ minHeight: "0.5rem", backgroundColor: css(captures[face]![4]) }} title={`Tâm ${face}`} />)}</div>}
       <canvas ref={canvasRef} className="d-none" />
     </div>

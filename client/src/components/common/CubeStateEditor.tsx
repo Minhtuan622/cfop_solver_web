@@ -4,6 +4,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { Redo2, RotateCcw, Undo2 } from "@/components/ui/BootstrapIcon";
+import { IconButton } from "@/components/ui/BootstrapUI";
 import { CUBE_COLOR, FACE_GRID, FACE_OFFSET, FACE_ORDER, SOLVED_STATE } from "@/components/common/CubeNet";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +39,7 @@ export function CubeStateEditor({ state, onChange, disabled = false, canUndo = f
   };
 
   return <div className="card bg-body-tertiary"><div className="card-body p-3">
-    <div className="d-flex flex-wrap align-items-center justify-content-between gap-2"><p className="small text-uppercase fw-semibold text-body-secondary mb-0">Màu tô</p><div className="btn-group btn-group-sm"><button type="button" disabled={disabled || !canUndo} onClick={onUndo} className="btn btn-outline-secondary" aria-label="Undo sticker edit" title="Undo · Ctrl/Cmd + Z"><Undo2 className="fs-6" /></button><button type="button" disabled={disabled || !canRedo} onClick={onRedo} className="btn btn-outline-secondary" aria-label="Redo sticker edit" title="Redo · Ctrl/Cmd + Shift + Z"><Redo2 className="fs-6" /></button><button type="button" disabled={disabled} onClick={() => onChange(SOLVED_STATE)} className="btn btn-outline-secondary" aria-label="Reset sticker state"><RotateCcw className="fs-6" /></button></div></div>
+    <div className="d-flex flex-wrap align-items-center justify-content-between gap-2"><p className="small text-uppercase fw-semibold text-body-secondary mb-0">Màu tô</p><div className="btn-group btn-group-sm"><IconButton label="Undo sticker edit" icon={<Undo2 className="fs-6" />} disabled={disabled || !canUndo} onClick={onUndo} className="btn btn-outline-secondary" title="Undo · Ctrl/Cmd + Z" /><IconButton label="Redo sticker edit" icon={<Redo2 className="fs-6" />} disabled={disabled || !canRedo} onClick={onRedo} className="btn btn-outline-secondary" title="Redo · Ctrl/Cmd + Shift + Z" /><IconButton label="Reset sticker state" icon={<RotateCcw className="fs-6" />} disabled={disabled} onClick={() => onChange(SOLVED_STATE)} className="btn btn-outline-secondary" /></div></div>
     <div className="row g-2 mt-2" role="radiogroup" aria-label="Bảng màu và số lượng sticker">{FACE_ORDER.map((face) => <div className="col-4" key={face}><PaletteButton face={face} count={stickerCounts[face]} selected={selectedColor === face} onSelect={setSelectedColor} disabled={disabled} /></div>)}</div>
     {!controlsOnly && <><div className="cube-editor-grid mt-4">
       {FACE_ORDER.map((face) => <EditorFace key={face} face={face} state={safeState} selectedColor={selectedColor} disabled={disabled} onPaint={paintSticker} onFill={fillFace} />)}

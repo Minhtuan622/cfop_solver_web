@@ -1,4 +1,5 @@
 import { Pencil, Play, Tag, Trash2 } from "@/components/ui/BootstrapIcon";
+import { IconButton } from "@/components/ui/BootstrapUI";
 import { formatSolveResult, type SolveHistoryEntry, type SolvePenalty, type SplitPhase } from "@/lib/solveHistory";
 
 type TimerHistoryRowProps = {
@@ -52,9 +53,9 @@ export function TimerHistoryRow({ item, vi, phaseTargets, selected, onSelect, on
             <button type="button" onClick={() => onPenalty(item, "+2")} className={item.penalty === "+2" ? "btn btn-warning" : "btn btn-outline-secondary"}>{labels.plusTwo}</button>
             <button type="button" onClick={() => onPenalty(item, "DNF")} className={item.penalty === "DNF" ? "btn btn-danger" : "btn btn-outline-secondary"}>{labels.dnf}</button>
           </div>
-          <button type="button" disabled={!item.solution.trim()} onClick={() => onReplay(item)} className="btn btn-outline-secondary btn-sm" aria-label={labels.playback}><Play className="fs-6" /></button>
-          <button type="button" onClick={() => onEdit(item)} className="btn btn-outline-secondary btn-sm" aria-label={labels.edit}><Pencil className="fs-6" /></button>
-          <button type="button" onClick={() => onDelete(item)} className="btn btn-outline-danger btn-sm" aria-label={labels.remove}><Trash2 className="fs-6" /></button>
+          <IconButton label={labels.playback} icon={<Play className="fs-6" />} disabled={!item.solution.trim()} onClick={() => onReplay(item)} className="btn btn-outline-secondary btn-sm" />
+          <IconButton label={labels.edit} icon={<Pencil className="fs-6" />} onClick={() => onEdit(item)} className="btn btn-outline-secondary btn-sm" />
+          <IconButton label={labels.remove} icon={<Trash2 className="fs-6" />} onClick={() => onDelete(item)} className="btn btn-outline-danger btn-sm" />
         </div>
         <div className="col-auto"><strong className={item.penalty === "DNF" ? "text-danger" : ""}>{formatSolveResult(item)}</strong></div>
       </div>

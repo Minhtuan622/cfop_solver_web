@@ -19,6 +19,7 @@ import {
   puzzlePreviewSetupAlgorithm,
 } from "../lib/puzzleFraming";
 import type { SideEvent3DAnimation } from "../lib/sideEventAnimation";
+import { IconButton } from "@/components/ui/BootstrapUI";
 
 type PuzzlePlayer = HTMLElement & {
   puzzle: PuzzleId;
@@ -272,5 +273,5 @@ export function Puzzle3DCanvas({ eventId, puzzle, scramble, language, animationA
   const label = timerEventLabel(eventId, language);
   if (status === "error") return <div className="card card-body h-100 d-flex flex-column align-items-center justify-content-center text-center"><i className="bi bi-box-seam fs-1 text-body-secondary mb-3" aria-hidden="true" /><p className="fw-semibold mb-1">{label}</p><p className="small text-body-secondary mb-0">{language === "vi" ? "Không thể tạo mô hình 3D cho scramble này." : "The 3D model could not be created for this scramble."}</p></div>;
 
-  return <div className="card bg-dark text-white h-100"><div className="card-body p-2 position-relative"><div ref={hostRef} className="w-100" style={{ minHeight: cameraConfig.height, touchAction: "none", cursor: "grab" }} aria-label={language === "vi" ? `Mô hình ${label} 3D` : `${label} 3D model`} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} />{status === "loading" ? <div className="position-absolute top-50 start-50 translate-middle small text-white-50">{language === "vi" ? "Đang tạo mô hình 3D…" : "Building 3D model…"}</div> : null}<button type="button" className="btn btn-outline-light btn-sm position-absolute bottom-0 end-0 m-2" onClick={() => { cancelInertia(); resetRef.current?.(); targetDistanceRef.current = orbitRef.current.distance; }} aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><i className="bi bi-arrow-counterclockwise" aria-hidden="true" /></button></div></div>;
+  return <div className="card bg-dark text-white h-100"><div className="card-body p-2 position-relative"><div ref={hostRef} className="w-100" style={{ minHeight: cameraConfig.height, touchAction: "none", cursor: "grab" }} aria-label={language === "vi" ? `Mô hình ${label} 3D` : `${label} 3D model`} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp} onWheel={wheel} />{status === "loading" ? <div className="position-absolute top-50 start-50 translate-middle small text-white-50">{language === "vi" ? "Đang tạo mô hình 3D…" : "Building 3D model…"}</div> : null}<IconButton label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} icon={<i className="bi bi-arrow-counterclockwise" aria-hidden="true" />} className="btn btn-outline-light btn-sm position-absolute bottom-0 end-0 m-2" onClick={() => { cancelInertia(); resetRef.current?.(); targetDistanceRef.current = orbitRef.current.distance; }} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"} /></div></div>;
 }

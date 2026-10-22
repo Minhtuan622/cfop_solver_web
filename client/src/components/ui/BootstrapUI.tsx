@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export function LoadingTransition({ children, className }: { children: ReactNode; className?: string }) {
@@ -100,6 +100,31 @@ export function Field({ id, label, hint, error, required, className, children }:
       {error ? <p className="text-danger small mt-1 mb-0" role="alert">{error}</p> : null}
       {!error && hint ? <p className="form-text mt-1 mb-0">{hint}</p> : null}
     </div>
+  );
+}
+
+export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "aria-label" | "children"> & {
+  /** The accessible name of the button; it doubles as the tooltip. */
+  label: string;
+  icon: ReactNode;
+  title?: string;
+};
+
+/**
+ * A button that shows nothing but an icon. The label carries the accessible
+ * name, so the button never has to repeat its meaning in visible text.
+ */
+export function IconButton({ label, icon, className, type = "button", title, ...rest }: IconButtonProps) {
+  return (
+    <button
+      type={type}
+      aria-label={label}
+      title={title ?? label}
+      className={cn("cfop-icon-button d-inline-flex align-items-center justify-content-center", className)}
+      {...rest}
+    >
+      {icon}
+    </button>
   );
 }
 

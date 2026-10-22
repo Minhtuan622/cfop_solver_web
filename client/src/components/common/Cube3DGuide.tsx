@@ -3,6 +3,7 @@
  * drag orbit remains direct with no transition lag and Cube 3D is the only rich motion.
  */
 import { Rotate3D } from "@/components/ui/BootstrapIcon";
+import { IconButton } from "@/components/ui/BootstrapUI";
 import { useEffect, useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -161,6 +162,6 @@ export function Cube3DGuide({ state, previousState, move, step, dimension = 3, c
       <div className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}><div className="cube3d-model" style={{ "--cube-transform": transform, transform } as React.CSSProperties}>{(["F", "R", "U", "B", "L", "D"] as const).map((face) => <Face key={`${step}-${move}-${face}`} face={face} state={renderedState} dimension={dimension} inspectCross={activeInspection} crossColor={crossColor} xcrossSlots={xcrossSlots} lastLayerCase={lastLayerCase} lastLayerStickers={lastLayerStickers} specialStickers={specialStickers} />)}{dimension === 3 && animateLayer && <LayerTurn face={motionFace as "U" | "R" | "F" | "D" | "L" | "B"} state={renderedPreviousState} angle={turnAngle} step={step} move={move} duration={turnDuration} />}</div></div>
       {transition === "phase" && phaseLabel && <div key={transitionId} className="cube3d-phase-callout" aria-live="polite"><span>{language === "vi" ? "CHUYỂN PHA" : "PHASE SHIFT"}</span><b>{phaseLabel}</b></div>}
     </div>
-    <div className="d-flex justify-content-end mt-2"><button type="button" onClick={reset} className="btn btn-outline-light btn-sm" aria-label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}><Rotate3D className="fs-6" /></button></div>
+    <div className="d-flex justify-content-end mt-2"><IconButton label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"} icon={<Rotate3D className="fs-6" />} onClick={reset} className="btn btn-outline-light btn-sm" title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"} /></div>
   </div></div>;
 }
