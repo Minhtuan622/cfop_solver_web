@@ -19,6 +19,7 @@ export const ArrowRight = icon("arrow-right");
 export const BarChart3 = icon("bar-chart");
 export const BookOpenCheck = icon("book");
 export const BoxArrowRight = icon("box-arrow-right");
+export const BoxSeam = icon("box-seam");
 export const Camera = icon("camera");
 export const Check = icon("check");
 export const CircleGauge = icon("speedometer2");

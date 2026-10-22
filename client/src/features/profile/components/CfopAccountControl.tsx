@@ -77,6 +77,7 @@ export function CfopAccountControl() {
           aria-expanded={menuOpen}
           aria-haspopup="menu"
           aria-controls="cfop-account-menu"
+          aria-label={account.displayName}
         >
           {account.avatarUrl ? (
             <img
@@ -95,7 +96,7 @@ export function CfopAccountControl() {
               {initials(account.displayName)}
             </span>
           )}
-          <span>{account.displayName}</span>
+          <span className="d-none d-xl-inline text-truncate" style={{ maxWidth: "10ch" }}>{account.displayName}</span>
         </button>
         {menuOpen ? (
           <AccountDropdown>

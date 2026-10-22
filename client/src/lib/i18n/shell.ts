@@ -6,7 +6,7 @@ export const shellWords: Dictionary = {
   "nav.brandLabel": ["Giải Rubik — Trang chủ", "Rubik Solver — Home"],
   "nav.toggle": ["Mở điều hướng", "Toggle navigation"],
   "nav.main": ["Điều hướng chính", "Main navigation"],
-  "nav.solve": ["Giải Rubik", "Solve"],
+  "nav.solve": ["Giải", "Solve"],
   "nav.timer": ["Bấm giờ", "Timer"],
   "nav.history": ["Kết quả", "History"],
   "nav.study": ["Học thêm", "Study"],
@@ -14,6 +14,8 @@ export const shellWords: Dictionary = {
   "nav.rankings": ["Xếp hạng", "Rankings"],
   "nav.wca": ["Giải WCA", "WCA"],
   "nav.settings": ["Cài đặt", "Settings"],
+  "nav.more": ["Thêm", "More"],
+  "nav.moreLabel": ["Các mục khác", "More pages"],
   "nav.skip": ["Bỏ qua điều hướng", "Skip to navigation"],
 
   "footer.tagline": [

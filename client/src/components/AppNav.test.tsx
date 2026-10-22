@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/trpc", () => ({
@@ -30,18 +30,14 @@ describe("AppNav", () => {
     cleanup();
   });
 
-  it("đưa mọi route của app ra khỏi menu tài khoản và vào navbar", () => {
+  it("giữ bốn trang dùng hằng ngày trên thanh điều hướng", () => {
     renderNav();
 
     const routes = [
-      { name: "Giải Rubik", href: "/" },
+      { name: "Giải", href: "/" },
       { name: "Bấm giờ", href: "/timer" },
       { name: "Kết quả", href: "/history" },
       { name: "Học thêm", href: "/study" },
-      { name: "Thi đấu", href: "/rooms" },
-      { name: "Xếp hạng", href: "/competition" },
-      { name: "Giải WCA", href: "/wca" },
-      { name: "Cài đặt", href: "/settings" },
     ];
 
     for (const route of routes) {
@@ -50,10 +46,36 @@ describe("AppNav", () => {
     }
   });
 
+  it("gói các trang còn lại vào một menu Thêm, nhưng vẫn tới được", () => {
+    renderNav();
+
+    expect(screen.queryByRole("menuitem", { name: "Cài đặt" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Thêm" }));
+
+    const routes = [
+      { name: "Thi đấu", href: "/rooms" },
+      { name: "Xếp hạng", href: "/competition" },
+      { name: "Giải WCA", href: "/wca" },
+      { name: "Cài đặt", href: "/settings" },
+    ];
+
+    for (const route of routes) {
+      const link = screen.getByRole("menuitem", { name: route.name });
+      expect(link.getAttribute("href")).toBe(route.href);
+    }
+  });
+
   it("đánh dấu route đang mở bằng aria-current", () => {
     renderNav();
 
-    expect(screen.getByRole("link", { name: "Giải Rubik" }).getAttribute("aria-current")).toBe("page");
-    expect(screen.getByRole("link", { name: "Cài đặt" }).getAttribute("aria-current")).toBeNull();
+    expect(screen.getByRole("link", { name: "Giải" }).getAttribute("aria-current")).toBe("page");
+    expect(screen.getByRole("link", { name: "Bấm giờ" }).getAttribute("aria-current")).toBeNull();
+  });
+
+  it("thu gọn nút ngôn ngữ và giao diện còn đúng một biểu tượng", () => {
+    renderNav();
+
+    expect(screen.getByRole("button", { name: "Đổi ngôn ngữ" }).textContent).toBe("");
+    expect(screen.getByRole("button", { name: /Đổi giao diện/ }).textContent).toBe("");
   });
 });
