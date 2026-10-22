@@ -71,8 +71,8 @@ export type StatTileTone = "default" | "warning" | "dark";
 /** The single stat tile used by every page, so metrics look the same everywhere. */
 export function StatTile({ label, value, detail, icon, tone = "default", compact = false, className }: { label: string; value: ReactNode; detail?: ReactNode; icon?: ReactNode; tone?: StatTileTone; compact?: boolean; className?: string }) {
   const dark = tone === "dark";
-  const cardClass = tone === "warning" ? "bg-warning-subtle" : dark ? "bg-dark text-white border-0 shadow-sm" : "bg-body-tertiary";
-  const mutedClass = dark ? "text-white-50" : "text-body-secondary";
+  const cardClass = tone === "warning" ? "bg-warning-subtle" : dark ? "cfop-inverse-tile border-0 shadow-sm" : "bg-body-tertiary";
+  const mutedClass = dark ? "opacity-75" : "text-body-secondary";
   return (
     <div className={cn("card h-100", cardClass, className)}>
       <div className={cn("card-body", compact && "py-2")}>

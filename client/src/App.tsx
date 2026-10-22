@@ -3,6 +3,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { AppNav } from "./components/AppNav";
 import { SkeletonCard } from "./components/ui/BootstrapUI";
 import { CfopCloudSync } from "./features/profile/components/CfopCloudSync";
@@ -62,7 +63,7 @@ function AppFooter() {
 }
 
 function App() {
-  return <ErrorBoundary><LanguageProvider>
+  return <ErrorBoundary><LanguageProvider><ThemeProvider>
     <div className="d-flex flex-column min-vh-100 bs-page">
       <CfopCloudSync />
       <CompetitionOutcomeCelebration />
@@ -71,7 +72,7 @@ function App() {
       <main id="main-content" className="py-4 py-lg-5 flex-grow-1"><Router /></main>
       <AppFooter />
     </div>
-  </LanguageProvider></ErrorBoundary>;
+  </ThemeProvider></LanguageProvider></ErrorBoundary>;
 }
 
 export default App;

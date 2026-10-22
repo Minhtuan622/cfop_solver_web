@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CfopAccountControl } from "@/features/profile";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 const primaryNavItems = [
   { href: "/", label: "Giải Rubik", labelEn: "Solve", active: (path: string) => path === "/" },
@@ -55,7 +56,8 @@ export function AppNav() {
               const active = item.active(path);
               return <Link key={item.href} href={item.href} onClick={closeMenus} className={active ? "nav-link active" : "nav-link"} aria-current={active ? "page" : undefined}>{vi ? item.label : item.labelEn}</Link>;
             })}
-            <div className="ms-lg-2 mt-2 mt-lg-0">
+            <div className="d-flex align-items-center gap-2 ms-lg-2 mt-2 mt-lg-0">
+              <ThemeSwitcher />
               <CfopAccountControl navItems={secondaryNavItems} language={language} />
             </div>
           </nav>

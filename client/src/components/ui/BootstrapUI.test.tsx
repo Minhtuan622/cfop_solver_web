@@ -56,7 +56,7 @@ describe("StatTile", () => {
     expect(container.querySelector(".card")?.classList.contains("bg-warning-subtle")).toBe(true);
 
     const dark = render(<StatTile label="Ao5" value="10.00s" tone="dark" />);
-    expect(dark.container.querySelector(".card")?.classList.contains("bg-dark")).toBe(true);
+    expect(dark.container.querySelector(".card")?.classList.contains("cfop-inverse-tile")).toBe(true);
   });
 });
 

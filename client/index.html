@@ -3,6 +3,21 @@
 
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Apply the saved theme before the first paint, so a visitor who chose the
+      // dark palette never sees a white flash while the bundle is still loading.
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("cfop-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          document.documentElement.dataset.bsTheme = theme;
+        } catch (error) {
+          document.documentElement.dataset.bsTheme = "light";
+        }
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Giải khối Rubik 3x3 trực tuyến miễn phí theo phương pháp CFOP. Nhập scramble hoặc tô màu khối, xem hướng dẫn từng bước, bấm giờ, luyện tập và thi đấu — dễ dùng cho người mới." />
     <meta name="keywords" content="giải rubik, cfop solver, rubik 3x3, bấm giờ rubik, học cfop, scramble, timer rubik, wca" />

@@ -99,7 +99,7 @@ export function CameraScanner({ onState }: { onState: (state: string) => void })
         <div><p className="small text-uppercase fw-semibold text-body-secondary mb-1">{t("camera.title")}</p><p className="fw-semibold mb-0">{t("camera.help")}</p></div>
         <Camera className="fs-5 text-success flex-shrink-0" />
       </div>
-      {active && <div className="ratio ratio-16x9 bg-dark rounded overflow-hidden position-relative mt-3">
+      {active && <div className="ratio ratio-16x9 cfop-stage rounded overflow-hidden position-relative mt-3">
         <video ref={videoRef} muted playsInline className="w-100 h-100 object-fit-cover" />
         <div className="position-absolute top-50 start-50 translate-middle w-50 h-50 border border-2 border-success pointer-events-none"><div className="row row-cols-3 g-0 h-100">{Array.from({ length: 9 }).map((_, index) => <span key={index} className="border border-success" />)}</div></div>
         <span className="badge text-bg-dark position-absolute top-0 start-0 m-2">FACE {currentFace}</span>

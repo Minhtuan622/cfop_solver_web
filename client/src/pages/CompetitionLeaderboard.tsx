@@ -19,8 +19,8 @@ function playerScoreLabel(score: number | null | undefined, eventId: string) {
 function rankClass(rank: number) {
   if (rank === 1) return "text-bg-warning";
   if (rank === 2) return "text-bg-secondary";
-  if (rank === 3) return "text-bg-dark";
-  return "text-bg-light";
+  if (rank === 3) return "text-bg-secondary";
+  return "text-bg-primary";
 }
 
 function LeaderboardTable({ players }: { players: Array<{ accountId: number; displayName: string; avatarUrl: string | null; points: number; wins: number; rooms: number; rank: number }> }) {

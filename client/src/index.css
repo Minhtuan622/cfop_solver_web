@@ -26,6 +26,9 @@
     0 1px 3px rgba(44, 51, 56, 0.05), 0 12px 32px rgba(44, 51, 56, 0.07);
   --cfop-nav-bg: rgba(247, 246, 243, 0.92);
   --cfop-cube-bg: #1e2a26;
+  --cfop-stage-bg: #1e2a26;
+  --cfop-stage-color: #eef2f1;
+  --cfop-stage-muted: rgba(238, 242, 241, 0.62);
   --cfop-accent: #4a9b8e;
   --cfop-accent-soft: rgba(74, 155, 142, 0.12);
   color-scheme: light;
@@ -47,6 +50,9 @@
     0 1px 3px rgba(0, 0, 0, 0.22), 0 12px 32px rgba(0, 0, 0, 0.3);
   --cfop-nav-bg: rgba(23, 28, 26, 0.94);
   --cfop-cube-bg: #0f1513;
+  --cfop-stage-bg: #0f1513;
+  --cfop-stage-color: #e8ecea;
+  --cfop-stage-muted: rgba(232, 236, 234, 0.62);
   color-scheme: dark;
 }
 
@@ -372,6 +378,29 @@ h6 {
 .cfop-field__required::after {
   content: " *";
   color: var(--bs-danger);
+}
+
+/* ---- CFOP: Inverse tile ---- */
+/* An accent tile that stays legible in both the light and the dark palette. */
+.cfop-inverse-tile {
+  background-color: var(--bs-dark);
+  color: #fff;
+}
+
+[data-bs-theme="dark"] .cfop-inverse-tile {
+  background-color: var(--bs-light);
+  color: var(--bs-dark);
+}
+
+/* ---- CFOP: Stage ---- */
+/* The dark backdrop the 3D cube and the camera feed sit on. */
+.cfop-stage {
+  background-color: var(--cfop-stage-bg);
+  color: var(--cfop-stage-color);
+}
+
+.cfop-stage__muted {
+  color: var(--cfop-stage-muted);
 }
 
 /* ---- CFOP: Icon button ---- */

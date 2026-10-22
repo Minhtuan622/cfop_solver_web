@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import { applyTheme, readTheme } from "@/lib/theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
@@ -65,6 +66,10 @@ const trpcClient = trpc.createClient({
     }),
   ],
 });
+
+// The inline script in index.html already set the theme before the first paint;
+// re-applying it here keeps the document in sync with the stored choice.
+applyTheme(readTheme());
 
 createRoot(document.getElementById("root")!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
