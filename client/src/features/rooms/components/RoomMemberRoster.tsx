@@ -1,3 +1,4 @@
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { RemovalTarget, RoomMember } from "../lib/roomTypes";
 
 type Props = {
@@ -21,6 +22,13 @@ export function RoomMemberRoster({
   remove,
   notice,
 }: Props) {
+  const { t } = useLanguage();
+  const roleLabel = (role: RoomMember["role"]) =>
+    role === "player"
+      ? t("rooms.member.role.player")
+      : role === "moderator"
+        ? t("rooms.member.role.moderator")
+        : t("rooms.member.role.spectator");
   return (
     <>
       <div className="list-group list-group-flush">
@@ -32,11 +40,7 @@ export function RoomMemberRoster({
             <span>
               {member.displayName}
               <small className="d-block text-body-secondary">
-                {member.role === "player"
-                  ? "Người thi"
-                  : member.role === "moderator"
-                    ? "Moderator"
-                    : "Khán giả"}
+                {roleLabel(member.role)}
               </small>
             </span>
             <span className="d-flex gap-1">
@@ -46,7 +50,7 @@ export function RoomMemberRoster({
                   className="btn btn-outline-primary btn-sm"
                   onClick={() => grant(member.accountId)}
                 >
-                  Cấp moderator
+                  {t("rooms.member.grantModerator")}
                 </button>
               ) : null}
               {host && member.role === "moderator" ? (
@@ -55,7 +59,7 @@ export function RoomMemberRoster({
                   className="btn btn-outline-secondary btn-sm"
                   onClick={() => revoke(member.accountId)}
                 >
-                  Gỡ quyền
+                  {t("rooms.member.revokeModerator")}
                 </button>
               ) : null}
               {(host || moderator) && member.role === "spectator" ? (
@@ -64,14 +68,14 @@ export function RoomMemberRoster({
                   className="btn btn-outline-danger btn-sm"
                   onClick={() => remove(member)}
                 >
-                  Loại
+                  {t("rooms.member.remove")}
                 </button>
               ) : null}
             </span>
           </div>
         ))}
       </div>
-      <h3 className="h6 mt-4 mb-2">Đang xem ({onlineSpectators.length})</h3>
+      <h3 className="h6 mt-4 mb-2">{t("rooms.member.watching", { count: onlineSpectators.length })}</h3>
       {onlineSpectators.length ? (
         <ol className="list-group list-group-numbered">
           {onlineSpectators.map(member => (
@@ -81,14 +85,14 @@ export function RoomMemberRoster({
             >
               <span>{member.displayName}</span>
               <small className="text-body-secondary">
-                {member.role === "moderator" ? "Moderator" : "Khán giả"}
+                {roleLabel(member.role)}
               </small>
             </li>
           ))}
         </ol>
       ) : (
         <p className="text-body-secondary small mb-0">
-          Chưa có người xem trực tuyến.
+          {t("rooms.member.noWatchers")}
         </p>
       )}
       {notice ? (

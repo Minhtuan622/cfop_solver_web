@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { Link } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { AccountNavItem } from "../lib/accountNavItems";
 
 type Props = {
   navItems: AccountNavItem[];
   path: string;
-  vi: boolean;
   onNavigate: () => void;
   children: ReactNode;
 };
@@ -17,10 +17,10 @@ type Props = {
 export function AccountDropdown({
   navItems,
   path,
-  vi,
   onNavigate,
   children,
 }: Props) {
+  const { t } = useLanguage();
   return (
     <ul
       id="cfop-account-menu"
@@ -40,7 +40,7 @@ export function AccountDropdown({
               aria-current={active ? "page" : undefined}
               onClick={onNavigate}
             >
-              {vi ? item.label : item.labelEn}
+              {t(item.labelKey)}
             </Link>
           </li>
         );

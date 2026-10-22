@@ -2,6 +2,7 @@ import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview
 import { SolveTimer, type TimerCompletion } from "@/components/common/SolveTimer";
 import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
 import type { TimerEventId } from "@/lib/timerEvents";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { PendingSolve, RoomActiveRound } from "../lib/roomTypes";
 
 type Props = {
@@ -44,6 +45,7 @@ export function RoomRoundPanel({
   onFinish,
   onSubmitMultiBlind,
 }: Props) {
+  const { language, t } = useLanguage();
   const isMultiBlind = eventId === "333mbf";
   const mbState = pendingMultiBlind
     ? multiBlindResult(
@@ -56,13 +58,15 @@ export function RoomRoundPanel({
       {isMultiBlind ? (
         <div>
           <p>
-            Bundle MBLD · {activeRound.scrambleBundle.length} khối · giới hạn{" "}
-            {formatMultiBlindTime(
-              multiBlindResult(
-                { attempted: multiBlindCubes, solved: 0 },
-                0
-              ).timeLimitMs
-            )}
+            {t("rooms.round.bundle", {
+              count: activeRound.scrambleBundle.length,
+              limit: formatMultiBlindTime(
+                multiBlindResult(
+                  { attempted: multiBlindCubes, solved: 0 },
+                  0
+                ).timeLimitMs
+              ),
+            })}
           </p>
           <ol className="list-group list-group-numbered">
             {activeRound.scrambleBundle.map((scramble, index) => (
@@ -81,13 +85,13 @@ export function RoomRoundPanel({
           <PuzzleScramblePreview
             eventId={eventId}
             scramble={activeRound.scramble}
-            language="vi"
+            language={language}
           />
         </>
       )}
     </>
   ) : (
-    <p className="text-body-secondary mb-0">Đang chờ chủ phòng bắt đầu lượt.</p>
+    <p className="text-body-secondary mb-0">{t("rooms.round.waitingHost")}</p>
   );
 
   return (
@@ -95,15 +99,17 @@ export function RoomRoundPanel({
       <div className="card-body">
         {status === "finished" ? (
           <div className="alert alert-success mb-0">
-            Phòng đã hoàn tất.{" "}
-            {isHost ? "Bạn có thể Đấu lại hoặc Xóa phòng." : ""}
+            {t("rooms.round.finished")} {isHost ? t("rooms.round.finishedHost") : ""}
           </div>
         ) : activeRound ? (
           <>
             <div className="d-flex justify-content-between gap-3">
               <div>
                 <p className="text-body-secondary small">
-                  Lượt {activeRound.sequence}/{roundLimit} · Scramble chung
+                  {t("rooms.round.counter", {
+                    current: activeRound.sequence,
+                    limit: roundLimit,
+                  })}
                 </p>
                 {liveContent}
               </div>
@@ -112,26 +118,26 @@ export function RoomRoundPanel({
                   className="btn btn-outline-primary align-self-start"
                   onClick={onStartRound}
                 >
-                  Lượt tiếp
+                  {t("rooms.round.next")}
                 </button>
               ) : null}
             </div>
             <hr />
             {isSpectator ? (
               <div className="alert alert-secondary mb-0">
-                Chế độ xem trực tiếp đang hoạt động. Kết quả sẽ tự cập nhật.
+                {t("rooms.round.spectating")}
               </div>
             ) : isMultiBlind ? (
               submitted ? (
                 <div className="alert alert-success">
-                  Đã nộp: {myResultLabel}
+                  {t("rooms.round.submitted", { result: myResultLabel })}
                 </div>
               ) : pendingMultiBlind ? (
                 <div className="card bg-body-tertiary">
                   <div className="card-body">
-                    <h2 className="h6">Kết quả Multi-Blind</h2>
+                    <h2 className="h6">{t("rooms.round.mbldTitle")}</h2>
                     <label className="form-label">
-                      Số khối giải đúng
+                      {t("rooms.round.mbldSolved")}
                       <input
                         type="number"
                         className="form-control mt-1"
@@ -152,14 +158,16 @@ export function RoomRoundPanel({
                       />
                     </label>
                     <p>
-                      Score: {mbState?.score ?? 0} · Unsolved:{" "}
-                      {mbState?.unsolved ?? multiBlindCubes}
+                      {t("rooms.round.mbldScore", {
+                        score: mbState?.score ?? 0,
+                        unsolved: mbState?.unsolved ?? multiBlindCubes,
+                      })}
                     </p>
                     <button
                       className="btn btn-primary"
                       onClick={onSubmitMultiBlind}
                     >
-                      Nộp score MBLD
+                      {t("rooms.round.mbldSubmit")}
                     </button>
                   </div>
                 </div>
@@ -172,7 +180,7 @@ export function RoomRoundPanel({
               )
             ) : submitted ? (
               <div className="alert alert-success">
-                Đã nộp: {myResultLabel}
+                {t("rooms.round.submitted", { result: myResultLabel })}
               </div>
             ) : (
               <SolveTimer
@@ -184,23 +192,23 @@ export function RoomRoundPanel({
           </>
         ) : (
           <div className="alert alert-secondary mb-0">
-            <h2 className="h5">Đang chờ lượt</h2>
+            <h2 className="h5">{t("rooms.round.waitingTitle")}</h2>
             {isHost ? (
               <div className="d-flex gap-2">
                 <button className="btn btn-primary" onClick={onStartRound}>
-                  Bắt đầu lượt
+                  {t("rooms.round.start")}
                 </button>
                 {currentRound ? (
                   <button
                     className="btn btn-outline-success"
                     onClick={onFinish}
                   >
-                    Hoàn tất thể thức
+                    {t("rooms.round.finish")}
                   </button>
                 ) : null}
               </div>
             ) : (
-              <p className="mb-0">Đợi chủ phòng bắt đầu lượt.</p>
+              <p className="mb-0">{t("rooms.round.waitingHostShort")}</p>
             )}
           </div>
         )}

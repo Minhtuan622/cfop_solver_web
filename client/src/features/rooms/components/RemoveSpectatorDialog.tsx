@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/BootstrapDialog";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Props = {
   open: boolean;
@@ -27,6 +28,7 @@ export function RemoveSpectatorDialog({
   onClose,
   pending,
 }: Props) {
+  const { t } = useLanguage();
   return (
     <Dialog open={open} onOpenChange={next => {
       if (!next) onClose();
@@ -39,21 +41,18 @@ export function RemoveSpectatorDialog({
           }}
         >
           <DialogHeader>
-            <DialogTitle>Loại {targetName}</DialogTitle>
-            <DialogDescription>
-              Ghi rõ lý do để người xem nhận được thông báo và phòng có nhật ký
-              kiểm duyệt.
-            </DialogDescription>
+            <DialogTitle>{t("rooms.moderation.removeTitle", { name: targetName })}</DialogTitle>
+            <DialogDescription>{t("rooms.moderation.removeDetail")}</DialogDescription>
             <button
               type="button"
               className="btn-close"
-              aria-label="Đóng"
+              aria-label={t("common.close")}
               onClick={onClose}
             />
           </DialogHeader>
           <div className="modal-body">
             <label className="form-label w-100">
-              Lý do loại người xem
+              {t("rooms.moderation.reasonLabel")}
               <textarea
                 required
                 minLength={3}
@@ -63,12 +62,10 @@ export function RemoveSpectatorDialog({
                 rows={3}
                 value={reason}
                 onChange={input => onReasonChange(input.target.value)}
-                placeholder="Ví dụ: Spam trong tên hiển thị hoặc làm gián đoạn phòng."
+                placeholder={t("rooms.moderation.reasonPlaceholder")}
               />
             </label>
-            <div className="form-text">
-              Lý do sẽ hiển thị trong toast của spectator và nhật ký kiểm duyệt.
-            </div>
+            <div className="form-text">{t("rooms.moderation.reasonHint")}</div>
           </div>
           <DialogFooter>
             <button
@@ -76,13 +73,13 @@ export function RemoveSpectatorDialog({
               className="btn btn-outline-secondary"
               onClick={onClose}
             >
-              Hủy
+              {t("rooms.moderation.cancel")}
             </button>
             <button
               className="btn btn-danger"
               disabled={pending || reason.trim().length < 3}
             >
-              Xác nhận loại
+              {t("rooms.moderation.confirm")}
             </button>
           </DialogFooter>
         </form>

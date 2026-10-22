@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/BootstrapDialog";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export type AuthMode = "login" | "register";
 
@@ -42,6 +43,7 @@ export function CfopAuthDialog({
   onSubmit,
   onClose,
 }: Props) {
+  const { t } = useLanguage();
   return (
     <Dialog open={open} onOpenChange={next => {
       if (!next) onClose();
@@ -51,18 +53,17 @@ export function CfopAuthDialog({
           <div className="flex-grow-1">
             <DialogTitle>
               {mode === "login"
-                ? "Đăng nhập CFOP Solver"
-                : "Tạo tài khoản CFOP Solver"}
+                ? t("account.dialog.loginTitle")
+                : t("account.dialog.registerTitle")}
             </DialogTitle>
             <DialogDescription>
-              Tài khoản này riêng cho CFOP Solver Studio, không liên quan đến
-              tài khoản Manus.
+              {t("account.dialog.description")}
             </DialogDescription>
           </div>
           <button
             type="button"
             className="btn-close flex-shrink-0"
-            aria-label="Đóng"
+            aria-label={t("account.dialog.close")}
             onClick={onClose}
           />
         </DialogHeader>
@@ -71,7 +72,7 @@ export function CfopAuthDialog({
             <div
               className="btn-group w-100 mb-3"
               role="group"
-              aria-label="Chọn thao tác tài khoản"
+              aria-label={t("account.dialog.actionLabel")}
             >
               <button
                 type="button"
@@ -82,7 +83,7 @@ export function CfopAuthDialog({
                 }
                 onClick={() => onModeChange("login")}
               >
-                Đăng nhập
+                {t("account.signIn")}
               </button>
               <button
                 type="button"
@@ -93,12 +94,12 @@ export function CfopAuthDialog({
                 }
                 onClick={() => onModeChange("register")}
               >
-                Đăng ký
+                {t("account.register")}
               </button>
             </div>
             {mode === "register" ? (
               <label className="form-label w-100">
-                Tên hiển thị
+                {t("account.dialog.displayName")}
                 <input
                   required
                   minLength={2}
@@ -111,7 +112,7 @@ export function CfopAuthDialog({
               </label>
             ) : null}
             <label className="form-label w-100 mt-2">
-              Email
+              {t("account.dialog.email")}
               <input
                 required
                 type="email"
@@ -122,7 +123,7 @@ export function CfopAuthDialog({
               />
             </label>
             <label className="form-label w-100 mt-2">
-              Mật khẩu
+              {t("account.dialog.password")}
               <input
                 required
                 type="password"
@@ -138,8 +139,7 @@ export function CfopAuthDialog({
             </label>
             {mode === "register" ? (
               <p className="small text-body-secondary mt-2 mb-0">
-                Dùng ít nhất 10 ký tự. Mật khẩu được băm trên server; ứng dụng
-                không lưu mật khẩu dạng chữ thường.
+                {t("account.dialog.passwordHint")}
               </p>
             ) : null}
             {error ? (
@@ -155,7 +155,7 @@ export function CfopAuthDialog({
               onClick={onClose}
               disabled={pending}
             >
-              Hủy
+              {t("account.dialog.cancel")}
             </button>
             <button
               type="submit"
@@ -163,10 +163,10 @@ export function CfopAuthDialog({
               disabled={pending}
             >
               {pending
-                ? "Đang xử lý…"
+                ? t("account.dialog.pending")
                 : mode === "login"
-                  ? "Đăng nhập"
-                  : "Tạo tài khoản"}
+                  ? t("account.signIn")
+                  : t("account.dialog.createAccount")}
             </button>
           </DialogFooter>
         </form>

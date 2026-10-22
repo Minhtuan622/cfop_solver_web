@@ -1,18 +1,20 @@
 import { useMemo, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { CompetitionLeaderboardFilters, type CompetitionPeriod } from "@/features/competition";
-import { LoadingTransition, PageHeader, RefreshIndicator, SectionCard, SkeletonCard, SkeletonList, SkeletonTable, StatusFeedback } from "@/components/ui/BootstrapUI";
+import { LoadingTransition, PageHeader, RefreshIndicator, SectionCard, SkeletonCard, SkeletonList, SkeletonTable, StatTile, StatusFeedback } from "@/components/ui/BootstrapUI";
 import { competitionEventLabel, competitionResultLabel, formatLabels } from "@/features/competition";
 import { formatSolveTime } from "@/lib/solveHistory";
 import { trpc } from "@/lib/trpc";
 import { type TimerEventId } from "@/lib/timerEvents";
+import { useLanguage, type Language } from "@/contexts/LanguageContext";
+import type { Translate } from "@/lib/i18n";
 
-function formatDate(value: Date | string) {
-  return new Date(value).toLocaleString("vi-VN", { dateStyle: "medium", timeStyle: "short" });
+function formatDate(value: Date | string, language: Language) {
+  return new Date(value).toLocaleString(language === "vi" ? "vi-VN" : "en-US", { dateStyle: "medium", timeStyle: "short" });
 }
 
-function playerScoreLabel(score: number | null | undefined, eventId: string) {
-  if (eventId === "333mbf") return typeof score === "number" ? `${score} điểm` : "DNF";
+function playerScoreLabel(score: number | null | undefined, eventId: string, t: Translate) {
+  if (eventId === "333mbf") return typeof score === "number" ? t("competition.points", { points: score }) : "DNF";
   return typeof score === "number" ? formatSolveTime(score) : "DNF";
 }
 
@@ -24,23 +26,140 @@ function rankClass(rank: number) {
 }
 
 function LeaderboardTable({ players }: { players: Array<{ accountId: number; displayName: string; avatarUrl: string | null; points: number; wins: number; rooms: number; rank: number }> }) {
-  return <LoadingTransition><div className="table-responsive"><table className="table table-hover align-middle mb-0"><caption className="visually-hidden">Bảng xếp hạng người chơi</caption><thead><tr><th scope="col">Hạng</th><th scope="col">Người chơi</th><th scope="col" className="text-center">Chiến thắng</th><th scope="col" className="text-center">Phòng</th><th scope="col" className="text-end">Điểm</th></tr></thead><tbody>{players.map((player) => <tr key={player.accountId}><th scope="row"><span className={`badge rounded-pill ${rankClass(player.rank)}`}>{player.rank}</span></th><td><Link href={`/competition/player/${player.accountId}`} className="d-inline-flex align-items-center gap-2 text-decoration-none"><span className="rounded-circle bg-body-secondary d-inline-flex align-items-center justify-content-center flex-shrink-0" style={{ width: 32, height: 32 }}>{player.avatarUrl ? <img src={player.avatarUrl} alt="" className="rounded-circle w-100 h-100 object-fit-cover" /> : <i className="bi bi-person text-body-secondary" aria-hidden="true" />}</span><span className="text-body fw-semibold">{player.displayName}</span></Link></td><td className="text-center">{player.wins}</td><td className="text-center">{player.rooms}</td><td className="text-end"><span className="badge rounded-pill text-bg-primary px-3">{player.points}</span></td></tr>)}</tbody></table></div></LoadingTransition>;
+  const { t } = useLanguage();
+  return (
+    <LoadingTransition>
+      <div className="table-responsive">
+        <table className="table table-hover align-middle mb-0">
+          <caption className="visually-hidden">{t("competition.table.caption")}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{t("competition.table.rank")}</th>
+              <th scope="col">{t("competition.table.player")}</th>
+              <th scope="col" className="text-center">{t("competition.table.wins")}</th>
+              <th scope="col" className="text-center">{t("competition.table.rooms")}</th>
+              <th scope="col" className="text-end">{t("competition.table.points")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {players.map((player) => (
+              <tr key={player.accountId}>
+                <th scope="row"><span className={`badge rounded-pill ${rankClass(player.rank)}`}>{player.rank}</span></th>
+                <td>
+                  <Link href={`/competition/player/${player.accountId}`} className="d-inline-flex align-items-center gap-2 text-decoration-none">
+                    <span className="rounded-circle bg-body-secondary d-inline-flex align-items-center justify-content-center flex-shrink-0" style={{ width: 32, height: 32 }}>
+                      {player.avatarUrl ? <img src={player.avatarUrl} alt="" className="rounded-circle w-100 h-100 object-fit-cover" /> : <i className="bi bi-person text-body-secondary" aria-hidden="true" />}
+                    </span>
+                    <span className="text-body fw-semibold">{player.displayName}</span>
+                  </Link>
+                </td>
+                <td className="text-center">{player.wins}</td>
+                <td className="text-center">{player.rooms}</td>
+                <td className="text-end"><span className="badge rounded-pill text-bg-primary px-3">{player.points}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </LoadingTransition>
+  );
 }
 
 function PlayerHistory({ accountId }: { accountId: number }) {
+  const { language, t } = useLanguage();
   const historyQuery = trpc.competition.playerHistory.useQuery({ accountId }, { retry: false });
-  if (historyQuery.isLoading) return <div className="container"><SkeletonCard lines={6} label="Đang tải lịch sử thi đấu người chơi" /></div>;
-  if (historyQuery.isError) return <div className="container"><StatusFeedback tone="danger" title="Không thể tải lịch sử">Người chơi không tồn tại hoặc lịch sử thi đấu hiện không khả dụng.</StatusFeedback></div>;
+  if (historyQuery.isLoading) return <div className="container"><SkeletonCard lines={6} label={t("competition.player.loading")} /></div>;
+  if (historyQuery.isError) return <div className="container"><StatusFeedback tone="danger" title={t("competition.player.failedTitle")}>{t("competition.player.failedDetail")}</StatusFeedback></div>;
   const history = historyQuery.data ?? [];
-  const displayName = history[0]?.standings.find((player) => player.accountId === accountId)?.displayName ?? `Người chơi #${accountId}`;
+  const displayName = history[0]?.standings.find((player) => player.accountId === accountId)?.displayName ?? t("competition.player.anonymous", { id: accountId });
   const bestRank = history.reduce<number | null>((best, entry) => entry.myRank && (best === null || entry.myRank < best) ? entry.myRank : best, null);
   const totalRounds = history.reduce((total, entry) => total + entry.results.filter((result) => result.accountId === accountId).length, 0);
-  return <div className="container"><PageHeader title={`Lịch sử thi đấu của ${displayName}`} description="Theo dõi thành tích qua từng phòng, vòng thi và thứ hạng cuối." actions={<Link href="/competition" className="btn btn-outline-secondary">Quay lại xếp hạng</Link>} />
-    <div className="row row-cols-1 row-cols-sm-3 g-3 mb-4"><div className="col"><div className="card border-0 shadow-sm h-100"><div className="card-body"><p className="small text-uppercase text-body-secondary mb-1">Phòng đã hoàn tất</p><p className="h3 mb-0">{history.length}</p></div></div></div><div className="col"><div className="card border-0 shadow-sm h-100"><div className="card-body"><p className="small text-uppercase text-body-secondary mb-1">Thứ hạng tốt nhất</p><p className="h3 mb-0">{bestRank === null ? "—" : `#${bestRank}`}</p></div></div></div><div className="col"><div className="card border-0 shadow-sm h-100"><div className="card-body"><p className="small text-uppercase text-body-secondary mb-1">Vòng đã nộp</p><p className="h3 mb-0">{totalRounds}</p></div></div></div></div>
-    {history.length === 0 ? <StatusFeedback tone="secondary" title="Chưa có lịch sử">Người chơi này chưa có phòng thi đấu đã kết thúc.</StatusFeedback> : <div className="d-flex flex-column gap-4">{history.map((entry) => { const mine = entry.results.filter((result) => result.accountId === accountId); return <SectionCard key={entry.room.id} title={entry.room.name} description={`${competitionEventLabel(entry.room.eventId)} · ${formatLabels[entry.room.format]} · Kết thúc ${formatDate(entry.room.updatedAt)}`} actions={<span className="badge text-bg-secondary">{entry.myRank ? `Hạng ${entry.myRank}/${entry.standings.length}` : "Chưa xếp hạng"}</span>}><div className="row g-3 mb-4"><div className="col-6 col-lg-3"><p className="small text-body-secondary mb-1">Mã phòng</p><p className="mb-0 fw-semibold">{entry.room.code}</p></div><div className="col-6 col-lg-3"><p className="small text-body-secondary mb-1">Kết quả tổng</p><p className="mb-0 fw-semibold">{playerScoreLabel(entry.myScore, entry.room.eventId)}</p></div><div className="col-6 col-lg-3"><p className="small text-body-secondary mb-1">Số vòng</p><p className="mb-0 fw-semibold">{mine.length}/{entry.roundLimit}</p></div><div className="col-6 col-lg-3"><p className="small text-body-secondary mb-1">Tham gia</p><p className="mb-0 fw-semibold">{formatDate(entry.joinedAt)}</p></div></div><div className="row g-4"><div className="col-12 col-xl-7"><h3 className="h6">Kết quả từng vòng của người chơi</h3>{mine.length ? <div className="table-responsive"><table className="table table-sm table-hover align-middle"><thead><tr><th scope="col">Vòng</th><th scope="col">Kết quả</th><th scope="col">Inspection</th><th scope="col">Đã nộp</th></tr></thead><tbody>{mine.map((result) => <tr key={`${result.roundId}-${result.accountId}`}><th scope="row">{result.roundSequence}</th><td>{competitionResultLabel(result, entry.room.eventId)}</td><td>{result.inspectionMs ? `${(result.inspectionMs / 1000).toFixed(1)} giây` : "—"}</td><td>{formatDate(result.submittedAt)}</td></tr>)}</tbody></table></div> : <p className="text-body-secondary">Không có kết quả được ghi nhận.</p>}</div><div className="col-12 col-xl-5"><h3 className="h6">Bảng xếp hạng phòng</h3><ol className="list-group list-group-numbered">{entry.standings.map((player) => <li key={player.accountId} className="list-group-item d-flex justify-content-between gap-2"><span className="text-truncate">{player.displayName}</span><span className="text-nowrap">{competitionResultLabel(player.lastResult, entry.room.eventId)}</span></li>)}</ol></div></div></SectionCard>; })}</div>}</div>;
+  return (
+    <div className="container">
+      <PageHeader
+        title={t("competition.player.title", { name: displayName })}
+        description={t("competition.player.description")}
+        actions={<Link href="/competition" className="btn btn-outline-secondary">{t("competition.player.back")}</Link>}
+      />
+      <div className="row row-cols-1 row-cols-sm-3 g-3 mb-4">
+        <div className="col"><StatTile label={t("competition.player.statRooms")} value={history.length} /></div>
+        <div className="col"><StatTile label={t("competition.player.statRank")} value={bestRank === null ? "—" : `#${bestRank}`} /></div>
+        <div className="col"><StatTile label={t("competition.player.statRounds")} value={totalRounds} /></div>
+      </div>
+      {history.length === 0
+        ? <StatusFeedback tone="secondary" title={t("competition.player.emptyTitle")}>{t("competition.player.emptyDetail")}</StatusFeedback>
+        : (
+          <div className="d-flex flex-column gap-4">
+            {history.map((entry) => {
+              const mine = entry.results.filter((result) => result.accountId === accountId);
+              return (
+                <SectionCard
+                  key={entry.room.id}
+                  title={entry.room.name}
+                  description={t("competition.player.roomMeta", {
+                    event: competitionEventLabel(entry.room.eventId, language),
+                    format: formatLabels[entry.room.format],
+                    date: formatDate(entry.room.updatedAt, language),
+                  })}
+                  actions={<span className="badge text-bg-secondary">{entry.myRank ? t("competition.player.rankSuffix", { rank: entry.myRank, total: entry.standings.length }) : t("competition.player.unranked")}</span>}
+                >
+                  <div className="row g-3 mb-4">
+                    <div className="col-6 col-lg-3"><p className="small text-body-secondary mb-1">{t("competition.player.roomCode")}</p><p className="mb-0 fw-semibold">{entry.room.code}</p></div>
+                    <div className="col-6 col-lg-3"><p className="small text-body-secondary mb-1">{t("competition.player.totalScore")}</p><p className="mb-0 fw-semibold">{playerScoreLabel(entry.myScore, entry.room.eventId, t)}</p></div>
+                    <div className="col-6 col-lg-3"><p className="small text-body-secondary mb-1">{t("competition.player.roundCount")}</p><p className="mb-0 fw-semibold">{mine.length}/{entry.roundLimit}</p></div>
+                    <div className="col-6 col-lg-3"><p className="small text-body-secondary mb-1">{t("competition.player.joined")}</p><p className="mb-0 fw-semibold">{formatDate(entry.joinedAt, language)}</p></div>
+                  </div>
+                  <div className="row g-4">
+                    <div className="col-12 col-xl-7">
+                      <h3 className="h6">{t("competition.player.roundTitle")}</h3>
+                      {mine.length ? (
+                        <div className="table-responsive">
+                          <table className="table table-sm table-hover align-middle">
+                            <thead>
+                              <tr>
+                                <th scope="col">{t("competition.player.round")}</th>
+                                <th scope="col">{t("competition.player.result")}</th>
+                                <th scope="col">{t("competition.player.inspection")}</th>
+                                <th scope="col">{t("competition.player.submitted")}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {mine.map((result) => (
+                                <tr key={`${result.roundId}-${result.accountId}`}>
+                                  <th scope="row">{result.roundSequence}</th>
+                                  <td>{competitionResultLabel(result, entry.room.eventId, t)}</td>
+                                  <td>{result.inspectionMs ? t("competition.player.inspectionTime", { seconds: (result.inspectionMs / 1000).toFixed(1) }) : "—"}</td>
+                                  <td>{formatDate(result.submittedAt, language)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : <p className="text-body-secondary">{t("competition.player.noResults")}</p>}
+                    </div>
+                    <div className="col-12 col-xl-5">
+                      <h3 className="h6">{t("competition.player.roomStandings")}</h3>
+                      <ol className="list-group list-group-numbered">
+                        {entry.standings.map((player) => (
+                          <li key={player.accountId} className="list-group-item d-flex justify-content-between gap-2">
+                            <span className="text-truncate">{player.displayName}</span>
+                            <span className="text-nowrap">{competitionResultLabel(player.lastResult, entry.room.eventId, t)}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  </div>
+                </SectionCard>
+              );
+            })}
+          </div>
+        )}
+    </div>
+  );
 }
 
 function LeaderboardHome() {
+  const { language, t } = useLanguage();
   const [period, setPeriod] = useState<CompetitionPeriod>("week");
   const [eventId, setEventId] = useState<TimerEventId | "all">("all");
   const input = useMemo(() => ({ period, eventId: eventId === "all" ? null : eventId }), [period, eventId]);
@@ -52,9 +171,84 @@ function LeaderboardHome() {
   const leader = players[0];
   const totalWins = players.reduce((total, player) => total + player.wins, 0);
   const totalRooms = players.reduce((total, player) => total + player.rooms, 0);
-  return <div className="container"><PageHeader title="Xếp hạng & lịch sử thi đấu" description="Theo dõi phong độ thi đấu, điểm số và lịch sử của cộng đồng CFOP Solver." actions={<Link href="/rooms" className="btn btn-primary">Vào phòng thi</Link>} />
-    <div className="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4"><div className="col"><div className="card border-0 shadow-sm h-100"><div className="card-body"><p className="small text-uppercase text-body-secondary mb-1">Người chơi</p><p className="h3 mb-1">{leaderboardQuery.isLoading ? "—" : players.length}</p><p className="small text-body-secondary mb-0">Top 50 theo bộ lọc</p></div></div></div><div className="col"><div className="card border-0 shadow-sm h-100"><div className="card-body"><p className="small text-uppercase text-body-secondary mb-1">Tổng chiến thắng</p><p className="h3 mb-1">{leaderboardQuery.isLoading ? "—" : totalWins}</p><p className="small text-body-secondary mb-0">Trong khoảng thời gian đã chọn</p></div></div></div><div className="col"><div className="card border-0 shadow-sm h-100"><div className="card-body"><p className="small text-uppercase text-body-secondary mb-1">Phòng được tính</p><p className="h3 mb-1">{leaderboardQuery.isLoading ? "—" : totalRooms}</p><p className="small text-body-secondary mb-0">Từ các trận đã hoàn tất</p></div></div></div><div className="col"><div className="card border-0 shadow-sm h-100"><div className="card-body"><p className="small text-uppercase text-body-secondary mb-1">Dẫn đầu</p><p className="h5 mb-1 text-truncate">{leader?.displayName ?? "—"}</p><p className="small text-body-secondary mb-0">{leader ? `${leader.points} điểm` : "Chưa có dữ liệu"}</p></div></div></div></div>
-    <div className="row g-4"><div className="col-12 col-xl-8"><SectionCard title="Bảng xếp hạng toàn hệ thống" description="Điểm được cộng theo thứ hạng ở các phòng đã kết thúc." actions={<CompetitionLeaderboardFilters period={period} onPeriodChange={setPeriod} eventId={eventId} onEventChange={setEventId} idPrefix="page-leaderboard" />}>{leaderboardQuery.isFetching && leaderboardQuery.data ? <div className="mb-2 text-end"><RefreshIndicator label="Đang cập nhật bảng xếp hạng" /></div> : null}{leaderboardQuery.isLoading ? <SkeletonTable rows={6} columns={5} label="Đang tải bảng xếp hạng" /> : leaderboardQuery.isError ? <StatusFeedback tone="danger" title="Không thể tải bảng xếp hạng">Hãy thử tải lại trang sau ít phút.</StatusFeedback> : players.length ? <LeaderboardTable players={players} /> : <StatusFeedback tone="secondary" title="Chưa có dữ liệu">Chưa có đủ phòng đã hoàn tất với từ hai người chơi trong khoảng thời gian đã chọn.</StatusFeedback>}</SectionCard><div className="d-flex flex-wrap align-items-center justify-content-between gap-2"><p className="small text-body-secondary mb-0">{leaderboardQuery.data ? `Khoảng thời gian: ${formatDate(leaderboardQuery.data.startAt)} – ${formatDate(leaderboardQuery.data.endAt)}` : ""}</p><Link href="/rooms" className="btn btn-outline-secondary btn-sm">Xem phòng thi</Link></div></div><div className="col-12 col-xl-4"><SectionCard title="Lịch sử của tôi" description="Các phòng đã kết thúc mà tài khoản của bạn đã tham gia.">{accountQuery.isLoading ? <SkeletonList rows={3} label="Đang tải lịch sử cá nhân" /> : !account ? <StatusFeedback tone="secondary" title="Đăng nhập để xem lịch sử">Bảng xếp hạng công khai không yêu cầu đăng nhập. Đăng nhập tài khoản CFOP để mở lịch sử cá nhân.</StatusFeedback> : historyQuery.isLoading ? <SkeletonList rows={3} label="Đang tải lịch sử cá nhân" /> : historyQuery.isError ? <StatusFeedback tone="danger" title="Không thể tải lịch sử">Hãy thử lại sau ít phút.</StatusFeedback> : historyQuery.data?.length ? <div className="list-group">{historyQuery.data.slice(0, 6).map((entry) => <Link key={entry.room.id} href={`/competition/player/${account.id}`} className="list-group-item list-group-item-action"><span className="fw-semibold d-block text-truncate">{entry.room.name}</span><span className="small text-body-secondary">{competitionEventLabel(entry.room.eventId)} · {entry.myRank ? `Hạng ${entry.myRank}` : "Chưa xếp hạng"} · {formatDate(entry.room.updatedAt)}</span></Link>)}</div> : <StatusFeedback tone="secondary" title="Chưa có phòng đã kết thúc">Hãy tham gia một phòng thi và hoàn tất thể thức để lịch sử xuất hiện ở đây.</StatusFeedback>} {account ? <Link href={`/competition/player/${account.id}`} className="btn btn-outline-secondary btn-sm mt-3">Xem lịch sử chi tiết</Link> : null}</SectionCard><SectionCard title="Cách tính điểm" description="Quy tắc đang dùng chung với hệ thống Rooms."><p className="small mb-2">Mỗi phòng hoàn tất có tối thiểu hai người chơi sẽ cộng điểm theo thứ hạng:</p><p className="small text-body-secondary mb-0">10 điểm cho hạng 1, 6 cho hạng 2, 4 cho hạng 3, sau đó 3, 2 và 1 điểm.</p></SectionCard></div></div></div>;
+  return (
+    <div className="container">
+      <PageHeader
+        title={t("competition.leaderboard.title")}
+        description={t("competition.leaderboard.description")}
+        actions={<Link href="/rooms" className="btn btn-primary">{t("competition.leaderboard.cta")}</Link>}
+      />
+      <div className="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4">
+        <div className="col"><StatTile label={t("competition.stat.players")} value={leaderboardQuery.isLoading ? "—" : players.length} detail={t("competition.stat.playersDetail")} /></div>
+        <div className="col"><StatTile label={t("competition.stat.wins")} value={leaderboardQuery.isLoading ? "—" : totalWins} detail={t("competition.stat.winsDetail")} /></div>
+        <div className="col"><StatTile label={t("competition.stat.rooms")} value={leaderboardQuery.isLoading ? "—" : totalRooms} detail={t("competition.stat.roomsDetail")} /></div>
+        <div className="col">
+          <StatTile
+            label={t("competition.stat.leader")}
+            value={<span className="text-truncate d-block">{leader?.displayName ?? "—"}</span>}
+            detail={leader ? t("competition.stat.leaderDetail", { points: leader.points }) : t("competition.emptyTitle")}
+          />
+        </div>
+      </div>
+      <div className="row g-4">
+        <div className="col-12 col-xl-8">
+          <SectionCard
+            title={t("competition.section.title")}
+            description={t("competition.section.description")}
+            actions={<CompetitionLeaderboardFilters period={period} onPeriodChange={setPeriod} eventId={eventId} onEventChange={setEventId} idPrefix="page-leaderboard" />}
+          >
+            {leaderboardQuery.isFetching && leaderboardQuery.data
+              ? <div className="mb-2 text-end"><RefreshIndicator label={t("competition.refreshing")} /></div>
+              : null}
+            {leaderboardQuery.isLoading
+              ? <SkeletonTable rows={6} columns={5} label={t("competition.loading")} />
+              : leaderboardQuery.isError
+                ? <StatusFeedback tone="danger" title={t("competition.loadFailedTitle")}>{t("competition.loadFailedDetail")}</StatusFeedback>
+                : players.length
+                  ? <LeaderboardTable players={players} />
+                  : <StatusFeedback tone="secondary" title={t("competition.emptyTitle")}>{t("competition.emptyDetail")}</StatusFeedback>}
+          </SectionCard>
+          <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <p className="small text-body-secondary mb-0">
+              {leaderboardQuery.data ? t("competition.period", { start: formatDate(leaderboardQuery.data.startAt, language), end: formatDate(leaderboardQuery.data.endAt, language) }) : ""}
+            </p>
+            <Link href="/rooms" className="btn btn-outline-secondary btn-sm">{t("competition.leaderboard.viewRooms")}</Link>
+          </div>
+        </div>
+        <div className="col-12 col-xl-4">
+          <SectionCard title={t("competition.myHistory.title")} description={t("competition.myHistory.description")}>
+            {accountQuery.isLoading
+              ? <SkeletonList rows={3} label={t("competition.myHistory.loading")} />
+              : !account
+                ? <StatusFeedback tone="secondary" title={t("competition.myHistory.signInTitle")}>{t("competition.myHistory.signInDetail")}</StatusFeedback>
+                : historyQuery.isLoading
+                  ? <SkeletonList rows={3} label={t("competition.myHistory.loading")} />
+                  : historyQuery.isError
+                    ? <StatusFeedback tone="danger" title={t("competition.myHistory.failedTitle")}>{t("competition.myHistory.failedDetail")}</StatusFeedback>
+                    : historyQuery.data?.length
+                      ? (
+                        <div className="list-group">
+                          {historyQuery.data.slice(0, 6).map((entry) => (
+                            <Link key={entry.room.id} href={`/competition/player/${account.id}`} className="list-group-item list-group-item-action">
+                              <span className="fw-semibold d-block text-truncate">{entry.room.name}</span>
+                              <span className="small text-body-secondary">
+                                {competitionEventLabel(entry.room.eventId, language)} · {entry.myRank ? t("competition.player.rankOnly", { rank: entry.myRank }) : t("competition.player.unranked")} · {formatDate(entry.room.updatedAt, language)}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      )
+                      : <StatusFeedback tone="secondary" title={t("competition.myHistory.emptyTitle")}>{t("competition.myHistory.emptyDetail")}</StatusFeedback>}
+            {account ? <Link href={`/competition/player/${account.id}`} className="btn btn-outline-secondary btn-sm mt-3">{t("competition.myHistory.detail")}</Link> : null}
+          </SectionCard>
+          <SectionCard title={t("competition.scoring.title")} description={t("competition.scoring.description")}>
+            <p className="small mb-2">{t("competition.scoring.intro")}</p>
+            <p className="small text-body-secondary mb-0">{t("competition.scoring.table")}</p>
+          </SectionCard>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function CompetitionLeaderboard() {

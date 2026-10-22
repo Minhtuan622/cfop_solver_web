@@ -6,6 +6,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AppNav } from "./components/AppNav";
 import { SkeletonCard } from "./components/ui/BootstrapUI";
+import { useLanguage } from "./contexts/LanguageContext";
 import { CfopCloudSync } from "./features/profile/components/CfopCloudSync";
 import { CompetitionOutcomeCelebration } from "./features/competition/components/CompetitionOutcomeCelebration";
 const Home = lazy(() => import("./pages/Home"));
@@ -18,7 +19,8 @@ const TimerLab = lazy(() => import("./pages/TimerLab"));
 const WcaCompetitions = lazy(() => import("./pages/WcaCompetitions"));
 
 function RouteLoading() {
-  return <div className="container py-4 py-lg-5" aria-live="polite"><div className="row g-4"><div className="col-12 col-xl-8"><SkeletonCard lines={2} label="Đang tải công cụ" /><SkeletonCard lines={5} className="mt-4" label="Đang tải nội dung công cụ" /></div><div className="col-12 col-xl-4"><SkeletonCard lines={4} label="Đang tải thông tin bổ sung" /></div></div></div>;
+  const { t } = useLanguage();
+  return <div className="container py-4 py-lg-5" aria-live="polite"><div className="row g-4"><div className="col-12 col-xl-8"><SkeletonCard lines={2} label={t("common.loading")} /><SkeletonCard lines={5} className="mt-4" label={t("common.loading")} /></div><div className="col-12 col-xl-4"><SkeletonCard lines={4} label={t("common.loading")} /></div></div></div>;
 }
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -41,20 +43,21 @@ function Router() {
 }
 
 function AppFooter() {
+  const { t } = useLanguage();
   return (
     <footer className="app-footer py-4 mt-auto">
       <div className="container">
         <div className="row g-3 align-items-center">
           <div className="col-12 col-md">
             <p className="mb-1 fw-semibold text-body">CFOP Solver Studio</p>
-            <p className="mb-0">Giải Rubik 3x3, bấm giờ và luyện tập — miễn phí, dễ dùng cho người mới.</p>
+            <p className="mb-0">{t("footer.tagline")}</p>
           </div>
-          <nav className="col-12 col-md-auto d-flex flex-wrap gap-3" aria-label="Liên kết nhanh">
-            <a href="/">Giải Rubik</a>
-            <a href="/timer">Bấm giờ</a>
-            <a href="/study">Học thêm</a>
-            <a href="/history">Kết quả</a>
-            <a href="/settings">Cài đặt</a>
+          <nav className="col-12 col-md-auto d-flex flex-wrap gap-3" aria-label={t("footer.links")}>
+            <a href="/">{t("nav.solve")}</a>
+            <a href="/timer">{t("nav.timer")}</a>
+            <a href="/study">{t("nav.study")}</a>
+            <a href="/history">{t("nav.history")}</a>
+            <a href="/settings">{t("nav.settings")}</a>
           </nav>
         </div>
       </div>
@@ -62,16 +65,21 @@ function AppFooter() {
   );
 }
 
+function AppShell() {
+  const { t } = useLanguage();
+  return <div className="d-flex flex-column min-vh-100 bs-page">
+    <CfopCloudSync />
+    <CompetitionOutcomeCelebration />
+    <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">{t("nav.skip")}</a>
+    <AppNav />
+    <main id="main-content" className="py-4 py-lg-5 flex-grow-1"><Router /></main>
+    <AppFooter />
+  </div>;
+}
+
 function App() {
   return <LanguageProvider><ErrorBoundary><ThemeProvider>
-    <div className="d-flex flex-column min-vh-100 bs-page">
-      <CfopCloudSync />
-      <CompetitionOutcomeCelebration />
-      <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">Bỏ qua điều hướng</a>
-      <AppNav />
-      <main id="main-content" className="py-4 py-lg-5 flex-grow-1"><Router /></main>
-      <AppFooter />
-    </div>
+    <AppShell />
   </ThemeProvider></ErrorBoundary></LanguageProvider>;
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { BoxArrowRight, PersonCircle } from "@/components/ui/BootstrapIcon";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { AccountDropdown } from "./AccountDropdown";
 import { CfopAuthDialog, type AuthMode } from "./CfopAuthDialog";
 import type { AccountNavItem } from "../lib/accountNavItems";
@@ -9,12 +10,10 @@ import { errorMessage, initials } from "../lib/profilePresentation";
 
 type CfopAccountControlProps = {
   navItems?: AccountNavItem[];
-  language?: "vi" | "en";
 };
 
 export function CfopAccountControl({
   navItems = [],
-  language = "vi",
 }: CfopAccountControlProps) {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,7 +24,7 @@ export function CfopAccountControl({
   const [error, setError] = useState("");
   const [location] = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
-  const vi = language === "vi";
+  const { t } = useLanguage();
   const utils = trpc.useUtils();
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, {
     staleTime: 60_000,
@@ -39,11 +38,11 @@ export function CfopAccountControl({
   };
   const register = trpc.cfopAccount.register.useMutation({
     onSuccess: complete,
-    onError: next => setError(errorMessage(next)),
+    onError: next => setError(errorMessage(next, t)),
   });
   const login = trpc.cfopAccount.login.useMutation({
     onSuccess: complete,
-    onError: next => setError(errorMessage(next)),
+    onError: next => setError(errorMessage(next, t)),
   });
   const logout = trpc.cfopAccount.logout.useMutation({
     onSuccess: () => void utils.cfopAccount.me.invalidate(),
@@ -90,7 +89,7 @@ export function CfopAccountControl({
           {account.avatarUrl ? (
             <img
               src={account.avatarUrl}
-              alt={`Ảnh đại diện của ${account.displayName}`}
+              alt={t("account.avatarAlt", { name: account.displayName })}
               width={24}
               height={24}
               className="rounded-circle object-fit-cover flex-shrink-0 me-1"
@@ -99,7 +98,7 @@ export function CfopAccountControl({
             <span
               className="rounded-circle bg-body-secondary text-body d-inline-flex align-items-center justify-content-center flex-shrink-0 me-1 small fw-semibold"
               style={{ width: 24, height: 24 }}
-              aria-label={`Chữ cái đầu của ${account.displayName}`}
+              aria-label={t("account.initialsLabel", { name: account.displayName })}
             >
               {initials(account.displayName)}
             </span>
@@ -110,7 +109,6 @@ export function CfopAccountControl({
           <AccountDropdown
             navItems={navItems}
             path={path}
-            vi={vi}
             onNavigate={closeMenu}
           >
             <li>
@@ -121,7 +119,7 @@ export function CfopAccountControl({
                 onClick={closeMenu}
               >
                 <PersonCircle className="fs-6 me-2" />
-                Hồ sơ
+                {t("account.profile")}
               </Link>
             </li>
             <li>
@@ -139,7 +137,7 @@ export function CfopAccountControl({
                 disabled={logout.isPending}
               >
                 <BoxArrowRight className="fs-6 me-2" />
-                Đăng xuất
+                {t("account.logout")}
               </button>
             </li>
           </AccountDropdown>
@@ -159,13 +157,12 @@ export function CfopAccountControl({
           aria-controls="cfop-account-menu"
         >
           <PersonCircle className="fs-6 me-1" />
-          {vi ? "Đăng nhập" : "Sign in"}
+          {t("account.signIn")}
         </button>
         {menuOpen ? (
           <AccountDropdown
             navItems={navItems}
             path={path}
-            vi={vi}
             onNavigate={closeMenu}
           >
             <li>
@@ -178,7 +175,7 @@ export function CfopAccountControl({
                   show("login");
                 }}
               >
-                {vi ? "Đăng nhập" : "Sign in"}
+                {t("account.signIn")}
               </button>
             </li>
             <li>
@@ -191,7 +188,7 @@ export function CfopAccountControl({
                   show("register");
                 }}
               >
-                {vi ? "Đăng ký" : "Create account"}
+                {t("account.register")}
               </button>
             </li>
           </AccountDropdown>

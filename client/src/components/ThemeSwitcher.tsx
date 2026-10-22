@@ -13,15 +13,14 @@ const OPTIONS: { value: Theme; icon: typeof SunFill }[] = [
 /** Lets the visitor pick the light palette, the dark palette or the system one. */
 export function ThemeSwitcher() {
   const { theme, resolved, setTheme } = useTheme();
-  const { language } = useLanguage();
-  const vi = language === "vi";
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const labels: Record<Theme, string> = {
-    light: vi ? "Sáng" : "Light",
-    dark: vi ? "Tối" : "Dark",
-    system: vi ? "Hệ thống" : "System",
+    light: t("theme.light"),
+    dark: t("theme.dark"),
+    system: t("theme.system"),
   };
 
   useEffect(() => {
@@ -52,14 +51,14 @@ export function ThemeSwitcher() {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-controls="cfop-theme-menu"
-        aria-label={vi ? "Đổi giao diện sáng tối" : "Change the light and dark theme"}
-        title={vi ? "Đổi giao diện sáng tối" : "Change the light and dark theme"}
+        aria-label={t("theme.change")}
+        title={t("theme.change")}
       >
         <CurrentIcon className="fs-6 me-1" />
         <span className="d-none d-xl-inline">{labels[theme]}</span>
       </button>
       {open ? (
-        <ul className="dropdown-menu dropdown-menu-end show mt-2" role="menu" id="cfop-theme-menu" aria-label={vi ? "Giao diện" : "Theme"}>
+        <ul className="dropdown-menu dropdown-menu-end show mt-2" role="menu" id="cfop-theme-menu" aria-label={t("theme.label")}>
           {OPTIONS.map(option => {
             const OptionIcon = option.icon;
             const active = option.value === theme;

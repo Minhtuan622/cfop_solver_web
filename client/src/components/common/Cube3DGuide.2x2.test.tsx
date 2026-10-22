@@ -4,7 +4,15 @@ import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { Cube3DGuide } from "./Cube3DGuide";
 
-vi.mock("@/contexts/LanguageContext", () => ({ useLanguage: () => ({ language: "vi" }) }));
+vi.mock("@/contexts/LanguageContext", async () => {
+  const { translate } = await import("@/lib/i18n");
+  return {
+    useLanguage: () => ({
+      language: "vi" as const,
+      t: (key: string, params?: Record<string, string | number>) => translate("vi", key, params),
+    }),
+  };
+});
 
 describe("Cube3DGuide 2×2", () => {
   it("renders a six-face 2×2 model with four visible stickers per face", () => {

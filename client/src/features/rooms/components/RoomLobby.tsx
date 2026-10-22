@@ -11,7 +11,8 @@ import {
   formatLabels,
   type RoomFormat,
 } from "@/features/competition";
-import { TIMER_EVENTS, type TimerEventId } from "@/lib/timerEvents";
+import { TIMER_EVENTS, timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { RoomSummary } from "../lib/roomTypes";
 
 type Props = {
@@ -56,24 +57,22 @@ export function RoomLobby({
   onJoin,
   error,
 }: Props) {
+  const { language, t } = useLanguage();
   return (
     <div className="container">
       <div className="row g-4">
         <section className="col-12 col-xl-7">
           <div className="card">
             <div className="card-body">
-              <h1 className="h3">Phòng thi đấu</h1>
-              <p className="text-body-secondary">
-                Chọn event, tạo scramble chung hoặc chia sẻ link để người khác
-                thi và theo dõi.
-              </p>
+              <h1 className="h3">{t("rooms.lobby.title")}</h1>
+              <p className="text-body-secondary">{t("rooms.lobby.intro")}</p>
               <form
                 onSubmit={form => {
                   form.preventDefault();
                   onCreate();
                 }}
               >
-                <Field id="room-name" label="Tên phòng" required>
+                <Field id="room-name" label={t("rooms.lobby.nameLabel")} required>
                   <input
                     id="room-name"
                     required
@@ -85,7 +84,7 @@ export function RoomLobby({
                   />
                 </Field>
                 <div className="row g-3 mt-0">
-                  <Field id="room-event" label="Loại khối" className="col-md-4">
+                  <Field id="room-event" label={t("rooms.lobby.eventLabel")} className="col-md-4">
                     <select
                       id="room-event"
                       className="form-select"
@@ -96,12 +95,12 @@ export function RoomLobby({
                     >
                       {TIMER_EVENTS.map(item => (
                         <option key={item.id} value={item.id}>
-                          {item.labelVi}
+                          {timerEventLabel(item.id, language)}
                         </option>
                       ))}
                     </select>
                   </Field>
-                  <Field id="room-format" label="Thể thức" className="col-md-4">
+                  <Field id="room-format" label={t("rooms.lobby.formatLabel")} className="col-md-4">
                     <select
                       id="room-format"
                       className="form-select"
@@ -117,7 +116,7 @@ export function RoomLobby({
                       ))}
                     </select>
                   </Field>
-                  <Field id="room-max-players" label="Tối đa" className="col-md-4">
+                  <Field id="room-max-players" label={t("rooms.lobby.maxPlayersLabel")} className="col-md-4">
                     <select
                       id="room-max-players"
                       className="form-select"
@@ -125,12 +124,12 @@ export function RoomLobby({
                       onChange={input => onMaxPlayersChange(Number(input.target.value))}
                     >
                       {[2, 4, 6, 8, 12, 16].map(value => (
-                        <option key={value}>{value} người</option>
+                        <option key={value}>{t("rooms.lobby.playerCount", { count: value })}</option>
                       ))}
                     </select>
                   </Field>
                   {eventId === "333mbf" ? (
-                    <Field id="room-blind-cubes" label="Số khối MBLD" className="col-md-4">
+                    <Field id="room-blind-cubes" label={t("rooms.lobby.mbldLabel")} className="col-md-4">
                       <input
                         id="room-blind-cubes"
                         type="number"
@@ -151,7 +150,7 @@ export function RoomLobby({
                   className="btn btn-primary mt-3"
                   disabled={createPending}
                 >
-                  Tạo phòng
+                  {t("rooms.lobby.create")}
                 </button>
               </form>
             </div>
@@ -160,14 +159,14 @@ export function RoomLobby({
         <aside className="col-12 col-xl-5">
           <div className="card">
             <div className="card-body">
-              <h2 className="h5">Vào bằng mã</h2>
+              <h2 className="h5">{t("rooms.lobby.joinByCode")}</h2>
               <form
                 onSubmit={form => {
                   form.preventDefault();
                   onJoin();
                 }}
               >
-                <Field id="room-join-code" label="Mã phòng" required>
+                <Field id="room-join-code" label={t("rooms.lobby.codeLabel")} required>
                   <input
                     id="room-join-code"
                     className="form-control text-uppercase"
@@ -180,12 +179,12 @@ export function RoomLobby({
                   />
                 </Field>
                 <button className="btn btn-outline-primary mt-3">
-                  Tham gia thi
+                  {t("rooms.lobby.join")}
                 </button>
               </form>
-              <h2 className="h6 mt-4">Phòng của bạn</h2>
+              <h2 className="h6 mt-4">{t("rooms.lobby.myRooms")}</h2>
               {myRoomsPending ? (
-                <SkeletonList rows={3} label="Đang tải phòng của bạn" />
+                <SkeletonList rows={3} label={t("rooms.lobby.loadingRooms")} />
               ) : myRooms.length ? (
                 <LoadingTransition>
                   <div className="list-group list-group-flush">
@@ -197,7 +196,7 @@ export function RoomLobby({
                       >
                         <strong className="d-block">{room.name}</strong>
                         <small className="text-body-secondary">
-                          {room.code} · {competitionEventLabel(room.eventId)}
+                          {room.code} · {competitionEventLabel(room.eventId, language)}
                         </small>
                       </Link>
                     ))}
@@ -205,8 +204,8 @@ export function RoomLobby({
                 </LoadingTransition>
               ) : (
                 <EmptyState
-                  title="Chưa có phòng."
-                  description="Tạo phòng mới ở ô bên cạnh hoặc tham gia bằng mã để bắt đầu lượt thi."
+                  title={t("rooms.lobby.emptyTitle")}
+                  description={t("rooms.lobby.emptyDetail")}
                 />
               )}
             </div>

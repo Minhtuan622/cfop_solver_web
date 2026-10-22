@@ -1,9 +1,10 @@
 import {
   competitionResultLabel,
-  formatDescriptions,
+  formatDescriptionKey,
   type RoomFormat,
 } from "@/features/competition";
 import type { TimerEventId } from "@/lib/timerEvents";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { RoomMemberRoster } from "./RoomMemberRoster";
 import type {
   RemovalTarget,
@@ -57,16 +58,17 @@ export function RoomSidebar({
   onRevokeModerator,
   onRemoveSpectator,
 }: Props) {
+  const { language, t } = useLanguage();
   const isMultiBlind = eventId === "333mbf";
   return (
     <aside className="col-12 col-xl-4">
       <div className="card mb-4">
         <div className="card-body">
-          <h2 className="h5">Bảng xếp hạng</h2>
+          <h2 className="h5">{t("rooms.sidebar.standings")}</h2>
           <p className="text-body-secondary small">
             {isMultiBlind
-              ? "Score → thời gian → unsolved"
-              : formatDescriptions[format]}
+              ? t("rooms.sidebar.standingsRule")
+              : t(formatDescriptionKey[format])}
           </p>
           {standings.length ? (
             <ol className="list-group list-group-numbered">
@@ -77,24 +79,24 @@ export function RoomSidebar({
                 >
                   <span>{player.displayName}</span>
                   <strong>
-                    {competitionResultLabel(player.lastResult, eventId)}
+                    {competitionResultLabel(player.lastResult, eventId, t)}
                   </strong>
                 </li>
               ))}
             </ol>
           ) : (
-            <p className="text-body-secondary mb-0">Chưa có kết quả.</p>
+            <p className="text-body-secondary mb-0">{t("rooms.sidebar.noResults")}</p>
           )}
         </div>
       </div>
       <div className="card mb-4">
         <div className="card-body">
-          <h2 className="h5">Thành viên</h2>
+          <h2 className="h5">{t("rooms.sidebar.members")}</h2>
           {canManageSpectators ? (
             <p className="text-body-secondary small">
               {isHost
-                ? "Cấp/gỡ moderator và loại spectator khi cần."
-                : "Bạn có thể loại spectator để hỗ trợ chủ phòng."}
+                ? t("rooms.sidebar.manageHint")
+                : t("rooms.sidebar.supportHint")}
             </p>
           ) : null}
           <RoomMemberRoster
@@ -112,26 +114,26 @@ export function RoomSidebar({
       {canManageSpectators ? (
         <div className="card mb-4">
           <div className="card-body">
-            <h2 className="h5">Nhật ký kiểm duyệt</h2>
+            <h2 className="h5">{t("rooms.sidebar.moderationLog")}</h2>
             <p className="text-body-secondary small">
-              Chỉ chủ phòng và moderator xem được lịch sử này.
+              {t("rooms.sidebar.moderationHint")}
             </p>
             {moderationLogs.length ? (
               <ol className="list-group list-group-numbered">
                 {moderationLogs.map(entry => (
                   <li key={entry.id} className="list-group-item">
-                    <strong>{entry.actorDisplayName}</strong> đã loại{" "}
+                    <strong>{entry.actorDisplayName}</strong> {t("rooms.sidebar.moderationVerb")}{" "}
                     <strong>{entry.targetDisplayName}</strong>
                     <small className="d-block text-body-secondary mt-1">
-                      Lý do: {entry.reason} ·{" "}
-                      {new Date(entry.createdAt).toLocaleString("vi-VN")}
+                      {t("rooms.sidebar.moderationReason", { reason: entry.reason })} ·{" "}
+                      {new Date(entry.createdAt).toLocaleString(language === "vi" ? "vi-VN" : "en-US")}
                     </small>
                   </li>
                 ))}
               </ol>
             ) : (
               <p className="text-body-secondary small mb-0">
-                Chưa có thao tác kiểm duyệt.
+                {t("rooms.sidebar.noModeration")}
               </p>
             )}
           </div>
@@ -140,14 +142,13 @@ export function RoomSidebar({
       {isSpectator ? (
         <div className="card">
           <div className="card-body text-body-secondary small">
-            Khán giả và moderator không tham gia chat để kênh trao đổi của người
-            thi luôn gọn.
+            {t("rooms.sidebar.spectatorNote")}
           </div>
         </div>
       ) : (
         <div className="card">
           <div className="card-body">
-            <h2 className="h5">Chat phòng</h2>
+            <h2 className="h5">{t("rooms.sidebar.chat")}</h2>
             <div className="list-group list-group-flush mb-3">
               {messages.map(chatItem => (
                 <div key={chatItem.id} className="list-group-item px-0">
@@ -168,14 +169,14 @@ export function RoomSidebar({
                 value={chat}
                 maxLength={500}
                 onChange={input => onChatChange(input.target.value)}
-                placeholder="Nhắn với người chơi"
+                placeholder={t("rooms.sidebar.chatPlaceholder")}
               />
               <div className="text-end mt-2">
                 <button
                   className="btn btn-primary btn-sm"
                   disabled={!chat.trim() || sendPending}
                 >
-                  Gửi
+                  {t("rooms.sidebar.send")}
                 </button>
               </div>
             </form>

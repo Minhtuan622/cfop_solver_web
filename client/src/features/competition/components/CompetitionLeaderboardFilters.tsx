@@ -1,4 +1,5 @@
-import { TIMER_EVENTS, type TimerEventId } from "@/lib/timerEvents";
+import { TIMER_EVENTS, timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export type CompetitionPeriod = "week" | "month";
 
@@ -11,15 +12,16 @@ type Props = {
 };
 
 export function CompetitionLeaderboardFilters({ period, onPeriodChange, eventId, onEventChange, idPrefix = "competition" }: Props) {
+  const { language, t } = useLanguage();
   return <div className="d-flex flex-wrap gap-2">
-    <div className="btn-group" role="group" aria-label="Khoảng thời gian xếp hạng">
-      <button type="button" className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`} onClick={() => onPeriodChange("week")}>Tuần này</button>
-      <button type="button" className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`} onClick={() => onPeriodChange("month")}>Tháng này</button>
+    <div className="btn-group" role="group" aria-label={t("competition.filter.periodLabel")}>
+      <button type="button" className={`btn btn-sm ${period === "week" ? "btn-primary" : "btn-outline-primary"}`} onClick={() => onPeriodChange("week")}>{t("competition.filter.week")}</button>
+      <button type="button" className={`btn btn-sm ${period === "month" ? "btn-primary" : "btn-outline-primary"}`} onClick={() => onPeriodChange("month")}>{t("competition.filter.month")}</button>
     </div>
-    <label className="visually-hidden" htmlFor={`${idPrefix}-event`}>Bộ môn</label>
+    <label className="visually-hidden" htmlFor={`${idPrefix}-event`}>{t("competition.filter.eventLabel")}</label>
     <select id={`${idPrefix}-event`} className="form-select form-select-sm" value={eventId} onChange={(event) => onEventChange(event.target.value as TimerEventId | "all")}>
-      <option value="all">Mọi bộ môn</option>
-      {TIMER_EVENTS.map((item) => <option key={item.id} value={item.id}>{item.labelVi}</option>)}
+      <option value="all">{t("competition.filter.allEvents")}</option>
+      {TIMER_EVENTS.map((item) => <option key={item.id} value={item.id}>{timerEventLabel(item.id, language)}</option>)}
     </select>
   </div>;
 }

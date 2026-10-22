@@ -1,4 +1,5 @@
 import { formatSolveTime } from "@/lib/solveHistory";
+import type { Language, Translate, WordPair } from "@/lib/i18n";
 
 export type WcaRecordRow = {
   eventId: string;
@@ -22,14 +23,29 @@ export type WcaProfileData = {
   personalRecords: WcaRecordRow[];
 };
 
-const WCA_EVENT_NAMES: Record<string, string> = {
-  "222": "2×2×2", "333": "3×3×3", "444": "4×4×4", "555": "5×5×5", "666": "6×6×6", "777": "7×7×7",
-  "333bf": "3×3 bịt mắt", "333fm": "3×3 ít lượt xoay", "333oh": "3×3 một tay", clock: "Clock", minx: "Megaminx",
-  pyram: "Pyraminx", skewb: "Skewb", sq1: "Square-1", "444bf": "4×4 bịt mắt", "555bf": "5×5 bịt mắt", "333mbf": "3×3 nhiều khối bịt mắt",
+/** The official WCA name of every event, in both languages. */
+const WCA_EVENT_NAMES: Record<string, WordPair> = {
+  "222": ["2×2×2", "2×2×2"],
+  "333": ["3×3×3", "3×3×3"],
+  "444": ["4×4×4", "4×4×4"],
+  "555": ["5×5×5", "5×5×5"],
+  "666": ["6×6×6", "6×6×6"],
+  "777": ["7×7×7", "7×7×7"],
+  "333bf": ["3×3 bịt mắt", "3×3 blindfolded"],
+  "333fm": ["3×3 ít lượt xoay", "3×3 fewest moves"],
+  "333oh": ["3×3 một tay", "3×3 one-handed"],
+  clock: ["Clock", "Clock"],
+  minx: ["Megaminx", "Megaminx"],
+  pyram: ["Pyraminx", "Pyraminx"],
+  skewb: ["Skewb", "Skewb"],
+  sq1: ["Square-1", "Square-1"],
+  "444bf": ["4×4 bịt mắt", "4×4 blindfolded"],
+  "555bf": ["5×5 bịt mắt", "5×5 blindfolded"],
+  "333mbf": ["3×3 nhiều khối bịt mắt", "3×3 multi-blind"],
 };
 
-export function errorMessage(error: unknown) {
-  return error instanceof Error ? error.message : "Không thể hoàn tất. Hãy thử lại.";
+export function errorMessage(error: unknown, t: Translate) {
+  return error instanceof Error ? error.message : t("profile.error");
 }
 
 export function initials(name: string) {
@@ -40,18 +56,23 @@ export function formatWcaTime(centiseconds: number | null | undefined) {
   return centiseconds ? formatSolveTime(centiseconds * 10) : "—";
 }
 
-export function wcaEventName(eventId: string) {
-  return WCA_EVENT_NAMES[eventId] ?? eventId.toUpperCase();
+export function wcaEventName(eventId: string, language: Language) {
+  const pair = WCA_EVENT_NAMES[eventId];
+  if (!pair) return eventId.toUpperCase();
+  return language === "vi" ? pair[0] : pair[1];
 }
 
-export function rankSummary(ranks: WcaRecordRow["singleRanks"]) {
+export function rankSummary(ranks: WcaRecordRow["singleRanks"], language: Language) {
   const parts = [["TG", ranks.world], ["CL", ranks.continental], ["QG", ranks.country]].filter((item): item is [string, number] => typeof item[1] === "number");
-  return parts.length ? parts.map(([label, rank]) => `${label} #${rank.toLocaleString("vi-VN")}`).join(" · ") : "—";
+  const locale = language === "vi" ? "vi-VN" : "en-US";
+  return parts.length ? parts.map(([label, rank]) => `${label} #${rank.toLocaleString(locale)}`).join(" · ") : "—";
 }
 
-export function comparisonMessage(deltaMs: number | null) {
-  if (deltaMs === null) return "Cần dữ liệu ở cả hai nguồn";
-  if (deltaMs === 0) return "Hai nguồn bằng nhau";
+export function comparisonMessage(deltaMs: number | null, t: Translate) {
+  if (deltaMs === null) return t("profile.compare.deltaMissing");
+  if (deltaMs === 0) return t("profile.compare.deltaEqual");
   const difference = formatSolveTime(Math.abs(deltaMs));
-  return deltaMs < 0 ? `Timer nhanh hơn ${difference}` : `WCA nhanh hơn ${difference}`;
+  return deltaMs < 0
+    ? t("profile.compare.timerFaster", { value: difference })
+    : t("profile.compare.wcaFaster", { value: difference });
 }

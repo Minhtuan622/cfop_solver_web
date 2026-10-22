@@ -1,0 +1,88 @@
+import type { Dictionary } from "./index";
+
+/** The settings page: solver defaults, timer preferences and study options. */
+export const settingsWords: Dictionary = {
+  "settings.title": ["Cài đặt", "Settings"],
+  "settings.subtitle": [
+    "Thiết lập mặc định cho Solver, Timer và Study. Mọi thay đổi được tự động lưu.",
+    "Set defaults for Solver, Timer, and Study. All changes save automatically.",
+  ],
+  "settings.cfopSection": ["CFOP Solver", "CFOP Solver"],
+  "settings.crossColor": ["Màu Cross", "Cross color"],
+  "settings.crossColorHint": [
+    "Màu Cross luôn được đặt ở mặt D khi xem Cube 3D và chạy lời giải.",
+    "The Cross color stays on the D face in Cube 3D and during solving.",
+  ],
+  "settings.color.white": ["Trắng", "White"],
+  "settings.color.yellow": ["Vàng", "Yellow"],
+  "settings.color.green": ["Xanh lá", "Green"],
+  "settings.color.blue": ["Xanh dương", "Blue"],
+  "settings.color.red": ["Đỏ", "Red"],
+  "settings.color.orange": ["Cam", "Orange"],
+  "settings.opening": ["Opening", "Opening"],
+  "settings.openingHint": [
+    "Chọn tier Opening muốn ưu tiên. Solver chỉ gắn nhãn XCross/XXCross/XXXCross/XXXXCross khi một chuỗi direct thực sự đạt Cross và đúng số F2L slot.",
+    "Choose the Opening tier to prioritize. The solver labels XCross-family tiers only when one direct sequence truly reaches Cross and the required F2L slots.",
+  ],
+  "settings.opening.cross": ["Cross chuẩn", "Standard Cross"],
+  "settings.opening.auto": ["XCross · Cross + 1 F2L", "XCross · Cross + 1 F2L"],
+  "settings.opening.xxcross": ["XXCross · Cross + 2 F2L", "XXCross · Cross + 2 F2L"],
+  "settings.opening.xxxcross": ["XXXCross · Cross + 3 F2L", "XXXCross · Cross + 3 F2L"],
+  "settings.opening.xxxxcross": ["XXXXCross · Full F2L", "XXXXCross · Full F2L"],
+  "settings.openingDepth": ["Độ sâu Direct Opening", "Direct Opening depth"],
+  "settings.openingDepthHint": [
+    "Tăng depth khi muốn thử chuỗi opening dài hơn.",
+    "Increase depth to try longer opening sequences.",
+  ],
+  "settings.nodeBudget": ["Node budget direct", "Node budget direct"],
+  "settings.nodeBudgetHint": [
+    "Budget cao tìm kỹ hơn nhưng mất thời gian hơn; giữ hữu hạn để trình duyệt không bị treo.",
+    "Higher budget searches harder but takes longer; it remains finite to protect the browser.",
+  ],
+  "settings.directOnly": ["Ưu tiên direct đúng tier", "Prefer direct result at selected tier"],
+  "settings.directOnlyHelp": [
+    "Không tính Cross rồi F2L tuần tự là XXCross, XXXCross hoặc XXXXCross.",
+    "Never labels sequential Cross then F2L as XXCross, XXXCross, or XXXXCross.",
+  ],
+  "settings.preferredSlot": ["Ưu tiên F2L slot", "Preferred F2L slot"],
+  "settings.auto": ["Tự động", "Auto"],
+  "settings.excludeSlots": ["Loại trừ F2L slot", "Exclude F2L slots"],
+  "settings.lastLayer": ["Last Layer", "Last Layer"],
+  "settings.lastLayerHint": [
+    "Auto thử ZBLL, 1LLL rồi mới dùng OLL + PLL; ZBLL chỉ chạy khi EO phù hợp.",
+    "Auto tries ZBLL and 1LLL before OLL + PLL; ZBLL only runs when EO is compatible.",
+  ],
+  "settings.lastLayer.auto": ["Tự động · ZBLL → 1LLL → OLL/PLL", "Auto · ZBLL → 1LLL → OLL/PLL"],
+  "settings.lastLayer.ollpll": ["OLL + PLL", "OLL + PLL"],
+  "settings.lastLayer.zbll": ["ZBLL · cần EO", "ZBLL · EO required"],
+  "settings.lastLayer.oneLll": ["1LLL", "1LLL"],
+  "settings.timerSection": ["Timer & Inspection", "Timer & Inspection"],
+  "settings.sound": ["Âm inspection 8s / 12s", "Inspection sound at 8s / 12s"],
+  "settings.soundHelp": [
+    "Phát cảnh báo trước mốc +2 (15 giây) và DNF (17 giây).",
+    "Warns before the +2 (15 seconds) and DNF (17 seconds) limits.",
+  ],
+  "settings.highlight": ["Highlight Cross khi inspection", "Highlight Cross during inspection"],
+  "settings.highlightHelp": [
+    "Làm rõ các mảnh thuộc màu Cross đã chọn trên Cube 3D.",
+    "Emphasizes pieces matching the chosen Cross color on Cube 3D.",
+  ],
+  "settings.splits": ["Speed splits", "Speed splits"],
+  "settings.splitsHelp": [
+    "Space / Enter / chạm Timer lần lượt đánh dấu Cross → F2L → OLL → PLL.",
+    "Space / Enter / touch marks Cross → F2L → OLL → PLL in order.",
+  ],
+  "settings.studySection": ["Study & ngôn ngữ", "Study & language"],
+  "settings.dailyGoal": ["Mục tiêu case mỗi ngày", "Daily case goal"],
+  "settings.dailyGoalHelp": ["Áp dụng cho danh sách ôn Study/SRS.", "Applies to the Study/SRS review list."],
+  "settings.language": ["Ngôn ngữ", "Language"],
+  "settings.restoreDefaults": ["Khôi phục mặc định", "Restore defaults"],
+  "settings.saving": ["Đang lưu…", "Saving…"],
+  "settings.saved": ["Đã lưu", "Saved"],
+  "settings.autoSave": ["Tự động lưu", "Saves automatically"],
+  "settings.directNote": ["Ghi chú về direct Opening", "Direct Opening note"],
+  "settings.directNoteDetail": [
+    "XCross đến XXXXCross là một opening nguyên tử: Cross và các cặp F2L mục tiêu phải hoàn tất trong cùng một chuỗi. Nếu không có kết quả direct trong budget, Solver hiển thị fallback thực tế thay vì gắn nhãn tier cao sai.",
+    "XCross through XXXXCross are atomic openings: Cross and target F2L pairs must finish in the same sequence. If no direct result fits the budget, the Solver shows the actual fallback instead of a false higher tier.",
+  ],
+};

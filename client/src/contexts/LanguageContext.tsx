@@ -1,67 +1,50 @@
-/** Simple bilingual vocabulary shared by the entire CFOP Studio interface. */
+/** The bilingual vocabulary of the CFOP Solver Studio interface. */
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { translate, type Language, type WordParams } from "@/lib/i18n";
 
-export type Language = "vi" | "en";
-type Dictionary = Record<string, [string, string]>;
+export type { Language };
 
-const words: Dictionary = {
-  "app.title": ["Giải Rubik", "Rubik Solver"],
-  "app.tagline": ["Nhập khối Rubik và xem cách giải.", "Enter your Rubik's Cube and see a solution."],
-  "language.vi": ["VI", "VI"], "language.en": ["EN", "EN"],
-  "input.title": ["Nhập khối Rubik", "Enter your Rubik's Cube"],
-  "input.scramble": ["Cách khối đang bị xáo trộn", "How the cube was mixed"], "input.state": ["Tô màu 6 mặt", "Color the 6 sides"],
-  "input.label": ["Dán các nước xoay của khối", "Paste the cube moves"], "input.solve": ["TÌM CÁCH GIẢI", "FIND A SOLUTION"],
-  "input.loading": ["Đang chuẩn bị…", "Preparing…"],
-  "input.camera": ["Dùng camera", "Use camera"],
-  "guide.title": ["Các bước để hoàn thành", "Steps to finish"],
-  "guide.ready": ["Sẵn sàng giải", "Ready to solve"],
-  "guide.help": ["Nhập tình trạng khối ở bên trái rồi bấm nút Tìm cách giải.", "Enter the cube on the left, then choose Find a solution."],
-  "guide.previous": ["Trước", "Previous"], "guide.next": ["Sau", "Next"],
-  "guide.play": ["Phát", "Play"], "guide.pause": ["Dừng", "Pause"], "guide.reset": ["Làm lại", "Reset"],
-  "guide.move": ["Nước xoay", "Move"], "guide.step": ["Bước", "Step"], "guide.moves": ["nước xoay", "moves"],
-  "guide.list": ["Danh sách bước", "Step list"],
-  "timer.title": ["Timer giải Rubik", "Rubik solve timer"],
-  "timer.help": ["Nhấn Space hoặc Chạy timer giải để bắt đầu ghi lượt.", "Press Space or Run solve timer to begin logging a solve."],
-  "timer.start": ["Chạy timer giải", "Run solve timer"], "timer.stop": ["Dừng và ghi lượt", "Stop and log solve"], "timer.reset": ["Đặt lại timer", "Reset timer"],
-  "timer.saveHint": ["Bấm Dừng để lưu lượt giải vào Lịch sử.", "Press Stop to save this solve to History."],
-  "camera.title": ["Quét bằng camera", "Scan with camera"],
-  "camera.help": ["Quét lần lượt 6 mặt theo ký hiệu hiển thị.", "Scan the 6 faces in the order shown."],
-  "camera.open": ["Mở camera", "Open camera"], "camera.capture": ["Chụp mặt", "Capture face"],
-  "camera.stop": ["Tắt camera", "Stop camera"], "camera.reset": ["Quét lại", "Scan again"],
-  "practice.title": ["Luyện OLL / PLL", "OLL / PLL practice"],
-  "practice.help": ["Nhìn tên case, làm trên cube thật, rồi tự chấm.", "See the case, try it on your cube, then rate yourself."],
-  "practice.show": ["Xem cách làm", "Show moves"], "practice.correct": ["Đúng", "Correct"], "practice.wrong": ["Chưa đúng", "Not yet"],
-  "practice.new": ["Case mới", "New case"], "practice.attempts": ["LẦN LUYỆN", "ATTEMPTS"],
-  "practice.accuracy": ["ĐỘ CHÍNH XÁC", "ACCURACY"], "practice.average": ["THỜI GIAN TB", "AVG TIME"],
-  "practice.progress": ["Tiến độ gần đây", "Recent progress"], "practice.noData": ["Hoàn thành vài case để xem biểu đồ tốc độ.", "Complete a few cases to see your speed chart."],
-  "practice.reset": ["Xóa số liệu", "Clear stats"],
-  "pdf.title": ["Lưu hướng dẫn", "Save your guide"],
-  "pdf.help": ["Tải file PDF với toàn bộ bước giải đơn giản.", "Download a PDF with all simple solution steps."],
-  "pdf.export": ["Xuất PDF hướng dẫn", "Export guide PDF"],
-  "pdf.wait": ["Chưa có hướng dẫn để xuất", "No guide available to export"],
-  "pdf.sheet": ["Lưu hướng dẫn", "Save your guide"],
-  "pdf.sheetHelp": ["Tải file PDF với các bước giải đơn giản, dễ xem lại.", "Download a PDF with simple steps to review later."],
-  "pdf.ready": ["SẴN SÀNG TẢI", "READY TO DOWNLOAD"],
-  "pdf.waiting": ["CHƯA CÓ HƯỚNG DẪN", "NO GUIDE YET"],
-  "status.title": ["Tình trạng", "Status"], "status.ready": ["Đã sẵn sàng", "Ready"],
-  "status.moves": ["LƯỢT XOAY", "TURNS"], "status.steps": ["CHẶNG", "STAGES"], "status.ok": ["HOÀN TẤT", "DONE"],
-  "check.title": ["Kiểm tra lời giải", "Solution check"],
-  "check.oll": ["Các bước mặt trên", "Top-face cases"], "check.pll": ["Các bước cuối", "Final-step cases"],
-  "check.turns": ["Mọi hướng xoay", "All turn directions"],
-  "simple.note": ["Mọi xử lý diễn ra trên thiết bị của bạn.", "Everything runs on your device."],
+type LanguageValue = {
+  language: Language;
+  /** Shorthand for the many places that still branch on a single language. */
+  vi: boolean;
+  setLanguage: (value: Language) => void;
+  /** Reads a `namespace.key` entry, optionally filling its `{placeholders}`. */
+  t: (key: string, params?: WordParams) => string;
 };
 
-const Context = createContext<{ language: Language; setLanguage: (value: Language) => void; t: (key: string) => string }>({
-  language: "vi", setLanguage: () => undefined, t: (key) => key,
+const Context = createContext<LanguageValue>({
+  language: "vi",
+  vi: true,
+  setLanguage: () => undefined,
+  t: (key, params) => translate("vi", key, params),
 });
 
+const STORAGE_KEY = "cfop-language";
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>(() => (localStorage.getItem("cfop-language") as Language) || "vi");
-  const value = useMemo(() => ({ language, setLanguage: (next: Language) => { localStorage.setItem("cfop-language", next); setLanguage(next); }, t: (key: string) => words[key]?.[language === "vi" ? 0 : 1] ?? key }), [language]);
+  const [language, setLanguageState] = useState<Language>(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored === "en" ? "en" : "vi";
+  });
+  const value = useMemo<LanguageValue>(
+    () => ({
+      language,
+      vi: language === "vi",
+      setLanguage: (next: Language) => {
+        localStorage.setItem(STORAGE_KEY, next);
+        setLanguageState(next);
+      },
+      t: (key: string, params?: WordParams) => translate(language, key, params),
+    }),
+    [language],
+  );
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 
-export function useLanguage() { return useContext(Context); }
+export function useLanguage() {
+  return useContext(Context);
+}
 
 export function simplePhase(name: string, language: Language) {
   if (name.startsWith("xxxxcross_")) {

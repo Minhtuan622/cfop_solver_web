@@ -22,10 +22,10 @@ vi.mock("@/lib/trpc", () => ({
 import { CfopAccountControl } from "./CfopAccountControl";
 
 const navItems = [
-  { href: "/rooms", label: "Thi đấu", labelEn: "Rooms", active: (path: string) => path === "/rooms" },
-  { href: "/competition", label: "Xếp hạng", labelEn: "Rankings", active: (path: string) => path === "/competition" },
-  { href: "/wca", label: "Giải WCA", labelEn: "WCA", active: (path: string) => path === "/wca" },
-  { href: "/settings", label: "Cài đặt", labelEn: "Settings", active: (path: string) => path === "/settings" },
+  { href: "/rooms", labelKey: "nav.rooms", active: (path: string) => path === "/rooms" },
+  { href: "/competition", labelKey: "nav.rankings", active: (path: string) => path === "/competition" },
+  { href: "/wca", labelKey: "nav.wca", active: (path: string) => path === "/wca" },
+  { href: "/settings", labelKey: "nav.settings", active: (path: string) => path === "/settings" },
 ];
 
 describe("CfopAccountControl", () => {

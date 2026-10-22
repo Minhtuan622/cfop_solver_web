@@ -9,7 +9,15 @@ const entries = [
   { id: "three-oh", createdAt: 1_700_000_020_000, eventId: "333oh", input: "R U", inputKind: "scramble" as const, elapsedMs: 15_000, inspectionMs: 0, penalty: "none" as const, solution: "", moves: 0, note: "", tags: [] },
 ];
 
-vi.mock("@/contexts/LanguageContext", () => ({ useLanguage: () => ({ language: "vi" }) }));
+vi.mock("@/contexts/LanguageContext", async () => {
+  const { translate } = await import("@/lib/i18n");
+  return {
+    useLanguage: () => ({
+      language: "vi" as const,
+      t: (key: string, params?: Record<string, string | number>) => translate("vi", key, params),
+    }),
+  };
+});
 vi.mock("@/components/common/MoveComposer", () => ({ MoveComposer: ({ label }: { label: string }) => <div>{label}</div> }));
 vi.mock("@/components/ui/BootstrapDialog", () => ({ Dialog: ({ open, children }: { open: boolean; children: React.ReactNode }) => open ? <>{children}</> : null, DialogContent: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogDescription: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogFooter: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogHeader: ({ children }: { children: React.ReactNode }) => <>{children}</>, DialogTitle: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
 vi.mock("recharts", () => ({ Line: () => null, LineChart: ({ children }: { children: React.ReactNode }) => <>{children}</>, ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <>{children}</>, Tooltip: () => null, XAxis: () => null, YAxis: () => null }));
