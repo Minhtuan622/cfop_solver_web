@@ -148,4 +148,122 @@ export const roomsWords: Dictionary = {
   ],
   "rooms.moderation.cancel": ["Hủy", "Cancel"],
   "rooms.moderation.confirm": ["Xác nhận loại", "Confirm removal"],
+
+  "rooms.error.roomMissing": [
+    "Không tìm thấy phòng thi đấu này.",
+    "This competition room does not exist.",
+  ],
+  "rooms.error.notMember": ["Bạn chưa tham gia phòng này.", "You are not in this room."],
+  "rooms.error.removed": [
+    "Bạn đã bị quản trị viên loại khỏi phòng.",
+    "A moderator removed you from the room.",
+  ],
+  "rooms.error.removedWithReason": [
+    "Bạn đã bị quản trị viên loại khỏi phòng. Lý do:",
+    "A moderator removed you from the room. Reason:",
+  ],
+  "rooms.error.noReason": ["Không có lý do được lưu.", "No reason was given."],
+  "rooms.error.roomStarted": [
+    "Phòng đã bắt đầu; không thể tham gia lượt này.",
+    "The room has already started; you cannot join this round.",
+  ],
+  "rooms.error.roomFull": ["Phòng đã đủ người chơi.", "The room is full."],
+  "rooms.error.hostOnlyGrant": [
+    "Chỉ chủ phòng được cấp quyền moderator.",
+    "Only the host can make someone a moderator.",
+  ],
+  "rooms.error.hostOnlyRevoke": [
+    "Chỉ chủ phòng được gỡ quyền moderator.",
+    "Only the host can take the moderator role away.",
+  ],
+  "rooms.error.spectatorOnlyPromote": [
+    "Chỉ spectator có thể được nâng lên moderator.",
+    "Only a spectator can be made a moderator.",
+  ],
+  "rooms.error.notModerator": [
+    "Thành viên này không phải moderator.",
+    "This member is not a moderator.",
+  ],
+  "rooms.error.moderatorOnly": [
+    "Chỉ chủ phòng hoặc moderator được quản lý khán giả.",
+    "Only the host or a moderator can manage the spectators.",
+  ],
+  "rooms.error.spectatorOnlyRemove": ["Chỉ có thể loại spectator.", "Only a spectator can be removed."],
+  "rooms.error.hostCannotLeave": [
+    "Chủ phòng không thể rời phòng. Hãy tạo phòng mới nếu cần.",
+    "The host cannot leave the room. Create a new one instead.",
+  ],
+  "rooms.error.hostOnlyStart": [
+    "Chỉ chủ phòng được bắt đầu lượt mới.",
+    "Only the host can start a new round.",
+  ],
+  "rooms.error.formatFinished": [
+    "Thể thức này đã kết thúc. Hãy tạo phòng mới để thi tiếp.",
+    "This format is over. Create a new room to keep competing.",
+  ],
+  "rooms.error.needTwoPlayers": [
+    "Cần ít nhất 2 người thi trong phòng để bắt đầu thi đấu.",
+    "At least 2 competitors are needed in the room to start.",
+  ],
+  "rooms.error.roundLimitReached": [
+    "Đã đủ số lượt của thể thức này. Hãy hoàn tất phòng để chốt bảng xếp hạng.",
+    "This format has run all its rounds. Finish the room to settle the standings.",
+  ],
+  "rooms.error.spectatorCannotSubmit": [
+    "Người xem chỉ có thể theo dõi, không thể nộp kết quả.",
+    "Spectators can watch, but cannot submit a result.",
+  ],
+  "rooms.error.noOpenRound": [
+    "Phòng chưa có lượt thi đấu đang mở.",
+    "The room has no open round right now.",
+  ],
+  "rooms.error.roundChanged": [
+    "Lượt thi đấu đã chuyển. Hãy đồng bộ lại phòng trước khi nộp kết quả.",
+    "The round moved on. Sync the room again before submitting.",
+  ],
+  "rooms.error.alreadySubmitted": [
+    "Bạn đã nộp kết quả cho lượt này.",
+    "You already submitted a result for this round.",
+  ],
+  "rooms.error.multiBlindCount": [
+    "Cần nhập số khối MBLD giải đúng.",
+    "Enter the right number of MBLD cubes you solved.",
+  ],
+  "rooms.error.multiBlindMismatch": [
+    "Số khối MBLD không khớp bundle của phòng.",
+    "The MBLD count does not match the room bundle.",
+  ],
+  "rooms.error.spectatorCannotChat": [
+    "Người xem không thể gửi chat trong phòng này.",
+    "Spectators cannot chat in this room.",
+  ],
+  "rooms.error.hostOnlyDelete": ["Chỉ chủ phòng được xóa phòng.", "Only the host can delete the room."],
+  "rooms.error.cannotDeleteActive": [
+    "Không thể xóa khi phòng đang thi. Hãy hoàn tất thể thức trước.",
+    "The room cannot be deleted while it is running. Finish the format first.",
+  ],
+  "rooms.error.hostOnlyFinish": [
+    "Chỉ chủ phòng được hoàn tất thể thức.",
+    "Only the host can finish the format.",
+  ],
+  "rooms.error.hostOnlyRematch": [
+    "Chỉ chủ phòng được tạo Đấu lại.",
+    "Only the host can start a rematch.",
+  ],
+  "rooms.error.rematchAfterFinish": [
+    "Chỉ có thể Đấu lại sau khi phòng kết thúc.",
+    "A rematch is only possible once the room is over.",
+  ],
+  "rooms.error.createCodeFailed": [
+    "Không thể tạo mã phòng. Hãy thử lại.",
+    "The room code could not be created. Please try again.",
+  ],
+  "rooms.error.rematchFailed": [
+    "Không thể tạo phòng Đấu lại. Hãy thử lại.",
+    "The rematch room could not be created. Please try again.",
+  ],
+  "rooms.error.systemRemoved": [
+    "[system] Moderator đã loại một người xem khỏi phòng.",
+    "[system] A moderator removed a spectator from the room.",
+  ],
 };

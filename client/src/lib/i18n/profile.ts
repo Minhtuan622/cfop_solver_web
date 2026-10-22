@@ -200,6 +200,22 @@ export const profileWords: Dictionary = {
     "Mật khẩu hiện tại không đúng.",
     "The current password is wrong.",
   ],
+  "profile.errorAvatarFormat": [
+    "Ảnh đại diện không đúng định dạng.",
+    "That avatar file is not in a supported format.",
+  ],
+  "profile.errorAvatarTooLarge": [
+    "Ảnh đại diện phải nhỏ hơn 2 MB.",
+    "The avatar must be smaller than 2 MB.",
+  ],
+  "profile.errorAvatarMismatch": [
+    "Nội dung ảnh không khớp định dạng đã chọn.",
+    "The image content does not match the chosen format.",
+  ],
+  "profile.errorSyncTooLarge": [
+    "Dữ liệu đồng bộ quá lớn. Hãy xuất backup cục bộ trước.",
+    "The sync data is too large. Export a local backup first.",
+  ],
   "profile.progressEmpty": [
     "Hoàn thành vài lượt solve để xem đường tiến bộ Best và Ao5 theo ngày.",
     "Complete a few solves to see the Best and Ao5 progress line by day.",

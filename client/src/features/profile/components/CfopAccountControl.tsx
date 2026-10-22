@@ -5,7 +5,8 @@ import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AccountDropdown } from "./AccountDropdown";
 import { CfopAuthDialog, type AuthMode } from "./CfopAuthDialog";
-import { errorMessage, initials } from "../lib/profilePresentation";
+import { errorMessage } from "@/lib/apiError";
+import { initials } from "../lib/profilePresentation";
 
 export function CfopAccountControl() {
   const [open, setOpen] = useState(false);
@@ -30,25 +31,11 @@ export function CfopAccountControl() {
   };
   const register = trpc.cfopAccount.register.useMutation({
     onSuccess: complete,
-    onError: next =>
-      setError(
-        errorMessage(next, t, {
-          BAD_REQUEST: "account.error.invalidInput",
-          CONFLICT: "account.error.emailTaken",
-          TOO_MANY_REQUESTS: "account.error.rateLimited",
-        }),
-      ),
+    onError: next => setError(errorMessage(next, t)),
   });
   const login = trpc.cfopAccount.login.useMutation({
     onSuccess: complete,
-    onError: next =>
-      setError(
-        errorMessage(next, t, {
-          BAD_REQUEST: "account.error.invalidInput",
-          UNAUTHORIZED: "account.error.invalidCredentials",
-          TOO_MANY_REQUESTS: "account.error.rateLimited",
-        }),
-      ),
+    onError: next => setError(errorMessage(next, t)),
   });
   const logout = trpc.cfopAccount.logout.useMutation({
     onSuccess: () => void utils.cfopAccount.me.invalidate(),

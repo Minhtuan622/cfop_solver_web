@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { LoadingTransition, RefreshIndicator, SkeletonCard } from "@/components/ui/BootstrapUI";
 import { trpc } from "@/lib/trpc";
+import { errorMessage } from "@/lib/apiError";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language, Translate } from "@/lib/i18n";
 
@@ -18,7 +19,7 @@ function formatDateRange(start: string, end: string, language: Language) {
 }
 
 function messageFor(error: unknown, t: Translate) {
-  return error instanceof Error ? error.message : t("wca.loadFailed");
+  return errorMessage(error, t);
 }
 
 function competitionStatus(value: string, t: Translate) {

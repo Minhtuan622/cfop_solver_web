@@ -34,6 +34,7 @@ vi.mock("@/lib/trpc", () => ({
 }));
 
 import { CfopAccountControl } from "./CfopAccountControl";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 describe("CfopAccountControl", () => {
   afterEach(() => {
@@ -103,17 +104,23 @@ describe("CfopAccountControl", () => {
 
   it("dịch lỗi email đã có tài khoản sang câu chữ của giao diện", () => {
     accountData = null;
-    // The server writes its own wording; the dialog shows the wording of the interface.
-    failure = Object.assign(new Error("Account already exists."), {
+    // The server writes in Vietnamese; the dialog shows the wording of the interface.
+    failure = Object.assign(new Error("Email này đã có tài khoản CFOP."), {
       data: { code: "CONFLICT", httpStatus: 409 },
     });
-    render(<CfopAccountControl />);
+    window.localStorage.setItem("cfop-language", "en");
+    render(
+      <LanguageProvider>
+        <CfopAccountControl />
+      </LanguageProvider>,
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: /Đăng nhập/ }));
-    fireEvent.click(screen.getByRole("menuitem", { name: "Đăng ký" }));
+    fireEvent.click(screen.getByRole("button", { name: /Sign in/ }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Create account" }));
     fireEvent.submit(document.querySelector("form")!);
 
-    expect(screen.getByRole("alert").textContent).toBe("Email này đã có tài khoản CFOP.");
+    expect(screen.getByRole("alert").textContent).toBe("This email already has a CFOP account.");
+    window.localStorage.clear();
     failure = null;
   });
 });

@@ -34,4 +34,49 @@ export const wcaWords: Dictionary = {
     "Lịch lấy từ World Cube Association. Hãy kiểm tra trang giải WCA trước khi đăng ký vì lịch và điều kiện có thể thay đổi.",
     "The calendar comes from the World Cube Association. Check the competition page before registering, because the schedule and the conditions can change.",
   ],
+
+  "wca.errorData": [
+    "Không thể xử lý dữ liệu WCA.",
+    "The WCA data could not be processed.",
+  ],
+  "wca.errorNotFound": [
+    "Không tìm thấy WCA ID hoặc dữ liệu WCA.",
+    "That WCA ID or the WCA data was not found.",
+  ],
+  "wca.errorUnavailable": [
+    "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau.",
+    "WCA is not answering with data right now. Please try again later.",
+  ],
+  "wca.errorUnreachable": [
+    "Không thể kết nối WCA lúc này. Hãy thử lại sau.",
+    "WCA cannot be reached right now. Please try again later.",
+  ],
+  "wca.errorIdFormat": [
+    "WCA ID cần theo dạng 2016ABCD01.",
+    "A WCA ID has to look like 2016ABCD01.",
+  ],
+  "wca.errorProfileMissing": [
+    "Không tìm thấy hồ sơ WCA này.",
+    "This WCA profile was not found.",
+  ],
+  "wca.errorOAuthInvalidId": [
+    "WCA không trả về WCA ID hợp lệ.",
+    "WCA did not return a valid WCA ID.",
+  ],
+  "wca.errorOAuthNotConfigured": [
+    "WCA OAuth chưa được cấu hình trên máy chủ.",
+    "WCA OAuth is not configured on the server yet.",
+  ],
+  "wca.errorOAuthInvalidState": [
+    "Liên kết WCA đã hết hạn hoặc không hợp lệ.",
+    "The WCA link has expired or is not valid.",
+  ],
+  "wca.errorOAuthAccountMismatch": [
+    "Phiên tài khoản CFOP không khớp với yêu cầu liên kết WCA.",
+    "The CFOP account session does not match the WCA link request.",
+  ],
+  "wca.errorOAuthLinkFailed": [
+    "Không thể xác minh tài khoản WCA. Hãy thử liên kết lại.",
+    "The WCA account could not be verified. Please link it again.",
+  ],
 };

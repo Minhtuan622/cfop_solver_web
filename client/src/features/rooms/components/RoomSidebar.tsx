@@ -4,6 +4,7 @@ import {
   type RoomFormat,
 } from "@/features/competition";
 import { PendingButton } from "@/components/ui/BootstrapUI";
+import { translateServerText } from "@/lib/apiError";
 import type { TimerEventId } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RoomMemberRoster } from "./RoomMemberRoster";
@@ -158,7 +159,7 @@ export function RoomSidebar({
               {messages.map(chatItem => (
                 <div key={chatItem.id} className="list-group-item px-0">
                   <strong className="small">{chatItem.displayName}</strong>
-                  <p className="mb-0 text-break">{chatItem.content}</p>
+                  <p className="mb-0 text-break">{translateServerText(chatItem.content, t) ?? chatItem.content}</p>
                 </div>
               ))}
             </div>

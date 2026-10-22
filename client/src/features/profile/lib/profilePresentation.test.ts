@@ -25,7 +25,7 @@ describe("profilePresentation", () => {
     });
     expect(errorMessage(rejected, t)).toBe("Email này đã có tài khoản CFOP.");
 
-    expect(errorMessage(new Error("Mạng bị ngắt."), t)).toBe("Mạng bị ngắt.");
+    expect(errorMessage(new Error("Mạng bị ngắt."), t)).toBe("Không thể hoàn tất. Hãy thử lại.");
     expect(errorMessage("not an error", t)).toBe("Không thể hoàn tất. Hãy thử lại.");
   });
 

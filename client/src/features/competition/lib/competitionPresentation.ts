@@ -1,6 +1,7 @@
 import { formatMultiBlindTime } from "@/lib/multiBlind";
 import { formatSolveTime } from "@/lib/solveHistory";
 import { DEFAULT_TIMER_EVENT, isTimerEventId, timerEventLabel } from "@/lib/timerEvents";
+import { errorMessage } from "@/lib/apiError";
 import type { Language, Translate } from "@/lib/i18n";
 
 export type RoomFormat = "best_of_3" | "ao5" | "ao12";
@@ -16,7 +17,7 @@ export const formatDescriptionKey: Record<RoomFormat, string> = {
 };
 
 export function competitionErrorText(error: unknown, t: Translate) {
-  return error instanceof Error ? error.message : t("competition.error");
+  return errorMessage(error, t);
 }
 
 export function competitionEventLabel(value: unknown, language: Language) {

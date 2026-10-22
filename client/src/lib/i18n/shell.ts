@@ -68,6 +68,14 @@ export const shellWords: Dictionary = {
     "Thông tin bạn nhập chưa hợp lệ. Vui lòng kiểm tra lại.",
     "Some of the details you entered are not valid. Please check them again.",
   ],
+  "account.error.resetLinkInvalid": [
+    "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+    "That password reset link is invalid or has expired.",
+  ],
+  "account.error.required": [
+    "Bạn cần đăng nhập để thực hiện việc này.",
+    "You need to sign in to do this.",
+  ],
 
   "notFound.title": ["Không tìm thấy trang", "Page Not Found"],
   "notFound.detail": [
