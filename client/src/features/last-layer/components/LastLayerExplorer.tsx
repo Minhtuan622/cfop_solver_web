@@ -1,14 +1,15 @@
-/** Xưởng Cơ Khí Tốc Độ — one last-layer catalog drawer, shared with the Study SRS store. */
-import { Dices, Search } from "@/components/ui/BootstrapIcon";
+/** One last-layer catalog drawer, shared with the Study SRS store. */
+import { ChevronLeftIcon, ChevronRight, Dices, Search } from "@/components/ui/BootstrapIcon";
 import { IconButton } from "@/components/ui/BootstrapUI";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/BootstrapDialog";
 import { PracticeGroupPreview } from "./PracticeGroupPreview";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 
 type Family = "all" | "zbll" | "1lll";
 type Props = {
-  language: "vi" | "en";
   catalog: LastLayerCatalogCase[];
   family: Family;
   selectedCase: LastLayerCatalogCase | null;
@@ -19,67 +20,255 @@ type Props = {
 
 const keyOf = (catalogCase: LastLayerCatalogCase) => `${catalogCase.family}:${catalogCase.id}`;
 
-export function LastLayerExplorer({ language, catalog, family, selectedCase, masteredKeys, onFamily, onSelect }: Props) {
-  const vi = language === "vi";
-  const [group, setGroup] = useState("all");
+/**
+ * The catalog: every case of the Last Layer, grouped by family and by group.
+ * It stays folded away until you ask for it, so the study page itself keeps
+ * to one screen of work.
+ */
+export function LastLayerExplorer({ catalog, family, selectedCase, masteredKeys, onFamily, onSelect }: Props) {
+  const { t } = useLanguage();
+  const [group, setGroup] = useState("");
   const [query, setQuery] = useState("");
   const [onlyUnmastered, setOnlyUnmastered] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [previewCase, setPreviewCase] = useState<LastLayerCatalogCase | null>(null);
-  const groups = useMemo(() => Array.from(new Set(catalog.filter((item) => family === "all" || item.family === family).map((item) => item.group))).sort((a, b) => a.localeCompare(b)), [catalog, family]);
-  const scoped = useMemo(() => catalog.filter((item) => {
-    const matchesFamily = family === "all" || item.family === family;
-    const matchesGroup = group === "all" || item.group === group;
-    const needle = query.trim().toLowerCase();
-    const matchesQuery = !needle || `${item.id} ${item.group} ${item.algorithm}`.toLowerCase().includes(needle);
-    const unmastered = !masteredKeys.has(keyOf(item));
-    return matchesFamily && matchesGroup && matchesQuery && (!onlyUnmastered || unmastered);
-  }), [catalog, family, group, query, onlyUnmastered, masteredKeys]);
-  const unmasteredCount = useMemo(() => scoped.filter((item) => !masteredKeys.has(keyOf(item))).length, [scoped, masteredKeys]);
-  const groupProgress = useMemo(() => groups.map((name) => {
-    const items = catalog.filter((item) => item.group === name && (family === "all" || item.family === family));
-    const mastered = items.filter((item) => masteredKeys.has(keyOf(item))).length;
-    return { name, mastered, total: items.length, previewState: items[0]?.state ?? "", items };
-  }), [catalog, family, groups, masteredKeys]);
+
+  const families = useMemo(() => {
+    const inFamily = catalog.filter((item) => family === "all" || item.family === family);
+    const names = Array.from(new Set(inFamily.map((item) => item.group))).sort((a, b) => a.localeCompare(b));
+    return names.map((name) => {
+      const items = inFamily.filter((item) => item.group === name);
+      const mastered = items.filter((item) => masteredKeys.has(keyOf(item))).length;
+      return { name, mastered, total: items.length, previewState: items[0]?.state ?? "", items };
+    });
+  }, [catalog, family, masteredKeys]);
+
+  const needle = query.trim().toLowerCase();
+  const matchesQuery = (item: LastLayerCatalogCase) =>
+    !needle || `${item.id} ${item.group} ${item.algorithm}`.toLowerCase().includes(needle);
+  const isUnmastered = (item: LastLayerCatalogCase) => !masteredKeys.has(keyOf(item));
+
+  const visibleGroups = useMemo(
+    () => families.filter((entry) => entry.items.some((item) => matchesQuery(item) && (!onlyUnmastered || isUnmastered(item)))),
+    [families, needle, onlyUnmastered],
+  );
+
+  const unmasteredCount = useMemo(
+    () => catalog.filter((item) => (family === "all" || item.family === family) && isUnmastered(item)).length,
+    [catalog, family, masteredKeys],
+  );
+
+  const openGroup = families.find((entry) => entry.name === group) ?? null;
+  const openGroupCases = openGroup
+    ? openGroup.items.filter((item) => matchesQuery(item) && (!onlyUnmastered || isUnmastered(item)))
+    : [];
+
   const pickRandom = () => {
-    const candidates = scoped.filter((item) => !masteredKeys.has(keyOf(item)));
+    const candidates = catalog.filter(
+      (item) => (family === "all" || item.family === family) && isUnmastered(item) && matchesQuery(item),
+    );
     if (candidates.length) onSelect(candidates[Math.floor(Math.random() * candidates.length)]);
   };
-  const switchFamily = (next: Family) => { onFamily(next); setGroup("all"); setExpandedGroups(new Set()); };
-  const toggleGroup = (name: string) => setExpandedGroups((current) => {
-    const next = new Set(current);
-    if (next.has(name)) next.delete(name); else next.add(name);
-    return next;
-  });
-  const selectCase = (catalogCase: LastLayerCatalogCase) => { onSelect(catalogCase); setPreviewCase(null); };
 
-  return <section className="card">
-    <div className="card-header d-flex flex-wrap align-items-center justify-content-between gap-2"><div><h2 className="h5 mb-0">Last Layer · Catalog</h2><small className="text-body-secondary">{vi ? "Tra cứu & chọn case" : "Browse & select cases"}</small></div><span className="badge text-bg-secondary">{masteredKeys.size}/{catalog.length} ✓</span></div>
-    <div className="card-body">
-      <div className="row g-3"><div className="col-12 col-md-6"><label className="form-label">{vi ? "Loại case" : "Case family"}<select value={family} onChange={(event) => switchFamily(event.target.value as Family)} className="form-select mt-1"><option value="all">ALL · ZBLL + 1LLL</option><option value="zbll">ZBLL</option><option value="1lll">1LLL</option></select></label></div><div className="col-12 col-md-6"><label className="form-label">{vi ? "Nhóm case" : "Case group"}<select value={group} onChange={(event) => setGroup(event.target.value)} className="form-select mt-1"><option value="all">{vi ? "Tất cả nhóm" : "All groups"}</option>{groups.map((item) => <option key={item} value={item}>{item}</option>)}</select></label></div><div className="col-12"><label className="form-label">{vi ? "Tìm case" : "Search cases"}<div className="input-group mt-1"><span className="input-group-text"><Search className="fs-5" /></span><input value={query} onChange={(event) => setQuery(event.target.value.slice(0, 80))} placeholder={vi ? "Tìm ID, nhóm, công thức" : "Search ID, group, algorithm"} className="form-control" /></div></label></div></div>
-      <div className="d-flex flex-wrap gap-2 mt-3"><button type="button" onClick={() => setOnlyUnmastered((value) => !value)} className={onlyUnmastered ? "btn btn-primary" : "btn btn-outline-secondary"}>{onlyUnmastered ? (vi ? "Chỉ chưa thuộc" : "Unmastered") : (vi ? "Tất cả case" : "All cases")}</button><IconButton label={vi ? "Luyện ngẫu nhiên" : "Random practice"} icon={<Dices className="fs-6" />} onClick={pickRandom} disabled={!unmasteredCount} className="btn btn-outline-secondary" /><span className="small text-body-secondary align-self-center">{unmasteredCount} {vi ? "chưa thuộc" : "unmastered"}</span></div>
-      <div className="mt-3" aria-label={vi ? "Tiến độ và preview theo nhóm" : "Progress and previews by group"}>{groupProgress.map((item) => {
-        const percent = item.total ? Math.round((item.mastered / item.total) * 100) : 0;
-        const expanded = expandedGroups.has(item.name);
-        return <div key={item.name} className="card bg-body-tertiary mb-3">
-          <button type="button" onClick={() => toggleGroup(item.name)} aria-expanded={expanded} className="card-body btn text-start w-100 p-3">
-            <span className="d-flex align-items-center gap-3"><PracticeGroupPreview state={item.previewState} label={item.name} compact /><span className="flex-grow-1"><span className="d-flex justify-content-between small"><strong>{item.name}</strong><span>{item.mastered}/{item.total}</span></span><span className="progress d-block mt-2"><span className="progress-bar" style={{ width: `${percent}%` }}>{percent}%</span></span><small className="text-body-secondary d-block mt-2">{expanded ? (vi ? "Thu gọn danh sách case" : "Collapse case cards") : (vi ? "Mở để xem từng case" : "Open to view each case")}</small></span><span className="fs-5" aria-hidden="true">{expanded ? "−" : "+"}</span></span>
+  const switchFamily = (next: Family) => {
+    onFamily(next);
+    setGroup("");
+  };
+
+  const selectCase = (catalogCase: LastLayerCatalogCase) => {
+    onSelect(catalogCase);
+    setPreviewCase(null);
+  };
+
+  return (
+    <details className="cfop-solver-details">
+      <summary>
+        <ChevronRight className="cfop-solver-details__chevron" aria-hidden="true" />
+        <span>{t("study.catalogTitle")}</span>
+        <small className="text-body-secondary ms-2">
+          {t("study.catalogSummary", { cases: catalog.length, groups: families.length })}
+        </small>
+      </summary>
+
+      <div className="cfop-solver-details__body">
+        <div className="row g-3">
+          <div className="col-12 col-md-4">
+            <label className="form-label" htmlFor="study-catalog-family">
+              {t("study.familySelect")}
+            </label>
+            <select
+              id="study-catalog-family"
+              value={family}
+              onChange={(event) => switchFamily(event.target.value as Family)}
+              className="form-select"
+            >
+              <option value="all">ALL · ZBLL + 1LLL</option>
+              <option value="zbll">ZBLL</option>
+              <option value="1lll">1LLL</option>
+            </select>
+          </div>
+          <div className="col-12 col-md-8">
+            <label className="form-label" htmlFor="study-catalog-search">
+              {t("study.searchCases")}
+            </label>
+            <div className="input-group">
+              <span className="input-group-text">
+                <Search className="fs-5" />
+              </span>
+              <input
+                id="study-catalog-search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value.slice(0, 80))}
+                placeholder={t("study.searchPlaceholder")}
+                className="form-control"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="d-flex flex-wrap gap-2 align-items-center mt-3">
+          <button
+            type="button"
+            onClick={() => setOnlyUnmastered((value) => !value)}
+            aria-pressed={onlyUnmastered}
+            className={cn("btn btn-sm", onlyUnmastered ? "btn-primary" : "btn-outline-secondary")}
+          >
+            {onlyUnmastered ? t("study.unmasteredOnly") : t("study.allCases")}
           </button>
-          {expanded && <div className="card-body border-top"><div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">{item.items.map((catalogCase) => {
-            const mastered = masteredKeys.has(keyOf(catalogCase));
-            const active = selectedCase?.id === catalogCase.id && selectedCase?.family === catalogCase.family;
-            return <div key={`${catalogCase.family}:${catalogCase.id}`} className="col"><div className={`card h-100 ${active ? "border-primary" : ""}`}><div className="card-body"><div className="d-flex justify-content-between align-items-start gap-2"><PracticeGroupPreview state={catalogCase.state} label={catalogCase.id} compact onClick={() => setPreviewCase(catalogCase)} />{mastered && <span className={active ? "badge text-bg-primary" : "badge text-bg-success"}>✓</span>}</div><strong className="d-block mt-3">{catalogCase.id}</strong><small className="text-body-secondary d-block">{catalogCase.family.toUpperCase()} · {catalogCase.group}</small><code className="d-block small text-body-secondary text-truncate mt-2" title={catalogCase.algorithm}>{catalogCase.algorithm}</code><button type="button" onClick={() => selectCase(catalogCase)} className="btn btn-outline-primary btn-sm mt-3">{vi ? "Học case này" : "Study this case"}</button></div></div></div>;
-          })}</div></div>}
-        </div>;
-      })}</div>
-      <div className="list-group mt-3">{scoped.length ? scoped.slice(0, 48).map((item) => { const mastered = masteredKeys.has(keyOf(item)); const active = selectedCase?.id === item.id && selectedCase?.family === item.family; return <button key={`${item.family}:${item.id}`} type="button" onClick={() => onSelect(item)} className={active ? "list-group-item list-group-item-action active" : "list-group-item list-group-item-action"}><span className="d-flex justify-content-between align-items-center gap-2"><span><strong>{item.id}</strong><small className="d-block">{item.family.toUpperCase()} · {item.group}</small></span>{mastered && <span className={active ? "badge text-bg-light" : "badge text-bg-success"}>✓</span>}</span></button>; }) : <div className="alert alert-secondary mb-0">{vi ? "Không có case phù hợp bộ lọc." : "No cases match this filter."}</div>}</div>
-    </div>
-    <Dialog open={Boolean(previewCase)} onOpenChange={(open) => { if (!open) setPreviewCase(null); }}>
-      <DialogContent className="w-100 overflow-hidden">
-        <DialogHeader><div><DialogTitle>{previewCase ? `${previewCase.family.toUpperCase()} · ${previewCase.id}` : "Preview"}</DialogTitle><DialogDescription>{vi ? "Nhấp vào preview để xem lớn hơn. Đây là mặt U đại diện của case." : "Enlarged case preview. This shows the representative U face."}</DialogDescription></div><button type="button" className="btn-close" aria-label={vi ? "Đóng preview" : "Close preview"} onClick={() => setPreviewCase(null)} /></DialogHeader>
-        {previewCase && <div className="modal-body d-flex flex-column align-items-center gap-3 p-3 p-sm-4 overflow-auto"><PracticeGroupPreview state={previewCase.state} label={previewCase.id} /><div className="text-center w-100"><strong>{previewCase.group}</strong><code className="d-block small text-body-secondary mt-2 text-break">{previewCase.algorithm}</code></div></div>}
-        <DialogFooter className="flex-column flex-sm-row"><button type="button" className="btn btn-outline-secondary w-100 flex-sm-grow-0" onClick={() => setPreviewCase(null)}>{vi ? "Đóng" : "Close"}</button>{previewCase && <button type="button" className="btn btn-primary w-100 flex-sm-grow-0" onClick={() => selectCase(previewCase)}>{vi ? "Học case này" : "Study this case"}</button>}</DialogFooter>
-      </DialogContent>
-    </Dialog>
-  </section>;
+          <IconButton
+            label={t("study.randomPractice")}
+            icon={<Dices className="fs-6" />}
+            onClick={pickRandom}
+            disabled={!unmasteredCount}
+            className="btn btn-outline-secondary btn-sm"
+          />
+          <span className="small text-body-secondary">
+            {unmasteredCount} {t("study.unmasteredCount")}
+          </span>
+        </div>
+
+        {openGroup ? (
+          <div className="mt-3">
+            <div className="d-flex align-items-center gap-2 mb-3">
+              <IconButton
+                label={t("study.allGroups")}
+                icon={<ChevronLeftIcon className="fs-6" />}
+                onClick={() => setGroup("")}
+                className="btn btn-outline-secondary btn-sm"
+              />
+              <strong>
+                {openGroup.name} · {openGroup.mastered}/{openGroup.total}
+              </strong>
+            </div>
+            {openGroupCases.length ? (
+              <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+                {openGroupCases.map((catalogCase) => {
+                  const mastered = masteredKeys.has(keyOf(catalogCase));
+                  const active = selectedCase?.id === catalogCase.id && selectedCase?.family === catalogCase.family;
+                  return (
+                    <div key={`${catalogCase.family}:${catalogCase.id}`} className="col">
+                      <div className={cn("card h-100", active && "border-primary")}>
+                        <div className="card-body">
+                          <div className="d-flex justify-content-between align-items-start gap-2">
+                            <PracticeGroupPreview
+                              state={catalogCase.state}
+                              label={catalogCase.id}
+                              compact
+                              onClick={() => setPreviewCase(catalogCase)}
+                            />
+                            {mastered ? (
+                              <span className={active ? "badge text-bg-primary" : "badge text-bg-success"}>✓</span>
+                            ) : null}
+                          </div>
+                          <strong className="d-block mt-3">{catalogCase.id}</strong>
+                          <small className="text-body-secondary d-block">
+                            {catalogCase.family.toUpperCase()} · {catalogCase.group}
+                          </small>
+                          <code className="d-block small text-body-secondary text-truncate mt-2" title={catalogCase.algorithm}>
+                            {catalogCase.algorithm}
+                          </code>
+                          <button
+                            type="button"
+                            onClick={() => selectCase(catalogCase)}
+                            className="btn btn-outline-primary btn-sm mt-3"
+                          >
+                            {t("study.studyThisCase")}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="small text-body-secondary mb-0">{t("study.noCasesMatch")}</p>
+            )}
+          </div>
+        ) : (
+          <div className="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3 mt-1">
+            {visibleGroups.map((entry) => {
+              const percent = entry.total ? Math.round((entry.mastered / entry.total) * 100) : 0;
+              return (
+                <div key={entry.name} className="col">
+                  <button
+                    type="button"
+                    onClick={() => setGroup(entry.name)}
+                    className="card h-100 w-100 text-start border-0 bg-body-tertiary cfop-study-group"
+                  >
+                    <div className="card-body p-3">
+                      <div className="d-flex align-items-center gap-2">
+                        <PracticeGroupPreview state={entry.previewState} label={entry.name} compact />
+                        <span className="flex-grow-1">
+                          <strong className="d-block text-truncate">{entry.name}</strong>
+                          <small className="text-body-secondary">
+                            {entry.mastered}/{entry.total}
+                          </small>
+                        </span>
+                      </div>
+                      <span className="progress d-block mt-2">
+                        <span className="progress-bar" style={{ width: `${percent}%` }}>
+                          {percent}%
+                        </span>
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              );
+            })}
+            {visibleGroups.length ? null : <p className="small text-body-secondary mb-0">{t("study.noCasesMatch")}</p>}
+          </div>
+        )}
+      </div>
+
+      <Dialog open={Boolean(previewCase)} onOpenChange={(open) => { if (!open) setPreviewCase(null); }}>
+        <DialogContent className="w-100 overflow-hidden">
+          <DialogHeader>
+            <div>
+              <DialogTitle>{previewCase ? `${previewCase.family.toUpperCase()} · ${previewCase.id}` : t("study.previewTitle")}</DialogTitle>
+              <DialogDescription>{t("study.previewHint")}</DialogDescription>
+            </div>
+            <button type="button" className="btn-close" aria-label={t("study.closePreview")} onClick={() => setPreviewCase(null)} />
+          </DialogHeader>
+          {previewCase ? (
+            <div className="modal-body d-flex flex-column align-items-center gap-3 p-3 p-sm-4 overflow-auto">
+              <PracticeGroupPreview state={previewCase.state} label={previewCase.id} />
+              <div className="text-center w-100">
+                <strong>{previewCase.group}</strong>
+                <code className="d-block small text-body-secondary mt-2 text-break">{previewCase.algorithm}</code>
+              </div>
+            </div>
+          ) : null}
+          <DialogFooter className="flex-column flex-sm-row">
+            <button type="button" className="btn btn-outline-secondary w-100 flex-sm-grow-0" onClick={() => setPreviewCase(null)}>
+              {t("study.close")}
+            </button>
+            {previewCase ? (
+              <button type="button" className="btn btn-primary w-100 flex-sm-grow-0" onClick={() => selectCase(previewCase)}>
+                {t("study.studyThisCase")}
+              </button>
+            ) : null}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </details>
+  );
 }

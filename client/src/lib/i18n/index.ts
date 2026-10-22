@@ -13,6 +13,7 @@ import { roomsWords } from "./rooms";
 import { settingsWords } from "./settings";
 import { shellWords } from "./shell";
 import { solverWords } from "./solver";
+import { studyWords } from "./study";
 import { timerWords } from "./timer";
 import { wcaWords } from "./wca";
 
@@ -28,6 +29,7 @@ export const words: Dictionary = {
   ...commonWords,
   ...shellWords,
   ...solverWords,
+  ...studyWords,
   ...timerWords,
   ...historyWords,
   ...settingsWords,
