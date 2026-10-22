@@ -10,7 +10,7 @@ export const settingsWords: Dictionary = {
   "settings.groups": ["Nhóm cài đặt", "Settings groups"],
   "settings.group.solver": ["Lời giải", "Solver"],
   "settings.group.solverHelp": [
-    "Mặc định của lời giải CFOP: màu Cross, opening và last layer.",
+    "Mặc định của lời giải CFOP: màu Cross, Opening và Last Layer.",
     "The defaults of the CFOP solver: the Cross color, the opening and the last layer.",
   ],
   "settings.group.timer": ["Bấm giờ", "Timer"],
@@ -84,7 +84,7 @@ export const settingsWords: Dictionary = {
   "settings.highlight": ["Highlight Cross khi inspection", "Highlight Cross during inspection"],
   "settings.highlightHelp": [
     "Làm rõ các mảnh thuộc màu Cross đã chọn trên Cube 3D.",
-    "Emphasizes pieces matching the chosen Cross color on Cube 3D.",
+    "Emphasizes the cubies matching the chosen Cross color on Cube 3D.",
   ],
   "settings.splits": ["Speed splits", "Speed splits"],
   "settings.splitsHelp": [

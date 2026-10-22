@@ -87,6 +87,6 @@ describe("the Rubik solver workspace", () => {
 
     await waitFor(() => expect(mocks.solve).toHaveBeenCalled());
     await waitFor(() => expect(screen.getByRole("button", { name: "Phát" })).toBeInTheDocument());
-    expect(screen.getAllByText(/1 lượt xoay/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/1 nước/).length).toBeGreaterThan(0);
   });
 });

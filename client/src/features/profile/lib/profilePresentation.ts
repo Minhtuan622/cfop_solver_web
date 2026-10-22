@@ -35,7 +35,7 @@ const WCA_EVENT_NAMES: Record<string, WordPair> = {
   "666": ["6×6×6", "6×6×6"],
   "777": ["7×7×7", "7×7×7"],
   "333bf": ["3×3 bịt mắt", "3×3 blindfolded"],
-  "333fm": ["3×3 ít lượt xoay", "3×3 fewest moves"],
+  "333fm": ["3×3 ít nước nhất", "3×3 fewest moves"],
   "333oh": ["3×3 một tay", "3×3 one-handed"],
   clock: ["Clock", "Clock"],
   minx: ["Megaminx", "Megaminx"],

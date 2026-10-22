@@ -43,7 +43,7 @@ export function CubeNet({ state, compact = false, inspectCross = false, crossCol
   };
   return (
     <div
-      aria-label={editable ? "Sơ đồ Rubik 2D có thể tô sticker trực tiếp" : "Trạng thái Rubik dạng cube net"}
+      aria-label={editable ? "CubeNet 2D có thể tô sticker trực tiếp" : "Trạng thái khối dạng CubeNet"}
       className={cn(
         "cube-net",
         compact && "cube-net--compact",

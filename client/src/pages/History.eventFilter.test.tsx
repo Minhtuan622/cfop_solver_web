@@ -34,14 +34,14 @@ describe("History theo loại Rubik", () => {
     expect(screen.getAllByText("3×3×3").length).toBeGreaterThan(1);
     expect(screen.getAllByText("FTO").length).toBeGreaterThan(1);
 
-    fireEvent.change(screen.getByLabelText("Loại Rubik"), { target: { value: "fto" } });
+    fireEvent.change(screen.getByLabelText("Loại khối"), { target: { value: "fto" } });
     expect(screen.queryByText("R U R' U'")) .toBeNull();
     expect(screen.getByText("U R F'")) .toBeTruthy();
   });
 
   it("only shows the solution editor for the exact 3×3×3 event, including in All mode", () => {
     render(<History />);
-    fireEvent.change(screen.getByLabelText("Loại Rubik"), { target: { value: "all" } });
+    fireEvent.change(screen.getByLabelText("Loại khối"), { target: { value: "all" } });
 
     const editButtons = screen.getAllByLabelText("Chỉnh sửa solve");
     fireEvent.click(editButtons[0]);

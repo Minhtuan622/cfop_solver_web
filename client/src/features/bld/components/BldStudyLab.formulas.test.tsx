@@ -42,7 +42,7 @@ describe("BLD formula learning stage", () => {
   it("keeps a catalog formula visible without crashing when its notation is unsupported", () => {
     const view = render(<BldTargetSelfCheck language="vi" formula={{ group: "edge", kind: "edge", key: "TEST", titleVi: "Cạnh · TEST", titleEn: "Edge · TEST", algorithm: "Q U", noteVi: "", noteEn: "" }} />);
 
-    expect(view.getByText(/notation chưa được cube engine hỗ trợ/i)).toBeTruthy();
+    expect(view.getByText(/ký hiệu chưa được cube engine hỗ trợ/i)).toBeTruthy();
     expect(view.container.querySelector("#bld-target-answer")).toBeNull();
   });
 });

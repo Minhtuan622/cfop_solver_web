@@ -136,7 +136,7 @@ export const competitionWords: Dictionary = {
   "competition.filter.points": ["{points} điểm", "{points} points"],
   "competition.filter.fullBoard": ["Xem bảng đầy đủ", "See the full leaderboard"],
 
-  "competition.format.bestOf3Description": ["3 lượt · lấy single tốt nhất", "3 rounds · the best single counts"],
+  "competition.format.bestOf3Description": ["3 lượt · lấy single tốt nhất", "3 attempts · the best single counts"],
   "competition.format.ao5Description": ["5 lượt · bỏ nhanh nhất và chậm nhất", "5 rounds · drop the fastest and the slowest"],
   "competition.format.ao12Description": ["12 lượt · bỏ nhanh nhất và chậm nhất", "12 rounds · drop the fastest and the slowest"],
   "competition.points": ["{points} điểm", "{points} points"],

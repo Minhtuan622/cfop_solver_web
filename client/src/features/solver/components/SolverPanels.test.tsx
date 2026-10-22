@@ -55,7 +55,7 @@ describe("the solver input panel", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Các nước xoay xáo trộn")).toHaveValue("R U");
+    expect(screen.getByLabelText("Các nước xáo trộn")).toHaveValue("R U");
     expect(screen.getByRole("button", { name: /Scramble ngẫu nhiên/ })).toBeInTheDocument();
   });
 
@@ -96,9 +96,9 @@ describe("the solver solution panel", () => {
     view: "3d" as const,
     onViewChange: () => undefined,
     title: "Cross",
-    subtitle: "Nước xoay: D",
+    subtitle: "Nước: D",
     move: "D",
-    moveLabel: "Nước xoay",
+    moveLabel: "Nước",
     turnCount: 12,
     cursor: 0,
     playing: false,
