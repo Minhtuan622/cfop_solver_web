@@ -150,6 +150,7 @@ export default function Rooms() {
   if (!account.data)
     return (
       <div className="container">
+        <h1 className="h4 mb-0">Phòng thi đấu</h1>
         <SystemLeaderboard />
         <div className="alert alert-secondary mt-4">
           Đăng nhập tài khoản CFOP để tạo, thi hoặc theo dõi phòng.

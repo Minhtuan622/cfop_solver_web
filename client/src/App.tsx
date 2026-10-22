@@ -63,7 +63,7 @@ function AppFooter() {
 }
 
 function App() {
-  return <ErrorBoundary><LanguageProvider><ThemeProvider>
+  return <LanguageProvider><ErrorBoundary><ThemeProvider>
     <div className="d-flex flex-column min-vh-100 bs-page">
       <CfopCloudSync />
       <CompetitionOutcomeCelebration />
@@ -72,7 +72,7 @@ function App() {
       <main id="main-content" className="py-4 py-lg-5 flex-grow-1"><Router /></main>
       <AppFooter />
     </div>
-  </ThemeProvider></LanguageProvider></ErrorBoundary>;
+  </ThemeProvider></ErrorBoundary></LanguageProvider>;
 }
 
 export default App;
