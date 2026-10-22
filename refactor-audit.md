@@ -197,3 +197,33 @@ Nhánh `redesign/wca-calendar`, **URL `/wca`, route, contract tRPC và key i18n 
 **Ngôn ngữ.** Thêm 21 key `wca.*` (có đủ tiếng Việt và tiếng Anh). Tháng được định dạng bằng `Intl.DateTimeFormat` theo ngôn ngữ đang dùng; locale tiếng Việt viết "Tháng 10" hoa chữ đầu nên được hạ xuống "tháng 10" cho khớp với cách người Việt viết.
 
 **Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **75 file / 262 test** đạt (thêm `features/wca/lib/wcaCalendar.test.ts`, `features/wca/index.test.ts`, `pages/WcaCompetitions.test.tsx`); production build đạt; Playwright 2 kịch bản đạt (`account-sync-competition`, `lazy-3d-loading`). Ngoài ra đã chạy trình duyệt thật ở 1440 px và 420 px ở cả hai ngôn ngữ: không có lỗi trang, địa điểm hiện đúng link, bố cục không tràn ngang.
+
+## Đợt 7: thiết kế lại trang giải Rubik
+
+Nhánh `redesign/solver-workspace`, **URL `/`, route, contract tRPC và hành vi solver không đổi** — chỉ cách trình bày.
+
+**Vấn đề của bản cũ.** Trang dựng nhiều lớp chrome cạnh tranh với nhau:
+
+- Một card "không gian làm việc" bọc quanh mọi thứ, lại chứa **hai thanh chọn song song** (chế độ solver + nguồn đầu vào) ở hai nơi khác nhau, đọc như hai trang khác nhau.
+- Số bước hiển thị sai: đếm "Bước 1 / Bước" cho cả hai nhánh solver lẫn nhánh state, dù nhánh state không có bước nào.
+- Một pill xanh "Sẵn sàng" to đùng ngay trên đầu trang, chiếm chỗ mà không thêm thông tin.
+- Cột trái bị một khoảng trống lớn (`h-100` trong khi card bên phải cao hơn nhiều), và một card "Thông tin khối" gần như trống.
+- Card "Quét camera" trông như một ô nhập liệu hỏng, dù nó chỉ là tuỳ chọn.
+- **Bộ điều khiển phát lại hiện trước khi có lời giải**: nút phát/trước/sau và thanh tua đều tồn tại dù chưa có gì để phát.
+- **Ba thẻ số liệu** lặp lại đúng những gì header của báo cáo đã nói (số lượt, số chặng, trạng thái) — thông tin trùng.
+- Badge "SCRAMBLE" viết cứng bằng tiếng Anh, không theo ngôn ngữ.
+
+**Cấu trúc mới.** Trang chia làm ba tầng, mỗi tầng một việc:
+
+- **Thanh công cụ gọn** (`SolverToolbar`): một hàng gồm hai nhóm nút `aria-pressed` (chế độ solver · nguồn đầu vào) và trạng thái `role="status" aria-live="polite"`. Dưới hàng là một dòng gợi ý + link "Đặt lại". Pill "Sẵn sàng" to đùng biến thành một chấm xanh nhỏ cạnh trạng thái.
+- **Cột trái — "Khối của bạn"** (`SolverInputPanel`): ô nhập có `<label>` thật (trước chỉ có `aria-label`), badge nhị phân theo chế độ, nút **"Scramble ngẫu nhiên"** (bản cũ không có cách nào re-roll scramble), và các khối gập bằng `<details>` native: cài đặt slot F2L · quét camera · dán 54 sticker.
+- **Cột phải — "Lời giải"** (`SolverSolutionPanel`): nút chuyển 2D/3D, số lượt, khối cube, và **khối phát lại chỉ xuất hiện khi đã có lời giải** (`hasResult`). Trước khi có kết quả, thay bằng một dòng nhắc "Bấm Tìm cách giải để xem lời giải từng bước".
+- **Báo cáo CFOP** đưa xuống **full-width** dưới cả hai cột, và phần đếm số lượt / số chặng được gộp vào header của chính báo cáo — ba thẻ số liệu trùng lặp biến mất.
+
+**Sửa lỗi hành vi.** Bản cũ dùng Bootstrap accordion (`data-bs-toggle="collapse"`), nhưng `main.tsx` chỉ import `bootstrap/js/dist/collapse` — mấy đoạn `data-bs-toggle="collapse"` đó **chưa bao giờ hoạt động**. Các khối gập giờ dùng `<details>` native, không cần JS.
+
+**Feature mới.** `client/src/features/solver/` — `components/SolverToolbar.tsx`, `components/SolverInputPanel.tsx`, `components/SolverSolutionPanel.tsx`, `components/SolverDetails.tsx`, `components/SolverF2LOptions.tsx`, `components/SolverRecentStates.tsx`, `lib/recentStates.ts` (lưu state gần đây trong `localStorage`, đã rời khỏi page). Trang `pages/Home.tsx` còn lại đúng phần state + tRPC + điều phối solver, theo đúng convention của repo.
+
+**Ngôn ngữ.** Thêm 14 key `home.*` và **xoá 10 key không còn dùng** (`input.scramble`, `input.state`, `input.label`, `home.section.solve`, `home.section.bld`, `home.stepInput`, `home.scrambleTitle`, `home.stateTitle`, `home.statTurns`, `home.statStages`, `home.statStatus`, `home.cubeInfo`). `guide.help` viết lại vì bản cũ nói "khối của bạn sẽ hiện ở đây" bên trái — bố cục mới không còn hai bên.
+
+**Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **78 file / 278 test** đạt (thêm `features/solver/lib/recentStates.test.ts`, `features/solver/components/SolverPanels.test.tsx`, `pages/Home.test.tsx`); production build đạt; Playwright 2 kịch bản đạt (`account-sync-competition`, `lazy-3d-loading`). Ngoài ra đã chạy trình duyệt thật ở 1440 px và 420 px: không có lỗi trang, không tràn ngang, báo cáo CFOP hiện đúng sau khi giải, khối phát lại chỉ xuất hiện khi đã có lời giải.

@@ -602,6 +602,209 @@ h6 {
   }
 }
 
+/* ---- CFOP: Solver workspace ---- */
+/*
+ * The workspace is two panels side by side and one quiet bar above them. The
+ * bar used to be a whole card, which pushed the panels down the page for no
+ * reason; it is now a single line of controls. Every colour comes from a
+ * Bootstrap token so the page follows the palette in both themes.
+ */
+.cfop-solver-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-lg);
+}
+
+.cfop-solver-bar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.cfop-solver-bar__group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cfop-solver-bar__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+}
+
+.cfop-solver-bar__hint {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin: 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--bs-border-color);
+  font-size: 0.8125rem;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-solver-bar__status {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0 auto;
+  font-size: 0.8125rem;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+}
+
+.cfop-solver-bar__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--bs-success);
+}
+
+.cfop-solver-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.cfop-solver-panel__heading {
+  min-width: 0;
+}
+
+.cfop-solver-panel__move {
+  text-align: right;
+  line-height: 1.1;
+}
+
+.cfop-solver-panel__move strong {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.cfop-solver-panel__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.cfop-solver-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22rem;
+  padding: 1rem 0;
+}
+
+.cfop-solver-playback {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.cfop-solver-empty {
+  margin: 1.25rem 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-solver-eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-solver-subtitle {
+  display: flex;
+  align-items: center;
+  margin: 1.25rem 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-solver-recent {
+  margin-top: 1rem;
+}
+
+.cfop-solver-details {
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  background-color: var(--bs-tertiary-bg);
+}
+
+.cfop-solver-details--bare {
+  border: 0;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.cfop-solver-details > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  list-style: none;
+}
+
+.cfop-solver-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.cfop-solver-details__chevron {
+  transition: transform 0.15s ease;
+}
+
+.cfop-solver-details[open] > summary .cfop-solver-details__chevron {
+  transform: rotate(90deg);
+}
+
+.cfop-solver-details__body {
+  padding: 0 0.85rem 0.85rem;
+}
+
+.cfop-solver-details--bare > summary {
+  padding-left: 0;
+  color: var(--bs-secondary-color);
+}
+
+@media (max-width: 575.98px) {
+  .cfop-solver-bar__row {
+    gap: 0.6rem 1rem;
+  }
+
+  .cfop-solver-bar__status {
+    margin-left: 0;
+  }
+
+  .cfop-solver-stage {
+    min-height: 16rem;
+  }
+}
+
 /* ---- CFOP: Inverse tile ---- */
 /* An accent tile that stays legible in both the light and the dark palette. */
 .cfop-inverse-tile {

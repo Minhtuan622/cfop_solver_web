@@ -41,7 +41,7 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 | `features/rooms/` | Lobby, danh sách thành viên, panel lượt thi, sidebar và hộp thoại xoá spectator. |
 | `features/profile/` | Điều khiển tài khoản, dropdown, hộp thoại đăng nhập/đăng ký, biểu đồ tiến bộ, cloud sync. |
 | `features/puzzle-3d/` | Canvas 3D, toán camera, framing theo puzzle, hình học Square-1/Clock. |
-| `features/solver/` | Báo cáo CFOP và thẻ số liệu của trang Giải Rubik. |
+| `features/solver/` | Thanh công cụ, panel nhập khối, panel lời giải, tuỳ chọn F2L, state gần đây và báo cáo CFOP của trang Giải Rubik. |
 | `features/settings/` | Nhóm cài đặt, panel theo nhóm và state tự lưu của trang Cài đặt. |
 | `features/competition/` | Bộ lọc bảng xếp hạng, lễ kỳ hoàn thành phòng, bảng xếp hạng toàn hệ thống. |
 | `features/bld/`, `features/last-layer/` | Catalog 3-Style, lộ trình học, bảng Last Layer. |
@@ -142,6 +142,16 @@ Trang `/wca` đọc lịch giải như một **lịch**, không phải một b�
 - Địa điểm trong feed WCA viết dạng markdown `[Tên](url)`; `features/wca/lib/wcaCalendar.ts` bóc ra **tên + link** để raw markdown không bao giờ lộ lên giao diện.
 - Bộ lọc gồm **khoảng thời gian** (3 preset + 2 ô ngày), **quốc gia** và **tìm kiếm tức thì**; số kết quả hiện bằng `role="status"` để screen reader nghe được.
 - Badge trạng thái chỉ hiện khi giải **không** ở trạng thái “đã duyệt”; badge “Đã duyệt” lặp lại ở mọi dòng chỉ là nhiễu.
+
+### Trang giải Rubik
+
+Trang `/` là một **không gian làm việc** hai cột, không phải một card chồng card:
+
+- **Thanh công cụ gọn** ở trên: hai nhóm nút `aria-pressed` (chế độ solver · nguồn đầu vào) và trạng thái `role="status" aria-live="polite"`. Dưới hàng là dòng gợi ý + link “Đặt lại”.
+- **Cột trái — “Khối của bạn”**: ô nhập có `<label>` thật, badge nhị phân theo chế độ, nút “Scramble ngẫu nhiên”, và các khối gập bằng `<details>` native (cài đặt slot F2L · quét camera · dán 54 sticker).
+- **Cột phải — “Lời giải”**: khối cube 2D/3D và **khối phát lại chỉ hiện khi đã có lời giải** — trước đó có một dòng nhắc bấm nút.
+- **Báo cáo CFOP** nằm full-width dưới cả hai cột; số lượt và số chặng gộp vào header của chính báo cáo nên không còn thẻ số liệu trùng lặp.
+- Các khối gập dùng `<details>` native, không dựa vào JS của Bootstrap accordion.
 
 ## 3. Yêu cầu môi trường
 
