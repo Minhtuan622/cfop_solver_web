@@ -1,2 +1,2 @@
-export { MetricButton, MetricDark } from "./TimerMetricCards";
+export { MetricButton } from "./TimerMetricCards";
 export { TimerHistoryRow } from "./TimerHistoryRow";

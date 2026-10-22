@@ -1,5 +1,7 @@
 import { Link } from "wouter";
 import {
+  EmptyState,
+  Field,
   LoadingTransition,
   SkeletonList,
 } from "@/components/ui/BootstrapUI";
@@ -71,22 +73,22 @@ export function RoomLobby({
                   onCreate();
                 }}
               >
-                <label className="form-label w-100">
-                  Tên phòng
+                <Field id="room-name" label="Tên phòng" required>
                   <input
+                    id="room-name"
                     required
                     minLength={2}
                     maxLength={80}
-                    className="form-control mt-1"
+                    className="form-control"
                     value={name}
                     onChange={input => onNameChange(input.target.value)}
                   />
-                </label>
-                <div className="row g-3">
-                  <label className="col-md-4 form-label">
-                    Loại khối
+                </Field>
+                <div className="row g-3 mt-0">
+                  <Field id="room-event" label="Loại khối" className="col-md-4">
                     <select
-                      className="form-select mt-1"
+                      id="room-event"
+                      className="form-select"
                       value={eventId}
                       onChange={input =>
                         onEventIdChange(input.target.value as TimerEventId)
@@ -98,11 +100,11 @@ export function RoomLobby({
                         </option>
                       ))}
                     </select>
-                  </label>
-                  <label className="col-md-4 form-label">
-                    Thể thức
+                  </Field>
+                  <Field id="room-format" label="Thể thức" className="col-md-4">
                     <select
-                      className="form-select mt-1"
+                      id="room-format"
+                      className="form-select"
                       value={format}
                       onChange={input =>
                         onFormatChange(input.target.value as RoomFormat)
@@ -114,11 +116,11 @@ export function RoomLobby({
                         </option>
                       ))}
                     </select>
-                  </label>
-                  <label className="col-md-4 form-label">
-                    Tối đa
+                  </Field>
+                  <Field id="room-max-players" label="Tối đa" className="col-md-4">
                     <select
-                      className="form-select mt-1"
+                      id="room-max-players"
+                      className="form-select"
                       value={maxPlayers}
                       onChange={input => onMaxPlayersChange(Number(input.target.value))}
                     >
@@ -126,15 +128,15 @@ export function RoomLobby({
                         <option key={value}>{value} người</option>
                       ))}
                     </select>
-                  </label>
+                  </Field>
                   {eventId === "333mbf" ? (
-                    <label className="col-md-4 form-label">
-                      Số khối MBLD
+                    <Field id="room-blind-cubes" label="Số khối MBLD" className="col-md-4">
                       <input
+                        id="room-blind-cubes"
                         type="number"
                         min={2}
                         max={99}
-                        className="form-control mt-1"
+                        className="form-control"
                         value={multiBlindCubes}
                         onChange={input =>
                           onMultiBlindCubesChange(
@@ -142,7 +144,7 @@ export function RoomLobby({
                           )
                         }
                       />
-                    </label>
+                    </Field>
                   ) : null}
                 </div>
                 <button
@@ -165,15 +167,18 @@ export function RoomLobby({
                   onJoin();
                 }}
               >
-                <input
-                  className="form-control text-uppercase"
-                  required
-                  minLength={4}
-                  maxLength={10}
-                  value={joinCode}
-                  onChange={input => onJoinCodeChange(input.target.value.toUpperCase())}
-                  placeholder="Mã phòng"
-                />
+                <Field id="room-join-code" label="Mã phòng" required>
+                  <input
+                    id="room-join-code"
+                    className="form-control text-uppercase"
+                    required
+                    minLength={4}
+                    maxLength={10}
+                    value={joinCode}
+                    onChange={input => onJoinCodeChange(input.target.value.toUpperCase())}
+                    placeholder="ABC123"
+                  />
+                </Field>
                 <button className="btn btn-outline-primary mt-3">
                   Tham gia thi
                 </button>
@@ -199,9 +204,10 @@ export function RoomLobby({
                   </div>
                 </LoadingTransition>
               ) : (
-                <p className="text-body-secondary small mb-0">
-                  Chưa có phòng.
-                </p>
+                <EmptyState
+                  title="Chưa có phòng."
+                  description="Tạo phòng mới ở ô bên cạnh hoặc tham gia bằng mã để bắt đầu lượt thi."
+                />
               )}
             </div>
           </div>

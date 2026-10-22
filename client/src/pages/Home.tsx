@@ -12,10 +12,10 @@ import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/common/CubeNet";
 import { Cube3DGuide } from "@/components/common/Cube3DGuide";
 import { BldReport } from "@/features/bld";
-import { CfopReport, SolverStat } from "@/features/solver";
+import { CfopReport } from "@/features/solver";
 import { CubeStateEditor } from "@/components/common/CubeStateEditor";
 import { CameraScanner } from "@/components/common/CameraScanner";
-import { PageHeader, StatusFeedback } from "@/components/ui/BootstrapUI";
+import { PageHeader, StatTile, StatusFeedback } from "@/components/ui/BootstrapUI";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
@@ -299,7 +299,7 @@ export default function Home() {
           </section>
         </section>
 
-        {(result || bldResult) ? <section className="row g-4 mt-1"><div className="col-12 col-lg-4"><div className="row row-cols-1 row-cols-sm-3 row-cols-lg-1 g-3"><div className="col"><SolverStat label={language === "vi" ? "LƯỢT XOAY" : "TURNS"} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="fs-4" />} /></div><div className="col"><SolverStat label={language === "vi" ? "CHẶNG" : "STAGES"} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="fs-4" />} /></div><div className="col"><SolverStat label={language === "vi" ? "TRẠNG THÁI" : "STATUS"} value="✓" icon={<ShieldCheck className="fs-4" />} /></div></div></div><div className="col-12 col-lg-8"><section className="card"><div className="card-body">{solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CfopReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : null}</div></section></div></section> : null}
+        {(result || bldResult) ? <section className="row g-4 mt-1"><div className="col-12 col-lg-4"><div className="row row-cols-1 row-cols-sm-3 row-cols-lg-1 g-3"><div className="col"><StatTile label={language === "vi" ? "LƯỢT XOAY" : "TURNS"} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="fs-4" />} /></div><div className="col"><StatTile label={language === "vi" ? "CHẶNG" : "STAGES"} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="fs-4" />} /></div><div className="col"><StatTile label={language === "vi" ? "TRẠNG THÁI" : "STATUS"} value="✓" icon={<ShieldCheck className="fs-4" />} /></div></div></div><div className="col-12 col-lg-8"><section className="card"><div className="card-body">{solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CfopReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : null}</div></section></div></section> : null}
       </div>
     </div>
   );

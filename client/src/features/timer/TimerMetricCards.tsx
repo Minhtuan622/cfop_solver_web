@@ -13,14 +13,3 @@ export function MetricButton({ label, value, enabled, onClick }: MetricButtonPro
     </button>
   );
 }
-
-export function MetricDark({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="card bg-dark text-white border-0 shadow-sm">
-      <div className="card-body p-3">
-        <small className="text-white-50">{label}</small>
-        <strong className="fs-5 d-block">{value}</strong>
-      </div>
-    </div>
-  );
-}

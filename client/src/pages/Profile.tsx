@@ -4,7 +4,7 @@ import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { ProfileProgressChart } from "@/features/profile";
 import { createCfopCloudState } from "@/lib/cloudSync";
 import { filterProfileProgress, meetsAo5Goal, profileProgressByDay, type ProfileProgressRange } from "@/features/profile";
-import { LoadingTransition, RefreshIndicator, SkeletonCard } from "@/components/ui/BootstrapUI";
+import { Eyebrow, LoadingTransition, RefreshIndicator, SkeletonCard, StatTile } from "@/components/ui/BootstrapUI";
 import { trpc } from "@/lib/trpc";
 import { readSolveHistory, effectiveTime, formatSolveTime } from "@/lib/solveHistory";
 import { rollingAverage } from "@/lib/timerRecords";
@@ -13,10 +13,6 @@ import { wcaTimerComparison } from "@/lib/wcaTimerComparison";
 import { dueMemoRecords, readBldProfile, reviewStreak } from "@/features/bld";
 import { readLastLayerStudy, todayReviewCount } from "@/features/last-layer";
 import { comparisonMessage, errorMessage, formatWcaTime, initials, rankSummary, wcaEventName, type WcaProfileData, type WcaRecordRow } from "@/features/profile";
-
-function AccountMetric({ label, value, detail }: { label: string; value: string; detail: string }) {
-  return <article className="col-6 col-lg-3"><div className="card h-100"><div className="card-body"><p className="small text-body-secondary mb-1">{label}</p><p className="h4 mb-1">{value}</p><p className="small text-body-secondary mb-0">{detail}</p></div></div></article>;
-}
 
 function WcaTimerComparison({ entries, record }: { entries: ReturnType<typeof readSolveHistory>; record: Pick<WcaRecordRow, "singleCentiseconds" | "averageCentiseconds"> }) {
   const rows = wcaTimerComparison(entries, record);
@@ -113,7 +109,7 @@ export default function Profile() {
                 {account.avatarUrl ? <img src={account.avatarUrl} alt="Ảnh đại diện" className="w-100 h-100 object-fit-cover" /> : <span className="fs-2 fw-semibold">{initials(account.displayName)}</span>}
               </div>
               <div>
-                <p className="text-primary small text-uppercase fw-semibold mb-1">Tài khoản CFOP</p>
+                <Eyebrow>Tài khoản CFOP</Eyebrow>
                 <h1 className="display-6 fw-semibold mb-2">{account.displayName}</h1>
                 <p className="text-body-secondary mb-0">{account.bio || "Theo dõi tiến bộ Timer, Study và thành tích WCA của bạn."}</p>
               </div>
@@ -134,10 +130,10 @@ export default function Profile() {
     {error ? <div className="alert alert-danger d-flex align-items-start gap-2" role="alert"><i className="bi bi-exclamation-triangle-fill mt-1" aria-hidden="true" /><span>{error}</span></div> : null}
 
     <section className="row g-3 mb-4" aria-label="Thống kê Timer">
-      <AccountMetric label="Lượt 3×3" value={String(timerEntries.length)} detail="đang có trong lịch sử" />
-      <AccountMetric label="Tốt nhất 3×3" value={best === null ? "—" : formatSolveTime(best)} detail="single hợp lệ" />
-      <AccountMetric label="Ao5 gần nhất" value={ao5 === null ? "—" : formatSolveTime(ao5)} detail="5 lượt mới nhất" />
-      <AccountMetric label="Ôn hôm nay" value={String(reviewedLastLayer)} detail="case Last Layer" />
+      <div className="col-6 col-lg-3"><StatTile label="Lượt 3×3" value={String(timerEntries.length)} detail="đang có trong lịch sử" /></div>
+      <div className="col-6 col-lg-3"><StatTile label="Tốt nhất 3×3" value={best === null ? "—" : formatSolveTime(best)} detail="single hợp lệ" /></div>
+      <div className="col-6 col-lg-3"><StatTile label="Ao5 gần nhất" value={ao5 === null ? "—" : formatSolveTime(ao5)} detail="5 lượt mới nhất" /></div>
+      <div className="col-6 col-lg-3"><StatTile label="Ôn hôm nay" value={String(reviewedLastLayer)} detail="case Last Layer" /></div>
     </section>
 
     {meetsAo5Goal(ao5, account.goalMs) ? <section className="alert alert-success d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4" role="status"><div><h2 className="h5 mb-1"><i className="bi bi-trophy-fill me-2" aria-hidden="true" />Đã đạt mục tiêu {goalLabel}</h2><p className="mb-0">Ao5 gần nhất là <strong>{formatSolveTime(ao5 ?? 0)}</strong>. Giữ nhịp solve này để ổn định thành tích.</p></div><span className="badge text-bg-success fs-6">Ao5 đạt mục tiêu</span></section> : null}
@@ -147,7 +143,7 @@ export default function Profile() {
         <div className="card h-100">
           <div className="card-body p-4">
             <div className="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
-              <div><p className="small text-uppercase fw-semibold text-primary mb-1">Phân tích tiến bộ</p><h2 className="h4 mb-1">Nhịp độ theo ngày</h2><p className="text-body-secondary small mb-0">Best và Ao5 tích luỹ từ lịch sử Timer hiện có.</p></div>
+              <div><Eyebrow>Phân tích tiến bộ</Eyebrow><h2 className="h4 mb-1">Nhịp độ theo ngày</h2><p className="text-body-secondary small mb-0">Best và Ao5 tích luỹ từ lịch sử Timer hiện có.</p></div>
               <div className="btn-group" role="group" aria-label="Phạm vi biểu đồ tiến độ">{(["7d", "30d", "all"] as ProfileProgressRange[]).map((range) => <button key={range} type="button" className={progressRange === range ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm"} onClick={() => setProgressRange(range)}>{range === "7d" ? "7 ngày" : range === "30d" ? "30 ngày" : "Tất cả"}</button>)}</div>
             </div>
             <ProfileProgressChart data={filteredChart} />
@@ -157,7 +153,7 @@ export default function Profile() {
       <aside className="col-12 col-xl-4">
         <div className="card mb-4">
           <div className="card-body p-4">
-            <p className="small text-uppercase fw-semibold text-primary mb-1">Study</p><h2 className="h4 mb-1">Nhịp học hiện tại</h2><p className="small text-body-secondary mb-3">Các mốc ôn tập của bạn trong ứng dụng.</p>
+            <Eyebrow>Study</Eyebrow><h2 className="h4 mb-1">Nhịp học hiện tại</h2><p className="small text-body-secondary mb-3">Các mốc ôn tập của bạn trong ứng dụng.</p>
             <div className="list-group list-group-flush">
               <div className="list-group-item px-0 d-flex justify-content-between"><span>Case BLD đến hạn</span><strong>{due}</strong></div>
               <div className="list-group-item px-0 d-flex justify-content-between"><span>Chuỗi ôn BLD</span><strong>{streak.current} ngày</strong></div>
