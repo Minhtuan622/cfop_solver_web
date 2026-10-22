@@ -45,6 +45,7 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 | `features/settings/` | Nhóm cài đặt, panel theo nhóm và state tự lưu của trang Cài đặt. |
 | `features/competition/` | Bộ lọc bảng xếp hạng, lễ kỳ hoàn thành phòng, bảng xếp hạng toàn hệ thống. |
 | `features/bld/`, `features/last-layer/` | Catalog 3-Style, lộ trình học, bảng Last Layer. |
+| `features/wca/` | Bộ lọc lịch giải WCA, danh sách theo tháng và dòng từng giải. |
 
 **Quy tắc import.** Bên trong một feature dùng đường dẫn tương đối (`./X`, `../lib/X`); chỉ dùng barrel `@/features/<x>` khi import từ **bên ngoài** feature đó. Nhờ vậy không phát sinh cycle barrel↔member. Riêng đường dẫn 3D có ngoại lệ: import động của Three.js/Cubing phải trỏ **module path cụ thể**, không bao giờ trỏ barrel, để giữ nguyên ranh giới chunk — `e2e/lazy-3d-loading.spec.ts` khóa hành vi này.
 
@@ -130,6 +131,17 @@ Trang Cài đặt chia theo **nhóm** thay vì một dải cài đặt dài:
 - Mọi thay đổi vẫn **tự lưu** (debounce 350 ms) — xem `features/settings/lib/useSettingsState.ts`; trạng thái lưu nằm ở `actions` của `PageHeader`.
 - Giải thích dài được **gập lại** trong `<details class="cfop-settings-note">` thay vì để nguyên một khối màu xanh.
 - Nút “Khôi phục mặc định” hạ xuống thành **link** dưới danh sách nhóm, không còn nút lớn ở giữa trang.
+
+### Trang lịch giải WCA
+
+Trang `/wca` đọc lịch giải như một **lịch**, không phải một bức tường thẻ:
+
+- Giải được gom theo **tháng bắt đầu**; mỗi tháng là một `<section>` có `<h2>` riêng và một pill đếm số giải.
+- Mỗi giải là **một dòng**: cột ngày (số ngày + tháng) · tên giải · dòng meta (cờ quốc gia, thành phố, nước, địa điểm).
+- **Tên giải là link** tới trang giải của WCA — không còn 21 nút “Trang giải WCA” giống hệt nhau.
+- Địa điểm trong feed WCA viết dạng markdown `[Tên](url)`; `features/wca/lib/wcaCalendar.ts` bóc ra **tên + link** để raw markdown không bao giờ lộ lên giao diện.
+- Bộ lọc gồm **khoảng thời gian** (3 preset + 2 ô ngày), **quốc gia** và **tìm kiếm tức thì**; số kết quả hiện bằng `role="status"` để screen reader nghe được.
+- Badge trạng thái chỉ hiện khi giải **không** ở trạng thái “đã duyệt”; badge “Đã duyệt” lặp lại ở mọi dòng chỉ là nhiễu.
 
 ## 3. Yêu cầu môi trường
 
@@ -420,7 +432,7 @@ cfop_solver_web/
 │   ├── index.html
 │   └── src/
 │       ├── components/       # AppNav, Bootstrap UI, Cube/3D, Account, Study, Rooms...
-│       ├── features/         # Feature boundary: timer, rooms, profile, puzzle-3d, solver, settings, bld, competition
+│       ├── features/         # Feature boundary: timer, rooms, profile, puzzle-3d, solver, settings, bld, competition, wca
 │       ├── contexts/         # Language/theme và context dùng chung
 │       ├── hooks/             # React hooks dùng chung
 │       ├── lib/               # persistence, solver, scramble, analytics, download, presentation

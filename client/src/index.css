@@ -436,6 +436,172 @@ h6 {
   cursor: pointer;
 }
 
+/* ---- CFOP: WCA calendar ---- */
+/*
+ * The calendar is a list, not a wall of cards: a date block, the competition
+ * and its place, and the links. Every colour comes from a Bootstrap token so
+ * the page follows the palette in both the light and the dark theme.
+ */
+.cfop-calendar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-lg);
+}
+
+.cfop-calendar-filters__presets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cfop-calendar-filters__presets .form-label {
+  margin-bottom: 0;
+}
+
+.cfop-calendar-filters__field {
+  flex: 1 1 9rem;
+  min-width: 8rem;
+}
+
+.cfop-calendar-filters__field--wide {
+  flex: 2 1 14rem;
+}
+
+.cfop-calendar-filters__count {
+  margin: 0 0 0 auto;
+  padding-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+}
+
+.cfop-calendar-group {
+  margin-bottom: 1.75rem;
+}
+
+.cfop-calendar-group__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.cfop-calendar-group__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-calendar-group__count {
+  padding: 0.05rem 0.45rem;
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  color: var(--bs-secondary-color);
+  background-color: var(--bs-tertiary-bg);
+  border-radius: var(--bs-border-radius-pill);
+}
+
+.cfop-calendar-list {
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.cfop-calendar-row {
+  display: grid;
+  grid-template-columns: 4.25rem 1fr auto;
+  align-items: start;
+  gap: 0 1rem;
+  padding: 0.85rem 0.25rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.cfop-calendar-row__date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+}
+
+.cfop-calendar-row__day {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.cfop-calendar-row__month {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+}
+
+.cfop-calendar-row__title {
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cfop-calendar-row__title a {
+  text-decoration: none;
+}
+
+.cfop-calendar-row__external {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+}
+
+.cfop-calendar-row__title a:hover .cfop-calendar-row__external,
+.cfop-calendar-row__title a:focus-visible .cfop-calendar-row__external {
+  opacity: 1;
+}
+
+.cfop-calendar-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-calendar-row__place-icon {
+  font-size: 0.8125rem;
+}
+
+.cfop-calendar-row__venue {
+  color: var(--bs-secondary-color);
+}
+
+.cfop-calendar-row__site {
+  white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+  .cfop-calendar-row {
+    grid-template-columns: 3.5rem 1fr;
+  }
+
+  .cfop-calendar-row__site {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .cfop-calendar-filters__count {
+    margin-left: 0;
+    padding-bottom: 0;
+  }
+}
+
 /* ---- CFOP: Inverse tile ---- */
 /* An accent tile that stays legible in both the light and the dark palette. */
 .cfop-inverse-tile {

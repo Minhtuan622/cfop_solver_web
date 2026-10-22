@@ -171,3 +171,29 @@ Nhánh `redesign/settings-navbar`, 27 file, **+917 / −219 dòng**. Yêu cầu:
 **Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **72 file / 246 test** đạt (thêm `Dropdown.test.tsx`, `AppNav.test.tsx` viết lại, `Settings.test.tsx`, `features/settings/index.test.ts`); production build đạt; Playwright 2 kịch bản đạt (`account-sync-competition`, `lazy-3d-loading`). Ngoài ra đã chạy trình duyệt thật trên **bản production build**: không có lỗi trang, biểu tượng Bootstrap Icons hiện đúng (font được phát ra `/assets/bootstrap-icons-*.woff2`), menu "Thêm" mở đúng vị trí, trang cài đặt hiện đúng một panel mỗi lần, và bố cục 420 px không tràn ngang.
 
 > Lưu ý khi chạy dev server **trong worktree tạm**: `node_modules` là symlink sang repo chính nên Vite chặn đường dẫn font nằm trong thư mục `.pnpm` (403 → biểu tượng hiện thành ô vuông). Đây là hiện tượng của `server.fs.deny` trong Vite dev, **không phải hồi quy** — bản production build phát font đúng và hiển thị chuẩn.
+
+## Đợt 6: thiết kế lại trang lịch giải WCA
+
+Nhánh `redesign/wca-calendar`, **URL `/wca`, route, contract tRPC và key i18n cũ không đổi** — chỉ cách hiển thị và cách lọc.
+
+**Vấn đề của bản cũ.** Trang dựng 21 thẻ `card` giống hệt nhau: mỗi thẻ lặp lại một nút xanh "Trang giải WCA" và một badge "Đã duyệt" — 42 phần tử mang thông tin không phân biệt được giải nào. Địa điểm do feed WCA ghi dạng markdown `[Tên](url)` hiện **nguyên văn** trên giao diện. Trang dài 3629 px và phải cuộn qua từng thẻ để tìm một giải.
+
+**Cấu trúc mới.** Trang trở thành một **lịch**:
+
+- Giải gom theo **tháng bắt đầu** (`groupByMonth`), mỗi tháng là một `<section>` có `<h2>` riêng và một pill đếm số giải. Đọc lịch là quét tháng, không phải lướt thẻ.
+- Mỗi giải là **một dòng** (`WcaCompetitionRow`): cột ngày (số ngày + tháng) · tên giải · dòng meta (cờ quốc gia, thành phố, nước, địa điểm). Chiều cao trang giảm còn 2473 px.
+- **Tên giải là link** tới trang giải của WCA (kèm `<span class="visually-hidden">` nói rõ nó ra trang WCA) — 21 nút xanh giống hệt nhau biến mất.
+- Badge trạng thái chỉ hiện khi giải **không** ở trạng thái "đã duyệt"; badge lặp ở mọi dòng chỉ là nhiễu.
+- Cờ quốc gia dựng từ mã ISO2 (`flagEmoji`) để mắt quét nhanh theo vị trí.
+
+**Markdown trong dữ liệu.** `parseVenue` bóc `[Tên](url)` thành tên + link; nếu còn chữ đằng sau thì giữ nguyên phần chữ đó. Địa điểm không phải link thì hiện dạng chữ thường. Nhờ vậy raw markdown **không bao giờ** lọt lên giao diện.
+
+**Bộ lọc.** `WcaCalendarFilters` gồm **3 preset khoảng** (30 ngày / 3 tháng / 1 năm, `aria-pressed` để đọc được trạng thái) · 2 ô ngày (đổi tay thì bỏ trạng thái preset) · 1 select quốc gia · 1 ô tìm kiếm **lọc tức thì ngay trên client** (tên giải, thành phố, nước, địa điểm). Số kết quả hiện bằng `role="status" aria-live="polite"`: "25 giải" khi chưa lọc, "3 trong 25 giải" khi đang lọc.
+
+**Trạng thái rỗng.** Hai khác biệt: **không có giải nào trong khoảng** (`EmptyState` + link tới lịch WCA) và **tìm kiếm không khớp** (`EmptyState` + nút "Xoá tìm kiếm"). Khoảng ngày sai thứ tự hiện `StatusFeedback tone="warning"` chứ không phải màn trắng.
+
+**Feature mới.** `client/src/features/wca/` — `lib/wcaCalendar.ts` (parse venue, định dạng ngày theo ngôn ngữ, gom tháng, lọc tìm kiếm, cờ), `components/WcaCalendarFilters.tsx`, `components/WcaCompetitionList.tsx`, `components/WcaCompetitionRow.tsx`. Trang `pages/WcaCompetitions.tsx` còn lại đúng phần state + tRPC, theo đúng convention của repo.
+
+**Ngôn ngữ.** Thêm 21 key `wca.*` (có đủ tiếng Việt và tiếng Anh). Tháng được định dạng bằng `Intl.DateTimeFormat` theo ngôn ngữ đang dùng; locale tiếng Việt viết "Tháng 10" hoa chữ đầu nên được hạ xuống "tháng 10" cho khớp với cách người Việt viết.
+
+**Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **75 file / 262 test** đạt (thêm `features/wca/lib/wcaCalendar.test.ts`, `features/wca/index.test.ts`, `pages/WcaCompetitions.test.tsx`); production build đạt; Playwright 2 kịch bản đạt (`account-sync-competition`, `lazy-3d-loading`). Ngoài ra đã chạy trình duyệt thật ở 1440 px và 420 px ở cả hai ngôn ngữ: không có lỗi trang, địa điểm hiện đúng link, bố cục không tràn ngang.
