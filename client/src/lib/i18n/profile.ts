@@ -192,4 +192,8 @@ export const profileWords: Dictionary = {
   "profile.crop.failed": ["Không thể cắt ảnh đại diện.", "The profile picture could not be cropped."],
 
   "profile.error": ["Không thể hoàn tất. Hãy thử lại.", "Something went wrong. Please try again."],
+  "profile.progressEmpty": [
+    "Hoàn thành vài lượt solve để xem đường tiến bộ Best và Ao5 theo ngày.",
+    "Complete a few solves to see the Best and Ao5 progress line by day.",
+  ],
 };

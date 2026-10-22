@@ -185,7 +185,7 @@ export default function Profile() {
 
   return (
     <div className="container py-4">
-      <section className="card border-0 shadow-sm mb-4 overflow-hidden">
+      <section className="card cfop-card-surface mb-4 overflow-hidden">
         <div className="card-body p-4">
           <div className="row align-items-center g-4">
             <div className="col-12 col-lg">

@@ -1,4 +1,5 @@
 import type { ThreeModule } from "./sideEventShared";
+import { CUBE_COLORS } from "./cubeColors";
 import {
   SQUARE1_SOLVED_WEDGES,
   SQUARE_CORNER_SIDE,
@@ -6,7 +7,6 @@ import {
   type SquareOneState,
 } from "./squareOneState";
 
-const CUBE_COLORS: Record<string, string> = { U: "#f7f3e9", R: "#d95743", F: "#1ba77a", D: "#e7c34f", L: "#ed8e42", B: "#3b6fc7" };
 const SQUARE1_SQA = Math.sqrt(3) / 2 + 1;
 const SQUARE1_FOOTPRINT_SCALE = 0.5;
 const SQUARE1_LAYER_THICKNESS = 1.08;

@@ -7,6 +7,7 @@ import superjson from "superjson";
 import App from "./App";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import "sonner/dist/styles.css";
 import "./index.css";
 import { DevSupport } from "@react-buddy/ide-toolbox";
 import { ComponentPreviews, useInitial } from "../../dev";

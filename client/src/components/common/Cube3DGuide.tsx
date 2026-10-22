@@ -6,8 +6,7 @@ import { Rotate3D } from "@/components/ui/BootstrapIcon";
 import { IconButton } from "@/components/ui/BootstrapUI";
 import { useEffect, useRef, useState, type PointerEvent, type TouchEvent, type WheelEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const color: Record<string, string> = { U: "#f7f3e9", R: "#d95743", F: "#1ba77a", D: "#e7c34f", L: "#ed8e42", B: "#3b6fc7" };
+import { CUBE_COLORS as color } from "@/features/puzzle-3d/lib/cubeColors";
 const faceOffset: Record<"U" | "R" | "F" | "D" | "L" | "B", number> = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 };
 const DEFAULT_CAMERA = { orbit: 0, pitch: 0, zoom: 1 };
 const DISPLAY_SCALE = 1.25;

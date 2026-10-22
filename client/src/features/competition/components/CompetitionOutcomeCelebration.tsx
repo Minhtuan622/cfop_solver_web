@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "sonner";
 
 /**
  * The server reports a moderation removal with this exact Vietnamese prefix
@@ -37,12 +38,22 @@ export function CompetitionOutcomeCelebration() {
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, { staleTime: 30_000, retry: false });
   const roomQuery = trpc.competition.state.useQuery(input, { enabled: Boolean(code && accountQuery.data), refetchInterval: code ? 2_500 : false, retry: false });
   const [kind, setKind] = useState<"winner" | "record" | null>(null);
-  const [removalNotice, setRemovalNotice] = useState(false);
-  const [removalReason, setRemovalReason] = useState("");
+  // The removal notice is announced once per message; the guard keeps a
+  // re-render of the query from repeating the toast.
+  const announcedRemoval = useRef("");
   useEffect(() => {
-    if (!code || !roomQuery.error?.message.startsWith(REMOVAL_PREFIX)) return;
-    setRemovalReason(roomQuery.error.message.slice(REMOVAL_PREFIX.length).trim() || t("competition.outcome.reasonMissing"));
-    setRemovalNotice(true);
+    const message = roomQuery.error?.message ?? "";
+    if (!code || !message.startsWith(REMOVAL_PREFIX)) {
+      announcedRemoval.current = "";
+      return;
+    }
+    if (announcedRemoval.current === message) return;
+    announcedRemoval.current = message;
+    const reason = message.slice(REMOVAL_PREFIX.length).trim() || t("competition.outcome.reasonMissing");
+    toast.error(t("competition.outcome.removed"), {
+      description: `${t("competition.outcome.removedDetail")} ${t("competition.outcome.reason")}: ${reason}`,
+      duration: 6000,
+    });
     setLocation("/rooms");
   }, [code, roomQuery.error, setLocation, t]);
   useEffect(() => {
@@ -64,6 +75,5 @@ export function CompetitionOutcomeCelebration() {
     playCelebrationTone();
   }, [accountQuery.data, roomQuery.data]);
   useEffect(() => { if (!kind) return; const timer = window.setTimeout(() => setKind(null), 5_500); return () => window.clearTimeout(timer); }, [kind]);
-  useEffect(() => { if (!removalNotice) return; const timer = window.setTimeout(() => setRemovalNotice(false), 6_000); return () => window.clearTimeout(timer); }, [removalNotice]);
-  return <>{removalNotice ? <div className="toast show position-fixed bottom-0 end-0 m-3 z-3" role="status" aria-live="assertive"><div className="toast-header"><i className="bi bi-person-x-fill text-danger me-2" aria-hidden="true" /><strong className="me-auto">{t("competition.outcome.removed")}</strong><button type="button" className="btn-close" aria-label={t("competition.outcome.close")} onClick={() => setRemovalNotice(false)} /></div><div className="toast-body">{t("competition.outcome.removedDetail")}<span className="d-block mt-2"><strong>{t("competition.outcome.reason")}</strong> {removalReason}</span></div></div> : null}{kind ? <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3 bg-dark bg-opacity-50 z-3" role="dialog" aria-modal="true" aria-label={t("competition.outcome.closeLabel")}><i className="bi bi-stars text-warning position-absolute top-0 start-0 m-4 fs-1 spinner-grow" aria-hidden="true" /><i className="bi bi-stars text-info position-absolute top-0 end-0 m-4 fs-1 spinner-grow" aria-hidden="true" /><i className="bi bi-stars text-danger position-absolute bottom-0 start-50 translate-middle-x mb-4 fs-1 spinner-grow" aria-hidden="true" /><div className="alert alert-warning text-center mb-0"><i className="bi bi-trophy-fill d-block fs-1 mb-2" aria-hidden="true" /><h2 className="h4">{kind === "winner" ? t("competition.outcome.winner") : t("competition.outcome.record")}</h2><p className="mb-3">{t("competition.outcome.detail")}</p><button type="button" className="btn btn-dark" onClick={() => setKind(null)}>{t("competition.outcome.dismiss")}</button></div></div> : null}</>;
+  return <>{kind ? <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3 bg-dark bg-opacity-50 z-3" role="dialog" aria-modal="true" aria-label={t("competition.outcome.closeLabel")}><i className="bi bi-stars text-warning position-absolute top-0 start-0 m-4 fs-1 spinner-grow" aria-hidden="true" /><i className="bi bi-stars text-info position-absolute top-0 end-0 m-4 fs-1 spinner-grow" aria-hidden="true" /><i className="bi bi-stars text-danger position-absolute bottom-0 start-50 translate-middle-x mb-4 fs-1 spinner-grow" aria-hidden="true" /><div className="alert alert-warning text-center mb-0"><i className="bi bi-trophy-fill d-block fs-1 mb-2" aria-hidden="true" /><h2 className="h4">{kind === "winner" ? t("competition.outcome.winner") : t("competition.outcome.record")}</h2><p className="mb-3">{t("competition.outcome.detail")}</p><button type="button" className="btn btn-dark" onClick={() => setKind(null)}>{t("competition.outcome.dismiss")}</button></div></div> : null}</>;
 }

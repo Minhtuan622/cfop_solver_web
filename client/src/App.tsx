@@ -6,6 +6,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AppNav } from "./components/AppNav";
 import { SkeletonCard } from "./components/ui/BootstrapUI";
+import { AppToaster } from "./components/ui/AppToaster";
 import { useLanguage } from "./contexts/LanguageContext";
 import { CfopCloudSync } from "./features/profile/components/CfopCloudSync";
 import { CompetitionOutcomeCelebration } from "./features/competition/components/CompetitionOutcomeCelebration";
@@ -74,6 +75,7 @@ function AppShell() {
     <AppNav />
     <main id="main-content" className="py-4 py-lg-5 flex-grow-1"><Router /></main>
     <AppFooter />
+    <AppToaster />
   </div>;
 }
 

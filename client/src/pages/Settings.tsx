@@ -4,14 +4,15 @@ import { Check, RotateCcw } from "@/components/ui/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readLastLayerStudy, writeLastLayerStudy } from "@/features/last-layer";
+import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
 import { readStoredValue, writeStoredValue } from "@/lib/browserStorage";
 
 type F2LSlot = NonNullable<SolverSettings["preferredSlot"]>;
 
 const colors: { value: SolverSettings["crossColor"]; hex: string; labelKey: string }[] = [
-  { value: "U", hex: "#f7f3e9", labelKey: "settings.color.white" }, { value: "D", hex: "#e7c34f", labelKey: "settings.color.yellow" },
-  { value: "F", hex: "#1ba77a", labelKey: "settings.color.green" }, { value: "B", hex: "#3b6fc7", labelKey: "settings.color.blue" },
-  { value: "R", hex: "#d95743", labelKey: "settings.color.red" }, { value: "L", hex: "#ed8e42", labelKey: "settings.color.orange" },
+  { value: "U", hex: CUBE_COLORS.U, labelKey: "settings.color.white" }, { value: "D", hex: CUBE_COLORS.D, labelKey: "settings.color.yellow" },
+  { value: "F", hex: CUBE_COLORS.F, labelKey: "settings.color.green" }, { value: "B", hex: CUBE_COLORS.B, labelKey: "settings.color.blue" },
+  { value: "R", hex: CUBE_COLORS.R, labelKey: "settings.color.red" }, { value: "L", hex: CUBE_COLORS.L, labelKey: "settings.color.orange" },
 ];
 const slots: F2LSlot[] = ["FR", "FL", "BL", "BR"];
 

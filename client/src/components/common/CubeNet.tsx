@@ -3,6 +3,10 @@
  * colors are reserved for state signaling and never for decorative surfaces.
  */
 import { cn } from "@/lib/utils";
+import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
+
+/** Kept under the old name so existing call sites keep working. */
+export const CUBE_COLOR = CUBE_COLORS;
 
 export const FACE_ORDER = ["U", "R", "F", "D", "L", "B"] as const;
 export const FACE_GRID: Record<(typeof FACE_ORDER)[number], string> = {
@@ -20,14 +24,6 @@ export const FACE_OFFSET: Record<(typeof FACE_ORDER)[number], number> = {
   D: 27,
   L: 36,
   B: 45,
-};
-export const CUBE_COLOR: Record<string, string> = {
-  U: "#F7F3E9",
-  R: "#D95743",
-  F: "#1BA77A",
-  D: "#E7C34F",
-  L: "#ED8E42",
-  B: "#3B6FC7",
 };
 
 type Face = (typeof FACE_ORDER)[number];

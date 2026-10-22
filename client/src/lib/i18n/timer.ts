@@ -47,7 +47,6 @@ export const timerWords: Dictionary = {
   "timer.pb": ["PB", "PB"],
   "timer.total": ["LƯỢT", "SOLVES"],
   "timer.matched": ["lượt khớp", "matching solves"],
-  "timer.playback": ["Phát lại solution thực tế", "Playback"],
   "timer.playbackTitle": ["PHÁT LẠI SOLUTION THỰC TẾ", "SOLUTION PLAYBACK"],
   "timer.noSolution": [
     "Lượt này chưa có solution thực tế đã lưu.",
@@ -65,7 +64,6 @@ export const timerWords: Dictionary = {
   ],
   "timer.splitTimes": ["THỜI GIAN PHA", "PHASE SPLITS"],
   "timer.recordTitle": ["KỶ LỤC MỚI", "NEW PERSONAL RECORD"],
-  "timer.recordClose": ["Đóng thông báo kỷ lục", "Dismiss record notice"],
   "timer.newScore": ["ĐIỂM MỚI", "NEW SCORE"],
   "timer.bestScore": ["ĐIỂM CAO NHẤT", "BEST SCORE"],
 

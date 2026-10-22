@@ -31,6 +31,29 @@
   --cfop-stage-muted: rgba(238, 242, 241, 0.62);
   --cfop-accent: #4a9b8e;
   --cfop-accent-soft: rgba(74, 155, 142, 0.12);
+  /* Series colours for every chart. They follow the studio palette so the
+     graphs read as part of the same design as the cube. */
+  --cfop-chart-1: #4a9b8e;
+  --cfop-chart-2: #3b6fc7;
+  --cfop-chart-3: #d95743;
+  --cfop-chart-4: #ed8e42;
+  --cfop-chart-5: #e7c34f;
+  --cfop-chart-6: #6c757d;
+  /* The shared sheet of the exported timer record. It stays paper-like in both
+     palettes because the PNG is meant to be shared outside the app. */
+  --cfop-export-paper: #f4f0e8;
+  --cfop-export-on-accent: rgba(244, 240, 232, 0.72);
+  --cfop-export-ink: #17221d;
+  --cfop-export-accent: #1ba77a;
+  --cfop-export-accent-ink: #176d52;
+  --cfop-export-label: #1b7b5e;
+  --cfop-export-grid: rgba(23, 34, 29, 0.12);
+  --cfop-export-row: #fffdfa;
+  --cfop-export-row-alt: #ebe5d9;
+  --cfop-export-rule: rgba(23, 34, 29, 0.28);
+  --cfop-export-muted: #65716a;
+  --cfop-export-worst: #d95743;
+  --cfop-export-worst-ink: #a33d2d;
   color-scheme: light;
 }
 
@@ -53,6 +76,14 @@
   --cfop-stage-bg: #0f1513;
   --cfop-stage-color: #e8ecea;
   --cfop-stage-muted: rgba(232, 236, 234, 0.62);
+  /* The dark series colours are lifted so every line keeps its contrast
+     against the dark canvas. */
+  --cfop-chart-1: #6bb8a9;
+  --cfop-chart-2: #7ea6e8;
+  --cfop-chart-3: #ef8878;
+  --cfop-chart-4: #f7ad6b;
+  --cfop-chart-5: #f0d488;
+  --cfop-chart-6: #a8b0ac;
   color-scheme: dark;
 }
 
@@ -175,6 +206,17 @@ h6 {
   box-shadow: var(--cfop-shadow-soft);
 }
 
+/*
+ * The raised panel surface. Bootstrap's `.border-0` and `.shadow-sm`
+ * utilities are `!important`, so a global `.card` rule can never reach a card
+ * that uses them — those panels opt into the theme surface explicitly.
+ */
+.cfop-card-surface {
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-lg);
+  box-shadow: var(--cfop-shadow-card);
+}
+
 .card-header {
   background: transparent;
   border-bottom: 1px solid var(--bs-border-color);
@@ -190,6 +232,42 @@ h6 {
   .card-body {
     padding: 1.5rem;
   }
+}
+
+/* ---- Toasts (sonner) ---- */
+/*
+ * Sonner ships its own palette. The override ties every toast type to the
+ * Bootstrap tokens so a notification looks the same on every page and in both
+ * palettes. The selector matches sonner's own specificity so it wins.
+ */
+[data-sonner-toaster][data-sonner-theme] {
+  --normal-bg: var(--bs-body-bg);
+  --normal-text: var(--bs-body-color);
+  --normal-border: var(--bs-border-color);
+  --normal-bg-hover: var(--bs-tertiary-bg);
+  --normal-border-hover: var(--bs-border-color);
+  --success-bg: var(--bs-success-bg-subtle);
+  --success-text: var(--bs-success-text-emphasis);
+  --success-border: var(--bs-success-border-subtle);
+  --info-bg: var(--bs-info-bg-subtle);
+  --info-text: var(--bs-info-text-emphasis);
+  --info-border: var(--bs-info-border-subtle);
+  --warning-bg: var(--bs-warning-bg-subtle);
+  --warning-text: var(--bs-warning-text-emphasis);
+  --warning-border: var(--bs-warning-border-subtle);
+  --error-bg: var(--bs-danger-bg-subtle);
+  --error-text: var(--bs-danger-text-emphasis);
+  --error-border: var(--bs-danger-border-subtle);
+  --border-radius: var(--bs-border-radius);
+  font-family: inherit;
+}
+
+[data-sonner-toast] {
+  box-shadow: var(--cfop-shadow-card);
+}
+
+[data-sonner-toast] [data-title] {
+  font-weight: 600;
 }
 
 /* ---- Buttons ---- */

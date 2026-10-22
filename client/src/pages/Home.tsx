@@ -239,7 +239,7 @@ export default function Home() {
           actions={<Link href="/timer" className="btn btn-outline-secondary"><Timer className="fs-6 me-1" />{t("timer.title")}</Link>}
         />
 
-        <section className="card border-0 shadow-sm mb-4">
+        <section className="card cfop-card-surface mb-4">
           <div className="card-body">
             <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
               <div>
@@ -284,7 +284,7 @@ export default function Home() {
           </aside>
 
           <section className="col-12 col-xl-7">
-            <div className="card border-0 shadow-sm">
+            <div className="card cfop-card-surface">
               <div className="card-header d-flex flex-wrap align-items-start justify-content-between gap-3">
                 <div><p className="small text-uppercase text-body-secondary mb-1">{solverKind === "bld" ? "3-STYLE · MEMO" : `${t("guide.step")} · ${String(cursor).padStart(2, "0")} / ${String(totalMoves).padStart(2, "0")}`}</p><h2 className="h4 mb-1">{solverKind === "bld" ? (bldResult ? (t("home.memoReady")) : (t("home.memoBuild"))) : activePhase ? simplePhase(activePhase.name, language) : t("guide.ready")}</h2><p className="text-body-secondary mb-0">{solverKind === "bld" ? (bldResult ? (t("home.memoSeparated")) : (t("home.memoStudioOnly"))) : currentStep ? `${t("guide.move")}: ${currentStep.move}` : t("guide.help")}</p></div><div className="text-end"><span className="small text-body-secondary d-block">{solverKind === "bld" ? (t("home.edgesCorners")) : t("guide.move").toUpperCase()}</span><strong className="fs-3">{solverKind === "bld" ? (bldResult ? `${bldResult.analysis.edges.memo.length} / ${bldResult.analysis.corners.memo.length}` : "—") : currentStep?.move ?? "—"}</strong></div>
               </div>

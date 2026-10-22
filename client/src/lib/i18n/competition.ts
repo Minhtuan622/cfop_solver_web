@@ -136,9 +136,6 @@ export const competitionWords: Dictionary = {
   "competition.filter.points": ["{points} điểm", "{points} points"],
   "competition.filter.fullBoard": ["Xem bảng đầy đủ", "See the full leaderboard"],
 
-  "competition.format.bestOf3": ["Best of 3", "Best of 3"],
-  "competition.format.ao5": ["Ao5", "Ao5"],
-  "competition.format.ao12": ["Ao12", "Ao12"],
   "competition.format.bestOf3Description": ["3 lượt · lấy single tốt nhất", "3 rounds · the best single counts"],
   "competition.format.ao5Description": ["5 lượt · bỏ nhanh nhất và chậm nhất", "5 rounds · drop the fastest and the slowest"],
   "competition.format.ao12Description": ["12 lượt · bỏ nhanh nhất và chậm nhất", "12 rounds · drop the fastest and the slowest"],
@@ -153,7 +150,6 @@ export const competitionWords: Dictionary = {
   ],
   "competition.outcome.reason": ["Lý do:", "Reason:"],
   "competition.outcome.reasonMissing": ["Không có lý do được lưu.", "No reason was recorded."],
-  "competition.outcome.close": ["Đóng", "Close"],
   "competition.outcome.winner": ["Bạn đã vô địch phòng!", "You won the room!"],
   "competition.outcome.record": ["Kỷ lục thi đấu mới!", "A new competition record!"],
   "competition.outcome.detail": [
