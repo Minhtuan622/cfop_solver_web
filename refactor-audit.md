@@ -127,3 +127,21 @@ Báo lỗi: không đăng nhập hay đăng ký được. **Nguyên nhân là m�
 Sự cố này lộ ra một lỗi thật: thông báo lỗi hiện **nguyên văn câu SQL của Drizzle** (`Failed query: select ... from `cfop_accounts``) — cùng loại rò rỉ nội bộ như stack của `ErrorBoundary` đã gỡ trước đó. `errorMessage` nay gộp ba quy tắc: lỗi 5xx dùng câu "máy chủ đang gặp sự cố" (song ngữ), payload zod được đọc lấy câu của trường đầu tiên thay vì in JSON, và nơi gọi có thể dịch theo mã lỗi tRPC (`CONFLICT` / `UNAUTHORIZED` / `BAD_REQUEST` / `TOO_MANY_REQUESTS`).
 
 **Xác minh.** Vitest **65 file / 213 test** đạt; `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; production build đạt; Playwright 2 kịch bản đạt. Ngoài ra đã chạy trình duyệt thật với backend thật: **10 bước đạt** (đăng ký → email trùng → sai mật khẩu → đăng nhập đúng → hồ sơ → đăng xuất → đăng nhập lại → thông báo lỗi tiếng Anh → đăng nhập tiếng Anh), ở cả tiếng Việt và tiếng Anh.
+
+## Đợt 4: thông báo lỗi song ngữ và chọn ngôn ngữ
+
+Nhánh `refactor/round-3-uiux`, 3 commit, **11 file, +800 / −90 dòng**. Hai việc còn tồn đọng từ đợt trước: (1) thông báo lỗi của server vẫn chỉ có tiếng Việt nên giao diện tiếng Anh hiện câu không đọc được; (2) giao diện đã song ngữ từ đợt 3 nhưng **không có cách nào chuyển ngôn ngữ** — người đọc phải sửa `localStorage` bằng tay.
+
+**Vì sao không dịch được ở server.** tRPC v11 **không có** option `meta` trong `TRPCError` (chỉ `code`, `message`, `cause` — đã kiểm chứng trong `node_modules/@trpc/server`), nên không thể gửi kèm mã lý do của lỗi để client dịch. Cách làm được là **bảng tra theo câu**: `shared/serverMessages.ts` liệt kê 67 câu server có thể gửi (66 câu tiếng Việt + mã `CFOP_ACCOUNT_REQUIRED`) và trỏ tới key của từ điển song ngữ. Client tra bảng này trước khi hiện (`client/src/lib/apiError.ts`).
+
+**Quy tắc hiện câu lỗi.** Ba câu hỏi theo thứ tự: lỗi 5xx dùng câu chung (không bao giờ để lộ SQL hay stack); lỗi có mã mà nơi gọi biết thì dịch theo mã; còn lại tra bảng. Câu không có trong bảng **không bao giờ hiện nguyên văn** — hiện câu chung. Câu có phần đuôi do người viết (lý do moderator loại khỏi phòng) giữ nguyên phần đuôi, vì đó là chữ của người. Payload zod được đọc lấy câu của trường đầu tiên thay vì in JSON.
+
+**Bảng không thể trôi lệch với server.** `server/serverMessages.test.ts` quét mọi string literal có chữ tiếng Việt trong mã nguồn server (74 câu) và đòi mỗi câu phải có trong bảng. Ba câu không phải câu giao diện được danh sách riêng: tiêu đề email đặt lại mật khẩu, thân email, và tên phòng "Đấu lại". Chiều ngược lại cũng được kiểm: một câu có trong bảng mà server không hề gửi cũng bị báo.
+
+**Từ điển.** Thêm 65 key: `common.error.*` (16), `rooms.error.*` (32), `wca.error*` (11), `profile.error*` (4), `account.error.*` (2). `client/src/lib/i18n/index.test.ts` kiểm từ điển: mỗi key đủ hai ngôn ngữ, không key nào nằm ở hai namespace, hai ngôn ngữ dùng cùng bộ placeholder, và mọi key trong bảng câu của server đều có mặt trong từ điển.
+
+**Chọn ngôn ngữ.** `client/src/components/LanguageSwitcher.tsx` (menu `role="menu"` + `menuitemradio`, đóng bằng Escape và bấm ra ngoài) đặt ở navbar và ở trang cài đặt — cùng cách `ThemeSwitcher` làm. Lựa chọn nhớ trong `localStorage["cfop-language"]`; `<html lang>` đi theo (màn hình đọc đúng giọng), và script inline trong `client/index.html` set nó **trước first paint** như theme.
+
+**Một test đang chập chờn được sửa.** `timerEvents.test.ts` đòi scramble 3×3 có ít nhất 20 nước, nhưng cubing.js sinh scramble ngẫu nhiên 17–21 nước (đo 300 lần: 17×1, 18×4, 19×15, 20×83, 21×197) — test fail khoảng 1 lần trong 20. Mốc hạ xuống 17 (scramble 17 nước vẫn xáo đủ).
+
+**Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **69 file / 234 test** đạt; production build đạt; Playwright 2 kịch bản đạt. Ngoài ra đã chạy trình duyệt thật: đổi sang tiếng Anh thì navbar đổi hết (Solve / Timer / History / Study / Rooms / Rankings / WCA / Settings), `<html lang>` đổi theo, tải lại vẫn giữ, đổi lại tiếng Việt thì trở về nguyên trạng, và trang cài đặt dịch theo; không có lỗi console.

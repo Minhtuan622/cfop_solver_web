@@ -101,6 +101,8 @@ Một convention duy nhất: **`t("namespace.key")`**.
 - Mỗi key có **hai** giá trị: `[tiếng Việt, tiếng Anh]`. Thêm key mới thì phải đủ cả hai.
 - `useLanguage()` trả `{ language, vi, setLanguage, t }`; chỉ dùng `vi` khi cần nhánh nhị phân, còn lại dùng `t()`.
 - Placeholder là `{name}`: `t("timer.generating", { event: eventLabel })`.
+- Khách chọn ngôn ngữ ở navbar và ở trang cài đặt (`components/LanguageSwitcher.tsx`); lựa chọn được nhớ trong `localStorage["cfop-language"]`, `<html lang>` đi theo và được set trước first paint trong `client/index.html`.
+- **Câu của server phải có trong `shared/serverMessages.ts`.** Server viết bằng tiếng Việt, nên client tra bảng này rồi hiện theo ngôn ngữ của giao diện; câu không có trong bảng không bao giờ hiện nguyên văn. `server/serverMessages.test.ts` quét mã nguồn server, nên thêm câu mới mà quên dịch sẽ fail.
 
 ### Thông báo
 
