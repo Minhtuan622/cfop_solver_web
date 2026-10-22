@@ -3,6 +3,7 @@ import { render } from "@testing-library/react";
 import { fireEvent, screen, waitFor } from "@testing-library/dom";
 import { beforeEach, describe, expect, it } from "vitest";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import Settings from "./Settings";
 
 describe("Settings cuber solution choices", () => {
@@ -13,7 +14,7 @@ describe("Settings cuber solution choices", () => {
   });
 
   it("shows the direct tier preference and changes its current value", () => {
-    render(<LanguageProvider><Settings /></LanguageProvider>);
+    render(<LanguageProvider><ThemeProvider><Settings /></ThemeProvider></LanguageProvider>);
     const toggle = screen.getByRole("switch", { name: /Ưu tiên direct đúng tier/ });
     expect((toggle as HTMLInputElement).checked).toBe(false);
     fireEvent.click(toggle);
@@ -21,7 +22,7 @@ describe("Settings cuber solution choices", () => {
   });
 
   it("shows and autosaves the direct node budget", async () => {
-    render(<LanguageProvider><Settings /></LanguageProvider>);
+    render(<LanguageProvider><ThemeProvider><Settings /></ThemeProvider></LanguageProvider>);
     const threshold = screen.getAllByRole("slider", { name: /Node budget direct/ }).at(-1) as HTMLInputElement;
     expect(threshold.value).toBe("5000");
     fireEvent.change(threshold, { target: { value: "12500" } });

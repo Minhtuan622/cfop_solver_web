@@ -7,7 +7,27 @@ export const settingsWords: Dictionary = {
     "Thiết lập mặc định cho Solver, Timer và Study. Mọi thay đổi được tự động lưu.",
     "Set defaults for Solver, Timer, and Study. All changes save automatically.",
   ],
-  "settings.cfopSection": ["CFOP Solver", "CFOP Solver"],
+  "settings.groups": ["Nhóm cài đặt", "Settings groups"],
+  "settings.group.solver": ["Lời giải", "Solver"],
+  "settings.group.solverHelp": [
+    "Mặc định của lời giải CFOP: màu Cross, opening và last layer.",
+    "The defaults of the CFOP solver: the Cross color, the opening and the last layer.",
+  ],
+  "settings.group.timer": ["Bấm giờ", "Timer"],
+  "settings.group.timerHelp": [
+    "Âm báo inspection, highlight Cross và speed splits.",
+    "The inspection sound, the Cross highlight and the speed splits.",
+  ],
+  "settings.group.study": ["Học tập", "Study"],
+  "settings.group.studyHelp": [
+    "Mục tiêu ôn tập mỗi ngày.",
+    "The daily practice goal.",
+  ],
+  "settings.group.appearance": ["Giao diện", "Appearance"],
+  "settings.group.appearanceHelp": [
+    "Ngôn ngữ của giao diện và bảng màu sáng tối.",
+    "The language of the interface and the light or dark palette.",
+  ],
   "settings.crossColor": ["Màu Cross", "Cross color"],
   "settings.crossColorHint": [
     "Màu Cross luôn được đặt ở mặt D khi xem Cube 3D và chạy lời giải.",
@@ -56,7 +76,6 @@ export const settingsWords: Dictionary = {
   "settings.lastLayer.ollpll": ["OLL + PLL", "OLL + PLL"],
   "settings.lastLayer.zbll": ["ZBLL · cần EO", "ZBLL · EO required"],
   "settings.lastLayer.oneLll": ["1LLL", "1LLL"],
-  "settings.timerSection": ["Timer & Inspection", "Timer & Inspection"],
   "settings.sound": ["Âm inspection 8s / 12s", "Inspection sound at 8s / 12s"],
   "settings.soundHelp": [
     "Phát cảnh báo trước mốc +2 (15 giây) và DNF (17 giây).",
@@ -72,10 +91,15 @@ export const settingsWords: Dictionary = {
     "Space / Enter / chạm Timer lần lượt đánh dấu Cross → F2L → OLL → PLL.",
     "Space / Enter / touch marks Cross → F2L → OLL → PLL in order.",
   ],
-  "settings.studySection": ["Study & ngôn ngữ", "Study & language"],
   "settings.dailyGoal": ["Mục tiêu case mỗi ngày", "Daily case goal"],
   "settings.dailyGoalHelp": ["Áp dụng cho danh sách ôn Study/SRS.", "Applies to the Study/SRS review list."],
   "settings.language": ["Ngôn ngữ", "Language"],
+  "settings.languageHelp": [
+    "Chọn ngôn ngữ giao diện hiển thị.",
+    "Choose the language the interface is written in.",
+  ],
+  "settings.theme": ["Giao diện", "Theme"],
+  "settings.themeHelp": ["Sáng, tối hoặc theo hệ thống.", "Light, dark, or follow the system."],
   "settings.restoreDefaults": ["Khôi phục mặc định", "Restore defaults"],
   "settings.saving": ["Đang lưu…", "Saving…"],
   "settings.saved": ["Đã lưu", "Saved"],

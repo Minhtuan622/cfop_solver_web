@@ -6,6 +6,7 @@ import {
   LoadingTransition,
   PendingButton,
   StatTile,
+  Switch,
 } from "./BootstrapUI";
 
 afterEach(() => cleanup());
@@ -128,5 +129,16 @@ describe("Field", () => {
     );
     expect(screen.queryByText("Tối đa 80 ký tự.")).toBeNull();
     expect(screen.getByRole("alert").textContent).toBe("Cần ít nhất 2 ký tự.");
+  });
+});
+
+describe("Switch", () => {
+  it("gắn nhãn với công tắc và báo trạng thái bật tắt", () => {
+    render(<Switch id="setting-sound" checked={false} onChange={() => undefined} label="Âm inspection" help="Cảnh báo trước +2." />);
+
+    const toggle = screen.getByRole("switch", { name: /Âm inspection/ });
+    expect(toggle.getAttribute("id")).toBe("setting-sound");
+    expect((toggle as HTMLInputElement).checked).toBe(false);
+    expect(screen.getByText("Cảnh báo trước +2.")).not.toBeNull();
   });
 });

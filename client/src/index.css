@@ -430,6 +430,12 @@ h6 {
   color: var(--bs-danger);
 }
 
+/* ---- CFOP: Settings note ---- */
+/* The long explanations of the settings page stay folded away until asked for. */
+.cfop-settings-note summary {
+  cursor: pointer;
+}
+
 /* ---- CFOP: Inverse tile ---- */
 /* An accent tile that stays legible in both the light and the dark palette. */
 .cfop-inverse-tile {

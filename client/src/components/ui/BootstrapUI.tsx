@@ -103,6 +103,27 @@ export function Field({ id, label, hint, error, required, className, children }:
   );
 }
 
+/** A switch that turns one preference on or off, with its explanation beside it. */
+export function Switch({ id, checked, onChange, label, help, disabled }: { id: string; checked: boolean; onChange: (next: boolean) => void; label: ReactNode; help?: ReactNode; disabled?: boolean }) {
+  return (
+    <div className="form-check form-switch">
+      <input
+        id={id}
+        className="form-check-input"
+        type="checkbox"
+        role="switch"
+        checked={checked}
+        disabled={disabled}
+        onChange={event => onChange(event.target.checked)}
+      />
+      <label className="form-check-label" htmlFor={id}>
+        {label}
+        {help ? <small className="d-block text-body-secondary">{help}</small> : null}
+      </label>
+    </div>
+  );
+}
+
 export type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "aria-label" | "children"> & {
   /** The accessible name of the button; it doubles as the tooltip. */
   label: string;
