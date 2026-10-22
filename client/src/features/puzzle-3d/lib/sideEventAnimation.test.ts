@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { clockDialIndex, isSideEvent3DPuzzle, squareOnePieceKind, squareOneStateFromScramble, squareOneVisualSlots, squareOneWedgeUnits, squareSlashPose, squareTurnForAnimation } from "./SideEvent3DObject";
+import { isSideEvent3DPuzzle } from "./puzzleIds";
+import { clockDialIndex } from "./clockGeometry";
+import { squareOnePieceKind, squareOneStateFromScramble, squareOneVisualSlots, squareOneWedgeUnits, squareSlashPose, squareTurnForAnimation } from "./squareOneState";
 
 describe("side-event 3D renderer selection", () => {
   it("uses the custom Three.js state renderer only for Square-1 and Clock", () => {
