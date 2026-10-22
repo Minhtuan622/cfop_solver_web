@@ -119,3 +119,11 @@ Nhánh `refactor/round-3-uiux`, 12 commit, **99 file, +4.086 / −1.155 dòng**.
 **Vệ sinh (M8, M13).** `features/timer/TimerHistoryRow.tsx` (file chết) bị xoá; 8 nhóm class CSS không ai dùng bị gỡ (`.cfop-form-help`, `.cfop-toolbar`, `.cfop-action-row`, `.cfop-guide-pill`, `.cfop-step-badge`, `.cfop-section-divider`, 10 `.phase-badge-*`); `WcaCompetitions` dùng `SkeletonCard` sẵn có. Thang tiêu đề mobile được sửa: trước đó rule `h1/h2/h3` trần không bắt được **một** heading nào của app (mọi heading đều mang class heading của Bootstrap), nên tiêu đề trang vẫn 40px trên điện thoại — nay là 25.6px.
 
 **Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **65 file / 207 test** đạt; production build đạt; Playwright 2 kịch bản đạt (`account-sync-competition`, `lazy-3d-loading`). Ngoài ra đã kiểm tra bằng trình duyệt: không tràn ngang ở 1280/1440/1920px, navbar xuống hàng ở 1199px và bung ở 1200px, tiêu đề Timer Lab ở 390px, menu tài khoản chỉ còn hành động tài khoản.
+
+## Sự cố: đăng nhập / đăng ký báo lỗi
+
+Báo lỗi: không đăng nhập hay đăng ký được. **Nguyên nhân là môi trường, không phải hồi quy**: Docker daemon không chạy → container MariaDB `cfop-solver-db-local` (cổng 3307) dừng → mọi truy vấn tài khoản trả 500. Bật lại Docker là container tự lên (`restart: unless-stopped`), DB khoẻ, tính năng hoạt động trở lại.
+
+Sự cố này lộ ra một lỗi thật: thông báo lỗi hiện **nguyên văn câu SQL của Drizzle** (`Failed query: select ... from `cfop_accounts``) — cùng loại rò rỉ nội bộ như stack của `ErrorBoundary` đã gỡ trước đó. `errorMessage` nay gộp ba quy tắc: lỗi 5xx dùng câu "máy chủ đang gặp sự cố" (song ngữ), payload zod được đọc lấy câu của trường đầu tiên thay vì in JSON, và nơi gọi có thể dịch theo mã lỗi tRPC (`CONFLICT` / `UNAUTHORIZED` / `BAD_REQUEST` / `TOO_MANY_REQUESTS`).
+
+**Xác minh.** Vitest **65 file / 213 test** đạt; `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; production build đạt; Playwright 2 kịch bản đạt. Ngoài ra đã chạy trình duyệt thật với backend thật: **10 bước đạt** (đăng ký → email trùng → sai mật khẩu → đăng nhập đúng → hồ sơ → đăng xuất → đăng nhập lại → thông báo lỗi tiếng Anh → đăng nhập tiếng Anh), ở cả tiếng Việt và tiếng Anh.
