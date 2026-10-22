@@ -52,6 +52,22 @@ export const shellWords: Dictionary = {
   "account.dialog.pending": ["Đang xử lý…", "Working…"],
   "account.dialog.close": ["Đóng", "Close"],
   "account.dialog.createAccount": ["Tạo tài khoản", "Create account"],
+  "account.error.emailTaken": [
+    "Email này đã có tài khoản CFOP.",
+    "This email already has a CFOP account.",
+  ],
+  "account.error.invalidCredentials": [
+    "Email hoặc mật khẩu không đúng.",
+    "The email or the password is wrong.",
+  ],
+  "account.error.rateLimited": [
+    "Bạn đã thử quá nhiều lần. Vui lòng thử lại sau.",
+    "Too many attempts. Please try again later.",
+  ],
+  "account.error.invalidInput": [
+    "Thông tin bạn nhập chưa hợp lệ. Vui lòng kiểm tra lại.",
+    "Some of the details you entered are not valid. Please check them again.",
+  ],
 
   "notFound.title": ["Không tìm thấy trang", "Page Not Found"],
   "notFound.detail": [

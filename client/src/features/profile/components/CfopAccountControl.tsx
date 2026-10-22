@@ -30,11 +30,25 @@ export function CfopAccountControl() {
   };
   const register = trpc.cfopAccount.register.useMutation({
     onSuccess: complete,
-    onError: next => setError(errorMessage(next, t)),
+    onError: next =>
+      setError(
+        errorMessage(next, t, {
+          BAD_REQUEST: "account.error.invalidInput",
+          CONFLICT: "account.error.emailTaken",
+          TOO_MANY_REQUESTS: "account.error.rateLimited",
+        }),
+      ),
   });
   const login = trpc.cfopAccount.login.useMutation({
     onSuccess: complete,
-    onError: next => setError(errorMessage(next, t)),
+    onError: next =>
+      setError(
+        errorMessage(next, t, {
+          BAD_REQUEST: "account.error.invalidInput",
+          UNAUTHORIZED: "account.error.invalidCredentials",
+          TOO_MANY_REQUESTS: "account.error.rateLimited",
+        }),
+      ),
   });
   const logout = trpc.cfopAccount.logout.useMutation({
     onSuccess: () => void utils.cfopAccount.me.invalidate(),

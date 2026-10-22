@@ -6,14 +6,28 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const invalidate = vi.fn();
 const logoutMutate = vi.fn();
 let accountData: { displayName: string; avatarUrl?: string | null } | null = null;
+/** The error the next auth mutation fails with. */
+let failure: unknown = null;
+/** The `onError` handler each auth mutation registered with the mock. */
+const handlers: { register?: (error: unknown) => void; login?: (error: unknown) => void } = {};
 
 vi.mock("@/lib/trpc", () => ({
   trpc: {
     useUtils: () => ({ cfopAccount: { me: { invalidate } } }),
     cfopAccount: {
       me: { useQuery: () => ({ data: accountData }) },
-      register: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
-      login: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
+      register: {
+        useMutation: (options?: { onError?: (error: unknown) => void }) => {
+          handlers.register = options?.onError;
+          return { mutate: () => handlers.register?.(failure), isPending: false };
+        },
+      },
+      login: {
+        useMutation: (options?: { onError?: (error: unknown) => void }) => {
+          handlers.login = options?.onError;
+          return { mutate: () => handlers.login?.(failure), isPending: false };
+        },
+      },
       logout: { useMutation: () => ({ mutate: logoutMutate, isPending: false }) },
     },
   },
@@ -68,5 +82,38 @@ describe("CfopAccountControl", () => {
     expect(screen.queryByRole("menuitem", { name: "Xếp hạng" })).toBeNull();
     expect(screen.queryByRole("menuitem", { name: "Giải WCA" })).toBeNull();
     expect(screen.queryByRole("menuitem", { name: "Cài đặt" })).toBeNull();
+  });
+
+  it("báo lỗi thân thiện khi máy chủ hỏng, không lộ chi tiết bên trong", () => {
+    accountData = null;
+    failure = Object.assign(new Error("Failed query: select `id` from `cfop_accounts`"), {
+      data: { httpStatus: 500 },
+    });
+    render(<CfopAccountControl />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Đăng nhập/ }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Đăng nhập" }));
+    fireEvent.submit(document.querySelector("form")!);
+
+    const alert = screen.getByRole("alert");
+    expect(alert.textContent).toBe("Máy chủ đang gặp sự cố. Vui lòng thử lại sau ít phút.");
+    expect(alert.textContent).not.toContain("cfop_accounts");
+    failure = null;
+  });
+
+  it("dịch lỗi email đã có tài khoản sang câu chữ của giao diện", () => {
+    accountData = null;
+    // The server writes its own wording; the dialog shows the wording of the interface.
+    failure = Object.assign(new Error("Account already exists."), {
+      data: { code: "CONFLICT", httpStatus: 409 },
+    });
+    render(<CfopAccountControl />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Đăng nhập/ }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Đăng ký" }));
+    fireEvent.submit(document.querySelector("form")!);
+
+    expect(screen.getByRole("alert").textContent).toBe("Email này đã có tài khoản CFOP.");
+    failure = null;
   });
 });
