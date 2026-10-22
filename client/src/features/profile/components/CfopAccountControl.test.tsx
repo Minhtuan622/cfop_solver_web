@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { render } from "@testing-library/react";
+import { cleanup, render } from "@testing-library/react";
 import { fireEvent, screen } from "@testing-library/dom";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invalidate = vi.fn();
 const logoutMutate = vi.fn();
@@ -21,17 +21,14 @@ vi.mock("@/lib/trpc", () => ({
 
 import { CfopAccountControl } from "./CfopAccountControl";
 
-const navItems = [
-  { href: "/rooms", labelKey: "nav.rooms", active: (path: string) => path === "/rooms" },
-  { href: "/competition", labelKey: "nav.rankings", active: (path: string) => path === "/competition" },
-  { href: "/wca", labelKey: "nav.wca", active: (path: string) => path === "/wca" },
-  { href: "/settings", labelKey: "nav.settings", active: (path: string) => path === "/settings" },
-];
-
 describe("CfopAccountControl", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it("opens an independent account dialog and switches to registration", () => {
     accountData = null;
-    render(<CfopAccountControl navItems={navItems} />);
+    render(<CfopAccountControl />);
     fireEvent.click(screen.getByRole("button", { name: /Đăng nhập/ }));
     fireEvent.click(screen.getByRole("menuitem", { name: "Đăng nhập" }));
     expect(screen.getByText("Tài khoản này riêng cho CFOP Solver Studio, không liên quan đến tài khoản Manus.")).toBeTruthy();
@@ -43,17 +40,13 @@ describe("CfopAccountControl", () => {
 
   it("groups signed-in account actions inside a compact dropdown", () => {
     accountData = { displayName: "Dr Who", avatarUrl: "https://example.test/dr-who.png" };
-    render(<CfopAccountControl navItems={navItems} />);
+    render(<CfopAccountControl />);
 
     expect(screen.queryByRole("menu")).toBeNull();
     expect(screen.getByRole("img", { name: "Ảnh đại diện của Dr Who" }).getAttribute("src")).toBe("https://example.test/dr-who.png");
     fireEvent.click(screen.getByRole("button", { name: /Dr Who/ }));
     expect(screen.getByRole("menu")).toBeTruthy();
     expect(screen.getByRole("menu").className).toContain("mt-2");
-    expect(screen.getByRole("menuitem", { name: "Thi đấu" })).toBeTruthy();
-    expect(screen.getByRole("menuitem", { name: "Xếp hạng" })).toBeTruthy();
-    expect(screen.getByRole("menuitem", { name: "Giải WCA" })).toBeTruthy();
-    expect(screen.getByRole("menuitem", { name: "Cài đặt" })).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: /Hồ sơ/ })).toBeTruthy();
     fireEvent.pointerDown(document.body);
     expect(screen.queryByRole("menu")).toBeNull();
@@ -61,5 +54,19 @@ describe("CfopAccountControl", () => {
     fireEvent.click(screen.getByRole("menuitem", { name: /Đăng xuất/ }));
     expect(logoutMutate).toHaveBeenCalledOnce();
     accountData = null;
+  });
+
+  it("không còn liệt kê route của app trong menu tài khoản", () => {
+    accountData = null;
+    render(<CfopAccountControl />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Đăng nhập/ }));
+
+    expect(screen.getByRole("menuitem", { name: "Đăng nhập" })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "Đăng ký" })).toBeTruthy();
+    expect(screen.queryByRole("menuitem", { name: "Thi đấu" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "Xếp hạng" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "Giải WCA" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "Cài đặt" })).toBeNull();
   });
 });

@@ -1,20 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { BoxArrowRight, PersonCircle } from "@/components/ui/BootstrapIcon";
 import { trpc } from "@/lib/trpc";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AccountDropdown } from "./AccountDropdown";
 import { CfopAuthDialog, type AuthMode } from "./CfopAuthDialog";
-import type { AccountNavItem } from "../lib/accountNavItems";
 import { errorMessage, initials } from "../lib/profilePresentation";
 
-type CfopAccountControlProps = {
-  navItems?: AccountNavItem[];
-};
-
-export function CfopAccountControl({
-  navItems = [],
-}: CfopAccountControlProps) {
+export function CfopAccountControl() {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -22,7 +15,6 @@ export function CfopAccountControl({
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState("");
-  const [location] = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   const utils = trpc.useUtils();
@@ -64,7 +56,6 @@ export function CfopAccountControl({
   };
   const closeMenu = () => setMenuOpen(false);
   const account = accountQuery.data;
-  const [path] = location.split("?");
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -77,7 +68,7 @@ export function CfopAccountControl({
 
   if (account)
     return (
-      <div ref={menuRef} className="dropdown d-grid d-lg-block">
+      <div ref={menuRef} className="dropdown d-grid d-xl-block">
         <button
           type="button"
           className="btn btn-outline-secondary btn-sm dropdown-toggle d-inline-flex align-items-center justify-content-center"
@@ -106,11 +97,7 @@ export function CfopAccountControl({
           <span>{account.displayName}</span>
         </button>
         {menuOpen ? (
-          <AccountDropdown
-            navItems={navItems}
-            path={path}
-            onNavigate={closeMenu}
-          >
+          <AccountDropdown>
             <li>
               <Link
                 href="/profile"
@@ -147,7 +134,7 @@ export function CfopAccountControl({
 
   return (
     <>
-      <div ref={menuRef} className="dropdown d-grid d-lg-block">
+      <div ref={menuRef} className="dropdown d-grid d-xl-block">
         <button
           type="button"
           className="btn btn-outline-secondary btn-sm dropdown-toggle"
@@ -160,11 +147,7 @@ export function CfopAccountControl({
           {t("account.signIn")}
         </button>
         {menuOpen ? (
-          <AccountDropdown
-            navItems={navItems}
-            path={path}
-            onNavigate={closeMenu}
-          >
+          <AccountDropdown>
             <li>
               <button
                 type="button"

@@ -55,7 +55,7 @@ export function ThemeSwitcher() {
         title={t("theme.change")}
       >
         <CurrentIcon className="fs-6 me-1" />
-        <span className="d-none d-xl-inline">{labels[theme]}</span>
+        <span className="d-none d-xxl-inline">{labels[theme]}</span>
       </button>
       {open ? (
         <ul className="dropdown-menu dropdown-menu-end show mt-2" role="menu" id="cfop-theme-menu" aria-label={t("theme.label")}>
