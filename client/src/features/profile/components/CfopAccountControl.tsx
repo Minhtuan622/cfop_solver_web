@@ -1,31 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { BoxArrowRight, PersonCircle } from "@/components/ui/BootstrapIcon";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/BootstrapDialog";
 import { trpc } from "@/lib/trpc";
-import { errorMessage, initials } from "@/features/profile";
 import { Link, useLocation } from "wouter";
-
-type AuthMode = "login" | "register";
-export type AccountNavItem = {
-  href: string;
-  label: string;
-  labelEn: string;
-  active: (path: string) => boolean;
-};
+import { AccountDropdown } from "./AccountDropdown";
+import { CfopAuthDialog, type AuthMode } from "./CfopAuthDialog";
+import type { AccountNavItem } from "../lib/accountNavItems";
+import { errorMessage, initials } from "../lib/profilePresentation";
 
 type CfopAccountControlProps = {
   navItems?: AccountNavItem[];
   language?: "vi" | "en";
 };
 
-export function CfopAccountControl({ navItems = [], language = "vi" }: CfopAccountControlProps) {
+export function CfopAccountControl({
+  navItems = [],
+  language = "vi",
+}: CfopAccountControlProps) {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mode, setMode] = useState<AuthMode>("login");
@@ -59,17 +49,21 @@ export function CfopAccountControl({ navItems = [], language = "vi" }: CfopAccou
     onSuccess: () => void utils.cfopAccount.me.invalidate(),
   });
   const pending = register.isPending || login.isPending;
-  const submit = (event: React.FormEvent) => {
+  const submit = (event: FormEvent) => {
     event.preventDefault();
     setError("");
     if (mode === "register") register.mutate({ email, password, displayName });
     else login.mutate({ email, password });
   };
-  const show = (next: AuthMode) => {
+  const changeMode = (next: AuthMode) => {
     setMode(next);
     setError("");
+  };
+  const show = (next: AuthMode) => {
+    changeMode(next);
     setOpen(true);
   };
+  const closeMenu = () => setMenuOpen(false);
   const account = accountQuery.data;
   const [path] = location.split("?");
 
@@ -113,22 +107,18 @@ export function CfopAccountControl({ navItems = [], language = "vi" }: CfopAccou
           <span>{account.displayName}</span>
         </button>
         {menuOpen ? (
-          <ul
-            id="cfop-account-menu"
-            className="dropdown-menu dropdown-menu-end show mt-2"
-            role="menu"
+          <AccountDropdown
+            navItems={navItems}
+            path={path}
+            vi={vi}
+            onNavigate={closeMenu}
           >
-            {navItems.map(item => {
-              const active = item.active(path);
-              return <li key={item.href}><Link href={item.href} role="menuitem" className={active ? "dropdown-item active py-2" : "dropdown-item py-2"} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)}>{vi ? item.label : item.labelEn}</Link></li>;
-            })}
-            {navItems.length ? <li><hr className="dropdown-divider" /></li> : null}
             <li>
               <Link
                 href="/profile"
                 role="menuitem"
                 className="dropdown-item py-2"
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenu}
               >
                 <PersonCircle className="fs-6 me-2" />
                 Hồ sơ
@@ -143,7 +133,7 @@ export function CfopAccountControl({ navItems = [], language = "vi" }: CfopAccou
                 role="menuitem"
                 className="dropdown-item py-2"
                 onClick={() => {
-                  setMenuOpen(false);
+                  closeMenu();
                   logout.mutate();
                 }}
                 disabled={logout.isPending}
@@ -152,7 +142,7 @@ export function CfopAccountControl({ navItems = [], language = "vi" }: CfopAccou
                 Đăng xuất
               </button>
             </li>
-          </ul>
+          </AccountDropdown>
         ) : null}
       </div>
     );
@@ -160,155 +150,68 @@ export function CfopAccountControl({ navItems = [], language = "vi" }: CfopAccou
   return (
     <>
       <div ref={menuRef} className="dropdown d-grid d-lg-block">
-        <button type="button" className="btn btn-outline-secondary btn-sm dropdown-toggle" onClick={() => setMenuOpen(value => !value)} aria-expanded={menuOpen} aria-haspopup="menu" aria-controls="cfop-account-menu">
+        <button
+          type="button"
+          className="btn btn-outline-secondary btn-sm dropdown-toggle"
+          onClick={() => setMenuOpen(value => !value)}
+          aria-expanded={menuOpen}
+          aria-haspopup="menu"
+          aria-controls="cfop-account-menu"
+        >
           <PersonCircle className="fs-6 me-1" />
           {vi ? "Đăng nhập" : "Sign in"}
         </button>
         {menuOpen ? (
-          <ul id="cfop-account-menu" className="dropdown-menu dropdown-menu-end show mt-2" role="menu">
-            {navItems.map(item => {
-              const active = item.active(path);
-              return <li key={item.href}><Link href={item.href} role="menuitem" className={active ? "dropdown-item active py-2" : "dropdown-item py-2"} aria-current={active ? "page" : undefined} onClick={() => setMenuOpen(false)}>{vi ? item.label : item.labelEn}</Link></li>;
-            })}
-            {navItems.length ? <li><hr className="dropdown-divider" /></li> : null}
-            <li><button type="button" role="menuitem" className="dropdown-item py-2" onClick={() => { setMenuOpen(false); show("login"); }}>{vi ? "Đăng nhập" : "Sign in"}</button></li>
-            <li><button type="button" role="menuitem" className="dropdown-item py-2" onClick={() => { setMenuOpen(false); show("register"); }}>{vi ? "Đăng ký" : "Create account"}</button></li>
-          </ul>
-        ) : null}
-      </div>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader className="align-items-start gap-3">
-            <div className="flex-grow-1">
-              <DialogTitle>
-                {mode === "login"
-                  ? "Đăng nhập CFOP Solver"
-                  : "Tạo tài khoản CFOP Solver"}
-              </DialogTitle>
-              <DialogDescription>
-                Tài khoản này riêng cho CFOP Solver Studio, không liên quan đến
-                tài khoản Manus.
-              </DialogDescription>
-            </div>
-            <button
-              type="button"
-              className="btn-close flex-shrink-0"
-              aria-label="Đóng"
-              onClick={() => setOpen(false)}
-            />
-          </DialogHeader>
-          <form onSubmit={submit}>
-            <div className="modal-body">
-              <div
-                className="btn-group w-100 mb-3"
-                role="group"
-                aria-label="Chọn thao tác tài khoản"
-              >
-                <button
-                  type="button"
-                  className={
-                    mode === "login"
-                      ? "btn btn-primary"
-                      : "btn btn-outline-secondary"
-                  }
-                  onClick={() => {
-                    setMode("login");
-                    setError("");
-                  }}
-                >
-                  Đăng nhập
-                </button>
-                <button
-                  type="button"
-                  className={
-                    mode === "register"
-                      ? "btn btn-primary"
-                      : "btn btn-outline-secondary"
-                  }
-                  onClick={() => {
-                    setMode("register");
-                    setError("");
-                  }}
-                >
-                  Đăng ký
-                </button>
-              </div>
-              {mode === "register" ? (
-                <label className="form-label w-100">
-                  Tên hiển thị
-                  <input
-                    required
-                    minLength={2}
-                    maxLength={80}
-                    autoComplete="name"
-                    className="form-control mt-1"
-                    value={displayName}
-                    onChange={event => setDisplayName(event.target.value)}
-                  />
-                </label>
-              ) : null}
-              <label className="form-label w-100 mt-2">
-                Email
-                <input
-                  required
-                  type="email"
-                  autoComplete="email"
-                  className="form-control mt-1"
-                  value={email}
-                  onChange={event => setEmail(event.target.value)}
-                />
-              </label>
-              <label className="form-label w-100 mt-2">
-                Mật khẩu
-                <input
-                  required
-                  type="password"
-                  minLength={10}
-                  maxLength={128}
-                  autoComplete={
-                    mode === "login" ? "current-password" : "new-password"
-                  }
-                  className="form-control mt-1"
-                  value={password}
-                  onChange={event => setPassword(event.target.value)}
-                />
-              </label>
-              {mode === "register" ? (
-                <p className="small text-body-secondary mt-2 mb-0">
-                  Dùng ít nhất 10 ký tự. Mật khẩu được băm trên server; ứng dụng
-                  không lưu mật khẩu dạng chữ thường.
-                </p>
-              ) : null}
-              {error ? (
-                <div className="alert alert-danger mt-3 mb-0" role="alert">
-                  {error}
-                </div>
-              ) : null}
-            </div>
-            <DialogFooter className="flex-wrap justify-content-end gap-2">
+          <AccountDropdown
+            navItems={navItems}
+            path={path}
+            vi={vi}
+            onNavigate={closeMenu}
+          >
+            <li>
               <button
                 type="button"
-                className="btn btn-outline-secondary"
-                onClick={() => setOpen(false)}
-                disabled={pending}
+                role="menuitem"
+                className="dropdown-item py-2"
+                onClick={() => {
+                  closeMenu();
+                  show("login");
+                }}
               >
-                Hủy
+                {vi ? "Đăng nhập" : "Sign in"}
               </button>
+            </li>
+            <li>
               <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={pending}
+                type="button"
+                role="menuitem"
+                className="dropdown-item py-2"
+                onClick={() => {
+                  closeMenu();
+                  show("register");
+                }}
               >
-                {pending
-                  ? "Đang xử lý…"
-                  : mode === "login"
-                    ? "Đăng nhập"
-                    : "Tạo tài khoản"}
+                {vi ? "Đăng ký" : "Create account"}
               </button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+            </li>
+          </AccountDropdown>
+        ) : null}
+      </div>
+      <CfopAuthDialog
+        open={open}
+        mode={mode}
+        email={email}
+        password={password}
+        displayName={displayName}
+        error={error}
+        pending={pending}
+        onModeChange={changeMode}
+        onEmailChange={setEmail}
+        onPasswordChange={setPassword}
+        onDisplayNameChange={setDisplayName}
+        onSubmit={submit}
+        onClose={() => setOpen(false)}
+      />
     </>
   );
 }
