@@ -37,7 +37,7 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 
 | Feature | Phạm vi |
 |---|---|
-| `features/timer/` | Metric card và dòng lịch sử của Timer. |
+| `features/timer/` | Metric card của Timer. |
 | `features/rooms/` | Lobby, danh sách thành viên, panel lượt thi, sidebar và hộp thoại xoá spectator. |
 | `features/profile/` | Điều khiển tài khoản, dropdown, hộp thoại đăng nhập/đăng ký, biểu đồ tiến bộ, cloud sync. |
 | `features/puzzle-3d/` | Canvas 3D, toán camera, framing theo puzzle, hình học Square-1/Clock. |
@@ -50,6 +50,61 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 Backend tách theo domain và hạ tầng. `server/routers/` chứa procedure Account, Competition và WCA; `server/db/` chứa helper truy vấn theo domain; `server/infrastructure/` chứa các tiện ích dùng chung như cache. Các file barrel (`server/routers.ts`, `server/db.ts`, `server/cache.ts`) được giữ lại để bảo toàn import cũ và giảm rủi ro khi mở rộng module.
 
 Khi thêm tính năng mới, ưu tiên tạo module trong boundary phù hợp, expose API qua barrel của feature/domain và bổ sung regression cho import boundary trước khi thay đổi page hoặc router hiện hữu.
+
+## 2.2. Quy ước UI/UX
+
+### Design token
+
+Mọi màu mới của app phải là **CSS token** trong `client/src/index.css`, không hardcode hex trong TSX. Token bắt đầu bằng `--cfop-` và khai báo cho **cả hai** palette: block `:root, [data-bs-theme="light"]` và block `[data-bs-theme="dark"]`.
+
+| Token | Dùng cho |
+|---|---|
+| `--cfop-chart-1..6` | Màu series của mọi biểu đồ Recharts. Bản dark được nâng sáng để giữ tương phản. |
+| `--cfop-export-*` (13 token) | Bản xuất PNG của Timer; đọc qua `features/timer/lib/exportPalette.ts`. |
+| `--cfop-shadow-card` | Đổ bóng của panel. |
+| `--cfop-stage-*`, `--cfop-accent*`, `--cfop-cube-bg` | Nền khối 3D và màu nhấn của Studio. |
+
+Hai nơi khác thường cần nhớ:
+
+- **`.card` của Bootstrap không dùng được.** `.border-0` và `.shadow-sm` là `!important`, nên rule `.card` toàn cục không bao giờ áp dụng cho các panel đang dùng chúng. Panel cần bề mặt nổi thì dùng class opt-in **`.cfop-card-surface`**.
+- **Dark mode** do `data-bs-theme` trên `<html>` điều khiển (`client/src/lib/theme.ts`, script inline trong `client/index.html` chạy trước first paint). Dùng biến Bootstrap (`bg-body-tertiary`, `text-body`) thay cho class cứng `bg-dark`/`text-white`.
+
+### Primitive
+
+Component trình bày dùng chung nằm ở `client/src/components/ui/`. Dùng lại thay vì viết lần thứ hai:
+
+| Primitive | Thay cho |
+|---|---|
+| `EmptyState` | Trạng thái rỗng tự dựng. |
+| `StatTile` | 6 bản thẻ số liệu trùng lặp. |
+| `Field` | Label + control + help/error. |
+| `IconButton` | Nút chỉ có icon (trước đây vá DOM runtime). |
+| `PendingButton` | Nút đang chờ: disable + spinner + `aria-busy`. |
+| `StatusFeedback` | Alert/empty/error banner. |
+| `PageHeader`, `Eyebrow`, `SectionCard` | Tiêu đề trang và tiêu đề section. |
+| `SkeletonCard`, `SkeletonList`, `SkeletonTable` | Trạng thái loading. |
+| `Dialog` + `DialogContent/Header/Title/Description/Footer` | Hộp thoại theo WAI-ARIA dialog pattern. |
+| `ConfirmDialog` | Xác nhận thay cho `window.confirm`. |
+
+Quy tắc khi viết primitive:
+
+- **Không import Three.js/Cubing** — primitive nằm trong chunk eagerly-loaded, import 3D sẽ phá ranh giới chunk (`e2e/lazy-3d-loading.spec.ts`).
+- **Không thêm `<main>`/`<h1>`** — `App.tsx` đã sở hữu `<main id="main-content">` và mỗi trang chỉ có **đúng một `<h1>`**.
+- Mọi form control phải có `<label>` nhìn thấy được hoặc `aria-label`; mọi nút icon phải có accessible name.
+- Không dùng `window.confirm`/`window.alert`; dùng `Dialog`/`ConfirmDialog`.
+
+### i18n
+
+Một convention duy nhất: **`t("namespace.key")`**.
+
+- Từ điển nằm ở `client/src/lib/i18n/`, mỗi file là một namespace (`timer`, `history`, `profile`, `rooms`, `settings`, `solver`, `competition`, `wca`, `shell`, `common`); `index.ts` gộp chúng thành một dictionary.
+- Mỗi key có **hai** giá trị: `[tiếng Việt, tiếng Anh]`. Thêm key mới thì phải đủ cả hai.
+- `useLanguage()` trả `{ language, vi, setLanguage, t }`; chỉ dùng `vi` khi cần nhánh nhị phân, còn lại dùng `t()`.
+- Placeholder là `{name}`: `t("timer.generating", { event: eventLabel })`.
+
+### Thông báo
+
+`sonner` là toast service duy nhất, mount một lần qua `<AppToaster />` trong `AppShell`. Màu toast được tie vào Bootstrap token trong `index.css` nên đọc đúng ở cả hai palette. Không tự dựng banner toast trong page.
 
 ## 3. Yêu cầu môi trường
 
