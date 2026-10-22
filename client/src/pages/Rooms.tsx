@@ -1,152 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
+import type { TimerCompletion } from "@/components/common/SolveTimer";
+import { RefreshIndicator, SkeletonCard } from "@/components/ui/BootstrapUI";
 import {
-  SolveTimer,
-  type TimerCompletion,
-} from "@/components/common/SolveTimer";
-import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
-import { SystemLeaderboard } from "@/features/competition";
-import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
-import {
-  DEFAULT_TIMER_EVENT,
-  TIMER_EVENTS,
-  isTimerEventId,
-  type TimerEventId,
-} from "@/lib/timerEvents";
-import {
+  SystemLeaderboard,
   competitionErrorText,
   competitionEventLabel,
   competitionResultLabel,
-  formatDescriptions,
   formatLabels,
   type RoomFormat,
 } from "@/features/competition";
 import {
-  LoadingTransition,
-  RefreshIndicator,
-  SkeletonCard,
-  SkeletonList,
-} from "@/components/ui/BootstrapUI";
-import { trpc } from "@/lib/trpc";
+  RemoveSpectatorDialog,
+  RoomLobby,
+  RoomRoundPanel,
+  RoomSidebar,
+  type PendingSolve,
+  type RemovalTarget,
+} from "@/features/rooms";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/BootstrapDialog";
-
-type PendingSolve = Pick<
-  TimerCompletion,
-  "elapsedMs" | "inspectionMs" | "automaticPenalty"
->;
-type RoomMember = {
-  accountId: number;
-  displayName: string;
-  role: "player" | "spectator" | "moderator";
-};
-type RemovalTarget = Pick<RoomMember, "accountId" | "displayName">;
-const labelEvent = competitionEventLabel;
-const labelResult = competitionResultLabel;
-
-function MemberRoster({
-  members,
-  onlineSpectators,
-  host,
-  moderator,
-  grant,
-  revoke,
-  remove,
-  notice,
-}: {
-  members: RoomMember[];
-  onlineSpectators: RoomMember[];
-  host: boolean;
-  moderator: boolean;
-  grant: (accountId: number) => void;
-  revoke: (accountId: number) => void;
-  remove: (member: RemovalTarget) => void;
-  notice: string | null;
-}) {
-  return (
-    <>
-      <div className="list-group list-group-flush">
-        {members.map(member => (
-          <div
-            key={member.accountId}
-            className="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-2"
-          >
-            <span>
-              {member.displayName}
-              <small className="d-block text-body-secondary">
-                {member.role === "player"
-                  ? "Người thi"
-                  : member.role === "moderator"
-                    ? "Moderator"
-                    : "Khán giả"}
-              </small>
-            </span>
-            <span className="d-flex gap-1">
-              {host && member.role === "spectator" ? (
-                <button
-                  type="button"
-                  className="btn btn-outline-primary btn-sm"
-                  onClick={() => grant(member.accountId)}
-                >
-                  Cấp moderator
-                </button>
-              ) : null}
-              {host && member.role === "moderator" ? (
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary btn-sm"
-                  onClick={() => revoke(member.accountId)}
-                >
-                  Gỡ quyền
-                </button>
-              ) : null}
-              {(host || moderator) && member.role === "spectator" ? (
-                <button
-                  type="button"
-                  className="btn btn-outline-danger btn-sm"
-                  onClick={() => remove(member)}
-                >
-                  Loại
-                </button>
-              ) : null}
-            </span>
-          </div>
-        ))}
-      </div>
-      <h3 className="h6 mt-4 mb-2">Đang xem ({onlineSpectators.length})</h3>
-      {onlineSpectators.length ? (
-        <ol className="list-group list-group-numbered">
-          {onlineSpectators.map(member => (
-            <li
-              key={member.accountId}
-              className="list-group-item d-flex justify-content-between"
-            >
-              <span>{member.displayName}</span>
-              <small className="text-body-secondary">
-                {member.role === "moderator" ? "Moderator" : "Khán giả"}
-              </small>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <p className="text-body-secondary small mb-0">
-          Chưa có người xem trực tuyến.
-        </p>
-      )}
-      {notice ? (
-        <div className="alert alert-warning small mt-3 mb-0" role="status">
-          {notice}
-        </div>
-      ) : null}
-    </>
-  );
-}
+  DEFAULT_TIMER_EVENT,
+  isTimerEventId,
+  type TimerEventId,
+} from "@/lib/timerEvents";
+import { trpc } from "@/lib/trpc";
 
 export default function Rooms() {
   const [location, setLocation] = useLocation();
@@ -281,174 +158,41 @@ export default function Rooms() {
     );
   if (!code)
     return (
-      <div className="container">
-        <div className="row g-4">
-          <section className="col-12 col-xl-7">
-            <div className="card">
-              <div className="card-body">
-                <h1 className="h3">Phòng thi đấu</h1>
-                <p className="text-body-secondary">
-                  Chọn event, tạo scramble chung hoặc chia sẻ link để người khác
-                  thi và theo dõi.
-                </p>
-                <form
-                  onSubmit={form => {
-                    form.preventDefault();
-                    create.mutate({
-                      name,
-                      eventId,
-                      format,
-                      maxPlayers,
-                      multiBlindCubes,
-                    });
-                  }}
-                >
-                  <label className="form-label w-100">
-                    Tên phòng
-                    <input
-                      required
-                      minLength={2}
-                      maxLength={80}
-                      className="form-control mt-1"
-                      value={name}
-                      onChange={input => setName(input.target.value)}
-                    />
-                  </label>
-                  <div className="row g-3">
-                    <label className="col-md-4 form-label">
-                      Loại khối
-                      <select
-                        className="form-select mt-1"
-                        value={eventId}
-                        onChange={input =>
-                          setEventId(input.target.value as TimerEventId)
-                        }
-                      >
-                        {TIMER_EVENTS.map(item => (
-                          <option key={item.id} value={item.id}>
-                            {item.labelVi}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="col-md-4 form-label">
-                      Thể thức
-                      <select
-                        className="form-select mt-1"
-                        value={format}
-                        onChange={input =>
-                          setFormat(input.target.value as RoomFormat)
-                        }
-                      >
-                        {Object.entries(formatLabels).map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="col-md-4 form-label">
-                      Tối đa
-                      <select
-                        className="form-select mt-1"
-                        value={maxPlayers}
-                        onChange={input =>
-                          setMaxPlayers(Number(input.target.value))
-                        }
-                      >
-                        {[2, 4, 6, 8, 12, 16].map(value => (
-                          <option key={value}>{value} người</option>
-                        ))}
-                      </select>
-                    </label>
-                    {eventId === "333mbf" ? (
-                      <label className="col-md-4 form-label">
-                        Số khối MBLD
-                        <input
-                          type="number"
-                          min={2}
-                          max={99}
-                          className="form-control mt-1"
-                          value={multiBlindCubes}
-                          onChange={input =>
-                            setMultiBlindCubes(
-                              Math.max(
-                                2,
-                                Math.min(99, Number(input.target.value) || 2)
-                              )
-                            )
-                          }
-                        />
-                      </label>
-                    ) : null}
-                  </div>
-                  <button
-                    className="btn btn-primary mt-3"
-                    disabled={create.isPending}
-                  >
-                    Tạo phòng
-                  </button>
-                </form>
-              </div>
-            </div>
-          </section>
-          <aside className="col-12 col-xl-5">
-            <div className="card">
-              <div className="card-body">
-                <h2 className="h5">Vào bằng mã</h2>
-                <form
-                  onSubmit={form => {
-                    form.preventDefault();
-                    join.mutate({ code: joinCode });
-                  }}
-                >
-                  <input
-                    className="form-control text-uppercase"
-                    required
-                    minLength={4}
-                    maxLength={10}
-                    value={joinCode}
-                    onChange={input =>
-                      setJoinCode(input.target.value.toUpperCase())
-                    }
-                    placeholder="Mã phòng"
-                  />
-                  <button className="btn btn-outline-primary mt-3">
-                    Tham gia thi
-                  </button>
-                </form>
-                <h2 className="h6 mt-4">Phòng của bạn</h2>
-                {mine.isLoading ? (
-                  <SkeletonList rows={3} label="Đang tải phòng của bạn" />
-                ) : mine.data?.length ? (
-                  <LoadingTransition>
-                    <div className="list-group list-group-flush">
-                      {mine.data.map(({ room }) => (
-                        <Link
-                          key={room.id}
-                          href={`/rooms/${room.code}`}
-                          className="list-group-item list-group-item-action px-0"
-                        >
-                          <strong className="d-block">{room.name}</strong>
-                          <small className="text-body-secondary">
-                            {room.code} · {labelEvent(room.eventId)}
-                          </small>
-                        </Link>
-                      ))}
-                    </div>
-                  </LoadingTransition>
-                ) : (
-                  <p className="text-body-secondary small mb-0">
-                    Chưa có phòng.
-                  </p>
-                )}
-              </div>
-            </div>
-          </aside>
-        </div>
-        <SystemLeaderboard />
-        {error ? <div className="alert alert-danger mt-4">{error}</div> : null}
-      </div>
+      <RoomLobby
+        name={name}
+        onNameChange={setName}
+        eventId={eventId}
+        onEventIdChange={setEventId}
+        format={format}
+        onFormatChange={setFormat}
+        maxPlayers={maxPlayers}
+        onMaxPlayersChange={setMaxPlayers}
+        multiBlindCubes={multiBlindCubes}
+        onMultiBlindCubesChange={setMultiBlindCubes}
+        joinCode={joinCode}
+        onJoinCodeChange={setJoinCode}
+        createPending={create.isPending}
+        myRooms={
+          mine.data?.map(({ room }) => ({
+            id: room.id,
+            code: room.code,
+            name: room.name,
+            eventId: room.eventId,
+          })) ?? []
+        }
+        myRoomsPending={mine.isLoading}
+        onCreate={() =>
+          create.mutate({
+            name,
+            eventId,
+            format,
+            maxPlayers,
+            multiBlindCubes,
+          })
+        }
+        onJoin={() => join.mutate({ code: joinCode })}
+        error={error}
+      />
     );
 
   const room = roomQuery.data;
@@ -504,66 +248,10 @@ export default function Rooms() {
       penalty: completion.automaticPenalty,
     });
   };
-  const mbState = pendingMultiBlind
-    ? multiBlindResult(
-        { attempted: room.room.multiBlindCubes, solved: multiBlindSolved },
-        pendingMultiBlind.elapsedMs
-      )
-    : null;
-  const liveContent = active ? (
-    <>
-      {isMultiBlind ? (
-        <div>
-          <p>
-            Bundle MBLD · {active.scrambleBundle.length} khối · giới hạn{" "}
-            {formatMultiBlindTime(
-              multiBlindResult(
-                { attempted: room.room.multiBlindCubes, solved: 0 },
-                0
-              ).timeLimitMs
-            )}
-          </p>
-          <ol className="list-group list-group-numbered">
-            {active.scrambleBundle.map((scramble, index) => (
-              <li
-                key={`${index}-${scramble}`}
-                className="list-group-item font-monospace small text-break"
-              >
-                {scramble}
-              </li>
-            ))}
-          </ol>
-        </div>
-      ) : (
-        <>
-          <p className="fs-4 fw-bold text-break">{active.scramble}</p>
-          <PuzzleScramblePreview
-            eventId={event}
-            scramble={active.scramble}
-            language="vi"
-          />
-        </>
-      )}
-    </>
-  ) : (
-    <p className="text-body-secondary mb-0">Đang chờ chủ phòng bắt đầu lượt.</p>
-  );
   const latestModeration = room.moderationLogs.at(-1) ?? null;
   const moderationNotice = latestModeration
     ? `${latestModeration.actorDisplayName} đã loại ${latestModeration.targetDisplayName}. Lý do: ${latestModeration.reason}`
     : null;
-  const memberControls = (
-    <MemberRoster
-      members={room.members}
-      onlineSpectators={room.onlineSpectators}
-      host={room.isHost}
-      moderator={room.isModerator}
-      grant={accountId => grantModerator.mutate({ code, accountId })}
-      revoke={accountId => revokeModerator.mutate({ code, accountId })}
-      remove={setRemovalTarget}
-      notice={moderationNotice}
-    />
-  );
   const deleteCurrentRoom = () => {
     if (
       window.confirm(
@@ -579,8 +267,8 @@ export default function Rooms() {
         <div className="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
           <div>
             <p className="text-body-secondary small mb-1">
-              {labelEvent(event)} · {formatLabels[room.room.format]} · lượt{" "}
-              {room.room.currentRound}/{room.roundLimit}
+              {competitionEventLabel(event)} · {formatLabels[room.room.format]} ·
+              lượt {room.room.currentRound}/{room.roundLimit}
             </p>
             <h1 className="h3 mb-1">{room.room.name}</h1>
             {roomQuery.isFetching ? (
@@ -639,340 +327,91 @@ export default function Rooms() {
         ) : null}
         <div className="row g-4">
           <section className="col-12 col-xl-8">
-            <div className="card">
-              <div className="card-body">
-                {room.room.status === "finished" ? (
-                  <div className="alert alert-success mb-0">
-                    Phòng đã hoàn tất.{" "}
-                    {room.isHost ? "Bạn có thể Đấu lại hoặc Xóa phòng." : ""}
-                  </div>
-                ) : active ? (
-                  <>
-                    <div className="d-flex justify-content-between gap-3">
-                      <div>
-                        <p className="text-body-secondary small">
-                          Lượt {active.sequence}/{room.roundLimit} · Scramble
-                          chung
-                        </p>
-                        {liveContent}
-                      </div>
-                      {room.isHost && active.sequence < room.roundLimit ? (
-                        <button
-                          className="btn btn-outline-primary align-self-start"
-                          onClick={() => start.mutate({ code })}
-                        >
-                          Lượt tiếp
-                        </button>
-                      ) : null}
-                    </div>
-                    <hr />
-                    {room.isSpectator ? (
-                      <div className="alert alert-secondary mb-0">
-                        Chế độ xem trực tiếp đang hoạt động. Kết quả sẽ tự cập
-                        nhật.
-                      </div>
-                    ) : isMultiBlind ? (
-                      submitted ? (
-                        <div className="alert alert-success">
-                          Đã nộp: {labelResult(myPlayer?.currentResult, event)}
-                        </div>
-                      ) : pendingMultiBlind ? (
-                        <div className="card bg-body-tertiary">
-                          <div className="card-body">
-                            <h2 className="h6">Kết quả Multi-Blind</h2>
-                            <label className="form-label">
-                              Số khối giải đúng
-                              <input
-                                type="number"
-                                className="form-control mt-1"
-                                min={0}
-                                max={room.room.multiBlindCubes}
-                                value={multiBlindSolved}
-                                onChange={input =>
-                                  setMultiBlindSolved(
-                                    Math.max(
-                                      0,
-                                      Math.min(
-                                        room.room.multiBlindCubes,
-                                        Number(input.target.value) || 0
-                                      )
-                                    )
-                                  )
-                                }
-                              />
-                            </label>
-                            <p>
-                              Score: {mbState?.score ?? 0} · Unsolved:{" "}
-                              {mbState?.unsolved ?? room.room.multiBlindCubes}
-                            </p>
-                            <button
-                              className="btn btn-primary"
-                              onClick={() =>
-                                submit.mutate({
-                                  code,
-                                  roundId: active.id,
-                                  elapsedMs: pendingMultiBlind.elapsedMs,
-                                  inspectionMs: pendingMultiBlind.inspectionMs,
-                                  penalty: pendingMultiBlind.automaticPenalty,
-                                  multiBlind: {
-                                    attempted: room.room.multiBlindCubes,
-                                    solved: multiBlindSolved,
-                                  },
-                                })
-                              }
-                            >
-                              Nộp score MBLD
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <SolveTimer
-                          key={active.id}
-                          onComplete={onComplete}
-                          soundEnabled
-                        />
-                      )
-                    ) : submitted ? (
-                      <div className="alert alert-success">
-                        Đã nộp: {labelResult(myPlayer?.currentResult, event)}
-                      </div>
-                    ) : (
-                      <SolveTimer
-                        key={active.id}
-                        onComplete={onComplete}
-                        soundEnabled
-                      />
-                    )}
-                  </>
-                ) : (
-                  <div className="alert alert-secondary mb-0">
-                    <h2 className="h5">Đang chờ lượt</h2>
-                    {room.isHost ? (
-                      <div className="d-flex gap-2">
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => start.mutate({ code })}
-                        >
-                          Bắt đầu lượt
-                        </button>
-                        {room.room.currentRound ? (
-                          <button
-                            className="btn btn-outline-success"
-                            onClick={() => finish.mutate({ code })}
-                          >
-                            Hoàn tất thể thức
-                          </button>
-                        ) : null}
-                      </div>
-                    ) : (
-                      <p className="mb-0">Đợi chủ phòng bắt đầu lượt.</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
+            <RoomRoundPanel
+              status={room.room.status}
+              isHost={room.isHost}
+              isSpectator={room.isSpectator}
+              roundLimit={room.roundLimit}
+              currentRound={room.room.currentRound}
+              eventId={event}
+              multiBlindCubes={room.room.multiBlindCubes}
+              activeRound={active}
+              submitted={submitted}
+              myResultLabel={competitionResultLabel(
+                myPlayer?.currentResult,
+                event
+              )}
+              pendingMultiBlind={pendingMultiBlind}
+              multiBlindSolved={multiBlindSolved}
+              onMultiBlindSolvedChange={setMultiBlindSolved}
+              onComplete={onComplete}
+              onStartRound={() => start.mutate({ code })}
+              onFinish={() => finish.mutate({ code })}
+              onSubmitMultiBlind={() =>
+                submit.mutate({
+                  code,
+                  roundId: active!.id,
+                  elapsedMs: pendingMultiBlind!.elapsedMs,
+                  inspectionMs: pendingMultiBlind!.inspectionMs,
+                  penalty: pendingMultiBlind!.automaticPenalty,
+                  multiBlind: {
+                    attempted: room.room.multiBlindCubes,
+                    solved: multiBlindSolved,
+                  },
+                })
+              }
+            />
           </section>
-          <aside className="col-12 col-xl-4">
-            <div className="card mb-4">
-              <div className="card-body">
-                <h2 className="h5">Bảng xếp hạng</h2>
-                <p className="text-body-secondary small">
-                  {isMultiBlind
-                    ? "Score → thời gian → unsolved"
-                    : formatDescriptions[room.room.format]}
-                </p>
-                {room.standings.length ? (
-                  <ol className="list-group list-group-numbered">
-                    {room.standings.map(player => (
-                      <li
-                        key={player.accountId}
-                        className="list-group-item d-flex justify-content-between"
-                      >
-                        <span>{player.displayName}</span>
-                        <strong>{labelResult(player.lastResult, event)}</strong>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="text-body-secondary mb-0">Chưa có kết quả.</p>
-                )}
-              </div>
-            </div>
-            <div className="card mb-4">
-              <div className="card-body">
-                <h2 className="h5">Thành viên</h2>
-                {canManageSpectators ? (
-                  <p className="text-body-secondary small">
-                    {room.isHost
-                      ? "Cấp/gỡ moderator và loại spectator khi cần."
-                      : "Bạn có thể loại spectator để hỗ trợ chủ phòng."}
-                  </p>
-                ) : null}
-                {memberControls}
-              </div>
-            </div>
-            {canManageSpectators ? (
-              <div className="card mb-4">
-                <div className="card-body">
-                  <h2 className="h5">Nhật ký kiểm duyệt</h2>
-                  <p className="text-body-secondary small">
-                    Chỉ chủ phòng và moderator xem được lịch sử này.
-                  </p>
-                  {room.moderationLogs.length ? (
-                    <ol className="list-group list-group-numbered">
-                      {room.moderationLogs.map(entry => (
-                        <li key={entry.id} className="list-group-item">
-                          <strong>{entry.actorDisplayName}</strong> đã loại{" "}
-                          <strong>{entry.targetDisplayName}</strong>
-                          <small className="d-block text-body-secondary mt-1">
-                            Lý do: {entry.reason} ·{" "}
-                            {new Date(entry.createdAt).toLocaleString("vi-VN")}
-                          </small>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="text-body-secondary small mb-0">
-                      Chưa có thao tác kiểm duyệt.
-                    </p>
-                  )}
-                </div>
-              </div>
-            ) : null}
-            {room.isSpectator ? (
-              <div className="card">
-                <div className="card-body text-body-secondary small">
-                  Khán giả và moderator không tham gia chat để kênh trao đổi của
-                  người thi luôn gọn.
-                </div>
-              </div>
-            ) : (
-              <div className="card">
-                <div className="card-body">
-                  <h2 className="h5">Chat phòng</h2>
-                  <div className="list-group list-group-flush mb-3">
-                    {room.messages.map(chatItem => (
-                      <div key={chatItem.id} className="list-group-item px-0">
-                        <strong className="small">
-                          {chatItem.displayName}
-                        </strong>
-                        <p className="mb-0 text-break">{chatItem.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <form
-                    onSubmit={form => {
-                      form.preventDefault();
-                      send.mutate({ code, content: chat });
-                    }}
-                  >
-                    <textarea
-                      className="form-control"
-                      rows={2}
-                      value={chat}
-                      maxLength={500}
-                      onChange={input => setChat(input.target.value)}
-                      placeholder="Nhắn với người chơi"
-                    />
-                    <div className="text-end mt-2">
-                      <button
-                        className="btn btn-primary btn-sm"
-                        disabled={!chat.trim() || send.isPending}
-                      >
-                        Gửi
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-          </aside>
+          <RoomSidebar
+            eventId={event}
+            format={room.room.format}
+            standings={room.standings}
+            canManageSpectators={canManageSpectators}
+            isHost={room.isHost}
+            isModerator={room.isModerator}
+            members={room.members}
+            onlineSpectators={room.onlineSpectators}
+            moderationNotice={moderationNotice}
+            moderationLogs={room.moderationLogs}
+            isSpectator={room.isSpectator}
+            messages={room.messages}
+            chat={chat}
+            onChatChange={setChat}
+            onSend={() => send.mutate({ code, content: chat })}
+            sendPending={send.isPending}
+            onGrantModerator={accountId =>
+              grantModerator.mutate({ code, accountId })
+            }
+            onRevokeModerator={accountId =>
+              revokeModerator.mutate({ code, accountId })
+            }
+            onRemoveSpectator={setRemovalTarget}
+          />
         </div>
         {message ? (
           <div className="alert alert-success mt-4">{message}</div>
         ) : null}
         {error ? <div className="alert alert-danger mt-4">{error}</div> : null}
       </div>
-      <Dialog
+      <RemoveSpectatorDialog
         open={Boolean(removalTarget)}
-        onOpenChange={open => {
-          if (!open) {
-            setRemovalTarget(null);
-            setRemovalReason("");
-          }
+        targetName={removalTarget?.displayName ?? ""}
+        reason={removalReason}
+        onReasonChange={setRemovalReason}
+        onConfirm={() => {
+          if (!removalTarget) return;
+          removeSpectator.mutate({
+            code,
+            accountId: removalTarget.accountId,
+            reason: removalReason.trim(),
+          });
         }}
-      >
-        <DialogContent>
-          <form
-            onSubmit={form => {
-              form.preventDefault();
-              if (!removalTarget) return;
-              removeSpectator.mutate({
-                code,
-                accountId: removalTarget.accountId,
-                reason: removalReason.trim(),
-              });
-            }}
-          >
-            <DialogHeader>
-              <DialogTitle>Loại {removalTarget?.displayName}</DialogTitle>
-              <DialogDescription>
-                Ghi rõ lý do để người xem nhận được thông báo và phòng có nhật
-                ký kiểm duyệt.
-              </DialogDescription>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Đóng"
-                onClick={() => {
-                  setRemovalTarget(null);
-                  setRemovalReason("");
-                }}
-              />
-            </DialogHeader>
-            <div className="modal-body">
-              <label className="form-label w-100">
-                Lý do loại người xem
-                <textarea
-                  required
-                  minLength={3}
-                  maxLength={280}
-                  autoFocus
-                  className="form-control mt-1"
-                  rows={3}
-                  value={removalReason}
-                  onChange={input => setRemovalReason(input.target.value)}
-                  placeholder="Ví dụ: Spam trong tên hiển thị hoặc làm gián đoạn phòng."
-                />
-              </label>
-              <div className="form-text">
-                Lý do sẽ hiển thị trong toast của spectator và nhật ký kiểm
-                duyệt.
-              </div>
-            </div>
-            <DialogFooter>
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                onClick={() => {
-                  setRemovalTarget(null);
-                  setRemovalReason("");
-                }}
-              >
-                Hủy
-              </button>
-              <button
-                className="btn btn-danger"
-                disabled={
-                  removeSpectator.isPending || removalReason.trim().length < 3
-                }
-              >
-                Xác nhận loại
-              </button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+        onClose={() => {
+          setRemovalTarget(null);
+          setRemovalReason("");
+        }}
+        pending={removeSpectator.isPending}
+      />
     </>
   );
 }
