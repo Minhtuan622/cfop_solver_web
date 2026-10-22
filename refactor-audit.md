@@ -227,3 +227,28 @@ Nhánh `redesign/solver-workspace`, **URL `/`, route, contract tRPC và hành vi
 **Ngôn ngữ.** Thêm 14 key `home.*` và **xoá 10 key không còn dùng** (`input.scramble`, `input.state`, `input.label`, `home.section.solve`, `home.section.bld`, `home.stepInput`, `home.scrambleTitle`, `home.stateTitle`, `home.statTurns`, `home.statStages`, `home.statStatus`, `home.cubeInfo`). `guide.help` viết lại vì bản cũ nói "khối của bạn sẽ hiện ở đây" bên trái — bố cục mới không còn hai bên.
 
 **Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **78 file / 278 test** đạt (thêm `features/solver/lib/recentStates.test.ts`, `features/solver/components/SolverPanels.test.tsx`, `pages/Home.test.tsx`); production build đạt; Playwright 2 kịch bản đạt (`account-sync-competition`, `lazy-3d-loading`). Ngoài ra đã chạy trình duyệt thật ở 1440 px và 420 px: không có lỗi trang, không tràn ngang, báo cáo CFOP hiện đúng sau khi giải, khối phát lại chỉ xuất hiện khi đã có lời giải.
+
+## Đợt 8: thiết kế lại trang học thêm
+
+Trang `/study`, **URL, route và hành vi SRS không đổi** — chỉ cách trình bày.
+
+**Vấn đề của bản cũ.** Trang dài **12 735 px**:
+
+- Bốn thẻ số liệu (hôm nay · hàng đợi · catalog · đã thuộc) cộng thêm một card mục tiêu riêng — năm card chỉ để nói số liệu, trong khi nội dung luyện tập thì bị đẩy xuống dưới màn hình đầu tiên.
+- **56 card nhóm** xếp chồng full-width, mỗi card một hàng — phải cuộn qua 56 hàng mới tới cuối.
+- Ngay dưới đó lại là một **danh sách phẳng 48 dòng** chứa chính các case đó — hai cách hiển thị cùng một dữ liệu.
+- Toàn bộ copy viết cứng dạng `vi ? "…" : "…"` rải rác trong JSX, không đi qua từ điển i18n của repo.
+
+**Cấu trúc mới.** Trang chia làm ba tầng, mỗi tầng một việc:
+
+- **Thanh gọn** (`StudyToolbar`): nhóm nút `aria-pressed` đổi làn (Last Layer · 3-Style BLD), mục tiêu hôm nay kèm `role="progressbar"`, và hai số đếm (hàng đợi · đã thuộc) trong một `<dl>`. Thay cho cả năm card.
+- **Hai cột làm việc**: `StudyCasePanel` (`col-xl-8`) — case đang học, khối 2D/3D, timer và bốn nút tự chấm điểm nhớ — cạnh `StudySchedulePanel` (`col-xl-4`) — lịch ôn 7 ngày và nút "Ôn case yếu nhất".
+- **Catalog gập lại**: `LastLayerExplorer` thành một `<details class="cfop-solver-details">` **đóng mặc định**. Mở ra thì hiện **lưới 4 cột các ô nhóm** (56 ô) thay cho 56 card xếp chồng; bấm một ô nhóm mới mở danh sách case của nhóm đó, kèm nút quay lại. Danh sách phẳng 48 dòng bị xoá.
+
+**Đo lại:** **1 319 px** khi đóng, **3 514 px** khi mở catalog — trước là 12 735 px.
+
+**Ngôn ngữ.** Toàn bộ copy của trang chuyển sang namespace mới `client/src/lib/i18n/study.ts` (~70 key, đủ VI + EN), đúng convention `t("namespace.key")` của repo. `PracticeGroupPreview` cũng chuyển từ prop `vi` sang `useLanguage()`.
+
+**Dùng lại primitive.** Ba component mới dùng chung `.cfop-solver-panel__header`, `.cfop-solver-eyebrow` và `.cfop-solver-details` với trang giải, nên trang học và trang giải đọc như **một sản phẩm** chứ không phải hai trang dán nhau.
+
+**Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **78 file / 278 test** đạt; production build đạt; Playwright 2 kịch bản đạt. Chạy trình duyệt thật ở 1440 px và 420 px: không lỗi trang, không tràn ngang, catalog mở ra 56 ô nhóm, thanh tiến độ hiện đúng nền.

@@ -44,7 +44,8 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 | `features/solver/` | Thanh công cụ, panel nhập khối, panel lời giải, tuỳ chọn F2L, state gần đây và báo cáo CFOP của trang Giải Rubik. |
 | `features/settings/` | Nhóm cài đặt, panel theo nhóm và state tự lưu của trang Cài đặt. |
 | `features/competition/` | Bộ lọc bảng xếp hạng, lễ kỳ hoàn thành phòng, bảng xếp hạng toàn hệ thống. |
-| `features/bld/`, `features/last-layer/` | Catalog 3-Style, lộ trình học, bảng Last Layer. |
+| `features/bld/` | Catalog 3-Style, lộ trình học, bảng công thức BLD. |
+| `features/last-layer/` | Thanh công cụ Study, panel luyện case, panel lịch ôn, catalog Last Layer và preview 2D. |
 | `features/wca/` | Bộ lọc lịch giải WCA, danh sách theo tháng và dòng từng giải. |
 
 **Quy tắc import.** Bên trong một feature dùng đường dẫn tương đối (`./X`, `../lib/X`); chỉ dùng barrel `@/features/<x>` khi import từ **bên ngoài** feature đó. Nhờ vậy không phát sinh cycle barrel↔member. Riêng đường dẫn 3D có ngoại lệ: import động của Three.js/Cubing phải trỏ **module path cụ thể**, không bao giờ trỏ barrel, để giữ nguyên ranh giới chunk — `e2e/lazy-3d-loading.spec.ts` khóa hành vi này.
@@ -152,6 +153,16 @@ Trang `/` là một **không gian làm việc** hai cột, không phải một c
 - **Cột phải — “Lời giải”**: khối cube 2D/3D và **khối phát lại chỉ hiện khi đã có lời giải** — trước đó có một dòng nhắc bấm nút.
 - **Báo cáo CFOP** nằm full-width dưới cả hai cột; số lượt và số chặng gộp vào header của chính báo cáo nên không còn thẻ số liệu trùng lặp.
 - Các khối gập dùng `<details>` native, không dựa vào JS của Bootstrap accordion.
+
+### Trang học thêm
+
+Trang `/study` là **một màn hình làm việc**, không phải một bảng tra cứu dài:
+
+- **Thanh gọn** ở trên gộp hết phần số liệu: đổi làn (Last Layer · 3-Style BLD), mục tiêu ôn hôm nay kèm thanh tiến độ, và hai con số (hàng đợi · đã thuộc). Trước đây nằm cạnh nhau năm thẻ số liệu.
+- **Cột trái — case đang học**: khối 2D/3D, nút xem/ẩn công thức, timer luyện nhớ và bốn nút tự chấm (Quên · Khó · Nhớ · Dễ) để SRS lên lịch lần gặp lại.
+- **Cột phải — lịch ôn**: bảy ngày tới, hôm nay được tô đậm; nút “Ôn case yếu nhất” đưa thẳng tới case yếu nhất.
+- **Catalog** gập trong `<details>` và **đóng mặc định**; mở ra là **lưới bốn cột các nhóm case**, bấm vào một nhóm mới xem các case trong nhóm đó.
+- Toàn bộ copy của trang nằm trong namespace i18n `study.*` (`client/src/lib/i18n/study.ts`).
 
 ## 3. Yêu cầu môi trường
 
