@@ -3,23 +3,23 @@
  * grouped by spacing, soft elevation and color—not decorative borders—while 3D cube
  * movement remains the sole rich animation.
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ArrowLeft, ArrowRight, ChevronRight, CircleGauge, ClipboardCopy,
-  FileJson, History, Info, Play, RotateCcw, ShieldCheck, Sparkles, Trash2,
+  ArrowLeft, ArrowRight, ChevronRight, CircleGauge, History, Play, RotateCcw, ShieldCheck, Sparkles, Trash2,
 } from "@/components/ui/BootstrapIcon";
 import { Timer } from "@/components/ui/BootstrapIcon";
 import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/common/CubeNet";
 import { Cube3DGuide } from "@/components/common/Cube3DGuide";
 import { BldReport } from "@/features/bld";
+import { CfopReport, SolverStat } from "@/features/solver";
 import { CubeStateEditor } from "@/components/common/CubeStateEditor";
 import { CameraScanner } from "@/components/common/CameraScanner";
 import { PageHeader, StatusFeedback } from "@/components/ui/BootstrapUI";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
-import { exportCFOPJson, F2L_SLOTS, lastLayerModeLabel, openingModeLabel, phaseLessonUrl, phaseStudyNote } from "@/lib/solverPresentation";
+import { F2L_SLOTS, lastLayerModeLabel, openingModeLabel } from "@/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
 import { analyzeBldInBrowser, solveInBrowser, validateStateInBrowser, warmSolverInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
@@ -299,28 +299,8 @@ export default function Home() {
           </section>
         </section>
 
-        {(result || bldResult) ? <section className="row g-4 mt-1"><div className="col-12 col-lg-4"><div className="row row-cols-1 row-cols-sm-3 row-cols-lg-1 g-3"><div className="col"><Stat label={language === "vi" ? "LƯỢT XOAY" : "TURNS"} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="fs-4" />} /></div><div className="col"><Stat label={language === "vi" ? "CHẶNG" : "STAGES"} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="fs-4" />} /></div><div className="col"><Stat label={language === "vi" ? "TRẠNG THÁI" : "STATUS"} value="✓" icon={<ShieldCheck className="fs-4" />} /></div></div></div><div className="col-12 col-lg-8"><section className="card"><div className="card-body">{solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CFOPReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : null}</div></section></div></section> : null}
+        {(result || bldResult) ? <section className="row g-4 mt-1"><div className="col-12 col-lg-4"><div className="row row-cols-1 row-cols-sm-3 row-cols-lg-1 g-3"><div className="col"><SolverStat label={language === "vi" ? "LƯỢT XOAY" : "TURNS"} value={result ? String(totalMoves) : "—"} icon={<CircleGauge className="fs-4" />} /></div><div className="col"><SolverStat label={language === "vi" ? "CHẶNG" : "STAGES"} value={result ? String(phaseCount) : "—"} icon={<ChevronRight className="fs-4" />} /></div><div className="col"><SolverStat label={language === "vi" ? "TRẠNG THÁI" : "STATUS"} value="✓" icon={<ShieldCheck className="fs-4" />} /></div></div></div><div className="col-12 col-lg-8"><section className="card"><div className="card-body">{solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CfopReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : null}</div></section></div></section> : null}
       </div>
     </div>
   );
-}
-
-function Stat({ label, value, icon }: { label: string; value: string; icon: ReactNode; compact?: boolean }) {
-  return <div className="card bg-body-tertiary h-100"><div className="card-body d-flex align-items-center gap-3">{icon}<div><small className="text-body-secondary d-block">{label}</small><strong className="fs-4">{value}</strong></div></div></div>;
-}
-
-/** Xưởng Cơ Khí Tốc Độ — report is a readable proof of the CFOP pipeline, not a timer metric. */
-function CFOPReport({ result, language, activePhase, cursor, onSelectPhase, onSelectMove }: { result: SolverResult; language: "vi" | "en"; activePhase: string | null; cursor: number; onSelectPhase: (phase: SolverResult["phases"][number]) => void; onSelectMove: (moveIndex: number) => void }) {
-  const vi = language === "vi";
-  return <section><div className="d-flex flex-wrap align-items-start justify-content-between gap-3 border-bottom pb-3"><div><p className="text-body-secondary small mb-1">{vi ? "CÁC BƯỚC GIẢI" : "SOLUTION STEPS"}</p><h2 className="h4 mb-0">{result.trace.length} {vi ? "lượt xoay" : "turns"}</h2><p className="text-body-secondary mb-0">{vi ? "Bấm vào một chặng để xem và phát các lượt xoay." : "Choose a stage to view and play its turns."}</p></div><button type="button" onClick={() => exportCFOPJson(result)} aria-label={vi ? "Lưu các bước giải" : "Save solution steps"} className="btn btn-outline-secondary btn-sm"><FileJson className="fs-5" /></button></div><div className="list-group mt-3">{result.phases.map((phase, index) => <CFOPPhaseRow key={phase.name} phase={phase} index={index} language={language} selected={activePhase === phase.name} cursor={cursor} onSelect={onSelectPhase} onSelectMove={onSelectMove} />)}</div></section>;
-}
-
-function CFOPPhaseRow({ phase, index, language, selected, cursor, onSelect, onSelectMove }: { phase: SolverResult["phases"][number]; index: number; language: "vi" | "en"; selected: boolean; cursor: number; onSelect: (phase: SolverResult["phases"][number]) => void; onSelectMove: (moveIndex: number) => void }) {
-  const vi = language === "vi";
-  const notation = phase.algorithm || phase.moves.join(" ") || "—";
-  const studyNote = phaseStudyNote(phase.name, language);
-  const lessonUrl = phaseLessonUrl(phase.name);
-  const invariantOK = phase.valid_after && phase.predicate_after;
-  const compactName = simplePhase(phase.name, language);
-  return <article className={selected ? "list-group-item active" : "list-group-item"}><div className="d-flex flex-wrap align-items-center justify-content-between gap-2"><button type="button" onClick={() => onSelect(phase)} className={selected ? "btn btn-light btn-sm" : "btn btn-outline-secondary btn-sm"}>{String(index + 1).padStart(2, "0")}</button><button type="button" onClick={() => onSelect(phase)} className={selected ? "btn btn-link text-white text-start flex-grow-1 p-0" : "btn btn-link text-body text-start flex-grow-1 p-0"}><strong>{compactName}</strong><small className="d-block">{phase.moves.length} {vi ? "lượt xoay" : "turns"}</small></button><span className={invariantOK ? (selected ? "badge text-bg-light" : "badge text-bg-success") : "badge text-bg-danger"} title={studyNote}>{invariantOK ? "✓" : "!"}</span><a href={lessonUrl} target="_blank" rel="noreferrer" className={selected ? "btn btn-light btn-sm" : "btn btn-outline-secondary btn-sm"} aria-label={vi ? "Xem thêm" : "Learn more"}><Info className="fs-5" /></a><button type="button" onClick={() => navigator.clipboard?.writeText(notation)} className={selected ? "btn btn-light btn-sm" : "btn btn-outline-secondary btn-sm"} aria-label={vi ? "Sao chép lượt xoay" : "Copy turns"}><ClipboardCopy className="fs-5" /></button></div><code className="d-block text-break mt-2">{notation}</code>{phase.moves.length > 0 && <div className="btn-group flex-wrap mt-2" role="group">{phase.moves.map((move, moveIndex) => { const movePosition = phase.start + moveIndex + 1; return <button key={`${phase.name}-${movePosition}-${move}`} type="button" onClick={() => onSelectMove(movePosition)} className={cursor === movePosition ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm"}>{move}</button>; })}</div>}</article>;
 }
