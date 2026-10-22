@@ -1,6 +1,12 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { EmptyState, Field, LoadingTransition, StatTile } from "./BootstrapUI";
+import {
+  EmptyState,
+  Field,
+  LoadingTransition,
+  PendingButton,
+  StatTile,
+} from "./BootstrapUI";
 
 afterEach(() => cleanup());
 
@@ -57,6 +63,41 @@ describe("StatTile", () => {
 
     const dark = render(<StatTile label="Ao5" value="10.00s" tone="dark" />);
     expect(dark.container.querySelector(".card")?.classList.contains("cfop-inverse-tile")).toBe(true);
+  });
+});
+
+describe("PendingButton", () => {
+  it("khoá nút và báo busy trong lúc hành động đang chạy", () => {
+    const { container } = render(
+      <PendingButton className="btn btn-primary" pending>
+        Tạo phòng
+      </PendingButton>,
+    );
+
+    const button = screen.getByRole("button", { name: "Tạo phòng" });
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(button.getAttribute("aria-busy")).toBe("true");
+    expect(container.querySelector(".spinner-border")?.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("giữ nút bấm được khi không chờ", () => {
+    render(<PendingButton>Tạo phòng</PendingButton>);
+
+    const button = screen.getByRole("button", { name: "Tạo phòng" });
+    expect((button as HTMLButtonElement).disabled).toBe(false);
+    expect(button.getAttribute("aria-busy")).toBeNull();
+  });
+
+  it("giữ nguyên hành vi submit khi nằm trong form", () => {
+    render(
+      <form onSubmit={event => event.preventDefault()}>
+        <PendingButton>Tạo phòng</PendingButton>
+      </form>,
+    );
+
+    const button = screen.getByRole("button", { name: "Tạo phòng" });
+    expect(button.getAttribute("type")).toBeNull();
+    expect(button.closest("form")).not.toBeNull();
   });
 });
 

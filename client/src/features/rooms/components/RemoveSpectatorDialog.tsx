@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/BootstrapDialog";
+import { PendingButton } from "@/components/ui/BootstrapUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 type Props = {
@@ -72,15 +73,17 @@ export function RemoveSpectatorDialog({
               type="button"
               className="btn btn-outline-secondary"
               onClick={onClose}
+              disabled={pending}
             >
               {t("rooms.moderation.cancel")}
             </button>
-            <button
+            <PendingButton
               className="btn btn-danger"
-              disabled={pending || reason.trim().length < 3}
+              disabled={reason.trim().length < 3}
+              pending={pending}
             >
               {t("rooms.moderation.confirm")}
-            </button>
+            </PendingButton>
           </DialogFooter>
         </form>
       </DialogContent>

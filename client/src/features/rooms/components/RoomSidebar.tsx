@@ -3,6 +3,7 @@ import {
   formatDescriptionKey,
   type RoomFormat,
 } from "@/features/competition";
+import { PendingButton } from "@/components/ui/BootstrapUI";
 import type { TimerEventId } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RoomMemberRoster } from "./RoomMemberRoster";
@@ -31,6 +32,8 @@ type Props = {
   onChatChange: (value: string) => void;
   onSend: () => void;
   sendPending: boolean;
+  /** True while a moderator grant or revoke is still running. */
+  moderationPending: boolean;
   onGrantModerator: (accountId: number) => void;
   onRevokeModerator: (accountId: number) => void;
   onRemoveSpectator: (target: RemovalTarget) => void;
@@ -54,6 +57,7 @@ export function RoomSidebar({
   onChatChange,
   onSend,
   sendPending,
+  moderationPending,
   onGrantModerator,
   onRevokeModerator,
   onRemoveSpectator,
@@ -108,6 +112,7 @@ export function RoomSidebar({
             revoke={onRevokeModerator}
             remove={onRemoveSpectator}
             notice={moderationNotice}
+            moderationPending={moderationPending}
           />
         </div>
       </div>
@@ -172,12 +177,13 @@ export function RoomSidebar({
                 placeholder={t("rooms.sidebar.chatPlaceholder")}
               />
               <div className="text-end mt-2">
-                <button
+                <PendingButton
                   className="btn btn-primary btn-sm"
-                  disabled={!chat.trim() || sendPending}
+                  disabled={!chat.trim()}
+                  pending={sendPending}
                 >
                   {t("rooms.sidebar.send")}
-                </button>
+                </PendingButton>
               </div>
             </form>
           </div>

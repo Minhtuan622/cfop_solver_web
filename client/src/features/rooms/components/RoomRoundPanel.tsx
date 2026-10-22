@@ -1,5 +1,6 @@
 import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
 import { SolveTimer, type TimerCompletion } from "@/components/common/SolveTimer";
+import { PendingButton } from "@/components/ui/BootstrapUI";
 import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
 import type { TimerEventId } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,6 +24,9 @@ type Props = {
   onStartRound: () => void;
   onFinish: () => void;
   onSubmitMultiBlind: () => void;
+  startPending: boolean;
+  finishPending: boolean;
+  submitPending: boolean;
 };
 
 /** The round card: shared scramble, the timer, and the result submission. */
@@ -44,6 +48,9 @@ export function RoomRoundPanel({
   onStartRound,
   onFinish,
   onSubmitMultiBlind,
+  startPending,
+  finishPending,
+  submitPending,
 }: Props) {
   const { language, t } = useLanguage();
   const isMultiBlind = eventId === "333mbf";
@@ -114,12 +121,14 @@ export function RoomRoundPanel({
                 {liveContent}
               </div>
               {isHost && activeRound.sequence < roundLimit ? (
-                <button
+                <PendingButton
+                  type="button"
                   className="btn btn-outline-primary align-self-start"
+                  pending={startPending}
                   onClick={onStartRound}
                 >
                   {t("rooms.round.next")}
-                </button>
+                </PendingButton>
               ) : null}
             </div>
             <hr />
@@ -163,12 +172,14 @@ export function RoomRoundPanel({
                         unsolved: mbState?.unsolved ?? multiBlindCubes,
                       })}
                     </p>
-                    <button
+                    <PendingButton
+                      type="button"
                       className="btn btn-primary"
+                      pending={submitPending}
                       onClick={onSubmitMultiBlind}
                     >
                       {t("rooms.round.mbldSubmit")}
-                    </button>
+                    </PendingButton>
                   </div>
                 </div>
               ) : (
@@ -195,16 +206,23 @@ export function RoomRoundPanel({
             <h2 className="h5">{t("rooms.round.waitingTitle")}</h2>
             {isHost ? (
               <div className="d-flex gap-2">
-                <button className="btn btn-primary" onClick={onStartRound}>
+                <PendingButton
+                  type="button"
+                  className="btn btn-primary"
+                  pending={startPending}
+                  onClick={onStartRound}
+                >
                   {t("rooms.round.start")}
-                </button>
+                </PendingButton>
                 {currentRound ? (
-                  <button
+                  <PendingButton
+                    type="button"
                     className="btn btn-outline-success"
+                    pending={finishPending}
                     onClick={onFinish}
                   >
                     {t("rooms.round.finish")}
-                  </button>
+                  </PendingButton>
                 ) : null}
               </div>
             ) : (

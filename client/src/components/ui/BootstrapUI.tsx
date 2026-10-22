@@ -128,6 +128,38 @@ export function IconButton({ label, icon, className, type = "button", title, ...
   );
 }
 
+export type PendingButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  /** Shows a spinner and blocks further clicks while the action runs. */
+  pending?: boolean;
+};
+
+/**
+ * A button that shows a spinner and stops accepting clicks while its action
+ * runs, so every mutation in the app gives the visitor a pending state.
+ * The `type` is left untouched: buttons inside a form keep submitting it.
+ */
+export function PendingButton({
+  pending = false,
+  disabled,
+  className,
+  children,
+  ...rest
+}: PendingButtonProps) {
+  return (
+    <button
+      className={className}
+      disabled={disabled || pending}
+      aria-busy={pending || undefined}
+      {...rest}
+    >
+      {pending ? (
+        <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+      ) : null}
+      {children}
+    </button>
+  );
+}
+
 export function SkeletonCard({ lines = 3, className, label = "Đang tải nội dung" }: { lines?: number; className?: string; label?: string }) {
   return (
     <div className={cn("card card-body placeholder-glow text-body-secondary", className)} role="status" aria-label={label}>

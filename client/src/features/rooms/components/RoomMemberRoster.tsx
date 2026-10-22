@@ -1,3 +1,4 @@
+import { PendingButton } from "@/components/ui/BootstrapUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { RemovalTarget, RoomMember } from "../lib/roomTypes";
 
@@ -10,6 +11,8 @@ type Props = {
   revoke: (accountId: number) => void;
   remove: (member: RemovalTarget) => void;
   notice: string | null;
+  /** True while a moderation action is still running. */
+  moderationPending: boolean;
 };
 
 export function RoomMemberRoster({
@@ -21,6 +24,7 @@ export function RoomMemberRoster({
   revoke,
   remove,
   notice,
+  moderationPending,
 }: Props) {
   const { t } = useLanguage();
   const roleLabel = (role: RoomMember["role"]) =>
@@ -45,22 +49,24 @@ export function RoomMemberRoster({
             </span>
             <span className="d-flex gap-1">
               {host && member.role === "spectator" ? (
-                <button
+                <PendingButton
                   type="button"
                   className="btn btn-outline-primary btn-sm"
+                  pending={moderationPending}
                   onClick={() => grant(member.accountId)}
                 >
                   {t("rooms.member.grantModerator")}
-                </button>
+                </PendingButton>
               ) : null}
               {host && member.role === "moderator" ? (
-                <button
+                <PendingButton
                   type="button"
                   className="btn btn-outline-secondary btn-sm"
+                  pending={moderationPending}
                   onClick={() => revoke(member.accountId)}
                 >
                   {t("rooms.member.revokeModerator")}
-                </button>
+                </PendingButton>
               ) : null}
               {(host || moderator) && member.role === "spectator" ? (
                 <button

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import type { TimerCompletion } from "@/components/common/SolveTimer";
-import { RefreshIndicator, SkeletonCard } from "@/components/ui/BootstrapUI";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { PendingButton, RefreshIndicator, SkeletonCard } from "@/components/ui/BootstrapUI";
 import {
   SystemLeaderboard,
   competitionErrorText,
@@ -24,6 +25,7 @@ import {
   type TimerEventId,
 } from "@/lib/timerEvents";
 import { trpc } from "@/lib/trpc";
+import { useAsync } from "@/lib/useAsync";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Rooms() {
@@ -52,6 +54,12 @@ export default function Rooms() {
     null
   );
   const [removalReason, setRemovalReason] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const copyInvite = useAsync(async () => {
+    await navigator.clipboard?.writeText(
+      `${window.location.origin}/rooms/${code}`,
+    );
+  });
   const roomInput = useMemo(() => ({ code }), [code]);
   const mine = trpc.competition.listMine.useQuery(undefined, {
     enabled: Boolean(account.data),
@@ -173,6 +181,7 @@ export default function Rooms() {
         joinCode={joinCode}
         onJoinCodeChange={setJoinCode}
         createPending={create.isPending}
+        joinPending={join.isPending}
         myRooms={
           mine.data?.map(({ room }) => ({
             id: room.id,
@@ -210,18 +219,22 @@ export default function Rooms() {
           <h1 className="h4">{t("rooms.roomTitle", { code })}</h1>
           <p>{t("rooms.pickRole")}</p>
           <div className="d-flex gap-2">
-            <button
+            <PendingButton
+              type="button"
               className="btn btn-primary"
+              pending={join.isPending}
               onClick={() => join.mutate({ code })}
             >
               {t("rooms.join")}
-            </button>
-            <button
+            </PendingButton>
+            <PendingButton
+              type="button"
               className="btn btn-outline-primary"
+              pending={spectate.isPending}
               onClick={() => spectate.mutate({ code })}
             >
               {t("rooms.spectate")}
-            </button>
+            </PendingButton>
           </div>
         </div>
       </div>
@@ -257,14 +270,7 @@ export default function Rooms() {
         reason: latestModeration.reason,
       })
     : null;
-  const deleteCurrentRoom = () => {
-    if (
-      window.confirm(
-        `${t("rooms.deleteConfirmTitle")} ${t("rooms.deleteConfirmDetail")}`
-      )
-    )
-      deleteRoom.mutate({ code });
-  };
+  const deleteCurrentRoom = () => setConfirmDelete(true);
 
   return (
     <>
@@ -288,26 +294,27 @@ export default function Rooms() {
             </span>
           </div>
           <div className="d-flex flex-wrap gap-2">
-            <button
+            <PendingButton
+              type="button"
               className="btn btn-outline-primary btn-sm"
-              onClick={() =>
-                void navigator.clipboard?.writeText(
-                  `${window.location.origin}/rooms/${room.room.code}`
-                )
-              }
+              pending={copyInvite.pending}
+              onClick={() => void copyInvite.run()}
             >
               {t("rooms.copyInvite")}
-            </button>
+            </PendingButton>
             {room.isHost && room.room.status === "finished" ? (
-              <button
+              <PendingButton
+                type="button"
                 className="btn btn-success btn-sm"
+                pending={rematch.isPending}
                 onClick={() => rematch.mutate({ code })}
               >
                 {t("rooms.rematch")}
-              </button>
+              </PendingButton>
             ) : null}
             {room.isHost && room.room.status !== "active" ? (
               <button
+                type="button"
                 className="btn btn-outline-danger btn-sm"
                 onClick={deleteCurrentRoom}
               >
@@ -315,12 +322,14 @@ export default function Rooms() {
               </button>
             ) : null}
             {!room.isHost ? (
-              <button
+              <PendingButton
+                type="button"
                 className="btn btn-outline-secondary btn-sm"
+                pending={leave.isPending}
                 onClick={() => leave.mutate({ code })}
               >
                 {t("rooms.leave")}
-              </button>
+              </PendingButton>
             ) : null}
           </div>
         </div>
@@ -374,6 +383,9 @@ export default function Rooms() {
                   },
                 })
               }
+              startPending={start.isPending}
+              finishPending={finish.isPending}
+              submitPending={submit.isPending}
             />
           </section>
           <RoomSidebar
@@ -393,6 +405,7 @@ export default function Rooms() {
             onChatChange={setChat}
             onSend={() => send.mutate({ code, content: chat })}
             sendPending={send.isPending}
+            moderationPending={grantModerator.isPending || revokeModerator.isPending}
             onGrantModerator={accountId =>
               grantModerator.mutate({ code, accountId })
             }
@@ -425,6 +438,16 @@ export default function Rooms() {
           setRemovalReason("");
         }}
         pending={removeSpectator.isPending}
+      />
+      <ConfirmDialog
+        open={confirmDelete}
+        title={t("rooms.deleteConfirmTitle")}
+        description={t("rooms.deleteConfirmDetail")}
+        confirmLabel={t("rooms.deleteConfirmAction")}
+        tone="danger"
+        pending={deleteRoom.isPending}
+        onConfirm={() => deleteRoom.mutate({ code })}
+        onClose={() => setConfirmDelete(false)}
       />
     </>
   );

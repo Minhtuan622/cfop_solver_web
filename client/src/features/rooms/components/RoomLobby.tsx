@@ -3,6 +3,7 @@ import {
   EmptyState,
   Field,
   LoadingTransition,
+  PendingButton,
   SkeletonList,
 } from "@/components/ui/BootstrapUI";
 import {
@@ -29,6 +30,7 @@ type Props = {
   joinCode: string;
   onJoinCodeChange: (value: string) => void;
   createPending: boolean;
+  joinPending: boolean;
   myRooms: RoomSummary[];
   myRoomsPending: boolean;
   onCreate: () => void;
@@ -51,6 +53,7 @@ export function RoomLobby({
   joinCode,
   onJoinCodeChange,
   createPending,
+  joinPending,
   myRooms,
   myRoomsPending,
   onCreate,
@@ -146,12 +149,12 @@ export function RoomLobby({
                     </Field>
                   ) : null}
                 </div>
-                <button
+                <PendingButton
                   className="btn btn-primary mt-3"
-                  disabled={createPending}
+                  pending={createPending}
                 >
                   {t("rooms.lobby.create")}
-                </button>
+                </PendingButton>
               </form>
             </div>
           </div>
@@ -178,9 +181,12 @@ export function RoomLobby({
                     placeholder="ABC123"
                   />
                 </Field>
-                <button className="btn btn-outline-primary mt-3">
+                <PendingButton
+                  className="btn btn-outline-primary mt-3"
+                  pending={joinPending}
+                >
                   {t("rooms.lobby.join")}
-                </button>
+                </PendingButton>
               </form>
               <h2 className="h6 mt-4">{t("rooms.lobby.myRooms")}</h2>
               {myRoomsPending ? (
