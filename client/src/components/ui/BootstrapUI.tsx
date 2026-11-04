@@ -228,6 +228,3 @@ export function SkeletonTable({ rows = 5, columns = 4, label = "Đang tải bả
 export function RefreshIndicator({ label = "Đang cập nhật" }: { label?: string }) {
   return <span className="d-inline-flex align-items-center gap-2 small text-body-secondary" role="status" aria-live="polite"><span className="spinner-border spinner-border-sm" aria-hidden="true" />{label}</span>;
 }
-
-
-
