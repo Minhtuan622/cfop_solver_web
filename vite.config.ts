@@ -205,6 +205,10 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Three.js/Twisty are loaded only by Puzzle3DCanvas via dynamic import().
+    // Their raw chunks are intentionally larger than Vite's generic 500 kB
+    // advisory, while their gzip sizes remain suitable for an on-demand view.
+    chunkSizeWarningLimit: 750,
     rollupOptions: {
       output: {
         manualChunks(id) {
