@@ -1,0 +1,39 @@
+name: Bug report
+description: Báo lỗi có thể tái hiện trong CFOP Solver Studio
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Cảm ơn bạn đã báo lỗi. Không gửi secret, token, cookie hoặc dữ liệu tài khoản thật."
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Các bước tái hiện
+      description: Mô tả chính xác thao tác, event Rubik và dữ liệu đầu vào tối thiểu.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Kết quả mong đợi
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Kết quả thực tế
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Môi trường
+      description: OS, browser, commit/version và local hay production.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log hoặc ảnh chụp đã làm sạch
+      description: Xóa token, cookie, email và thông tin cá nhân trước khi gửi.

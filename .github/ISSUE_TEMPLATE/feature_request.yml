@@ -1,0 +1,29 @@
+name: Feature request
+description: Đề xuất cải tiến hoặc tính năng mới
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Vấn đề cần giải quyết
+      description: Ai gặp vấn đề gì và trong bối cảnh nào?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Đề xuất
+      description: Mô tả hành vi hoặc UX mong muốn.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Phương án đã cân nhắc
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Bạn có muốn tự đóng góp PR không?
+      options:
+        - label: Tôi có thể mở Pull Request cho đề xuất này.
