@@ -30,6 +30,7 @@ export type SolverInputPanelProps = {
   onPaintColorChange: (color: CrossColor) => void;
   onRandomScramble: () => void;
   onSolve: () => void;
+  onCancel: () => void;
   onSelectRecentState: (state: RecentCubeState) => void;
   onRemoveRecentState: (id: string) => void;
   onCameraState: (state: string) => void;
@@ -60,6 +61,7 @@ export function SolverInputPanel({
   onPaintColorChange,
   onRandomScramble,
   onSolve,
+  onCancel,
   onSelectRecentState,
   onRemoveRecentState,
   onCameraState,
@@ -159,24 +161,27 @@ export function SolverInputPanel({
           </div>
         ) : null}
 
-        <button
-          type="button"
-          disabled={loading || !value.trim() || (mode === "state" && !stateValidation?.valid)}
-          onClick={onSolve}
-          className={cn("btn btn-primary btn-lg w-100 mt-4")}
-        >
-          {loading ? (
-            <>
+        {loading ? (
+          <div className="d-flex gap-2 mt-4">
+            <div className="btn btn-primary btn-lg flex-grow-1" role="status" aria-live="polite">
               <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
               {status || t("home.preparing")}
-            </>
-          ) : (
-            <>
-              <Sparkles className="fs-6 me-1" aria-hidden="true" />
-              {solving ? t("home.buildMemo") : t("input.solve")}
-            </>
-          )}
-        </button>
+            </div>
+            <button type="button" className={cn("btn btn-outline-danger btn-lg")} onClick={onCancel} aria-label={t("home.cancelSolver")}>
+              {t("home.cancelSolver")}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            disabled={!value.trim() || (mode === "state" && !stateValidation?.valid)}
+            onClick={onSolve}
+            className={cn("btn btn-primary btn-lg w-100 mt-4")}
+          >
+            <Sparkles className="fs-6 me-1" aria-hidden="true" />
+            {solving ? t("home.buildMemo") : t("input.solve")}
+          </button>
+        )}
       </div>
     </section>
   );

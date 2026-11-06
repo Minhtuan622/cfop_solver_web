@@ -29,7 +29,7 @@ import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { lastLayerModeLabel, openingModeLabel } from "@/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
-import { analyzeBldInBrowser, solveInBrowser, validateStateInBrowser, warmSolverInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
+import { analyzeBldInBrowser, cancelSolverInBrowser, solveInBrowser, SolverCancelledError, SolverTimeoutError, validateStateInBrowser, warmSolverInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 
 type CubeMotionKind = "idle" | "move" | "seek" | "phase" | "reset";
 type CursorIntent = "step" | "playback" | "seek" | "phase" | "reset";
@@ -172,12 +172,21 @@ export default function Home() {
       setCursor(0);
       if (mode === "state") saveRecentState(value.trim(), crossColor);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : t("home.solverFailedDetail"));
+      if (reason instanceof SolverCancelledError) setError(t("home.solverCancelled"));
+      else if (reason instanceof SolverTimeoutError) setError(t("home.solverTimeout"));
+      else setError(reason instanceof Error ? reason.message : t("home.solverFailedDetail"));
     } finally {
       setLoading(false);
       setSolverStatus("");
     }
   }
+
+  const cancelSolver = () => {
+    cancelSolverInBrowser();
+    setLoading(false);
+    setSolverStatus("");
+    setError(t("home.solverCancelled"));
+  };
 
   const saveRecentState = (state: string, color: CrossColor) => {
     const next = rememberRecentState(recentStates, state, color, language);
@@ -322,6 +331,7 @@ export default function Home() {
               onPaintColorChange={setPaintColor}
               onRandomScramble={randomScramble}
               onSolve={() => void runSolver()}
+              onCancel={cancelSolver}
               onSelectRecentState={loadRecentState}
               onRemoveRecentState={removeRecentState}
               onCameraState={applyCameraState}

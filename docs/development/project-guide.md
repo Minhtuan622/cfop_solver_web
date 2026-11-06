@@ -355,21 +355,20 @@ Các route chính:
 | `pnpm test:e2e` | Chạy Playwright bằng Chromium hệ thống tại `/usr/bin/chromium`; dùng `npx playwright test` nếu máy không có Chromium ở đường dẫn đó. |
 | `pnpm build` | Build frontend và bundle Express server production. |
 | `pnpm start` | Chạy `dist/index.js` ở production mode. |
-| `pnpm run embed-solver` | Tái tạo bundle solver từ Python source bên ngoài; chỉ cần khi sửa Python solver. |
+| `pnpm run embed-solver` | Tái tạo bundle solver từ `solver-python/cfop_solver`; chỉ cần khi sửa Python solver. |
 | `pnpm db:push` | Generate và apply Drizzle migration; không chạy tự động trong deploy nếu chưa kiểm soát. |
 | `pnpm format` | Format bằng Prettier. |
 
 ### Lưu ý quan trọng về `pnpm build`
 
-`pnpm build` **không gọi** `embed-solver`. Lý do là source Python solver lịch sử nằm ngoài repository web; container production không có đường dẫn đó. File `client/src/lib/embeddedSolver.ts` hiện là bundle đã được theo dõi trong repository và được dùng trực tiếp khi build.
+`pnpm build` **không gọi** `embed-solver` để giữ build production nhanh và deterministic. Source Python solver hiện nằm công khai tại `solver-python/cfop_solver`; file `client/src/lib/embeddedSolver.ts` là bundle đã được theo dõi trong repository và được dùng trực tiếp khi build.
 
 Khi thực sự sửa Python solver, cần có workspace đúng cấu trúc:
 
 ```text
-rubik-workspace/
-├── cfop_solver_web/
-│   └── scripts/embed-solver.mjs
-└── cfop_solver/
+cfop_solver_web/
+├── scripts/embed-solver.mjs
+└── solver-python/
     └── cfop_solver/
         ├── __init__.py
         ├── cube.py
@@ -380,7 +379,7 @@ rubik-workspace/
 Sau khi sửa và kiểm thử Python:
 
 ```bash
-cd rubik-workspace/cfop_solver_web
+cd cfop_solver_web
 pnpm run embed-solver
 pnpm check
 pnpm test
@@ -566,7 +565,7 @@ CDN chỉ nên phục vụ static assets và chunk Cubing/Three.js. Lazy-load th
 - [ ] `pnpm check` đạt.
 - [ ] `pnpm test` đạt.
 - [ ] `pnpm test:e2e` đạt với Chromium.
-- [ ] `pnpm build` đạt trong môi trường không có source Python ngoài repository.
+- [ ] `pnpm build` đạt trong môi trường checkout mới với source Python trong repository.
 - [ ] Đã kiểm tra `git diff --check`.
 - [ ] Đã backup/export dữ liệu local quan trọng trước khi đổi origin/domain.
 - [ ] Đã kiểm tra redirect URI, cookie domain, CORS và secrets trên host thật.

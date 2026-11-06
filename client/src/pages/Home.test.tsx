@@ -89,4 +89,15 @@ describe("the Rubik solver workspace", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Phát" })).toBeInTheDocument());
     expect(screen.getAllByText(/1 nước/).length).toBeGreaterThan(0);
   });
+
+  it("lets the user stop a solver that is still running", async () => {
+    mocks.solve.mockReturnValue(new Promise(() => undefined));
+    render(<Home />);
+
+    fireEvent.click(screen.getByRole("button", { name: /TÌM CÁCH GIẢI/ }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Dừng" })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: "Dừng" }));
+
+    expect(screen.getByText("Đã dừng solver theo yêu cầu.")).toBeInTheDocument();
+  });
 });

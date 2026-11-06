@@ -49,6 +49,7 @@ describe("the solver input panel", () => {
         onPaintColorChange={() => undefined}
         onRandomScramble={() => undefined}
         onSolve={() => undefined}
+        onCancel={() => undefined}
         onSelectRecentState={() => undefined}
         onRemoveRecentState={() => undefined}
         onCameraState={() => undefined}
@@ -81,6 +82,7 @@ describe("the solver input panel", () => {
         onPaintColorChange={() => undefined}
         onRandomScramble={() => undefined}
         onSolve={onSolve}
+        onCancel={() => undefined}
         onSelectRecentState={() => undefined}
         onRemoveRecentState={() => undefined}
         onCameraState={() => undefined}

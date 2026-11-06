@@ -43,6 +43,8 @@ pnpm build
 - [Quy tắc cộng đồng](CODE_OF_CONDUCT.md)
 - [Báo cáo lỗ hổng bảo mật](SECURITY.md)
 
+Source Python của solver nằm tại [`solver-python/cfop_solver`](solver-python/cfop_solver). Sau khi chỉnh sửa source, chạy `pnpm run embed-solver` để tái tạo bundle Pyodide được dùng trong trình duyệt; không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`.
+
 ## Đóng góp
 
 Issue, tài liệu, kiểm thử và Pull Request đều được chào đón. Vui lòng đọc [CONTRIBUTING.md](CONTRIBUTING.md) trước khi bắt đầu.

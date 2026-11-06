@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const solverRoot = join(here, "..", "..", "cfop_solver", "cfop_solver");
+const solverRoot = join(here, "..", "solver-python", "cfop_solver");
 const target = join(here, "..", "client", "src", "lib", "embeddedSolver.ts");
 const files = [
   "__init__.py",
