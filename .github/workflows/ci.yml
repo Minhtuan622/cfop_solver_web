@@ -11,7 +11,7 @@ permissions:
 jobs:
   check-test-build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,16 +25,21 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+      # The committed lockfile is currently malformed. Remove it so pnpm
+      # cannot enter headless install using the broken dependency graph.
+      - name: Regenerate lockfile from package.json
+        run: |
+          rm pnpm-lock.yaml
+          pnpm install --lockfile-only
 
       - name: Upload regenerated lockfile for review
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: regenerated-pnpm-lockfile
           path: pnpm-lock.yaml
-          if-no-files-found: warn
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Typecheck
         run: pnpm check
