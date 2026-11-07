@@ -9,7 +9,8 @@ updates:
   - package-ecosystem: npm
     directory: "/"
     schedule:
-      interval: weekly
+      interval: daily
+
     open-pull-requests-limit: 10
 
     groups:
@@ -24,3 +25,16 @@ updates:
         dependency-type: development
         patterns:
           - "*"
+
+      regular-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
+
+    labels:
+      - dependencies
+      - security
+
+    commit-message:
+      prefix: "security"
+
