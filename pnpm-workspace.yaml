@@ -5,11 +5,15 @@ overrides:
   "@builder.io/vite-plugin-jsx-loc>vite": "^7.0.0"
   body-parser: 1.20.9
   dompurify: 3.4.17
-  lodash: 4.17.23
-  lodash-es: 4.17.23
-  path-to-regexp: 0.1.13
+  browserslist: 4.28.7
+  lodash: 4.18.1
+  lodash-es: 4.18.1
+  picomatch: 4.0.4
+  postcss: 8.5.23
   proxy-addr: 2.0.8
   qs: 6.16.1
+  source-map-js: 1.2.2
+  undici: 8.12.2
 
 ignoredBuiltDependencies:
   - core-js
