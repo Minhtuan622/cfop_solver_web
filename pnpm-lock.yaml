@@ -5084,7 +5084,7 @@ snapshots:
       '@types/estree': 1.0.10
     optionalDependencies:
       '@napi-rs/lzma-linux-x64-gnu': 1.5.1
-      '@rollup/rollup-android-arm-eabi': 4.67.4
+      '@rollup/rollup-android-arm-eabi': 4.68.0
       '@rollup/rollup-android-arm64': 4.67.4
       '@rollup/rollup-android-x64': 4.67.4
       '@rollup/rollup-darwin-arm64': 4.67.4
