@@ -25,19 +25,6 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      # The committed lockfile is currently malformed. Remove it so pnpm
-      # cannot enter headless install using the broken dependency graph.
-      - name: Regenerate lockfile from package.json
-        run: |
-          rm pnpm-lock.yaml
-          pnpm install --lockfile-only
-
-      - name: Upload regenerated lockfile for review
-        uses: actions/upload-artifact@v4
-        with:
-          name: regenerated-pnpm-lockfile
-          path: pnpm-lock.yaml
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
