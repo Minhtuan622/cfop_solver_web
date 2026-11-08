@@ -92,7 +92,18 @@ export const wcaWords: Dictionary = {
 
   "wca.events": ["Nội dung thi đấu", "Events"],
   "wca.resetFilters": ["Đặt lại", "Reset"],
-  "wca.ongoing": ["Đang diễn ra", "Ongoing"],
+  "wca.year": ["Năm", "Year"],
+  "wca.month": ["Tháng", "Month"],
+  "wca.allMonths": ["Cả năm", "Whole year"],
+  "wca.thisMonth": ["Tháng này", "This month"],
+  "wca.nextMonth": ["Tháng sau", "Next month"],
+  "wca.thisYear": ["Năm nay", "This year"],
+  "wca.quickPeriods": ["Mốc nhanh", "Quick periods"],
+
+  "wca.pagination": ["Phân trang", "Pagination"],
+  "wca.pagePrev": ["Trước", "Previous"],
+  "wca.pageNext": ["Sau", "Next"],
+  "wca.pageInfo": ["Trang {page}/{total}", "Page {page} of {total}"],
 
   "wca.errorData": [
     "Không thể xử lý dữ liệu WCA.",

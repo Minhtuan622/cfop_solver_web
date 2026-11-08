@@ -2,97 +2,108 @@ import { Field } from "@/components/ui/BootstrapUI";
 import { Search } from "@/components/ui/BootstrapIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-import { RANGE_PRESETS, type WcaCountry } from "../lib/wcaCalendar";
+import type { WcaCountry } from "../lib/wcaCalendar";
 
 export type WcaCalendarFiltersProps = {
-  start: string;
-  end: string;
+  year: number;
+  month: number;
   countryIso2: string;
   countries: WcaCountry[];
   countriesLoading: boolean;
   query: string;
-  presetId: string;
   shownCount: number;
   totalCount: number;
-  onStartChange: (value: string) => void;
-  onEndChange: (value: string) => void;
+  onYearChange: (value: number) => void;
+  onMonthChange: (value: number) => void;
   onCountryChange: (value: string) => void;
   onQueryChange: (value: string) => void;
-  onPresetChange: (days: number) => void;
   onReset?: () => void;
 };
 
 /**
- * The toolbar that shapes the calendar: a period, a country and a search box.
- * Everything it can do is visible at once — the page never hides a control
- * behind a "filters" button.
+ * The filter toolbar. The period is chosen by year and month instead of a raw
+ * date range, which is how a competition calendar is actually browsed.
  */
 export function WcaCalendarFilters({
-  start,
-  end,
+  year,
+  month,
   countryIso2,
   countries,
   countriesLoading,
   query,
-  presetId,
   shownCount,
   totalCount,
-  onStartChange,
-  onEndChange,
+  onYearChange,
+  onMonthChange,
   onCountryChange,
   onQueryChange,
-  onPresetChange,
   onReset,
 }: WcaCalendarFiltersProps) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const currentYear = new Date().getFullYear();
+  const years = [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
+  const monthNames = Array.from({ length: 12 }, (_, index) =>
+    new Date(2000, index, 1).toLocaleString(language === "vi" ? "vi-VN" : "en-US", { month: "long" }),
+  );
+
+  const jumpTo = (nextYear: number, nextMonth: number) => {
+    onYearChange(nextYear);
+    onMonthChange(nextMonth);
+  };
 
   return (
     <section className="cfop-calendar-filters" aria-label={t("wca.filters")}>
       <div className="cfop-calendar-filters__header">
         <h2 className="cfop-calendar-filters__title">{t("wca.filters")}</h2>
-        {onReset ? (
-          <button type="button" className="btn btn-link btn-sm p-0 text-decoration-none" onClick={onReset}>
-            {t("wca.resetFilters")}
-          </button>
-        ) : null}
-      </div>
-
-      <div className="cfop-calendar-filters__presets">
-        <span className="form-label" id="wca-preset-label">{t("wca.presets")}</span>
-        <div className="btn-group btn-group-sm" role="group" aria-labelledby="wca-preset-label">
-          {RANGE_PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              aria-pressed={preset.id === presetId}
-              className={cn("btn", preset.id === presetId ? "btn-primary" : "btn-outline-secondary")}
-              onClick={() => onPresetChange(preset.days)}
-            >
-              {t(`wca.preset.${preset.id}`)}
+        <div className="d-flex align-items-center gap-2">
+          <div className="btn-group btn-group-sm" role="group" aria-label={t("wca.quickPeriods")}>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}>
+              {t("wca.thisMonth")}
             </button>
-          ))}
+            <button type="button" className="btn btn-outline-secondary" onClick={() => {
+              const next = new Date();
+              next.setMonth(next.getMonth() + 1);
+              jumpTo(next.getFullYear(), next.getMonth() + 1);
+            }}>
+              {t("wca.nextMonth")}
+            </button>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => jumpTo(currentYear, 0)}>
+              {t("wca.thisYear")}
+            </button>
+          </div>
+          {onReset ? (
+            <button type="button" className="btn btn-link btn-sm p-0 text-decoration-none" onClick={onReset}>
+              {t("wca.resetFilters")}
+            </button>
+          ) : null}
         </div>
       </div>
 
-      <Field id="wca-from" label={t("wca.from")} className="cfop-calendar-filters__field">
-        <input
-          id="wca-from"
-          type="date"
-          className="form-control"
-          value={start}
-          onChange={(event) => onStartChange(event.target.value)}
-        />
+      <Field id="wca-year" label={t("wca.year")} className="cfop-calendar-filters__field">
+        <select
+          id="wca-year"
+          className="form-select"
+          value={year}
+          onChange={(event) => onYearChange(Number(event.target.value))}
+        >
+          {years.map((value) => (
+            <option key={value} value={value}>{value}</option>
+          ))}
+        </select>
       </Field>
 
-      <Field id="wca-to" label={t("wca.to")} className="cfop-calendar-filters__field">
-        <input
-          id="wca-to"
-          type="date"
-          className="form-control"
-          min={start}
-          value={end}
-          onChange={(event) => onEndChange(event.target.value)}
-        />
+      <Field id="wca-month" label={t("wca.month")} className="cfop-calendar-filters__field">
+        <select
+          id="wca-month"
+          className="form-select"
+          value={month}
+          onChange={(event) => onMonthChange(Number(event.target.value))}
+        >
+          <option value={0}>{t("wca.allMonths")}</option>
+          {monthNames.map((name, index) => (
+            <option key={index + 1} value={index + 1}>{name}</option>
+          ))}
+        </select>
       </Field>
 
       <Field id="wca-country" label={t("wca.country")} className="cfop-calendar-filters__field">

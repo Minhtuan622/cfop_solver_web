@@ -109,15 +109,6 @@ describe("the WCA competition calendar", () => {
     expect(screen.getByText(/Chưa có giải WCA phù hợp/)).toBeInTheDocument();
   });
 
-  it("picks a ready-made period in one click", () => {
-    render(<WcaCompetitions />);
-
-    const preset = screen.getByRole("button", { name: "30 ngày" });
-    expect(preset).toHaveAttribute("aria-pressed", "false");
-    fireEvent.click(preset);
-    expect(preset).toHaveAttribute("aria-pressed", "true");
-  });
-
   it("shows the current world records above the calendar", () => {
     mocks.records.data = [
       { eventId: "333", single: 251, average: 351 },

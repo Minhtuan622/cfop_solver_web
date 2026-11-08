@@ -1,55 +1,59 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EmptyState, LoadingTransition, PageHeader, RefreshIndicator, SkeletonList, StatusFeedback } from "@/components/ui/BootstrapUI";
 import { Calendar3, ExternalLink, Trophy } from "@/components/ui/BootstrapIcon";
 import { trpc } from "@/lib/trpc";
 import { errorMessage } from "@/lib/apiError";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  DEFAULT_PRESET_ID,
-  RANGE_PRESETS,
   WcaCalendarFilters,
   WcaCompetitionList,
   WcaWorldRecords,
-  addDays,
   groupByMonth,
   matchesQuery,
-  toIsoDate,
 } from "@/features/wca";
 
 const WCA_CALENDAR_URL = "https://www.worldcubeassociation.org/competitions";
 
 export default function WcaCompetitions() {
   const { language, t } = useLanguage();
-  const [start, setStart] = useState(() => toIsoDate(new Date()));
-  const [end, setEnd] = useState(() => toIsoDate(addDays(new Date(), 90)));
+  const now = new Date();
+  const [year, setYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth() + 1);
   const [countryIso2, setCountryIso2] = useState("");
   const [query, setQuery] = useState("");
-  const [presetId, setPresetId] = useState(DEFAULT_PRESET_ID);
+
+  const PAGE_SIZE = 24;
+  const [page, setPage] = useState(1);
 
   const countriesQuery = trpc.wca.countries.useQuery(undefined, { staleTime: 24 * 60 * 60 * 1000, retry: 1 });
   const recordsQuery = trpc.wca.worldRecords.useQuery(undefined, { staleTime: 60 * 60 * 1000, retry: 1 });
-  const calendarInput = useMemo(() => ({ start, end, countryIso2: countryIso2 || null }), [start, end, countryIso2]);
-  const rangeIsValid = Boolean(start && end && end >= start);
-  const competitionsQuery = trpc.wca.competitions.useQuery(calendarInput, { staleTime: 5 * 60 * 1000, retry: 1, enabled: rangeIsValid });
+  const calendarInput = useMemo(() => {
+    const startMonth = month === 0 ? 1 : month;
+    const endMonth = month === 0 ? 12 : month;
+    const lastDay = new Date(year, endMonth, 0).getDate();
+    return {
+      start: `${year}-${String(startMonth).padStart(2, "0")}-01`,
+      end: `${year}-${String(endMonth).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`,
+      countryIso2: countryIso2 || null,
+    };
+  }, [year, month, countryIso2]);
+  const rangeIsValid = true;
+  const competitionsQuery = trpc.wca.competitions.useQuery(calendarInput, { staleTime: 5 * 60 * 1000, retry: 1 });
 
   const competitions = competitionsQuery.data;
   const visible = useMemo(() => (competitions ?? []).filter((competition) => matchesQuery(competition, query)), [competitions, query]);
-  const groups = useMemo(() => groupByMonth(visible), [visible]);
-
-  const applyPreset = (days: number) => {
-    const today = new Date();
-    setStart(toIsoDate(today));
-    setEnd(toIsoDate(addDays(today, days)));
-    setPresetId(RANGE_PRESETS.find((preset) => preset.days === days)?.id ?? "");
-  };
+  useEffect(() => setPage(1), [year, month, countryIso2, query]);
+  const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedVisible = visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const groups = useMemo(() => groupByMonth(paginatedVisible), [paginatedVisible]);
 
   const resetFilters = () => {
     const today = new Date();
-    setStart(toIsoDate(today));
-    setEnd(toIsoDate(addDays(today, 90)));
+    setYear(today.getFullYear());
+    setMonth(today.getMonth() + 1);
     setCountryIso2("");
     setQuery("");
-    setPresetId(DEFAULT_PRESET_ID);
   };
 
   return (
@@ -89,20 +93,18 @@ export default function WcaCompetitions() {
       />
 
       <WcaCalendarFilters
-        start={start}
-        end={end}
+        year={year}
+        month={month}
         countryIso2={countryIso2}
         countries={countriesQuery.data ?? []}
         countriesLoading={countriesQuery.isLoading}
         query={query}
-        presetId={presetId}
         shownCount={visible.length}
         totalCount={competitions?.length ?? 0}
-        onStartChange={(value) => { setStart(value); setPresetId(""); }}
-        onEndChange={(value) => { setEnd(value); setPresetId(""); }}
+        onYearChange={setYear}
+        onMonthChange={setMonth}
         onCountryChange={setCountryIso2}
         onQueryChange={setQuery}
-        onPresetChange={applyPreset}
         onReset={resetFilters}
       />
 
@@ -111,25 +113,21 @@ export default function WcaCompetitions() {
           <div>
             <h2 id="wca-agenda-title" className="cfop-wca-agenda__title">{t("wca.agendaTitle")}</h2>
             <p className="cfop-wca-agenda__subtitle">
-              {rangeIsValid
-                ? t("wca.agendaSubtitle", { count: visible.length })
-                : t("wca.invalidRangeHint")}
+              {t("wca.agendaSubtitle", { count: visible.length })}
             </p>
           </div>
           {competitionsQuery.isFetching ? <RefreshIndicator label={t("wca.refreshing")} /> : null}
         </div>
 
-        {rangeIsValid ? null : <StatusFeedback tone="warning" title={t("wca.invalidRange")}>{t("wca.invalidRangeHint")}</StatusFeedback>}
-
-        {rangeIsValid && competitionsQuery.isLoading ? (
+        {competitionsQuery.isLoading ? (
           <SkeletonList rows={6} label={t("wca.loading")} />
         ) : null}
 
-        {rangeIsValid && competitionsQuery.isError ? (
+        {competitionsQuery.isError ? (
           <StatusFeedback tone="danger" title={t("wca.loadFailed")}>{errorMessage(competitionsQuery.error, t)}</StatusFeedback>
         ) : null}
 
-        {rangeIsValid && !competitionsQuery.isLoading && !competitionsQuery.isError && competitions?.length === 0 ? (
+        {!competitionsQuery.isLoading && !competitionsQuery.isError && competitions?.length === 0 ? (
           <EmptyState
             icon={<Calendar3 className="fs-3" />}
             title={t("wca.empty")}
@@ -143,7 +141,7 @@ export default function WcaCompetitions() {
           />
         ) : null}
 
-        {rangeIsValid && competitions?.length ? (
+        {competitions?.length ? (
           visible.length === 0 ? (
             <EmptyState
               icon={<Trophy className="fs-3" />}
@@ -151,7 +149,20 @@ export default function WcaCompetitions() {
               action={<button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setQuery("")}>{t("wca.clearSearch")}</button>}
             />
           ) : (
-            <WcaCompetitionList groups={groups} language={language} />
+            <>
+              <WcaCompetitionList groups={groups} language={language} />
+              {totalPages > 1 ? (
+                <nav className="cfop-pagination" aria-label={t("wca.pagination")}>
+                  <button type="button" className="btn btn-outline-secondary btn-sm" disabled={currentPage === 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>
+                    {t("wca.pagePrev")}
+                  </button>
+                  <span className="cfop-pagination__info">{t("wca.pageInfo", { page: currentPage, total: totalPages })}</span>
+                  <button type="button" className="btn btn-outline-secondary btn-sm" disabled={currentPage === totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))}>
+                    {t("wca.pageNext")}
+                  </button>
+                </nav>
+              ) : null}
+            </>
           )
         ) : null}
       </section>

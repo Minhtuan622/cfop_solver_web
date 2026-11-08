@@ -189,14 +189,43 @@ export async function getWcaCountries() {
 }
 
 export async function getWcaCompetitions(input: { start: string; end: string; countryIso2?: string | null }) {
-  const query = new URLSearchParams({ start: input.start, end: input.end, sort: "start_date" });
-  if (input.countryIso2) query.set("country_iso2", input.countryIso2);
-  const [payload, countries] = await Promise.all([
-    fetchWcaJson<WcaCompetitionPayload[]>(`/competitions?${query.toString()}`, 5 * 60 * 1000),
-    getWcaCountries(),
-  ]);
+  const baseQuery = new URLSearchParams({ start: input.start, end: input.end, sort: "start_date" });
+  if (input.countryIso2) baseQuery.set("country_iso2", input.countryIso2);
+
+  const PAGE_SIZE = 500;
+  const fetchPage = (page: number) => {
+    const query = new URLSearchParams(baseQuery);
+    query.set("per_page", String(PAGE_SIZE));
+    query.set("page", String(page));
+    return fetchWcaJson<WcaCompetitionPayload[]>(`/competitions?${query.toString()}`, 5 * 60 * 1000);
+  };
+
+  const all: WcaCompetitionPayload[] = [];
+  const firstPage = await fetchPage(1);
+  all.push(...firstPage);
+
+  if (firstPage.length === PAGE_SIZE) {
+    let page = 2;
+    let hasMore = true;
+    while (hasMore) {
+      const batch = await Promise.all(Array.from({ length: 10 }, (_, index) => fetchPage(page + index).catch(() => [])));
+      let stop = false;
+      for (const items of batch) {
+        if (Array.isArray(items)) {
+          all.push(...items);
+          if (items.length < PAGE_SIZE) stop = true;
+        } else {
+          stop = true;
+        }
+      }
+      page += 10;
+      hasMore = !stop && batch.some((items) => Array.isArray(items) && items.length === PAGE_SIZE);
+    }
+  }
+
+  const countries = await getWcaCountries();
   const countryNames = new Map(countries.map((country) => [country.iso2, country.name]));
-  return payload.map((competition) => {
+  return all.map((competition) => {
     const wcaUrl = competition.url ?? `https://www.worldcubeassociation.org/competitions/${competition.id}`;
     return {
       id: competition.id,

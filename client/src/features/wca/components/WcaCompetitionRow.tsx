@@ -21,40 +21,40 @@ export function WcaCompetitionRow({ competition, language }: { competition: WcaC
   const ongoing = competition.startDate <= today && competition.endDate >= today;
 
   return (
-    <li className="cfop-agenda-card">
-      <div className="cfop-agenda-card__date" aria-hidden="true">
-        <span className="cfop-agenda-card__day">{range.days}</span>
-        <span className="cfop-agenda-card__month">{range.months}</span>
+    <li className="cfop-agenda-row">
+      <div className="cfop-agenda-row__date" aria-hidden="true">
+        <span className="cfop-agenda-row__day">{range.days}</span>
+        <span className="cfop-agenda-row__month">{range.months}</span>
       </div>
-      <div className="cfop-agenda-card__body">
-        <div className="cfop-agenda-card__heading">
-          <h3 className="cfop-agenda-card__title">
+      <div className="cfop-agenda-row__body">
+        <div className="cfop-agenda-row__heading">
+          <h3 className="cfop-agenda-row__title">
             <a href={competition.wcaUrl} target="_blank" rel="noreferrer" className="d-inline-flex align-items-center gap-2">
               <span>{competition.name}</span>
-              <ExternalLink className="cfop-agenda-card__external" />
+              <ExternalLink className="cfop-agenda-row__external" />
               <span className="visually-hidden"> — {t("wca.competitionPage")}</span>
             </a>
           </h3>
-          <div className="cfop-agenda-card__badges">
+          <div className="cfop-agenda-row__badges">
             {ongoing ? <span className="badge text-bg-success">{t("wca.ongoing")}</span> : null}
             {cancelled ? <span className="badge text-bg-danger">{competitionStatusLabel(competition.status, t)}</span> : null}
           </div>
         </div>
-        <p className="cfop-agenda-card__meta">
+        <p className="cfop-agenda-row__meta">
           <span className="d-inline-flex align-items-center gap-1">
             {flag ? <span aria-hidden="true">{flag}</span> : null}
-            <GeoAlt className="cfop-agenda-card__place-icon" />
+            <GeoAlt className="cfop-agenda-row__place-icon" />
             {place || t("wca.locationUnknown")}
           </span>
           {venue.text ? (
             <>
-              <span aria-hidden="true" className="cfop-agenda-card__separator">·</span>
+              <span aria-hidden="true" className="cfop-agenda-row__separator">·</span>
               {venue.href ? (
-                <a href={venue.href} target="_blank" rel="noreferrer" className="cfop-agenda-card__venue">
+                <a href={venue.href} target="_blank" rel="noreferrer" className="cfop-agenda-row__venue">
                   {venue.text}
                 </a>
               ) : (
-                <span className="cfop-agenda-card__venue">{venue.text}</span>
+                <span className="cfop-agenda-row__venue">{venue.text}</span>
               )}
             </>
           ) : null}
@@ -70,7 +70,7 @@ export function WcaCompetitionRow({ competition, language }: { competition: WcaC
         ) : null}
       </div>
       {competition.website ? (
-        <a href={competition.website} target="_blank" rel="noreferrer" className="btn btn-outline-secondary btn-sm cfop-agenda-card__site">
+        <a href={competition.website} target="_blank" rel="noreferrer" className="btn btn-outline-secondary btn-sm cfop-agenda-row__site">
           {t("wca.website")}
           <ExternalLink className="ms-1" />
         </a>
