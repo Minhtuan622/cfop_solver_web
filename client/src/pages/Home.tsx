@@ -3,8 +3,8 @@
  * grouped by spacing, soft elevation and color—not decorative borders—while 3D cube
  * movement remains the sole rich animation.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Timer } from "@/components/ui/BootstrapIcon";
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { BoxSeam, Timer } from "@/components/ui/BootstrapIcon";
 import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/common/CubeNet";
 import { Cube3DGuide } from "@/components/common/Cube3DGuide";
@@ -28,10 +28,17 @@ import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { lastLayerModeLabel, openingModeLabel } from "@/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
+import { CfopAccountControl } from "@/features/profile/components/CfopAccountControl";
 import { analyzeBldInBrowser, cancelSolverInBrowser, solveInBrowser, SolverCancelledError, SolverTimeoutError, validateStateInBrowser, warmSolverInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 
 type CubeMotionKind = "idle" | "move" | "seek" | "phase" | "reset";
 type CursorIntent = "step" | "playback" | "seek" | "phase" | "reset";
+
+class AccountControlBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? null : this.props.children; }
+}
 
 export default function Home() {
   const { language, t } = useLanguage();
@@ -291,14 +298,25 @@ export default function Home() {
   return (
     <main className="min-vh-100 bg-body-tertiary">
       <div className="container-fluid px-3 px-lg-5 py-3 py-lg-4">
-        <section className="rounded-4 bg-primary-subtle shadow-sm px-4 px-lg-5 py-4 py-lg-5 mb-4">
-          <div className="d-flex align-items-center justify-content-between gap-3 mb-4">
-            <span className="badge rounded-pill text-primary-emphasis bg-primary bg-opacity-10 px-3 py-2">{t("home.eyebrow")}</span>
+        <header className="d-flex align-items-center justify-content-between gap-3 bg-body rounded-4 shadow-sm px-3 px-lg-4 py-2 mb-4">
+          <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none text-body">
+            <BoxSeam className="fs-2 text-primary" aria-hidden="true" />
+            <span className="fs-5 fw-semibold">Giải Rubik</span>
+          </Link>
+          <div className="d-flex align-items-center gap-2">
+            <AccountControlBoundary><CfopAccountControl /></AccountControlBoundary>
             <Link href="/timer" className="btn btn-light border rounded-pill px-3"><Timer className="fs-6 me-1" />{t("timer.title")} <span aria-hidden="true">→</span></Link>
           </div>
-          <h1 className="display-4 fw-bold mb-2">{solverKind === "bld" ? t("home.title.bld") : t("home.title.solve")}</h1>
-          <p className="lead text-body-secondary mb-0">{solverKind === "bld" ? t("home.description.bld") : mode === "state" ? t("home.description.state") : t("home.description.solve")}</p>
-          <div className="border-top border-primary border-opacity-25 mt-4 pt-3">
+        </header>
+
+        <section className="position-relative overflow-hidden rounded-4 bg-primary-subtle shadow-sm px-4 px-lg-5 py-3 py-lg-4 mb-4">
+          <BoxSeam className="position-absolute top-0 end-0 display-1 text-primary opacity-10 me-5 mt-3" aria-hidden="true" />
+          <div className="d-flex align-items-center justify-content-between gap-3 mb-2">
+            <span className="badge rounded-pill text-primary-emphasis bg-primary bg-opacity-10 px-3 py-2">{t("home.eyebrow")}</span>
+          </div>
+          <h1 className="display-5 fw-bold mb-2">{solverKind === "bld" ? t("home.title.bld") : t("home.title.solve")}</h1>
+          <p className="lead fs-6 text-body-secondary mb-0">{solverKind === "bld" ? t("home.description.bld") : mode === "state" ? t("home.description.state") : t("home.description.solve")}</p>
+          <div className="border-top border-primary border-opacity-25 mt-3 pt-2">
             <SolverToolbar
               solverKind={solverKind}
               onSolverKindChange={switchSolverKind}
