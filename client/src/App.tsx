@@ -8,8 +8,10 @@ import { AppNav } from "./components/AppNav";
 import { SkeletonCard } from "./components/ui/BootstrapUI";
 import { AppToaster } from "./components/ui/AppToaster";
 import { useLanguage } from "./contexts/LanguageContext";
-import { CfopCloudSync } from "./features/profile/components/CfopCloudSync";
 import { CompetitionOutcomeCelebration } from "./features/competition/components/CompetitionOutcomeCelebration";
+// Account sync is background work: keep its storage helpers out of the entry
+// chunk so the first screen does not wait for solve history and SRS code.
+const CfopCloudSync = lazy(() => import("./features/profile/components/CfopCloudSync").then(module => ({ default: module.CfopCloudSync })));
 const Home = lazy(() => import("./pages/Home"));
 const History = lazy(() => import("./pages/History"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -68,7 +70,7 @@ function AppFooter() {
 function AppShell() {
   const { t } = useLanguage();
   return <div className="d-flex flex-column min-vh-100 bs-page">
-    <CfopCloudSync />
+    <Suspense fallback={null}><CfopCloudSync /></Suspense>
     <CompetitionOutcomeCelebration />
     <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">{t("nav.skip")}</a>
     <AppNav />

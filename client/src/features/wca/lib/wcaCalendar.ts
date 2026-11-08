@@ -10,6 +10,7 @@ type WcaRouterOutput = inferRouterOutputs<AppRouter>["wca"];
 
 export type WcaCompetition = WcaRouterOutput["competitions"][number];
 export type WcaCountry = WcaRouterOutput["countries"][number];
+export type WcaWorldRecord = WcaRouterOutput["worldRecords"][number];
 
 /** A venue, with the markdown link the WCA feed writes split apart. */
 export type VenueInfo = { text: string; href: string | null };

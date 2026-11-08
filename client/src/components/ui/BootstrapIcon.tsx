@@ -27,6 +27,7 @@ export const CircleGauge = icon("speedometer2");
 export const CircleHalf = icon("circle-half");
 export const ChevronLeftIcon = icon("chevron-left");
 export const ChevronRight = icon("chevron-right");
+export const ChevronDown = icon("chevron-down");
 export const ClipboardCheck = icon("clipboard-check");
 export const ClipboardCopy = icon("clipboard");
 export const Clock3 = icon("clock");

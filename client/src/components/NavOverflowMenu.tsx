@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { AccountNavItem } from "@/features/profile";
+import type { AccountNavItem } from "@/features/profile/lib/accountNavItems";
 
 /**
  * The routes that do not fit on the bar itself wait behind this one menu, so

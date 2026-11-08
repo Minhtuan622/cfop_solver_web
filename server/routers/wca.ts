@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
-import { getWcaCompetitions, getWcaCountries, getWcaProfile, normalizeWcaId, WcaApiError } from "../services/wcaApi";
+import { getWcaCompetitions, getWcaCountries, getWcaProfile, getWcaWorldRecords, normalizeWcaId, WcaApiError } from "../services/wcaApi";
 import { beginWcaOAuth, wcaOAuthConfigured, WcaOAuthError } from "../services/wcaOAuth";
 import { findCfopAccountPublicById, findCfopAccountWcaById, updateCfopAccountWcaId } from "../db";
 import { wcaCalendarInput, wcaIdInput } from "./inputs";
@@ -39,5 +39,8 @@ export const wcaRouter = router({
   competitions: publicProcedure.input(wcaCalendarInput).query(async ({ input }) => {
     if (input.end < input.start) throw new TRPCError({ code: "BAD_REQUEST", message: "Ngày kết thúc phải sau ngày bắt đầu." });
     try { return await getWcaCompetitions(input); } catch (error) { return wcaError(error); }
+  }),
+  worldRecords: publicProcedure.query(async () => {
+    try { return await getWcaWorldRecords(); } catch (error) { return wcaError(error); }
   }),
 });

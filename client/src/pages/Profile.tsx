@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
-import { ProfileProgressChart } from "@/features/profile";
+import { ProfileProgressChart } from "@/features/profile/components/ProfileProgressChart";
 import { createCfopCloudState } from "@/lib/cloudSync";
-import { filterProfileProgress, meetsAo5Goal, profileProgressByDay, type ProfileProgressRange } from "@/features/profile";
+import { filterProfileProgress, meetsAo5Goal, profileProgressByDay, type ProfileProgressRange } from "@/features/profile/lib/profileProgress";
 import { Eyebrow, LoadingTransition, RefreshIndicator, SkeletonCard, StatTile } from "@/components/ui/BootstrapUI";
 import { trpc } from "@/lib/trpc";
 import { readSolveHistory, effectiveTime, formatSolveTime } from "@/lib/solveHistory";
 import { rollingAverage } from "@/lib/timerRecords";
 import { DEFAULT_TIMER_EVENT, normalizeTimerEventId } from "@/lib/timerEvents";
 import { wcaTimerComparison } from "@/lib/wcaTimerComparison";
-import { dueMemoRecords, readBldProfile, reviewStreak } from "@/features/bld";
-import { readLastLayerStudy, todayReviewCount } from "@/features/last-layer";
-import { comparisonMessage, formatWcaTime, initials, rankSummary, wcaEventName, type WcaProfileData, type WcaRecordRow } from "@/features/profile";
+import { dueMemoRecords, readBldProfile, reviewStreak } from "@/features/bld/lib";
+import { readLastLayerStudy, todayReviewCount } from "@/features/last-layer/lib";
+import { comparisonMessage, formatWcaTime, initials, rankSummary, wcaEventName, type WcaProfileData, type WcaRecordRow } from "@/features/profile/lib/profilePresentation";
 import { errorMessage } from "@/lib/apiError";
 import { useLanguage } from "@/contexts/LanguageContext";
 

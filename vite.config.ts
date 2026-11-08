@@ -182,10 +182,14 @@ const projectRoot = import.meta.dirname;
 const environment = loadEnv(process.env.NODE_ENV === "production" ? "production" : "development", projectRoot, "");
 const analyticsEndpoint = process.env.VITE_ANALYTICS_ENDPOINT ?? environment.VITE_ANALYTICS_ENDPOINT;
 const analyticsWebsiteId = process.env.VITE_ANALYTICS_WEBSITE_ID ?? environment.VITE_ANALYTICS_WEBSITE_ID;
+// The Manus runtime is an iframe bridge for the Manus preview host. It inlines
+// a ~360 kB script into index.html, so keep it out of standalone production
+// builds. Set MANUS_RUNTIME=1 for a build hosted inside Manus.
+const includeManusRuntime = process.env.NODE_ENV !== "production" || process.env.MANUS_RUNTIME === "1" || environment.MANUS_RUNTIME === "1";
 const plugins = [
   react(),
   jsxLocPlugin(),
-  vitePluginManusRuntime(),
+  ...(includeManusRuntime ? [vitePluginManusRuntime()] : []),
   vitePluginManusDebugCollector(),
   vitePluginOptionalAnalytics(analyticsEndpoint, analyticsWebsiteId),
 ];
@@ -212,7 +216,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules/recharts")) return "charts";
+          // Do not force recharts into a manual chunk: Rollup would then pull
+          // its React dependency into that chunk, and the entry would have to
+          // preload the whole charting library just to get React. Let the lazy
+          // route imports create the shared chart chunk instead.
           if (id.includes("embeddedSolver") || id.includes("solverWorker")) return "solver";
         },
       },

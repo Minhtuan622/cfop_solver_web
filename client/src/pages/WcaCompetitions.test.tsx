@@ -5,6 +5,7 @@ import WcaCompetitions from "./WcaCompetitions";
 
 const mocks = vi.hoisted(() => ({
   countries: { data: undefined as unknown, isLoading: false },
+  records: { data: undefined as unknown, isLoading: false, isError: false, error: null as unknown },
   competitions: {
     data: undefined as unknown,
     isLoading: false,
@@ -19,6 +20,7 @@ vi.mock("@/lib/trpc", () => ({
     wca: {
       countries: { useQuery: () => mocks.countries },
       competitions: { useQuery: () => mocks.competitions },
+      worldRecords: { useQuery: () => mocks.records },
     },
   },
 }));
@@ -36,6 +38,7 @@ function competition(overrides: Record<string, unknown> = {}) {
     status: "approved",
     website: null,
     wcaUrl: "https://www.worldcubeassociation.org/competitions/1",
+    eventIds: ["333", "222"],
     ...overrides,
   };
 }
@@ -43,6 +46,7 @@ function competition(overrides: Record<string, unknown> = {}) {
 afterEach(() => cleanup());
 beforeEach(() => {
   mocks.countries = { data: [{ id: "1", name: "Hungary", iso2: "HU" }], isLoading: false };
+  mocks.records = { data: undefined, isLoading: false, isError: false, error: null };
   mocks.competitions = { data: undefined, isLoading: false, isError: false, isFetching: false, error: null };
 });
 
@@ -56,7 +60,7 @@ describe("the WCA competition calendar", () => {
     render(<WcaCompetitions />);
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    const months = screen.getAllByRole("heading", { level: 2 });
+    const months = screen.getAllByRole("heading", { level: 2 }).filter((heading) => /2026/.test(heading.textContent ?? ""));
     expect(months).toHaveLength(2);
     expect(months[0]).toHaveAccessibleName(/2026/);
     expect(months[1]).toHaveAccessibleName(/2026/);
@@ -112,5 +116,28 @@ describe("the WCA competition calendar", () => {
     expect(preset).toHaveAttribute("aria-pressed", "false");
     fireEvent.click(preset);
     expect(preset).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("shows the current world records above the calendar", () => {
+    mocks.records.data = [
+      { eventId: "333", single: 251, average: 351 },
+      { eventId: "333fm", single: 16, average: 1900 },
+      { eventId: "333mbf", single: 380350302, average: null },
+    ];
+
+    render(<WcaCompetitions />);
+
+    expect(screen.getByRole("heading", { name: "Kỷ lục thế giới hiện tại" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Xem \d+ kỷ lục/ }));
+
+    expect(screen.getByText("2.51")).toBeInTheDocument();
+    expect(screen.getByText("3.51")).toBeInTheDocument();
+    expect(screen.getByText("16")).toBeInTheDocument();
+    expect(screen.getByText("19.00")).toBeInTheDocument();
+    expect(screen.getByText("63/65 58:23")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Xem trên WCA/ })).toHaveAttribute(
+      "href",
+      "https://www.worldcubeassociation.org/results/records",
+    );
   });
 });

@@ -62,8 +62,12 @@ const up = run(compose, [...baseArgs, "-f", composeFile, "up", "-d"]);
 if (up.status !== 0) process.exit(up.status ?? 1);
 waitForHealthy(compose);
 console.log("Áp dụng schema Drizzle...");
-const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-const migrate = run(pnpm, ["db:push"]);
-if (migrate.status !== 0) process.exit(migrate.status ?? 1);
+// Run drizzle-kit directly so the setup works even when pnpm is only
+// available through corepack. This mirrors the `db:push` script.
+const drizzleKit = resolve(root, "node_modules", "drizzle-kit", "bin.cjs");
+for (const command of ["generate", "migrate"]) {
+  const result = run(process.execPath, [drizzleKit, command]);
+  if (result.status !== 0) process.exit(result.status ?? 1);
+}
 console.log(`Database local đã sẵn sàng: ${databaseUrl}`);
 console.log("Bạn có thể chạy pnpm dev để mở ứng dụng.");

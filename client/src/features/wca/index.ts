@@ -1,6 +1,14 @@
 export { WcaCalendarFilters, type WcaCalendarFiltersProps } from "./components/WcaCalendarFilters";
 export { WcaCompetitionList } from "./components/WcaCompetitionList";
 export { WcaCompetitionRow } from "./components/WcaCompetitionRow";
+export { WcaWorldRecords, type WcaWorldRecordsProps } from "./components/WcaWorldRecords";
+export {
+  formatWcaCentiseconds,
+  formatWcaMultiBlind,
+  formatWcaMultiBlindTime,
+  formatWcaRecordValue,
+  type WcaRecordField,
+} from "./lib/wcaRecords";
 export {
   DEFAULT_PRESET_ID,
   RANGE_PRESETS,
@@ -21,4 +29,5 @@ export {
   type VenueInfo,
   type WcaCompetition,
   type WcaCountry,
+  type WcaWorldRecord,
 } from "./lib/wcaCalendar";

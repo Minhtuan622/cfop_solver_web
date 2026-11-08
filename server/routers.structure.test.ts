@@ -30,7 +30,7 @@ describe("domain router composition", () => {
       "wca.unlink",
     ]);
     expect(Object.keys(competitionRouter._def.procedures).sort()).toHaveLength(18);
-    expect(Object.keys(wcaRouter._def.procedures).sort()).toEqual(["competitions", "countries"]);
+    expect(Object.keys(wcaRouter._def.procedures).sort()).toEqual(["competitions", "countries", "worldRecords"]);
   });
 
   it("preserves the public tRPC namespace consumed by the frontend", () => {

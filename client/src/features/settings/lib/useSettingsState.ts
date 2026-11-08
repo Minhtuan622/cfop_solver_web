@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { readLastLayerStudy, writeLastLayerStudy } from "@/features/last-layer";
+import { readLastLayerStudy, writeLastLayerStudy } from "@/features/last-layer/lib";
 import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readStoredValue, writeStoredValue } from "@/lib/browserStorage";
 

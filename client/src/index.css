@@ -442,16 +442,271 @@ h6 {
  * and its place, and the links. Every colour comes from a Bootstrap token so
  * the page follows the palette in both the light and the dark theme.
  */
+/*
+ * The WCA page is laid out as an agenda with a sticky rail of filters: the
+ * competitions stay the focus of the screen while the controls stay within
+ * reach. Every colour comes from a Bootstrap token so the page follows the
+ * palette in both the light and the dark theme.
+ */
+.cfop-wca-page {
+  max-width: 1200px;
+}
+
+.cfop-wca-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem 2rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  margin-bottom: 1.25rem;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(var(--bs-primary-rgb), 0.14), transparent 42%),
+    linear-gradient(135deg, var(--bs-tertiary-bg), var(--bs-body-bg));
+  border: 1px solid var(--bs-border-color);
+  border-radius: calc(var(--bs-border-radius-lg) * 1.5);
+}
+
+.cfop-wca-hero__copy {
+  flex: 1 1 24rem;
+  min-width: 0;
+}
+
+.cfop-wca-hero__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-primary);
+}
+
+.cfop-wca-hero__title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.cfop-wca-hero__description {
+  margin: 0 0 0.85rem;
+  max-width: 42rem;
+  color: var(--bs-secondary-color);
+  font-size: 0.95rem;
+}
+
+.cfop-wca-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-wca-hero__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cfop-wca-hero__visual {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.85rem;
+}
+
+.cfop-wca-hero__cube {
+  display: grid;
+  grid-template-columns: repeat(3, 1.1rem);
+  gap: 0.3rem;
+  opacity: 0.7;
+}
+
+.cfop-wca-hero__cube span {
+  aspect-ratio: 1;
+  border-radius: 0.3rem;
+  background-color: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+}
+
+.cfop-wca-hero__cube span:nth-child(1) { background-color: rgba(var(--bs-danger-rgb), 0.75); }
+.cfop-wca-hero__cube span:nth-child(2) { background-color: rgba(var(--bs-warning-rgb), 0.8); }
+.cfop-wca-hero__cube span:nth-child(3) { background-color: rgba(var(--bs-success-rgb), 0.75); }
+.cfop-wca-hero__cube span:nth-child(4) { background-color: rgba(var(--bs-info-rgb), 0.75); }
+.cfop-wca-hero__cube span:nth-child(6) { background-color: rgba(var(--bs-primary-rgb), 0.75); }
+.cfop-wca-hero__cube span:nth-child(8) { background-color: rgba(var(--bs-warning-rgb), 0.6); }
+
+.cfop-wca-hero__cta {
+  white-space: nowrap;
+}
+
+/* ---- World records (collapsible) ---- */
+.cfop-world-records {
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background-color: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-lg);
+}
+
+.cfop-world-records__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.cfop-world-records__heading {
+  min-width: 0;
+}
+
+.cfop-world-records__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cfop-world-records__title i {
+  color: var(--bs-warning);
+}
+
+.cfop-world-records__hint {
+  margin: 0.2rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-world-records__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.cfop-world-records__chevron {
+  transition: transform 0.18s ease;
+}
+
+.cfop-world-records__chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.cfop-world-records__content {
+  padding-top: 0.9rem;
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.cfop-world-records__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 0.5rem;
+}
+
+.cfop-world-record {
+  padding: 0.6rem 0.75rem;
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+}
+
+.cfop-world-record__event {
+  margin: 0 0 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.cfop-world-record__values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.cfop-world-record__value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.cfop-world-record__label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-world-record__result {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cfop-world-records__link {
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+/* ---- Layout: sidebar + agenda ---- */
+.cfop-wca-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .cfop-wca-layout {
+    grid-template-columns: minmax(17rem, 19rem) minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.cfop-wca-sidebar__sticky {
+  position: static;
+}
+
+@media (min-width: 992px) {
+  .cfop-wca-sidebar__sticky {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+/* ---- Filters (compact toolbar) ---- */
 .cfop-calendar-filters {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.75rem 1rem;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.25rem;
   background-color: var(--bs-tertiary-bg);
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius-lg);
+}
+
+.cfop-calendar-filters__header {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.1rem;
+}
+
+.cfop-calendar-filters__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .cfop-calendar-filters__presets {
@@ -462,6 +717,8 @@ h6 {
 
 .cfop-calendar-filters__presets .form-label {
   margin-bottom: 0;
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
 }
 
 .cfop-calendar-filters__field {
@@ -475,130 +732,252 @@ h6 {
 
 .cfop-calendar-filters__count {
   margin: 0 0 0 auto;
-  padding-bottom: 0.5rem;
-  font-size: 0.875rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.8125rem;
   color: var(--bs-secondary-color);
   white-space: nowrap;
 }
 
-.cfop-calendar-group {
-  margin-bottom: 1.75rem;
+/* ---- Agenda ---- */
+.cfop-wca-agenda {
+  min-width: 0;
 }
 
-.cfop-calendar-group__header {
+.cfop-wca-agenda__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.cfop-wca-agenda__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.cfop-wca-agenda__subtitle {
+  margin: 0.15rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cfop-agenda-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cfop-agenda-group__header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.25rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--bs-border-color);
 }
 
-.cfop-calendar-group__title {
+.cfop-agenda-group__title {
   margin: 0;
   font-size: 0.8125rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--bs-secondary-color);
 }
 
-.cfop-calendar-group__count {
+.cfop-agenda-group__count {
   padding: 0.05rem 0.45rem;
-  font-size: 0.75rem;
-  letter-spacing: 0;
+  font-size: 0.7rem;
   color: var(--bs-secondary-color);
   background-color: var(--bs-tertiary-bg);
   border-radius: var(--bs-border-radius-pill);
 }
 
-.cfop-calendar-list {
-  border-top: 1px solid var(--bs-border-color);
+.cfop-agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
 }
 
-.cfop-calendar-row {
+.cfop-agenda-card {
   display: grid;
-  grid-template-columns: 4.25rem 1fr auto;
+  grid-template-columns: 3.75rem minmax(0, 1fr) auto;
   align-items: start;
-  gap: 0 1rem;
-  padding: 0.85rem 0.25rem;
-  border-bottom: 1px solid var(--bs-border-color);
+  gap: 0 0.85rem;
+  padding: 0.8rem 0.9rem;
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-lg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.cfop-calendar-row__date {
+.cfop-agenda-card:hover {
+  border-color: rgba(var(--bs-primary-rgb), 0.4);
+  box-shadow: var(--cfop-shadow-soft);
+}
+
+.cfop-agenda-card__date {
   display: flex;
   flex-direction: column;
   align-items: center;
-  line-height: 1.15;
+  line-height: 1.1;
+  padding-top: 0.15rem;
 }
 
-.cfop-calendar-row__day {
-  font-size: 1.25rem;
-  font-weight: 600;
+.cfop-agenda-card__day {
+  font-size: 1.2rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  color: var(--bs-primary);
 }
 
-.cfop-calendar-row__month {
-  font-size: 0.75rem;
+.cfop-agenda-card__month {
+  font-size: 0.65rem;
   color: var(--bs-secondary-color);
   white-space: nowrap;
+  text-align: center;
 }
 
-.cfop-calendar-row__title {
-  margin: 0 0 0.15rem;
-  font-size: 1rem;
+.cfop-agenda-card__body {
+  min-width: 0;
+}
+
+.cfop-agenda-card__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+}
+
+.cfop-agenda-card__title {
+  margin: 0;
+  font-size: 0.95rem;
   font-weight: 600;
+  line-height: 1.25;
 }
 
-.cfop-calendar-row__title a {
+.cfop-agenda-card__title a {
+  color: inherit;
   text-decoration: none;
 }
 
-.cfop-calendar-row__external {
+.cfop-agenda-card__title a:hover {
+  color: var(--bs-primary);
+}
+
+.cfop-agenda-card__external {
   font-size: 0.75rem;
   color: var(--bs-secondary-color);
   opacity: 0.45;
   transition: opacity 0.15s ease;
 }
 
-.cfop-calendar-row__title a:hover .cfop-calendar-row__external,
-.cfop-calendar-row__title a:focus-visible .cfop-calendar-row__external {
+.cfop-agenda-card__title a:hover .cfop-agenda-card__external {
   opacity: 1;
 }
 
-.cfop-calendar-row__meta {
+.cfop-agenda-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.cfop-agenda-card__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem;
+  margin: 0.3rem 0 0.45rem;
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+}
+
+.cfop-agenda-card__place-icon {
+  font-size: 0.8rem;
+}
+
+.cfop-agenda-card__separator {
+  opacity: 0.6;
+}
+
+.cfop-agenda-card__venue {
+  color: var(--bs-secondary-color);
+  text-decoration: none;
+}
+
+.cfop-agenda-card__venue:hover {
+  color: var(--bs-primary);
+  text-decoration: underline;
+}
+
+.cfop-event-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
   margin: 0;
-  font-size: 0.875rem;
-  color: var(--bs-secondary-color);
+  padding: 0;
 }
 
-.cfop-calendar-row__place-icon {
-  font-size: 0.8125rem;
+.cfop-event-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--bs-primary);
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+  border: 1px solid rgba(var(--bs-primary-rgb), 0.22);
+  border-radius: var(--bs-border-radius-pill);
+  cursor: default;
 }
 
-.cfop-calendar-row__venue {
-  color: var(--bs-secondary-color);
-}
-
-.cfop-calendar-row__site {
+.cfop-agenda-card__site {
+  align-self: start;
   white-space: nowrap;
 }
 
-@media (max-width: 575.98px) {
-  .cfop-calendar-row {
-    grid-template-columns: 3.5rem 1fr;
+@media (max-width: 767.98px) {
+  .cfop-agenda-card {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
   }
 
-  .cfop-calendar-row__site {
+  .cfop-agenda-card__site {
     grid-column: 2;
     justify-self: start;
+    margin-top: 0.5rem;
   }
 
-  .cfop-calendar-filters__count {
-    margin-left: 0;
-    padding-bottom: 0;
+  .cfop-wca-hero__visual {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cfop-wca-hero__cube {
+    display: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .cfop-world-records__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cfop-calendar-filters__dates {
+    grid-template-columns: 1fr;
   }
 }
 

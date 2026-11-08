@@ -12,16 +12,16 @@ export function WcaCompetitionList({ groups, language }: { groups: readonly Mont
   const { t } = useLanguage();
 
   return (
-    <div className="cfop-calendar">
+    <div className="cfop-agenda">
       {groups.map((group) => (
-        <section key={group.key} className="cfop-calendar-group" aria-labelledby={`wca-month-${group.key}`}>
-          <div className="cfop-calendar-group__header">
-            <h2 id={`wca-month-${group.key}`} className="cfop-calendar-group__title">
+        <section key={group.key} className="cfop-agenda-group" aria-labelledby={`wca-month-${group.key}`}>
+          <div className="cfop-agenda-group__header">
+            <h2 id={`wca-month-${group.key}`} className="cfop-agenda-group__title">
               {monthLabel(group.year, group.month, language)}
             </h2>
-            <span className="cfop-calendar-group__count">{group.competitions.length}</span>
+            <span className="cfop-agenda-group__count">{group.competitions.length}</span>
           </div>
-          <ul className="cfop-calendar-list list-unstyled" aria-label={t("wca.listLabel")}>
+          <ul className="cfop-agenda-list list-unstyled" aria-label={t("wca.listLabel")}>
             {group.competitions.map((competition) => (
               <WcaCompetitionRow key={competition.id} competition={competition} language={language} />
             ))}

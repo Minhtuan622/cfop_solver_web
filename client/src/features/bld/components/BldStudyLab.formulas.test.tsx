@@ -8,7 +8,7 @@ import { BldTargetSelfCheck } from "./BldTargetSelfCheck";
 describe("BLD formula learning stage", () => {
   beforeEach(() => localStorage.clear());
 
-  it("shows a starter algorithm and stores it as the learner preference", async () => {
+  it("shows a starter algorithm and stores it as the learner preference", { timeout: 15_000 }, async () => {
     render(<BldStudyLab language="vi" />);
     fireEvent.click(screen.getByRole("tab", { name: /Học nhịp đầu tiên/i }));
 

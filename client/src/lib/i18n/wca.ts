@@ -64,6 +64,36 @@ export const wcaWords: Dictionary = {
     "The calendar comes from the World Cube Association. Check the competition page before registering, because the schedule and the conditions can change.",
   ],
 
+  "wca.records.title": ["Kỷ lục thế giới hiện tại", "Current world records"],
+  "wca.records.hint": [
+    "Thành tích single và average tốt nhất của mọi nội dung WCA hiện hành. Mở trang WCA để xem người giữ kỷ lục và giải đấu.",
+    "The best single and average for every current WCA event. Open the WCA page to see the record holders and competitions.",
+  ],
+  "wca.records.open": ["Xem trên WCA", "View on WCA"],
+  "wca.records.single": ["Single", "Single"],
+  "wca.records.average": ["Average", "Average"],
+  "wca.records.loading": ["Đang tải kỷ lục thế giới", "Loading the world records"],
+  "wca.records.loadFailed": [
+    "Không thể tải kỷ lục thế giới.",
+    "Could not load the world records.",
+  ],
+  "wca.records.empty": [
+    "Chưa có dữ liệu kỷ lục thế giới.",
+    "No world record data is available yet.",
+  ],
+
+  "wca.records.expand": ["Xem {count} kỷ lục", "View {count} records"],
+  "wca.records.collapse": ["Thu gọn", "Collapse"],
+
+  "wca.records.count": ["{count} nội dung", "{count} events"],
+  "wca.agendaTitle": ["Các giải sắp diễn ra", "Upcoming competitions"],
+  "wca.agendaSubtitle": ["{count} giải trong khoảng đã chọn", "{count} competitions in the selected period"],
+  "wca.agendaSubtitleEmpty": ["Chưa có giải nào trong khoảng đã chọn", "No competitions in the selected period"],
+
+  "wca.events": ["Nội dung thi đấu", "Events"],
+  "wca.resetFilters": ["Đặt lại", "Reset"],
+  "wca.ongoing": ["Đang diễn ra", "Ongoing"],
+
   "wca.errorData": [
     "Không thể xử lý dữ liệu WCA.",
     "The WCA data could not be processed.",

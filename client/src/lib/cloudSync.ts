@@ -1,6 +1,6 @@
-import { BldProfile, readBldProfile, writeBldProfile } from "@/features/bld";
-import { readBldLearningPath, writeBldLearningPath, type BldLearningPathProgress } from "@/features/bld";
-import { readLastLayerStudy, readMasteredCaseKeys, StudyState, writeLastLayerStudy, writeMasteredCaseKeys } from "@/features/last-layer";
+import { type BldProfile, readBldProfile, writeBldProfile } from "@/features/bld/lib";
+import { readBldLearningPath, writeBldLearningPath, type BldLearningPathProgress } from "@/features/bld/lib";
+import { readLastLayerStudy, readMasteredCaseKeys, type StudyState, writeLastLayerStudy, writeMasteredCaseKeys } from "@/features/last-layer/lib";
 import { readSolveHistory, SolveHistoryEntry, importSolveHistory } from "./solveHistory";
 import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 

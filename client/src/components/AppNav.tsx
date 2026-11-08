@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CfopAccountControl, type AccountNavItem } from "@/features/profile";
+import { CfopAccountControl } from "@/features/profile/components/CfopAccountControl";
+import type { AccountNavItem } from "@/features/profile/lib/accountNavItems";
 import { BoxSeam } from "@/components/ui/BootstrapIcon";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";

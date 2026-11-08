@@ -3,14 +3,13 @@ import { applyTheme, readTheme } from "@/lib/theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
+import type { ComponentType, ReactElement } from "react";
 import superjson from "superjson";
 import App from "./App";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "sonner/dist/styles.css";
 import "./index.css";
-import { DevSupport } from "@react-buddy/ide-toolbox";
-import { ComponentPreviews, useInitial } from "../../dev";
 
 // Accordions are below the first interaction path. Defer their Bootstrap data API
 // so React, navigation and the initial Studio route can become interactive first.
@@ -72,14 +71,35 @@ const trpcClient = trpc.createClient({
 // re-applying it here keeps the document in sync with the stored choice.
 applyTheme(readTheme());
 
-createRoot(document.getElementById("root")!).render(
-  <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <DevSupport ComponentPreviews={ComponentPreviews}
-                  useInitialHook={useInitial}
-      >
-        <App />
+/**
+ * React Buddy is an IDE-only overlay. It is imported dynamically behind
+ * `import.meta.env.DEV`, so neither the toolbox nor the preview palette can
+ * reach a production chunk or block the first paint.
+ */
+async function renderApp() {
+  let Shell: ComponentType<{ children: ReactElement }> = ({ children }) => <>{children}</>;
+
+  if (import.meta.env.DEV) {
+    const [{ DevSupport }, { ComponentPreviews, useInitial }] = await Promise.all([
+      import("@react-buddy/ide-toolbox"),
+      import("../../dev"),
+    ]);
+    Shell = ({ children }) => (
+      <DevSupport ComponentPreviews={ComponentPreviews} useInitialHook={useInitial}>
+        {children}
       </DevSupport>
-    </QueryClientProvider>
-  </trpc.Provider>,
-);
+    );
+  }
+
+  createRoot(document.getElementById("root")!).render(
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <Shell>
+          <App />
+        </Shell>
+      </QueryClientProvider>
+    </trpc.Provider>,
+  );
+}
+
+void renderApp();

@@ -17,6 +17,8 @@ export type WcaCompetition = {
   status: string;
   website: string | null;
   wcaUrl: string;
+  /** The event IDs the WCA lists for this competition, in WCA order. */
+  eventIds: string[];
 };
 
 export type WcaPersonalRecord = {
@@ -26,6 +28,46 @@ export type WcaPersonalRecord = {
   singleRanks: { world: number | null; continental: number | null; country: number | null };
   averageRanks: { world: number | null; continental: number | null; country: number | null };
 };
+
+/**
+ * A world record as the WCA stores it: the raw attempt result. Timed events
+ * use centiseconds, 3×3 fewest moves uses moves (and centi-moves for the
+ * average), and Multi-Blind packs several numbers into one value. The client
+ * formats them because that is where the language of the page lives.
+ */
+export type WcaWorldRecord = {
+  eventId: string;
+  single: number | null;
+  average: number | null;
+};
+
+/**
+ * The events the WCA currently holds records for, in the order its own records
+ * page lists them. Magic, Master Magic, 3×3 with feet and 3×3 multi-blind old
+ * format are retired and must not appear on the calendar.
+ */
+const WCA_WORLD_RECORD_EVENT_ORDER = [
+  "333",
+  "222",
+  "444",
+  "555",
+  "666",
+  "777",
+  "333bf",
+  "333fm",
+  "333oh",
+  "clock",
+  "minx",
+  "pyram",
+  "skewb",
+  "sq1",
+  "444bf",
+  "555bf",
+  "333mbf",
+] as const;
+const WCA_WORLD_RECORD_EVENT_RANK = new Map<string, number>(
+  WCA_WORLD_RECORD_EVENT_ORDER.map((eventId, index) => [eventId, index]),
+);
 
 export type WcaProfile = {
   wcaId: string;
@@ -54,6 +96,7 @@ type WcaCompetitionPayload = {
   website?: string | null;
   url?: string | null;
   country?: { name?: string | null; iso2?: string | null } | null;
+  event_ids?: string[] | null;
 };
 
 type WcaProfilePayload = {
@@ -73,6 +116,13 @@ type WcaProfilePayload = {
     single?: { best?: number | null; world_rank?: number | null; continent_rank?: number | null; country_rank?: number | null } | null;
     average?: { best?: number | null; world_rank?: number | null; continent_rank?: number | null; country_rank?: number | null } | null;
   }> | null;
+};
+
+type WcaRecordsPayload = {
+  world_records?: Record<string, {
+    single?: number | null;
+    average?: number | null;
+  } | null> | null;
 };
 
 function asNonNegativeInteger(value: unknown) {
@@ -160,6 +210,7 @@ export async function getWcaCompetitions(input: { start: string; end: string; co
       status: competition.status ?? "approved",
       website: competition.website && competition.website !== wcaUrl ? competition.website : null,
       wcaUrl,
+      eventIds: Array.isArray(competition.event_ids) ? competition.event_ids.filter((id): id is string => typeof id === "string") : [],
     } satisfies WcaCompetition;
   });
 }
@@ -199,6 +250,26 @@ export async function getWcaProfile(rawWcaId: string): Promise<WcaProfile> {
     },
     personalRecords: records,
   };
+}
+
+export async function getWcaWorldRecords(): Promise<WcaWorldRecord[]> {
+  const payload = await fetchWcaJson<WcaRecordsPayload>("/records?region=world", 60 * 60 * 1000);
+  const worldRecords = payload.world_records ?? {};
+  return Object.entries(worldRecords)
+    .flatMap(([eventId, record]) => {
+      const rank = WCA_WORLD_RECORD_EVENT_RANK.get(eventId);
+      if (rank === undefined || !record) return [];
+      return [{
+        rank,
+        record: {
+          eventId,
+          single: normalizeRecord(record.single),
+          average: normalizeRecord(record.average),
+        } satisfies WcaWorldRecord,
+      }];
+    })
+    .sort((left, right) => left.rank - right.rank)
+    .map(({ record }) => record);
 }
 
 export function clearWcaMemoryCache() {

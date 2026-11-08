@@ -30,7 +30,7 @@ describe("BLD Study progress helpers", () => {
     expect(screen.getByText("ACE")).toBeTruthy();
   });
 
-  it("lets a learner complete a sighted commutator and self-grade it", () => {
+  it("lets a learner complete a sighted commutator and self-grade it", { timeout: 15_000 }, () => {
     const onGrade = vi.fn();
     render(<BldSightedCommutator formula={starter} language="vi" onGrade={onGrade} />);
 

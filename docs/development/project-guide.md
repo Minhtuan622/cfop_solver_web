@@ -48,7 +48,7 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 | `features/last-layer/` | Thanh công cụ Study, panel luyện case, panel lịch ôn, catalog Last Layer và preview 2D. |
 | `features/wca/` | Bộ lọc lịch giải WCA, danh sách theo tháng và dòng từng giải. |
 
-**Quy tắc import.** Bên trong một feature dùng đường dẫn tương đối (`./X`, `../lib/X`); chỉ dùng barrel `@/features/<x>` khi import từ **bên ngoài** feature đó. Nhờ vậy không phát sinh cycle barrel↔member. Riêng đường dẫn 3D có ngoại lệ: import động của Three.js/Cubing phải trỏ **module path cụ thể**, không bao giờ trỏ barrel, để giữ nguyên ranh giới chunk — `e2e/lazy-3d-loading.spec.ts` khóa hành vi này.
+**Quy tắc import.** Bên trong một feature dùng đường dẫn tương đối (`./X`, `../lib/X`); chỉ dùng barrel `@/features/<x>` khi import từ **bên ngoài** feature đó. Nhờ vậy không phát sinh cycle barrel↔member. Khi code shell chỉ cần persistence helper (cloud sync, Settings, Profile), import từ `@/features/bld/lib` hoặc `@/features/last-layer/lib` thay vì barrel đầy đủ — barrel component sẽ kéo toàn bộ Study UI vào entry chunk. Riêng đường dẫn 3D có ngoại lệ: import động của Three.js/Cubing phải trỏ **module path cụ thể**, không bao giờ trỏ barrel, để giữ nguyên ranh giới chunk — `e2e/lazy-3d-loading.spec.ts` khóa hành vi này.
 
 Backend tách theo domain và hạ tầng. `server/routers/` chứa procedure Account, Competition và WCA; `server/db/` chứa helper truy vấn theo domain; `server/infrastructure/` chứa các tiện ích dùng chung như cache. Các file barrel (`server/routers.ts`, `server/db.ts`, `server/cache.ts`) được giữ lại để bảo toàn import cũ và giảm rủi ro khi mở rộng module.
 
@@ -424,6 +424,8 @@ pnpm install --frozen-lockfile
 pnpm build
 NODE_ENV=production PORT=3000 pnpm start
 ```
+
+`pnpm build` chạy Vite với `NODE_ENV=production` tường minh, nên `.env.local` không thể vô tình biến build thành development bundle. Manus preview runtime chỉ được chèn khi chạy dev server hoặc khi đặt `MANUS_RUNTIME=1`; build Railway mặc định không kèm runtime đó.
 
 Output:
 

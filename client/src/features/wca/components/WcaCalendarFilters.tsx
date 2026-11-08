@@ -19,6 +19,7 @@ export type WcaCalendarFiltersProps = {
   onCountryChange: (value: string) => void;
   onQueryChange: (value: string) => void;
   onPresetChange: (days: number) => void;
+  onReset?: () => void;
 };
 
 /**
@@ -41,11 +42,21 @@ export function WcaCalendarFilters({
   onCountryChange,
   onQueryChange,
   onPresetChange,
+  onReset,
 }: WcaCalendarFiltersProps) {
   const { t } = useLanguage();
 
   return (
     <section className="cfop-calendar-filters" aria-label={t("wca.filters")}>
+      <div className="cfop-calendar-filters__header">
+        <h2 className="cfop-calendar-filters__title">{t("wca.filters")}</h2>
+        {onReset ? (
+          <button type="button" className="btn btn-link btn-sm p-0 text-decoration-none" onClick={onReset}>
+            {t("wca.resetFilters")}
+          </button>
+        ) : null}
+      </div>
+
       <div className="cfop-calendar-filters__presets">
         <span className="form-label" id="wca-preset-label">{t("wca.presets")}</span>
         <div className="btn-group btn-group-sm" role="group" aria-labelledby="wca-preset-label">

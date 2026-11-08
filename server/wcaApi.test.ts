@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { clearWcaMemoryCache, getWcaCompetitions, getWcaCountries, getWcaProfile, normalizeWcaId } from "./services/wcaApi";
+import { clearWcaMemoryCache, getWcaCompetitions, getWcaCountries, getWcaProfile, getWcaWorldRecords, normalizeWcaId } from "./services/wcaApi";
 
 function mockJson(value: unknown, status = 200) {
   return { ok: status >= 200 && status < 300, status, json: async () => value } as Response;
@@ -35,12 +35,12 @@ describe("WCA public API adapter", () => {
 
   it("passes the country filter to the competition endpoint and maps public fields", async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(mockJson([{ id: "HanoiOpen2026", name: "Hanoi Open 2026", start_date: "2026-09-12", end_date: "2026-09-13", city: "Hanoi", venue: "Cube Hall", status: "approved", country_iso2: "VN" }]))
+      .mockResolvedValueOnce(mockJson([{ id: "HanoiOpen2026", name: "Hanoi Open 2026", start_date: "2026-09-12", end_date: "2026-09-13", city: "Hanoi", venue: "Cube Hall", status: "approved", country_iso2: "VN", event_ids: ["333", "222", "444"] }]))
       .mockResolvedValueOnce(mockJson([{ id: "Vietnam", name: "Vietnam", iso2: "VN" }]));
     vi.stubGlobal("fetch", fetchMock);
     const competitions = await getWcaCompetitions({ start: "2026-09-01", end: "2026-09-30", countryIso2: "VN" });
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain("country_iso2=VN");
-    expect(competitions[0]).toMatchObject({ id: "HanoiOpen2026", countryIso2: "VN", venueName: "Cube Hall" });
+    expect(competitions[0]).toMatchObject({ id: "HanoiOpen2026", countryIso2: "VN", venueName: "Cube Hall", eventIds: ["333", "222", "444"] });
   });
 
   it("keeps only usable countries and validates WCA ID syntax", async () => {
@@ -48,5 +48,32 @@ describe("WCA public API adapter", () => {
     await expect(getWcaCountries()).resolves.toEqual([{ id: "Vietnam", name: "Vietnam", iso2: "VN" }]);
     expect(normalizeWcaId("2020nguy01")).toBe("2020NGUY01");
     expect(() => normalizeWcaId("not-a-wca-id")).toThrow("WCA ID");
+  });
+
+  it("keeps the current world records in the order the WCA lists them", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(mockJson({
+      world_records: {
+        "333mbf": { single: 380350302 },
+        magic: { single: 69, average: 76 },
+        "222": { single: 39, average: 86 },
+        "333": { single: 251, average: 351 },
+        "333fm": { single: 16, average: 1900 },
+        "333ft": { single: 1556, average: 1990 },
+      },
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const records = await getWcaWorldRecords();
+    const cached = await getWcaWorldRecords();
+
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain("/records?region=world");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(cached).toEqual(records);
+    expect(records).toEqual([
+      { eventId: "333", single: 251, average: 351 },
+      { eventId: "222", single: 39, average: 86 },
+      { eventId: "333fm", single: 16, average: 1900 },
+      { eventId: "333mbf", single: 380350302, average: null },
+    ]);
   });
 });
