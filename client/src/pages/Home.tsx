@@ -22,7 +22,6 @@ import {
   type SolverInputMode,
   type SolverKind,
 } from "@/features/solver";
-import { PageHeader } from "@/components/ui/BootstrapUI";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
@@ -290,28 +289,40 @@ export default function Home() {
   const solutionMove = solverKind === "bld" ? (bldResult ? `${bldResult.analysis.edges.memo.length} / ${bldResult.analysis.corners.memo.length}` : "—") : currentStep?.move ?? "—";
 
   return (
-    <div className="studio-page bs-page">
-      <div className="container py-4">
-        <PageHeader
-          eyebrow={t("home.eyebrow")}
-          title={solverKind === "bld" ? (t("home.title.bld")) : (t("home.title.solve"))}
-          description={solverKind === "bld" ? (t("home.description.bld")) : mode === "state" ? (t("home.description.state")) : (t("home.description.solve"))}
-          actions={<Link href="/timer" className="btn btn-outline-secondary"><Timer className="fs-6 me-1" />{t("timer.title")}</Link>}
-        />
+    <main className="min-vh-100 bg-body-tertiary">
+      <div className="container-fluid px-3 px-lg-5 py-3 py-lg-4">
+        <header className="d-flex align-items-center justify-content-between gap-3 bg-body rounded-4 shadow-sm px-3 px-lg-4 py-2 mb-4">
+          <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none text-body">
+            <span className="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary text-white fw-bold p-2 lh-1">3×3</span>
+            <span className="fs-5 fw-semibold">Giải Rubik</span>
+          </Link>
+          <Link href="/timer" className="btn btn-light border rounded-pill px-3"><Timer className="fs-6 me-1" />{t("timer.title")} <span aria-hidden="true">→</span></Link>
+        </header>
 
-        <SolverToolbar
-          solverKind={solverKind}
-          onSolverKindChange={switchSolverKind}
-          mode={mode}
-          onModeChange={switchInputMode}
-          loading={loading}
-          status={solverStatus}
-          hint={t("home.hint")}
-          onResetDefaults={resetDefaults}
-        />
+        <section className="rounded-4 bg-primary-subtle shadow-sm px-4 px-lg-5 py-4 py-lg-5 mb-4">
+          <div className="row align-items-end g-4">
+            <div className="col-12 col-xl-7">
+              <span className="badge rounded-pill text-primary-emphasis bg-primary bg-opacity-10 px-3 py-2 mb-3">{t("home.eyebrow")}</span>
+              <h1 className="display-4 fw-bold mb-2">{solverKind === "bld" ? t("home.title.bld") : t("home.title.solve")}</h1>
+              <p className="lead text-body-secondary mb-0">{solverKind === "bld" ? t("home.description.bld") : mode === "state" ? t("home.description.state") : t("home.description.solve")}</p>
+            </div>
+            <div className="col-12 col-xl-5">
+              <SolverToolbar
+                solverKind={solverKind}
+                onSolverKindChange={switchSolverKind}
+                mode={mode}
+                onModeChange={switchInputMode}
+                loading={loading}
+                status={solverStatus}
+                hint={t("home.hint")}
+                onResetDefaults={resetDefaults}
+              />
+            </div>
+          </div>
+        </section>
 
         <div className="row g-4 align-items-start">
-          <div className="col-12 col-xl-5">
+          <div className="col-12 col-xl-8">
             <SolverInputPanel
               solverKind={solverKind}
               mode={mode}
@@ -336,17 +347,10 @@ export default function Home() {
               onRemoveRecentState={removeRecentState}
               onCameraState={applyCameraState}
               advancedOptions={opening !== "cross" && opening !== "xxxxcross" ? (
-                <SolverF2LOptions
-                  preferredSlot={preferredSlot}
-                  excludedSlots={excludedSlots}
-                  onPreferredSlotChange={setPreferredSlot}
-                  onExcludedSlotsChange={setExcludedSlots}
-                />
+                <SolverF2LOptions preferredSlot={preferredSlot} excludedSlots={excludedSlots} onPreferredSlotChange={setPreferredSlot} onExcludedSlotsChange={setExcludedSlots} />
               ) : null}
             />
-          </div>
 
-          <div className="col-12 col-xl-7">
             <SolverSolutionPanel
               view={cubeView}
               onViewChange={setCubeView}
@@ -373,19 +377,27 @@ export default function Home() {
               )}
             </SolverSolutionPanel>
 
-            {solverKind !== "bld" && openingOutcome ? <div className={openingTelemetry?.did_fallback ? "alert alert-warning mt-3 mb-0" : "alert alert-success mt-3 mb-0"}><strong>{t("home.firstSteps")}</strong> {t("home.turns", { count: openingOutcome.moves })}{openingTelemetry?.did_fallback ? ` · ${t("home.autoFallback")}` : ""}</div> : null}
-            {solverKind !== "bld" && lastLayerTelemetry ? <div className={lastLayerTelemetry.did_fallback ? "alert alert-warning mt-3 mb-0" : "alert alert-success mt-3 mb-0"}><strong>{t("home.finalPart")}</strong> {lastLayerModeLabel(lastLayerTelemetry.achieved, language)}</div> : null}
+            {solverKind !== "bld" && openingOutcome ? <div className={`alert ${openingTelemetry?.did_fallback ? "alert-warning" : "alert-success"} rounded-4 mt-3 mb-0`}><strong>{t("home.firstSteps")}</strong> {t("home.turns", { count: openingOutcome.moves })}{openingTelemetry?.did_fallback ? ` · ${t("home.autoFallback")}` : ""}</div> : null}
+            {solverKind !== "bld" && lastLayerTelemetry ? <div className={`alert ${lastLayerTelemetry.did_fallback ? "alert-warning" : "alert-success"} rounded-4 mt-3 mb-0`}><strong>{t("home.finalPart")}</strong> {lastLayerModeLabel(lastLayerTelemetry.achieved, language)}</div> : null}
           </div>
-        </div>
 
-        {result || bldResult ? (
-          <section className="card cfop-card-surface mt-4">
-            <div className="card-body">
-              {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CfopReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : null}
-            </div>
-          </section>
-        ) : null}
+          <aside className="col-12 col-xl-4">
+            <section className="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" aria-label={t("home.solutionTitle")}>
+              <div className="card-header bg-body border-0 d-flex align-items-center justify-content-between px-4 pt-4">
+                <div><p className="small text-primary mb-1">{t("home.solutionStepsEyebrow")}</p><h2 className="h4 mb-0">{t("home.solutionTitle")}</h2></div>
+                <span className="badge rounded-pill text-bg-light">{solverKind === "bld" ? "3-STYLE" : "CFOP"}</span>
+              </div>
+              <div className="card-body px-4 pb-4">
+                <div className="btn-group w-100 mb-3" role="group" aria-label={t("home.modeLabel")}>
+                  <button type="button" className={solverKind === "cfop" ? "btn btn-primary" : "btn btn-outline-secondary"} aria-pressed={solverKind === "cfop"} onClick={() => switchSolverKind("cfop")}>CFOP</button>
+                  <button type="button" className={solverKind === "bld" ? "btn btn-primary" : "btn btn-outline-secondary"} aria-pressed={solverKind === "bld"} onClick={() => switchSolverKind("bld")}>BLD</button>
+                </div>
+                {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CfopReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <div className="text-center bg-body-tertiary rounded-4 p-4"><p className="fw-semibold mb-0">{t("home.noSolutionYet")}</p></div>}
+              </div>
+            </section>
+          </aside>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

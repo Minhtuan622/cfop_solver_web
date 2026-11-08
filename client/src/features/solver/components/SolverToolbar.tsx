@@ -32,14 +32,13 @@ export function SolverToolbar({
 }: SolverToolbarProps) {
   const { t } = useLanguage();
 
-  const segment = (active: boolean) => cn("btn btn-sm", active ? "btn-primary" : "btn-outline-secondary");
+  const segment = (active: boolean) => cn("btn btn-sm rounded-pill px-3", active ? "btn-primary" : "btn-light");
 
   return (
-    <div className="cfop-solver-bar">
-      <div className="cfop-solver-bar__row">
-        <div className="cfop-solver-bar__group">
-          <span className="cfop-solver-bar__label" id="solver-kind-label">{t("home.modeLabel")}</span>
-          <div className="btn-group" role="group" aria-labelledby="solver-kind-label">
+    <div className="d-flex flex-wrap align-items-center justify-content-xl-end gap-2">
+      <div className="d-flex flex-wrap align-items-center gap-2">
+          <span className="visually-hidden" id="solver-kind-label">{t("home.modeLabel")}</span>
+          <div className="btn-group rounded-pill bg-body p-1 shadow-sm" role="group" aria-labelledby="solver-kind-label">
             <button type="button" aria-pressed={solverKind === "cfop"} className={segment(solverKind === "cfop")} onClick={() => onSolverKindChange("cfop")}>
               {t("home.tab.solve")}
             </button>
@@ -49,9 +48,9 @@ export function SolverToolbar({
           </div>
         </div>
 
-        <div className="cfop-solver-bar__group">
-          <span className="cfop-solver-bar__label" id="solver-input-label">{t("home.inputLabel")}</span>
-          <div className="btn-group" role="group" aria-labelledby="solver-input-label">
+        <div className="d-flex flex-wrap align-items-center gap-2">
+          <span className="visually-hidden" id="solver-input-label">{t("home.inputLabel")}</span>
+          <div className="btn-group rounded-pill bg-body p-1 shadow-sm" role="group" aria-labelledby="solver-input-label">
             <button type="button" aria-pressed={mode === "scramble"} className={segment(mode === "scramble")} onClick={() => onModeChange("scramble")}>
               {t("home.modeScramble")}
             </button>
@@ -61,7 +60,7 @@ export function SolverToolbar({
           </div>
         </div>
 
-        <p className="cfop-solver-bar__status" role="status" aria-live="polite">
+        <p className="small text-body-secondary mb-0 d-flex align-items-center gap-2" role="status" aria-live="polite">
           {loading ? (
             <>
               <span className="spinner-border spinner-border-sm" aria-hidden="true" />
@@ -69,15 +68,13 @@ export function SolverToolbar({
             </>
           ) : (
             <>
-              <span className="cfop-solver-bar__dot" aria-hidden="true" />
+              <span className="badge rounded-circle bg-success p-1" aria-hidden="true" />
               <span>{t("home.ready")}</span>
             </>
           )}
         </p>
-      </div>
-
       {hint ? (
-        <p className="cfop-solver-bar__hint">
+        <p className="w-100 small text-body-secondary mb-0 text-xl-end">
           <span>{hint}</span>
           {onResetDefaults ? (
             <button type="button" className="btn btn-link btn-sm p-0 ms-1" onClick={onResetDefaults}>{t("home.resetDefaults")}</button>
