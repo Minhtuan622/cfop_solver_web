@@ -291,33 +291,24 @@ export default function Home() {
   return (
     <main className="min-vh-100 bg-body-tertiary">
       <div className="container-fluid px-3 px-lg-5 py-3 py-lg-4">
-        <header className="d-flex align-items-center justify-content-between gap-3 bg-body rounded-4 shadow-sm px-3 px-lg-4 py-2 mb-4">
-          <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none text-body">
-            <span className="d-inline-flex align-items-center justify-content-center rounded-3 bg-primary text-white fw-bold p-2 lh-1">3×3</span>
-            <span className="fs-5 fw-semibold">Giải Rubik</span>
-          </Link>
-          <Link href="/timer" className="btn btn-light border rounded-pill px-3"><Timer className="fs-6 me-1" />{t("timer.title")} <span aria-hidden="true">→</span></Link>
-        </header>
-
         <section className="rounded-4 bg-primary-subtle shadow-sm px-4 px-lg-5 py-4 py-lg-5 mb-4">
-          <div className="row align-items-end g-4">
-            <div className="col-12 col-xl-7">
-              <span className="badge rounded-pill text-primary-emphasis bg-primary bg-opacity-10 px-3 py-2 mb-3">{t("home.eyebrow")}</span>
-              <h1 className="display-4 fw-bold mb-2">{solverKind === "bld" ? t("home.title.bld") : t("home.title.solve")}</h1>
-              <p className="lead text-body-secondary mb-0">{solverKind === "bld" ? t("home.description.bld") : mode === "state" ? t("home.description.state") : t("home.description.solve")}</p>
-            </div>
-            <div className="col-12 col-xl-5">
-              <SolverToolbar
-                solverKind={solverKind}
-                onSolverKindChange={switchSolverKind}
-                mode={mode}
-                onModeChange={switchInputMode}
-                loading={loading}
-                status={solverStatus}
-                hint={t("home.hint")}
-                onResetDefaults={resetDefaults}
-              />
-            </div>
+          <div className="d-flex align-items-center justify-content-between gap-3 mb-4">
+            <span className="badge rounded-pill text-primary-emphasis bg-primary bg-opacity-10 px-3 py-2">{t("home.eyebrow")}</span>
+            <Link href="/timer" className="btn btn-light border rounded-pill px-3"><Timer className="fs-6 me-1" />{t("timer.title")} <span aria-hidden="true">→</span></Link>
+          </div>
+          <h1 className="display-4 fw-bold mb-2">{solverKind === "bld" ? t("home.title.bld") : t("home.title.solve")}</h1>
+          <p className="lead text-body-secondary mb-0">{solverKind === "bld" ? t("home.description.bld") : mode === "state" ? t("home.description.state") : t("home.description.solve")}</p>
+          <div className="border-top border-primary border-opacity-25 mt-4 pt-3">
+            <SolverToolbar
+              solverKind={solverKind}
+              onSolverKindChange={switchSolverKind}
+              mode={mode}
+              onModeChange={switchInputMode}
+              loading={loading}
+              status={solverStatus}
+              hint={t("home.hint")}
+              onResetDefaults={resetDefaults}
+            />
           </div>
         </section>
 
@@ -373,7 +364,7 @@ export default function Home() {
               {cubeView === "2d" ? (
                 <CubeNet state={solverKind === "bld" ? (bldResult?.initial_state ?? currentState) : mode === "state" ? (value.length === 54 ? value : SOLVED_STATE) : currentState} editable={mode === "state" && solverKind !== "bld"} selectedColor={paintColor} onStateChange={applyStateEdit} disabled={loading} emphasis="studio" />
               ) : (
-                <Cube3DGuide state={stage} previousState={previousState} move={solverKind === "bld" ? undefined : currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} lastLayerCase={activeLastLayerCase} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} />
+                <Cube3DGuide state={stage} previousState={previousState} move={solverKind === "bld" ? undefined : currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} lastLayerCase={activeLastLayerCase} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} surface="light" />
               )}
             </SolverSolutionPanel>
 

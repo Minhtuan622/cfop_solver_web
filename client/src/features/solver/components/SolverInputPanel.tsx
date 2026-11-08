@@ -81,17 +81,29 @@ export function SolverInputPanel({
         {solving ? <div className="alert alert-info small"><strong>BUFFER / UF (C)</strong> · UBL (A)<br />{t("home.bldPrepare")}</div> : null}
 
         {mode === "scramble" ? (
-          <Field id="home-scramble" label={t("home.scrambleField")}>
-            <textarea
-              id="home-scramble"
-              value={value}
-              onChange={(event) => onValueChange(event.target.value)}
-              placeholder={t("home.scramblePlaceholder")}
-              spellCheck={false}
-              className="form-control font-monospace"
-              rows={5}
-            />
-          </Field>
+          <div className="row g-3 align-items-end">
+            <Field id="home-scramble" label={t("home.scrambleField")} className="col-12 col-lg">
+              <textarea
+                id="home-scramble"
+                value={value}
+                onChange={(event) => onValueChange(event.target.value)}
+                placeholder={t("home.scramblePlaceholder")}
+                spellCheck={false}
+                className="form-control font-monospace"
+                rows={2}
+              />
+            </Field>
+            <div className="col-12 col-lg-auto d-flex gap-2">
+              {loading ? (
+                <>
+                  <div className="btn btn-primary flex-grow-1" role="status" aria-live="polite"><span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />{status || t("home.preparing")}</div>
+                  <button type="button" className="btn btn-outline-danger" onClick={onCancel} aria-label={t("home.cancelSolver")}>{t("home.cancelSolver")}</button>
+                </>
+              ) : (
+                <button type="button" disabled={!value.trim()} onClick={onSolve} className="btn btn-primary px-4 text-nowrap"><Sparkles className="fs-6 me-1" aria-hidden="true" />{solving ? t("home.buildMemo") : t("input.solve")}</button>
+              )}
+            </div>
+          </div>
         ) : (
           <>
             <CubeStateEditor
@@ -161,7 +173,7 @@ export function SolverInputPanel({
           </div>
         ) : null}
 
-        {loading ? (
+        {mode === "state" && loading ? (
           <div className="d-flex gap-2 mt-4">
             <div className="btn btn-primary btn-lg flex-grow-1" role="status" aria-live="polite">
               <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
@@ -171,7 +183,7 @@ export function SolverInputPanel({
               {t("home.cancelSolver")}
             </button>
           </div>
-        ) : (
+        ) : mode === "state" ? (
           <button
             type="button"
             disabled={!value.trim() || (mode === "state" && !stateValidation?.valid)}
@@ -181,7 +193,7 @@ export function SolverInputPanel({
             <Sparkles className="fs-6 me-1" aria-hidden="true" />
             {solving ? t("home.buildMemo") : t("input.solve")}
           </button>
-        )}
+        ) : null}
       </div>
     </section>
   );

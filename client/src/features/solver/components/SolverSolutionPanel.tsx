@@ -57,34 +57,34 @@ export function SolverSolutionPanel({
   const { t } = useLanguage();
 
   return (
-    <section className="card cfop-card-surface">
-      <header className="cfop-solver-panel__header">
-        <div className="cfop-solver-panel__heading">
-          {eyebrow ? <p className="cfop-solver-eyebrow mb-1">{eyebrow}</p> : null}
-          <h2 className="h6 mb-0">{title}</h2>
+    <section className="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <header className="card-header bg-body border-0 d-flex align-items-start justify-content-between gap-3 px-4 pt-4">
+        <div>
+          {eyebrow ? <p className="small text-primary mb-1">{eyebrow}</p> : null}
+          <h2 className="h5 mb-1">{title}</h2>
           <p className="small text-body-secondary mb-0">{subtitle}</p>
         </div>
         {hasResult ? (
-          <div className="cfop-solver-panel__move">
+          <div className="text-end">
             <span className="small text-body-secondary d-block">{moveLabel}</span>
             <strong className="fs-3">{move ?? "—"}</strong>
           </div>
         ) : null}
       </header>
 
-      <div className="card-body">
-        <div className="cfop-solver-panel__toolbar">
-          <div className="btn-group btn-group-sm" role="group" aria-label={t("home.viewLabel")}>
+      <div className="card-body px-4 pb-4">
+        <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+          <div className="btn-group btn-group-sm rounded-pill" role="group" aria-label={t("home.viewLabel")}>
             <button type="button" aria-pressed={view === "2d"} onClick={() => onViewChange("2d")} className={cn("btn", view === "2d" ? "btn-primary" : "btn-outline-secondary")}>2D</button>
             <button type="button" aria-pressed={view === "3d"} onClick={() => onViewChange("3d")} className={cn("btn", view === "3d" ? "btn-primary" : "btn-outline-secondary")}>3D</button>
           </div>
           <span className="small text-body-secondary">{hasResult ? t("home.turns", { count: turnCount }) : t("home.noSolutionYet")}</span>
         </div>
 
-        <div className="cfop-solver-stage">{children}</div>
+        <div className="bg-body-tertiary rounded-4 p-2">{children}</div>
 
         {hasResult ? (
-          <div className="cfop-solver-playback">
+          <div className="border-top mt-4 pt-4">
             <div className="d-flex flex-wrap align-items-center gap-2">
               <IconButton label={t("guide.previous")} icon={<ArrowLeft className="fs-6" />} onClick={() => onStep(-1)} disabled={cursor === 0} className="btn btn-outline-secondary" />
               <IconButton label={playing ? t("guide.pause") : t("guide.play")} icon={playing ? <Pause className="fs-6" /> : <Play className="fs-6" />} onClick={onTogglePlay} disabled={cursor === turnCount} className="btn btn-primary" />
@@ -121,7 +121,7 @@ export function SolverSolutionPanel({
             </div>
           </div>
         ) : (
-          <p className="cfop-solver-empty">{t("home.solvePrompt")}</p>
+          <p className="text-center text-body-secondary small mt-3 mb-0">{t("home.solvePrompt")}</p>
         )}
       </div>
     </section>
