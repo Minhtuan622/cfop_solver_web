@@ -1,4 +1,5 @@
-import { Dices, Sparkles } from "@/components/ui/BootstrapIcon";
+import { Dices, PencilSquare, Play } from "@/components/ui/BootstrapIcon";
+import { PanelHeader, PillInput, Surface } from "@/components/ui/DesignSystem";
 import { Field, StatusFeedback } from "@/components/ui/BootstrapUI";
 import { CameraScanner } from "@/components/common/CameraScanner";
 import { CubeStateEditor } from "@/components/common/CubeStateEditor";
@@ -36,6 +37,7 @@ export type SolverInputPanelProps = {
   onCameraState: (state: string) => void;
   /** The optional settings that only matter for a wider opening. */
   advancedOptions?: ReactNode;
+  onResetDefaults?: () => void;
 };
 
 /**
@@ -66,43 +68,41 @@ export function SolverInputPanel({
   onRemoveRecentState,
   onCameraState,
   advancedOptions,
+  onResetDefaults,
 }: SolverInputPanelProps) {
   const { t } = useLanguage();
   const solving = solverKind === "bld";
 
   return (
-    <section className="card cfop-card-surface">
-      <header className="cfop-solver-panel__header">
-        <h2 className="h6 mb-0">{t("home.inputTitle")}</h2>
-        <span className="badge text-bg-light">{mode === "scramble" ? t("home.scrambleBadge") : t("home.stateBadge")}</span>
-      </header>
+    <Surface>
+      <PanelHeader className="px-4 pt-4 pb-2" icon={<PencilSquare />} title={mode === "scramble" ? t("home.inputTitle.scramble") : t("home.inputTitle.state")} />
 
-      <div className="card-body">
+      <div className="px-4 pb-4">
         {solving ? <div className="alert alert-info small"><strong>BUFFER / UF (C)</strong> · UBL (A)<br />{t("home.bldPrepare")}</div> : null}
 
         {mode === "scramble" ? (
-          <div className="row g-3 align-items-end">
-            <Field id="home-scramble" label={t("home.scrambleField")} className="col-12 col-lg">
-              <textarea
+          <div className="d-flex flex-column flex-md-row gap-3 align-items-stretch">
+            <div className="flex-grow-1">
+              <label htmlFor="home-scramble" className="visually-hidden">{t("home.scrambleField")}</label>
+              <PillInput
                 id="home-scramble"
+                type="text"
                 value={value}
                 onChange={(event) => onValueChange(event.target.value)}
                 placeholder={t("home.scramblePlaceholder")}
                 spellCheck={false}
-                className="form-control font-monospace"
-                rows={2}
+                autoComplete="off"
+                className="h-100"
               />
-            </Field>
-            <div className="col-12 col-lg-auto d-flex gap-2">
-              {loading ? (
-                <>
-                  <div className="btn btn-primary flex-grow-1" role="status" aria-live="polite"><span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />{status || t("home.preparing")}</div>
-                  <button type="button" className="btn btn-outline-danger" onClick={onCancel} aria-label={t("home.cancelSolver")}>{t("home.cancelSolver")}</button>
-                </>
-              ) : (
-                <button type="button" disabled={!value.trim()} onClick={onSolve} className="btn btn-primary px-4 text-nowrap"><Sparkles className="fs-6 me-1" aria-hidden="true" />{solving ? t("home.buildMemo") : t("input.solve")}</button>
-              )}
             </div>
+            {loading ? (
+              <div className="d-flex gap-2">
+                <div className="btn btn-primary px-4 py-3 flex-grow-1" role="status" aria-live="polite"><span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />{status || t("home.preparing")}</div>
+                <button type="button" className="btn btn-outline-danger rounded-pill px-3" onClick={onCancel} aria-label={t("home.cancelSolver")}>{t("home.cancelSolver")}</button>
+              </div>
+            ) : (
+              <button type="button" disabled={!value.trim()} onClick={onSolve} className="btn btn-primary px-4 py-3 text-nowrap"><Play className="fs-5 me-1" aria-hidden="true" />{solving ? t("home.buildMemo") : t("input.solve")}</button>
+            )}
           </div>
         ) : (
           <>
@@ -129,11 +129,11 @@ export function SolverInputPanel({
 
         {mode === "scramble" ? (
           <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
-            <button type="button" className="btn btn-outline-secondary btn-sm" onClick={onRandomScramble} disabled={loading}>
+            <button type="button" className="btn btn-sm btn-light px-3" onClick={onRandomScramble} disabled={loading}>
               <Dices className="fs-6 me-1" aria-hidden="true" />
               {t("home.randomScramble")}
             </button>
-            <span className="small text-body-secondary">{t("home.scrambleHint")}</span>
+            {onResetDefaults ? <button type="button" className="btn btn-sm btn-link text-decoration-none" onClick={onResetDefaults}>{t("home.resetOptions")}</button> : null}
           </div>
         ) : (
           <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
@@ -190,11 +190,11 @@ export function SolverInputPanel({
             onClick={onSolve}
             className={cn("btn btn-primary btn-lg w-100 mt-4")}
           >
-            <Sparkles className="fs-6 me-1" aria-hidden="true" />
+            <Play className="fs-5 me-1" aria-hidden="true" />
             {solving ? t("home.buildMemo") : t("input.solve")}
           </button>
         ) : null}
       </div>
-    </section>
+    </Surface>
   );
 }

@@ -5,36 +5,36 @@
 
 :root,
 [data-bs-theme="light"] {
-  --bs-body-bg: #f7f6f3;
-  --bs-body-color: #2c3338;
-  --bs-secondary-color: #5a6270;
-  --bs-tertiary-bg: #efede8;
+  --bs-body-bg: #f4f7ff;
+  --bs-body-color: #1b2140;
+  --bs-secondary-color: #5b6585;
+  --bs-tertiary-bg: #eef2fb;
   --bs-tertiary-color: #6b7280;
-  --bs-border-color: #e4e1da;
-  --bs-border-radius: 0.875rem;
+  --bs-border-color: #e3e9f6;
+  --bs-border-radius: 1rem;
   --bs-border-radius-sm: 0.625rem;
-  --bs-border-radius-lg: 1.125rem;
-  --bs-primary: #4a9b8e;
-  --bs-primary-rgb: 74, 155, 142;
-  --bs-primary-text-emphasis: #1f4f47;
-  --bs-link-color: #3d8579;
-  --bs-link-hover-color: #2f6b61;
-  --bs-focus-ring-color: rgba(74, 155, 142, 0.28);
+  --bs-border-radius-lg: 1.5rem;
+  --bs-primary: #2f6df6;
+  --bs-primary-rgb: 47, 109, 246;
+  --bs-primary-text-emphasis: #1d4ed8;
+  --bs-link-color: #2f6df6;
+  --bs-link-hover-color: #1f5be0;
+  --bs-focus-ring-color: rgba(47, 109, 246, 0.25);
   --cfop-shadow-soft:
     0 1px 2px rgba(44, 51, 56, 0.04), 0 8px 24px rgba(44, 51, 56, 0.06);
   --cfop-shadow-card:
     0 1px 3px rgba(44, 51, 56, 0.05), 0 12px 32px rgba(44, 51, 56, 0.07);
-  --cfop-nav-bg: rgba(247, 246, 243, 0.92);
+  --cfop-nav-bg: transparent;
   --cfop-cube-bg: #1e2a26;
   --cfop-stage-bg: #1e2a26;
   --cfop-stage-color: #eef2f1;
   --cfop-stage-muted: rgba(238, 242, 241, 0.62);
-  --cfop-accent: #4a9b8e;
-  --cfop-accent-soft: rgba(74, 155, 142, 0.12);
+  --cfop-accent: #2f6df6;
+  --cfop-accent-soft: rgba(47, 109, 246, 0.1);
   /* Series colours for every chart. They follow the studio palette so the
      graphs read as part of the same design as the cube. */
-  --cfop-chart-1: #4a9b8e;
-  --cfop-chart-2: #3b6fc7;
+  --cfop-chart-1: #2f6df6;
+  --cfop-chart-2: #1fa6a0;
   --cfop-chart-3: #d95743;
   --cfop-chart-4: #ed8e42;
   --cfop-chart-5: #e7c34f;
@@ -58,28 +58,28 @@
 }
 
 [data-bs-theme="dark"] {
-  --bs-body-bg: #171c1a;
-  --bs-body-color: #e8ecea;
-  --bs-secondary-color: #a8b0ac;
-  --bs-tertiary-bg: #222926;
-  --bs-border-color: #2f3834;
-  --bs-primary: #6bb8a9;
-  --bs-primary-rgb: 107, 184, 169;
-  --bs-link-color: #7ecabb;
-  --bs-link-hover-color: #9ad8cc;
+  --bs-body-bg: #101424;
+  --bs-body-color: #e8ecf8;
+  --bs-secondary-color: #a3acc9;
+  --bs-tertiary-bg: #202843;
+  --bs-border-color: #2d3757;
+  --bs-primary: #5b8cff;
+  --bs-primary-rgb: 91, 140, 255;
+  --bs-link-color: #7aa0ff;
+  --bs-link-hover-color: #9db8ff;
   --cfop-shadow-soft:
     0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.25);
   --cfop-shadow-card:
     0 1px 3px rgba(0, 0, 0, 0.22), 0 12px 32px rgba(0, 0, 0, 0.3);
-  --cfop-nav-bg: rgba(23, 28, 26, 0.94);
+  --cfop-nav-bg: transparent;
   --cfop-cube-bg: #0f1513;
   --cfop-stage-bg: #0f1513;
   --cfop-stage-color: #e8ecea;
   --cfop-stage-muted: rgba(232, 236, 234, 0.62);
   /* The dark series colours are lifted so every line keeps its contrast
      against the dark canvas. */
-  --cfop-chart-1: #6bb8a9;
-  --cfop-chart-2: #7ea6e8;
+  --cfop-chart-1: #5b8cff;
+  --cfop-chart-2: #4cc7c0;
   --cfop-chart-3: #ef8878;
   --cfop-chart-4: #f7ad6b;
   --cfop-chart-5: #f0d488;

@@ -50,7 +50,7 @@ export function AppNav() {
 
   return (
     <header className="navbar navbar-expand-xl cfop-navbar sticky-top">
-      <div className="container">
+      <div className="container-xxl">
         <Link href="/" className="navbar-brand d-flex align-items-center gap-2" aria-label={t("nav.brandLabel")} onClick={closeMenus}>
           <BoxSeam className="fs-5 text-primary" />
           {t("nav.brand")}

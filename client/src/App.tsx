@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch, useLocation } from "wouter";
+import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -69,15 +69,13 @@ function AppFooter() {
 
 function AppShell() {
   const { t } = useLanguage();
-  const [location] = useLocation();
-  const solverHome = location === "/";
-  return <div className={`d-flex flex-column min-vh-100 ${solverHome ? "solver-home-shell" : "bs-page"}`}>
+  return <div className="d-flex flex-column min-vh-100 bs-page">
     <Suspense fallback={null}><CfopCloudSync /></Suspense>
     <CompetitionOutcomeCelebration />
     <a className="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-primary" href="#main-content">{t("nav.skip")}</a>
-    {solverHome ? null : <AppNav />}
-    <main id="main-content" className={solverHome ? "flex-grow-1" : "py-4 py-lg-5 flex-grow-1"}><Router /></main>
-    {solverHome ? null : <AppFooter />}
+    <AppNav />
+    <main id="main-content" className="py-3 py-lg-4 flex-grow-1"><Router /></main>
+    <AppFooter />
     <AppToaster />
   </div>;
 }

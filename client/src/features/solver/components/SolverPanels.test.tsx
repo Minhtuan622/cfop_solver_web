@@ -13,8 +13,8 @@ describe("the solver toolbar", () => {
       <SolverToolbar solverKind="cfop" onSolverKindChange={() => undefined} mode="scramble" onModeChange={() => undefined} loading={false} status="" />,
     );
 
-    expect(screen.getByRole("button", { name: "Giải Rubik" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Nâng cao" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "3×3 CFOP" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "3×3 BLD" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("status")).toHaveTextContent("Sẵn sàng");
   });
 
@@ -89,7 +89,7 @@ describe("the solver input panel", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /TÌM CÁCH GIẢI/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Tìm cách giải/ })).toBeDisabled();
   });
 });
 

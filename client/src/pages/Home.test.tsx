@@ -60,8 +60,8 @@ describe("the Rubik solver workspace", () => {
     render(<Home />);
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("button", { name: "Giải Rubik" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Scramble" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "3×3 CFOP" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Xáo trộn" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("keeps the playback controls out of the way until there is a solution", () => {
@@ -74,7 +74,7 @@ describe("the Rubik solver workspace", () => {
   it("switches to the painted cube and shows the recent states", () => {
     render(<Home />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Trạng thái khối" }));
+    fireEvent.click(screen.getByRole("button", { name: "Trạng thái cube" }));
 
     expect(screen.getByLabelText("Chuỗi 54 sticker")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Phát" })).not.toBeInTheDocument();
@@ -83,7 +83,7 @@ describe("the Rubik solver workspace", () => {
   it("runs the solver and unfolds the solution report", async () => {
     render(<Home />);
 
-    fireEvent.click(screen.getByRole("button", { name: /TÌM CÁCH GIẢI/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Tìm cách giải/ }));
 
     await waitFor(() => expect(mocks.solve).toHaveBeenCalled());
     await waitFor(() => expect(screen.getByRole("button", { name: "Phát" })).toBeInTheDocument());
@@ -94,7 +94,7 @@ describe("the Rubik solver workspace", () => {
     mocks.solve.mockReturnValue(new Promise(() => undefined));
     render(<Home />);
 
-    fireEvent.click(screen.getByRole("button", { name: /TÌM CÁCH GIẢI/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Tìm cách giải/ }));
     await waitFor(() => expect(screen.getByRole("button", { name: "Dừng" })).toBeInTheDocument());
     fireEvent.click(screen.getByRole("button", { name: "Dừng" }));
 
