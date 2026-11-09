@@ -2,7 +2,7 @@ import type { Dictionary } from "./index";
 
 /** The solver workspace: cube input, the move guide and the camera scanner. */
 export const solverWords: Dictionary = {
-  "input.solve": ["TÌM CÁCH GIẢI", "FIND A SOLUTION"],
+  "input.solve": ["Tìm cách giải", "Find a solution"],
 
   "guide.ready": ["Sẵn sàng giải", "Ready to solve"],
   "guide.help": [
@@ -42,17 +42,26 @@ export const solverWords: Dictionary = {
   "home.ready": ["Sẵn sàng", "Ready"],
   "home.modeLabel": ["Chế độ solver", "Solver mode"],
   "home.inputLabel": ["Nguồn đầu vào", "Input source"],
-  "home.tab.solve": ["Giải Rubik", "Solve Rubik"],
-  "home.tab.bld": ["Nâng cao", "Advanced"],
+  "home.tab.solve": ["3×3 CFOP", "3×3 CFOP"],
+  "home.tab.bld": ["3×3 BLD", "3×3 BLD"],
   "home.hint": [
     "Nhập khối rồi bấm Tìm cách giải; các tùy chọn nâng cao là không bắt buộc.",
     "Enter the cube and choose Find a solution; advanced options are optional.",
   ],
   "home.resetDefaults": ["Đặt lại", "Reset"],
   "home.inputTitle": ["Khối của bạn", "Your cube"],
+  "home.inputTitle.scramble": ["Nhập xáo trộn", "Enter scramble"],
+  "home.inputTitle.state": ["Tô màu trạng thái khối", "Paint the cube state"],
+  "home.moreSteps": ["Xem thêm các bước", "Show more steps"],
+  "home.fewerSteps": ["Thu gọn", "Show fewer steps"],
+  "home.toggleSolution": ["Thu gọn hoặc mở lời giải", "Collapse or expand the solution"],
+  "home.speedValue": ["Tốc độ: {speed}x", "Speed: {speed}x"],
+  "home.resetOptions": ["Đặt lại tùy chọn", "Reset options"],
+  "home.view3d": ["3D", "3D"],
+  "home.view2d": ["2D", "2D"],
   "home.solutionTitle": ["Lời giải", "Solution"],
-  "home.modeScramble": ["Scramble", "Scramble"],
-  "home.modeState": ["Trạng thái khối", "Cube state"],
+  "home.modeScramble": ["Xáo trộn", "Scramble"],
+  "home.modeState": ["Trạng thái cube", "Cube state"],
   "home.scrambleBadge": ["SCRAMBLE", "SCRAMBLE"],
   "home.stateBadge": ["TRẠNG THÁI", "STATE"],
   "home.scrambleField": ["Các nước xáo trộn", "The scrambling moves"],
@@ -78,7 +87,7 @@ export const solverWords: Dictionary = {
   "home.f2lPriority": ["Ưu tiên F2L", "F2L priority"],
   "home.f2lAny": ["Tự", "Any"],
   "home.f2lExclude": ["Loại trừ slot", "Exclude slots"],
-  "home.scramblePlaceholder": ["Nhập scramble · R U R' U'", "Enter scramble · R U R' U'"],
+  "home.scramblePlaceholder": ["Nhập xáo trộn · R U R' U' …", "Enter scramble · R U R' U' …"],
   "home.paintHint": [
     "Tô trực tiếp trên CubeNet 2D lớn cạnh Cube 3D.",
     "Paint directly on the large 2D cube net beside the 3D cube.",

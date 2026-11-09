@@ -18,9 +18,9 @@ export function PageHeader({ title, description, eyebrow, actions, className }: 
   return (
     <header className={cn("d-flex flex-column flex-lg-row align-items-lg-start justify-content-lg-between gap-3 mb-4", className)}>
       <div>
-        {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-        <h1 className="h2 mb-2">{title}</h1>
-        {description ? <p className="text-body-secondary mb-0 lead fs-6">{description}</p> : null}
+        {eyebrow ? <span className="ds-eyebrow mb-3">{eyebrow}</span> : null}
+        <h1 className="display-6 fw-bold mb-2">{title}</h1>
+        {description ? <p className="text-body-secondary mb-0">{description}</p> : null}
       </div>
       {actions ? <div className="d-flex flex-wrap gap-2 align-items-center">{actions}</div> : null}
     </header>

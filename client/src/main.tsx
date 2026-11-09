@@ -10,6 +10,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "sonner/dist/styles.css";
 import "./index.css";
+import "./styles/design-system.css";
 
 // Accordions are below the first interaction path. Defer their Bootstrap data API
 // so React, navigation and the initial Studio route can become interactive first.
