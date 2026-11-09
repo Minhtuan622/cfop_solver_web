@@ -197,3 +197,30 @@ body { background: var(--ds-page-bg); background-attachment: fixed; color: var(-
 .cfop-navbar .nav-link.active { background: var(--ds-primary); color: #fff !important; box-shadow: 0 6px 16px rgba(47, 109, 246, 0.3); }
 
 .app-footer a { color: var(--ds-primary); }
+
+/* Timer page pieces */
+.ds-scramble {
+  background: var(--ds-soft); border-radius: 1.1rem; padding: 0.9rem 1.2rem;
+  font-family: var(--bs-font-monospace); font-size: clamp(1.05rem, 2.2vw, 1.5rem); font-weight: 600; line-height: 1.6;
+  letter-spacing: 0.02em; text-align: center;
+}
+.ds-select { background-color: var(--ds-chip); border: 0; padding-left: 1.1rem; }
+.ds-timer-panel {
+  background: var(--ds-soft); border: 2px solid transparent; border-radius: 1.5rem; padding: 2rem 1rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ds-timer-panel.is-armed { border-color: var(--ds-primary); background: color-mix(in srgb, var(--ds-primary) 8%, var(--ds-soft)); }
+.ds-timer-panel.is-inspection { border-color: #f0a020; }
+.ds-timer-readout {
+  font-family: var(--bs-font-monospace); font-weight: 700; font-variant-numeric: tabular-nums;
+  font-size: clamp(3.2rem, 10vw, 5.5rem); line-height: 1.05; color: var(--ds-ink);
+}
+.ds-metric {
+  border: 0; border-radius: 1.1rem; padding: 0.9rem 1rem; background: var(--ds-chip); color: var(--ds-ink);
+  transition: background 0.15s, transform 0.1s;
+}
+.ds-metric:hover:not(:disabled) { background: var(--ds-line); }
+.ds-metric:disabled { opacity: 0.55; }
+.ds-metric-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--bs-secondary-color); }
+.ds-metric-value { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.list-group-item { background: transparent; border-color: var(--ds-line); }
