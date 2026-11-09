@@ -3,8 +3,8 @@
  * grouped by spacing, soft elevation and color—not decorative borders—while 3D cube
  * movement remains the sole rich animation.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Timer } from "@/components/ui/BootstrapIcon";
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { BoxSeam, Timer } from "@/components/ui/BootstrapIcon";
 import { Link } from "wouter";
 import { CubeNet, SOLVED_STATE } from "@/components/common/CubeNet";
 import { Cube3DGuide } from "@/components/common/Cube3DGuide";
@@ -22,17 +22,23 @@ import {
   type SolverInputMode,
   type SolverKind,
 } from "@/features/solver";
-import { PageHeader } from "@/components/ui/BootstrapUI";
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { lastLayerModeLabel, openingModeLabel } from "@/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
+import { CfopAccountControl } from "@/features/profile/components/CfopAccountControl";
 import { analyzeBldInBrowser, cancelSolverInBrowser, solveInBrowser, SolverCancelledError, SolverTimeoutError, validateStateInBrowser, warmSolverInBrowser, type BldResult, type CrossColor, type CubeValidation, type F2LSlot, type LastLayerMode, type OpeningMode, type SolverResult } from "@/lib/solverRuntime";
 
 type CubeMotionKind = "idle" | "move" | "seek" | "phase" | "reset";
 type CursorIntent = "step" | "playback" | "seek" | "phase" | "reset";
+
+class AccountControlBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? null : this.props.children; }
+}
 
 export default function Home() {
   const { language, t } = useLanguage();
@@ -290,28 +296,42 @@ export default function Home() {
   const solutionMove = solverKind === "bld" ? (bldResult ? `${bldResult.analysis.edges.memo.length} / ${bldResult.analysis.corners.memo.length}` : "—") : currentStep?.move ?? "—";
 
   return (
-    <div className="studio-page bs-page">
-      <div className="container py-4">
-        <PageHeader
-          eyebrow={t("home.eyebrow")}
-          title={solverKind === "bld" ? (t("home.title.bld")) : (t("home.title.solve"))}
-          description={solverKind === "bld" ? (t("home.description.bld")) : mode === "state" ? (t("home.description.state")) : (t("home.description.solve"))}
-          actions={<Link href="/timer" className="btn btn-outline-secondary"><Timer className="fs-6 me-1" />{t("timer.title")}</Link>}
-        />
+    <main className="min-vh-100 bg-body-tertiary">
+      <div className="container-fluid px-3 px-lg-5 py-3 py-lg-4">
+        <header className="d-flex align-items-center justify-content-between gap-3 bg-body rounded-4 shadow-sm px-3 px-lg-4 py-2 mb-4">
+          <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none text-body">
+            <BoxSeam className="fs-2 text-primary" aria-hidden="true" />
+            <span className="fs-5 fw-semibold">Giải Rubik</span>
+          </Link>
+          <div className="d-flex align-items-center gap-2">
+            <AccountControlBoundary><CfopAccountControl /></AccountControlBoundary>
+            <Link href="/timer" className="btn btn-light border rounded-pill px-3"><Timer className="fs-6 me-1" />{t("timer.title")} <span aria-hidden="true">→</span></Link>
+          </div>
+        </header>
 
-        <SolverToolbar
-          solverKind={solverKind}
-          onSolverKindChange={switchSolverKind}
-          mode={mode}
-          onModeChange={switchInputMode}
-          loading={loading}
-          status={solverStatus}
-          hint={t("home.hint")}
-          onResetDefaults={resetDefaults}
-        />
+        <section className="position-relative overflow-hidden rounded-4 bg-primary-subtle shadow-sm px-4 px-lg-5 py-3 py-lg-4 mb-4">
+          <BoxSeam className="position-absolute top-0 end-0 display-1 text-primary opacity-10 me-5 mt-3" aria-hidden="true" />
+          <div className="d-flex align-items-center justify-content-between gap-3 mb-2">
+            <span className="badge rounded-pill text-primary-emphasis bg-primary bg-opacity-10 px-3 py-2">{t("home.eyebrow")}</span>
+          </div>
+          <h1 className="display-5 fw-bold mb-2">{solverKind === "bld" ? t("home.title.bld") : t("home.title.solve")}</h1>
+          <p className="lead fs-6 text-body-secondary mb-0">{solverKind === "bld" ? t("home.description.bld") : mode === "state" ? t("home.description.state") : t("home.description.solve")}</p>
+          <div className="border-top border-primary border-opacity-25 mt-3 pt-2">
+            <SolverToolbar
+              solverKind={solverKind}
+              onSolverKindChange={switchSolverKind}
+              mode={mode}
+              onModeChange={switchInputMode}
+              loading={loading}
+              status={solverStatus}
+              hint={t("home.hint")}
+              onResetDefaults={resetDefaults}
+            />
+          </div>
+        </section>
 
         <div className="row g-4 align-items-start">
-          <div className="col-12 col-xl-5">
+          <div className="col-12 col-xl-8">
             <SolverInputPanel
               solverKind={solverKind}
               mode={mode}
@@ -336,17 +356,10 @@ export default function Home() {
               onRemoveRecentState={removeRecentState}
               onCameraState={applyCameraState}
               advancedOptions={opening !== "cross" && opening !== "xxxxcross" ? (
-                <SolverF2LOptions
-                  preferredSlot={preferredSlot}
-                  excludedSlots={excludedSlots}
-                  onPreferredSlotChange={setPreferredSlot}
-                  onExcludedSlotsChange={setExcludedSlots}
-                />
+                <SolverF2LOptions preferredSlot={preferredSlot} excludedSlots={excludedSlots} onPreferredSlotChange={setPreferredSlot} onExcludedSlotsChange={setExcludedSlots} />
               ) : null}
             />
-          </div>
 
-          <div className="col-12 col-xl-7">
             <SolverSolutionPanel
               view={cubeView}
               onViewChange={setCubeView}
@@ -369,23 +382,31 @@ export default function Home() {
               {cubeView === "2d" ? (
                 <CubeNet state={solverKind === "bld" ? (bldResult?.initial_state ?? currentState) : mode === "state" ? (value.length === 54 ? value : SOLVED_STATE) : currentState} editable={mode === "state" && solverKind !== "bld"} selectedColor={paintColor} onStateChange={applyStateEdit} disabled={loading} emphasis="studio" />
               ) : (
-                <Cube3DGuide state={stage} previousState={previousState} move={solverKind === "bld" ? undefined : currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} lastLayerCase={activeLastLayerCase} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} />
+                <Cube3DGuide state={stage} previousState={previousState} move={solverKind === "bld" ? undefined : currentStep?.move} step={cursor} crossColor={crossColor} alignCross xcrossSlots={activeXCrossSlots} lastLayerCase={activeLastLayerCase} transition={cubeMotion.kind} transitionDirection={cubeMotion.direction} transitionId={cubeMotion.id} phaseLabel={cubeMotion.phaseName ? simplePhase(cubeMotion.phaseName, language) : undefined} turnDurationMs={playing ? Math.max(120, Math.round(280 / playbackSpeed)) : 340} surface="light" />
               )}
             </SolverSolutionPanel>
 
-            {solverKind !== "bld" && openingOutcome ? <div className={openingTelemetry?.did_fallback ? "alert alert-warning mt-3 mb-0" : "alert alert-success mt-3 mb-0"}><strong>{t("home.firstSteps")}</strong> {t("home.turns", { count: openingOutcome.moves })}{openingTelemetry?.did_fallback ? ` · ${t("home.autoFallback")}` : ""}</div> : null}
-            {solverKind !== "bld" && lastLayerTelemetry ? <div className={lastLayerTelemetry.did_fallback ? "alert alert-warning mt-3 mb-0" : "alert alert-success mt-3 mb-0"}><strong>{t("home.finalPart")}</strong> {lastLayerModeLabel(lastLayerTelemetry.achieved, language)}</div> : null}
+            {solverKind !== "bld" && openingOutcome ? <div className={`alert ${openingTelemetry?.did_fallback ? "alert-warning" : "alert-success"} rounded-4 mt-3 mb-0`}><strong>{t("home.firstSteps")}</strong> {t("home.turns", { count: openingOutcome.moves })}{openingTelemetry?.did_fallback ? ` · ${t("home.autoFallback")}` : ""}</div> : null}
+            {solverKind !== "bld" && lastLayerTelemetry ? <div className={`alert ${lastLayerTelemetry.did_fallback ? "alert-warning" : "alert-success"} rounded-4 mt-3 mb-0`}><strong>{t("home.finalPart")}</strong> {lastLayerModeLabel(lastLayerTelemetry.achieved, language)}</div> : null}
           </div>
-        </div>
 
-        {result || bldResult ? (
-          <section className="card cfop-card-surface mt-4">
-            <div className="card-body">
-              {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CfopReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : null}
-            </div>
-          </section>
-        ) : null}
+          <aside className="col-12 col-xl-4">
+            <section className="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" aria-label={t("home.solutionTitle")}>
+              <div className="card-header bg-body border-0 d-flex align-items-center justify-content-between px-4 pt-4">
+                <div><p className="small text-primary mb-1">{t("home.solutionStepsEyebrow")}</p><h2 className="h4 mb-0">{t("home.solutionTitle")}</h2></div>
+                <span className="badge rounded-pill text-bg-light">{solverKind === "bld" ? "3-STYLE" : "CFOP"}</span>
+              </div>
+              <div className="card-body px-4 pb-4">
+                <div className="btn-group w-100 mb-3" role="group" aria-label={t("home.modeLabel")}>
+                  <button type="button" className={solverKind === "cfop" ? "btn btn-primary" : "btn btn-outline-secondary"} aria-pressed={solverKind === "cfop"} onClick={() => switchSolverKind("cfop")}>CFOP</button>
+                  <button type="button" className={solverKind === "bld" ? "btn btn-primary" : "btn btn-outline-secondary"} aria-pressed={solverKind === "bld"} onClick={() => switchSolverKind("bld")}>BLD</button>
+                </div>
+                {solverKind === "bld" && bldResult ? <BldReport result={bldResult} language={language} profile={bldProfile} onProfile={setBldProfile} /> : result ? <CfopReport result={result} language={language} activePhase={activePhase?.name ?? null} cursor={cursor} onSelectPhase={(phase) => selectCursor(phase.end, "phase")} onSelectMove={(moveIndex) => selectCursor(moveIndex, "seek")} /> : <div className="text-center bg-body-tertiary rounded-4 p-4"><p className="fw-semibold mb-0">{t("home.noSolutionYet")}</p></div>}
+              </div>
+            </section>
+          </aside>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
