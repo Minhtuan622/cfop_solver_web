@@ -1,4 +1,4 @@
-import { PendingButton } from "@/components/ui/BootstrapUI";
+import { PendingButton } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { RemovalTarget, RoomMember } from "../lib/roomTypes";
 
@@ -35,23 +35,23 @@ export function RoomMemberRoster({
         : t("rooms.member.role.spectator");
   return (
     <>
-      <div className="list-group list-group-flush">
+      <div className="divide-y divide-line bg-transparent border-0">
         {members.map(member => (
           <div
             key={member.accountId}
-            className="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-2"
+            className="block px-4 py-3 text-sm px-0 flex flex-wrap justify-between items-center gap-2"
           >
             <span>
               {member.displayName}
-              <small className="d-block text-body-secondary">
+              <small className="block text-muted">
                 {roleLabel(member.role)}
               </small>
             </span>
-            <span className="d-flex gap-1">
+            <span className="flex gap-1">
               {host && member.role === "spectator" ? (
                 <PendingButton
                   type="button"
-                  className="btn btn-outline-primary btn-sm"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs"
                   pending={moderationPending}
                   onClick={() => grant(member.accountId)}
                 >
@@ -61,7 +61,7 @@ export function RoomMemberRoster({
               {host && member.role === "moderator" ? (
                 <PendingButton
                   type="button"
-                  className="btn btn-outline-secondary btn-sm"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
                   pending={moderationPending}
                   onClick={() => revoke(member.accountId)}
                 >
@@ -71,7 +71,7 @@ export function RoomMemberRoster({
               {(host || moderator) && member.role === "spectator" ? (
                 <button
                   type="button"
-                  className="btn btn-outline-danger btn-sm"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
                   onClick={() => remove(member)}
                 >
                   {t("rooms.member.remove")}
@@ -81,28 +81,31 @@ export function RoomMemberRoster({
           </div>
         ))}
       </div>
-      <h3 className="h6 mt-4 mb-2">{t("rooms.member.watching", { count: onlineSpectators.length })}</h3>
+      <h3 className="text-sm font-semibold tracking-tight mt-6 mb-2">
+        {t("rooms.member.watching", { count: onlineSpectators.length })}
+      </h3>
       {onlineSpectators.length ? (
-        <ol className="list-group list-group-numbered">
+        <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
           {onlineSpectators.map(member => (
             <li
               key={member.accountId}
-              className="list-group-item d-flex justify-content-between"
+              className="block px-4 py-3 text-sm flex justify-between"
             >
               <span>{member.displayName}</span>
-              <small className="text-body-secondary">
-                {roleLabel(member.role)}
-              </small>
+              <small className="text-muted">{roleLabel(member.role)}</small>
             </li>
           ))}
         </ol>
       ) : (
-        <p className="text-body-secondary small mb-0">
+        <p className="text-muted text-sm mb-0">
           {t("rooms.member.noWatchers")}
         </p>
       )}
       {notice ? (
-        <div className="alert alert-warning small mt-3 mb-0" role="status">
+        <div
+          className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mt-4 mb-0"
+          role="status"
+        >
           {notice}
         </div>
       ) : null}

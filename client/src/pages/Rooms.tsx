@@ -2,7 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import type { TimerCompletion } from "@/components/common/SolveTimer";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { PendingButton, RefreshIndicator, SkeletonCard } from "@/components/ui/BootstrapUI";
+import {
+  PendingButton,
+  RefreshIndicator,
+  SkeletonCard,
+} from "@/components/ui/StudioUI";
 import {
   SystemLeaderboard,
   competitionErrorText,
@@ -57,7 +61,7 @@ export default function Rooms() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const copyInvite = useAsync(async () => {
     await navigator.clipboard?.writeText(
-      `${window.location.origin}/rooms/${code}`,
+      `${window.location.origin}/rooms/${code}`
     );
   });
   const roomInput = useMemo(() => ({ code }), [code]);
@@ -153,16 +157,20 @@ export default function Rooms() {
 
   if (account.isLoading)
     return (
-      <div className="container">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <SkeletonCard lines={5} label={t("rooms.loadingAccount")} />
       </div>
     );
   if (!account.data)
     return (
-      <div className="container">
-        <h1 className="h4 mb-0">{t("rooms.title")}</h1>
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h1 className="text-lg font-semibold tracking-tight mb-0">
+          {t("rooms.title")}
+        </h1>
         <SystemLeaderboard />
-        <div className="alert alert-secondary mt-4">{t("rooms.signInHint")}</div>
+        <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-6">
+          {t("rooms.signInHint")}
+        </div>
       </div>
     );
   if (!code)
@@ -208,20 +216,22 @@ export default function Rooms() {
   const room = roomQuery.data;
   if (roomQuery.isLoading)
     return (
-      <div className="container">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <SkeletonCard lines={7} label={t("rooms.loadingRoom")} />
       </div>
     );
   if (!room)
     return (
-      <div className="container">
-        <div className="alert alert-secondary">
-          <h1 className="h4">{t("rooms.roomTitle", { code })}</h1>
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink">
+          <h1 className="text-lg font-semibold tracking-tight">
+            {t("rooms.roomTitle", { code })}
+          </h1>
           <p>{t("rooms.pickRole")}</p>
-          <div className="d-flex gap-2">
+          <div className="flex gap-2">
             <PendingButton
               type="button"
-              className="btn btn-primary"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
               pending={join.isPending}
               onClick={() => join.mutate({ code })}
             >
@@ -229,7 +239,7 @@ export default function Rooms() {
             </PendingButton>
             <PendingButton
               type="button"
-              className="btn btn-outline-primary"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft"
               pending={spectate.isPending}
               onClick={() => spectate.mutate({ code })}
             >
@@ -274,10 +284,10 @@ export default function Rooms() {
 
   return (
     <>
-      <div className="container">
-        <div className="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap justify-between items-end gap-4 mb-6">
           <div>
-            <p className="text-body-secondary small mb-1">
+            <p className="text-muted text-sm mb-1">
               {competitionEventLabel(event, language)} ·{" "}
               {formatLabels[room.room.format]} ·{" "}
               {t("rooms.round", {
@@ -285,18 +295,20 @@ export default function Rooms() {
                 limit: room.roundLimit,
               })}
             </p>
-            <h1 className="h3 mb-1">{room.room.name}</h1>
+            <h1 className="text-xl font-semibold tracking-tight mb-1">
+              {room.room.name}
+            </h1>
             {roomQuery.isFetching ? (
               <RefreshIndicator label={t("rooms.refreshing")} />
             ) : null}
-            <span className="badge text-bg-secondary">
+            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-3 text-ink">
               {t("rooms.spectatorCount", { count: room.onlineSpectatorCount })}
             </span>
           </div>
-          <div className="d-flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2">
             <PendingButton
               type="button"
-              className="btn btn-outline-primary btn-sm"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs"
               pending={copyInvite.pending}
               onClick={() => void copyInvite.run()}
             >
@@ -305,7 +317,7 @@ export default function Rooms() {
             {room.isHost && room.room.status === "finished" ? (
               <PendingButton
                 type="button"
-                className="btn btn-success btn-sm"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-success text-white shadow-sm hover:brightness-95 px-3 py-1.5 text-xs"
                 pending={rematch.isPending}
                 onClick={() => rematch.mutate({ code })}
               >
@@ -315,7 +327,7 @@ export default function Rooms() {
             {room.isHost && room.room.status !== "active" ? (
               <button
                 type="button"
-                className="btn btn-outline-danger btn-sm"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
                 onClick={deleteCurrentRoom}
               >
                 {t("rooms.delete")}
@@ -324,7 +336,7 @@ export default function Rooms() {
             {!room.isHost ? (
               <PendingButton
                 type="button"
-                className="btn btn-outline-secondary btn-sm"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
                 pending={leave.isPending}
                 onClick={() => leave.mutate({ code })}
               >
@@ -334,7 +346,7 @@ export default function Rooms() {
           </div>
         </div>
         {room.isSpectator ? (
-          <div className="alert alert-info">
+          <div className="rounded-panel border px-4 py-3 text-sm border-info/20 bg-info-soft text-ink">
             {t("rooms.spectatorNoticePrefix")}{" "}
             <strong>
               {room.isModerator
@@ -347,8 +359,8 @@ export default function Rooms() {
               : t("rooms.ability.spectator")}
           </div>
         ) : null}
-        <div className="row g-4">
-          <section className="col-12 col-xl-8">
+        <div className="grid grid-cols-12 gap-6">
+          <section className="col-span-12 xl:col-span-8">
             <RoomRoundPanel
               status={room.room.status}
               isHost={room.isHost}
@@ -405,7 +417,9 @@ export default function Rooms() {
             onChatChange={setChat}
             onSend={() => send.mutate({ code, content: chat })}
             sendPending={send.isPending}
-            moderationPending={grantModerator.isPending || revokeModerator.isPending}
+            moderationPending={
+              grantModerator.isPending || revokeModerator.isPending
+            }
             onGrantModerator={accountId =>
               grantModerator.mutate({ code, accountId })
             }
@@ -416,9 +430,15 @@ export default function Rooms() {
           />
         </div>
         {message ? (
-          <div className="alert alert-success mt-4">{message}</div>
+          <div className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink mt-6">
+            {message}
+          </div>
         ) : null}
-        {error ? <div className="alert alert-danger mt-4">{error}</div> : null}
+        {error ? (
+          <div className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mt-6">
+            {error}
+          </div>
+        ) : null}
       </div>
       <RemoveSpectatorDialog
         open={Boolean(removalTarget)}

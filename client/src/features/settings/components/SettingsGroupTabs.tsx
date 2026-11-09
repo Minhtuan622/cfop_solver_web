@@ -32,20 +32,31 @@ export function SettingsGroupTabs({
   };
 
   return (
-    <div role="tablist" aria-label={label} className="nav nav-pills flex-nowrap flex-lg-column gap-1 overflow-x-auto pb-2 pb-lg-0">
+    <div
+      role="tablist"
+      aria-label={label}
+      className="flex gap-1 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0"
+    >
       {groups.map((group, index) => {
         const active = group.id === activeId;
         return (
           <button
             key={group.id}
-            ref={node => { tabs.current[index] = node; }}
+            ref={node => {
+              tabs.current[index] = node;
+            }}
             type="button"
             role="tab"
             id={`settings-tab-${group.id}`}
             aria-selected={active}
             aria-controls={`settings-panel-${group.id}`}
             tabIndex={active ? 0 : -1}
-            className={cn("nav-link text-start", active && "active")}
+            className={cn(
+              "shrink-0 rounded-full px-4 py-2 text-left text-sm font-medium transition lg:w-full",
+              active
+                ? "bg-primary text-white shadow-sm shadow-primary/25"
+                : "text-muted hover:bg-surface-2 hover:text-ink"
+            )}
             onClick={() => onSelect(group.id)}
             onKeyDown={event => move(event, index)}
           >

@@ -31,7 +31,8 @@ export function saveTheme(theme: Theme): void {
 }
 
 export function prefersDarkScheme(): boolean {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return false;
   return window.matchMedia(DARK_SCHEME_QUERY).matches;
 }
 
@@ -42,11 +43,11 @@ export function resolveTheme(theme: Theme): ResolvedTheme {
 }
 
 /**
- * Writes the resolved palette to the document. Bootstrap reads
- * `data-bs-theme` from the root element, so the whole app follows it.
+ * Writes the resolved palette to the document. the design tokens read
+ * `data-theme` from the root element, so the whole app follows it.
  */
 export function applyTheme(theme: Theme): ResolvedTheme {
   const resolved = resolveTheme(theme);
-  document.documentElement.dataset.bsTheme = resolved;
+  document.documentElement.dataset.theme = resolved;
   return resolved;
 }

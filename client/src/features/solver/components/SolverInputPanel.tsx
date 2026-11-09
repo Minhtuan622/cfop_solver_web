@@ -1,6 +1,6 @@
-import { Dices, PencilSquare, Play } from "@/components/ui/BootstrapIcon";
+import { Dices, PencilSquare, Play } from "@/components/ui/Icon";
 import { PanelHeader, PillInput, Surface } from "@/components/ui/DesignSystem";
-import { Field, StatusFeedback } from "@/components/ui/BootstrapUI";
+import { Field, StatusFeedback } from "@/components/ui/StudioUI";
 import { CameraScanner } from "@/components/common/CameraScanner";
 import { CubeStateEditor } from "@/components/common/CubeStateEditor";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -75,33 +75,74 @@ export function SolverInputPanel({
 
   return (
     <Surface>
-      <PanelHeader className="px-4 pt-4 pb-2" icon={<PencilSquare />} title={mode === "scramble" ? t("home.inputTitle.scramble") : t("home.inputTitle.state")} />
+      <PanelHeader
+        className="px-6 pt-6 pb-2"
+        icon={<PencilSquare />}
+        title={
+          mode === "scramble"
+            ? t("home.inputTitle.scramble")
+            : t("home.inputTitle.state")
+        }
+      />
 
-      <div className="px-4 pb-4">
-        {solving ? <div className="alert alert-info small"><strong>BUFFER / UF (C)</strong> · UBL (A)<br />{t("home.bldPrepare")}</div> : null}
+      <div className="px-6 pb-6">
+        {solving ? (
+          <div className="rounded-panel border px-4 py-3 text-sm border-info/20 bg-info-soft text-ink">
+            <strong>BUFFER / UF (C)</strong> · UBL (A)
+            <br />
+            {t("home.bldPrepare")}
+          </div>
+        ) : null}
 
         {mode === "scramble" ? (
-          <div className="d-flex flex-column flex-md-row gap-3 align-items-stretch">
-            <div className="flex-grow-1">
-              <label htmlFor="home-scramble" className="visually-hidden">{t("home.scrambleField")}</label>
+          <div className="flex flex-col md:flex-row gap-4 items-stretch">
+            <div className="grow">
+              <label htmlFor="home-scramble" className="sr-only">
+                {t("home.scrambleField")}
+              </label>
               <PillInput
                 id="home-scramble"
                 type="text"
                 value={value}
-                onChange={(event) => onValueChange(event.target.value)}
+                onChange={event => onValueChange(event.target.value)}
                 placeholder={t("home.scramblePlaceholder")}
                 spellCheck={false}
                 autoComplete="off"
-                className="h-100"
+                className="h-full"
               />
             </div>
             {loading ? (
-              <div className="d-flex gap-2">
-                <div className="btn btn-primary px-4 py-3 flex-grow-1" role="status" aria-live="polite"><span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />{status || t("home.preparing")}</div>
-                <button type="button" className="btn btn-outline-danger rounded-pill px-3" onClick={onCancel} aria-label={t("home.cancelSolver")}>{t("home.cancelSolver")}</button>
+              <div className="flex gap-2">
+                <div
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-6 py-4 grow"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <span
+                    className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent align-[-0.125em] h-3.5 w-3.5 mr-2"
+                    aria-hidden="true"
+                  />
+                  {status || t("home.preparing")}
+                </div>
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft"
+                  onClick={onCancel}
+                  aria-label={t("home.cancelSolver")}
+                >
+                  {t("home.cancelSolver")}
+                </button>
               </div>
             ) : (
-              <button type="button" disabled={!value.trim()} onClick={onSolve} className="btn btn-primary px-4 py-3 text-nowrap"><Play className="fs-5 me-1" aria-hidden="true" />{solving ? t("home.buildMemo") : t("input.solve")}</button>
+              <button
+                type="button"
+                disabled={!value.trim()}
+                onClick={onSolve}
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-6 py-4"
+              >
+                <Play className="text-lg mr-1" aria-hidden="true" />
+                {solving ? t("home.buildMemo") : t("input.solve")}
+              </button>
             )}
           </div>
         ) : (
@@ -118,40 +159,71 @@ export function SolverInputPanel({
               onSelectedColorChange={onPaintColorChange}
               controlsOnly
             />
-            <p className="small text-body-secondary mt-2">{t("home.paintHint")}</p>
-            <div className="mt-3">
-              <StatusFeedback tone={!stateValidation ? "secondary" : stateValidation.valid ? "success" : "danger"}>
-                {stateValidation?.valid ? `✓ ${stateValidation.message}` : stateValidation?.message ?? t("home.waitingValidation")}
+            <p className="text-sm text-muted mt-2">{t("home.paintHint")}</p>
+            <div className="mt-4">
+              <StatusFeedback
+                tone={
+                  !stateValidation
+                    ? "secondary"
+                    : stateValidation.valid
+                      ? "success"
+                      : "danger"
+                }
+              >
+                {stateValidation?.valid
+                  ? `✓ ${stateValidation.message}`
+                  : (stateValidation?.message ?? t("home.waitingValidation"))}
               </StatusFeedback>
             </div>
           </>
         )}
 
         {mode === "scramble" ? (
-          <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
-            <button type="button" className="btn btn-sm btn-light px-3" onClick={onRandomScramble} disabled={loading}>
-              <Dices className="fs-6 me-1" aria-hidden="true" />
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 px-3 py-1.5 text-xs border-line bg-surface-2 text-ink hover:bg-surface-3"
+              onClick={onRandomScramble}
+              disabled={loading}
+            >
+              <Dices className="text-base mr-1" aria-hidden="true" />
               {t("home.randomScramble")}
             </button>
-            {onResetDefaults ? <button type="button" className="btn btn-sm btn-link text-decoration-none" onClick={onResetDefaults}>{t("home.resetOptions")}</button> : null}
+            {onResetDefaults ? (
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 px-3 py-1.5 text-xs border-0 bg-transparent p-0 text-primary hover:underline no-underline"
+                onClick={onResetDefaults}
+              >
+                {t("home.resetOptions")}
+              </button>
+            ) : null}
           </div>
         ) : (
-          <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
-            <span className="small text-body-secondary">{t("home.stateHint")}</span>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <span className="text-sm text-muted">{t("home.stateHint")}</span>
           </div>
         )}
 
         {mode === "state" ? (
           <>
-            <SolverRecentStates states={recentStates} onSelect={onSelectRecentState} onRemove={onRemoveRecentState} />
-            <SolverDetails summary={t("home.pasteState")} className="mt-3">
+            <SolverRecentStates
+              states={recentStates}
+              onSelect={onSelectRecentState}
+              onRemove={onRemoveRecentState}
+            />
+            <SolverDetails summary={t("home.pasteState")} className="mt-4">
               <Field id="home-paste-state" label={t("home.stateField")}>
                 <textarea
                   id="home-paste-state"
                   value={value}
-                  onChange={(event) => onStateEdit(event.target.value.replaceAll(/\s/g, "").toUpperCase())}
+                  onChange={event =>
+                    onStateEdit(
+                      event.target.value.replaceAll(/\s/g, "").toUpperCase()
+                    )
+                  }
                   spellCheck={false}
-                  className="form-control font-monospace"
+                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 font-mono"
                   rows={3}
                 />
               </Field>
@@ -159,38 +231,58 @@ export function SolverInputPanel({
           </>
         ) : null}
 
-        {advancedOptions ? <div className="mt-3">{advancedOptions}</div> : null}
+        {advancedOptions ? <div className="mt-4">{advancedOptions}</div> : null}
 
-        <div className="mt-3">
-          <SolverDetails summary={t("home.cameraSection")} className="cfop-solver-details--bare">
+        <div className="mt-4">
+          <SolverDetails summary={t("home.cameraSection")}>
             <CameraScanner onState={onCameraState} />
           </SolverDetails>
         </div>
 
         {error ? (
-          <div className="mt-3">
-            <StatusFeedback tone="danger" title={t("home.solverFailed")}>{error}</StatusFeedback>
+          <div className="mt-4">
+            <StatusFeedback tone="danger" title={t("home.solverFailed")}>
+              {error}
+            </StatusFeedback>
           </div>
         ) : null}
 
         {mode === "state" && loading ? (
-          <div className="d-flex gap-2 mt-4">
-            <div className="btn btn-primary btn-lg flex-grow-1" role="status" aria-live="polite">
-              <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+          <div className="flex gap-2 mt-6">
+            <div
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-6 py-3 text-base grow"
+              role="status"
+              aria-live="polite"
+            >
+              <span
+                className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent align-[-0.125em] h-3.5 w-3.5 mr-2"
+                aria-hidden="true"
+              />
               {status || t("home.preparing")}
             </div>
-            <button type="button" className={cn("btn btn-outline-danger btn-lg")} onClick={onCancel} aria-label={t("home.cancelSolver")}>
+            <button
+              type="button"
+              className={cn(
+                "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft px-6 py-3 text-base"
+              )}
+              onClick={onCancel}
+              aria-label={t("home.cancelSolver")}
+            >
               {t("home.cancelSolver")}
             </button>
           </div>
         ) : mode === "state" ? (
           <button
             type="button"
-            disabled={!value.trim() || (mode === "state" && !stateValidation?.valid)}
+            disabled={
+              !value.trim() || (mode === "state" && !stateValidation?.valid)
+            }
             onClick={onSolve}
-            className={cn("btn btn-primary btn-lg w-100 mt-4")}
+            className={cn(
+              "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-6 py-3 text-base w-full mt-6"
+            )}
           >
-            <Play className="fs-5 me-1" aria-hidden="true" />
+            <Play className="text-lg mr-1" aria-hidden="true" />
             {solving ? t("home.buildMemo") : t("input.solve")}
           </button>
         ) : null}

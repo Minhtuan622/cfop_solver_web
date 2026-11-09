@@ -1,4 +1,4 @@
-import { BoxIcon, PencilSquare, Puzzle, Shuffle } from "@/components/ui/BootstrapIcon";
+import { BoxIcon, PencilSquare, Puzzle, Shuffle } from "@/components/ui/Icon";
 import { PillBar, PillDivider, PillGroup } from "@/components/ui/DesignSystem";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -19,7 +19,14 @@ export type SolverToolbarProps = {
  * The engine status stays in a screen-reader-only live region; the visible
  * status lives in the green banner under the cube.
  */
-export function SolverToolbar({ solverKind, onSolverKindChange, mode, onModeChange, loading, status }: SolverToolbarProps) {
+export function SolverToolbar({
+  solverKind,
+  onSolverKindChange,
+  mode,
+  onModeChange,
+  loading,
+  status,
+}: SolverToolbarProps) {
   const { t } = useLanguage();
   return (
     <PillBar role="toolbar">
@@ -28,8 +35,16 @@ export function SolverToolbar({ solverKind, onSolverKindChange, mode, onModeChan
         value={solverKind}
         onChange={onSolverKindChange}
         options={[
-          { value: "cfop", label: t("home.tab.solve"), icon: <BoxIcon aria-hidden="true" /> },
-          { value: "bld", label: t("home.tab.bld"), icon: <Puzzle aria-hidden="true" /> },
+          {
+            value: "cfop",
+            label: t("home.tab.solve"),
+            icon: <BoxIcon aria-hidden="true" />,
+          },
+          {
+            value: "bld",
+            label: t("home.tab.bld"),
+            icon: <Puzzle aria-hidden="true" />,
+          },
         ]}
       />
       <PillDivider />
@@ -38,11 +53,21 @@ export function SolverToolbar({ solverKind, onSolverKindChange, mode, onModeChan
         value={mode}
         onChange={onModeChange}
         options={[
-          { value: "scramble", label: t("home.modeScramble"), icon: <Shuffle aria-hidden="true" /> },
-          { value: "state", label: t("home.modeState"), icon: <PencilSquare aria-hidden="true" /> },
+          {
+            value: "scramble",
+            label: t("home.modeScramble"),
+            icon: <Shuffle aria-hidden="true" />,
+          },
+          {
+            value: "state",
+            label: t("home.modeState"),
+            icon: <PencilSquare aria-hidden="true" />,
+          },
         ]}
       />
-      <span className="visually-hidden" role="status" aria-live="polite">{loading ? status : t("home.ready")}</span>
+      <span className="sr-only" role="status" aria-live="polite">
+        {loading ? status : t("home.ready")}
+      </span>
     </PillBar>
   );
 }

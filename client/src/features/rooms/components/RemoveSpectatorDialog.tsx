@@ -5,8 +5,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/BootstrapDialog";
-import { PendingButton } from "@/components/ui/BootstrapUI";
+} from "@/components/ui/StudioDialog";
+import { PendingButton } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 type Props = {
@@ -31,9 +31,12 @@ export function RemoveSpectatorDialog({
 }: Props) {
   const { t } = useLanguage();
   return (
-    <Dialog open={open} onOpenChange={next => {
-      if (!next) onClose();
-    }}>
+    <Dialog
+      open={open}
+      onOpenChange={next => {
+        if (!next) onClose();
+      }}
+    >
       <DialogContent>
         <form
           onSubmit={form => {
@@ -42,43 +45,49 @@ export function RemoveSpectatorDialog({
           }}
         >
           <DialogHeader>
-            <DialogTitle>{t("rooms.moderation.removeTitle", { name: targetName })}</DialogTitle>
-            <DialogDescription>{t("rooms.moderation.removeDetail")}</DialogDescription>
+            <DialogTitle>
+              {t("rooms.moderation.removeTitle", { name: targetName })}
+            </DialogTitle>
+            <DialogDescription>
+              {t("rooms.moderation.removeDetail")}
+            </DialogDescription>
             <button
               type="button"
-              className="btn-close"
+              className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full p-0 text-muted transition hover:bg-surface-3 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20"
               aria-label={t("common.close")}
               onClick={onClose}
             />
           </DialogHeader>
-          <div className="modal-body">
-            <label className="form-label w-100">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+            <label className="mb-1.5 block text-sm font-medium text-ink w-full">
               {t("rooms.moderation.reasonLabel")}
               <textarea
                 required
                 minLength={3}
                 maxLength={280}
                 autoFocus
-                className="form-control mt-1"
+                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
                 rows={3}
                 value={reason}
                 onChange={input => onReasonChange(input.target.value)}
                 placeholder={t("rooms.moderation.reasonPlaceholder")}
               />
             </label>
-            <div className="form-text">{t("rooms.moderation.reasonHint")}</div>
+            <div className="mt-1.5 text-xs text-muted">
+              {t("rooms.moderation.reasonHint")}
+            </div>
           </div>
           <DialogFooter>
             <button
               type="button"
-              className="btn btn-outline-secondary"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
               onClick={onClose}
               disabled={pending}
             >
               {t("rooms.moderation.cancel")}
             </button>
             <PendingButton
-              className="btn btn-danger"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-danger text-white shadow-sm hover:brightness-95"
               disabled={reason.trim().length < 3}
               pending={pending}
             >

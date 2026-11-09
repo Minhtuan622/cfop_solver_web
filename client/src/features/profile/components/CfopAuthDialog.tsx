@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/BootstrapDialog";
+} from "@/components/ui/StudioDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export type AuthMode = "login" | "register";
@@ -45,12 +45,15 @@ export function CfopAuthDialog({
 }: Props) {
   const { t } = useLanguage();
   return (
-    <Dialog open={open} onOpenChange={next => {
-      if (!next) onClose();
-    }}>
+    <Dialog
+      open={open}
+      onOpenChange={next => {
+        if (!next) onClose();
+      }}
+    >
       <DialogContent>
-        <DialogHeader className="align-items-start gap-3">
-          <div className="flex-grow-1">
+        <DialogHeader className="items-start gap-4">
+          <div className="grow">
             <DialogTitle>
               {mode === "login"
                 ? t("account.dialog.loginTitle")
@@ -62,15 +65,15 @@ export function CfopAuthDialog({
           </div>
           <button
             type="button"
-            className="btn-close flex-shrink-0"
+            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full p-0 text-muted transition hover:bg-surface-3 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20"
             aria-label={t("account.dialog.close")}
             onClick={onClose}
           />
         </DialogHeader>
         <form onSubmit={onSubmit}>
-          <div className="modal-body">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
             <div
-              className="btn-group w-100 mb-3"
+              className="inline-flex flex-wrap items-center gap-1 w-full mb-4"
               role="group"
               aria-label={t("account.dialog.actionLabel")}
             >
@@ -78,8 +81,8 @@ export function CfopAuthDialog({
                 type="button"
                 className={
                   mode === "login"
-                    ? "btn btn-primary"
-                    : "btn btn-outline-secondary"
+                    ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+                    : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
                 }
                 onClick={() => onModeChange("login")}
               >
@@ -89,8 +92,8 @@ export function CfopAuthDialog({
                 type="button"
                 className={
                   mode === "register"
-                    ? "btn btn-primary"
-                    : "btn btn-outline-secondary"
+                    ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+                    : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
                 }
                 onClick={() => onModeChange("register")}
               >
@@ -98,31 +101,31 @@ export function CfopAuthDialog({
               </button>
             </div>
             {mode === "register" ? (
-              <label className="form-label w-100">
+              <label className="mb-1.5 block text-sm font-medium text-ink w-full">
                 {t("account.dialog.displayName")}
                 <input
                   required
                   minLength={2}
                   maxLength={80}
                   autoComplete="name"
-                  className="form-control mt-1"
+                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
                   value={displayName}
                   onChange={event => onDisplayNameChange(event.target.value)}
                 />
               </label>
             ) : null}
-            <label className="form-label w-100 mt-2">
+            <label className="mb-1.5 block text-sm font-medium text-ink w-full mt-2">
               {t("account.dialog.email")}
               <input
                 required
                 type="email"
                 autoComplete="email"
-                className="form-control mt-1"
+                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
                 value={email}
                 onChange={event => onEmailChange(event.target.value)}
               />
             </label>
-            <label className="form-label w-100 mt-2">
+            <label className="mb-1.5 block text-sm font-medium text-ink w-full mt-2">
               {t("account.dialog.password")}
               <input
                 required
@@ -132,26 +135,29 @@ export function CfopAuthDialog({
                 autoComplete={
                   mode === "login" ? "current-password" : "new-password"
                 }
-                className="form-control mt-1"
+                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
                 value={password}
                 onChange={event => onPasswordChange(event.target.value)}
               />
             </label>
             {mode === "register" ? (
-              <p className="small text-body-secondary mt-2 mb-0">
+              <p className="text-sm text-muted mt-2 mb-0">
                 {t("account.dialog.passwordHint")}
               </p>
             ) : null}
             {error ? (
-              <div className="alert alert-danger mt-3 mb-0" role="alert">
+              <div
+                className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mt-4 mb-0"
+                role="alert"
+              >
                 {error}
               </div>
             ) : null}
           </div>
-          <DialogFooter className="flex-wrap justify-content-end gap-2">
+          <DialogFooter className="flex-wrap justify-end gap-2">
             <button
               type="button"
-              className="btn btn-outline-secondary"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
               onClick={onClose}
               disabled={pending}
             >
@@ -159,7 +165,7 @@ export function CfopAuthDialog({
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
               disabled={pending}
             >
               {pending

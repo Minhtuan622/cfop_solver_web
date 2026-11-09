@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
@@ -7,11 +8,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "./BootstrapDialog";
+} from "./StudioDialog";
 
 afterEach(cleanup);
 
-describe("BootstrapDialog", () => {
+describe("StudioDialog", () => {
   it("closes when Escape is pressed", () => {
     const onOpenChange = vi.fn();
     render(
@@ -118,18 +119,19 @@ describe("BootstrapDialog", () => {
     expect(document.activeElement).toBe(last);
   });
 
-  it("does not nest the modal body inside another modal body", () => {
+  it("renders the content inside a single dialog container", () => {
     render(
       <Dialog open onOpenChange={() => {}}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Tiêu đề hộp thoại</DialogTitle>
           </DialogHeader>
-          <div className="modal-body">Nội dung</div>
+          <div>Nội dung</div>
         </DialogContent>
       </Dialog>,
     );
 
-    expect(document.querySelectorAll(".modal-body")).toHaveLength(1);
+    expect(screen.getAllByRole("dialog")).toHaveLength(1);
+    expect(screen.getByText("Nội dung")).toBeInTheDocument();
   });
 });

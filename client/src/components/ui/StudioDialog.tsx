@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { cn } from "@/lib/utils";
 
 const FOCUSABLE_SELECTOR = [
   "a[href]",
@@ -38,11 +39,11 @@ function useDialogContext(component: string) {
 
 function focusableWithin(container: HTMLElement) {
   return Array.from(
-    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
   ).filter(
     element =>
       !element.hasAttribute("hidden") &&
-      element.getAttribute("aria-hidden") !== "true",
+      element.getAttribute("aria-hidden") !== "true"
   );
 }
 
@@ -74,7 +75,7 @@ function ModalShell({
       registerTitle: () => setHasTitle(true),
       registerDescription: () => setHasDescription(true),
     }),
-    [descriptionId, titleId],
+    [descriptionId, titleId]
   );
 
   // WAI-ARIA dialog pattern: move focus into the dialog when it opens and hand
@@ -100,6 +101,15 @@ function ModalShell({
 
   useEffect(() => {
     if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -120,7 +130,9 @@ function ModalShell({
       const last = items[items.length - 1];
       const active = document.activeElement;
       const inside =
-        active instanceof HTMLElement && active !== node && node.contains(active);
+        active instanceof HTMLElement &&
+        active !== node &&
+        node.contains(active);
       if (!inside) {
         event.preventDefault();
         (event.shiftKey ? last : first).focus();
@@ -142,32 +154,37 @@ function ModalShell({
 
   return createPortal(
     <DialogContext.Provider value={context}>
-      <div
-        ref={dialogRef}
-        className="modal fade show d-block"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={hasTitle ? titleId : undefined}
-        aria-describedby={hasDescription ? descriptionId : undefined}
-        tabIndex={-1}
-        onMouseDown={event => {
-          if (event.target === event.currentTarget) onOpenChange(false);
-        }}
-      >
+      <div className="fixed inset-0 z-50 overflow-y-auto" role="presentation">
         <div
-          className={`modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-fullscreen-sm-down ${dialogClassName ?? ""}`}
+          className="fixed inset-0 bg-ink/45 backdrop-blur-[2px]"
+          data-testid="dialog-backdrop"
+          aria-hidden="true"
+          onMouseDown={() => onOpenChange(false)}
+        />
+        <div
+          className="relative flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6"
+          onMouseDown={event => {
+            if (event.target === event.currentTarget) onOpenChange(false);
+          }}
         >
-          <div className="modal-content">{children}</div>
+          <div
+            ref={dialogRef}
+            className={cn(
+              "relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-[1.6rem] border border-line/80 bg-surface shadow-float outline-none sm:max-h-[min(88vh,56rem)] sm:max-w-2xl",
+              dialogClassName
+            )}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={hasTitle ? titleId : undefined}
+            aria-describedby={hasDescription ? descriptionId : undefined}
+            tabIndex={-1}
+          >
+            {children}
+          </div>
         </div>
       </div>
-      <div
-        className="modal-backdrop fade show"
-        data-testid="dialog-backdrop"
-        aria-hidden="true"
-        onMouseDown={() => onOpenChange(false)}
-      />
     </DialogContext.Provider>,
-    document.body,
+    document.body
   );
 }
 
@@ -194,15 +211,10 @@ export function DialogContent({
   children: ReactNode;
   className?: string;
 }) {
-  // `flex-fill` lets the content take the leftover room of the scrollable
-  // modal, and `min-height: 0` lets it shrink below its content size so the
-  // inner `.modal-body` scrolls instead of the dialog clipping what does not
-  // fit on screen.
+  // `min-h-0` lets the content shrink below its natural size so the body can
+  // scroll instead of the dialog clipping what does not fit on screen.
   return (
-    <div
-      className={`d-flex flex-column flex-fill ${className ?? ""}`}
-      style={{ minHeight: 0 }}
-    >
+    <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
       {children}
     </div>
   );
@@ -214,7 +226,16 @@ export function DialogHeader({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`modal-header ${className ?? ""}`}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-1 border-b border-line px-6 py-5",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 export function DialogTitle({
   children,
@@ -228,7 +249,10 @@ export function DialogTitle({
     registerTitle();
   }, [registerTitle]);
   return (
-    <h2 id={titleId} className={`modal-title fs-5 ${className ?? ""}`}>
+    <h2
+      id={titleId}
+      className={cn("text-lg font-semibold tracking-tight text-ink", className)}
+    >
       {children}
     </h2>
   );
@@ -246,7 +270,10 @@ export function DialogDescription({
     registerDescription();
   }, [registerDescription]);
   return (
-    <p id={descriptionId} className={`text-body-secondary mb-0 ${className ?? ""}`}>
+    <p
+      id={descriptionId}
+      className={cn("text-sm leading-relaxed text-muted", className)}
+    >
       {children}
     </p>
   );
@@ -258,5 +285,14 @@ export function DialogFooter({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`modal-footer ${className ?? ""}`}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "mt-auto flex flex-wrap items-center justify-end gap-2 border-t border-line px-6 py-4",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
 }

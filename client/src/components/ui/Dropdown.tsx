@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ChevronDown } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 
 export type DropdownProps = {
@@ -60,15 +61,17 @@ export function Dropdown({
     };
   }, [open]);
 
-  const toggleClass = variant === "nav"
-    ? "nav-link dropdown-toggle d-inline-flex align-items-center gap-1"
-    : "btn btn-outline-secondary btn-sm dropdown-toggle d-inline-flex align-items-center justify-content-center";
-
   return (
-    <div ref={rootRef} className={cn("dropdown", className)}>
+    <div ref={rootRef} className={cn("relative", className)}>
       <button
         type="button"
-        className={cn(toggleClass, buttonClassName)}
+        className={cn(
+          "inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20",
+          variant === "nav"
+            ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink"
+            : "rounded-full border border-line bg-surface px-3.5 py-2 text-ink shadow-sm hover:bg-surface-2",
+          buttonClassName
+        )}
         onClick={() => setOpen(value => !value)}
         aria-expanded={open}
         aria-haspopup="menu"
@@ -77,16 +80,26 @@ export function Dropdown({
         title={title}
       >
         {button}
+        <ChevronDown
+          className={cn(
+            "text-sm transition-transform duration-200",
+            open && "rotate-180"
+          )}
+        />
       </button>
       {open ? (
         <ul
-          className={cn("dropdown-menu show mt-2", align === "end" ? "dropdown-menu-end" : "dropdown-menu-start")}
+          className={cn(
+            "absolute z-50 mt-2 min-w-52 list-none rounded-2xl border border-line/80 bg-surface p-1.5 shadow-float",
+            align === "end" ? "right-0" : "left-0"
+          )}
           role="menu"
           id={id}
           aria-label={menuLabel ?? label}
           onClick={event => {
             // Picking an item ends the visit to the menu.
-            if ((event.target as HTMLElement).closest("button, a")) setOpen(false);
+            if ((event.target as HTMLElement).closest("button, a"))
+              setOpen(false);
           }}
         >
           {children}

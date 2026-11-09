@@ -14,11 +14,11 @@
           var theme = stored === "light" || stored === "dark"
             ? stored
             : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-          document.documentElement.dataset.bsTheme = theme;
+          document.documentElement.dataset.theme = theme;
           var language = window.localStorage.getItem("cfop-language");
           document.documentElement.lang = language === "en" ? "en" : "vi";
         } catch (error) {
-          document.documentElement.dataset.bsTheme = "light";
+          document.documentElement.dataset.theme = "light";
         }
       })();
     </script>
@@ -27,7 +27,7 @@
     <meta name="keywords" content="giải rubik, cfop solver, rubik 3x3, bấm giờ rubik, học cfop, scramble, timer rubik, wca" />
     <meta name="author" content="CFOP Solver Studio" />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#4a9b8e" />
+    <meta name="theme-color" content="#5b5bd6" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -35,7 +35,7 @@
     <meta name="application-name" content="CFOP Solver Studio" />
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="canonical" href="https://cfop-solver.studio/" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234a9b8e'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3E%F0%9F%A7%A9%3C/text%3E%3C/svg%3E" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%235b5bd6'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3E%F0%9F%A7%A9%3C/text%3E%3C/svg%3E" />
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="vi_VN" />

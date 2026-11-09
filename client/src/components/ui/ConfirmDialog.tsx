@@ -5,8 +5,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/BootstrapDialog";
-import { PendingButton } from "@/components/ui/BootstrapUI";
+} from "@/components/ui/StudioDialog";
+import { PendingButton } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 type Props = {
@@ -55,7 +55,7 @@ export function ConfirmDialog({
         <DialogFooter>
           <button
             type="button"
-            className="btn btn-outline-secondary"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
             onClick={onClose}
             disabled={pending}
           >
@@ -63,7 +63,11 @@ export function ConfirmDialog({
           </button>
           <PendingButton
             type="button"
-            className={tone === "danger" ? "btn btn-danger" : "btn btn-primary"}
+            className={
+              tone === "danger"
+                ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-danger text-white shadow-sm hover:brightness-95"
+                : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+            }
             pending={pending}
             onClick={onConfirm}
           >

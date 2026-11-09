@@ -63,7 +63,9 @@ describe("ConfirmDialog", () => {
     renderDialog({ tone: "danger" });
 
     expect(
-      screen.getByRole("button", { name: "Xoá phòng" }).classList.contains("btn-danger"),
+      screen.getByRole("button", { name: "Xoá phòng" }).classList.contains(
+        "bg-danger",
+      ),
     ).toBe(true);
   });
 });

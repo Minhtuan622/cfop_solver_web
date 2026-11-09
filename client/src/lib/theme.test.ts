@@ -1,22 +1,39 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DARK_SCHEME_QUERY, THEME_STORAGE_KEY, applyTheme, isTheme, readTheme, resolveTheme, saveTheme } from "./theme";
+import {
+  DARK_SCHEME_QUERY,
+  THEME_STORAGE_KEY,
+  applyTheme,
+  isTheme,
+  readTheme,
+  resolveTheme,
+  saveTheme,
+} from "./theme";
 
 function stubMatchMedia(matches: boolean) {
   const listeners = new Set<(event: MediaQueryListEvent) => void>();
   const query = {
     matches,
     media: DARK_SCHEME_QUERY,
-    addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.add(listener),
-    removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => listeners.delete(listener),
+    addEventListener: (
+      _type: string,
+      listener: (event: MediaQueryListEvent) => void
+    ) => listeners.add(listener),
+    removeEventListener: (
+      _type: string,
+      listener: (event: MediaQueryListEvent) => void
+    ) => listeners.delete(listener),
   };
-  vi.stubGlobal("matchMedia", vi.fn(() => query));
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => query)
+  );
   return listeners;
 }
 
 describe("theme", () => {
   beforeEach(() => {
     window.localStorage.clear();
-    document.documentElement.removeAttribute("data-bs-theme");
+    document.documentElement.removeAttribute("data-theme");
   });
 
   afterEach(() => {
@@ -63,14 +80,14 @@ describe("theme", () => {
 
   it("writes the resolved palette to the document root", () => {
     expect(applyTheme("dark")).toBe("dark");
-    expect(document.documentElement.dataset.bsTheme).toBe("dark");
+    expect(document.documentElement.dataset.theme).toBe("dark");
     expect(applyTheme("light")).toBe("light");
-    expect(document.documentElement.dataset.bsTheme).toBe("light");
+    expect(document.documentElement.dataset.theme).toBe("light");
   });
 
   it("writes the system palette to the document root", () => {
     stubMatchMedia(true);
     expect(applyTheme("system")).toBe("dark");
-    expect(document.documentElement.dataset.bsTheme).toBe("dark");
+    expect(document.documentElement.dataset.theme).toBe("dark");
   });
 });

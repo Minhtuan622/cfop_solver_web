@@ -1,7 +1,8 @@
-import { Translate } from "@/components/ui/BootstrapIcon";
+import { Translate } from "@/components/ui/Icon";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 /** The two languages of the interface, each written the way its own speakers write it. */
 const OPTIONS: { value: Language; labelKey: string }[] = [
@@ -15,7 +16,8 @@ const OPTIONS: { value: Language; labelKey: string }[] = [
  */
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { language, setLanguage, t } = useLanguage();
-  const current = OPTIONS.find(option => option.value === language) ?? OPTIONS[0];
+  const current =
+    OPTIONS.find(option => option.value === language) ?? OPTIONS[0];
 
   return (
     <Dropdown
@@ -23,10 +25,14 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
       label={t("language.change")}
       title={t("language.change")}
       menuLabel={t("language.label")}
-      buttonClassName={compact ? "border-0 bg-transparent px-2" : undefined}
+      buttonClassName={
+        compact
+          ? "border-0 bg-transparent px-2.5 shadow-none hover:bg-surface-2"
+          : undefined
+      }
       button={
         <>
-          <Translate className={compact ? "fs-6" : "fs-6 me-1"} />
+          <Translate className={cn("text-base", !compact && "mr-1")} />
           {compact ? null : <span>{t(current.labelKey)}</span>}
         </>
       }
@@ -39,10 +45,10 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
               type="button"
               role="menuitemradio"
               aria-checked={active}
-              className="dropdown-item py-2 d-flex align-items-center gap-2"
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2 aria-checked:bg-primary-soft aria-checked:font-semibold aria-checked:text-primary"
               onClick={() => setLanguage(option.value)}
             >
-              <Translate className="fs-6" />
+              <Translate className="text-base" />
               {t(option.labelKey)}
             </button>
           </li>

@@ -3,7 +3,7 @@ import {
   formatDescriptionKey,
   type RoomFormat,
 } from "@/features/competition";
-import { PendingButton } from "@/components/ui/BootstrapUI";
+import { PendingButton } from "@/components/ui/StudioUI";
 import { translateServerText } from "@/lib/apiError";
 import type { TimerEventId } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -66,21 +66,23 @@ export function RoomSidebar({
   const { language, t } = useLanguage();
   const isMultiBlind = eventId === "333mbf";
   return (
-    <aside className="col-12 col-xl-4">
-      <div className="card mb-4">
-        <div className="card-body">
-          <h2 className="h5">{t("rooms.sidebar.standings")}</h2>
-          <p className="text-body-secondary small">
+    <aside className="col-span-12 xl:col-span-4">
+      <div className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+        <div className="p-5 sm:p-6">
+          <h2 className="text-base font-semibold tracking-tight">
+            {t("rooms.sidebar.standings")}
+          </h2>
+          <p className="text-muted text-sm">
             {isMultiBlind
               ? t("rooms.sidebar.standingsRule")
               : t(formatDescriptionKey[format])}
           </p>
           {standings.length ? (
-            <ol className="list-group list-group-numbered">
+            <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
               {standings.map(player => (
                 <li
                   key={player.accountId}
-                  className="list-group-item d-flex justify-content-between"
+                  className="block px-4 py-3 text-sm flex justify-between"
                 >
                   <span>{player.displayName}</span>
                   <strong>
@@ -90,15 +92,17 @@ export function RoomSidebar({
               ))}
             </ol>
           ) : (
-            <p className="text-body-secondary mb-0">{t("rooms.sidebar.noResults")}</p>
+            <p className="text-muted mb-0">{t("rooms.sidebar.noResults")}</p>
           )}
         </div>
       </div>
-      <div className="card mb-4">
-        <div className="card-body">
-          <h2 className="h5">{t("rooms.sidebar.members")}</h2>
+      <div className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+        <div className="p-5 sm:p-6">
+          <h2 className="text-base font-semibold tracking-tight">
+            {t("rooms.sidebar.members")}
+          </h2>
           {canManageSpectators ? (
-            <p className="text-body-secondary small">
+            <p className="text-muted text-sm">
               {isHost
                 ? t("rooms.sidebar.manageHint")
                 : t("rooms.sidebar.supportHint")}
@@ -118,27 +122,35 @@ export function RoomSidebar({
         </div>
       </div>
       {canManageSpectators ? (
-        <div className="card mb-4">
-          <div className="card-body">
-            <h2 className="h5">{t("rooms.sidebar.moderationLog")}</h2>
-            <p className="text-body-secondary small">
+        <div className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+          <div className="p-5 sm:p-6">
+            <h2 className="text-base font-semibold tracking-tight">
+              {t("rooms.sidebar.moderationLog")}
+            </h2>
+            <p className="text-muted text-sm">
               {t("rooms.sidebar.moderationHint")}
             </p>
             {moderationLogs.length ? (
-              <ol className="list-group list-group-numbered">
+              <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
                 {moderationLogs.map(entry => (
-                  <li key={entry.id} className="list-group-item">
-                    <strong>{entry.actorDisplayName}</strong> {t("rooms.sidebar.moderationVerb")}{" "}
+                  <li key={entry.id} className="block px-4 py-3 text-sm">
+                    <strong>{entry.actorDisplayName}</strong>{" "}
+                    {t("rooms.sidebar.moderationVerb")}{" "}
                     <strong>{entry.targetDisplayName}</strong>
-                    <small className="d-block text-body-secondary mt-1">
-                      {t("rooms.sidebar.moderationReason", { reason: entry.reason })} ·{" "}
-                      {new Date(entry.createdAt).toLocaleString(language === "vi" ? "vi-VN" : "en-US")}
+                    <small className="block text-muted mt-1">
+                      {t("rooms.sidebar.moderationReason", {
+                        reason: entry.reason,
+                      })}{" "}
+                      ·{" "}
+                      {new Date(entry.createdAt).toLocaleString(
+                        language === "vi" ? "vi-VN" : "en-US"
+                      )}
                     </small>
                   </li>
                 ))}
               </ol>
             ) : (
-              <p className="text-body-secondary small mb-0">
+              <p className="text-muted text-sm mb-0">
                 {t("rooms.sidebar.noModeration")}
               </p>
             )}
@@ -146,20 +158,25 @@ export function RoomSidebar({
         </div>
       ) : null}
       {isSpectator ? (
-        <div className="card">
-          <div className="card-body text-body-secondary small">
+        <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+          <div className="p-5 sm:p-6 text-muted text-sm">
             {t("rooms.sidebar.spectatorNote")}
           </div>
         </div>
       ) : (
-        <div className="card">
-          <div className="card-body">
-            <h2 className="h5">{t("rooms.sidebar.chat")}</h2>
-            <div className="list-group list-group-flush mb-3">
+        <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+          <div className="p-5 sm:p-6">
+            <h2 className="text-base font-semibold tracking-tight">
+              {t("rooms.sidebar.chat")}
+            </h2>
+            <div className="divide-y divide-line bg-transparent border-0 mb-4">
               {messages.map(chatItem => (
-                <div key={chatItem.id} className="list-group-item px-0">
-                  <strong className="small">{chatItem.displayName}</strong>
-                  <p className="mb-0 text-break">{translateServerText(chatItem.content, t) ?? chatItem.content}</p>
+                <div key={chatItem.id} className="block px-4 py-3 text-sm px-0">
+                  <strong className="text-sm">{chatItem.displayName}</strong>
+                  <p className="mb-0 break-words">
+                    {translateServerText(chatItem.content, t) ??
+                      chatItem.content}
+                  </p>
                 </div>
               ))}
             </div>
@@ -170,16 +187,16 @@ export function RoomSidebar({
               }}
             >
               <textarea
-                className="form-control"
+                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                 rows={2}
                 value={chat}
                 maxLength={500}
                 onChange={input => onChatChange(input.target.value)}
                 placeholder={t("rooms.sidebar.chatPlaceholder")}
               />
-              <div className="text-end mt-2">
+              <div className="text-right mt-2">
                 <PendingButton
-                  className="btn btn-primary btn-sm"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-3 py-1.5 text-xs"
                   disabled={!chat.trim()}
                   pending={sendPending}
                 >

@@ -1,10 +1,12 @@
-import { Check, Dices, Sparkles } from "@/components/ui/BootstrapIcon";
+import { Check, Dices, Sparkles } from "@/components/ui/Icon";
 import { Cube3DGuide } from "@/components/common/Cube3DGuide";
 import { CubeNet } from "@/components/common/CubeNet";
-import { SolveTimer, type TimerCompletion } from "@/components/common/SolveTimer";
+import {
+  SolveTimer,
+  type TimerCompletion,
+} from "@/components/common/SolveTimer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatTimerReadout } from "@/lib/solveHistory";
-import { cn } from "@/lib/utils";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 
 export type StudyCasePanelProps = {
@@ -54,13 +56,23 @@ export function StudyCasePanel({
 
   if (!activeCase) {
     return (
-      <section className="card cfop-card-surface h-100">
-        <div className="card-body p-3 p-lg-4">
-          <p className="small text-uppercase fw-semibold text-body-secondary mb-1">{t("study.queueLabel")}</p>
-          <h2 className="h5 mb-0">{loading ? t("study.loadingCases") : t("study.emptyCases")}</h2>
+      <section className="h-full rounded-card border border-line/80 bg-surface shadow-soft">
+        <div className="p-5 sm:p-6">
+          <p className="mb-1 text-sm font-semibold tracking-wide text-muted uppercase">
+            {t("study.queueLabel")}
+          </p>
+          <h2 className="text-base font-semibold tracking-tight text-ink">
+            {loading ? t("study.loadingCases") : t("study.emptyCases")}
+          </h2>
           {loading ? (
-            <p className="d-flex align-items-center gap-2 small text-body-secondary mt-3 mb-0" role="status">
-              <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+            <p
+              className="mt-4 flex items-center gap-2 text-sm text-muted"
+              role="status"
+            >
+              <span
+                className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+                aria-hidden="true"
+              />
               {t("study.loadingCatalog")}
             </p>
           ) : null}
@@ -70,36 +82,61 @@ export function StudyCasePanel({
   }
 
   return (
-    <section className="card cfop-card-surface h-100" aria-label={t("study.caseLabel")}>
-      <div className="cfop-solver-panel__header">
-        <div className="cfop-solver-panel__heading">
-          <p className="cfop-solver-eyebrow mb-1">{t("study.caseLabel")}</p>
-          <h2 className="h5 mb-0">
-            {activeCase.family.toUpperCase()} · {activeCase.group} · {activeCase.id}
+    <section
+      className="h-full rounded-card border border-line/80 bg-surface shadow-soft"
+      aria-label={t("study.caseLabel")}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+        <div className="min-w-0">
+          <p className="mb-1 text-xs font-semibold tracking-[0.12em] text-muted uppercase">
+            {t("study.caseLabel")}
+          </p>
+          <h2 className="text-base font-semibold tracking-tight text-ink">
+            {activeCase.family.toUpperCase()} · {activeCase.group} ·{" "}
+            {activeCase.id}
           </h2>
         </div>
-        <span className={cn("badge", mastered ? "text-bg-success" : "text-bg-secondary")}>
+        <span
+          className={
+            mastered
+              ? "inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-white"
+              : "inline-flex items-center rounded-full bg-surface-3 px-2.5 py-1 text-[11px] font-semibold text-ink"
+          }
+        >
           {mastered ? t("study.mastered") : t("study.learning")}
         </span>
       </div>
 
-      <div className="card-body p-3 p-lg-4">
-        <div className="d-flex justify-content-end mb-3">
-          <button type="button" onClick={onChooseNext} disabled={!canChooseNext} className="btn btn-outline-secondary btn-sm">
-            <Dices className="fs-6 me-1" />
+      <div className="p-5 sm:p-6">
+        <div className="mb-4 flex justify-end">
+          <button
+            type="button"
+            onClick={onChooseNext}
+            disabled={!canChooseNext}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Dices className="text-base" />
             {t("study.chooseNext")}
           </button>
         </div>
 
-        <div className="row g-4">
-          <div className="col-12 col-lg-7">
-            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-              <div className="btn-group btn-group-sm" role="group" aria-label={t("study.viewLabel")}>
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-7">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+              <div
+                className="inline-flex flex-wrap items-center gap-1 text-xs"
+                role="group"
+                aria-label={t("study.viewLabel")}
+              >
                 <button
                   type="button"
                   aria-pressed={view === "2d"}
                   onClick={() => onViewChange("2d")}
-                  className={cn("btn", view === "2d" ? "btn-primary" : "btn-outline-secondary")}
+                  className={
+                    view === "2d"
+                      ? "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover"
+                      : "inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
+                  }
                 >
                   2D
                 </button>
@@ -107,16 +144,22 @@ export function StudyCasePanel({
                   type="button"
                   aria-pressed={view === "3d"}
                   onClick={() => onViewChange("3d")}
-                  className={cn("btn", view === "3d" ? "btn-primary" : "btn-outline-secondary")}
+                  className={
+                    view === "3d"
+                      ? "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover"
+                      : "inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
+                  }
                 >
                   3D
                 </button>
               </div>
-              <span className="small text-body-secondary">{t("study.viewRecallTime")}</span>
+              <span className="text-sm text-muted">
+                {t("study.viewRecallTime")}
+              </span>
             </div>
 
             {view === "2d" ? (
-              <div className="border rounded bg-body-tertiary p-3 text-center">
+              <div className="rounded-xl border border-line bg-surface-2 p-4 text-center">
                 <CubeNet state={activeCase.state} />
               </div>
             ) : (
@@ -129,30 +172,48 @@ export function StudyCasePanel({
               />
             )}
 
-            <div className="d-flex flex-wrap gap-2 border-top pt-3 mt-3">
-              <button type="button" onClick={onToggleAlgorithm} className="btn btn-outline-secondary btn-sm">
-                {showAlgorithm ? <Check className="fs-6 me-1" /> : <Sparkles className="fs-6 me-1" />}
-                {showAlgorithm ? t("study.hideAlgorithm") : t("study.showAlgorithm")}
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
+              <button
+                type="button"
+                onClick={onToggleAlgorithm}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
+              >
+                {showAlgorithm ? (
+                  <Check className="text-base" />
+                ) : (
+                  <Sparkles className="text-base" />
+                )}
+                {showAlgorithm
+                  ? t("study.hideAlgorithm")
+                  : t("study.showAlgorithm")}
               </button>
-              <button type="button" onClick={onToggleMastered} className="btn btn-outline-secondary btn-sm">
-                <Check className="fs-6 me-1" />
+              <button
+                type="button"
+                onClick={onToggleMastered}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
+              >
+                <Check className="text-base" />
                 {mastered ? t("study.unmarkMastered") : t("study.markMastered")}
               </button>
             </div>
 
             {showAlgorithm ? (
-              <pre className="bg-body-tertiary border rounded p-3 mt-3 text-wrap mb-0 font-monospace">
+              <pre className="mt-4 rounded-xl border border-line bg-surface-2 p-4 font-mono text-wrap">
                 {activeCase.algorithm}
               </pre>
             ) : null}
           </div>
 
-          <div className="col-12 col-lg-5">
-            <div className="card bg-body-tertiary border-0 h-100">
-              <div className="card-body">
-                <p className="small text-uppercase fw-semibold text-body-secondary mb-1">{t("study.recallTitle")}</p>
-                <h3 className="h5">{t("study.timeThisCase")}</h3>
-                <p className="small text-body-secondary">{t("study.recallHint")}</p>
+          <div className="col-span-12 lg:col-span-5">
+            <div className="h-full rounded-card border border-line/80 bg-surface shadow-soft">
+              <div className="p-5 sm:p-6">
+                <p className="mb-1 text-sm font-semibold tracking-wide text-muted uppercase">
+                  {t("study.recallTitle")}
+                </p>
+                <h3 className="text-base font-semibold tracking-tight text-ink">
+                  {t("study.timeThisCase")}
+                </h3>
+                <p className="text-sm text-muted">{t("study.recallHint")}</p>
 
                 <SolveTimer
                   key={timerVersion}
@@ -161,25 +222,41 @@ export function StudyCasePanel({
                   inspectionEnabled={false}
                 />
 
-                <div className="border-top pt-3 mt-3">
-                  <p className="small text-body-secondary mb-2">
+                <div className="mt-4 border-t border-line pt-4">
+                  <p className="mb-2 text-sm text-muted">
                     {lastElapsed === null
                       ? t("study.stopToGrade")
                       : `${t("study.result")} · ${formatTimerReadout(lastElapsed)}`}
                   </p>
                   {lastElapsed !== null ? (
-                    <div className="row g-2">
-                      <div className="col-6">
-                        <GradeButton label={t("study.gradeAgain")} tone="red" onClick={() => onGrade("again")} />
+                    <div className="grid grid-cols-12 gap-2">
+                      <div className="col-span-6">
+                        <GradeButton
+                          label={t("study.gradeAgain")}
+                          tone="red"
+                          onClick={() => onGrade("again")}
+                        />
                       </div>
-                      <div className="col-6">
-                        <GradeButton label={t("study.gradeHard")} tone="ink" onClick={() => onGrade("hard")} />
+                      <div className="col-span-6">
+                        <GradeButton
+                          label={t("study.gradeHard")}
+                          tone="ink"
+                          onClick={() => onGrade("hard")}
+                        />
                       </div>
-                      <div className="col-6">
-                        <GradeButton label={t("study.gradeGood")} tone="mint" onClick={() => onGrade("good")} />
+                      <div className="col-span-6">
+                        <GradeButton
+                          label={t("study.gradeGood")}
+                          tone="mint"
+                          onClick={() => onGrade("good")}
+                        />
                       </div>
-                      <div className="col-6">
-                        <GradeButton label={t("study.gradeEasy")} tone="mint" onClick={() => onGrade("easy")} />
+                      <div className="col-span-6">
+                        <GradeButton
+                          label={t("study.gradeEasy")}
+                          tone="mint"
+                          onClick={() => onGrade("easy")}
+                        />
                       </div>
                     </div>
                   ) : null}
@@ -193,10 +270,27 @@ export function StudyCasePanel({
   );
 }
 
-function GradeButton({ label, tone, onClick }: { label: string; tone: "red" | "ink" | "mint"; onClick: () => void }) {
-  const classes = tone === "red" ? "btn btn-outline-danger w-100" : tone === "mint" ? "btn btn-primary w-100" : "btn btn-outline-secondary w-100";
+function GradeButton({
+  label,
+  tone,
+  onClick,
+}: {
+  label: string;
+  tone: "red" | "ink" | "mint";
+  onClick: () => void;
+}) {
+  const className =
+    tone === "red"
+      ? "inline-flex items-center justify-center rounded-full border border-danger/35 bg-transparent px-4 py-2 text-sm font-semibold text-danger transition hover:bg-danger-soft"
+      : tone === "mint"
+        ? "inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover"
+        : "inline-flex items-center justify-center rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2";
   return (
-    <button type="button" onClick={onClick} className={classes}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${className} w-full`}
+    >
       {label}
     </button>
   );

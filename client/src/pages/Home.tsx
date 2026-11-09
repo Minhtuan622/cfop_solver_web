@@ -10,7 +10,7 @@ import {
   ChevronUp,
   ListUl,
   Puzzle,
-} from "@/components/ui/BootstrapIcon";
+} from "@/components/ui/Icon";
 import {
   Banner,
   EyebrowPill,
@@ -525,7 +525,7 @@ export default function Home() {
 
   const heroCube = (
     <svg
-      className="position-absolute d-none d-lg-block"
+      className="absolute hidden lg:block"
       style={{ right: "6%", top: "-0.5rem", width: 190, height: 190 }}
       viewBox="0 0 120 120"
       aria-hidden="true"
@@ -552,20 +552,20 @@ export default function Home() {
     ) : null;
 
   return (
-    <div className="container-xxl px-3 px-lg-4 pb-4 pb-lg-5">
-      <section className="position-relative my-4">
+    <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6 lg:px-8 lg:px-6 pb-6 lg:pb-12">
+      <section className="relative my-6">
         {heroCube}
-        <EyebrowPill className="mb-3" icon={<BoxSeam aria-hidden="true" />}>
+        <EyebrowPill className="mb-4" icon={<BoxSeam aria-hidden="true" />}>
           {t("home.eyebrow")}
         </EyebrowPill>
-        <div className="d-flex flex-column flex-xl-row align-items-xl-end justify-content-between gap-3">
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <h1 className="display-5 fw-bold mb-2">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-2">
               {solverKind === "bld"
                 ? t("home.title.bld")
                 : t("home.title.solve")}
             </h1>
-            <p className="mb-0 text-body-secondary">
+            <p className="mb-0 text-muted">
               {solverKind === "bld"
                 ? t("home.description.bld")
                 : mode === "state"
@@ -584,8 +584,8 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="row g-4 align-items-start">
-        <div className="col-12 col-xl-8 d-flex flex-column gap-4">
+      <div className="grid grid-cols-12 gap-6 items-start">
+        <div className="col-span-12 xl:col-span-8 flex flex-col gap-6">
           <SolverInputPanel
             solverKind={solverKind}
             mode={mode}
@@ -701,7 +701,7 @@ export default function Home() {
             </SolverSolutionPanel>
             {solverKind !== "bld" && lastLayerTelemetry ? (
               <Banner
-                className="mt-3"
+                className="mt-4"
                 tone={lastLayerTelemetry.did_fallback ? "warning" : "success"}
                 icon={<CheckCircleFill aria-hidden="true" />}
               >
@@ -712,14 +712,14 @@ export default function Home() {
           </div>
         </div>
 
-        <aside className="col-12 col-xl-4">
+        <aside className="col-span-12 xl:col-span-4">
           <Surface
-            className="p-3 p-lg-4 sticky-xl-top"
+            className="p-4 lg:p-6 sticky-xl-top"
             style={{ top: "6rem" }}
             aria-label={t("home.solutionTitle")}
           >
             <PanelHeader
-              className="mb-3"
+              className="mb-4"
               icon={<ListUl />}
               title={t("home.solutionTitle")}
               actions={
@@ -745,7 +745,7 @@ export default function Home() {
                 <PillTabs<SolverKind>
                   variant="soft"
                   fill
-                  className="mb-3"
+                  className="mb-4"
                   label={t("home.modeLabel")}
                   value={solverKind}
                   onChange={switchSolverKind}
@@ -779,11 +779,8 @@ export default function Home() {
                     onSelectMove={moveIndex => selectCursor(moveIndex, "seek")}
                   />
                 ) : (
-                  <div
-                    className="text-center rounded-4 p-4"
-                    style={{ background: "var(--ds-soft)" }}
-                  >
-                    <p className="fw-semibold mb-0">
+                  <div className="rounded-2xl bg-primary-soft p-6 text-center">
+                    <p className="font-semibold mb-0">
                       {t("home.noSolutionYet")}
                     </p>
                   </div>

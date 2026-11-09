@@ -1,8 +1,9 @@
-import { CircleHalf, MoonStars, SunFill } from "@/components/ui/BootstrapIcon";
+import { CircleHalf, MoonStars, SunFill } from "@/components/ui/Icon";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Theme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
 const OPTIONS: { value: Theme; icon: typeof SunFill }[] = [
   { value: "light", icon: SunFill },
@@ -25,7 +26,12 @@ export function ThemeSwitcher({ compact = false }: { compact?: boolean }) {
   };
 
   const current = OPTIONS.find(option => option.value === theme) ?? OPTIONS[2];
-  const CurrentIcon = resolved === "dark" ? MoonStars : resolved === "light" ? SunFill : current.icon;
+  const CurrentIcon =
+    resolved === "dark"
+      ? MoonStars
+      : resolved === "light"
+        ? SunFill
+        : current.icon;
 
   return (
     <Dropdown
@@ -33,10 +39,14 @@ export function ThemeSwitcher({ compact = false }: { compact?: boolean }) {
       label={t("theme.change")}
       title={t("theme.change")}
       menuLabel={t("theme.label")}
-      buttonClassName={compact ? "border-0 bg-transparent px-2" : undefined}
+      buttonClassName={
+        compact
+          ? "border-0 bg-transparent px-2.5 shadow-none hover:bg-surface-2"
+          : undefined
+      }
       button={
         <>
-          <CurrentIcon className={compact ? "fs-6" : "fs-6 me-1"} />
+          <CurrentIcon className={cn("text-base", !compact && "mr-1")} />
           {compact ? null : <span>{labels[theme]}</span>}
         </>
       }
@@ -50,10 +60,10 @@ export function ThemeSwitcher({ compact = false }: { compact?: boolean }) {
               type="button"
               role="menuitemradio"
               aria-checked={active}
-              className="dropdown-item py-2 d-flex align-items-center gap-2"
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2 aria-checked:bg-primary-soft aria-checked:font-semibold aria-checked:text-primary"
               onClick={() => setTheme(option.value)}
             >
-              <OptionIcon className="fs-6" />
+              <OptionIcon className="text-base" />
               {labels[option.value]}
             </button>
           </li>

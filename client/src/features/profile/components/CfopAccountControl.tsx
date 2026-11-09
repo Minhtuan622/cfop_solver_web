@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { BoxArrowRight, PersonCircle } from "@/components/ui/BootstrapIcon";
+import { BoxArrowRight, PersonCircle } from "@/components/ui/Icon";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -64,15 +64,16 @@ export function CfopAccountControl() {
       if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
     };
     document.addEventListener("pointerdown", closeOnOutsidePointer);
-    return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
+    return () =>
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
   }, [menuOpen]);
 
   if (account)
     return (
-      <div ref={menuRef} className="dropdown d-grid d-xl-block">
+      <div ref={menuRef} className="relative">
         <button
           type="button"
-          className="btn btn-outline-secondary btn-sm dropdown-toggle d-inline-flex align-items-center justify-content-center"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink shadow-sm transition hover:bg-surface-2 xl:w-auto"
           onClick={() => setMenuOpen(value => !value)}
           aria-expanded={menuOpen}
           aria-haspopup="menu"
@@ -85,18 +86,21 @@ export function CfopAccountControl() {
               alt={t("account.avatarAlt", { name: account.displayName })}
               width={24}
               height={24}
-              className="rounded-circle object-fit-cover flex-shrink-0 me-1"
+              className="h-6 w-6 shrink-0 rounded-full object-cover"
             />
           ) : (
             <span
-              className="rounded-circle bg-body-secondary text-body d-inline-flex align-items-center justify-content-center flex-shrink-0 me-1 small fw-semibold"
-              style={{ width: 24, height: 24 }}
-              aria-label={t("account.initialsLabel", { name: account.displayName })}
+              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-3 text-[10px] font-semibold text-ink"
+              aria-label={t("account.initialsLabel", {
+                name: account.displayName,
+              })}
             >
               {initials(account.displayName)}
             </span>
           )}
-          <span className="d-none d-xl-inline text-truncate" style={{ maxWidth: "10ch" }}>{account.displayName}</span>
+          <span className="hidden max-w-[10ch] truncate xl:inline">
+            {account.displayName}
+          </span>
         </button>
         {menuOpen ? (
           <AccountDropdown>
@@ -104,28 +108,28 @@ export function CfopAccountControl() {
               <Link
                 href="/profile"
                 role="menuitem"
-                className="dropdown-item py-2"
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-ink transition hover:bg-surface-2"
                 onClick={closeMenu}
               >
-                <PersonCircle className="fs-6 me-2" />
+                <PersonCircle className="text-base" />
                 {t("account.profile")}
               </Link>
             </li>
             <li>
-              <hr className="dropdown-divider" />
+              <hr className="my-1 h-px border-0 bg-line" />
             </li>
             <li>
               <button
                 type="button"
                 role="menuitem"
-                className="dropdown-item py-2"
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2 disabled:opacity-50"
                 onClick={() => {
                   closeMenu();
                   logout.mutate();
                 }}
                 disabled={logout.isPending}
               >
-                <BoxArrowRight className="fs-6 me-2" />
+                <BoxArrowRight className="text-base" />
                 {t("account.logout")}
               </button>
             </li>
@@ -136,16 +140,16 @@ export function CfopAccountControl() {
 
   return (
     <>
-      <div ref={menuRef} className="dropdown d-grid d-xl-block">
+      <div ref={menuRef} className="relative">
         <button
           type="button"
-          className="btn btn-outline-secondary btn-sm dropdown-toggle"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink shadow-sm transition hover:bg-surface-2 xl:w-auto"
           onClick={() => setMenuOpen(value => !value)}
           aria-expanded={menuOpen}
           aria-haspopup="menu"
           aria-controls="cfop-account-menu"
         >
-          <PersonCircle className="fs-6 me-1" />
+          <PersonCircle className="text-base" />
           {t("account.signIn")}
         </button>
         {menuOpen ? (
@@ -154,7 +158,7 @@ export function CfopAccountControl() {
               <button
                 type="button"
                 role="menuitem"
-                className="dropdown-item py-2"
+                className="flex w-full items-center rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2"
                 onClick={() => {
                   closeMenu();
                   show("login");
@@ -167,7 +171,7 @@ export function CfopAccountControl() {
               <button
                 type="button"
                 role="menuitem"
-                className="dropdown-item py-2"
+                className="flex w-full items-center rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2"
                 onClick={() => {
                   closeMenu();
                   show("register");

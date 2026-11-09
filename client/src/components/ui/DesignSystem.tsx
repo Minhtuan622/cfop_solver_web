@@ -1,8 +1,6 @@
 /**
- * Shared building blocks of the blue "dashboard" look. Each one wraps a ds-*
- * class from styles/design-system.css, so pages compose them instead of
- * repeating class strings. Colours come from the --ds-* tokens, so they follow
- * light/dark mode on their own.
+ * Shared building blocks of the dashboard look. Each one composes Tailwind
+ * utilities, so pages assemble surfaces instead of repeating class strings.
  */
 import {
   forwardRef,
@@ -12,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { cn } from "@/lib/utils";
-import { IconButton } from "./BootstrapUI";
+import { IconButton } from "./StudioUI";
 
 /** A white, rounded, softly shadowed panel. */
 export function Surface({
@@ -27,7 +25,13 @@ export function Surface({
   [key: string]: unknown;
 }) {
   return (
-    <Tag className={cn("ds-card", className)} {...rest}>
+    <Tag
+      className={cn(
+        "rounded-card border border-line/70 bg-surface shadow-soft",
+        className
+      )}
+      {...rest}
+    >
       {children}
     </Tag>
   );
@@ -42,7 +46,13 @@ export function IconBox({
   className?: string;
 }) {
   return (
-    <span className={cn("ds-icon-box", className)} aria-hidden="true">
+    <span
+      className={cn(
+        "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-lg text-primary",
+        className
+      )}
+      aria-hidden="true"
+    >
       {children}
     </span>
   );
@@ -59,7 +69,12 @@ export function EyebrowPill({
   className?: string;
 }) {
   return (
-    <span className={cn("ds-eyebrow", className)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full bg-primary-soft px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-primary",
+        className
+      )}
+    >
       {icon}
       {children}
     </span>
@@ -80,14 +95,13 @@ export function PanelHeader({
 }) {
   return (
     <header
-      className={cn(
-        "d-flex align-items-center justify-content-between gap-3",
-        className
-      )}
+      className={cn("flex items-center justify-between gap-3", className)}
     >
-      <div className="d-flex align-items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3">
         {icon ? <IconBox>{icon}</IconBox> : null}
-        <h2 className="h5 fw-bold mb-0">{title}</h2>
+        <h2 className="truncate text-base font-semibold tracking-tight text-ink sm:text-lg">
+          {title}
+        </h2>
       </div>
       {actions}
     </header>
@@ -110,8 +124,10 @@ export function PillBar({
   return (
     <div
       className={cn(
-        "ds-pills",
-        variant === "soft" && "ds-pills--soft",
+        "inline-flex flex-wrap items-center gap-1 rounded-full p-1",
+        variant === "solid"
+          ? "border border-line/70 bg-surface shadow-soft"
+          : "bg-surface-2",
         className
       )}
       {...rest}
@@ -122,7 +138,9 @@ export function PillBar({
 }
 
 export function PillDivider() {
-  return <span className="ds-divider" aria-hidden="true" />;
+  return (
+    <span className="mx-1 h-6 w-px self-center bg-line" aria-hidden="true" />
+  );
 }
 
 export type PillOption<T extends string> = {
@@ -152,7 +170,11 @@ export function PillGroup<T extends string>({
 }) {
   return (
     <div
-      className={cn("d-inline-flex gap-1", fill && "w-100", className)}
+      className={cn(
+        "inline-flex flex-wrap items-center gap-1",
+        fill && "w-full",
+        className
+      )}
       role="group"
       aria-label={label}
     >
@@ -163,9 +185,9 @@ export function PillGroup<T extends string>({
           aria-pressed={value === option.value}
           aria-label={option.ariaLabel}
           className={cn(
-            "ds-pill",
-            size === "sm" && "ds-pill--sm",
-            fill && "flex-fill justify-content-center"
+            "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-muted transition outline-none hover:bg-surface-2 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20 aria-pressed:bg-primary aria-pressed:text-white aria-pressed:shadow-sm aria-pressed:hover:bg-primary",
+            size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm",
+            fill && "flex-1"
           )}
           onClick={() => onChange(option.value)}
         >
@@ -184,7 +206,10 @@ export function PillTabs<T extends string>({
   ...group
 }: Parameters<typeof PillGroup<T>>[0] & { variant?: "solid" | "soft" }) {
   return (
-    <PillBar variant={variant} className={cn(group.fill && "w-100", className)}>
+    <PillBar
+      variant={variant}
+      className={cn(group.fill && "w-full", className)}
+    >
       <PillGroup {...group} />
     </PillBar>
   );
@@ -211,11 +236,15 @@ export function RoundButton({
       label={label}
       icon={icon}
       className={cn(
-        "ds-round",
-        tone === "primary" && "ds-round--primary",
-        tone === "plain" && "ds-round--plain",
-        size === "sm" && "ds-round--sm",
-        size === "lg" && "ds-round--lg",
+        "text-ink disabled:pointer-events-none",
+        tone === "soft" && "bg-surface-2 hover:bg-surface-3",
+        tone === "primary" &&
+          "bg-primary text-white shadow-lg shadow-primary/30 hover:bg-primary-hover",
+        tone === "plain" &&
+          "bg-transparent text-muted hover:bg-surface-2 hover:text-ink",
+        size === "sm" && "h-9 w-9 text-base",
+        size === "md" && "h-11 w-11 text-lg",
+        size === "lg" && "h-14 w-14 text-2xl",
         className
       )}
       {...rest}
@@ -231,7 +260,10 @@ export const PillInput = forwardRef<
   return (
     <input
       ref={ref}
-      className={cn("form-control ds-input", className)}
+      className={cn(
+        "h-11 w-full rounded-full border border-line bg-surface-2 px-5 font-mono text-sm text-ink outline-none transition placeholder:text-muted/60 focus:border-primary focus:bg-surface focus:ring-4 focus:ring-primary/15",
+        className
+      )}
       {...rest}
     />
   );
@@ -247,7 +279,10 @@ export function Chip({
   return (
     <button
       type="button"
-      className={cn("ds-chip", active && "is-current", className)}
+      className={cn(
+        "inline-flex min-w-9 items-center justify-center rounded-lg bg-surface-2 px-2.5 py-1.5 font-mono text-sm font-semibold text-ink transition hover:bg-surface-3 aria-pressed:bg-primary aria-pressed:text-white aria-pressed:shadow-sm",
+        className
+      )}
       aria-pressed={active}
       {...rest}
     >
@@ -271,8 +306,10 @@ export function Banner({
   return (
     <div
       className={cn(
-        "ds-banner",
-        tone === "warning" && "ds-banner--warn",
+        "flex items-start gap-3 rounded-panel border px-4 py-3 text-sm text-ink [&>svg]:mt-0.5 [&>svg]:shrink-0",
+        tone === "success"
+          ? "border-success/20 bg-success-soft [&>svg]:text-success"
+          : "border-warning/25 bg-warning-soft [&>svg]:text-warning",
         className
       )}
     >

@@ -8,7 +8,7 @@ function renderSwitcher() {
   return render(
     <ThemeProvider>
       <ThemeSwitcher />
-    </ThemeProvider>,
+    </ThemeProvider>
   );
 }
 
@@ -16,7 +16,7 @@ describe("ThemeSwitcher", () => {
   afterEach(() => {
     cleanup();
     window.localStorage.clear();
-    document.documentElement.removeAttribute("data-bs-theme");
+    document.documentElement.removeAttribute("data-theme");
   });
 
   it("offers the three palettes in a menu", () => {
@@ -26,7 +26,9 @@ describe("ThemeSwitcher", () => {
 
     expect(screen.getByRole("menuitemradio", { name: /Sáng/ })).toBeTruthy();
     expect(screen.getByRole("menuitemradio", { name: /Tối/ })).toBeTruthy();
-    expect(screen.getByRole("menuitemradio", { name: /Hệ thống/ })).toBeTruthy();
+    expect(
+      screen.getByRole("menuitemradio", { name: /Hệ thống/ })
+    ).toBeTruthy();
   });
 
   it("applies and remembers the chosen palette", () => {
@@ -35,7 +37,7 @@ describe("ThemeSwitcher", () => {
     fireEvent.click(screen.getByRole("button", { name: /giao diện/i }));
     fireEvent.click(screen.getByRole("menuitemradio", { name: /Tối/ }));
 
-    expect(document.documentElement.dataset.bsTheme).toBe("dark");
+    expect(document.documentElement.dataset.theme).toBe("dark");
     expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
   });
 

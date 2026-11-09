@@ -1,4 +1,5 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   EmptyState,
@@ -7,17 +8,16 @@ import {
   PendingButton,
   StatTile,
   Switch,
-} from "./BootstrapUI";
+} from "./StudioUI";
 
 afterEach(() => cleanup());
 
 describe("LoadingTransition", () => {
   it("giữ nội dung và chuyển sang trạng thái hiển thị sau frame", async () => {
-    render(<LoadingTransition>Đã tải</LoadingTransition>);
+    const { container } = render(<LoadingTransition>Đã tải</LoadingTransition>);
 
-    const content = screen.getByText("Đã tải");
-    expect(content?.classList.contains("loading-content")).toBe(true);
-    await waitFor(() => expect(content?.classList.contains("loading-content-ready")).toBe(true));
+    expect(container.firstElementChild).toHaveClass("opacity-0");
+    await waitFor(() => expect(container.firstElementChild).toHaveClass("opacity-100"));
     expect(screen.getByText("Đã tải")).not.toBeNull();
   });
 });
@@ -33,8 +33,8 @@ describe("EmptyState", () => {
       />,
     );
 
-    expect(screen.getByText("Chưa có phòng.").classList.contains("cfop-empty-state__title")).toBe(true);
-    expect(screen.getByText("Tạo phòng mới để bắt đầu.").classList.contains("cfop-empty-state__description")).toBe(true);
+    expect(screen.getByText("Chưa có phòng.")).toHaveClass("text-base", "font-semibold");
+    expect(screen.getByText("Tạo phòng mới để bắt đầu.")).toHaveClass("text-sm", "text-muted");
     expect(screen.getByRole("button", { name: "Tạo phòng" })).not.toBeNull();
     expect(screen.getByText("icon").parentElement?.getAttribute("aria-hidden")).toBe("true");
   });
@@ -60,17 +60,20 @@ describe("StatTile", () => {
 
   it("đổi nền theo tone", () => {
     const { container } = render(<StatTile label="Parity" value="YES" tone="warning" />);
-    expect(container.querySelector(".card")?.classList.contains("bg-warning-subtle")).toBe(true);
+    expect(container.firstElementChild).toHaveClass("bg-warning-soft");
 
     const dark = render(<StatTile label="Ao5" value="10.00s" tone="dark" />);
-    expect(dark.container.querySelector(".card")?.classList.contains("cfop-inverse-tile")).toBe(true);
+    expect(dark.container.firstElementChild).toHaveClass("bg-ink");
   });
 });
 
 describe("PendingButton", () => {
   it("khoá nút và báo busy trong lúc hành động đang chạy", () => {
     const { container } = render(
-      <PendingButton className="btn btn-primary" pending>
+      <PendingButton
+        className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white"
+        pending
+      >
         Tạo phòng
       </PendingButton>,
     );
@@ -78,7 +81,7 @@ describe("PendingButton", () => {
     const button = screen.getByRole("button", { name: "Tạo phòng" });
     expect((button as HTMLButtonElement).disabled).toBe(true);
     expect(button.getAttribute("aria-busy")).toBe("true");
-    expect(container.querySelector(".spinner-border")?.getAttribute("aria-hidden")).toBe("true");
+    expect(container.querySelector(".animate-spin")).not.toBeNull();
   });
 
   it("giữ nút bấm được khi không chờ", () => {
@@ -110,7 +113,7 @@ describe("Field", () => {
       </Field>,
     );
 
-    const input = screen.getByLabelText("Tên phòng");
+    const input = screen.getByLabelText(/Tên phòng/);
     expect(input.getAttribute("id")).toBe("room-name");
   });
 

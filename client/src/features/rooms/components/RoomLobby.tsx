@@ -5,14 +5,18 @@ import {
   LoadingTransition,
   PendingButton,
   SkeletonList,
-} from "@/components/ui/BootstrapUI";
+} from "@/components/ui/StudioUI";
 import {
   SystemLeaderboard,
   competitionEventLabel,
   formatLabels,
   type RoomFormat,
 } from "@/features/competition";
-import { TIMER_EVENTS, timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
+import {
+  TIMER_EVENTS,
+  timerEventLabel,
+  type TimerEventId,
+} from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { RoomSummary } from "../lib/roomTypes";
 
@@ -62,35 +66,45 @@ export function RoomLobby({
 }: Props) {
   const { language, t } = useLanguage();
   return (
-    <div className="container">
-      <div className="row g-4">
-        <section className="col-12 col-xl-7">
-          <div className="card">
-            <div className="card-body">
-              <h1 className="h3">{t("rooms.lobby.title")}</h1>
-              <p className="text-body-secondary">{t("rooms.lobby.intro")}</p>
+    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-12 gap-6">
+        <section className="col-span-12 xl:col-span-7">
+          <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+            <div className="p-5 sm:p-6">
+              <h1 className="text-xl font-semibold tracking-tight">
+                {t("rooms.lobby.title")}
+              </h1>
+              <p className="text-muted">{t("rooms.lobby.intro")}</p>
               <form
                 onSubmit={form => {
                   form.preventDefault();
                   onCreate();
                 }}
               >
-                <Field id="room-name" label={t("rooms.lobby.nameLabel")} required>
+                <Field
+                  id="room-name"
+                  label={t("rooms.lobby.nameLabel")}
+                  required
+                >
                   <input
                     id="room-name"
                     required
                     minLength={2}
                     maxLength={80}
-                    className="form-control"
+                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                     value={name}
                     onChange={input => onNameChange(input.target.value)}
                   />
                 </Field>
-                <div className="row g-3 mt-0">
-                  <Field id="room-event" label={t("rooms.lobby.eventLabel")} className="col-md-4">
+                <div className="grid grid-cols-12 gap-4 mt-0">
+                  <Field
+                    id="room-event"
+                    label={t("rooms.lobby.eventLabel")}
+                    className="md:col-span-4"
+                  >
                     <select
                       id="room-event"
-                      className="form-select"
+                      className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                       value={eventId}
                       onChange={input =>
                         onEventIdChange(input.target.value as TimerEventId)
@@ -103,10 +117,14 @@ export function RoomLobby({
                       ))}
                     </select>
                   </Field>
-                  <Field id="room-format" label={t("rooms.lobby.formatLabel")} className="col-md-4">
+                  <Field
+                    id="room-format"
+                    label={t("rooms.lobby.formatLabel")}
+                    className="md:col-span-4"
+                  >
                     <select
                       id="room-format"
-                      className="form-select"
+                      className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                       value={format}
                       onChange={input =>
                         onFormatChange(input.target.value as RoomFormat)
@@ -119,30 +137,45 @@ export function RoomLobby({
                       ))}
                     </select>
                   </Field>
-                  <Field id="room-max-players" label={t("rooms.lobby.maxPlayersLabel")} className="col-md-4">
+                  <Field
+                    id="room-max-players"
+                    label={t("rooms.lobby.maxPlayersLabel")}
+                    className="md:col-span-4"
+                  >
                     <select
                       id="room-max-players"
-                      className="form-select"
+                      className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                       value={maxPlayers}
-                      onChange={input => onMaxPlayersChange(Number(input.target.value))}
+                      onChange={input =>
+                        onMaxPlayersChange(Number(input.target.value))
+                      }
                     >
                       {[2, 4, 6, 8, 12, 16].map(value => (
-                        <option key={value}>{t("rooms.lobby.playerCount", { count: value })}</option>
+                        <option key={value}>
+                          {t("rooms.lobby.playerCount", { count: value })}
+                        </option>
                       ))}
                     </select>
                   </Field>
                   {eventId === "333mbf" ? (
-                    <Field id="room-blind-cubes" label={t("rooms.lobby.mbldLabel")} className="col-md-4">
+                    <Field
+                      id="room-blind-cubes"
+                      label={t("rooms.lobby.mbldLabel")}
+                      className="md:col-span-4"
+                    >
                       <input
                         id="room-blind-cubes"
                         type="number"
                         min={2}
                         max={99}
-                        className="form-control"
+                        className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                         value={multiBlindCubes}
                         onChange={input =>
                           onMultiBlindCubesChange(
-                            Math.max(2, Math.min(99, Number(input.target.value) || 2))
+                            Math.max(
+                              2,
+                              Math.min(99, Number(input.target.value) || 2)
+                            )
                           )
                         }
                       />
@@ -150,7 +183,7 @@ export function RoomLobby({
                   ) : null}
                 </div>
                 <PendingButton
-                  className="btn btn-primary mt-3"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover mt-4"
                   pending={createPending}
                 >
                   {t("rooms.lobby.create")}
@@ -159,50 +192,61 @@ export function RoomLobby({
             </div>
           </div>
         </section>
-        <aside className="col-12 col-xl-5">
-          <div className="card">
-            <div className="card-body">
-              <h2 className="h5">{t("rooms.lobby.joinByCode")}</h2>
+        <aside className="col-span-12 xl:col-span-5">
+          <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+            <div className="p-5 sm:p-6">
+              <h2 className="text-base font-semibold tracking-tight">
+                {t("rooms.lobby.joinByCode")}
+              </h2>
               <form
                 onSubmit={form => {
                   form.preventDefault();
                   onJoin();
                 }}
               >
-                <Field id="room-join-code" label={t("rooms.lobby.codeLabel")} required>
+                <Field
+                  id="room-join-code"
+                  label={t("rooms.lobby.codeLabel")}
+                  required
+                >
                   <input
                     id="room-join-code"
-                    className="form-control text-uppercase"
+                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 uppercase tracking-wide"
                     required
                     minLength={4}
                     maxLength={10}
                     value={joinCode}
-                    onChange={input => onJoinCodeChange(input.target.value.toUpperCase())}
+                    onChange={input =>
+                      onJoinCodeChange(input.target.value.toUpperCase())
+                    }
                     placeholder="ABC123"
                   />
                 </Field>
                 <PendingButton
-                  className="btn btn-outline-primary mt-3"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft mt-4"
                   pending={joinPending}
                 >
                   {t("rooms.lobby.join")}
                 </PendingButton>
               </form>
-              <h2 className="h6 mt-4">{t("rooms.lobby.myRooms")}</h2>
+              <h2 className="text-sm font-semibold tracking-tight mt-6">
+                {t("rooms.lobby.myRooms")}
+              </h2>
               {myRoomsPending ? (
                 <SkeletonList rows={3} label={t("rooms.lobby.loadingRooms")} />
               ) : myRooms.length ? (
                 <LoadingTransition>
-                  <div className="list-group list-group-flush">
+                  <div className="divide-y divide-line bg-transparent border-0">
                     {myRooms.map(room => (
                       <Link
                         key={room.id}
                         href={`/rooms/${room.code}`}
-                        className="list-group-item list-group-item-action px-0"
+                        className="block px-4 py-3 text-sm transition-colors hover:bg-surface-2 px-0"
                       >
-                        <strong className="d-block">{room.name}</strong>
-                        <small className="text-body-secondary">
-                          {room.code} · {competitionEventLabel(room.eventId, language)}
+                        <strong className="block">{room.name}</strong>
+                        <small className="text-muted">
+                          {room.code} ·{" "}
+                          {competitionEventLabel(room.eventId, language)}
                         </small>
                       </Link>
                     ))}
@@ -219,7 +263,11 @@ export function RoomLobby({
         </aside>
       </div>
       <SystemLeaderboard />
-      {error ? <div className="alert alert-danger mt-4">{error}</div> : null}
+      {error ? (
+        <div className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mt-6">
+          {error}
+        </div>
+      ) : null}
     </div>
   );
 }

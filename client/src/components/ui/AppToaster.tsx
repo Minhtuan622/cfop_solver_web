@@ -6,7 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
  *
  * Every transient message — a new personal record, a moderation notice — goes
  * through sonner so the look and the placement never depend on the page that
- * raised it. The colours come from the Bootstrap tokens, see `.sonner-toaster`
+ * raised it. The colours come from the design tokens, see `.sonner-toaster`
  * in `index.css`.
  */
 export function AppToaster() {

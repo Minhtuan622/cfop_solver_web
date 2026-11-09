@@ -1,7 +1,6 @@
-import { Field } from "@/components/ui/BootstrapUI";
-import { Search } from "@/components/ui/BootstrapIcon";
+import { Field } from "@/components/ui/StudioUI";
+import { Search } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
 import type { WcaCountry } from "../lib/wcaCalendar";
 
 export type WcaCalendarFiltersProps = {
@@ -41,9 +40,17 @@ export function WcaCalendarFilters({
 }: WcaCalendarFiltersProps) {
   const { language, t } = useLanguage();
   const currentYear = new Date().getFullYear();
-  const years = [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
+  const years = [
+    currentYear - 1,
+    currentYear,
+    currentYear + 1,
+    currentYear + 2,
+  ];
   const monthNames = Array.from({ length: 12 }, (_, index) =>
-    new Date(2000, index, 1).toLocaleString(language === "vi" ? "vi-VN" : "en-US", { month: "long" }),
+    new Date(2000, index, 1).toLocaleString(
+      language === "vi" ? "vi-VN" : "en-US",
+      { month: "long" }
+    )
   );
 
   const jumpTo = (nextYear: number, nextMonth: number) => {
@@ -52,90 +59,133 @@ export function WcaCalendarFilters({
   };
 
   return (
-    <section className="cfop-calendar-filters" aria-label={t("wca.filters")}>
-      <div className="cfop-calendar-filters__header">
-        <h2 className="cfop-calendar-filters__title">{t("wca.filters")}</h2>
-        <div className="d-flex align-items-center gap-2">
-          <div className="btn-group btn-group-sm" role="group" aria-label={t("wca.quickPeriods")}>
-            <button type="button" className="btn btn-outline-secondary" onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}>
+    <section
+      className="mt-8 rounded-card border border-line/80 bg-surface p-5 shadow-soft sm:p-6"
+      aria-label={t("wca.filters")}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+        <h2 className="text-base font-semibold tracking-tight text-ink">
+          {t("wca.filters")}
+        </h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            className="inline-flex flex-wrap items-center gap-1 text-xs"
+            role="group"
+            aria-label={t("wca.quickPeriods")}
+          >
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
+              onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
+            >
               {t("wca.thisMonth")}
             </button>
-            <button type="button" className="btn btn-outline-secondary" onClick={() => {
-              const next = new Date();
-              next.setMonth(next.getMonth() + 1);
-              jumpTo(next.getFullYear(), next.getMonth() + 1);
-            }}>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
+              onClick={() => {
+                const next = new Date();
+                next.setMonth(next.getMonth() + 1);
+                jumpTo(next.getFullYear(), next.getMonth() + 1);
+              }}
+            >
               {t("wca.nextMonth")}
             </button>
-            <button type="button" className="btn btn-outline-secondary" onClick={() => jumpTo(currentYear, 0)}>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
+              onClick={() => jumpTo(currentYear, 0)}
+            >
               {t("wca.thisYear")}
             </button>
           </div>
           {onReset ? (
-            <button type="button" className="btn btn-link btn-sm p-0 text-decoration-none" onClick={onReset}>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-transparent px-3 py-1.5 text-xs font-semibold text-primary transition hover:underline"
+              onClick={onReset}
+            >
               {t("wca.resetFilters")}
             </button>
           ) : null}
         </div>
       </div>
 
-      <Field id="wca-year" label={t("wca.year")} className="cfop-calendar-filters__field">
-        <select
-          id="wca-year"
-          className="form-select"
-          value={year}
-          onChange={(event) => onYearChange(Number(event.target.value))}
+      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Field id="wca-year" label={t("wca.year")}>
+          <select
+            id="wca-year"
+            className="h-11 w-full rounded-full border border-line bg-surface px-4 py-2.5 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+            value={year}
+            onChange={event => onYearChange(Number(event.target.value))}
+          >
+            {years.map(value => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field id="wca-month" label={t("wca.month")}>
+          <select
+            id="wca-month"
+            className="h-11 w-full rounded-full border border-line bg-surface px-4 py-2.5 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+            value={month}
+            onChange={event => onMonthChange(Number(event.target.value))}
+          >
+            <option value={0}>{t("wca.allMonths")}</option>
+            {monthNames.map((name, index) => (
+              <option key={index + 1} value={index + 1}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field id="wca-country" label={t("wca.country")}>
+          <select
+            id="wca-country"
+            className="h-11 w-full rounded-full border border-line bg-surface px-4 py-2.5 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+            value={countryIso2}
+            onChange={event => onCountryChange(event.target.value)}
+            disabled={countriesLoading}
+          >
+            <option value="">
+              {countriesLoading
+                ? t("wca.countriesLoading")
+                : t("wca.allCountries")}
+            </option>
+            {countries.map(country => (
+              <option key={country.iso2} value={country.iso2}>
+                {country.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field
+          id="wca-search"
+          label={t("wca.search")}
+          className="md:col-span-2"
         >
-          {years.map((value) => (
-            <option key={value} value={value}>{value}</option>
-          ))}
-        </select>
-      </Field>
+          <div className="flex h-full w-full items-stretch">
+            <span className="inline-flex items-center rounded-l-full border border-r-0 border-line bg-surface-2 px-3 text-sm text-muted">
+              <Search />
+            </span>
+            <input
+              id="wca-search"
+              type="search"
+              className="h-full w-full rounded-r-full border border-line bg-surface px-4 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+              value={query}
+              placeholder={t("wca.searchPlaceholder")}
+              onChange={event => onQueryChange(event.target.value)}
+            />
+          </div>
+        </Field>
+      </div>
 
-      <Field id="wca-month" label={t("wca.month")} className="cfop-calendar-filters__field">
-        <select
-          id="wca-month"
-          className="form-select"
-          value={month}
-          onChange={(event) => onMonthChange(Number(event.target.value))}
-        >
-          <option value={0}>{t("wca.allMonths")}</option>
-          {monthNames.map((name, index) => (
-            <option key={index + 1} value={index + 1}>{name}</option>
-          ))}
-        </select>
-      </Field>
-
-      <Field id="wca-country" label={t("wca.country")} className="cfop-calendar-filters__field">
-        <select
-          id="wca-country"
-          className="form-select"
-          value={countryIso2}
-          onChange={(event) => onCountryChange(event.target.value)}
-          disabled={countriesLoading}
-        >
-          <option value="">{countriesLoading ? t("wca.countriesLoading") : t("wca.allCountries")}</option>
-          {countries.map((country) => (
-            <option key={country.iso2} value={country.iso2}>{country.name}</option>
-          ))}
-        </select>
-      </Field>
-
-      <Field id="wca-search" label={t("wca.search")} className="cfop-calendar-filters__field cfop-calendar-filters__field--wide">
-        <div className="input-group">
-          <span className="input-group-text"><Search /></span>
-          <input
-            id="wca-search"
-            type="search"
-            className="form-control"
-            value={query}
-            placeholder={t("wca.searchPlaceholder")}
-            onChange={(event) => onQueryChange(event.target.value)}
-          />
-        </div>
-      </Field>
-
-      <p className="cfop-calendar-filters__count" role="status" aria-live="polite">
+      <p className="mt-4 text-sm text-muted" role="status" aria-live="polite">
         {shownCount < totalCount
           ? t("wca.resultsFiltered", { shown: shownCount, total: totalCount })
           : t("wca.resultsCount", { count: shownCount })}

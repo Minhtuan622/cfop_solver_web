@@ -1,0 +1,464 @@
+/* Domain-specific 3D Rubik rendering. These transforms and keyframes cannot be expressed as static utilities. */
+
+/* ---- Cube net (2D) ---- */
+.cube-net {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0.375rem;
+  border-radius: 1.125rem;
+  background: var(--cube-stage);
+  padding: 0.75rem;
+}
+
+.cube-net--compact {
+  width: 14rem;
+}
+
+.cube-net:not(.cube-net--compact) {
+  width: 100%;
+  max-width: 33rem;
+}
+
+.cube-net-editable {
+  outline: 2px solid rgba(74, 155, 142, 0.55);
+  outline-offset: 2px;
+}
+
+.cube-net-face {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.cube-net-face-u {
+  grid-column: 2;
+  grid-row: 1;
+}
+.cube-net-face-l {
+  grid-column: 1;
+  grid-row: 2;
+}
+.cube-net-face-f {
+  grid-column: 2;
+  grid-row: 2;
+}
+.cube-net-face-r {
+  grid-column: 3;
+  grid-row: 2;
+}
+.cube-net-face-b {
+  grid-column: 4;
+  grid-row: 2;
+}
+.cube-net-face-d {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.cube-net-face-label {
+  position: absolute;
+  left: -0.125rem;
+  top: -1rem;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(244, 240, 232, 0.55);
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.cube-net-editable .cube-net-face-label {
+  color: rgba(244, 240, 232, 0.7);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.cube-net-editable .cube-net-face-label:hover:not(:disabled) {
+  color: var(--primary);
+}
+
+.cube-net-editable .cube-net-face-label:disabled {
+  opacity: 0.4;
+}
+
+.cube-net-stickers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  height: 100%;
+  border-radius: 0.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px;
+}
+
+.cube-sticker {
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.14);
+}
+
+.cube-sticker--center {
+  outline: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+.cube-sticker--highlight {
+  z-index: 10;
+  outline: 2px solid #fff;
+  box-shadow:
+    0 0 0 3px var(--primary),
+    0 0 12px 3px rgba(74, 155, 142, 0.75);
+}
+
+.cube-sticker--editable {
+  cursor: crosshair;
+}
+
+.cube-sticker--editable:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.cube-sticker--editable:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.cube-sticker:disabled {
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+/* Cube editor grid (standalone editor panel) */
+.cube-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0.375rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--canvas);
+  padding: 0.75rem;
+}
+
+.cube-editor-face-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+/* ---- 3D Rubik scene (functional geometry, not page theme) ---- */
+.cube3d-stage {
+  display: grid;
+  min-height: 230px;
+  place-items: center;
+  overflow: visible;
+  perspective: 700px;
+}
+
+.interactive-cube-stage {
+  position: relative;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.interactive-cube-stage:active {
+  cursor: grabbing;
+}
+
+.cube3d-motion-shell {
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+}
+
+.cube3d-model {
+  position: relative;
+  width: 118px;
+  height: 118px;
+  transform: var(--cube-transform, rotateX(-26deg) rotateY(34deg));
+  transform-origin: 50% 50% 0;
+  transform-style: preserve-3d;
+  transition: transform 180ms ease-out;
+  will-change: transform;
+}
+
+.interactive-cube-stage.is-orbiting .cube3d-model {
+  transition: none;
+}
+
+.cube3d-face {
+  position: absolute;
+  display: grid;
+  width: 118px;
+  height: 118px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  border: 4px solid #111;
+  background: #111;
+  transform: var(--face-transform);
+}
+
+.cube3d-face span {
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.18);
+}
+
+.cube3d-face-2x2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.cube3d-f {
+  --face-transform: translateZ(59px);
+}
+.cube3d-r {
+  --face-transform: rotateY(90deg) translateZ(59px);
+}
+.cube3d-u {
+  --face-transform: rotateX(90deg) translateZ(59px);
+}
+.cube3d-b {
+  --face-transform: rotateY(180deg) translateZ(59px);
+}
+.cube3d-l {
+  --face-transform: rotateY(-90deg) translateZ(59px);
+}
+.cube3d-d {
+  --face-transform: rotateX(-90deg) translateZ(59px);
+}
+
+.cube3d-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform-origin: 59px 59px;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  animation-duration: var(--turn-duration, 340ms);
+  animation-fill-mode: both;
+  animation-timing-function: ease-in-out;
+}
+
+.cube3d-layer-main,
+.cube3d-layer-strip {
+  position: absolute;
+  display: grid;
+  gap: 3px;
+  border: 4px solid #111;
+  background: #111;
+}
+
+.cube3d-layer-main {
+  width: 118px;
+  height: 118px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.cube3d-layer-r .cube3d-layer-main {
+  transform: rotateY(90deg) translateZ(60px);
+}
+.cube3d-layer-l .cube3d-layer-main {
+  transform: rotateY(-90deg) translateZ(60px);
+}
+.cube3d-layer-u .cube3d-layer-main {
+  transform: rotateX(90deg) translateZ(60px);
+}
+.cube3d-layer-d .cube3d-layer-main {
+  transform: rotateX(-90deg) translateZ(60px);
+}
+.cube3d-layer-f .cube3d-layer-main {
+  transform: translateZ(60px);
+}
+.cube3d-layer-b .cube3d-layer-main {
+  transform: rotateY(180deg) translateZ(60px);
+}
+
+.cube3d-layer-r .cube3d-layer-strip,
+.cube3d-layer-l .cube3d-layer-strip {
+  width: 39px;
+  height: 118px;
+  grid-template-rows: repeat(3, 1fr);
+}
+
+.cube3d-layer-u .cube3d-layer-strip,
+.cube3d-layer-d .cube3d-layer-strip,
+.cube3d-layer-f .cube3d-layer-strip,
+.cube3d-layer-b .cube3d-layer-strip {
+  width: 118px;
+  height: 39px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.cube3d-layer-r .cube3d-layer-strip-f,
+.cube3d-layer-r .cube3d-layer-strip-u,
+.cube3d-layer-r .cube3d-layer-strip-d {
+  left: 79px;
+}
+.cube3d-layer-r .cube3d-layer-strip-f,
+.cube3d-layer-l .cube3d-layer-strip-f {
+  transform: translateZ(60px);
+}
+.cube3d-layer-r .cube3d-layer-strip-u,
+.cube3d-layer-l .cube3d-layer-strip-u {
+  transform: rotateX(90deg) translateZ(60px);
+}
+.cube3d-layer-r .cube3d-layer-strip-d,
+.cube3d-layer-l .cube3d-layer-strip-d {
+  transform: rotateX(-90deg) translateZ(60px);
+}
+.cube3d-layer-r .cube3d-layer-strip-b,
+.cube3d-layer-l .cube3d-layer-strip-b {
+  transform: rotateY(180deg) translateZ(60px);
+}
+.cube3d-layer-u .cube3d-layer-strip-f,
+.cube3d-layer-u .cube3d-layer-strip-r,
+.cube3d-layer-u .cube3d-layer-strip-l {
+  top: 0;
+}
+.cube3d-layer-d .cube3d-layer-strip-f,
+.cube3d-layer-d .cube3d-layer-strip-r,
+.cube3d-layer-d .cube3d-layer-strip-l {
+  top: 79px;
+}
+.cube3d-layer-u .cube3d-layer-strip-f,
+.cube3d-layer-d .cube3d-layer-strip-f {
+  transform: translateZ(60px);
+}
+.cube3d-layer-u .cube3d-layer-strip-r,
+.cube3d-layer-d .cube3d-layer-strip-r {
+  transform: rotateY(90deg) translateZ(60px);
+}
+.cube3d-layer-u .cube3d-layer-strip-l,
+.cube3d-layer-d .cube3d-layer-strip-l {
+  transform: rotateY(-90deg) translateZ(60px);
+}
+.cube3d-layer-u .cube3d-layer-strip-b,
+.cube3d-layer-d .cube3d-layer-strip-b {
+  transform: rotateY(180deg) translateZ(60px);
+}
+.cube3d-layer-f .cube3d-layer-strip-u,
+.cube3d-layer-b .cube3d-layer-strip-u {
+  transform: rotateX(90deg) translateZ(60px);
+  top: 79px;
+}
+.cube3d-layer-f .cube3d-layer-strip-d,
+.cube3d-layer-b .cube3d-layer-strip-d {
+  transform: rotateX(-90deg) translateZ(60px);
+  top: 0;
+}
+.cube3d-layer-f .cube3d-layer-strip-r,
+.cube3d-layer-b .cube3d-layer-strip-r {
+  transform: rotateY(90deg) translateZ(60px);
+  left: 79px;
+  width: 39px;
+  height: 118px;
+  grid-template-rows: repeat(3, 1fr);
+}
+.cube3d-layer-f .cube3d-layer-strip-l,
+.cube3d-layer-b .cube3d-layer-strip-l {
+  transform: rotateY(-90deg) translateZ(60px);
+  width: 39px;
+  height: 118px;
+  grid-template-rows: repeat(3, 1fr);
+}
+
+.cube3d-layer-r,
+.cube3d-layer-l {
+  animation-name: cube-layer-turn-y;
+}
+.cube3d-layer-u,
+.cube3d-layer-d {
+  animation-name: cube-layer-turn-x;
+}
+.cube3d-layer-f,
+.cube3d-layer-b {
+  animation-name: cube-layer-turn-z;
+}
+
+@keyframes cube-layer-turn-x {
+  0% {
+    opacity: 1;
+    transform: rotateX(0);
+  }
+  90% {
+    opacity: 1;
+    transform: rotateX(var(--turn-angle));
+  }
+  100% {
+    opacity: 0;
+    transform: rotateX(var(--turn-angle));
+  }
+}
+
+@keyframes cube-layer-turn-y {
+  0% {
+    opacity: 1;
+    transform: rotateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: rotateY(var(--turn-angle));
+  }
+  100% {
+    opacity: 0;
+    transform: rotateY(var(--turn-angle));
+  }
+}
+
+@keyframes cube-layer-turn-z {
+  0% {
+    opacity: 1;
+    transform: rotateZ(0);
+  }
+  90% {
+    opacity: 1;
+    transform: rotateZ(var(--turn-angle));
+  }
+  100% {
+    opacity: 0;
+    transform: rotateZ(var(--turn-angle));
+  }
+}
+
+.cube3d-cross-sticker {
+  outline: 3px solid #fff;
+  outline-offset: -3px;
+}
+.cube3d-xcross-sticker {
+  outline: 3px solid var(--primary);
+  outline-offset: -3px;
+}
+.cube3d-last-layer-sticker {
+  outline: 3px solid #ffc107;
+  outline-offset: -3px;
+}
+.cube3d-special-sticker {
+  outline: 3px solid #dc3545;
+  outline-offset: -3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cube3d-model {
+    transition: none;
+  }
+  .cube3d-layer {
+    animation: none;
+  }
+  .cube3d-model:active:not(:disabled) {
+    transform: none;
+  }
+  .cube-sticker--editable:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Dark stage used by the 3D cube and the camera scanner. */
+.interactive-cube-stage {
+  background-color: var(--cube-stage);
+  color: var(--cube-stage-ink);
+}
+
+.interactive-cube-stage .cube3d-stage__muted {
+  color: var(--cube-stage-muted);
+}

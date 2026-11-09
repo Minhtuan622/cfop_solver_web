@@ -1,4 +1,5 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
@@ -55,7 +56,7 @@ function writeToLogFile(source: LogSource, entries: unknown[]) {
   const logPath = path.join(LOG_DIR, `${source}.log`);
 
   // Format entries with timestamps
-  const lines = entries.map((entry) => {
+  const lines = entries.map(entry => {
     const ts = new Date().toISOString();
     return `[${ts}] ${JSON.stringify(entry)}`;
   });
@@ -131,7 +132,7 @@ function vitePluginManusDebugCollector(): Plugin {
         }
 
         let body = "";
-        req.on("data", (chunk) => {
+        req.on("data", chunk => {
           body += chunk.toString();
         });
 
@@ -149,7 +150,10 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-function vitePluginOptionalAnalytics(endpoint?: string, websiteId?: string): Plugin {
+function vitePluginOptionalAnalytics(
+  endpoint?: string,
+  websiteId?: string
+): Plugin {
   return {
     name: "optional-analytics",
     transformIndexHtml(html) {
@@ -179,15 +183,26 @@ function vitePluginOptionalAnalytics(endpoint?: string, websiteId?: string): Plu
 }
 
 const projectRoot = import.meta.dirname;
-const environment = loadEnv(process.env.NODE_ENV === "production" ? "production" : "development", projectRoot, "");
-const analyticsEndpoint = process.env.VITE_ANALYTICS_ENDPOINT ?? environment.VITE_ANALYTICS_ENDPOINT;
-const analyticsWebsiteId = process.env.VITE_ANALYTICS_WEBSITE_ID ?? environment.VITE_ANALYTICS_WEBSITE_ID;
+const environment = loadEnv(
+  process.env.NODE_ENV === "production" ? "production" : "development",
+  projectRoot,
+  ""
+);
+const analyticsEndpoint =
+  process.env.VITE_ANALYTICS_ENDPOINT ?? environment.VITE_ANALYTICS_ENDPOINT;
+const analyticsWebsiteId =
+  process.env.VITE_ANALYTICS_WEBSITE_ID ??
+  environment.VITE_ANALYTICS_WEBSITE_ID;
 // The Manus runtime is an iframe bridge for the Manus preview host. It inlines
 // a ~360 kB script into index.html, so keep it out of standalone production
 // builds. Set MANUS_RUNTIME=1 for a build hosted inside Manus.
-const includeManusRuntime = process.env.NODE_ENV !== "production" || process.env.MANUS_RUNTIME === "1" || environment.MANUS_RUNTIME === "1";
+const includeManusRuntime =
+  process.env.NODE_ENV !== "production" ||
+  process.env.MANUS_RUNTIME === "1" ||
+  environment.MANUS_RUNTIME === "1";
 const plugins = [
   react(),
+  tailwindcss(),
   jsxLocPlugin(),
   ...(includeManusRuntime ? [vitePluginManusRuntime()] : []),
   vitePluginManusDebugCollector(),
@@ -220,7 +235,8 @@ export default defineConfig({
           // its React dependency into that chunk, and the entry would have to
           // preload the whole charting library just to get React. Let the lazy
           // route imports create the shared chart chunk instead.
-          if (id.includes("embeddedSolver") || id.includes("solverWorker")) return "solver";
+          if (id.includes("embeddedSolver") || id.includes("solverWorker"))
+            return "solver";
         },
       },
     },

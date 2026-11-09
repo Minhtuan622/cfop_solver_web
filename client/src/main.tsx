@@ -6,23 +6,16 @@ import { createRoot } from "react-dom/client";
 import type { ComponentType, ReactElement } from "react";
 import superjson from "superjson";
 import App from "./App";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import "sonner/dist/styles.css";
 import "./index.css";
-import "./styles/design-system.css";
-
-// Accordions are below the first interaction path. Defer their Bootstrap data API
-// so React, navigation and the initial Studio route can become interactive first.
-// A failed optional enhancement must never surface as an unhandled boot error.
-window.setTimeout(() => {
-  void import("bootstrap/js/dist/collapse").catch((error: unknown) => console.warn("[Bootstrap] Không thể tải collapse enhancement.", error));
-}, 0);
+import "./styles/cube.css";
 
 // React boundaries cannot see exceptions raised before mounting or by external scripts.
 // Keep the browser's native reporting intact while adding context for actionable logs.
-window.addEventListener("unhandledrejection", (event) => {
-  const reason = event.reason as { message?: string; stack?: string } | undefined;
+window.addEventListener("unhandledrejection", event => {
+  const reason = event.reason as
+    | { message?: string; stack?: string }
+    | undefined;
   console.error("[Unhandled Promise Rejection]", {
     message: reason?.message ?? String(event.reason),
     stack: reason?.stack,
@@ -30,13 +23,17 @@ window.addEventListener("unhandledrejection", (event) => {
   });
 });
 
-window.addEventListener("error", (event) => {
-  if (event.message === "Script error.") console.warn("[External Script Error] Browser hid stack details for a cross-origin script.", {
-    url: window.location.href,
-    filename: event.filename,
-    line: event.lineno,
-    column: event.colno,
-  });
+window.addEventListener("error", event => {
+  if (event.message === "Script error.")
+    console.warn(
+      "[External Script Error] Browser hid stack details for a cross-origin script.",
+      {
+        url: window.location.href,
+        filename: event.filename,
+        line: event.lineno,
+        column: event.colno,
+      }
+    );
 });
 
 const queryClient = new QueryClient();
@@ -78,15 +75,21 @@ applyTheme(readTheme());
  * reach a production chunk or block the first paint.
  */
 async function renderApp() {
-  let Shell: ComponentType<{ children: ReactElement }> = ({ children }) => <>{children}</>;
+  let Shell: ComponentType<{ children: ReactElement }> = ({ children }) => (
+    <>{children}</>
+  );
 
   if (import.meta.env.DEV) {
-    const [{ DevSupport }, { ComponentPreviews, useInitial }] = await Promise.all([
-      import("@react-buddy/ide-toolbox"),
-      import("../../dev"),
-    ]);
+    const [{ DevSupport }, { ComponentPreviews, useInitial }] =
+      await Promise.all([
+        import("@react-buddy/ide-toolbox"),
+        import("../../dev"),
+      ]);
     Shell = ({ children }) => (
-      <DevSupport ComponentPreviews={ComponentPreviews} useInitialHook={useInitial}>
+      <DevSupport
+        ComponentPreviews={ComponentPreviews}
+        useInitialHook={useInitial}
+      >
         {children}
       </DevSupport>
     );
@@ -99,7 +102,7 @@ async function renderApp() {
           <App />
         </Shell>
       </QueryClientProvider>
-    </trpc.Provider>,
+    </trpc.Provider>
   );
 }
 

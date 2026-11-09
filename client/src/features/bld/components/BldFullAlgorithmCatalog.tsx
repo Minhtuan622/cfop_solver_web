@@ -1,19 +1,307 @@
-/* Bootstrap-first full BLD library: fetches only when the learner opens the full catalog. */
-import { ChevronLeftIcon, ChevronRight, Search } from "@/components/ui/BootstrapIcon";
-import { IconButton, SkeletonList } from "@/components/ui/BootstrapUI";
-import { loadFullBldCatalog, type BldCatalogCase, type BldCatalogGroup } from "@/features/bld";
+/* Tailwind-first full BLD library: fetches only when the learner opens the full catalog. */
+import { ChevronLeftIcon, ChevronRight, Search } from "@/components/ui/Icon";
+import { IconButton, SkeletonList } from "@/components/ui/StudioUI";
+import {
+  loadFullBldCatalog,
+  type BldCatalogCase,
+  type BldCatalogGroup,
+} from "@/features/bld";
 import type { StarterFormula } from "@/features/bld";
 import { useEffect, useMemo, useState } from "react";
 
 const PAGE_SIZE = 24;
-const groupLabel = (group: BldCatalogGroup, vi: boolean) => group === "edge" ? (vi ? "Cạnh" : "Edges") : group === "corner" ? (vi ? "Góc" : "Corners") : (vi ? "Đặc biệt" : "Special");
-const kindLabel = (kind: BldCatalogCase["kind"], vi: boolean) => ({ edge: vi ? "Cạnh" : "Edge", corner: vi ? "Góc" : "Corner", parity: "Parity", flip: vi ? "Lật cạnh" : "Edge flip", twist: vi ? "Xoay góc" : "Corner twist" }[kind]);
-function toFormula(entry: BldCatalogCase, algorithm: string): StarterFormula { return { group: entry.group, kind: entry.kind, key: entry.key, titleVi: `${kindLabel(entry.kind, true)} · ${entry.key}`, titleEn: `${kindLabel(entry.kind, false)} · ${entry.key}`, algorithm, noteVi: "Biến thể từ catalog 3-Style đầy đủ. Hãy chọn một biến thể, sau đó dùng target scramble để tự kiểm.", noteEn: "A full 3-Style catalog variant. Choose one variant, then use target scramble self-check." }; }
+const groupLabel = (group: BldCatalogGroup, vi: boolean) =>
+  group === "edge"
+    ? vi
+      ? "Cạnh"
+      : "Edges"
+    : group === "corner"
+      ? vi
+        ? "Góc"
+        : "Corners"
+      : vi
+        ? "Đặc biệt"
+        : "Special";
+const kindLabel = (kind: BldCatalogCase["kind"], vi: boolean) =>
+  ({
+    edge: vi ? "Cạnh" : "Edge",
+    corner: vi ? "Góc" : "Corner",
+    parity: "Parity",
+    flip: vi ? "Lật cạnh" : "Edge flip",
+    twist: vi ? "Xoay góc" : "Corner twist",
+  })[kind];
+function toFormula(entry: BldCatalogCase, algorithm: string): StarterFormula {
+  return {
+    group: entry.group,
+    kind: entry.kind,
+    key: entry.key,
+    titleVi: `${kindLabel(entry.kind, true)} · ${entry.key}`,
+    titleEn: `${kindLabel(entry.kind, false)} · ${entry.key}`,
+    algorithm,
+    noteVi:
+      "Biến thể từ catalog 3-Style đầy đủ. Hãy chọn một biến thể, sau đó dùng target scramble để tự kiểm.",
+    noteEn:
+      "A full 3-Style catalog variant. Choose one variant, then use target scramble self-check.",
+  };
+}
 
-export function BldFullAlgorithmCatalog({ language, onChoose }: { language: "vi" | "en"; onChoose: (formula: StarterFormula) => void }) {
-  const vi = language === "vi"; const [open, setOpen] = useState(false); const [cases, setCases] = useState<BldCatalogCase[]>([]); const [loading, setLoading] = useState(false); const [failed, setFailed] = useState(false); const [group, setGroup] = useState<BldCatalogGroup>("edge"); const [query, setQuery] = useState(""); const [page, setPage] = useState(0); const [active, setActive] = useState<BldCatalogCase | null>(null);
-  useEffect(() => { if (!open || cases.length) return; let live = true; setLoading(true); loadFullBldCatalog().then((next) => { if (live) { setCases(next); setLoading(false); } }).catch(() => { if (live) { setFailed(true); setLoading(false); } }); return () => { live = false; }; }, [open, cases.length]);
-  const filtered = useMemo(() => cases.filter((entry) => entry.group === group && entry.key.toLowerCase().includes(query.trim().toLowerCase())), [cases, group, query]); const maxPage = Math.max(0, Math.ceil(filtered.length / PAGE_SIZE) - 1); const shown = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  const selectGroup = (next: BldCatalogGroup) => { setGroup(next); setPage(0); setActive(null); };
-  return <section className="card mt-4"><div className="card-header d-flex flex-wrap align-items-center justify-content-between gap-2"><div><p className="small text-uppercase fw-semibold text-body-secondary mb-1">{vi ? "THƯ VIỆN ĐẦY ĐỦ" : "FULL LIBRARY"}</p><h4 className="h6 mb-0">{vi ? "Toàn bộ case 3-Style và các biến thể algorithm" : "All 3-Style cases and algorithm variants"}</h4></div><button type="button" onClick={() => setOpen((current) => !current)} className="btn btn-outline-secondary">{open ? (vi ? "Thu gọn thư viện" : "Collapse library") : (vi ? "Mở thư viện đầy đủ" : "Open full library")}</button></div>{open && <div className="card-body">{loading ? <SkeletonList rows={6} label={vi ? "Đang nạp catalog 3-Style đầy đủ" : "Loading full 3-Style catalog"} /> : failed ? <div className="alert alert-warning mb-0">{vi ? "Không tải được catalog khi đang ngoại tuyến. Hãy thử lại khi có mạng." : "The catalog could not load while offline. Try again online."}</div> : <><div className="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3"><div className="btn-group" role="group" aria-label={vi ? "Nhóm thư viện 3-Style" : "3-Style library group"}>{(["edge", "corner", "special"] as BldCatalogGroup[]).map((item) => <button key={item} type="button" onClick={() => selectGroup(item)} className={group === item ? "btn btn-primary" : "btn btn-outline-secondary"}>{groupLabel(item, vi)}</button>)}</div><div className="input-group" style={{ maxWidth: "19rem" }}><span className="input-group-text"><Search className="fs-6" /></span><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); }} className="form-control" placeholder={vi ? "Tìm key, ví dụ ACE" : "Find key, e.g. ACE"} aria-label={vi ? "Tìm case 3-Style" : "Search 3-Style cases"} /></div></div><p className="small text-body-secondary">{filtered.length.toLocaleString()} {vi ? "case phù hợp; mỗi case có toàn bộ biến thể từ catalog." : "matching cases; each case retains every catalog variant."}</p><div className="row g-2">{shown.map((entry) => <div className="col-12 col-md-6" key={`${entry.kind}-${entry.key}`}><article className={active?.kind === entry.kind && active.key === entry.key ? "card border-primary h-100" : "card h-100"}><div className="card-body d-flex align-items-center justify-content-between gap-2"><div><span className="badge text-bg-secondary">{kindLabel(entry.kind, vi)}</span><strong className="d-block mt-1">{entry.key}</strong><small className="text-body-secondary">{entry.algorithms.length.toLocaleString()} {vi ? "biến thể" : "variants"}</small></div><button type="button" onClick={() => setActive(entry)} className="btn btn-outline-secondary btn-sm">{vi ? "Xem biến thể" : "View variants"}</button></div></article></div>)}</div>{!shown.length && <div className="alert alert-secondary mt-3 mb-0">{vi ? "Không có case khớp với bộ lọc." : "No case matches this filter."}</div>}<div className="d-flex align-items-center justify-content-between mt-3"><IconButton label={vi ? "Trang case trước" : "Previous case page"} icon={<ChevronLeftIcon className="fs-6" />} onClick={() => setPage((current) => Math.max(0, current - 1))} disabled={!page} className="btn btn-outline-secondary" /><span className="small text-body-secondary">{page + 1}/{maxPage + 1}</span><IconButton label={vi ? "Trang case kế" : "Next case page"} icon={<ChevronRight className="fs-6" />} onClick={() => setPage((current) => Math.min(maxPage, current + 1))} disabled={page >= maxPage} className="btn btn-outline-secondary" /></div>{active && <div className="card mt-4"><div className="card-header"><strong>{kindLabel(active.kind, vi)} · {active.key}</strong><span className="small text-body-secondary ms-2">{active.algorithms.length.toLocaleString()} {vi ? "biến thể" : "variants"}</span></div><div className="list-group list-group-flush">{active.algorithms.map((algorithm, index) => <div className="list-group-item" key={`${active.key}-${index}`}><div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2"><code className="small text-break">{algorithm}</code><button type="button" onClick={() => onChoose(toFormula(active, algorithm))} className="btn btn-primary btn-sm align-self-md-start">{vi ? "Dùng biến thể này" : "Use this variant"}</button></div></div>)}</div></div>}</>}</div>}</section>;
+export function BldFullAlgorithmCatalog({
+  language,
+  onChoose,
+}: {
+  language: "vi" | "en";
+  onChoose: (formula: StarterFormula) => void;
+}) {
+  const vi = language === "vi";
+  const [open, setOpen] = useState(false);
+  const [cases, setCases] = useState<BldCatalogCase[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [group, setGroup] = useState<BldCatalogGroup>("edge");
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const [active, setActive] = useState<BldCatalogCase | null>(null);
+  useEffect(() => {
+    if (!open || cases.length) return;
+    let live = true;
+    setLoading(true);
+    loadFullBldCatalog()
+      .then(next => {
+        if (live) {
+          setCases(next);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (live) {
+          setFailed(true);
+          setLoading(false);
+        }
+      });
+    return () => {
+      live = false;
+    };
+  }, [open, cases.length]);
+  const filtered = useMemo(
+    () =>
+      cases.filter(
+        entry =>
+          entry.group === group &&
+          entry.key.toLowerCase().includes(query.trim().toLowerCase())
+      ),
+    [cases, group, query]
+  );
+  const maxPage = Math.max(0, Math.ceil(filtered.length / PAGE_SIZE) - 1);
+  const shown = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const selectGroup = (next: BldCatalogGroup) => {
+    setGroup(next);
+    setPage(0);
+    setActive(null);
+  };
+  return (
+    <section className="rounded-card border border-line/80 bg-surface shadow-soft mt-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6 gap-2">
+        <div>
+          <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
+            {vi ? "THƯ VIỆN ĐẦY ĐỦ" : "FULL LIBRARY"}
+          </p>
+          <h4 className="text-sm font-semibold tracking-tight mb-0">
+            {vi
+              ? "Toàn bộ case 3-Style và các biến thể algorithm"
+              : "All 3-Style cases and algorithm variants"}
+          </h4>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(current => !current)}
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+        >
+          {open
+            ? vi
+              ? "Thu gọn thư viện"
+              : "Collapse library"
+            : vi
+              ? "Mở thư viện đầy đủ"
+              : "Open full library"}
+        </button>
+      </div>
+      {open && (
+        <div className="p-5 sm:p-6">
+          {loading ? (
+            <SkeletonList
+              rows={6}
+              label={
+                vi
+                  ? "Đang nạp catalog 3-Style đầy đủ"
+                  : "Loading full 3-Style catalog"
+              }
+            />
+          ) : failed ? (
+            <div className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mb-0">
+              {vi
+                ? "Không tải được catalog khi đang ngoại tuyến. Hãy thử lại khi có mạng."
+                : "The catalog could not load while offline. Try again online."}
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2 items-center justify-between mb-4">
+                <div
+                  className="inline-flex flex-wrap items-center gap-1"
+                  role="group"
+                  aria-label={
+                    vi ? "Nhóm thư viện 3-Style" : "3-Style library group"
+                  }
+                >
+                  {(["edge", "corner", "special"] as BldCatalogGroup[]).map(
+                    item => (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => selectGroup(item)}
+                        className={
+                          group === item
+                            ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+                            : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+                        }
+                      >
+                        {groupLabel(item, vi)}
+                      </button>
+                    )
+                  )}
+                </div>
+                <div
+                  className="flex w-full items-stretch"
+                  style={{ maxWidth: "19rem" }}
+                >
+                  <span className="inline-flex items-center border border-line bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
+                    <Search className="text-base" />
+                  </span>
+                  <input
+                    value={query}
+                    onChange={event => {
+                      setQuery(event.target.value);
+                      setPage(0);
+                    }}
+                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+                    placeholder={
+                      vi ? "Tìm key, ví dụ ACE" : "Find key, e.g. ACE"
+                    }
+                    aria-label={
+                      vi ? "Tìm case 3-Style" : "Search 3-Style cases"
+                    }
+                  />
+                </div>
+              </div>
+              <p className="text-sm text-muted">
+                {filtered.length.toLocaleString()}{" "}
+                {vi
+                  ? "case phù hợp; mỗi case có toàn bộ biến thể từ catalog."
+                  : "matching cases; each case retains every catalog variant."}
+              </p>
+              <div className="grid grid-cols-12 gap-2">
+                {shown.map(entry => (
+                  <div
+                    className="col-span-12 md:col-span-6"
+                    key={`${entry.kind}-${entry.key}`}
+                  >
+                    <article
+                      className={
+                        active?.kind === entry.kind && active.key === entry.key
+                          ? "rounded-card border border-line/80 bg-surface shadow-soft border-primary h-full"
+                          : "rounded-card border border-line/80 bg-surface shadow-soft h-full"
+                      }
+                    >
+                      <div className="p-5 sm:p-6 flex items-center justify-between gap-2">
+                        <div>
+                          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-3 text-ink">
+                            {kindLabel(entry.kind, vi)}
+                          </span>
+                          <strong className="block mt-1">{entry.key}</strong>
+                          <small className="text-muted">
+                            {entry.algorithms.length.toLocaleString()}{" "}
+                            {vi ? "biến thể" : "variants"}
+                          </small>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setActive(entry)}
+                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+                        >
+                          {vi ? "Xem biến thể" : "View variants"}
+                        </button>
+                      </div>
+                    </article>
+                  </div>
+                ))}
+              </div>
+              {!shown.length && (
+                <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0">
+                  {vi
+                    ? "Không có case khớp với bộ lọc."
+                    : "No case matches this filter."}
+                </div>
+              )}
+              <div className="flex items-center justify-between mt-4">
+                <IconButton
+                  label={vi ? "Trang case trước" : "Previous case page"}
+                  icon={<ChevronLeftIcon className="text-base" />}
+                  onClick={() => setPage(current => Math.max(0, current - 1))}
+                  disabled={!page}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+                />
+                <span className="text-sm text-muted">
+                  {page + 1}/{maxPage + 1}
+                </span>
+                <IconButton
+                  label={vi ? "Trang case kế" : "Next case page"}
+                  icon={<ChevronRight className="text-base" />}
+                  onClick={() =>
+                    setPage(current => Math.min(maxPage, current + 1))
+                  }
+                  disabled={page >= maxPage}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+                />
+              </div>
+              {active && (
+                <div className="rounded-card border border-line/80 bg-surface shadow-soft mt-6">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+                    <strong>
+                      {kindLabel(active.kind, vi)} · {active.key}
+                    </strong>
+                    <span className="text-sm text-muted ml-2">
+                      {active.algorithms.length.toLocaleString()}{" "}
+                      {vi ? "biến thể" : "variants"}
+                    </span>
+                  </div>
+                  <div className="divide-y divide-line bg-transparent border-0">
+                    {active.algorithms.map((algorithm, index) => (
+                      <div
+                        className="block px-4 py-3 text-sm"
+                        key={`${active.key}-${index}`}
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                          <code className="text-sm break-words">
+                            {algorithm}
+                          </code>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onChoose(toFormula(active, algorithm))
+                            }
+                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-3 py-1.5 text-xs md:self-start"
+                          >
+                            {vi ? "Dùng biến thể này" : "Use this variant"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </section>
+  );
 }
