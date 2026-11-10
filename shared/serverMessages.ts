@@ -104,4 +104,10 @@ export const serverMessageKeys: Record<string, string> = {
 
   // Đồng bộ đám mây
   "Trạng thái đám mây đã được cập nhật ở thiết bị khác. Hãy tải lại và đồng bộ lại.": "cloud.errorConflict",
+  "Tính năng tải ảnh chưa được cấu hình trên máy chủ.": "cloud.errorStorageNotConfigured",
+
+  // WCA rate limiting and calendar
+  "Yêu cầu WCA quá nhiều. Hãy thử lại sau.": "wca.errorRateLimited",
+  "Khoảng ngày quá dài. Tối đa 366 ngày.": "wca.errorDateRangeTooLong",
+  "Mã WCA này đã được liên kết với tài khoản khác.": "wca.errorWcaIdTaken",
 };

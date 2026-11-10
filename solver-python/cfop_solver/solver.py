@@ -254,6 +254,7 @@ def solve(
     xcross_excluded_slots: tuple[str, ...] = (),
     opening_find_result: bool = False,
     direct_node_budget: int = 5_000,
+    time_budget_sec: float | None = None,
 ) -> CFOPSolution:
     """Solve a cube with a chosen Cross color; fixed-center API defaults to D."""
     try:
@@ -342,7 +343,13 @@ def solve(
         for slot in F2L_ORDER:
             if slot in solved_slots:
                 continue
-            moves = solve_f2l_slot(current, slot, tuple(solved_slots), f2l_depth)
+            moves = solve_f2l_slot(
+                current,
+                slot,
+                tuple(solved_slots),
+                f2l_depth,
+                time_budget_sec=time_budget_sec,
+            )
             def slot_goal(candidate: Cube, slot=slot, old=tuple(solved_slots)) -> bool:
                 return cross_solved(candidate) and all(
                     f2l_slot_solved(candidate, p) for p in old + (slot,)

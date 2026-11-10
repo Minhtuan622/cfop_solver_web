@@ -149,4 +149,16 @@ export const wcaWords: Dictionary = {
     "Không thể xác minh tài khoản WCA. Hãy thử liên kết lại.",
     "The WCA account could not be verified. Please link it again.",
   ],
+  "wca.errorRateLimited": [
+    "Yêu cầu WCA quá nhiều. Hãy thử lại sau.",
+    "Too many WCA requests. Please try again later.",
+  ],
+  "wca.errorDateRangeTooLong": [
+    "Khoảng ngày quá dài. Tối đa 366 ngày.",
+    "Date range too long. Maximum 366 days.",
+  ],
+  "wca.errorWcaIdTaken": [
+    "Mã WCA này đã được liên kết với tài khoản khác.",
+    "This WCA ID is already linked to another account.",
+  ],
 };

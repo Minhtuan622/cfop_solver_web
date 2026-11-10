@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import time
 from collections import deque
 from functools import lru_cache
 from itertools import combinations
@@ -19,7 +20,7 @@ from .predicates import (
     f2l_slots_solved,
     f2l_slot_solved,
 )
-from .validation import cubie_view
+from .validation import cubie_view, CubieView
 
 FACE_MOVES = tuple(
     f + suffix for f in ("U", "R", "F", "D", "L", "B") for suffix in ("", "2", "'")
@@ -106,8 +107,32 @@ def cross_pruning_table() -> bytes:
     return table
 
 
-def cross_key(cube: Cube):
-    view = cubie_view(cube)
+def cubie_view_after(view: CubieView, move: str) -> CubieView:
+    """Apply a face move to a cubie view without rebuilding facelets.
+
+    Mirrors :func:`_tracked_after` so the transition matches the verified
+    meet-in-the-middle coordinate, but tracks all 20 cubies instead of a
+    subset.  This is the hot path inside :func:`ida_star`: recomputing
+    :func:`cubie_view` from facelets (frozenset signatures, position lookups)
+    dominates solve time, while a cubie-level transition is pure integer
+    arithmetic.
+    """
+    cm, cd, em, ed = _cubie_move_maps()[move]
+    new_cp = [0] * 8
+    new_co = [0] * 8
+    for pos in range(8):
+        new_cp[cm[pos]] = view.corner_perm[pos]
+        new_co[cm[pos]] = (view.corner_ori[pos] + cd[pos]) % 3
+    new_ep = [0] * 12
+    new_eo = [0] * 12
+    for pos in range(12):
+        new_ep[em[pos]] = view.edge_perm[pos]
+        new_eo[em[pos]] = (view.edge_ori[pos] + ed[pos]) % 2
+    return CubieView(tuple(new_cp), tuple(new_co), tuple(new_ep), tuple(new_eo))
+
+
+def cross_key_from_view(view: CubieView) -> int:
+    """Packed Cross coordinate computed straight from a cubie view."""
     result = 0
     for pos, piece in enumerate(view.edge_perm):
         index = CROSS_SLOT_INDEX.get(piece)
@@ -115,6 +140,31 @@ def cross_key(cube: Cube):
             packed = (pos << 1) | view.edge_ori[pos]
             result |= packed << (CROSS_STATE_BITS * index)
     return result
+
+
+def cross_heuristic_view(view: CubieView) -> int:
+    """Exact Cross distance from a cubie view (no facelet reconstruction)."""
+    return cross_pruning_table()[cross_key_from_view(view)]
+
+
+def piece_distance_view(view: CubieView, kind: str, piece: int, target_pos: int) -> int:
+    """Single-piece distance from a cubie view (no facelet reconstruction)."""
+    perm = view.corner_perm if kind == "corner" else view.edge_perm
+    ori = view.corner_ori if kind == "corner" else view.edge_ori
+    current_pos = perm.index(piece)
+    return _single_piece_distances(kind)[target_pos][(current_pos, ori[current_pos])]
+
+
+def cross_key(cube: Cube, view: CubieView | None = None) -> int:
+    if view is None:
+        view = cubie_view(cube)
+    return cross_key_from_view(view)
+
+
+def cross_heuristic(cube: Cube, view: CubieView | None = None) -> int:
+    if view is None:
+        view = cubie_view(cube)
+    return cross_pruning_table()[cross_key_from_view(view)]
 
 
 def _cross_after_key(state: int, source_to_target: tuple[int, ...], source_delta: tuple[int, ...]) -> int:
@@ -125,10 +175,6 @@ def _cross_after_key(state: int, source_to_target: tuple[int, ...], source_delta
         pos, ori = packed >> 1, packed & 1
         next_state |= ((source_to_target[pos] << 1) | (ori ^ source_delta[pos])) << (CROSS_STATE_BITS * index)
     return next_state
-
-
-def cross_heuristic(cube: Cube) -> int:
-    return cross_pruning_table()[cross_key(cube)]
 
 
 @lru_cache(maxsize=1)
@@ -177,22 +223,25 @@ def _single_piece_distances(kind: str):
     return target_tables
 
 
-def piece_distance(cube: Cube, kind: str, piece: int, target_pos: int) -> int:
-    view = cubie_view(cube)
+def piece_distance(cube: Cube, kind: str, piece: int, target_pos: int, view: CubieView | None = None) -> int:
+    if view is None:
+        view = cubie_view(cube)
     perm = view.corner_perm if kind == "corner" else view.edge_perm
     ori = view.corner_ori if kind == "corner" else view.edge_ori
     current_pos = perm.index(piece)
     return _single_piece_distances(kind)[target_pos][(current_pos, ori[current_pos])]
 
 
-def f2l_heuristic(cube: Cube, slot: str, preserved: tuple[str, ...]) -> int:
+def f2l_heuristic(cube: Cube, slot: str, preserved: tuple[str, ...], view: CubieView | None = None) -> int:
+    if view is None:
+        view = cubie_view(cube)
     corner_pos, edge_pos = {
         "FR": (4, 8), "FL": (5, 9), "BL": (6, 10), "BR": (7, 11)
     }[slot]
-    values = [cross_heuristic(cube), piece_distance(cube, "corner", corner_pos, corner_pos), piece_distance(cube, "edge", edge_pos, edge_pos)]
+    values = [cross_heuristic_view(view), piece_distance_view(view, "corner", corner_pos, corner_pos), piece_distance_view(view, "edge", edge_pos, edge_pos)]
     for old in preserved:
         old_corner, old_edge = {"FR": (4, 8), "FL": (5, 9), "BL": (6, 10), "BR": (7, 11)}[old]
-        values.extend((piece_distance(cube, "corner", old_corner, old_corner), piece_distance(cube, "edge", old_edge, old_edge)))
+        values.extend((piece_distance_view(view, "corner", old_corner, old_corner), piece_distance_view(view, "edge", old_edge, old_edge)))
     return max(values)
 
 
@@ -380,23 +429,47 @@ class SearchLimit(Exception):
 def ida_star(
     start: Cube,
     goal: Callable[[Cube], bool],
-    heuristic: Callable[[Cube], int],
+    heuristic: Callable[[Cube, CubieView | None], int],
     max_depth: int,
     moves: tuple[str, ...] = FACE_MOVES,
+    node_budget: int | None = None,
+    time_budget_sec: float | None = None,
 ) -> list[str]:
     """Find a short path with IDA*, returning [] if already at goal.
 
     The implementation is deliberately bounded. A caller can retry with a
     larger max_depth or use a table-based phase solver.
+
+    ``node_budget`` caps the number of dfs nodes expanded; ``time_budget_sec``
+    caps wall-clock time.  Either budget being exceeded raises
+    :class:`SearchLimit` with a structured message so callers can fall back to
+    an alternative phase or report a clear error instead of running forever.
     """
     if goal(start):
         return []
-    bound = heuristic(start)
+    start_view = cubie_view(start)
+    bound = heuristic(start, start_view)
     path: list[str] = []
     visited: set[tuple[str, int]] = set()
+    nodes = 0
+    start_time = time.monotonic() if time_budget_sec is not None else None
+    time_check_interval = 1024
 
-    def dfs(cube: Cube, depth: int, bound: int, previous: str | None):
-        estimate = depth + heuristic(cube)
+    def check_budget() -> None:
+        nonlocal nodes
+        nodes += 1
+        if node_budget is not None and nodes > node_budget:
+            raise SearchLimit(f"IDA* node budget {node_budget} exceeded")
+        if (
+            start_time is not None
+            and nodes % time_check_interval == 0
+            and time.monotonic() - start_time > time_budget_sec
+        ):
+            raise SearchLimit(f"IDA* time budget {time_budget_sec}s exceeded")
+
+    def dfs(cube: Cube, view: CubieView, depth: int, bound: int, previous: str | None):
+        check_budget()
+        estimate = depth + heuristic(cube, view)
         if estimate > bound:
             return estimate
         if goal(cube):
@@ -408,12 +481,13 @@ def ida_star(
             if not allowed_after(previous, move):
                 continue
             candidate = cube.apply(move)
+            next_view = cubie_view_after(view, move)
             key = (candidate.stickers, depth)
             if key in visited:
                 continue
             visited.add(key)
             path.append(move)
-            result = dfs(candidate, depth + 1, bound, move)
+            result = dfs(candidate, next_view, depth + 1, bound, move)
             path.pop()
             if isinstance(result, list):
                 return result
@@ -422,7 +496,7 @@ def ida_star(
 
     while bound <= max_depth:
         visited.clear()
-        result = dfs(start, 0, bound, None)
+        result = dfs(start, start_view, 0, bound, None)
         if isinstance(result, list):
             return result
         bound = max(bound + 1, result)
@@ -465,6 +539,8 @@ def solve_f2l_slot(
     slot: str,
     preserved: tuple[str, ...],
     max_depth: int = 12,
+    node_budget: int | None = None,
+    time_budget_sec: float | None = None,
 ) -> list[str]:
     fast = _fast_f2l_slot(cube, slot, preserved)
     if fast is not None:
@@ -477,8 +553,10 @@ def solve_f2l_slot(
     return ida_star(
         cube,
         _f2l_goal(slot, preserved),
-        lambda c: f2l_heuristic(c, slot, preserved),
+        lambda c, v=None: f2l_heuristic(c, slot, preserved, v),
         max_depth,
+        node_budget=node_budget,
+        time_budget_sec=time_budget_sec,
     )
 
 

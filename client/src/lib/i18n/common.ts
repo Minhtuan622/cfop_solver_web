@@ -62,4 +62,8 @@ export const commonWords: Dictionary = {
     "Trạng thái đám mây đã được cập nhật ở thiết bị khác. Hãy tải lại và đồng bộ lại.",
     "Cloud state was updated on another device. Please reload and sync again.",
   ],
+  "cloud.errorStorageNotConfigured": [
+    "Tính năng tải ảnh chưa được cấu hình trên máy chủ.",
+    "Avatar upload is not configured on the server.",
+  ],
 };
