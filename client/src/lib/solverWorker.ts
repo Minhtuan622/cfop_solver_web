@@ -1,86 +1,69 @@
-/** Xưởng Cơ Khí Tốc Độ — worker isolates computational CFOP searches from UI. */
+/** Xưởng Cơ Khí Tốc Độ — worker isolates computational CFOP searches from UI.
+ *
+ * Chịu sức các tác vụ NẰNG (solve, bld, warmup) dùng Pyodide. Mỗi worker
+ * có một bản cache Pyodide riêng qua `createPyodideLoader`, nên việc tải
+ * Pyodide của worker này không ảnh hưởng đến worker xử lý tác vụ nhẹ
+ * (validate/catalog) và ngược lại.
+ */
 import { PYTHON_SOLVER_FILES } from "@/lib/embeddedSolver";
+import { createPyodideLoader } from "@/lib/pyodideLoader";
+
+const { getPyodide } = createPyodideLoader();
 
 type PyodideLike = {
-  FS: { mkdirTree(path: string): void; writeFile(path: string, content: string): void };
+  FS: { writeFile(path: string, content: string): void };
   runPythonAsync(code: string): Promise<unknown>;
 };
 
-let pyodidePromise: Promise<PyodideLike> | null = null;
-
-async function getPyodide() {
-  if (!pyodidePromise) {
-    pyodidePromise = (async () => {
-      const source = "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.mjs";
-      const module = (await import(/* @vite-ignore */ source)) as { loadPyodide: (options: { indexURL: string }) => Promise<PyodideLike> };
-      const runtime = await module.loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/" });
-      runtime.FS.mkdirTree("/home/pyodide/cfop_solver");
-      for (const [name, content] of Object.entries(PYTHON_SOLVER_FILES) as [string, string][]) {
-        runtime.FS.writeFile(`/home/pyodide/cfop_solver/${name}`, content);
-      }
-      await runtime.runPythonAsync("import sys; sys.path.insert(0, '/home/pyodide')");
-      return runtime;
-    })();
-  }
-  return pyodidePromise;
-}
-
-self.onmessage = async (event: MessageEvent<{ id: number; command?: "solve" | "bld" | "case" | "validate" | "catalog" | "warmup"; kind?: string; value: string; crossColor?: string; opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross"; lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto"; openingDepth?: number; openingFindResult?: boolean; directNodeBudget?: number; preferredSlot?: string; excludedSlots?: string[]; family?: string; group?: string; query?: string; limit?: number }>) => {
-  const { id, command = "solve", kind, value, crossColor = "U", opening = "cross", lastLayer = "auto", openingDepth = 8, openingFindResult = false, directNodeBudget = 5000, preferredSlot, excludedSlots = [], family = "all", group = "all", query = "", limit = 120 } = event.data;
+self.onmessage = async (
+  event: MessageEvent<{
+    id: number;
+    command?: "solve" | "bld" | "warmup";
+    kind?: string;
+    value: string;
+    crossColor?: string;
+    opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross";
+    lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto";
+    openingDepth?: number;
+    openingFindResult?: boolean;
+    directNodeBudget?: number;
+    preferredSlot?: string;
+    excludedSlots?: string[];
+  }>,
+) => {
+  const {
+    id,
+    command = "solve",
+    kind,
+    value,
+    crossColor = "U",
+    opening = "cross",
+    lastLayer = "auto",
+    openingDepth = 8,
+    openingFindResult = false,
+    directNodeBudget = 5000,
+    preferredSlot,
+    excludedSlots = [],
+  } = event.data;
   try {
-    const runtime = await getPyodide();
-    const request = JSON.stringify({ kind, value, crossColor, opening, lastLayer, openingDepth, openingFindResult, directNodeBudget, preferredSlot, excludedSlots, family, group, query, limit });
+    const runtime: PyodideLike = await getPyodide();
+    const request = JSON.stringify({
+      kind,
+      value,
+      crossColor,
+      opening,
+      lastLayer,
+      openingDepth,
+      openingFindResult,
+      directNodeBudget,
+      preferredSlot,
+      excludedSlots,
+    });
     if (command === "warmup") {
-      await runtime.runPythonAsync("from cfop_solver.search import cross_pruning_table; cross_pruning_table()");
+      await runtime.runPythonAsync(
+        "from cfop_solver.search import cross_pruning_table; cross_pruning_table()",
+      );
       self.postMessage({ id, ok: true, output: JSON.stringify({ ready: true }) });
-      return;
-    }
-    if (command === "catalog") {
-      const output = await runtime.runPythonAsync(`
-import json
-from cfop_solver.full_last_layer import list_direct_one_look_cases
-request = json.loads(${JSON.stringify(request)})
-json.dumps({"cases": list_direct_one_look_cases(request.get("family", "all"), request.get("query", ""), request.get("group", "all"), request.get("limit", 120))})
-`);
-      self.postMessage({ id, ok: true, output: String(output) });
-      return;
-    }
-    if (command === "case") {
-      const output = await runtime.runPythonAsync(`
-import json
-from cfop_solver import Cube, parse_moves
-request = json.loads(${JSON.stringify(request)})
-case_state = Cube().apply_many(parse_moves(request["value"]))
-json.dumps({"state": case_state.stickers})
-`);
-      self.postMessage({ id, ok: true, output: String(output) });
-      return;
-    }
-    if (command === "validate") {
-      const output = await runtime.runPythonAsync(`
-import json
-from cfop_solver import Cube, validate_cube
-request = json.loads(${JSON.stringify(request)})
-try:
-    validate_cube(Cube(request["value"]))
-    result = {"valid": True, "message": "State hợp lệ · 54 sticker · 9 mỗi màu"}
-except Exception as error:
-    result = {"valid": False, "message": str(error)}
-json.dumps(result)
-`);
-      self.postMessage({ id, ok: true, output: String(output) });
-      return;
-    }
-    if (command === "bld") {
-      const output = await runtime.runPythonAsync(`
-import json
-from cfop_solver import Cube, parse_moves, analyze_3style, validate_cube
-request = json.loads(${JSON.stringify(request)})
-initial = Cube(request["value"]) if request["kind"] == "state" else Cube().apply_many(parse_moves(request["value"]))
-validate_cube(initial)
-json.dumps({"initial_state": initial.stickers, "analysis": analyze_3style(initial)})
-`);
-      self.postMessage({ id, ok: true, output: String(output) });
       return;
     }
     const output = await runtime.runPythonAsync(`
@@ -105,6 +88,10 @@ json.dumps({"initial_state": initial.stickers, "final_state": solution.final_sta
 `);
     self.postMessage({ id, ok: true, output: String(output) });
   } catch (error) {
-    self.postMessage({ id, ok: false, error: error instanceof Error ? error.message : String(error) });
+    self.postMessage({
+      id,
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };

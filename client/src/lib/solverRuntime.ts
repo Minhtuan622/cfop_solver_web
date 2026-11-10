@@ -1,4 +1,13 @@
-/** Xưởng Cơ Khí Tốc Độ — typed bridge to a non-blocking CFOP Web Worker. */
+/** Xưởng Cơ Khí Tốc Độ — typed bridge to non-blocking CFOP Web Workers.
+ *
+ * Hai tác vụ được tách thành hai worker riêng:
+ * - worker NẰNG (`solverWorker.ts`): solve, bld, warmup (dùng Pyodide, tốn CPU).
+ * - worker NHẸ (`solverLiteWorker.ts`): validate, catalog (dùng Pyodide riêng).
+ *
+ * Mỗi worker có bản cache Pyodide riêng, nên việc tải/hủy Pyodide của một
+ * bên không làm hủy tác vụ đang chạy của bên kia (ví dụ: hủy giải không làm
+ * gián đoạn kiểm tra trạng thái, và ngược lại).
+ */
 export type TraceStep = { index: number; phase: string; move: string; state: string };
 export type PhaseResult = { name: string; algorithm: string; moves: string[]; state_after: string; valid_after: boolean; predicate_after: boolean; case_id: string | null; start: number; end: number };
 export type DirectAttempt = { slots: F2LSlot[]; nodes: number; budget: number; depth: number; status: "solved" | "budget" | "no_solution" };
@@ -13,9 +22,18 @@ export type XCrossOptions = { preferredSlot?: F2LSlot; excludedSlots?: F2LSlot[]
 export type CubeValidation = { valid: boolean; message: string };
 export type LastLayerCatalogCase = { id: string; family: "zbll" | "1lll"; group: string; algorithm: string; state: string };
 export type BldCycle = { buffer: string; targets: string[]; cycle_break: boolean; memo: string; execution_keys: string[] };
-export type BldResult = { initial_state: string; analysis: { method: "3style-speffz"; buffers: { edge: { letter: string; position: string }; corner: { letter: string; position: string } }; edges: { cycles: BldCycle[]; memo: string[]; execution_keys: string[] }; corners: { cycles: BldCycle[]; memo: string[]; execution_keys: string[] }; special: { parity: boolean; edge_flips: string[]; corner_twists: { position: string; direction: "cw" | "ccw" }[]; edge_orientation_sum: number; corner_orientation_sum: number }; solved: boolean; catalog: { provider: string; source: string; note: string } } };
+export type BldResult = { initial_state: string; final_state: string; algorithm: string; phases: PhaseResult[]; trace: TraceStep[]; opening: OpeningTelemetry; last_layer: LastLayerTelemetry; analysis: BldAnalysis; solved: boolean };
+export type BldAnalysis = {
+  method: string;
+  buffers: { edge: { letter: string; position: string }; corner: { letter: string; position: string } };
+  edges: { cycles: string[]; memo: string[]; execution_keys: string[] };
+  corners: { cycles: string[]; memo: string[]; execution_keys: string[] };
+  special: { parity: boolean; edge_flips: string[]; corner_twists: { position: string; direction: "cw" | "ccw" }[]; edge_orientation_sum: number; corner_orientation_sum: number };
+  solved: boolean;
+};
 
-export const SOLVER_TIMEOUT_MS = 45_000;
+export const SOLVER_TIMEOUT_MS = 45000;
+export const VALIDATE_TIMEOUT_MS = 15000;
 
 export class SolverCancelledError extends Error {
   constructor() {
@@ -26,38 +44,47 @@ export class SolverCancelledError extends Error {
 
 export class SolverTimeoutError extends Error {
   constructor() {
-    super(`Solver request exceeded ${SOLVER_TIMEOUT_MS}ms.`);
+    super("Solver request exceeded the time limit and was stopped.");
     this.name = "SolverTimeoutError";
   }
 }
 
 type WorkerMessage = { id: number; ok: boolean; output?: string; error?: string };
 type PendingTask = { resolve: (value: unknown) => void; reject: (reason: Error) => void; timer: number };
-let worker: Worker | null = null;
-let nextId = 1;
-const pending = new Map<number, PendingTask>();
 
-function rejectPending(reason: Error) {
-  pending.forEach((task) => {
+let heavyWorker: Worker | null = null;
+let lightWorker: Worker | null = null;
+let nextId = 1;
+const heavyPending = new Map<number, PendingTask>();
+const lightPending = new Map<number, PendingTask>();
+
+function rejectPending(tasks: Map<number, PendingTask>, reason: Error) {
+  tasks.forEach((task) => {
     window.clearTimeout(task.timer);
     task.reject(reason);
   });
-  pending.clear();
+  tasks.clear();
 }
 
-function resetWorker(reason: Error) {
-  worker?.terminate();
-  worker = null;
-  rejectPending(reason);
+function resetHeavyWorker(reason: Error) {
+  heavyWorker?.terminate();
+  heavyWorker = null;
+  rejectPending(heavyPending, reason);
 }
 
-function getWorker() {
-  if (!worker) {
-    worker = new Worker(new URL("./solverWorker.ts", import.meta.url), { type: "module" });
-    worker.onmessage = (event: MessageEvent<WorkerMessage>) => {
-      const task = pending.get(event.data.id);
+function resetLightWorker(reason: Error) {
+  lightWorker?.terminate();
+  lightWorker = null;
+  rejectPending(lightPending, reason);
+}
+
+function getHeavyWorker() {
+  if (!heavyWorker) {
+    heavyWorker = new Worker(new URL("./solverWorker.ts", import.meta.url), { type: "module" });
+    heavyWorker.onmessage = (event: MessageEvent<WorkerMessage>) => {
+      const task = heavyPending.get(event.data.id);
       if (!task) return;
-      pending.delete(event.data.id);
+      heavyPending.delete(event.data.id);
       window.clearTimeout(task.timer);
       if (event.data.ok && event.data.output) {
         try {
@@ -65,52 +92,140 @@ function getWorker() {
         } catch (error) {
           task.reject(error instanceof Error ? error : new Error("Solver worker returned invalid JSON."));
         }
-      } else task.reject(new Error(event.data.error ?? "Solver worker returned an empty response."));
+      } else {
+        task.reject(new Error(event.data.error ?? "Solver worker returned an empty response."));
+      }
     };
-    worker.onerror = (event) => {
-      event.preventDefault();
-      resetWorker(new Error("Solver worker failed to start or crashed."));
+    heavyWorker.onerror = () => {
+      resetHeavyWorker(new Error("Solver heavy worker failed to start or crashed."));
     };
   }
-  return worker;
+  return heavyWorker;
 }
 
-function postTask<T>(message: Record<string, unknown>, timeoutMs: number): Promise<T> {
+function getLightWorker() {
+  if (!lightWorker) {
+    lightWorker = new Worker(new URL("./solverLiteWorker.ts", import.meta.url), { type: "module" });
+    lightWorker.onmessage = (event: MessageEvent<WorkerMessage>) => {
+      const task = lightPending.get(event.data.id);
+      if (!task) return;
+      lightPending.delete(event.data.id);
+      window.clearTimeout(task.timer);
+      if (event.data.ok && event.data.output) {
+        try {
+          task.resolve(JSON.parse(event.data.output));
+        } catch (error) {
+          task.reject(error instanceof Error ? error : new Error("Solver worker returned invalid JSON."));
+        }
+      } else {
+        task.reject(new Error(event.data.error ?? "Solver worker returned an empty response."));
+      }
+    };
+    lightWorker.onerror = () => {
+      resetLightWorker(new Error("Solver light worker failed to start or crashed."));
+    };
+  }
+  return lightWorker;
+}
+
+function postTask<T>(
+  tasks: Map<number, PendingTask>,
+  getWorker: () => Worker,
+  message: Record<string, unknown>,
+  timeoutMs: number,
+): Promise<T> {
   const id = nextId++;
   return new Promise((resolve, reject) => {
-    const timer = window.setTimeout(() => resetWorker(new SolverTimeoutError()), timeoutMs);
-    pending.set(id, { resolve: (value) => resolve(value as T), reject, timer });
+    const timer = window.setTimeout(() => {
+      const pendingTask = tasks.get(id);
+      if (pendingTask) {
+        tasks.delete(id);
+        window.clearTimeout(pendingTask.timer);
+        pendingTask.reject(new SolverTimeoutError());
+      }
+    }, timeoutMs);
+    tasks.set(id, { resolve: (value) => resolve(value as T), reject, timer });
     try {
       getWorker().postMessage({ id, ...message });
     } catch (error) {
-      pending.delete(id);
+      tasks.delete(id);
       window.clearTimeout(timer);
       reject(error instanceof Error ? error : new Error(String(error)));
     }
   });
 }
 
-/** Cancel the active solver request and restart a clean worker for the next request. */
 export function cancelSolverInBrowser() {
-  if (worker) resetWorker(new SolverCancelledError());
+  resetHeavyWorker(new SolverCancelledError());
 }
 
-export function solveInBrowser(kind: "scramble" | "state", value: string, crossColor: CrossColor = "U", opening: OpeningMode = "cross", xcross: XCrossOptions = {}, lastLayer: LastLayerMode = "auto", openingDepth = 8, openingFindResult = false, directNodeBudget = 5000): Promise<SolverResult> {
-  return postTask<SolverResult>({ command: "solve", kind, value, crossColor, opening, lastLayer, openingDepth, openingFindResult, directNodeBudget, preferredSlot: xcross.preferredSlot, excludedSlots: xcross.excludedSlots ?? [] }, SOLVER_TIMEOUT_MS);
+export function solveInBrowser(
+  kind: "scramble" | "state",
+  value: string,
+  crossColor: CrossColor = "U",
+  opening: OpeningMode = "cross",
+  xcross: XCrossOptions = {},
+  lastLayer: LastLayerMode = "auto",
+  openingDepth = 8,
+  openingFindResult = false,
+  directNodeBudget = 5000,
+): Promise<SolverResult> {
+  return postTask<SolverResult>(
+    heavyPending,
+    getHeavyWorker,
+    {
+      command: "solve",
+      kind,
+      value,
+      crossColor,
+      opening,
+      lastLayer,
+      openingDepth,
+      openingFindResult,
+      directNodeBudget,
+      preferredSlot: xcross.preferredSlot,
+      excludedSlots: xcross.excludedSlots ?? [],
+    },
+    SOLVER_TIMEOUT_MS,
+  );
 }
 
 export function warmSolverInBrowser(): Promise<void> {
-  return postTask<void>({ command: "warmup", value: "" }, SOLVER_TIMEOUT_MS);
+  return postTask<void>(heavyPending, getHeavyWorker, { command: "warmup", value: "" }, SOLVER_TIMEOUT_MS);
 }
 
 export function analyzeBldInBrowser(kind: "scramble" | "state", value: string): Promise<BldResult> {
-  return postTask<BldResult>({ command: "bld", kind, value }, SOLVER_TIMEOUT_MS);
+  return postTask<BldResult>(
+    heavyPending,
+    getHeavyWorker,
+    { command: "bld", kind, value },
+    SOLVER_TIMEOUT_MS,
+  );
 }
 
 export function validateStateInBrowser(value: string): Promise<CubeValidation> {
-  return postTask<CubeValidation>({ command: "validate", value }, 15_000);
+  return postTask<CubeValidation>(
+    lightPending,
+    getLightWorker,
+    { command: "validate", value },
+    VALIDATE_TIMEOUT_MS,
+  );
 }
 
-export function listLastLayerCasesInBrowser(filters: { family?: "all" | "zbll" | "1lll"; group?: string; query?: string; limit?: number } = {}): Promise<LastLayerCatalogCase[]> {
-  return postTask<{ cases: LastLayerCatalogCase[] }>({ command: "catalog", value: "", family: filters.family ?? "all", group: filters.group ?? "all", query: filters.query ?? "", limit: filters.limit ?? 120 }, 30_000).then((result) => result.cases);
+export function listLastLayerCasesInBrowser(
+  filters: { family?: "all" | "zbll" | "1lll"; group?: string; query?: string; limit?: number } = {},
+): Promise<LastLayerCatalogCase[]> {
+  return postTask<{ cases: LastLayerCatalogCase[] }>(
+    lightPending,
+    getLightWorker,
+    {
+      command: "catalog",
+      value: "",
+      family: filters.family ?? "all",
+      group: filters.group ?? "all",
+      query: filters.query ?? "",
+      limit: filters.limit ?? 120,
+    },
+    30000,
+  ).then((result) => result.cases);
 }

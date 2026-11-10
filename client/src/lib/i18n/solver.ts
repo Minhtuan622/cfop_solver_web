@@ -107,7 +107,7 @@ export const solverWords: Dictionary = {
     "The solver could not run with this input.",
   ],
   "home.solverCancelled": ["Đã dừng solver theo yêu cầu.", "Solver stopped on request."],
-  "home.solverTimeout": ["Solver chạy quá lâu nên đã tự dừng. Hãy thử giảm độ sâu hoặc ngân sách tìm kiếm.", "The solver took too long and was stopped. Try reducing the search depth or budget."],
+  "home.solverTimeout": ["Solver chạy quá lâu nên đã tự dừng. Vui lòng thử lại.", "The solver took too long and was stopped. Please try again."],
   "home.cancelSolver": ["Dừng", "Stop"],
   "home.preparing": ["Đang chuẩn bị dữ liệu cube…", "Preparing cube data…"],
   "home.buildingMemo": ["Đang dựng memo 3-Style…", "Building 3-Style memo…"],
