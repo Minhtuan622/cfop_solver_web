@@ -50,4 +50,12 @@ export const commonWords: Dictionary = {
     "Ngày kết thúc phải sau ngày bắt đầu.",
     "The end date must come after the start date.",
   ],
+  "common.error.solveTooFast": [
+    "Thời gian giải quá ngắn để có thể thật.",
+    "The solve time is too short to be genuine.",
+  ],
+  "common.error.solveTooShort": [
+    "Thời gian giải không thể ngắn hơn thời gian quan sát.",
+    "The solve time cannot be shorter than the inspection time.",
+  ],
 };

@@ -46,6 +46,13 @@ export const serverMessageKeys: Record<string, string> = {
   "Lý do tối đa 280 ký tự.": "common.error.removalReasonTooLong",
   "Ngày phải theo YYYY-MM-DD.": "common.error.dateFormat",
   "Ngày kết thúc phải sau ngày bắt đầu.": "common.error.dateRange",
+  "Thời gian giải quá ngắn để có thể thật.": "common.error.solveTooFast",
+  "Thời gian giải không thể ngắn hơn thời gian quan sát.": "common.error.solveTooShort",
+  // Phòng thi đấu
+  "Bạn tra lịch sử quá thường xuyên. Vui lòng thử lại sau.": "competition.error.historyRateLimited",
+  "Bạn tạo phòng quá nhiều trong một giờ. Vui lòng thử lại sau.": "competition.error.roomCreateRateLimited",
+  "Phòng đã đủ khán giả.": "competition.error.roomFullSpectators",
+  "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ một chút rồi gửi lại.": "competition.error.chatRateLimited",
 
   // Phòng thi đấu
   "Không tìm thấy phòng thi đấu này.": "rooms.error.roomMissing",

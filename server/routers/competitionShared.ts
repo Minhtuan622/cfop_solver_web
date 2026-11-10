@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { compareCompetitionResults, competitionFormatScore, competitionRoundLimit, type CompetitionFormat } from "../services/competition";
 import { findCompetitionMember, findCompetitionRoomByCode, findLatestCompetitionModerationLog, getCompetitionActiveRound, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listFinishedCompetitionRoomsForAccount, touchCompetitionMember } from "../db";
+import { LATEST_MESSAGES_LIMIT } from "./competition";
 
 type CompetitionResultRow = Awaited<ReturnType<typeof listCompetitionResults>>[number];
 
@@ -19,7 +20,7 @@ export async function competitionRoomState(code: string, accountId: number, opti
   }
   const membership = await requireCompetitionMember(room.id, accountId);
   await touchCompetitionMember(room.id, accountId);
-  const [members, activeRound, results, messages, moderationLogs] = await Promise.all([listCompetitionMembers(room.id), getCompetitionActiveRound(room.id), listCompetitionResults(room.id), listCompetitionMessages(room.id), listCompetitionModerationLogs(room.id)]);
+  const [members, activeRound, results, messages, moderationLogs] = await Promise.all([listCompetitionMembers(room.id), getCompetitionActiveRound(room.id), listCompetitionResults(room.id), listCompetitionMessages(room.id, LATEST_MESSAGES_LIMIT), listCompetitionModerationLogs(room.id)]);
   const players = members.filter((member) => member.role === "player").map((member) => {
     const history = results.filter((result) => result.accountId === member.accountId);
     const lastResult = history.at(-1) ?? null;

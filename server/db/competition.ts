@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, isNull, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, lt } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { cfopAccounts, cfopCompetitionMembers, cfopCompetitionMessages, cfopCompetitionModerationLogs, cfopCompetitionResults, cfopCompetitionRooms, cfopCompetitionRounds } from "../../drizzle/schema";
 import type { TimerEventId } from "../../shared/timerEvents";
@@ -61,6 +61,12 @@ export async function submitCompetitionResult(values: { roundId: number; account
 
 export async function listCompetitionResults(roomId: number) {
   const db = await requireDb(); return db.select(competitionResultSelect).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(eq(cfopCompetitionRounds.roomId, roomId)).orderBy(asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
+}
+
+/** Lấy kết quả của nhiều phòng cùng lúc để tránh truy vấn N+1 trong playerHistory. */
+export async function listCompetitionResultsForRooms(roomIds: number[]) {
+  if (roomIds.length === 0) return [];
+  const db = await requireDb(); return db.select({ ...competitionResultSelect, roomId: cfopCompetitionRooms.id }).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionRounds.roomId, cfopCompetitionRooms.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(inArray(cfopCompetitionRooms.id, roomIds)).orderBy(asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
 }
 export async function listFinishedCompetitionResultsBetween(startAt: Date, endAt: Date, eventId?: string | null) {
   const db = await requireDb(); const filters = [eq(cfopCompetitionRooms.status, "finished"), gte(cfopCompetitionRooms.updatedAt, startAt), lt(cfopCompetitionRooms.updatedAt, endAt)]; if (eventId) filters.push(eq(cfopCompetitionRooms.eventId, eventId));

@@ -142,6 +142,22 @@ export const competitionWords: Dictionary = {
   "competition.points": ["{points} điểm", "{points} points"],
   "competition.score": ["{score} điểm · {time}", "{score} points · {time}"],
   "competition.error": ["Không thể hoàn tất thao tác.", "The action could not be completed."],
+  "competition.error.historyRateLimited": [
+    "Bạn tra lịch sử quá thường xuyên. Vui lòng thử lại sau.",
+    "You are checking history too frequently. Please try again later.",
+  ],
+  "competition.error.roomCreateRateLimited": [
+    "Bạn tạo phòng quá nhiều trong một giờ. Vui lòng thử lại sau.",
+    "You are creating rooms too frequently. Please try again later.",
+  ],
+  "competition.error.roomFullSpectators": [
+    "Phòng đã đủ khán giả.",
+    "The room already has enough spectators.",
+  ],
+  "competition.error.chatRateLimited": [
+    "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ một chút rồi gửi lại.",
+    "You are sending messages too fast. Please wait a moment before sending again.",
+  ],
 
   "competition.outcome.removed": ["Đã rời phòng", "Removed from the room"],
   "competition.outcome.removedDetail": [

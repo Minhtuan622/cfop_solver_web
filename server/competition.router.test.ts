@@ -22,6 +22,7 @@ vi.mock("./db", () => ({
   startCompetitionRound: vi.fn(),
   listFinishedCompetitionRoomsForAccount: vi.fn(),
   listCompetitionResults: vi.fn(),
+  listCompetitionResultsForRooms: vi.fn(),
   listCompetitionMessages: vi.fn(),
   listCompetitionModerationLogs: vi.fn(),
   findLatestCompetitionModerationLog: vi.fn(),
@@ -30,7 +31,7 @@ vi.mock("./db", () => ({
 
 import { appRouter } from "./routers";
 import { leaderboardCache } from "./routers/competition";
-import { createCompetitionMessage, createCompetitionModerationLog, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, findLatestCompetitionModerationLog, getCompetitionActiveRound, joinCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCompetitionSpectatorRemoved, startCompetitionRound, submitCompetitionResult, touchCompetitionMember, updateCompetitionMemberRole } from "./db";
+import { createCompetitionMessage, createCompetitionModerationLog, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, findLatestCompetitionModerationLog, getCompetitionActiveRound, joinCompetitionRoom, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listCompetitionResultsForRooms, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCompetitionSpectatorRemoved, startCompetitionRound, submitCompetitionResult, touchCompetitionMember, updateCompetitionMemberRole } from "./db";
 
 const room = { id: 9, code: "ABC123", name: "Test room", hostAccountId: 1, status: "waiting", format: "ao5" as const, eventId: "333", multiBlindCubes: 2, maxPlayers: 8, currentRound: 0, createdAt: new Date(), updatedAt: new Date() };
 const ctx = { cfopAccount: { id: 1, email: "host@example.com", displayName: "Host", bio: "", avatarUrl: "", goalMs: null, createdAt: new Date(), lastSignedIn: new Date() }, req: {}, res: {} } as unknown as TrpcContext;
@@ -103,10 +104,10 @@ describe("competition router", () => {
     vi.mocked(getCompetitionActiveRound).mockResolvedValue(null);
     vi.mocked(listCompetitionMessages).mockResolvedValue([]);
     vi.mocked(listCompetitionModerationLogs).mockResolvedValue([]);
-    vi.mocked(listCompetitionResults).mockResolvedValue([
-      { roundSequence: 1, roundId: 11, accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 10_000, inspectionMs: 8_000, penalty: "none", submittedAt: new Date("2026-08-28T10:01:00Z") },
-      { roundSequence: 1, roundId: 11, accountId: 2, displayName: "Cuber", avatarUrl: "", elapsedMs: 12_000, inspectionMs: 7_000, penalty: "none", submittedAt: new Date("2026-08-28T10:01:05Z") },
-      { roundSequence: 2, roundId: 12, accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 11_000, inspectionMs: 6_000, penalty: "+2", submittedAt: new Date("2026-08-28T10:02:00Z") },
+    vi.mocked(listCompetitionResultsForRooms).mockResolvedValue([
+      { roomId: room.id, roundSequence: 1, roundId: 11, accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 10_000, inspectionMs: 8_000, penalty: "none", submittedAt: new Date("2026-08-28T10:01:00Z") },
+      { roomId: room.id, roundSequence: 1, roundId: 11, accountId: 2, displayName: "Cuber", avatarUrl: "", elapsedMs: 12_000, inspectionMs: 7_000, penalty: "none", submittedAt: new Date("2026-08-28T10:01:05Z") },
+      { roomId: room.id, roundSequence: 2, roundId: 12, accountId: 1, displayName: "Host", avatarUrl: "", elapsedMs: 11_000, inspectionMs: 6_000, penalty: "+2", submittedAt: new Date("2026-08-28T10:02:00Z") },
     ]);
     const history = await appRouter.createCaller(ctx).competition.playerHistory({ accountId: 1 });
     expect(history[0]).toMatchObject({ room: { code: room.code }, myRank: 2, results: [expect.objectContaining({ roundSequence: 1, accountId: 1, inspectionMs: 8_000 }), expect.objectContaining({ roundSequence: 1, accountId: 2 }), expect.objectContaining({ roundSequence: 2, penalty: "+2" })] });
