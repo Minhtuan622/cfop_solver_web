@@ -16,6 +16,10 @@ export const commonWords: Dictionary = {
     "An error occurred. Please try again.",
   ],
   "common.error.invalidData": ["Dữ liệu không hợp lệ:", "Invalid details:"],
+  "common.error.payloadTooLarge": [
+    "Dữ liệu gửi lên quá lớn.",
+    "The details you are sending are too large.",
+  ],
   "common.error.passwordTooShort": [
     "Mật khẩu cần ít nhất 10 ký tự.",
     "The password needs at least 10 characters.",
