@@ -20,9 +20,9 @@ CFOP Solver Studio là ứng dụng web hỗ trợ giải, luyện tập và thi
 
 | Lớp | Công nghệ |
 |---|---|
-| UI | React 19, TypeScript, Vite 7, Bootstrap 5.3, Bootstrap Icons, Wouter |
+| UI | React 19, TypeScript 7, Vite 8, Tailwind CSS 4, Studio UI, Wouter |
 | Data fetching | tRPC 11, TanStack Query, SuperJSON |
-| Backend | Node.js, Express 4, tRPC server |
+| Backend | Node.js, Express 5, tRPC server |
 | Database | MySQL/TiDB, Drizzle ORM và Drizzle Kit |
 | Rubik | Cubing.js, Three.js, Pyodide Web Worker, solver bundle Python đã nhúng |
 | Kiểm thử | Vitest, Testing Library, Playwright E2E |
@@ -169,7 +169,7 @@ Trang `/study` là **một màn hình làm việc**, không phải một bảng 
 | Công cụ | Phiên bản khuyến nghị | Ghi chú |
 |---|---:|---|
 | Node.js | 22 LTS trở lên | Dùng cho Vite, server và build. |
-| pnpm | 10 trở lên | Phải dùng lockfile hiện tại; không trộn npm/yarn trong project. |
+| pnpm | 10.34.5 | Phiên bản được khai báo trong `packageManager`; phải dùng lockfile hiện tại, không trộn npm/yarn trong project. |
 | Git | Phiên bản mới | Dùng để clone và quản lý thay đổi. |
 | MySQL/TiDB | MySQL 8 hoặc tương thích | Cần khi bật tài khoản, cloud sync, WCA account và Rooms. |
 | Python | 3.11 trở lên | Chỉ cần nếu sửa hoặc tái tạo solver Python; không cần để chạy bundle web đã có. |
