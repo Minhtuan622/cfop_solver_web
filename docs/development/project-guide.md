@@ -252,21 +252,6 @@ BUILT_IN_FORGE_API_KEY=
 
 Các biến này phục vụ storage proxy/tích hợp storage đã cấu hình. Không đưa key thật vào README, `.env.example` hoặc commit.
 
-### 5.5. Các biến Manus/OAuth hệ thống
-
-Khi chạy trong hosting tích hợp, các biến hệ thống có thể đã được cấp sẵn. Khi tự host, chỉ cấu hình những biến mà flow tương ứng sử dụng:
-
-```dotenv
-VITE_APP_ID=
-OAUTH_SERVER_URL=
-OWNER_OPEN_ID=
-VITE_OAUTH_PORTAL_URL=
-VITE_FRONTEND_FORGE_API_URL=
-VITE_FRONTEND_FORGE_API_KEY=
-```
-
-Không tự đặt giá trị giả cho production. Auth Manus và account CFOP là hai ranh giới khác nhau; account CFOP dùng email/mật khẩu và bảng `cfop_*`, không dùng `openId` của Manus.
-
 ## 6. Database local nhanh bằng Docker
 
 Để tránh phải cài MySQL/MariaDB riêng trên cả macOS và Windows, môi trường phát triển dùng **MariaDB trong Docker Compose**. Schema và query vẫn giữ dialect MySQL hiện tại, vì vậy không tạo thêm nhánh SQLite khác với production.
@@ -302,7 +287,6 @@ Schema nằm trong `drizzle/schema.ts`; migration SQL nằm trong `drizzle/`. Da
 
 | Nhóm bảng | Vai trò |
 |---|---|
-| `users` | Bảng tương thích Manus/platform auth. |
 | `cfop_accounts`, `cfop_account_sessions` | Account CFOP riêng và session hash. |
 | `cfop_account_cloud_states` | Snapshot versioned của Timer/Study để đồng bộ tài khoản. |
 | `cfop_password_reset_tokens`, `cfop_wca_oauth_states` | Token reset/OAuth dạng hash, có thời hạn. |

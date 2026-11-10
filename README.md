@@ -5,12 +5,39 @@
 [![CI](https://github.com/Minhtuan622/cfop_solver_web/actions/workflows/ci.yml/badge.svg)](https://github.com/Minhtuan622/cfop_solver_web/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## Demo
+
+Thử ứng dụng trực tiếp: [cfop-solver.studio](https://cfop-solver.studio) (nếu có sẵn).
+
+## Ảnh chụp màn hình
+
+<!-- Thêm ảnh chụp màn hình vào thư mục docs/screenshots/ và uncomment dòng dưới -->
+<!--
+![Trang chủ](docs/screenshots/home.png)
+![Bộ giải](docs/screenshots/solver.png)
+![Bấm giờ](docs/screenshots/timer.png)
+![Phòng thi đấu](docs/screenshots/rooms.png)
+-->
+
 ## Tính năng chính
 
 - Solver CFOP/BLD với nhập scramble, trạng thái sáu mặt, báo cáo theo phase và CubeNet/3D.
 - Timer đa event với inspection, +2/DNF, split, replay, history và thống kê.
 - Study cho Last Layer và 3-Style BLD.
 - Tài khoản, đồng bộ dữ liệu, WCA, phòng thi đấu và bảng xếp hạng.
+
+## Phần chạy được khi không có Database
+
+Ứng dụng có thể chạy phần lớn tính năng phía **client** mà không cần Database:
+
+- Giải Rubik (solver), bấm giờ (Timer), học tập (Study), xem lịch sử solve cục bộ.
+- Tùy chỉnh chủ đề, ngôn ngữ, cài đặt cá nhân.
+
+Phần **yêu cầu Database** (DATABASE_URL):
+- Tài khoản CFOP (đăng ký/đăng nhập, đổi mật khẩu).
+- Đồng bộ dữ liệu giữa các thiết bị (cloud sync).
+- Phòng thi đấu (Rooms) và bảng xếp hạng.
+- Liên kết WCA qua OAuth.
 
 ## Chạy local nhanh
 
@@ -42,13 +69,13 @@ Các luồng account, cloud sync, Rooms và WCA cần `DATABASE_URL`. WCA OAuth 
 ```bash
 pnpm check
 pnpm test --run
-pnpm exec playwright install --with-deps chromium  # lần đầu, nếu máy chưa có Chromium
+pnpm exec playwright install  # lần đầu, nếu máy chưa có Chromium
 pnpm test:e2e
 pnpm build
 pnpm audit --prod --audit-level=high
 ```
 
-`pnpm test:e2e` dùng Chromium hệ thống tại `/usr/bin/chromium`. Nếu môi trường không có đường dẫn này, có thể chạy `pnpm exec playwright install chromium` rồi dùng `npx playwright test`.
+`pnpm test:e2e` dùng Chromium do Playwright quản lý (tự động tải về). Không cần cài Chromium hệ thống.
 
 ## Tài liệu
 
