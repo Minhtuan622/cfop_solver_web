@@ -1,5 +1,5 @@
-import { and, eq, gt } from "drizzle-orm";
-import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopPasswordResetTokens } from "../../drizzle/schema";
+import { and, eq, gt, lt, ne } from "drizzle-orm";
+import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopPasswordResetTokens, cfopWcaOauthStates } from "../../drizzle/schema";
 import { requireDb, getDb } from "./core";
 import { cfopAccountPublicSelect, cfopAccountWcaSelect } from "./accountSelectors";
 
@@ -60,15 +60,47 @@ export async function updateCfopAccountAvatar(accountId: number, avatarUrl: stri
   return account;
 }
 
-export async function updateCfopAccountPassword(accountId: number, passwordHash: string) {
+export async function updateCfopAccountPassword(accountId: number, passwordHash: string, keepTokenHash?: string | null) {
   const db = await requireDb();
   await db.update(cfopAccounts).set({ passwordHash, updatedAt: new Date() }).where(eq(cfopAccounts.id, accountId));
+  // Đổi mật khẩu thu hồi mọi session khác, giữ session hiện tại nếu có.
+  if (keepTokenHash) {
+    await revokeOtherCfopAccountSessions(accountId, keepTokenHash);
+  } else {
+    await db.delete(cfopAccountSessions).where(eq(cfopAccountSessions.accountId, accountId));
+  }
 }
+
+/** Tối đa số session đang hoạt động cùng lúc cho một tài khoản. */
+export const MAX_SESSIONS_PER_ACCOUNT = 10;
 
 export async function createCfopAccountSession(accountId: number, tokenHash: string, expiresAt: Date) {
   const db = await requireDb();
-  await db.delete(cfopAccountSessions).where(eq(cfopAccountSessions.accountId, accountId));
+  const now = new Date();
+  // Dọn phiên hết hạn của tài khoản này mỗi khi tạo phiên mới.
+  await db.delete(cfopAccountSessions).where(and(eq(cfopAccountSessions.accountId, accountId), lt(cfopAccountSessions.expiresAt, now)));
+  // Giữ tối đa MAX_SESSIONS_PER_ACCOUNT phiên: nếu đã đầy, xoá phiên cũ nhất trước khi tạo mới.
+  const sessions = await db.select().from(cfopAccountSessions).where(eq(cfopAccountSessions.accountId, accountId)).orderBy(cfopAccountSessions.createdAt);
+  while (sessions.length >= MAX_SESSIONS_PER_ACCOUNT) {
+    await db.delete(cfopAccountSessions).where(eq(cfopAccountSessions.id, sessions[0]!.id));
+    sessions.shift();
+  }
   await db.insert(cfopAccountSessions).values({ accountId, tokenHash, expiresAt, lastSeenAt: new Date() });
+}
+
+/** Thu hồi mọi session của tài khoản, giữ lại session có tokenHash angegeben. */
+export async function revokeOtherCfopAccountSessions(accountId: number, keepTokenHash: string) {
+  const db = await requireDb();
+  await db.delete(cfopAccountSessions).where(and(eq(cfopAccountSessions.accountId, accountId), ne(cfopAccountSessions.tokenHash, keepTokenHash)));
+}
+
+/** Thu hồi session, token đặt lại mật khẩu và trạng thái OAuth đã hết hạn trên toàn hệ thống. */
+export async function cleanExpiredAuthData() {
+  const now = new Date();
+  const db = await requireDb();
+  await db.delete(cfopAccountSessions).where(lt(cfopAccountSessions.expiresAt, now));
+  await db.delete(cfopPasswordResetTokens).where(lt(cfopPasswordResetTokens.expiresAt, now));
+  await db.delete(cfopWcaOauthStates).where(lt(cfopWcaOauthStates.expiresAt, now));
 }
 
 export async function findCfopAccountBySessionHash(tokenHash: string): Promise<CfopAccount | null> {
@@ -115,6 +147,7 @@ export async function consumeCfopPasswordResetToken(tokenHash: string, passwordH
   const reset = await findCfopPasswordResetToken(tokenHash);
   if (!reset) return null;
   await db.update(cfopAccounts).set({ passwordHash, updatedAt: new Date() }).where(eq(cfopAccounts.id, reset.accountId));
+  // Đặt lại mật khẩu thu hồi mọi session của tài khoản; router sẽ tạo phiên mới sau.
   await db.delete(cfopAccountSessions).where(eq(cfopAccountSessions.accountId, reset.accountId));
   await db.delete(cfopPasswordResetTokens).where(eq(cfopPasswordResetTokens.id, reset.id));
   return findCfopAccountById(reset.accountId);

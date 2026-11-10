@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
-import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "../services/cfopAccountAuth";
+import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, currentSessionTokenHash, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "../services/cfopAccountAuth";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../services/cfopPasswordResetMail";
 import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
 import { cfopAccountProcedure, publicProcedure, rateLimitMiddleware, router } from "../_core/trpc";
@@ -72,8 +72,7 @@ export const accountRouter = router({
   changePassword: cfopAccountProcedure.input(z.object({ currentPassword: passwordInput, newPassword: passwordInput })).mutation(async ({ ctx, input }) => {
     const account = await findCfopAccountByEmail(ctx.cfopAccount.email);
     if (!account || !(await verifyPassword(input.currentPassword, account.passwordHash))) throw new TRPCError({ code: "UNAUTHORIZED", message: "Mật khẩu hiện tại không đúng." });
-    await updateCfopAccountPassword(account.id, await hashPassword(input.newPassword));
-    await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
+    await updateCfopAccountPassword(account.id, await hashPassword(input.newPassword), currentSessionTokenHash(ctx.req));
     return { success: true } as const;
   }),
   requestPasswordReset: publicProcedure.input(z.object({ email: z.string().trim().email("Email không hợp lệ.").max(320) })).use(rateLimitMiddleware("requestPasswordReset", (input) => emailSubject(input))).mutation(async ({ input }) => {

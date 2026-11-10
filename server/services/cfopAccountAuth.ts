@@ -71,3 +71,9 @@ export async function clearCfopAccountBrowserSession(req: Request, res: Response
   if (rawToken) await revokeCfopAccountSession(hashSessionToken(rawToken));
   res.clearCookie(CFOP_ACCOUNT_COOKIE, { ...cfopAccountCookieOptions(req), maxAge: 0 });
 }
+
+/** Mã băm của session cookie đang gắn trên request, hoặc null nếu không có. */
+export function currentSessionTokenHash(req: Request): string | null {
+  const rawToken = parseCookie(req.headers.cookie ?? "")[CFOP_ACCOUNT_COOKIE];
+  return rawToken ? hashSessionToken(rawToken) : null;
+}
