@@ -1,7 +1,39 @@
+import { TRPCError } from "@trpc/server";
+
 const WCA_API_BASE = "https://www.worldcubeassociation.org/api/v0";
 
 type CacheEntry<T> = { expiresAt: number; value?: T; pending?: Promise<T> };
 const memoryCache = new Map<string, CacheEntry<unknown>>();
+export const MAX_CACHE_ENTRIES = 200;
+export const MAX_COMPETITION_DAYS = 366;
+const MAX_COMPETITION_PAGES = 10;
+const WCA_RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const WCA_RATE_LIMIT_MAX = 30;
+
+const wcaRateLimits = new Map<string, { count: number; resetAt: number }>();
+
+function pruneCache() {
+  const now = Date.now();
+  for (const [key, entry] of memoryCache.entries()) {
+    if (entry.expiresAt <= now && !entry.pending) memoryCache.delete(key);
+  }
+  while (memoryCache.size > MAX_CACHE_ENTRIES) {
+    const oldest = Array.from(memoryCache.entries()).sort(([, a], [, b]) => a.expiresAt - b.expiresAt)[0];
+    if (oldest) memoryCache.delete(oldest[0]);
+  }
+}
+
+function rateLimited(path: string): boolean {
+  const now = Date.now();
+  const bucket = wcaRateLimits.get(path);
+  if (!bucket || bucket.resetAt <= now) {
+    wcaRateLimits.set(path, { count: 1, resetAt: now + WCA_RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  if (bucket.count >= WCA_RATE_LIMIT_MAX) return true;
+  bucket.count += 1;
+  return false;
+}
 
 export type WcaCountry = { id: string; name: string; iso2: string };
 
@@ -134,7 +166,9 @@ function normalizeRecord(value: number | null | undefined) {
 }
 
 async function fetchWcaJson<T>(path: string, cacheTtlMs: number): Promise<T> {
+  if (rateLimited(path)) throw new WcaApiError("UNAVAILABLE", "Yêu cầu WCA quá nhiều. Hãy thử lại sau.");
   const url = `${WCA_API_BASE}${path}`;
+  pruneCache();
   const cached = memoryCache.get(url) as CacheEntry<T> | undefined;
   if (cached && cached.expiresAt > Date.now()) {
     if (cached.pending) return cached.pending;
@@ -151,6 +185,7 @@ async function fetchWcaJson<T>(path: string, cacheTtlMs: number): Promise<T> {
       if (!response.ok) throw new WcaApiError("UNAVAILABLE", "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau.");
       const value = await response.json() as T;
       memoryCache.set(url, { value, expiresAt: Date.now() + cacheTtlMs });
+      pruneCache();
       return value;
     } catch (error) {
       if (error instanceof WcaApiError) throw error;
@@ -189,10 +224,17 @@ export async function getWcaCountries() {
 }
 
 export async function getWcaCompetitions(input: { start: string; end: string; countryIso2?: string | null }) {
+  const start = new Date(input.start);
+  const end = new Date(input.end);
+  const days = (end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000);
+  if (!Number.isFinite(days) || days < 0 || days > MAX_COMPETITION_DAYS) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Khoảng ngày quá dài. Tối đa 366 ngày." });
+  }
+
   const baseQuery = new URLSearchParams({ start: input.start, end: input.end, sort: "start_date" });
   if (input.countryIso2) baseQuery.set("country_iso2", input.countryIso2);
 
-  const PAGE_SIZE = 500;
+  const PAGE_SIZE = 200;
   const fetchPage = (page: number) => {
     const query = new URLSearchParams(baseQuery);
     query.set("per_page", String(PAGE_SIZE));
@@ -205,21 +247,10 @@ export async function getWcaCompetitions(input: { start: string; end: string; co
   all.push(...firstPage);
 
   if (firstPage.length === PAGE_SIZE) {
-    let page = 2;
-    let hasMore = true;
-    while (hasMore) {
-      const batch = await Promise.all(Array.from({ length: 10 }, (_, index) => fetchPage(page + index).catch(() => [])));
-      let stop = false;
-      for (const items of batch) {
-        if (Array.isArray(items)) {
-          all.push(...items);
-          if (items.length < PAGE_SIZE) stop = true;
-        } else {
-          stop = true;
-        }
-      }
-      page += 10;
-      hasMore = !stop && batch.some((items) => Array.isArray(items) && items.length === PAGE_SIZE);
+    for (let page = 2; page <= MAX_COMPETITION_PAGES; page += 1) {
+      const next = await fetchPage(page);
+      all.push(...next);
+      if (next.length < PAGE_SIZE) break;
     }
   }
 

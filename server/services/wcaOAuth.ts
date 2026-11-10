@@ -22,7 +22,13 @@ function getConfig(): WcaOauthConfig | null {
   if (!clientId || !clientSecret || !redirectUri) return null;
   try {
     const callbackUrl = new URL(redirectUri);
-    if (callbackUrl.protocol !== "https:") return null;
+    // HTTPS bắt buộc trên production. Cho phép http chỉ trên localhost/127.0.0.1
+    // khi chưa chạy production (dev local).
+    if (callbackUrl.protocol !== "https:") {
+      const isLocalhost = callbackUrl.hostname === "localhost" || callbackUrl.hostname === "127.0.0.1";
+      const isDev = process.env.NODE_ENV !== "production";
+      if (!isLocalhost || !isDev) return null;
+    }
   } catch {
     return null;
   }

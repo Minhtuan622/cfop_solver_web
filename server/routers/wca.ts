@@ -21,9 +21,20 @@ export const accountWcaRouter = router({
     if (!input.wcaId) { await updateCfopAccountWcaId(ctx.cfopAccount.id, null); return findCfopAccountPublicById(ctx.cfopAccount.id); }
     try {
       const profile = await getWcaProfile(normalizeWcaId(input.wcaId));
-      await updateCfopAccountWcaId(ctx.cfopAccount.id, profile.wcaId);
+      try {
+        await updateCfopAccountWcaId(ctx.cfopAccount.id, profile.wcaId);
+      } catch (error) {
+        // Cột wcaId unique: nếu mã đã được liên kết với tài khoản khác → CONFLICT.
+        if (error instanceof Error && /duplicate/i.test(error.message)) {
+          throw new TRPCError({ code: "CONFLICT", message: "Mã WCA này đã được liên kết với tài khoản khác." });
+        }
+        throw error;
+      }
       return findCfopAccountPublicById(ctx.cfopAccount.id);
-    } catch (error) { return wcaError(error); }
+    } catch (error) {
+      if (error instanceof TRPCError) throw error;
+      return wcaError(error);
+    }
   }),
   oauthStatus: cfopAccountProcedure.query(() => ({ configured: wcaOAuthConfigured() })),
   startOAuth: cfopAccountProcedure.mutation(async ({ ctx }) => {

@@ -292,7 +292,6 @@ export default function Profile() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [progressRange, setProgressRange] =
     useState<ProfileProgressRange>("30d");
-  const [wcaIdInput, setWcaIdInput] = useState("");
   const [location] = useLocation();
   const syncQuery = trpc.cfopAccount.cloudState.get.useQuery(undefined, {
     enabled: Boolean(account),
@@ -351,16 +350,6 @@ export default function Profile() {
       setError(errorMessage(next, t));
     },
   });
-  const saveWcaId = trpc.cfopAccount.wca.setId.useMutation({
-    onSuccess: async () => {
-      await Promise.all([
-        utils.cfopAccount.me.invalidate(),
-        utils.cfopAccount.wca.profile.invalidate(),
-      ]);
-      setMessage(t("profile.wcaLinked"));
-    },
-    onError: next => setError(errorMessage(next, t)),
-  });
   const startWcaOAuth = trpc.cfopAccount.wca.startOAuth.useMutation({
     onSuccess: result => window.location.assign(result.url),
     onError: next => setError(errorMessage(next, t)),
@@ -371,7 +360,6 @@ export default function Profile() {
         utils.cfopAccount.me.invalidate(),
         utils.cfopAccount.wca.profile.invalidate(),
       ]);
-      setWcaIdInput("");
       setMessage(t("profile.wcaUnlinked"));
     },
     onError: next => setError(errorMessage(next, t)),
@@ -384,7 +372,6 @@ export default function Profile() {
       setGoalSeconds(
         account.goalMs ? String(Math.round(account.goalMs / 1000)) : ""
       );
-      setWcaIdInput(account.wcaId ?? "");
     }
   }, [account]);
   useEffect(() => {
@@ -442,12 +429,6 @@ export default function Profile() {
     setError("");
     setMessage("");
     changePassword.mutate({ currentPassword, newPassword });
-  };
-  const submitWcaId = (event: React.FormEvent) => {
-    event.preventDefault();
-    setError("");
-    setMessage("");
-    saveWcaId.mutate({ wcaId: wcaIdInput.trim() || null });
   };
   const chooseAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -806,53 +787,6 @@ export default function Profile() {
               </a>
             ) : null}
           </div>
-          <form
-            className="grid grid-cols-12 gap-2 items-end"
-            onSubmit={submitWcaId}
-          >
-            <div className="col-span-12 md:col-span-6">
-              <label className="mb-1.5 block text-sm font-medium text-ink">
-                {t("profile.wcaIdLabel")}
-                <input
-                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 uppercase tracking-wide"
-                  value={wcaIdInput}
-                  onChange={event =>
-                    setWcaIdInput(event.target.value.toUpperCase())
-                  }
-                  placeholder={t("profile.wcaIdPlaceholder")}
-                  maxLength={10}
-                />
-              </label>
-            </div>
-            <div className="col-span-12 md:col-auto flex flex-wrap gap-2">
-              <button
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                disabled={saveWcaId.isPending}
-              >
-                {saveWcaId.isPending
-                  ? t("profile.wcaLookupPending")
-                  : account.wcaId
-                    ? t("profile.wcaUpdate")
-                    : t("profile.wcaLookup")}
-              </button>
-              {account.wcaId ? (
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-                  disabled={unlinkWca.isPending}
-                  onClick={() => {
-                    setError("");
-                    setMessage("");
-                    unlinkWca.mutate();
-                  }}
-                >
-                  {unlinkWca.isPending
-                    ? t("profile.wcaUnlinkPending")
-                    : t("profile.wcaUnlink")}
-                </button>
-              ) : null}
-            </div>
-          </form>
           {wcaProfileQuery.isFetching && wcaProfileQuery.data ? (
             <div className="mt-4">
               <RefreshIndicator label={t("profile.wcaRefreshing")} />
