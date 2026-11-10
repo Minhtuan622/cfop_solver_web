@@ -1,5 +1,5 @@
 import { createHash, randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
-import { parse } from "cookie";
+import { parseCookie } from "cookie";
 import type { Request, Response } from "express";
 import type { CfopAccount } from "../../drizzle/schema";
 import { createCfopAccountSession, findCfopAccountBySessionHash, revokeCfopAccountSession } from "../db";
@@ -61,13 +61,13 @@ export async function createCfopAccountBrowserSession(req: Request, res: Respons
 }
 
 export async function getCfopAccountFromRequest(req: Request) {
-  const rawToken = parse(req.headers.cookie ?? "")[CFOP_ACCOUNT_COOKIE];
+  const rawToken = parseCookie(req.headers.cookie ?? "")[CFOP_ACCOUNT_COOKIE];
   if (!rawToken) return null;
   return findCfopAccountBySessionHash(hashSessionToken(rawToken));
 }
 
 export async function clearCfopAccountBrowserSession(req: Request, res: Response) {
-  const rawToken = parse(req.headers.cookie ?? "")[CFOP_ACCOUNT_COOKIE];
+  const rawToken = parseCookie(req.headers.cookie ?? "")[CFOP_ACCOUNT_COOKIE];
   if (rawToken) await revokeCfopAccountSession(hashSessionToken(rawToken));
   res.clearCookie(CFOP_ACCOUNT_COOKIE, { ...cfopAccountCookieOptions(req), maxAge: 0 });
 }
