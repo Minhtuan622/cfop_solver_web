@@ -14,26 +14,41 @@
 
 ## Chạy local nhanh
 
-Yêu cầu Node.js 22+, pnpm 10+, Docker và Git.
+Yêu cầu Node.js 22+, pnpm **10.34.5**, Docker Desktop và Git. Database local dùng MariaDB trong Docker Compose nên không cần cài MySQL/MariaDB trực tiếp trên macOS hoặc Windows.
 
 ```bash
 git clone https://github.com/Minhtuan622/cfop_solver_web.git
 cd cfop_solver_web
-pnpm install
+corepack enable
+pnpm install --frozen-lockfile
 pnpm db:setup
 pnpm dev
 ```
 
-Mở `http://localhost:3000`. Database local chạy qua MariaDB trong Docker Compose; xem [hướng dẫn phát triển](docs/development/project-guide.md) nếu cần cấu hình tài khoản, WCA hoặc production.
+`pnpm db:setup` sẽ khởi động MariaDB tại `127.0.0.1:3307`, tạo/cập nhật `.env.local` và áp dụng Drizzle migration. Hãy bật Docker Desktop trước khi chạy lệnh này. Sau đó mở `http://localhost:3000`.
+
+Các lệnh database local thường dùng:
+
+```bash
+pnpm db:stop   # dừng container, giữ dữ liệu
+pnpm db:logs   # xem log MariaDB
+pnpm db:reset  # xóa volume và tạo lại database local
+```
+
+Các luồng account, cloud sync, Rooms và WCA cần `DATABASE_URL`. WCA OAuth và email đặt lại mật khẩu là tùy chọn; xem [file biến môi trường mẫu](.env.example) và [hướng dẫn phát triển](docs/development/project-guide.md) để cấu hình.
 
 ## Kiểm tra trước khi mở Pull Request
 
 ```bash
 pnpm check
 pnpm test --run
+pnpm exec playwright install --with-deps chromium  # lần đầu, nếu máy chưa có Chromium
 pnpm test:e2e
 pnpm build
+pnpm audit --prod --audit-level=high
 ```
+
+`pnpm test:e2e` dùng Chromium hệ thống tại `/usr/bin/chromium`. Nếu môi trường không có đường dẫn này, có thể chạy `pnpm exec playwright install chromium` rồi dùng `npx playwright test`.
 
 ## Tài liệu
 
@@ -42,6 +57,13 @@ pnpm build
 - [Đóng góp cho dự án](CONTRIBUTING.md)
 - [Quy tắc cộng đồng](CODE_OF_CONDUCT.md)
 - [Báo cáo lỗ hổng bảo mật](SECURITY.md)
+
+## Công nghệ và cấu trúc chính
+
+- Frontend React 19 + TypeScript 7 + Vite 8, giao diện Tailwind CSS/Studio UI.
+- Backend Express 5 + tRPC 11, Drizzle ORM và MySQL/MariaDB.
+- Cubing.js, Three.js và Pyodide Web Worker cho scramble, cube 3D và solver trong trình duyệt.
+- Vitest/Testing Library cho unit tests và Playwright cho browser E2E.
 
 Source Python của solver nằm tại [`solver-python/cfop_solver`](solver-python/cfop_solver). Sau khi chỉnh sửa source, chạy `pnpm run embed-solver` để tái tạo bundle Pyodide được dùng trong trình duyệt; không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`.
 
