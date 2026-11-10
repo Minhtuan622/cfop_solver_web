@@ -6,7 +6,7 @@ import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 
 export type CfopCloudState = {
   schema: "cfop-account-cloud-state";
-  version: 1;
+  version: 1 | 2;
   capturedAt: number;
   timer: SolveHistoryEntry[];
   lastLayer: { study: StudyState; masteredCaseKeys: string[] };
@@ -14,13 +14,16 @@ export type CfopCloudState = {
   bldLearningPath: BldLearningPathProgress;
 };
 
-const maxTimerEntries = 500;
+/** Giới hạn số lượng solve lưu trong lịch sử cloud state (dùng chung client/server). */
+export const MAX_CLOUD_TIMER_ENTRIES = 500;
+
+const maxTimerEntries = MAX_CLOUD_TIMER_ENTRIES;
 const maxDrillAttempts = 600;
 
 export function createCfopCloudState(now = Date.now()): CfopCloudState {
   return {
     schema: "cfop-account-cloud-state",
-    version: 1,
+    version: 2,
     capturedAt: readCfopCloudChangeAt() || 0,
     timer: readSolveHistory().slice(0, maxTimerEntries),
     lastLayer: { study: readLastLayerStudy(), masteredCaseKeys: Array.from(readMasteredCaseKeys()) },
@@ -32,7 +35,7 @@ export function createCfopCloudState(now = Date.now()): CfopCloudState {
 function isRecord(value: unknown): value is Record<string, unknown> { return Boolean(value) && typeof value === "object" && !Array.isArray(value); }
 
 export function parseCfopCloudState(value: unknown): CfopCloudState | null {
-  if (!isRecord(value) || value.schema !== "cfop-account-cloud-state" || value.version !== 1 || !Array.isArray(value.timer) || !isRecord(value.lastLayer)) return null;
+  if (!isRecord(value) || value.schema !== "cfop-account-cloud-state" || (value.version !== 1 && value.version !== 2) || !Array.isArray(value.timer) || !isRecord(value.lastLayer)) return null;
   const lastLayer = value.lastLayer;
   if (!Array.isArray(lastLayer.masteredCaseKeys)) return null;
   const state = value as unknown as CfopCloudState;
@@ -50,7 +53,20 @@ function mergeTimer(local: SolveHistoryEntry[], remote: SolveHistoryEntry[], pre
   for (const entry of remote) byId.set(entry.id, entry);
   for (const entry of local) {
     const existing = byId.get(entry.id);
-    byId.set(entry.id, existing ? newest(existing, entry, preferLocal) : entry);
+    if (!existing) {
+      byId.set(entry.id, entry);
+      continue;
+    }
+    // Tombstone (deletedAt) luôn thắng: nếu bất kỳ bên nào đánh dấu xóa,
+    // entry được coi là đã xóa để không bị khôi phục lại từ bản từ xa cũ.
+    const localDeleted = !!entry.deletedAt;
+    const remoteDeleted = !!existing.deletedAt;
+    if (localDeleted || remoteDeleted) {
+      const tombstone = localDeleted && (!remoteDeleted || (entry.deletedAt ?? 0) >= (existing.deletedAt ?? 0)) ? entry : existing;
+      byId.set(entry.id, tombstone);
+      continue;
+    }
+    byId.set(entry.id, newest(existing, entry, preferLocal));
   }
   return Array.from(byId.values()).sort((left, right) => right.createdAt - left.createdAt).slice(0, maxTimerEntries);
 }
@@ -97,11 +113,11 @@ function mergeBldProfile(local: BldProfile, remote: BldProfile, preferLocal: boo
 }
 
 export function mergeCfopCloudStates(local: CfopCloudState, remote: CfopCloudState | null, now = Date.now()): CfopCloudState {
-  if (!remote) return { ...local, capturedAt: now };
+  if (!remote) return { ...local, version: 2, capturedAt: now };
   const preferLocal = local.capturedAt >= remote.capturedAt;
   return {
     schema: "cfop-account-cloud-state",
-    version: 1,
+    version: 2,
     capturedAt: now,
     timer: mergeTimer(local.timer, remote.timer, preferLocal),
     lastLayer: mergeLastLayer(local.lastLayer, remote.lastLayer, preferLocal),

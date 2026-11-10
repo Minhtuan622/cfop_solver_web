@@ -124,10 +124,21 @@ export async function getCfopAccountCloudState(accountId: number) {
   return (await db.select().from(cfopAccountCloudStates).where(eq(cfopAccountCloudStates.accountId, accountId)).limit(1))[0] ?? null;
 }
 
-export async function saveCfopAccountCloudState(accountId: number, payload: unknown) {
+export async function saveCfopAccountCloudState(accountId: number, payload: unknown, expectedVersion?: number) {
   const db = await requireDb();
+  const current = await getCfopAccountCloudState(accountId);
+  const storedVersion = current?.version ?? 0;
+  // Optimistic concurrency: nếu phiên bản gửi lên không khớp với bản lưu,
+  // từ chối để client lấy bản mới, gộp rồi lưu lại (tránh ghi đè mất dữ liệu).
+  if (expectedVersion !== undefined && expectedVersion !== storedVersion) {
+    const error = new Error("Cloud state version conflict") as Error & { code?: string; status?: number };
+    error.code = "CONFLICT";
+    error.status = 409;
+    throw error;
+  }
+  const nextVersion = (payload as { version?: number })?.version ?? storedVersion;
   const updatedAt = new Date();
-  await db.insert(cfopAccountCloudStates).values({ accountId, payload, version: 1, updatedAt }).onDuplicateKeyUpdate({ set: { payload, version: 1, updatedAt } });
+  await db.insert(cfopAccountCloudStates).values({ accountId, payload, version: nextVersion + 1, updatedAt }).onDuplicateKeyUpdate({ set: { payload, version: nextVersion + 1, updatedAt } });
   return getCfopAccountCloudState(accountId);
 }
 

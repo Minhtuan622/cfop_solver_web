@@ -58,4 +58,8 @@ export const commonWords: Dictionary = {
     "Thời gian giải không thể ngắn hơn thời gian quan sát.",
     "The solve time cannot be shorter than the inspection time.",
   ],
+  "cloud.errorConflict": [
+    "Trạng thái đám mây đã được cập nhật ở thiết bị khác. Hãy tải lại và đồng bộ lại.",
+    "Cloud state was updated on another device. Please reload and sync again.",
+  ],
 };

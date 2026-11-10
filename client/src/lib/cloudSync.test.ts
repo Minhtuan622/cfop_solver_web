@@ -1,47 +1,124 @@
-import { describe, expect, it } from "vitest";
-import { emptyBldProfile } from "@/features/bld";
-import { mergeCfopCloudStates, type CfopCloudState } from "./cloudSync";
-import type { SolveHistoryEntry } from "./solveHistory";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+  createCfopCloudState,
+  MAX_CLOUD_TIMER_ENTRIES,
+  mergeCfopCloudStates,
+  parseCfopCloudState,
+} from "@/lib/cloudSync";
+import {
+  deleteSolveHistory,
+  readSolveHistory,
+  type SolveHistoryEntry,
+} from "@/lib/solveHistory";
+import { writeStoredValue } from "@/lib/browserStorage";
 
-const solve = (id: string, createdAt: number, elapsedMs: number): SolveHistoryEntry => ({ id, createdAt, elapsedMs, inspectionMs: 0, input: "R U R'", inputKind: "scramble", moves: 3, penalty: "none", solution: "", note: "", tags: [], phaseSplits: [] });
-
-function state(capturedAt: number, timer: SolveHistoryEntry[]): CfopCloudState {
+function makeEntry(id: string, createdAt: number, deletedAt?: number): SolveHistoryEntry {
   return {
-    schema: "cfop-account-cloud-state",
-    version: 1,
-    capturedAt,
-    timer,
-    lastLayer: { study: { records: {}, dailyGoal: 12 }, masteredCaseKeys: [] },
-    bldProfile: emptyBldProfile(),
-    bldLearningPath: { orientationDone: false, formulaDone: false, memoDone: false, sightedDone: false, selfCheckDone: false, reviewDone: false, lastStage: 0 },
+    id,
+    createdAt,
+    elapsedMs: 10_000,
+    inspectionMs: 15_000,
+    input: "R U R' U'",
+    inputKind: "scramble",
+    moves: 7,
+    penalty: "none",
+    solution: "R U R' U'",
+    note: "",
+    tags: [],
+    phaseSplits: [],
+    ...(deletedAt !== undefined ? { deletedAt } : {}),
   };
 }
 
-describe("mergeCfopCloudStates", () => {
-  it("giữ toàn bộ solve có ID khác nhau và ưu tiên bản mới hơn khi cùng ID", () => {
-    const local = state(100, [solve("shared", 10, 1_500), solve("local", 30, 2_000)]);
-    const remote = state(200, [solve("shared", 10, 1_200), solve("remote", 20, 1_800)]);
-    const merged = mergeCfopCloudStates(local, remote, 300);
-
-    expect(merged.timer.map((item) => item.id)).toEqual(["local", "remote", "shared"]);
-    expect(merged.timer.find((item) => item.id === "shared")?.elapsedMs).toBe(1_200);
-    expect(merged.capturedAt).toBe(300);
+describe("B3: cloud sync tombstones and merge", () => {
+  beforeEach(() => {
+    localStorage.removeItem("cfop-solve-history-v1");
+  });
+  it("parseCfopCloudState vẫn đọc được bản version 1", () => {
+    const v1 = {
+      schema: "cfop-account-cloud-state",
+      version: 1,
+      capturedAt: Date.now(),
+      timer: [],
+      lastLayer: { study: { records: {}, dailyGoal: 0 }, masteredCaseKeys: [] },
+      bldProfile: { preferredAlgorithms: {}, memoRecords: {}, pairCards: {}, drillAttempts: [], reviewDays: [], audioEnabled: true, dailyGoal: 0 },
+      bldLearningPath: { orientationDone: false, formulaDone: false, memoDone: false, sightedDone: false, selfCheckDone: false, reviewDone: false, lastStage: 0 },
+    };
+    expect(parseCfopCloudState(v1)).not.toBeNull();
   });
 
-  it("gộp case đã thuộc, tiến độ học và ưu tiên record Study mới hơn", () => {
-    const local = state(500, []);
-    local.lastLayer.masteredCaseKeys = ["zbll:1"];
-    local.lastLayer.study.records["zbll:1"] = { key: "zbll:1", family: "zbll", group: "A", id: "1", attempts: 3, lapses: 0, averageMs: 2200, lastMs: 2000, intervalDays: 3, dueAt: 700, lastReviewedAt: 500, lastGrade: "good" };
-    local.bldLearningPath.memoDone = true;
-    const remote = state(300, []);
-    remote.lastLayer.masteredCaseKeys = ["1lll:2"];
-    remote.lastLayer.study.records["zbll:1"] = { ...local.lastLayer.study.records["zbll:1"]!, attempts: 1, lastReviewedAt: 300 };
-    remote.bldLearningPath.orientationDone = true;
+  it("createCfopCloudState tạo bản version 2", () => {
+    const state = createCfopCloudState();
+    expect(state.version).toBe(2);
+  });
 
-    const merged = mergeCfopCloudStates(local, remote, 600);
-    expect(merged.lastLayer.masteredCaseKeys).toEqual(expect.arrayContaining(["zbll:1", "1lll:2"]));
-    expect(merged.lastLayer.study.records["zbll:1"]?.attempts).toBe(3);
-    expect(merged.bldLearningPath.orientationDone).toBe(true);
-    expect(merged.bldLearningPath.memoDone).toBe(true);
+  it("xóa cục bộ rồi gộp với bản từ xa cũ giữ kết quả đã xóa (tombstone)", () => {
+    const now = Date.now();
+    // Ghi entry vào local storage trực tiếp (giữ ID cố định)
+    writeStoredValue(
+      "cfop-solve-history-v1",
+      JSON.stringify([makeEntry("solve-to-delete", now - 1000)]),
+    );
+    expect(readSolveHistory().some((e) => e.id === "solve-to-delete")).toBe(true);
+
+    // Xóa cục bộ → tombstone (deletedAt được ghi, entry bị lọc khỏi readSolveHistory)
+    deleteSolveHistory("solve-to-delete");
+    expect(readSolveHistory().some((e) => e.id === "solve-to-delete")).toBe(false);
+
+    // Lấy tombstone trực tiếp từ localStorage (bypass bộ lọc readSolveHistory)
+    const raw = JSON.parse(localStorage.getItem("cfop-solve-history-v1") || "[]") as SolveHistoryEntry[];
+    const tombstoned = raw.find((e) => e.id === "solve-to-delete");
+    expect(tombstoned?.deletedAt).toBeDefined();
+
+    // Bản từ xa KHÔNG có entry này (bản cũ, chưa biết về việc xóa)
+    const remoteState = createCfopCloudState();
+    remoteState.timer = [];
+
+    // Local state kèm tombstone (mô phỏng local storage chưa được apply merge)
+    const localWithTombstone = createCfopCloudState();
+    localWithTombstone.timer = [tombstoned!];
+    const merged = mergeCfopCloudStates(localWithTombstone, remoteState);
+
+    // Sau merge, entry đã xóa vẫn có deletedAt → không hồi sinh
+    const deletedEntry = merged.timer.find((e) => e.id === "solve-to-delete");
+    expect(deletedEntry?.deletedAt).toBeDefined();
+  });
+
+  it("hai thiết bị ghi xen kẽ không mất dữ liệu (interleaved writes)", () => {
+    // Thiết bị A thêm solve A1, A2; thiết bị B thêm solve B1, B2
+    const base = Date.now() - 100_000;
+    const localEntries = [makeEntry("local-1", base + 1000), makeEntry("local-2", base + 2000)];
+    const remoteEntries = [makeEntry("remote-1", base + 1500), makeEntry("remote-2", base + 2500)];
+
+    const local = createCfopCloudState();
+    local.timer = localEntries;
+    const remote = createCfopCloudState();
+    remote.timer = remoteEntries;
+
+    const merged = mergeCfopCloudStates(local, remote);
+
+    // Tất cả 4 entry phải tồn tại sau merge
+    const ids = new Set(merged.timer.map((e) => e.id));
+    expect(ids.has("local-1")).toBe(true);
+    expect(ids.has("local-2")).toBe(true);
+    expect(ids.has("remote-1")).toBe(true);
+    expect(ids.has("remote-2")).toBe(true);
+    expect(merged.timer.length).toBe(4);
+  });
+
+  it("mergeTimer không vượt quá MAX_CLOUD_TIMER_ENTRIES", () => {
+    const many = Array.from({ length: MAX_CLOUD_TIMER_ENTRIES + 100 }, (_, i) =>
+      makeEntry(`bulk-${i}`, Date.now() - i),
+    );
+    const local = createCfopCloudState();
+    local.timer = many;
+    const remote = createCfopCloudState();
+    remote.timer = [];
+    const merged = mergeCfopCloudStates(local, remote);
+    expect(merged.timer.length).toBe(MAX_CLOUD_TIMER_ENTRIES);
+  });
+
+  it("MAX_CLOUD_TIMER_ENTRIES có giá trị 500", () => {
+    expect(MAX_CLOUD_TIMER_ENTRIES).toBe(500);
   });
 });

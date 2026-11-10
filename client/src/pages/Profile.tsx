@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { ProfileProgressChart } from "@/features/profile/components/ProfileProgressChart";
-import { createCfopCloudState } from "@/lib/cloudSync";
+import { applyCfopCloudState, createCfopCloudState, mergeCfopCloudStates, parseCfopCloudState } from "@/lib/cloudSync";
 import {
   filterProfileProgress,
   meetsAo5Goal,
@@ -338,7 +338,18 @@ export default function Profile() {
         })
       );
     },
-    onError: next => setError(errorMessage(next, t)),
+    onError: async (next) => {
+      if ((next as { data?: { code?: string } }).data?.code === "CONFLICT") {
+        const remote = utils.cfopAccount.cloudState.get.getData(undefined);
+        const parsed = parseCfopCloudState(remote?.payload);
+        const local = createCfopCloudState();
+        const merged = mergeCfopCloudStates(local, parsed);
+        applyCfopCloudState(merged);
+        manualSync.mutate(merged);
+        return;
+      }
+      setError(errorMessage(next, t));
+    },
   });
   const saveWcaId = trpc.cfopAccount.wca.setId.useMutation({
     onSuccess: async () => {

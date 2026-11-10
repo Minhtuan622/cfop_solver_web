@@ -27,6 +27,9 @@ export type SolveHistoryEntry = {
   multiBlind?: MultiBlindAttempt;
   /** One independent 3×3 scramble for each Multi-Blind cube. */
   multiBlindScrambles?: string[];
+  /** Đánh dấu xóa mềm (tombstone): lần xóa của entry này. Entry có deletedAt
+   *  được giữ lại để đồng bộ biết đã xóa, không bị khôi phục bởi bản từ xa cũ. */
+  deletedAt?: number;
 };
 
 const KEY = "cfop-solve-history-v1";
@@ -82,19 +85,33 @@ function normalize(item: Imported): SolveHistoryEntry {
     eventId: normalizeTimerEventId(item.eventId),
     multiBlind: safeMultiBlind(item.multiBlind),
     multiBlindScrambles: safeMultiBlindScrambles(item.multiBlindScrambles),
+    deletedAt: typeof item.deletedAt === "number" && Number.isFinite(item.deletedAt) && item.deletedAt >= 0 ? item.deletedAt : undefined,
   };
 }
 function write(entries: SolveHistoryEntry[]) { writeStoredValue(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); notifyCfopCloudStateChanged(); }
 
 export function readSolveHistory(): SolveHistoryEntry[] {
-  return readStoredJson<Imported[]>(KEY, []).filter((item) => item && typeof item === "object").map(normalize);
+  return readStoredJson<Imported[]>(KEY, []).filter((item) => item && typeof item === "object").map(normalize).filter((entry) => !entry.deletedAt);
 }
 export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags" | "phaseSplits"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry {
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readSolveHistory()]); return item;
 }
 export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
-export function deleteSolveHistory(id: string): SolveHistoryEntry[] { const next = readSolveHistory().filter((entry) => entry.id !== id); write(next); return next; }
-export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry[] { const selected = new Set(ids); const next = readSolveHistory().filter((entry) => !selected.has(entry.id)); write(next); return next; }
+export function deleteSolveHistory(id: string): SolveHistoryEntry[] {
+  const next = readSolveHistory().map((entry) =>
+    entry.id === id ? normalize({ ...entry, deletedAt: Date.now() }) : entry,
+  );
+  write(next);
+  return next;
+}
+export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry[] {
+  const selected = new Set(ids);
+  const next = readSolveHistory().map((entry) =>
+    selected.has(entry.id) ? normalize({ ...entry, deletedAt: Date.now() }) : entry,
+  );
+  write(next);
+  return next;
+}
 export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
   const raw = Array.isArray(payload) ? payload : payload && typeof payload === "object" && Array.isArray((payload as { entries?: unknown }).entries) ? (payload as { entries: unknown[] }).entries : null;
   if (!raw) throw new Error("Invalid backup");

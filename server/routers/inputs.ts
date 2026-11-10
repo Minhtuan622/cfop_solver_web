@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { DEFAULT_TIMER_EVENT, TIMER_EVENT_IDS } from "../../shared/timerEvents";
 
+/** Giới hạn số lượng solve lưu trong lịch sử cloud state (dùng chung client/server). */
+export const MAX_CLOUD_TIMER_ENTRIES = 500;
+
 /** Thời gian tối thiểu (ms) một giải hợp lý cần mất, bất kể thể thức. */
 export const MIN_ELAPSED_MS = 1_000;
 
@@ -10,9 +13,9 @@ export const profileInput = z.object({ displayName: z.string().trim().min(2, "T�
 export const avatarInput = z.object({ data: z.string().min(8).max(2_800_000), contentType: z.enum(["image/jpeg", "image/png", "image/webp"]) });
 export const cloudStateInput = z.object({
   schema: z.literal("cfop-account-cloud-state"),
-  version: z.literal(1),
+  version: z.union([z.literal(1), z.literal(2)]),
   capturedAt: z.number().int().nonnegative(),
-  timer: z.array(z.unknown()).max(500),
+  timer: z.array(z.unknown()).max(MAX_CLOUD_TIMER_ENTRIES),
   lastLayer: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }),
   bldProfile: z.unknown(),
   bldLearningPath: z.unknown(),

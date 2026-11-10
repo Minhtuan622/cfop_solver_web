@@ -66,8 +66,19 @@ export const accountRouter = router({
     return findCfopAccountPublicById(ctx.cfopAccount.id);
   }),
   cloudState: router({
-    get: cfopAccountProcedure.query(async ({ ctx }) => { const state = await getCfopAccountCloudState(ctx.cfopAccount.id); return state ? { payload: state.payload, updatedAt: state.updatedAt } : null; }),
-    save: cfopAccountProcedure.input(cloudStateInput).mutation(async ({ ctx, input }) => { const state = await saveCfopAccountCloudState(ctx.cfopAccount.id, validateCloudPayload(input)); return { updatedAt: state?.updatedAt ?? new Date() }; }),
+    get: cfopAccountProcedure.query(async ({ ctx }) => { const state = await getCfopAccountCloudState(ctx.cfopAccount.id); return state ? { payload: state.payload, updatedAt: state.updatedAt, version: state.version } : null; }),
+    save: cfopAccountProcedure.input(cloudStateInput).mutation(async ({ ctx, input }) => {
+      const current = await getCfopAccountCloudState(ctx.cfopAccount.id);
+      try {
+        const state = await saveCfopAccountCloudState(ctx.cfopAccount.id, validateCloudPayload(input), current?.version);
+        return { updatedAt: state?.updatedAt ?? new Date(), version: state?.version };
+      } catch (error) {
+        if ((error as { code?: string }).code === "CONFLICT") {
+          throw new TRPCError({ code: "CONFLICT", message: "Trạng thái đám mây đã được cập nhật ở thiết bị khác. Hãy tải lại và đồng bộ lại." });
+        }
+        throw error;
+      }
+    }),
   }),
   changePassword: cfopAccountProcedure.input(z.object({ currentPassword: passwordInput, newPassword: passwordInput })).mutation(async ({ ctx, input }) => {
     const account = await findCfopAccountByEmail(ctx.cfopAccount.email);

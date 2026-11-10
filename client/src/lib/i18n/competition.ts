@@ -158,7 +158,6 @@ export const competitionWords: Dictionary = {
     "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ một chút rồi gửi lại.",
     "You are sending messages too fast. Please wait a moment before sending again.",
   ],
-
   "competition.outcome.removed": ["Đã rời phòng", "Removed from the room"],
   "competition.outcome.removedDetail": [
     "Bạn đã bị quản trị viên loại khỏi phòng thi đấu.",

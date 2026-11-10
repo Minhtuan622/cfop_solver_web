@@ -101,4 +101,7 @@ export const serverMessageKeys: Record<string, string> = {
   "Liên kết WCA đã hết hạn hoặc không hợp lệ.": "wca.errorOAuthInvalidState",
   "Phiên tài khoản CFOP không khớp với yêu cầu liên kết WCA.": "wca.errorOAuthAccountMismatch",
   "Không thể xác minh tài khoản WCA. Hãy thử liên kết lại.": "wca.errorOAuthLinkFailed",
+
+  // Đồng bộ đám mây
+  "Trạng thái đám mây đã được cập nhật ở thiết bị khác. Hãy tải lại và đồng bộ lại.": "cloud.errorConflict",
 };

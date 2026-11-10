@@ -8,7 +8,18 @@ export function CfopCloudSync() {
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, { staleTime: 60_000, retry: false });
   const accountId = accountQuery.data?.id;
   const remoteQuery = trpc.cfopAccount.cloudState.get.useQuery(undefined, { enabled: Boolean(accountId), retry: false });
-  const save = trpc.cfopAccount.cloudState.save.useMutation();
+  const save = trpc.cfopAccount.cloudState.save.useMutation({
+    onError: async (error) => {
+      // CONFLICT: thiết bị khác đã lưu mới hơn. Lấy bản từ xa, gộp cục bộ vào, lưu lại.
+      if ((error as { data?: { code?: string } }).data?.code === "CONFLICT" && accountId && remoteQuery.isSuccess) {
+        const remote = parseCfopCloudState(remoteQuery.data?.payload);
+        const local = createCfopCloudState();
+        const merged = mergeCfopCloudStates(local, remote);
+        applyCfopCloudState(merged);
+        save.mutate(merged);
+      }
+    },
+  });
   const [readyAccountId, setReadyAccountId] = useState<number | null>(null);
 
   useEffect(() => {
