@@ -7,11 +7,14 @@ import { registerStorageProxy } from "./storageProxy";
 import { registerWcaOAuthRoutes } from "../services/wcaOAuthRoutes";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic } from "./vite";
 import { applyBodyLimits } from "./bodyLimits";
 
 dotenv.config();
-dotenv.config({ path: ".env.local", override: true });
+// The host environment is the authority: a `PORT=3200` on the command line or
+// from the platform must beat a value written into .env.local, so no key here
+// overrides what is already set.
+dotenv.config({ path: ".env.local" });
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -51,8 +54,10 @@ async function startServer() {
       createContext,
     })
   );
-  // development mode uses Vite, production mode uses static files
+  // development mode uses Vite, production mode uses static files. The dev
+  // middleware loads on demand so a production bundle needs no vite package.
   if (process.env.NODE_ENV === "development") {
+    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else {
     serveStatic(app);

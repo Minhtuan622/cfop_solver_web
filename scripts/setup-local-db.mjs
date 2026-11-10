@@ -28,10 +28,11 @@ function composeCommand() {
 
 function ensureEnv() {
   const current = existsSync(envFile) ? readFileSync(envFile, "utf8") : "";
+  // Only the database connection belongs here. NODE_ENV and PORT stay with
+  // the command line or the platform, so a `PORT=3200 pnpm start` keeps
+  // running on 3200.
   const additions = [];
   if (!/^DATABASE_URL=/m.test(current)) additions.push(`DATABASE_URL=${databaseUrl}`);
-  if (!/^NODE_ENV=/m.test(current)) additions.push("NODE_ENV=development");
-  if (!/^PORT=/m.test(current)) additions.push("PORT=3000");
   if (additions.length) writeFileSync(envFile, `${current.trimEnd()}${current.trimEnd() ? "\n" : ""}${additions.join("\n")}\n`);
 }
 

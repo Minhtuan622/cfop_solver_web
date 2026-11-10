@@ -1,0 +1,17 @@
+# Local machine state and history the image must never carry.
+
+node_modules
+.git
+.github
+
+# Secret files travel with the deployment platform, not in the image.
+.env
+.env.local
+.env.*
+!.env.example
+
+# Build products are produced inside the image.
+dist
+
+# Local development database and tooling.
+compose.local.yaml
