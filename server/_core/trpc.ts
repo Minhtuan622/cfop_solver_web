@@ -1,10 +1,84 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
+import { serverMessageKeys } from "../../shared/serverMessages";
 import { clientAddress, RateLimiter, type RateLimitRule } from "../infrastructure/rateLimit";
 import type { TrpcContext } from "./context";
 
+/**
+ * The wording a visitor reads when the server fails in a way no one planned.
+ *
+ * tRPC turns an unplanned throw into an internal error whose message is the
+ * original text, so a failed query would print its SQL and the values it
+ * touched. The formatter below replaces such a message with this sentence and
+ * leaves the full detail in the server log.
+ */
+export const UNEXPECTED_ERROR_MESSAGE = "Có lỗi xảy ra, vui lòng thử lại.";
+
+/**
+ * The prefix of a schema validation failure.
+ *
+ * A rejected form used to answer with the whole zod payload printed as a JSON
+ * array. The formatter reduces it to this prefix plus the first field's own
+ * sentence, which the interface catalogue can translate.
+ */
+export const VALIDATION_ERROR_PREFIX = "Dữ liệu không hợp lệ:";
+
+/** Whether a caught error only restates the words of its original cause. */
+function restatesCause(error: TRPCError): boolean {
+  if (error.cause == null) return false;
+  const causeMessage = (error.cause as { message?: unknown }).message;
+  return error.message === (typeof causeMessage === "string" ? causeMessage : undefined);
+}
+
+/** The first issue of a caught validation failure, as plain words. */
+function firstSchemaIssue(error: TRPCError): { path: string; message: string } | null {
+  // The parser middleware wraps a failed schema check in a BAD_REQUEST whose
+  // message is the raw text of the cause; a hand-thrown sentence never matches.
+  if (error.code !== "BAD_REQUEST" || !restatesCause(error)) return null;
+  const issues = (error.cause as { issues?: unknown }).issues;
+  if (!Array.isArray(issues) || issues.length === 0) return null;
+  const issue = issues.find(
+    (candidate): candidate is { message?: unknown; path?: unknown } =>
+      typeof candidate === "object" && candidate !== null,
+  );
+  if (!issue || typeof issue.message !== "string" || !issue.message.trim()) return null;
+  const path = Array.isArray(issue.path)
+    ? issue.path.filter((part) => typeof part === "string" || typeof part === "number").join(".")
+    : "";
+  return { path, message: issue.message.trim() };
+}
+
+/**
+ * The words of an error the visitor may read.
+ *
+ * A planned failure — thrown as a `TRPCError` with its own sentence — keeps
+ * that sentence. A failed schema check becomes one short line instead of a
+ * raw array. Everything else, usually a database error tRPC caught, gets only
+ * the generic sentence; the original wording goes to the server log.
+ */
+function visitorMessage(error: TRPCError): string {
+  if (error.code === "INTERNAL_SERVER_ERROR" && restatesCause(error)) return UNEXPECTED_ERROR_MESSAGE;
+  const issue = firstSchemaIssue(error);
+  if (!issue) return error.message;
+  // A sentence the catalogue already lists, such as "Email không hợp lệ.",
+  // reads on its own; a raw wording needs the field name to point at.
+  const named = Object.hasOwn(serverMessageKeys, issue.message);
+  const detail = !named && issue.path ? `${issue.path}: ${issue.message}` : issue.message;
+  return `${VALIDATION_ERROR_PREFIX} ${detail}`;
+}
+
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
+  errorFormatter: ({ shape, error, path }) => {
+    const message = visitorMessage(error);
+    if (message !== error.message) {
+      console.error(`[trpc] hidden error detail in "${path ?? "unknown"}":`, error.cause ?? error);
+    }
+    // The stack is a detail of the server, never of the visitor; the logged
+    // copy above keeps it. Code, HTTP status and the procedure path stay.
+    const { stack: _stack, ...data } = shape.data;
+    return { ...shape, message, data };
+  },
 });
 
 export const router = t.router;

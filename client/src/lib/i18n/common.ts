@@ -11,6 +11,11 @@ export const commonWords: Dictionary = {
     "Máy chủ đang gặp sự cố. Vui lòng thử lại sau ít phút.",
     "The server hit a problem. Please try again in a moment.",
   ],
+  "common.error.internal": [
+    "Có lỗi xảy ra, vui lòng thử lại.",
+    "An error occurred. Please try again.",
+  ],
+  "common.error.invalidData": ["Dữ liệu không hợp lệ:", "Invalid details:"],
   "common.error.passwordTooShort": [
     "Mật khẩu cần ít nhất 10 ký tự.",
     "The password needs at least 10 characters.",

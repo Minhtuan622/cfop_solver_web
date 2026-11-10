@@ -11,6 +11,10 @@
  * sentence is missing from this table, so the two never drift apart.
  */
 export const serverMessageKeys: Record<string, string> = {
+  // Lỗi chung
+  "Có lỗi xảy ra, vui lòng thử lại.": "common.error.internal",
+  "Dữ liệu không hợp lệ:": "common.error.invalidData",
+
   // Tài khoản
   "Email này đã có tài khoản CFOP.": "account.error.emailTaken",
   "Email hoặc mật khẩu không đúng.": "account.error.invalidCredentials",
