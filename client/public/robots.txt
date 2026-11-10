@@ -1,4 +1,2 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://cfop-solver.studio/sitemap.xml

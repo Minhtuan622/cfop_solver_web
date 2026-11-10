@@ -15,6 +15,7 @@ export const serverMessageKeys: Record<string, string> = {
   "Có lỗi xảy ra, vui lòng thử lại.": "common.error.internal",
   "Dữ liệu không hợp lệ:": "common.error.invalidData",
   "Dữ liệu gửi lên quá lớn.": "common.error.payloadTooLarge",
+  "Không tìm thấy.": "common.error.notFound",
 
   // Tài khoản
   "Email này đã có tài khoản CFOP.": "account.error.emailTaken",

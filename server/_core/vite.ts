@@ -3,18 +3,23 @@ import fs from "fs";
 import { type Server } from "http";
 import { nanoid } from "nanoid";
 import path from "path";
-import { createServer as createViteServer } from "vite";
-import viteConfig from "../../vite.config";
+import type { InlineConfig, ViteDevServer } from "vite";
 
 export async function setupVite(app: Express, server: Server) {
+  // The dev server and its config load inside this function, so the
+  // production bundle never has to resolve the vite package it does not ship.
+  const [{ createServer: createViteServer }, devConfig] = await Promise.all([
+    import("vite"),
+    import("../../vite.config"),
+  ]);
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
     allowedHosts: true as const,
   };
 
-  const vite = await createViteServer({
-    ...viteConfig,
+  const vite: ViteDevServer = await createViteServer({
+    ...(devConfig.default satisfies InlineConfig as InlineConfig),
     configFile: false,
     server: serverOptions,
     appType: "custom",
@@ -58,7 +63,19 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Hashed files under /assets/ stay in the browser cache for a year; the
+  // entry page must be revalidated on every visit.
+  app.use(
+    express.static(distPath, {
+      setHeaders(res, filePath) {
+        if (filePath.includes("/assets/")) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        } else if (filePath.endsWith("index.html")) {
+          res.setHeader("Cache-Control", "no-cache");
+        }
+      },
+    }),
+  );
 
   // fall through to index.html if the file doesn't exist
   app.use("/{*splat}", (_req, res) => {

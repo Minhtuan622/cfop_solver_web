@@ -3,6 +3,8 @@ import express from "express";
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import compression from "compression";
+import helmet from "helmet";
 import { registerStorageProxy } from "./storageProxy";
 import { registerWcaOAuthRoutes } from "../services/wcaOAuthRoutes";
 import { appRouter } from "../routers";
@@ -40,6 +42,36 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  // Never advertise the stack in production responses.
+  app.disable("x-powered-by");
+  // Secure default headers; the CSP below starts report-only so nothing is
+  // blocked while we learn what the app and its visitors actually load.
+  app.use(helmet());
+  app.use(
+    helmet.contentSecurityPolicy({
+      reportOnly: true,
+      directives: {
+        defaultSrc: ["'self'"],
+        baseUri: ["'self'"],
+        fontSrc: ["'self'", "https:", "data:"],
+        frameAncestors: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        objectSrc: ["'none'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", "blob:", "https://cdn.jsdelivr.net"],
+        scriptSrcAttr: ["'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        connectSrc: [
+          "'self'",
+          "https://cdn.jsdelivr.net",
+          "https://raw.githubusercontent.com",
+          "https://www.worldcubeassociation.org",
+        ],
+        workerSrc: ["blob:", "'self'"],
+        upgradeInsecureRequests: [],
+      },
+    }),
+  );
+  app.use(compression());
   // Elders behind a reverse proxy set TRUST_PROXY, so req.protocol follows
   // the X-Forwarded-* headers the proxy wrote (cookies, redirects).
   configureProxyTrust(app, process.env.TRUST_PROXY);
@@ -65,8 +97,12 @@ async function startServer() {
     createExpressMiddleware({
       router: appRouter,
       createContext,
-    })
+    }),
   );
+  // Unknown /api/* paths answer JSON instead of the HTML fallback page.
+  app.use("/api", (_req, res) => {
+    res.status(404).json({ message: "Không tìm thấy." });
+  });
   // development mode uses Vite, production mode uses static files. The dev
   // middleware loads on demand so a production bundle needs no vite package.
   if (process.env.NODE_ENV === "development") {

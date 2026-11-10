@@ -182,6 +182,25 @@ function vitePluginOptionalAnalytics(
   };
 }
 
+/**
+ * Writes the public site address into the page so canonical links and
+ * structured data are not hard-coded to cfop-solver.studio.
+ *
+ * `VITE_SITE_URL` comes from the build environment, from `.env`/`.env.production`,
+ * or falls back to `https://cfop-solver.studio/`.
+ */
+export function siteUrlPlugin(): Plugin {
+  const siteUrl =
+    process.env.VITE_SITE_URL ?? environment.VITE_SITE_URL ?? "https://cfop-solver.studio/";
+  const prefix = "https://cfop-solver.studio/";
+  return {
+    name: "cfop-site-url",
+    transformIndexHtml(html: string) {
+      return html.split(prefix).join(siteUrl);
+    },
+  };
+}
+
 const projectRoot = import.meta.dirname;
 const environment = loadEnv(
   process.env.NODE_ENV === "production" ? "production" : "development",
@@ -204,6 +223,7 @@ const plugins = [
   react(),
   tailwindcss(),
   jsxLocPlugin(),
+  siteUrlPlugin(),
   ...(includeManusRuntime ? [vitePluginManusRuntime()] : []),
   vitePluginManusDebugCollector(),
   vitePluginOptionalAnalytics(analyticsEndpoint, analyticsWebsiteId),
