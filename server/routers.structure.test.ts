@@ -21,6 +21,7 @@ describe("domain router composition", () => {
       "register",
       "requestPasswordReset",
       "resetPassword",
+      "storageStatus",
       "updateProfile",
       "uploadAvatar",
       "wca.oauthStatus",

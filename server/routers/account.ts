@@ -5,7 +5,7 @@ import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, curren
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../services/cfopPasswordResetMail";
 import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
 import { cfopAccountProcedure, publicProcedure, rateLimitMiddleware, router } from "../_core/trpc";
-import { storagePut } from "../services/storage";
+import { storagePut, isStorageEnabled } from "../services/storage";
 import { accountWcaRouter } from "./wca";
 import { avatarInput, cloudStateInput, credentialsInput, passwordInput, profileInput } from "./inputs";
 
@@ -41,6 +41,7 @@ function validateAvatarBytes(data: string, contentType: "image/jpeg" | "image/pn
 
 export const accountRouter = router({
   me: publicProcedure.query(async ({ ctx }) => ctx.cfopAccount ? findCfopAccountPublicById(ctx.cfopAccount.id) : null),
+  storageStatus: publicProcedure.query(() => ({ enabled: isStorageEnabled() })),
   register: publicProcedure.input(credentialsInput.extend({ displayName: z.string().trim().min(2, "Tên hiển thị cần ít nhất 2 ký tự.").max(80) })).use(rateLimitMiddleware("register", (input) => emailSubject(input))).mutation(async ({ ctx, input }) => {
     const email = normalizeEmail(input.email);
     if (await findCfopAccountByEmail(email)) throw new TRPCError({ code: "CONFLICT", message: "Email này đã có tài khoản CFOP." });
@@ -61,9 +62,16 @@ export const accountRouter = router({
   uploadAvatar: cfopAccountProcedure.input(avatarInput).mutation(async ({ ctx, input }) => {
     const bytes = validateAvatarBytes(input.data, input.contentType);
     const extension = input.contentType === "image/jpeg" ? "jpg" : input.contentType.slice("image/".length);
-    const stored = await storagePut(`cfop-accounts/${ctx.cfopAccount.id}/avatar.${extension}`, bytes, input.contentType);
-    await updateCfopAccountAvatar(ctx.cfopAccount.id, stored.url);
-    return findCfopAccountPublicById(ctx.cfopAccount.id);
+    try {
+      const stored = await storagePut(`cfop-accounts/${ctx.cfopAccount.id}/avatar.${extension}`, bytes, input.contentType);
+      await updateCfopAccountAvatar(ctx.cfopAccount.id, stored.url);
+      return findCfopAccountPublicById(ctx.cfopAccount.id);
+    } catch (error) {
+      if ((error as { code?: string })?.code === "PRECONDITION_FAILED") {
+        throw new TRPCError({ code: "PRECONDITION_FAILED", message: (error as Error).message });
+      }
+      throw error;
+    }
   }),
   cloudState: router({
     get: cfopAccountProcedure.query(async ({ ctx }) => { const state = await getCfopAccountCloudState(ctx.cfopAccount.id); return state ? { payload: state.payload, updatedAt: state.updatedAt, version: state.version } : null; }),

@@ -313,6 +313,11 @@ export default function Profile() {
     },
     onError: next => setError(errorMessage(next, t)),
   });
+  const storageStatusQuery = trpc.cfopAccount.storageStatus.useQuery(undefined, {
+    enabled: Boolean(account),
+    staleTime: 10 * 60 * 1000,
+    retry: false,
+  });
   const uploadAvatar = trpc.cfopAccount.uploadAvatar.useMutation({
     onSuccess: async () => {
       await utils.cfopAccount.me.invalidate();
@@ -855,18 +860,20 @@ export default function Profile() {
                     </span>
                   )}
                 </div>
-                <label className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mb-0">
-                  {uploadAvatar.isPending
-                    ? t("profile.avatarUploadPending")
-                    : t("profile.avatarUpload")}
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="sr-only"
-                    onChange={chooseAvatar}
-                    disabled={uploadAvatar.isPending}
-                  />
-                </label>
+                {(storageStatusQuery.data?.enabled ?? true) && (
+                  <label className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mb-0">
+                    {uploadAvatar.isPending
+                      ? t("profile.avatarUploadPending")
+                      : t("profile.avatarUpload")}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      onChange={chooseAvatar}
+                      disabled={uploadAvatar.isPending}
+                    />
+                  </label>
+                )}
               </div>
               <form onSubmit={submitProfile}>
                 <label className="mb-1.5 block text-sm font-medium text-ink w-full">
