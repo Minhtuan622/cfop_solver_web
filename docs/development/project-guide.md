@@ -315,13 +315,16 @@ Với môi trường self-host có quyền chạy migration:
 pnpm drizzle-kit migrate
 ```
 
-Hoặc dùng script hiện có:
+Đây là lệnh nên dùng khi triển khai production: nó chỉ áp dụng các file SQL trong `drizzle/` (đã được review) lên database.
 
-```bash
-pnpm db:push
-```
+Không dùng `pnpm db:push` trong deploy: script này chạy `drizzle-kit generate` trước, tức là vừa sinh lại SQL mới trong lúc deploy, vừa có thể ghi đè nội dung file migration đang track trong repository. `db:push` chỉ dành cho máy dev khi đang thử nghiệm schema.
 
-`db:push` chạy `drizzle-kit generate && drizzle-kit migrate`. Trước migration production, hãy backup database, đọc SQL được sinh ra và chạy thử trên staging. Không dùng lệnh destructive hoặc tự động migration trong bước deploy nếu chưa có quy trình backup/rollback.
+Quy trình triển khai database:
+
+1. Backup database trước mọi lần migration.
+2. Xoá lại các file SQL mới trong `drizzle/` đã được review trước khi chạy `drizzle-kit migrate` (vì vậy dùng `drizzle-kit migrate`, không dùng `db:push`).
+3. Đọc các SQL chuẩn bị áp dụng và chạy thử trên staging nếu có thay đổi phá vỡ schema (đổi cột, đổi kiểu dữ liệu).
+4. Không đặt migration tự động trong bước deploy nếu chưa có quy trình backup/rollback.
 
 ## 8. Chạy development
 

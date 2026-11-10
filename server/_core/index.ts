@@ -9,6 +9,8 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic } from "./vite";
 import { applyBodyLimits } from "./bodyLimits";
+import { configureProxyTrust } from "./proxy";
+import { databaseReady } from "../db/core";
 
 dotenv.config();
 // The host environment is the authority: a `PORT=3200` on the command line or
@@ -38,11 +40,22 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  // Elders behind a reverse proxy set TRUST_PROXY, so req.protocol follows
+  // the X-Forwarded-* headers the proxy wrote (cookies, redirects).
+  configureProxyTrust(app, process.env.TRUST_PROXY);
   // Bodies are limited per procedure: default small, larger only where
   // content is carried — see server/_core/bodyLimits.
   applyBodyLimits(app);
   app.get("/_app/health", (_req, res) => {
     res.status(200).json({ ok: true });
+  });
+  // The process-level probe a platform restarts from: it passes when the
+  // database answers, and fails so the platform can roll the deploy back.
+  app.get("/_app/ready", (_req, res) => {
+    databaseReady().then((ready) => {
+      if (ready) return res.status(200).json({ ok: true, database: true });
+      res.status(503).json({ ok: false, database: false });
+    });
   });
   registerStorageProxy(app);
   registerWcaOAuthRoutes(app);
