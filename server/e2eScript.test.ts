@@ -81,6 +81,15 @@ describe("CI workflow", () => {
     );
   });
 
+  it("giới hạn thời gian bước cài gói hệ thống", () => {
+    // Một lần apt chạy với mirror chết mất mười phút: không có chặn thời
+    // gian, bước này ăn hết budget của job và kéo cả pipeline xuống.
+    expect(workflow).toMatch(
+      /name: Install Chromium system packages \(best effort\)[\s\S]{0,120}timeout-minutes: \d+/
+    );
+    expect(workflow).toContain("timeout 200 pnpm exec playwright install-deps chromium");
+  });
+
   it("tải Chromium trước rồi mới cài gói hệ thống", () => {
     const browserIndex = workflow.indexOf("playwright install chromium");
     const depsIndex = workflow.indexOf("playwright install-deps chromium");

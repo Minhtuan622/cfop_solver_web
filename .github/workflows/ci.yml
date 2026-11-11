@@ -11,7 +11,7 @@ permissions:
 jobs:
   check-test-build:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,19 +42,23 @@ jobs:
 
       - name: Install Chromium system packages (best effort)
         continue-on-error: true
+        timeout-minutes: 8
         run: |
           # The runner image already ships every library Chromium needs (the
           # log shows "already the newest version"); this step only adds the
           # optional font packages. Ubuntu's apt mirror is occasionally
           # unreachable (DNS timeouts on azure.archive.ubuntu.com), and that
           # must not block the browser download or the e2e run.
-          for attempt in 1 2 3; do
-            if pnpm exec playwright install-deps chromium; then
+          #
+          # Each attempt is capped: a full apt run against a dead mirror
+          # burns ten minutes, which would eat the whole job budget.
+          for attempt in 1 2; do
+            if timeout 200 pnpm exec playwright install-deps chromium; then
               echo "system packages installed"
               exit 0
             fi
-            echo "::warning::apt attempt $attempt failed, retrying in 20s"
-            sleep 20
+            echo "::warning::apt attempt $attempt failed, retrying"
+            sleep 15
           done
           echo "::warning::optional system packages could not be installed; continuing"
 
