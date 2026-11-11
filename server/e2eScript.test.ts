@@ -66,6 +66,27 @@ describe("CI workflow", () => {
   it("không trỏ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH vào đường dẫn hệ thống", () => {
     expect(workflow).not.toContain("/usr/bin/chromium");
   });
+
+  it("tải Chromium không phụ thuộc vào apt", () => {
+    // `playwright install --with-deps` chạy apt trước khi tải browser: một
+    // lần DNS hỏng tới mirror Ubuntu đã làm cả step fail dù browser chưa
+    // kịp tải. Việc cài gói hệ thống phải là bước riêng, không chặn browser.
+    expect(workflow).not.toContain("playwright install --with-deps");
+    expect(workflow).toContain("pnpm exec playwright install chromium");
+  });
+
+  it("không để bước cài gói hệ thống chặn cả pipeline", () => {
+    expect(workflow).toMatch(
+      /name: Install Chromium system packages \(best effort\)[\s\S]{0,120}continue-on-error: true/
+    );
+  });
+
+  it("tải Chromium trước rồi mới cài gói hệ thống", () => {
+    const browserIndex = workflow.indexOf("playwright install chromium");
+    const depsIndex = workflow.indexOf("playwright install-deps chromium");
+    expect(browserIndex).toBeGreaterThan(-1);
+    expect(depsIndex).toBeGreaterThan(browserIndex);
+  });
 });
 
 describe("tsconfig covers the e2e suite", () => {

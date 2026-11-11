@@ -11,7 +11,7 @@ permissions:
 jobs:
   check-test-build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,7 +38,25 @@ jobs:
         run: pnpm run embed-solver && git diff --exit-code client/src/lib/embeddedSolver.ts
 
       - name: Install Chromium for browser tests
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install chromium
+
+      - name: Install Chromium system packages (best effort)
+        continue-on-error: true
+        run: |
+          # The runner image already ships every library Chromium needs (the
+          # log shows "already the newest version"); this step only adds the
+          # optional font packages. Ubuntu's apt mirror is occasionally
+          # unreachable (DNS timeouts on azure.archive.ubuntu.com), and that
+          # must not block the browser download or the e2e run.
+          for attempt in 1 2 3; do
+            if pnpm exec playwright install-deps chromium; then
+              echo "system packages installed"
+              exit 0
+            fi
+            echo "::warning::apt attempt $attempt failed, retrying in 20s"
+            sleep 20
+          done
+          echo "::warning::optional system packages could not be installed; continuing"
 
       - name: Browser E2E tests
         run: pnpm test:e2e
