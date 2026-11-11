@@ -67,3 +67,14 @@ describe("CI workflow", () => {
     expect(workflow).not.toContain("/usr/bin/chromium");
   });
 });
+
+describe("tsconfig covers the e2e suite", () => {
+  it("include e2e/**/* để lỗi cú pháp trong spec bị `pnpm check` bắt", () => {
+    // Nếu thư mục e2e không nằm trong tsconfig, một spec sai cú pháp vẫn
+    // pass typecheck và chỉ lộ ra khi Playwright chạy trên CI.
+    const tsconfig = JSON.parse(
+      readFileSync(path.join(root, "tsconfig.json"), "utf8")
+    ) as { include?: string[] };
+    expect(tsconfig.include ?? []).toContain("e2e/**/*");
+  });
+});

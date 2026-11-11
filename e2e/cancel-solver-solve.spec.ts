@@ -1,14 +1,22 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 /**
  * Kịch bản e2e: hủy giải bộ giải.
  *
  * Kiểm tra việc nhấn "Dừng" trong khi bộ giải đang chạy không làm gián đoạn
  * giao diện và hiện thông báo hủy đúng.
+ *
+ * Script của Web Worker bị treo có chủ ý: bộ giải chạy hoàn toàn trong
+ * trình duyệt (Pyodide), nên nếu không treo worker thì bài test sẽ phụ thuộc
+ * vào tốc độ tải Pyodide và có thể bị flaky.
  */
 test("hủy giải bộ giải không làm gián đoạn giao diện", async ({ page }) => {
-  // Mô phỏng tài khoản đã đăng nhập.
-  await page.route("**/api/trpc/cfopAccount.me", (route) =>
+  // Không fulfill → request treo, worker không bao giờ khởi động.
+  await page.route("**/solverWorker*", () => {
+    // Giữ request treo đến khi test kết thúc.
+  });
+
+  await page.route("**/api/trpc/cfopAccount.me**", (route) =>
     route.fulfill({
       contentType: "application/json",
       body: JSON.stringify([
@@ -22,42 +30,31 @@ test("hủy giải bộ giải không làm gián đoạn giao diện", async ({ 
                 bio: "",
                 avatarUrl: "",
                 goalMs: null,
+                wcaId: null,
                 createdAt: "2026-08-27T00:00:00.000Z",
                 lastSignedIn: "2026-08-27T00:00:00.000Z",
               },
             },
           },
-        ],
-      }),
-    }),
-  );
-
-  // Bỏ qua cloud state save (không cần thiết cho thử nghiệm này).
-  await page.route("**/api/trpc/cfopAccount.cloudState.save", (route) =>
-    route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify([
-        { result: { data: { json: { updatedAt: "2026-08-27T00:01:00.000Z" } } } },
+        },
       ]),
     }),
   );
 
-  // Gọi giải treo (không bao giờ hoàn tất) để có thể nhấn hủy.
-  await page.route("**/api/trpc/cfopAccount.solve", () => {
-    // Không gọi route.fulfill → request treo đến khi bị hủy.
-  });
-
   await page.goto("/");
+
+  // Nhập scramble để nút "Tìm cách giải" được bật.
+  await page.locator("#home-scramble").fill("R U R' U'");
   await page.getByRole("button", { name: /Tìm cách giải/ }).click();
 
-  // Đợi trạng thái đang chạy.
-  await expect(page.getByText(/Đang tìm/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Dừng" })).toBeVisible();
+  // Trạng thái đang chạy: nút hủy xuất hiện.
+  const cancel = page.getByRole("button", { name: "Dừng" });
+  await expect(cancel).toBeVisible();
 
   // Nhấn hủy.
-  await page.getByRole("button", { name: "Dừng" }).click();
+  await cancel.click();
 
-  // Thông báo hủy xuất hiện và giao diện bình thường (nút tìm cách giải trở lại).
+  // Thông báo hủy xuất hiện và giao diện trở lại bình thường.
   await expect(page.getByText("Đã dừng solver theo yêu cầu.")).toBeVisible();
   await expect(page.getByRole("button", { name: /Tìm cách giải/ })).toBeVisible();
 });

@@ -13,7 +13,8 @@ const account = {
 };
 
 function mockAccount(page: Page) {
-  page.route("**/api/trpc/cfopAccount.me", (route) =>
+  // `**` ở cuối là bắt buộc: tRPC gửi kèm query string (batch/input).
+  page.route("**/api/trpc/cfopAccount.me**", (route) =>
     route.fulfill({
       contentType: "application/json",
       body: JSON.stringify([{ result: { data: { json: account } } }]),
@@ -31,14 +32,14 @@ function mockAccount(page: Page) {
 test("hai thiết bị đăng nhập cùng tài khoản", async ({ browser }) => {
   // Thiết bị A.
   const contextA = await browser.newContext();
-  const pageA = contextA.newPage();
+  const pageA = await contextA.newPage();
   mockAccount(pageA);
   await pageA.goto("/profile");
   await expect(pageA.getByText("E2E Cuber")).toBeVisible();
 
   // Thiết bị B (cùng tài khoản).
   const contextB = await browser.newContext();
-  const pageB = contextB.newPage();
+  const pageB = await contextB.newPage();
   mockAccount(pageB);
   await pageB.goto("/profile");
   await expect(pageB.getByText("E2E Cuber")).toBeVisible();
