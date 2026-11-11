@@ -24,7 +24,8 @@ Dự án CFOP Solver Studio sử dụng các thư viện và tài nguyên bên t
 | recharts | MIT | Biểu đồ |
 | sonner | MIT | Thông báo |
 | wouter | MIT | Định tuyến |
-| react-resizable-panels | MIT | Panel co giãn |
+| compression | MIT | Nén HTTP response |
+| helmet | MIT | Security headers |
 | tailwindcss | MIT | Framework CSS |
 | @tailwindcss/vite | MIT | Vite plugin Tailwind |
 | @vitejs/plugin-react | MIT | Vite plugin React |
@@ -42,6 +43,8 @@ Dự án CFOP Solver Studio sử dụng các thư viện và tài nguyên bên t
 | @tanstack/react-query | MIT | Quản lý trạng thái server |
 | @react-buddy/ide-toolbox | MIT | |
 | @builder.io/vite-plugin-jsx-loc | MIT | Dịch thuật Vite |
+| drizzle-kit | MIT | Sinh migration Drizzle |
+| typescript | Apache-2.0 | Trình biên dịch TypeScript |
 
 ## Các thành phần đặc biệt
 
