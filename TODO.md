@@ -5,8 +5,6 @@ Danh sách công việc còn mở (các mục đã hoàn thành được lưu v�
 ## Đang xem xét
 
 - [ ] C3: Đóng gói Pyodide vào `public/` để chạy offline (tùy chọn)
-- [ ] D5: Ảnh chụp màn hình thật cho README (`docs/screenshots/`) — cần chạy app
-      trên máy có dữ liệu mẫu
 
 ## Đã hoàn thành
 
@@ -20,3 +18,4 @@ Danh sách công việc còn mở (các mục đã hoàn thành được lưu v�
 - D2: Dọn thành phần Manus khỏi build production
 - D3: Tài liệu (FEATURES.md, TODO.md, THIRD_PARTY_NOTICES.md, README.md, README.en.md)
 - D4: CI/e2e (pytest, embed-solver drift check, audit, Playwright Chromium, kịch bản e2e mới, checklist chủ repo)
+- D5: Ảnh chụp màn hình thật cho README (`docs/screenshots/`, script `pnpm screenshots`)

@@ -11,13 +11,15 @@ Thử ứng dụng trực tiếp: [cfop-solver.studio](https://cfop-solver.studi
 
 ## Ảnh chụp màn hình
 
-<!-- Thêm ảnh chụp màn hình vào thư mục docs/screenshots/ và uncomment dòng dưới -->
-<!--
-![Trang chủ](docs/screenshots/home.png)
-![Bộ giải](docs/screenshots/solver.png)
-![Bấm giờ](docs/screenshots/timer.png)
-![Phòng thi đấu](docs/screenshots/rooms.png)
--->
+| Bộ giải | Bấm giờ | Kết quả |
+|---------|---------|---------|
+| ![Trang giải Rubik](docs/screenshots/home.png) | ![Bấm giờ](docs/screenshots/timer.png) | ![Kết quả](docs/screenshots/results.png) |
+
+| Học thêm | Cài đặt |
+|---------|---------|
+| ![Học thêm](docs/screenshots/study.png) | ![Cài đặt](docs/screenshots/settings.png) |
+
+Ảnh được sinh lại bằng `node scripts/capture-screenshots.mjs` khi dev server đang chạy.
 
 ## Tính năng chính
 

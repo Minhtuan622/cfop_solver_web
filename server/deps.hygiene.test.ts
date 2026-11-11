@@ -142,6 +142,18 @@ describe("mã nguồn còn tồn tại sau khi gỡ dependency", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("không có file trùng kiểu ' 2' (bản sao do Finder/iCloud tạo)", () => {
+    // Ví dụ: "bldCatalogSource 2.ts" là bản sao của "bldCatalogSource.ts".
+    // Nếu nó lọt vào git, repo mang file thừa và có thể sinh module trùng.
+    const duplicates: string[] = [];
+    for (const file of collectSourceFiles(root)) {
+      if (/ \d+\.[^.]+$/.test(path.basename(file))) {
+        duplicates.push(path.relative(root, file));
+      }
+    }
+    expect(duplicates).toEqual([]);
+  });
+
   it("không còn thư mục Manus trong static assets (nguồn của build artifact)", () => {
     expect(existsSync(path.join(root, "client", "public", "__manus__"))).toBe(
       false

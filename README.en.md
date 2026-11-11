@@ -11,13 +11,15 @@ Try the live app: [cfop-solver.studio](https://cfop-solver.studio) (if available
 
 ## Screenshots
 
-<!-- Add screenshots to docs/screenshots/ and uncomment below -->
-<!--
-![Home](docs/screenshots/home.png)
-![Solver](docs/screenshots/solver.png)
-![Timer](docs/screenshots/timer.png)
-![Rooms](docs/screenshots/rooms.png)
--->
+| Solver | Timer | Results |
+|--------|-------|---------|
+| ![Solver](docs/screenshots/home.png) | ![Timer](docs/screenshots/timer.png) | ![Results](docs/screenshots/results.png) |
+
+| Study | Settings |
+|-------|----------|
+| ![Study](docs/screenshots/study.png) | ![Settings](docs/screenshots/settings.png) |
+
+Regenerate them with `node scripts/capture-screenshots.mjs` while the dev server is running.
 
 ## Features
 

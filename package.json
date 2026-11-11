@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node scripts/run-with-env.mjs development tsx watch server/_core/index.ts",
     "embed-solver": "node scripts/embed-solver.mjs",
+    "screenshots": "node scripts/capture-screenshots.mjs",
     "build": "node scripts/run-with-env.mjs production node node_modules/vite/bin/vite.js build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --splitting --outdir=dist",
     "start": "node scripts/run-with-env.mjs production node dist/index.js",
     "check": "tsc --noEmit",
