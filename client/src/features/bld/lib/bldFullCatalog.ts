@@ -1,11 +1,10 @@
 /* BLDDB catalog adapter: retains every algorithm variant while the UI paginates cases. */
+import { fetchBldCatalogFile } from "./bldCatalogSource";
+
 export type BldCatalogGroup = "edge" | "corner" | "special";
 export type BldCatalogKind = "edge" | "corner" | "parity" | "flip" | "twist";
 export type BldCatalogCase = { group: BldCatalogGroup; kind: BldCatalogKind; key: string; algorithms: string[] };
 type RawCatalog = Record<string, unknown>;
-
-const V2 = "https://raw.githubusercontent.com/nbwzx/blddb/v2/public/data/";
-const MAIN = "https://raw.githubusercontent.com/nbwzx/blddb/main/assets/json/";
 
 function nestedAlgorithms(value: unknown) {
   if (!Array.isArray(value)) return [];
@@ -38,9 +37,8 @@ function toCases(raw: RawCatalog, group: BldCatalogGroup, kind: BldCatalogKind, 
 }
 
 export async function loadFullBldCatalog(): Promise<BldCatalogCase[]> {
-  const request = (url: string) => fetch(url).then((response) => response.ok ? (response.json() as Promise<RawCatalog>) : Promise.reject(new Error(url)));
   const [edge, corner, parity, flip, twist] = await Promise.all([
-    request(`${V2}edgeManmade.json`), request(`${V2}cornerManmade.json`), request(`${MAIN}parityAlgToInfoManmade.json`), request(`${MAIN}twoFlipsAlgToInfo.json`), request(`${MAIN}twistsAlgToInfo.json`),
+    fetchBldCatalogFile<RawCatalog>("edge"), fetchBldCatalogFile<RawCatalog>("corner"), fetchBldCatalogFile<RawCatalog>("parity"), fetchBldCatalogFile<RawCatalog>("flip"), fetchBldCatalogFile<RawCatalog>("twist"),
   ]);
   return [
     ...toCases(edge, "edge", "edge", true), ...toCases(corner, "corner", "corner", true), ...toCases(parity, "special", "parity", true), ...toCases(flip, "special", "flip", false), ...toCases(twist, "special", "twist", false),

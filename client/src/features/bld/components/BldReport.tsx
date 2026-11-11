@@ -13,6 +13,10 @@ import {
   setPreferredAlgorithm,
   type BldProfile,
 } from "@/features/bld";
+import {
+  fetchBldCatalogFile,
+  type BldCatalogFile,
+} from "@/features/bld/lib/bldCatalogSource";
 import type { BldResult } from "@/lib/solverRuntime";
 
 type Catalog = Record<string, string>;
@@ -27,10 +31,6 @@ type RuntimeCatalogs = {
   edgeCode: Record<string, string>;
   cornerCode: Record<string, string>;
 };
-const V2_SOURCE =
-  "https://raw.githubusercontent.com/nbwzx/blddb/v2/public/data/";
-const MAIN_SOURCE =
-  "https://raw.githubusercontent.com/nbwzx/blddb/main/assets/json/";
 const POSITIONS = [
   "UBL",
   "UB",
@@ -340,20 +340,18 @@ export function BldReport({
     let live = true;
     setCatalogs(null);
     setCatalogError(false);
-    const request = (url: string) =>
-      fetch(url).then(response =>
-        response.ok ? response.json() : Promise.reject(new Error(url))
-      );
+    const request = <T,>(file: BldCatalogFile) =>
+      fetchBldCatalogFile<T>(file);
     Promise.all([
-      request(`${V2_SOURCE}edgeManmade.json`),
-      request(`${V2_SOURCE}cornerManmade.json`),
-      request(`${MAIN_SOURCE}parityAlgToInfoManmade.json`),
-      request(`${MAIN_SOURCE}twoFlipsAlgToInfo.json`),
-      request(`${MAIN_SOURCE}twistsAlgToInfo.json`),
-      request(`${MAIN_SOURCE}parityEdgeAlgToStandard.json`),
-      request(`${MAIN_SOURCE}parityCornerAlgToStandard.json`),
-      request(`${MAIN_SOURCE}edgePosToCode.json`),
-      request(`${MAIN_SOURCE}cornerPosToCode.json`),
+      request<Record<string, unknown>>("edge"),
+      request<Record<string, unknown>>("corner"),
+      request<Record<string, unknown>>("parity"),
+      request<Record<string, unknown>>("flip"),
+      request<Record<string, unknown>>("twist"),
+      request<Record<string, string>>("parityEdge"),
+      request<Record<string, string>>("parityCorner"),
+      request<Record<string, string>>("edgeCode"),
+      request<Record<string, string>>("cornerCode"),
     ])
       .then(
         ([

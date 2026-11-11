@@ -11,6 +11,7 @@ export * from './components/BldStageChecklist';
 export * from './components/BldStudyLab';
 export * from './components/BldTargetSelfCheck';
 export * from './components/BldTrainingLab';
+export * from './lib/bldCatalogSource';
 export * from './lib/bldFullCatalog';
 export * from './lib/bldLearningPath';
 export * from './lib/bldProfile';

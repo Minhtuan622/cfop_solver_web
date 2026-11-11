@@ -24,7 +24,9 @@ type PackageJson = {
 };
 
 function readPackageJson(): PackageJson {
-  return JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")) as PackageJson;
+  return JSON.parse(
+    readFileSync(path.join(root, "package.json"), "utf8")
+  ) as PackageJson;
 }
 
 /** Dependency đã bị gỡ ở D1 — không được quay lại. */
@@ -51,13 +53,13 @@ const pkg = readPackageJson();
 describe("dependency không dùng đã được gỡ", () => {
   it("không còn dependency chết trong `dependencies`", () => {
     const declared = Object.keys(pkg.dependencies ?? {});
-    const back = REMOVED_DEPENDENCIES.filter((dep) => declared.includes(dep));
+    const back = REMOVED_DEPENDENCIES.filter(dep => declared.includes(dep));
     expect(back).toEqual([]);
   });
 
   it("không còn devDependency chết trong `devDependencies`", () => {
     const declared = Object.keys(pkg.devDependencies ?? {});
-    const back = REMOVED_DEV_DEPENDENCIES.filter((dep) => declared.includes(dep));
+    const back = REMOVED_DEV_DEPENDENCIES.filter(dep => declared.includes(dep));
     expect(back).toEqual([]);
   });
 });
@@ -79,7 +81,13 @@ describe("package manager", () => {
 
 /** Thu thập mọi file mã nguồn để kiểm tra dependency có thực sự được dùng. */
 function collectSourceFiles(dir: string, acc: string[] = []): string[] {
-  const skipDirs = new Set(["node_modules", "dist", ".git", "coverage", ".manus-logs"]);
+  const skipDirs = new Set([
+    "node_modules",
+    "dist",
+    ".git",
+    "coverage",
+    ".manus-logs",
+  ]);
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.name.startsWith(".") || skipDirs.has(entry.name)) continue;
     const full = path.join(dir, entry.name);
@@ -87,7 +95,11 @@ function collectSourceFiles(dir: string, acc: string[] = []): string[] {
       collectSourceFiles(full, acc);
       continue;
     }
-    if ([".ts", ".tsx", ".js", ".mjs", ".jsx", ".py", ".css"].includes(path.extname(entry.name))) {
+    if (
+      [".ts", ".tsx", ".js", ".mjs", ".jsx", ".py", ".css"].includes(
+        path.extname(entry.name)
+      )
+    ) {
       acc.push(full);
     }
   }
@@ -96,14 +108,14 @@ function collectSourceFiles(dir: string, acc: string[] = []): string[] {
 
 describe("mọi dependency runtime đều được dùng", () => {
   const sources = collectSourceFiles(root);
-  const blob = sources.map((file) => readFileSync(file, "utf8")).join("\n");
+  const blob = sources.map(file => readFileSync(file, "utf8")).join("\n");
 
   it("quét được mã nguồn của repo", () => {
     expect(sources.length).toBeGreaterThan(50);
   });
 
   it("không có dependency runtime nào bị bỏ sót không dùng", () => {
-    const unused = Object.keys(pkg.dependencies ?? {}).filter((dep) => {
+    const unused = Object.keys(pkg.dependencies ?? {}).filter(dep => {
       if (dep.startsWith("@types/")) return false;
       const bare = dep.startsWith("@") ? (dep.split("/")[1] ?? dep) : dep;
       return !blob.includes(dep) && !blob.includes(bare);
@@ -119,7 +131,10 @@ describe("mã nguồn còn tồn tại sau khi gỡ dependency", () => {
     for (const file of collectSourceFiles(root)) {
       const content = readFileSync(file, "utf8");
       for (const dep of removed) {
-        if (content.includes(`from "${dep}"`) || content.includes(`from '${dep}'`)) {
+        if (
+          content.includes(`from "${dep}"`) ||
+          content.includes(`from '${dep}'`)
+        ) {
           offenders.push(`${path.relative(root, file)} -> ${dep}`);
         }
       }
@@ -128,8 +143,12 @@ describe("mã nguồn còn tồn tại sau khi gỡ dependency", () => {
   });
 
   it("không còn thư mục Manus trong static assets (nguồn của build artifact)", () => {
-    expect(existsSync(path.join(root, "client", "public", "__manus__"))).toBe(false);
-    expect(existsSync(path.join(root, "client", "public", "manus-routes.json"))).toBe(false);
+    expect(existsSync(path.join(root, "client", "public", "__manus__"))).toBe(
+      false
+    );
+    expect(
+      existsSync(path.join(root, "client", "public", "manus-routes.json"))
+    ).toBe(false);
     expect(existsSync(path.join(root, "template.json"))).toBe(false);
   });
 });

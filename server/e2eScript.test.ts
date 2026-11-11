@@ -53,7 +53,10 @@ describe("playwright.config.ts", () => {
 });
 
 describe("CI workflow", () => {
-  const workflow = readFileSync(path.join(root, ".github/workflows/ci.yml"), "utf8");
+  const workflow = readFileSync(
+    path.join(root, ".github/workflows/ci.yml"),
+    "utf8"
+  );
 
   it("cài Chromium của Playwright trước khi chạy e2e", () => {
     expect(workflow).toContain("playwright install");

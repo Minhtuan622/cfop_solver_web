@@ -375,6 +375,28 @@ pnpm build
 
 Không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`; đây là output được sinh từ solver source.
 
+### Dữ liệu thuật toán BLD (BLDDB)
+
+Catalog thuật toán 3-Style được tải từ repo
+[nbwzx/blddb](https://github.com/nbwzx/blddb) vào trình duyệt. Toàn bộ URL
+nằm trong một module duy nhất:
+`client/src/features/bld/lib/bldCatalogSource.ts`.
+
+Hai điều cần nhớ khi sửa module này:
+
+- **URL phải ghim theo commit SHA**, không dùng tên nhánh (`main`, `v2`). Nhánh
+  upstream là điểm di chuyển: một lần cập nhật có thể đổi hoặc xoá thuật toán mà
+  app đã phân giải. Muốn nâng cấp dữ liệu thì lấy SHA mới từ GitHub rồi sửa
+  `BLDDB_COMMITS`.
+- **Response được cache bằng Cache API** để app vẫn dùng được khi offline và
+  không tải lại ~13 MB catalog mỗi lần mở. Khi mạng lỗi, module tự dùng bản
+  cache; khi không có cả cache thì ném `BldCatalogUnavailableError` để UI báo
+  lỗi thay vì hiện dữ liệu sai.
+
+Có CSP cho phép `connect-src https://raw.githubusercontent.com`, nên không cần
+mở thêm origin nào.
+
+
 ## 10. Kiểm thử trước khi commit
 
 Chạy tối thiểu:

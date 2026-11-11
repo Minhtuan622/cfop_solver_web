@@ -13,11 +13,11 @@ import {
   type BldDrillKind,
   type BldProfile,
 } from "@/features/bld";
+import { fetchBldCatalogFile } from "@/features/bld/lib/bldCatalogSource";
 import type { BldResult } from "@/lib/solverRuntime";
 
 type CatalogEntry = { key: string; algorithm: string; kind: BldDrillKind };
 type RawCatalog = Record<string, unknown>;
-const MAIN = "https://raw.githubusercontent.com/nbwzx/blddb/main/assets/json/";
 const labels: Record<
   BldDrillKind,
   { vi: string; en: string; noteVi: string; noteEn: string }
@@ -74,15 +74,9 @@ export function BldTrainingLab({
   const [revealed, setRevealed] = useState(false);
   useEffect(() => {
     let live = true;
-    const request = (url: string) =>
-      fetch(url).then(response =>
-        response.ok ? response.json() : Promise.reject(new Error(url))
-      );
-    Promise.all([
-      request(`${MAIN}parityAlgToInfoManmade.json`),
-      request(`${MAIN}twoFlipsAlgToInfo.json`),
-      request(`${MAIN}twistsAlgToInfo.json`),
-    ])
+    const request = (file: "parity" | "flip" | "twist") =>
+      fetchBldCatalogFile<RawCatalog>(file);
+    Promise.all([request("parity"), request("flip"), request("twist")])
       .then(([parity, flip, twist]) => {
         if (live) {
           setCatalog([
