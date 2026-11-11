@@ -344,12 +344,14 @@ export default function Profile() {
     },
     onError: async (next) => {
       if ((next as { data?: { code?: string } }).data?.code === "CONFLICT") {
-        const remote = utils.cfopAccount.cloudState.get.getData(undefined);
-        const parsed = parseCfopCloudState(remote?.payload);
+        // Thiết bị khác vừa ghi: đọc bản mới từ máy chủ, gộp với dữ liệu cục
+        // bộ rồi lưu lại với revision mới.
+        const fresh = await syncQuery.refetch();
+        const parsed = parseCfopCloudState(fresh.data?.payload);
         const local = createCfopCloudState();
         const merged = mergeCfopCloudStates(local, parsed);
         applyCfopCloudState(merged);
-        manualSync.mutate(merged);
+        manualSync.mutate({ ...merged, baseVersion: fresh.data?.revision ?? null });
         return;
       }
       setError(errorMessage(next, t));
@@ -751,7 +753,10 @@ export default function Profile() {
                 onClick={() => {
                   setError("");
                   setMessage("");
-                  manualSync.mutate(createCfopCloudState());
+                  manualSync.mutate({
+                    ...createCfopCloudState(),
+                    baseVersion: syncQuery.data?.revision ?? null,
+                  });
                 }}
                 disabled={manualSync.isPending}
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover w-full"

@@ -6,7 +6,12 @@ import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 
 export type CfopCloudState = {
   schema: "cfop-account-cloud-state";
-  version: 1 | 2;
+  /**
+   * Định dạng của payload (1 hoặc 2). KHÁC với `revision` — bộ đếm của dòng
+   * cloud state trên máy chủ, tăng sau mỗi lần ghi và dùng để phát hiện
+   * client đang giữ bản cũ.
+   */
+  schemaVersion: 1 | 2;
   capturedAt: number;
   timer: SolveHistoryEntry[];
   lastLayer: { study: StudyState; masteredCaseKeys: string[] };
@@ -23,7 +28,7 @@ const maxDrillAttempts = 600;
 export function createCfopCloudState(now = Date.now()): CfopCloudState {
   return {
     schema: "cfop-account-cloud-state",
-    version: 2,
+    schemaVersion: 2,
     capturedAt: readCfopCloudChangeAt() || 0,
     timer: readSolveHistory().slice(0, maxTimerEntries),
     lastLayer: { study: readLastLayerStudy(), masteredCaseKeys: Array.from(readMasteredCaseKeys()) },
@@ -35,10 +40,15 @@ export function createCfopCloudState(now = Date.now()): CfopCloudState {
 function isRecord(value: unknown): value is Record<string, unknown> { return Boolean(value) && typeof value === "object" && !Array.isArray(value); }
 
 export function parseCfopCloudState(value: unknown): CfopCloudState | null {
-  if (!isRecord(value) || value.schema !== "cfop-account-cloud-state" || (value.version !== 1 && value.version !== 2) || !Array.isArray(value.timer) || !isRecord(value.lastLayer)) return null;
+  if (!isRecord(value) || value.schema !== "cfop-account-cloud-state" || !Array.isArray(value.timer) || !isRecord(value.lastLayer)) return null;
+  // Payload cũ lưu `version`; payload mới lưu `schemaVersion`. Đọc được cả hai
+  // để không mất dữ liệu của tài khoản đã đồng bộ trước đây.
+  const rawVersion = value.schemaVersion ?? value.version;
+  if (rawVersion !== 1 && rawVersion !== 2) return null;
   const lastLayer = value.lastLayer;
   if (!Array.isArray(lastLayer.masteredCaseKeys)) return null;
   const state = value as unknown as CfopCloudState;
+  state.schemaVersion = rawVersion;
   return Number.isFinite(state.capturedAt) && state.capturedAt >= 0 ? state : null;
 }
 
@@ -113,11 +123,11 @@ function mergeBldProfile(local: BldProfile, remote: BldProfile, preferLocal: boo
 }
 
 export function mergeCfopCloudStates(local: CfopCloudState, remote: CfopCloudState | null, now = Date.now()): CfopCloudState {
-  if (!remote) return { ...local, version: 2, capturedAt: now };
+  if (!remote) return { ...local, schemaVersion: 2, capturedAt: now };
   const preferLocal = local.capturedAt >= remote.capturedAt;
   return {
     schema: "cfop-account-cloud-state",
-    version: 2,
+    schemaVersion: 2,
     capturedAt: now,
     timer: mergeTimer(local.timer, remote.timer, preferLocal),
     lastLayer: mergeLastLayer(local.lastLayer, remote.lastLayer, preferLocal),

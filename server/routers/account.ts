@@ -74,12 +74,14 @@ export const accountRouter = router({
     }
   }),
   cloudState: router({
-    get: cfopAccountProcedure.query(async ({ ctx }) => { const state = await getCfopAccountCloudState(ctx.cfopAccount.id); return state ? { payload: state.payload, updatedAt: state.updatedAt, version: state.version } : null; }),
+    get: cfopAccountProcedure.query(async ({ ctx }) => { const state = await getCfopAccountCloudState(ctx.cfopAccount.id); return state ? { payload: state.payload, updatedAt: state.updatedAt, revision: state.version } : null; }),
     save: cfopAccountProcedure.input(cloudStateInput).mutation(async ({ ctx, input }) => {
-      const current = await getCfopAccountCloudState(ctx.cfopAccount.id);
       try {
-        const state = await saveCfopAccountCloudState(ctx.cfopAccount.id, validateCloudPayload(input), current?.version);
-        return { updatedAt: state?.updatedAt ?? new Date(), version: state?.version };
+        // `baseVersion` là revision của dòng mà client đã đọc, do client gửi
+        // lên. Máy chủ so với revision hiện tại: lệch thì báo CONFLICT chứ
+        // không ghi, để client đọc bản mới, gộp rồi lưu lại.
+        const state = await saveCfopAccountCloudState(ctx.cfopAccount.id, validateCloudPayload(input), input.baseVersion);
+        return { updatedAt: state?.updatedAt ?? new Date(), revision: state?.version ?? 0 };
       } catch (error) {
         if ((error as { code?: string }).code === "CONFLICT") {
           throw new TRPCError({ code: "CONFLICT", message: "Trạng thái đám mây đã được cập nhật ở thiết bị khác. Hãy tải lại và đồng bộ lại." });

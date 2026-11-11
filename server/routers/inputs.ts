@@ -13,7 +13,11 @@ export const profileInput = z.object({ displayName: z.string().trim().min(2, "T�
 export const avatarInput = z.object({ data: z.string().min(8).max(2_800_000), contentType: z.enum(["image/jpeg", "image/png", "image/webp"]) });
 export const cloudStateInput = z.object({
   schema: z.literal("cfop-account-cloud-state"),
-  version: z.union([z.literal(1), z.literal(2)]),
+  // Định dạng của payload (khác với `baseVersion` là revision của dòng).
+  schemaVersion: z.union([z.literal(1), z.literal(2)]),
+  // Revision của dòng cloud state mà client đã đọc. `null` nghĩa là client
+  // chưa từng đọc (lần lưu đầu tiên của tài khoản).
+  baseVersion: z.number().int().nonnegative().nullable(),
   capturedAt: z.number().int().nonnegative(),
   timer: z.array(z.unknown()).max(MAX_CLOUD_TIMER_ENTRIES),
   lastLayer: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }),

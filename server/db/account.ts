@@ -124,21 +124,61 @@ export async function getCfopAccountCloudState(accountId: number) {
   return (await db.select().from(cfopAccountCloudStates).where(eq(cfopAccountCloudStates.accountId, accountId)).limit(1))[0] ?? null;
 }
 
-export async function saveCfopAccountCloudState(accountId: number, payload: unknown, expectedVersion?: number) {
+/**
+ * Lỗi xung đột đồng bộ: dòng cloud state đã bị thiết bị khác ghi đè.
+ *
+ * Mã lỗi và HTTP status được đặt tường minh để tầng router đổi thành
+ * TRPCError CONFLICT.
+ */
+function cloudStateConflict() {
+  const error = new Error("Cloud state revision conflict") as Error & {
+    code?: string;
+    status?: number;
+  };
+  error.code = "CONFLICT";
+  error.status = 409;
+  return error;
+}
+
+/**
+ * Ghi một dòng cloud state với kiểm soát phiên bản lạc quan.
+ *
+ * `expectedRevision` là **revision của dòng** mà client đã đọc (không phải
+ * `schemaVersion` của payload — đó là hai khái niệm khác nhau):
+ * - `schemaVersion`: định dạng của payload (1 hoặc 2), nằm trong JSON.
+ * - `revision`: bộ đếm tăng dần của dòng trong database, mỗi lần ghi thành
+ *   công tăng một đơn vị.
+ *
+ * Trước đây cột `version` của dòng lại được tính bằng `payload.version + 1`,
+ * nên nó luôn bằng 3 và client cũ không bao giờ bị phát hiện.
+ */
+export async function saveCfopAccountCloudState(accountId: number, payload: unknown, expectedRevision?: number | null) {
   const db = await requireDb();
   const current = await getCfopAccountCloudState(accountId);
-  const storedVersion = current?.version ?? 0;
-  // Optimistic concurrency: nếu phiên bản gửi lên không khớp với bản lưu,
-  // từ chối để client lấy bản mới, gộp rồi lưu lại (tránh ghi đè mất dữ liệu).
-  if (expectedVersion !== undefined && expectedVersion !== storedVersion) {
-    const error = new Error("Cloud state version conflict") as Error & { code?: string; status?: number };
-    error.code = "CONFLICT";
-    error.status = 409;
-    throw error;
-  }
-  const nextVersion = (payload as { version?: number })?.version ?? storedVersion;
+  const storedRevision = current?.version ?? 0;
+  // Client chưa từng đọc (null) hoặc đọc lúc dòng còn trống (0) được coi
+  // như revision 0: lần lưu đầu tiên của tài khoản vẫn thành công.
+  const expected = expectedRevision ?? 0;
+  if (expected !== storedRevision) throw cloudStateConflict();
   const updatedAt = new Date();
-  await db.insert(cfopAccountCloudStates).values({ accountId, payload, version: nextVersion + 1, updatedAt }).onDuplicateKeyUpdate({ set: { payload, version: nextVersion + 1, updatedAt } });
+  if (current) {
+    // Ghi có điều kiện: chỉ ghi khi revision của dòng chưa đổi. Nếu thiết bị
+    // khác ghi đúng lúc này thì không có dòng nào bị ảnh hưởng.
+    const [header] = await db
+      .update(cfopAccountCloudStates)
+      .set({ payload, version: storedRevision + 1, updatedAt })
+      .where(and(eq(cfopAccountCloudStates.accountId, accountId), eq(cfopAccountCloudStates.version, storedRevision)));
+    if (!header.affectedRows) throw cloudStateConflict();
+  } else {
+    try {
+      await db.insert(cfopAccountCloudStates).values({ accountId, payload, version: 1, updatedAt });
+    } catch (error) {
+      // Hai thiết bị cùng tạo dòng đầu tiên: một người thắng, người kia
+      // phải đọc lại rồi gộp.
+      if ((error as { code?: string }).code === "ER_DUP_ENTRY") throw cloudStateConflict();
+      throw error;
+    }
+  }
   return getCfopAccountCloudState(accountId);
 }
 

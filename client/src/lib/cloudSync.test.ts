@@ -34,7 +34,7 @@ describe("B3: cloud sync tombstones and merge", () => {
   beforeEach(() => {
     localStorage.removeItem("cfop-solve-history-v1");
   });
-  it("parseCfopCloudState vẫn đọc được bản version 1", () => {
+  it("parseCfopCloudState vẫn đọc được bản schemaVersion 1 (payload cũ dùng `version`)", () => {
     const v1 = {
       schema: "cfop-account-cloud-state",
       version: 1,
@@ -44,12 +44,14 @@ describe("B3: cloud sync tombstones and merge", () => {
       bldProfile: { preferredAlgorithms: {}, memoRecords: {}, pairCards: {}, drillAttempts: [], reviewDays: [], audioEnabled: true, dailyGoal: 0 },
       bldLearningPath: { orientationDone: false, formulaDone: false, memoDone: false, sightedDone: false, selfCheckDone: false, reviewDone: false, lastStage: 0 },
     };
-    expect(parseCfopCloudState(v1)).not.toBeNull();
+    const parsed = parseCfopCloudState(v1);
+    expect(parsed).not.toBeNull();
+    expect(parsed?.schemaVersion).toBe(1);
   });
 
-  it("createCfopCloudState tạo bản version 2", () => {
+  it("createCfopCloudState tạo bản schemaVersion 2", () => {
     const state = createCfopCloudState();
-    expect(state.version).toBe(2);
+    expect(state.schemaVersion).toBe(2);
   });
 
   it("xóa cục bộ rồi gộp với bản từ xa cũ giữ kết quả đã xóa (tombstone)", () => {

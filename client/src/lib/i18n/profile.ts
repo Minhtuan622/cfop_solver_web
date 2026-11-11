@@ -64,6 +64,8 @@ export const profileWords: Dictionary = {
   "profile.syncNow": ["Đồng bộ ngay", "Sync now"],
   "profile.syncPending": ["Đang đồng bộ…", "Syncing…"],
   "profile.syncDone": ["Đã đồng bộ thủ công lúc {time}.", "Manually synced at {time}."],
+  "profile.syncFailed": ["Không thể đồng bộ dữ liệu lên cloud. Hãy thử lại.", "Could not sync data to the cloud. Please try again."],
+  "profile.syncConflict": ["Dữ liệu trên cloud liên tục thay đổi ở thiết bị khác. Hãy thử đồng bộ lại.", "The cloud data keeps changing on another device. Please sync again."],
 
   "profile.wcaEyebrow": ["Thành tích chính thức", "Official results"],
   "profile.wcaTitle": ["Hồ sơ WCA", "WCA profile"],
