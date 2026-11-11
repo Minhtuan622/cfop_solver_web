@@ -2,8 +2,53 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { PYTHON_SOLVER_FILES } from "@/lib/embeddedSolver";
 import {
   createPyodideLoader,
+  PYODIDE_CDN_INDEX_URL,
+  PYODIDE_CDN_SOURCE,
+  PYODIDE_LOCAL_INDEX_URL,
+  PYODIDE_LOCAL_SOURCE,
+  PYODIDE_VERSION,
+  resolvePyodideSource,
   SOLVER_PACKAGE_DIR,
+  type PyodideModule,
 } from "@/lib/pyodideLoader";
+
+describe("pyodideLoader: nguồn Pyodide", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("ưu tiên bản cục bộ để chạy được khi offline", async () => {
+    const local = { loadPyodide: vi.fn() } as unknown as PyodideModule;
+    const remote = { loadPyodide: vi.fn() } as unknown as PyodideModule;
+    const importRemote = vi.fn(async () => remote);
+
+    const source = await resolvePyodideSource(async () => local, importRemote);
+
+    expect(source.module).toBe(local);
+    expect(source.indexURL).toBe(PYODIDE_LOCAL_INDEX_URL);
+    expect(importRemote).not.toHaveBeenCalled();
+  });
+
+  it("dùng CDN làm dự phòng khi không có bản cục bộ", async () => {
+    const remote = { loadPyodide: vi.fn() } as unknown as PyodideModule;
+    const importRemote = vi.fn(async () => remote);
+
+    const source = await resolvePyodideSource(async () => {
+      throw new Error("404");
+    }, importRemote);
+
+    expect(source.module).toBe(remote);
+    expect(source.indexURL).toBe(PYODIDE_CDN_INDEX_URL);
+    expect(importRemote).toHaveBeenCalledTimes(1);
+  });
+
+  it("ghim phiên bản Pyodide, không dùng 'latest'", () => {
+    expect(PYODIDE_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(PYODIDE_CDN_SOURCE).toContain(`/pyodide/v${PYODIDE_VERSION}/`);
+    expect(PYODIDE_LOCAL_SOURCE).toBe("/pyodide/pyodide.mjs");
+    expect(PYODIDE_LOCAL_SOURCE).not.toContain("http");
+  });
+});
 
 describe("pyodideLoader: ghi file solver vào filesystem", () => {
   afterEach(() => {
@@ -45,7 +90,7 @@ describe("pyodideLoader: ghi file solver vào filesystem", () => {
     await getPyodide();
 
     expect(writeFile.mock.calls.length).toBe(
-      Object.keys(PYTHON_SOLVER_FILES).length,
+      Object.keys(PYTHON_SOLVER_FILES).length
     );
   });
 });
@@ -67,7 +112,9 @@ describe("pyodideLoader: load failure then retry", () => {
       } as any;
     };
 
-    const { getPyodide, resetCache } = createPyodideLoader(failingThenSucceeding);
+    const { getPyodide, resetCache } = createPyodideLoader(
+      failingThenSucceeding
+    );
     resetCache();
     console.log("call 1:");
     try {

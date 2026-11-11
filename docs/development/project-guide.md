@@ -396,6 +396,34 @@ Hai điều cần nhớ khi sửa module này:
 Có CSP cho phép `connect-src https://raw.githubusercontent.com`, nên không cần
 mở thêm origin nào.
 
+### Pyodide chạy offline
+
+Bộ giải CFOP chạy bằng Pyodide ngay trong trình duyệt (Web Worker). Bản phân
+phối Pyodide được tải về `client/public/pyodide` (~14 MB) bởi
+`scripts/fetch-pyodide.mjs`, và script này chạy trước cả `pnpm dev` lẫn
+`pnpm build`:
+
+```bash
+pnpm fetch-pyodide            # tải nếu thiếu hoặc sai phiên bản
+pnpm fetch-pyodide --force    # tải lại từ đầu
+```
+
+Nhờ vậy bộ giải chạy được khi offline. Loader
+(`client/src/lib/pyodideLoader.ts`) ưu tiên bản cục bộ và chỉ dùng CDN làm
+dự phòng khi bản cục bộ chưa có.
+
+Những điều cần nhớ:
+
+- **Phiên bản phải khớp ở hai nơi**: `PYODIDE_VERSION` trong
+  `client/src/lib/pyodideLoader.ts` và trong `scripts/fetch-pyodide.mjs`. Đổi
+  phiên bản thì sửa cả hai rồi chạy lại `pnpm fetch-pyodide --force`.
+- **Thư mục `client/public/pyodide` bị gitignore**, nên repo không phình;
+  bản build trên CI có nó vì script tải chạy trước khi build.
+- **Ở chế độ dev, Vite gắn `?import` vào mọi dynamic import** và từ chối
+  transform file trong `/public`. Vì vậy `vite.config.ts` có plugin
+  `localPyodidePlugin` tự phục vụ các file đó. Bỏ plugin này thì dev server
+  sẽ âm thầm lùi về CDN.
+
 
 ## 10. Kiểm thử trước khi commit
 

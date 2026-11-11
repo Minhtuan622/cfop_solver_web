@@ -1,6 +1,7 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
@@ -58,6 +59,56 @@ export function siteUrlPlugin(): Plugin {
   };
 }
 
+/**
+ * Serves the local Pyodide distribution during development.
+ *
+ * The Pyodide files live in `client/public/pyodide` and are copied verbatim by
+ * the build — they must not go through Vite's transform pipeline. In dev,
+ * however, Vite appends `?import` to every dynamic import, and the transform
+ * middleware then refuses the request with "This file is in /public and will
+ * be copied as-is during build". The solver would silently fall back to the
+ * CDN, so the dev server serves those files itself.
+ */
+export function localPyodidePlugin(): Plugin {
+  const pyodideDir = path.resolve(
+    import.meta.dirname,
+    "client",
+    "public",
+    "pyodide",
+  );
+  const contentTypes: Record<string, string> = {
+    ".mjs": "text/javascript",
+    ".js": "text/javascript",
+    ".wasm": "application/wasm",
+    ".json": "application/json",
+    ".zip": "application/zip",
+  };
+
+  return {
+    name: "cfop-local-pyodide",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url ?? "";
+        if (!url.startsWith("/pyodide/")) return next();
+        const name = decodeURIComponent(url.slice("/pyodide/".length).split("?")[0]);
+        if (!name || name.includes("/") || name.includes("..")) return next();
+        const file = path.join(pyodideDir, name);
+        try {
+          const body = readFileSync(file);
+          res.setHeader(
+            "Content-Type",
+            contentTypes[path.extname(name)] ?? "application/octet-stream",
+          );
+          res.setHeader("Cache-Control", "no-cache");
+          res.end(body);
+        } catch {
+          next();
+        }
+      });
+    },
+  };
+}
+
 const projectRoot = import.meta.dirname;
 const environment = loadEnv(
   process.env.NODE_ENV === "production" ? "production" : "development",
@@ -81,6 +132,7 @@ const plugins = [
   tailwindcss(),
   jsxLocPlugin(),
   siteUrlPlugin(),
+  localPyodidePlugin(),
   ...(includeManusRuntime ? [vitePluginManusRuntime()] : []),
   vitePluginOptionalAnalytics(analyticsEndpoint, analyticsWebsiteId),
 ];

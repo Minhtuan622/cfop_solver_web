@@ -11,13 +11,13 @@ Thử ứng dụng trực tiếp: [cfop-solver.studio](https://cfop-solver.studi
 
 ## Ảnh chụp màn hình
 
-| Bộ giải | Bấm giờ | Kết quả |
-|---------|---------|---------|
-| ![Trang giải Rubik](docs/screenshots/home.png) | ![Bấm giờ](docs/screenshots/timer.png) | ![Kết quả](docs/screenshots/results.png) |
+| Bộ giải | Lời giải CFOP | Bấm giờ |
+|---------|----------------|---------|
+| ![Trang giải Rubik](docs/screenshots/home.png) | ![Lời giải](docs/screenshots/solver-solution.png) | ![Bấm giờ](docs/screenshots/timer.png) |
 
-| Học thêm | Cài đặt |
-|---------|---------|
-| ![Học thêm](docs/screenshots/study.png) | ![Cài đặt](docs/screenshots/settings.png) |
+| Kết quả | Học thêm | Cài đặt |
+|---------|----------|---------|
+| ![Kết quả](docs/screenshots/results.png) | ![Học thêm](docs/screenshots/study.png) | ![Cài đặt](docs/screenshots/settings.png) |
 
 Ảnh được sinh lại bằng `node scripts/capture-screenshots.mjs` khi dev server đang chạy.
 
@@ -27,6 +27,8 @@ Thử ứng dụng trực tiếp: [cfop-solver.studio](https://cfop-solver.studi
 - Timer đa event với inspection, +2/DNF, split, replay, history và thống kê.
 - Study cho Last Layer và 3-Style BLD.
 - Tài khoản, đồng bộ dữ liệu, WCA, phòng thi đấu và bảng xếp hạng.
+- Bộ giải chạy offline: Pyodide và catalog thuật toán BLD đều được tải về
+  máy người dùng, không phụ thuộc CDN sau lần tải đầu.
 
 ## Phần chạy được khi không có Database
 

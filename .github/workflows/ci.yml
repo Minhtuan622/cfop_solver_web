@@ -40,6 +40,9 @@ jobs:
       - name: Install Chromium for browser tests
         run: pnpm exec playwright install chromium
 
+      - name: Fetch the local Pyodide build
+        run: pnpm fetch-pyodide
+
       - name: Install Chromium system packages (best effort)
         continue-on-error: true
         timeout-minutes: 8

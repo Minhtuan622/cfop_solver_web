@@ -11,13 +11,13 @@ Try the live app: [cfop-solver.studio](https://cfop-solver.studio) (if available
 
 ## Screenshots
 
-| Solver | Timer | Results |
-|--------|-------|---------|
-| ![Solver](docs/screenshots/home.png) | ![Timer](docs/screenshots/timer.png) | ![Results](docs/screenshots/results.png) |
+| Solver | CFOP solution | Timer |
+|--------|---------------|-------|
+| ![Solver](docs/screenshots/home.png) | ![Solution](docs/screenshots/solver-solution.png) | ![Timer](docs/screenshots/timer.png) |
 
-| Study | Settings |
-|-------|----------|
-| ![Study](docs/screenshots/study.png) | ![Settings](docs/screenshots/settings.png) |
+| Results | Study | Settings |
+|---------|-------|----------|
+| ![Results](docs/screenshots/results.png) | ![Study](docs/screenshots/study.png) | ![Settings](docs/screenshots/settings.png) |
 
 Regenerate them with `node scripts/capture-screenshots.mjs` while the dev server is running.
 
@@ -27,6 +27,9 @@ Regenerate them with `node scripts/capture-screenshots.mjs` while the dev server
 - Multi-event timer with inspection, +2/DNF, splits, replay, history and statistics.
 - Study: Last Layer and 3-Style BLD.
 - Account, cloud sync, WCA, competition rooms and leaderboard.
+- The solver works offline: Pyodide and the BLD algorithm catalog are both
+  delivered to the visitor's machine, so there is no CDN dependency after the
+  first load.
 
 ## Run without a Database
 
