@@ -15,7 +15,9 @@ export default defineConfig({
     },
   },
   test: {
-    testTimeout: 15_000,
+    // 30 giây: một số test sinh scramble bằng Cubing.js mất vài giây, và
+    // lâu hơn nhiều khi máy đang chạy song song việc khác.
+    testTimeout: 30_000,
     projects: [
       {
         extends: true,

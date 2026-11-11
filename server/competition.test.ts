@@ -17,7 +17,10 @@ describe("competition helpers", () => {
     expect(fourBlind).toMatch(/[URFDLB]/);
     expect(fiveBlind).toMatch(/[URFDLB]/);
     expect(fto).toMatch(/[URFDLB]/);
-  }, 20_000);
+    // Sinh scramble 4×4/5×5/FTO bằng Cubing.js tốn khoảng 2 giây, nhưng lên
+    // tới hàng chục giây khi máy đang chạy song song việc khác (ví dụ CI vừa
+    // cài dependency xong). Timeout 20 giây khiến test chập chờn.
+  }, 60_000);
 
   it("tạo bundle MBLD và xếp theo score, thời gian, rồi unsolved", async () => {
     const bundle = await createCompetitionScrambleBundle("333mbf", 3);
@@ -28,7 +31,7 @@ describe("competition helpers", () => {
     const weaker = { elapsedMs: 90_000, penalty: "none" as const, multiBlindAttempted: 5, multiBlindSolved: 3, multiBlindScore: 1 };
     expect(compareCompetitionResults("333mbf", stronger, weaker)).toBeLessThan(0);
     expect(competitionFormatScore("ao5", [stronger], "333mbf")).toBe(3);
-  }, 20_000);
+  }, 60_000);
 
   it("chấm thời gian +2 và Ao5 theo quy tắc loại nhanh/chậm", () => {
     expect(effectiveCompetitionTime({ elapsedMs: 10_000, penalty: "+2" })).toBe(12_000);
