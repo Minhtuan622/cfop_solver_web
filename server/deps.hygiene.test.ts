@@ -21,6 +21,7 @@ type PackageJson = {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   packageManager?: string;
+  pnpm?: { overrides?: Record<string, string> };
 };
 
 function readPackageJson(): PackageJson {
@@ -76,6 +77,26 @@ describe("package manager", () => {
   it("chỉ có một lockfile (pnpm-lock.yaml), không có package-lock.json", () => {
     expect(existsSync(path.join(root, "pnpm-lock.yaml"))).toBe(true);
     expect(existsSync(path.join(root, "package-lock.json"))).toBe(false);
+  });
+
+  it("ép esbuild lên bản đã vá (>= 0.25.0)", () => {
+    // drizzle-kit kéo @esbuild-kit/core-utils, vốn pin esbuild ~0.18.20 — bản
+    // dính GHSA-67mh-4wv8-2f99. Không có bản core-utils nào mới hơn, nên
+    // phải override.
+    const overrides = pkg.pnpm?.overrides ?? {};
+    expect(Object.keys(overrides)).toContain("@esbuild-kit/core-utils>esbuild");
+  });
+
+  it("lockfile không còn esbuild bản dính lỗ hổng", () => {
+    const lock = readFileSync(path.join(root, "pnpm-lock.yaml"), "utf8");
+    const versions = Array.from(lock.matchAll(/esbuild@(\d+\.\d+\.\d+)/g)).map(
+      match => match[1],
+    );
+    const vulnerable = versions.filter(version => {
+      const [major, minor] = version.split(".").map(Number);
+      return major === 0 && minor < 25;
+    });
+    expect(vulnerable).toEqual([]);
   });
 });
 
