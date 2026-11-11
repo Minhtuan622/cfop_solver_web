@@ -5,7 +5,6 @@
  * Pyodide của worker này không ảnh hưởng đến worker xử lý tác vụ nhẹ
  * (validate/catalog) và ngược lại.
  */
-import { PYTHON_SOLVER_FILES } from "@/lib/embeddedSolver";
 import { createPyodideLoader } from "@/lib/pyodideLoader";
 
 const { getPyodide } = createPyodideLoader();
