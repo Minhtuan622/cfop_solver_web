@@ -2,18 +2,18 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { AddressInfo } from "node:net";
 import express from "express";
 import compression from "compression";
-import helmet from "helmet";
 import { createServer, type Server } from "node:http";
 import { createWriteStream, mkdirSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { securityHeaders } from "./_core/securityHeaders";
 
 /**
- * The production header stack lives in server/_core/index.ts (helmet, CSP
- * report-only, compression, cache headers on hashed assets, JSON 404 for
- * unknown /api/* paths). This test spins the same stack against a temporary
- * public directory so a regression shows up as failing assertions instead of
- * a curl check on a live deploy.
+ * The production header stack lives in server/_core/securityHeaders.ts
+ * (helmet, CSP report-only, compression, cache headers on hashed assets, JSON
+ * 404 for unknown /api/* paths). This test runs the real stack against a
+ * temporary public directory so a regression shows up as failing assertions
+ * instead of a curl check on a live deploy.
  */
 describe("the production header stack", () => {
   let server: Server;
@@ -27,31 +27,7 @@ describe("the production header stack", () => {
 
     const app = express();
     app.disable("x-powered-by");
-    app.use(helmet());
-    app.use(
-      helmet.contentSecurityPolicy({
-        reportOnly: true,
-        directives: {
-          defaultSrc: ["'self'"],
-          baseUri: ["'self'"],
-          fontSrc: ["'self'", "https:", "data:"],
-          frameAncestors: ["'self'"],
-          imgSrc: ["'self'", "data:", "https:"],
-          objectSrc: ["'none'"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", "blob:", "https://cdn.jsdelivr.net"],
-          scriptSrcAttr: ["'unsafe-inline'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          connectSrc: [
-            "'self'",
-            "https://cdn.jsdelivr.net",
-            "https://raw.githubusercontent.com",
-            "https://www.worldcubeassociation.org",
-          ],
-          workerSrc: ["blob:", "'self'"],
-          upgradeInsecureRequests: [],
-        },
-      }),
-    );
+    app.use(securityHeaders());
     app.use(compression());
     app.use(
       express.static(publicDir, {
@@ -90,6 +66,16 @@ describe("the production header stack", () => {
     ]) {
       expect(csp).toContain(origin);
     }
+  });
+
+  it("sends no enforced CSP, so nothing is blocked while the policy is report-only", async () => {
+    const response = await fetch(`http://127.0.0.1:${port}/assets/x/main.a1b2.js`);
+    // Helmet's default policy would add an enforced header with
+    // `script-src 'self'` and no connect-src/worker-src. It blocked the React
+    // preamble in development and would block Pyodide and the solver worker in
+    // production, so only the report-only policy may be sent.
+    expect(response.headers.get("content-security-policy")).toBeNull();
+    expect(response.headers.get("content-security-policy-report-only")).not.toBeNull();
   });
 
   it("lets hashed assets live in the cache for a year", async () => {
