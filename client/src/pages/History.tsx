@@ -55,6 +55,10 @@ import {
 } from "@/lib/timerEvents";
 import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 
 function average(values: number[]) {
   return values.length
@@ -392,9 +396,9 @@ export default function History() {
                         <span className="inline-flex items-center border border-line bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
                           <Search className="text-base" />
                         </span>
-                        <input
+                        <Input
                           id="history-search"
-                          className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                           value={query}
                           onChange={event => setQuery(event.target.value)}
                           placeholder={t("history.searchLabel")}
@@ -405,9 +409,9 @@ export default function History() {
                       <label className="sr-only" htmlFor="history-event-filter">
                         {t("history.eventFilterLabel")}
                       </label>
-                      <select
+                      <Select
                         id="history-event-filter"
-                        className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                         value={eventFilter}
                         onChange={event =>
                           setEventFilter(
@@ -421,15 +425,15 @@ export default function History() {
                             {timerEventLabel(event.id, language)}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </div>
                     <div className="col-span-12">
                       <label className="sr-only" htmlFor="history-tag-filter">
                         {t("history.tagFilterLabel")}
                       </label>
-                      <select
+                      <Select
                         id="history-tag-filter"
-                        className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                         value={tag}
                         onChange={event => setTag(event.target.value)}
                       >
@@ -439,7 +443,7 @@ export default function History() {
                             {item}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </div>
                   </div>
                   {filtered.length ? (
@@ -526,30 +530,28 @@ export default function History() {
                 <span className="mb-1.5 block text-sm font-medium text-ink">
                   {t("history.baseTime")}
                 </span>
-                <input
+                <Input
                   type="number"
                   min="0"
                   step="0.01"
                   value={editSeconds}
                   onChange={event => setEditSeconds(event.target.value)}
-                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                 />
               </label>
               <label className="col-span-12 md:col-span-6">
                 <span className="mb-1.5 block text-sm font-medium text-ink">
                   {t("history.penalty")}
                 </span>
-                <select
+                <Select
                   value={editPenalty}
                   onChange={event =>
                     setEditPenalty(event.target.value as SolvePenalty)
                   }
-                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <option value="none">{t("history.noPenalty")}</option>
                   <option value="+2">+2</option>
                   <option value="DNF">DNF</option>
-                </select>
+                </Select>
               </label>
               {supportsReplay ? (
                 <div className="col-span-12">
@@ -572,10 +574,10 @@ export default function History() {
                 <span className="mb-1.5 block text-sm font-medium text-ink">
                   {t("history.note")}
                 </span>
-                <textarea
+                <Textarea
                   value={editNote}
                   onChange={event => setEditNote(event.target.value)}
-                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                   rows={3}
                 />
               </label>
@@ -583,22 +585,22 @@ export default function History() {
                 <span className="mb-1.5 block text-sm font-medium text-ink">
                   {t("history.tags")}
                 </span>
-                <input
+                <Input
                   value={editTags}
                   onChange={event => setEditTags(event.target.value)}
-                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                 />
               </label>
             </div>
           </div>
           <DialogFooter>
-            <button
+            <Button
+              variant="secondary"
+              size="md"
               type="button"
               onClick={() => setEditing(null)}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
             >
               {t("history.cancel")}
-            </button>
+            </Button>
             <IconButton
               label={t("history.saveSolve")}
               icon={<Check className="text-base" />}
@@ -620,13 +622,15 @@ export default function History() {
             </div>
           </DialogHeader>
           <DialogFooter>
-            <button
+            <Button
+              variant="secondary"
+              size="md"
               type="button"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+
               onClick={() => setDeleteTarget(null)}
             >
               {t("history.cancel")}
-            </button>
+            </Button>
             <IconButton
               label={t("history.deleteSolve")}
               icon={<Trash2 className="text-base" />}
@@ -651,13 +655,15 @@ export default function History() {
             </div>
           </DialogHeader>
           <DialogFooter>
-            <button
+            <Button
+              variant="secondary"
+              size="md"
               type="button"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+
               onClick={() => setBulkDeleteOpen(false)}
             >
               {t("history.cancel")}
-            </button>
+            </Button>
             <IconButton
               label={t("history.deleteSelected")}
               icon={<Trash2 className="text-base" />}
@@ -756,28 +762,22 @@ function SolveRow({
         </div>
         <div className="col-span-12 flex flex-wrap items-center gap-1">
           <div className="inline-flex flex-wrap items-center gap-1 text-xs">
-            <button
+            <Button
+              variant={item.penalty === "+2" ? "warning" : "secondary"}
+              size="md"
               type="button"
               onClick={() => onPenalty(item, "+2")}
-              className={
-                item.penalty === "+2"
-                  ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-warning text-ink shadow-sm hover:brightness-95"
-                  : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-              }
             >
               +2
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={item.penalty === "DNF" ? "dangerSolid" : "secondary"}
+              size="md"
               type="button"
               onClick={() => onPenalty(item, "DNF")}
-              className={
-                item.penalty === "DNF"
-                  ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-danger text-white shadow-sm hover:brightness-95"
-                  : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-              }
             >
               DNF
-            </button>
+            </Button>
           </div>
           <IconButton
             label={t("history.editSolve")}
