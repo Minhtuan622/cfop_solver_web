@@ -1,11 +1,19 @@
 # TODO
 
-Danh sách công việc còn mở. Các mục đã hoàn thành được liệt kê ở cuối file;
-những ghi chú nghiên cứu cũ nằm trong `docs/archive/`.
+Danh sách công việc **còn mở**. Các mục đã hoàn thành được liệt kê ở cuối
+file; những ghi chú nghiên cứu cũ nằm trong `docs/archive/`.
 
-## Đang xem xét
+## Việc còn mở
 
-_(không còn mục nào)_
+- [ ] Kiểm tra bằng mắt trên trình duyệt thật cho các trang đã thiết kế lại:
+      xem lại bố cục, khoảng cách, độ tương phản và hành vi trên màn hình
+      nhỏ lẫn màn hình lớn.
+- [ ] Thử build Docker và xác nhận bản Pyodide cục bộ có trong image
+      (`client/public/pyodide` phải được copy sang `dist/public/pyodide` trước
+      khi copy stage runtime).
+- [ ] Ngưỡng thời gian tối thiểu theo từng thể thức trong phòng thi đấu:
+      hiện cố định 1.000 ms cho mọi thể thức, và vì thời gian do client tự báo
+      nên chưa ngăn được kết quả giả hợp lệ.
 
 ## Đã hoàn thành
 
