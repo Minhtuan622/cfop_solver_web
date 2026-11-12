@@ -8,6 +8,9 @@ import { translateServerText } from "@/lib/apiError";
 import type { TimerEventId } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RoomMemberRoster } from "./RoomMemberRoster";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 import type {
   RemovalTarget,
   RoomMember,
@@ -186,8 +189,7 @@ export function RoomSidebar({
                 onSend();
               }}
             >
-              <textarea
-                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+              <Textarea
                 rows={2}
                 value={chat}
                 maxLength={500}

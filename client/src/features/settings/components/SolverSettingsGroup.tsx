@@ -5,6 +5,9 @@ import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
 import type { SolverSettings } from "@/lib/appSettings";
 import type { F2LSlot } from "../lib/useSettingsState";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 
 const COLORS: {
   value: SolverSettings["crossColor"];
@@ -105,7 +108,7 @@ export function SolverSettingsGroup({
           >
             {t("settings.opening")}
           </label>
-          <select
+          <Select
             id="setting-opening"
             value={solver.opening}
             onChange={event =>
@@ -113,14 +116,13 @@ export function SolverSettingsGroup({
                 opening: event.target.value as SolverSettings["opening"],
               })
             }
-            className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {openingOptions.map(option => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
-          </select>
+          </Select>
           <p className="text-sm text-muted mb-0 mt-2">
             {t("settings.openingHint")}
           </p>
@@ -249,7 +251,7 @@ export function SolverSettingsGroup({
           >
             {t("settings.lastLayer")}
           </label>
-          <select
+          <Select
             id="setting-last-layer"
             value={solver.lastLayer}
             onChange={event =>
@@ -257,14 +259,13 @@ export function SolverSettingsGroup({
                 lastLayer: event.target.value as SolverSettings["lastLayer"],
               })
             }
-            className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {lastLayerOptions.map(option => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
-          </select>
+          </Select>
           <p className="text-sm text-muted mb-0 mt-2">
             {t("settings.lastLayerHint")}
           </p>

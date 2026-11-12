@@ -9,6 +9,9 @@ import {
 } from "@/lib/fastCube";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 
 function inverseAlgorithm(algorithm: string) {
   return parseFastMoves(algorithm)
@@ -110,14 +113,15 @@ export function BldTargetSelfCheck({
             >
               {vi ? "Solution của bạn" : "Your solution"}
             </label>
-            <textarea
+            <Textarea
+              className="font-mono"
               id="bld-target-answer"
               value={answer}
               onChange={event => {
                 setAnswer(event.target.value);
                 setResult("idle");
               }}
-              className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 font-mono"
+
               rows={2}
               placeholder={
                 vi ? "Nhập các nước bạn nhớ…" : "Enter the moves you recall…"

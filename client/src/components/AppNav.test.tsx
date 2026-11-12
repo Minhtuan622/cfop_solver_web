@@ -21,7 +21,7 @@ function renderNav() {
   return render(
     <ThemeProvider>
       <AppNav />
-    </ThemeProvider>,
+    </ThemeProvider>
   );
 }
 
@@ -68,14 +68,22 @@ describe("AppNav", () => {
   it("đánh dấu route đang mở bằng aria-current", () => {
     renderNav();
 
-    expect(screen.getByRole("link", { name: "Giải" }).getAttribute("aria-current")).toBe("page");
-    expect(screen.getByRole("link", { name: "Bấm giờ" }).getAttribute("aria-current")).toBeNull();
+    expect(
+      screen.getByRole("link", { name: "Giải" }).getAttribute("aria-current")
+    ).toBe("page");
+    expect(
+      screen.getByRole("link", { name: "Bấm giờ" }).getAttribute("aria-current")
+    ).toBeNull();
   });
 
   it("thu gọn nút ngôn ngữ và giao diện còn đúng một biểu tượng", () => {
     renderNav();
 
-    expect(screen.getByRole("button", { name: "Đổi ngôn ngữ" }).textContent).toBe("");
-    expect(screen.getByRole("button", { name: /Đổi giao diện/ }).textContent).toBe("");
+    expect(
+      screen.getByRole("button", { name: "Đổi ngôn ngữ" }).textContent
+    ).toBe("");
+    expect(
+      screen.getByRole("button", { name: /Đổi giao diện/ }).textContent
+    ).toBe("");
   });
 });

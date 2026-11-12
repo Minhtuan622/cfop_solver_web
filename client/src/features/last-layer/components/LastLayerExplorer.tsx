@@ -20,6 +20,9 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 
 type Family = "all" | "zbll" | "1lll";
 type Props = {
@@ -156,16 +159,15 @@ export function LastLayerExplorer({
             >
               {t("study.familySelect")}
             </label>
-            <select
+            <Select
               id="study-catalog-family"
               value={family}
               onChange={event => switchFamily(event.target.value as Family)}
-              className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <option value="all">ALL · ZBLL + 1LLL</option>
               <option value="zbll">ZBLL</option>
               <option value="1lll">1LLL</option>
-            </select>
+            </Select>
           </div>
           <div className="md:col-span-8">
             <label
@@ -178,12 +180,11 @@ export function LastLayerExplorer({
               <span className="inline-flex items-center border border-line bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
                 <Search className="text-lg" />
               </span>
-              <input
+              <Input
                 id="study-catalog-search"
                 value={query}
                 onChange={event => setQuery(event.target.value.slice(0, 80))}
                 placeholder={t("study.searchPlaceholder")}
-                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
           </div>
@@ -259,7 +260,9 @@ export function LastLayerExplorer({
                               </span>
                             ) : null}
                           </div>
-                          <strong className="mt-4 block">{catalogCase.id}</strong>
+                          <strong className="mt-4 block">
+                            {catalogCase.id}
+                          </strong>
                           <small className="text-muted mt-1 block">
                             {catalogCase.family.toUpperCase()} ·{" "}
                             {catalogCase.group}
@@ -286,7 +289,9 @@ export function LastLayerExplorer({
                 })}
               </div>
             ) : (
-              <p className="text-sm text-muted mb-0">{t("study.noCasesMatch")}</p>
+              <p className="text-sm text-muted mb-0">
+                {t("study.noCasesMatch")}
+              </p>
             )}
           </div>
         ) : (
@@ -372,17 +377,23 @@ export function LastLayerExplorer({
             </div>
           ) : null}
           <DialogFooter className="flex-col sm:flex-row">
-            <Button variant="secondary" size="md" className="w-full sm:grow-0" 
+            <Button
+              variant="secondary"
+              size="md"
+              className="w-full sm:grow-0"
               type="button"
-              
+
               onClick={() => setPreviewCase(null)}
             >
               {t("study.close")}
             </Button>
             {previewCase ? (
-              <Button variant="primary" size="md" className="w-full sm:grow-0" 
+              <Button
+                variant="primary"
+                size="md"
+                className="w-full sm:grow-0"
                 type="button"
-                
+
                 onClick={() => selectCase(previewCase)}
               >
                 {t("study.studyThisCase")}

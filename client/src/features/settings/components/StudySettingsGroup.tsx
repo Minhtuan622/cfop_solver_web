@@ -1,5 +1,8 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Field, SectionCard } from "@/components/ui/StudioUI";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 
 /** The study preferences: how many cases a cuber wants to practise every day. */
 export function StudySettingsGroup({
@@ -23,9 +26,9 @@ export function StudySettingsGroup({
             label={t("settings.dailyGoal")}
             hint={t("settings.dailyGoalHelp")}
           >
-            <input
+            <Input
               id="setting-daily-goal"
-              className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
               type="number"
               min={1}
               max={200}

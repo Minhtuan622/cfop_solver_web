@@ -14,6 +14,9 @@ import {
   type BldCatalogFile,
 } from "@/features/bld/lib/bldCatalogSource";
 import type { BldResult } from "@/lib/solverRuntime";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 
 type Catalog = Record<string, string>;
 type RuntimeCatalogs = {
@@ -283,7 +286,7 @@ function AlgorithmRow({
       </p>
       {catalogAlgorithm && (
         <div className="flex w-full items-stretch text-xs">
-          <input
+          <Input
             aria-label={`${label} preferred algorithm`}
             value={preferred ?? ""}
             onChange={event =>
@@ -294,7 +297,6 @@ function AlgorithmRow({
                 ? "Ưu tiên cá nhân (tùy chọn)"
                 : "Personal preference (optional)"
             }
-            className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
           />
           {preferred && (
             <IconButton
@@ -576,7 +578,7 @@ export function BldReport({
                                   : "Corners"}
                             </label>
                             <div className="flex w-full items-stretch text-xs">
-                              <select
+                              <Select
                                 value={selection[0]}
                                 onChange={event =>
                                   familyIndex === 0
@@ -589,7 +591,6 @@ export function BldReport({
                                         parityCorners[1],
                                       ])
                                 }
-                                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                               >
                                 {(familyIndex === 0
                                   ? EDGE_POSITIONS
@@ -597,8 +598,8 @@ export function BldReport({
                                 ).map(position => (
                                   <option key={position}>{position}</option>
                                 ))}
-                              </select>
-                              <select
+                              </Select>
+                              <Select
                                 value={selection[1]}
                                 onChange={event =>
                                   familyIndex === 0
@@ -611,7 +612,6 @@ export function BldReport({
                                         event.target.value,
                                       ])
                                 }
-                                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                               >
                                 {(familyIndex === 0
                                   ? EDGE_POSITIONS
@@ -619,7 +619,7 @@ export function BldReport({
                                 ).map(position => (
                                   <option key={position}>{position}</option>
                                 ))}
-                              </select>
+                              </Select>
                             </div>
                           </div>
                         )

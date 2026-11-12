@@ -9,6 +9,9 @@ import {
 import type { StarterFormula } from "@/features/bld";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 
 const PAGE_SIZE = 24;
 const groupLabel = (group: BldCatalogGroup, vi: boolean) =>
@@ -175,13 +178,13 @@ export function BldFullAlgorithmCatalog({
                   <span className="inline-flex items-center border border-line bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
                     <Search className="text-base" />
                   </span>
-                  <input
+                  <Input
                     value={query}
                     onChange={event => {
                       setQuery(event.target.value);
                       setPage(0);
                     }}
-                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                     placeholder={
                       vi ? "Tìm key, ví dụ ACE" : "Find key, e.g. ACE"
                     }

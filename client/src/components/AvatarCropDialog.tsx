@@ -16,6 +16,7 @@ import {
   zoomAvatarCrop,
 } from "@/lib/avatarCrop";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/Button";
 
 type ImageType = "image/jpeg" | "image/png" | "image/webp";
 type DragStart = {
@@ -220,22 +221,26 @@ export function AvatarCropDialog({
           ) : null}
         </div>
         <DialogFooter>
-          <button
+          <Button
+            variant="secondary"
+            size="md"
             type="button"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+
             onClick={onClose}
             disabled={rendering}
           >
             {t("profile.crop.cancel")}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
+            size="md"
             type="button"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+
             onClick={confirm}
             disabled={!dimensions || rendering}
           >
             {rendering ? t("profile.crop.pending") : t("profile.crop.confirm")}
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -9,7 +9,7 @@ function renderSwitcher() {
   return render(
     <LanguageProvider>
       <LanguageSwitcher />
-    </LanguageProvider>,
+    </LanguageProvider>
   );
 }
 
@@ -25,8 +25,12 @@ describe("LanguageSwitcher", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
 
-    expect(screen.getByRole("menuitemradio", { name: "Tiếng Việt" })).toBeTruthy();
-    expect(screen.getByRole("menuitemradio", { name: "Tiếng Anh" })).toBeTruthy();
+    expect(
+      screen.getByRole("menuitemradio", { name: "Tiếng Việt" })
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("menuitemradio", { name: "Tiếng Anh" })
+    ).toBeTruthy();
   });
 
   it("marks the language of the moment", () => {
@@ -34,8 +38,16 @@ describe("LanguageSwitcher", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
 
-    expect(screen.getByRole("menuitemradio", { name: "Tiếng Việt" }).getAttribute("aria-checked")).toBe("true");
-    expect(screen.getByRole("menuitemradio", { name: "Tiếng Anh" }).getAttribute("aria-checked")).toBe("false");
+    expect(
+      screen
+        .getByRole("menuitemradio", { name: "Tiếng Việt" })
+        .getAttribute("aria-checked")
+    ).toBe("true");
+    expect(
+      screen
+        .getByRole("menuitemradio", { name: "Tiếng Anh" })
+        .getAttribute("aria-checked")
+    ).toBe("false");
   });
 
   it("applies and remembers the chosen language", () => {
@@ -46,7 +58,9 @@ describe("LanguageSwitcher", () => {
 
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe("en");
     expect(document.documentElement.lang).toBe("en");
-    expect(screen.getByRole("button", { name: /Change the language/i })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: /Change the language/i })
+    ).toBeTruthy();
   });
 
   it("closes the menu on Escape", () => {

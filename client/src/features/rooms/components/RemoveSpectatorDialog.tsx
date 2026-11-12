@@ -10,6 +10,9 @@ import { PendingButton } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/StudioUI";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 
 type Props = {
   open: boolean;
@@ -63,12 +66,13 @@ export function RemoveSpectatorDialog({
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
             <label className="mb-1.5 block text-sm font-medium text-ink w-full">
               {t("rooms.moderation.reasonLabel")}
-              <textarea
+              <Textarea
+                className="mt-1"
                 required
                 minLength={3}
                 maxLength={280}
                 autoFocus
-                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
+
                 rows={3}
                 value={reason}
                 onChange={input => onReasonChange(input.target.value)}

@@ -19,6 +19,9 @@ import {
 } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { RoomSummary } from "../lib/roomTypes";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 
 type Props = {
   name: string;
@@ -86,12 +89,12 @@ export function RoomLobby({
                   label={t("rooms.lobby.nameLabel")}
                   required
                 >
-                  <input
+                  <Input
                     id="room-name"
                     required
                     minLength={2}
                     maxLength={80}
-                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                     value={name}
                     onChange={input => onNameChange(input.target.value)}
                   />
@@ -102,9 +105,9 @@ export function RoomLobby({
                     label={t("rooms.lobby.eventLabel")}
                     className="md:col-span-4"
                   >
-                    <select
+                    <Select
                       id="room-event"
-                      className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                       value={eventId}
                       onChange={input =>
                         onEventIdChange(input.target.value as TimerEventId)
@@ -115,16 +118,16 @@ export function RoomLobby({
                           {timerEventLabel(item.id, language)}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </Field>
                   <Field
                     id="room-format"
                     label={t("rooms.lobby.formatLabel")}
                     className="md:col-span-4"
                   >
-                    <select
+                    <Select
                       id="room-format"
-                      className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                       value={format}
                       onChange={input =>
                         onFormatChange(input.target.value as RoomFormat)
@@ -135,16 +138,16 @@ export function RoomLobby({
                           {label}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </Field>
                   <Field
                     id="room-max-players"
                     label={t("rooms.lobby.maxPlayersLabel")}
                     className="md:col-span-4"
                   >
-                    <select
+                    <Select
                       id="room-max-players"
-                      className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                       value={maxPlayers}
                       onChange={input =>
                         onMaxPlayersChange(Number(input.target.value))
@@ -155,7 +158,7 @@ export function RoomLobby({
                           {t("rooms.lobby.playerCount", { count: value })}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </Field>
                   {eventId === "333mbf" ? (
                     <Field
@@ -163,12 +166,12 @@ export function RoomLobby({
                       label={t("rooms.lobby.mbldLabel")}
                       className="md:col-span-4"
                     >
-                      <input
+                      <Input
                         id="room-blind-cubes"
                         type="number"
                         min={2}
                         max={99}
-                        className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+
                         value={multiBlindCubes}
                         onChange={input =>
                           onMultiBlindCubesChange(
@@ -209,9 +212,10 @@ export function RoomLobby({
                   label={t("rooms.lobby.codeLabel")}
                   required
                 >
-                  <input
+                  <Input
+                    className="uppercase tracking-wide"
                     id="room-join-code"
-                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 uppercase tracking-wide"
+
                     required
                     minLength={4}
                     maxLength={10}

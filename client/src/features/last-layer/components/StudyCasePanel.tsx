@@ -289,11 +289,7 @@ function GradeButton({
         ? "inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover"
         : "inline-flex items-center justify-center rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2";
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`${className} w-full`}
-    >
+    <button type="button" onClick={onClick} className={`${className} w-full`}>
       {label}
     </button>
   );
