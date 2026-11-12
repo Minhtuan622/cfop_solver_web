@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { RateLimiter, type RateLimitRule } from "../infrastructure/rateLimit";
 
 const WCA_API_BASE = "https://www.worldcubeassociation.org/api/v0";
 
@@ -7,10 +8,34 @@ const memoryCache = new Map<string, CacheEntry<unknown>>();
 export const MAX_CACHE_ENTRIES = 200;
 export const MAX_COMPETITION_DAYS = 366;
 const MAX_COMPETITION_PAGES = 10;
-const WCA_RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const WCA_RATE_LIMIT_MAX = 30;
 
-const wcaRateLimits = new Map<string, { count: number; resetAt: number }>();
+/**
+ * Khóa của người gọi: địa chỉ client đã được chuẩn hoá (xem `clientAddress`).
+ *
+ * Hạn mức tính theo khóa này chứ không theo đường dẫn, vì đường dẫn WCA có
+ * tham số ngày: tính theo đường dẫn thì chỉ cần đổi ngày là qua mặt.
+ */
+export type WcaCallerKey = string;
+
+/** Hạn mức của từng người gọi. */
+export const WCA_CALLER_RATE_LIMIT: RateLimitRule = {
+  limit: 30,
+  windowMs: 60 * 1000,
+};
+/** Hạn mứn toàn cục: tổng số yêu cầu gửi tới WCA mỗi phút, để bảo vệ WCA. */
+export const WCA_GLOBAL_RATE_LIMIT: RateLimitRule = {
+  limit: 120,
+  windowMs: 60 * 1000,
+};
+
+/**
+ * Bộ đếm hạn mức gọi WCA.
+ *
+ * Dùng `RateLimiter` dùng chung nên bảng đếm có kích thước tối đa và các mục
+ * hết hạn được dọn khi bảng đầy, thay vì một `Map` phình ra vô hạn.
+ */
+const wcaCallerLimiter = new RateLimiter();
+const wcaGlobalLimiter = new RateLimiter();
 
 function pruneCache() {
   const now = Date.now();
@@ -18,21 +43,22 @@ function pruneCache() {
     if (entry.expiresAt <= now && !entry.pending) memoryCache.delete(key);
   }
   while (memoryCache.size > MAX_CACHE_ENTRIES) {
-    const oldest = Array.from(memoryCache.entries()).sort(([, a], [, b]) => a.expiresAt - b.expiresAt)[0];
+    const oldest = Array.from(memoryCache.entries()).sort(
+      ([, a], [, b]) => a.expiresAt - b.expiresAt
+    )[0];
     if (oldest) memoryCache.delete(oldest[0]);
   }
 }
 
-function rateLimited(path: string): boolean {
-  const now = Date.now();
-  const bucket = wcaRateLimits.get(path);
-  if (!bucket || bucket.resetAt <= now) {
-    wcaRateLimits.set(path, { count: 1, resetAt: now + WCA_RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-  if (bucket.count >= WCA_RATE_LIMIT_MAX) return true;
-  bucket.count += 1;
-  return false;
+/** Xoá bộ đếm hạn mức (dùng khi test và khi cần nạp lại). */
+export function clearWcaRateLimits() {
+  wcaCallerLimiter.reset();
+  wcaGlobalLimiter.reset();
+}
+
+/** Số mục đang theo dõi trong bảng đếm (dùng cho kiểm thử). */
+export function wcaRateLimitBuckets() {
+  return { caller: wcaCallerLimiter.size(), global: wcaGlobalLimiter.size() };
 }
 
 export type WcaCountry = { id: string; name: string; iso2: string };
@@ -57,8 +83,16 @@ export type WcaPersonalRecord = {
   eventId: string;
   singleCentiseconds: number | null;
   averageCentiseconds: number | null;
-  singleRanks: { world: number | null; continental: number | null; country: number | null };
-  averageRanks: { world: number | null; continental: number | null; country: number | null };
+  singleRanks: {
+    world: number | null;
+    continental: number | null;
+    country: number | null;
+  };
+  averageRanks: {
+    world: number | null;
+    continental: number | null;
+    country: number | null;
+  };
 };
 
 /**
@@ -98,7 +132,7 @@ const WCA_WORLD_RECORD_EVENT_ORDER = [
   "333mbf",
 ] as const;
 const WCA_WORLD_RECORD_EVENT_RANK = new Map<string, number>(
-  WCA_WORLD_RECORD_EVENT_ORDER.map((eventId, index) => [eventId, index]),
+  WCA_WORLD_RECORD_EVENT_ORDER.map((eventId, index) => [eventId, index])
 );
 
 export type WcaProfile = {
@@ -111,7 +145,12 @@ export type WcaProfile = {
   competitionCount: number;
   totalSolves: number;
   medals: { gold: number; silver: number; bronze: number; total: number };
-  records: { national: number; continental: number; world: number; total: number };
+  records: {
+    national: number;
+    continental: number;
+    world: number;
+    total: number;
+  };
   personalRecords: WcaPersonalRecord[];
 };
 
@@ -142,31 +181,62 @@ type WcaProfilePayload = {
   };
   competition_count?: number | null;
   total_solves?: number | null;
-  medals?: { gold?: number | null; silver?: number | null; bronze?: number | null; total?: number | null } | null;
-  records?: { national?: number | null; continental?: number | null; world?: number | null; total?: number | null } | null;
-  personal_records?: Record<string, {
-    single?: { best?: number | null; world_rank?: number | null; continent_rank?: number | null; country_rank?: number | null } | null;
-    average?: { best?: number | null; world_rank?: number | null; continent_rank?: number | null; country_rank?: number | null } | null;
-  }> | null;
+  medals?: {
+    gold?: number | null;
+    silver?: number | null;
+    bronze?: number | null;
+    total?: number | null;
+  } | null;
+  records?: {
+    national?: number | null;
+    continental?: number | null;
+    world?: number | null;
+    total?: number | null;
+  } | null;
+  personal_records?: Record<
+    string,
+    {
+      single?: {
+        best?: number | null;
+        world_rank?: number | null;
+        continent_rank?: number | null;
+        country_rank?: number | null;
+      } | null;
+      average?: {
+        best?: number | null;
+        world_rank?: number | null;
+        continent_rank?: number | null;
+        country_rank?: number | null;
+      } | null;
+    }
+  > | null;
 };
 
 type WcaRecordsPayload = {
-  world_records?: Record<string, {
-    single?: number | null;
-    average?: number | null;
-  } | null> | null;
+  world_records?: Record<
+    string,
+    {
+      single?: number | null;
+      average?: number | null;
+    } | null
+  > | null;
 };
 
 function asNonNegativeInteger(value: unknown) {
-  return typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : 0;
+  return typeof value === "number" && Number.isInteger(value) && value >= 0
+    ? value
+    : 0;
 }
 
 function normalizeRecord(value: number | null | undefined) {
   return typeof value === "number" && value > 0 ? value : null;
 }
 
-async function fetchWcaJson<T>(path: string, cacheTtlMs: number): Promise<T> {
-  if (rateLimited(path)) throw new WcaApiError("UNAVAILABLE", "Yêu cầu WCA quá nhiều. Hãy thử lại sau.");
+async function fetchWcaJson<T>(
+  path: string,
+  cacheTtlMs: number,
+  caller: WcaCallerKey
+): Promise<T> {
   const url = `${WCA_API_BASE}${path}`;
   pruneCache();
   const cached = memoryCache.get(url) as CacheEntry<T> | undefined;
@@ -176,20 +246,48 @@ async function fetchWcaJson<T>(path: string, cacheTtlMs: number): Promise<T> {
   }
   if (cached?.pending) return cached.pending;
 
+  // Chỉ tính hạn mức khi thực sự gọi ra WCA: bản trong bộ nhớ đệm thì không.
+  if (!wcaCallerLimiter.consume(caller, WCA_CALLER_RATE_LIMIT).allowed) {
+    throw new WcaApiError(
+      "UNAVAILABLE",
+      "Yêu cầu WCA quá nhiều. Hãy thử lại sau."
+    );
+  }
+  if (!wcaGlobalLimiter.consume("wca", WCA_GLOBAL_RATE_LIMIT).allowed) {
+    throw new WcaApiError(
+      "UNAVAILABLE",
+      "Dịch vụ WCA đang bận. Hãy thử lại sau."
+    );
+  }
+
   const pending = (async () => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12_000);
     try {
-      const response = await fetch(url, { headers: { Accept: "application/json" }, signal: controller.signal });
-      if (response.status === 404) throw new WcaApiError("NOT_FOUND", "Không tìm thấy WCA ID hoặc dữ liệu WCA.");
-      if (!response.ok) throw new WcaApiError("UNAVAILABLE", "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau.");
-      const value = await response.json() as T;
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" },
+        signal: controller.signal,
+      });
+      if (response.status === 404)
+        throw new WcaApiError(
+          "NOT_FOUND",
+          "Không tìm thấy WCA ID hoặc dữ liệu WCA."
+        );
+      if (!response.ok)
+        throw new WcaApiError(
+          "UNAVAILABLE",
+          "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau."
+        );
+      const value = (await response.json()) as T;
       memoryCache.set(url, { value, expiresAt: Date.now() + cacheTtlMs });
       pruneCache();
       return value;
     } catch (error) {
       if (error instanceof WcaApiError) throw error;
-      throw new WcaApiError("UNAVAILABLE", "Không thể kết nối WCA lúc này. Hãy thử lại sau.");
+      throw new WcaApiError(
+        "UNAVAILABLE",
+        "Không thể kết nối WCA lúc này. Hãy thử lại sau."
+      );
     } finally {
       clearTimeout(timeout);
     }
@@ -204,34 +302,59 @@ async function fetchWcaJson<T>(path: string, cacheTtlMs: number): Promise<T> {
 }
 
 export class WcaApiError extends Error {
-  constructor(public readonly kind: "NOT_FOUND" | "UNAVAILABLE", message: string) {
+  constructor(
+    public readonly kind: "NOT_FOUND" | "UNAVAILABLE",
+    message: string
+  ) {
     super(message);
   }
 }
 
 export function normalizeWcaId(value: string) {
   const normalized = value.trim().toUpperCase();
-  if (!/^\d{4}[A-Z]{4}\d{2}$/.test(normalized)) throw new WcaApiError("NOT_FOUND", "WCA ID cần theo dạng 2016ABCD01.");
+  if (!/^\d{4}[A-Z]{4}\d{2}$/.test(normalized))
+    throw new WcaApiError("NOT_FOUND", "WCA ID cần theo dạng 2016ABCD01.");
   return normalized;
 }
 
-export async function getWcaCountries() {
-  const countries = await fetchWcaJson<Array<{ id?: string; name?: string; iso2?: string }>>("/countries", 24 * 60 * 60 * 1000);
+export async function getWcaCountries(caller: WcaCallerKey) {
+  const countries = await fetchWcaJson<
+    Array<{ id?: string; name?: string; iso2?: string }>
+  >("/countries", 24 * 60 * 60 * 1000, caller);
   return countries
-    .filter((country): country is Required<Pick<WcaCountry, "id" | "name" | "iso2">> => Boolean(country.id && country.name && country.iso2))
-    .map((country) => ({ id: country.id, name: country.name, iso2: country.iso2 }))
+    .filter(
+      (
+        country
+      ): country is Required<Pick<WcaCountry, "id" | "name" | "iso2">> =>
+        Boolean(country.id && country.name && country.iso2)
+    )
+    .map(country => ({
+      id: country.id,
+      name: country.name,
+      iso2: country.iso2,
+    }))
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
-export async function getWcaCompetitions(input: { start: string; end: string; countryIso2?: string | null }) {
+export async function getWcaCompetitions(
+  input: { start: string; end: string; countryIso2?: string | null },
+  caller: WcaCallerKey
+) {
   const start = new Date(input.start);
   const end = new Date(input.end);
   const days = (end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000);
   if (!Number.isFinite(days) || days < 0 || days > MAX_COMPETITION_DAYS) {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "Khoảng ngày quá dài. Tối đa 366 ngày." });
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Khoảng ngày quá dài. Tối đa 366 ngày.",
+    });
   }
 
-  const baseQuery = new URLSearchParams({ start: input.start, end: input.end, sort: "start_date" });
+  const baseQuery = new URLSearchParams({
+    start: input.start,
+    end: input.end,
+    sort: "start_date",
+  });
   if (input.countryIso2) baseQuery.set("country_iso2", input.countryIso2);
 
   const PAGE_SIZE = 200;
@@ -239,7 +362,11 @@ export async function getWcaCompetitions(input: { start: string; end: string; co
     const query = new URLSearchParams(baseQuery);
     query.set("per_page", String(PAGE_SIZE));
     query.set("page", String(page));
-    return fetchWcaJson<WcaCompetitionPayload[]>(`/competitions?${query.toString()}`, 5 * 60 * 1000);
+    return fetchWcaJson<WcaCompetitionPayload[]>(
+      `/competitions?${query.toString()}`,
+      5 * 60 * 1000,
+      caller
+    );
   };
 
   const all: WcaCompetitionPayload[] = [];
@@ -254,46 +381,80 @@ export async function getWcaCompetitions(input: { start: string; end: string; co
     }
   }
 
-  const countries = await getWcaCountries();
-  const countryNames = new Map(countries.map((country) => [country.iso2, country.name]));
-  return all.map((competition) => {
-    const wcaUrl = competition.url ?? `https://www.worldcubeassociation.org/competitions/${competition.id}`;
+  const countries = await getWcaCountries(caller);
+  const countryNames = new Map(
+    countries.map(country => [country.iso2, country.name])
+  );
+  return all.map(competition => {
+    const wcaUrl =
+      competition.url ??
+      `https://www.worldcubeassociation.org/competitions/${competition.id}`;
     return {
       id: competition.id,
       name: competition.name,
       startDate: competition.start_date,
       endDate: competition.end_date,
-      countryName: competition.country?.name ?? countryNames.get(competition.country_iso2 ?? "") ?? "",
+      countryName:
+        competition.country?.name ??
+        countryNames.get(competition.country_iso2 ?? "") ??
+        "",
       countryIso2: competition.country?.iso2 ?? competition.country_iso2 ?? "",
       cityName: competition.city_name ?? competition.city ?? "",
       venueName: competition.venue ?? null,
       status: competition.status ?? "approved",
-      website: competition.website && competition.website !== wcaUrl ? competition.website : null,
+      website:
+        competition.website && competition.website !== wcaUrl
+          ? competition.website
+          : null,
       wcaUrl,
-      eventIds: Array.isArray(competition.event_ids) ? competition.event_ids.filter((id): id is string => typeof id === "string") : [],
+      eventIds: Array.isArray(competition.event_ids)
+        ? competition.event_ids.filter(
+            (id): id is string => typeof id === "string"
+          )
+        : [],
     } satisfies WcaCompetition;
   });
 }
 
-export async function getWcaProfile(rawWcaId: string): Promise<WcaProfile> {
+export async function getWcaProfile(
+  rawWcaId: string,
+  caller: WcaCallerKey
+): Promise<WcaProfile> {
   const wcaId = normalizeWcaId(rawWcaId);
-  const payload = await fetchWcaJson<WcaProfilePayload>(`/persons/${encodeURIComponent(wcaId)}`, 10 * 60 * 1000);
+  const payload = await fetchWcaJson<WcaProfilePayload>(
+    `/persons/${encodeURIComponent(wcaId)}`,
+    10 * 60 * 1000,
+    caller
+  );
   const person = payload.person;
-  if (!person?.wca_id || !person.name) throw new WcaApiError("NOT_FOUND", "Không tìm thấy hồ sơ WCA này.");
-  const records = Object.entries(payload.personal_records ?? {}).map(([eventId, record]) => ({
-    eventId,
-    singleCentiseconds: normalizeRecord(record.single?.best),
-    averageCentiseconds: normalizeRecord(record.average?.best),
-    singleRanks: { world: normalizeRecord(record.single?.world_rank), continental: normalizeRecord(record.single?.continent_rank), country: normalizeRecord(record.single?.country_rank) },
-    averageRanks: { world: normalizeRecord(record.average?.world_rank), continental: normalizeRecord(record.average?.continent_rank), country: normalizeRecord(record.average?.country_rank) },
-  })).sort((left, right) => left.eventId.localeCompare(right.eventId));
+  if (!person?.wca_id || !person.name)
+    throw new WcaApiError("NOT_FOUND", "Không tìm thấy hồ sơ WCA này.");
+  const records = Object.entries(payload.personal_records ?? {})
+    .map(([eventId, record]) => ({
+      eventId,
+      singleCentiseconds: normalizeRecord(record.single?.best),
+      averageCentiseconds: normalizeRecord(record.average?.best),
+      singleRanks: {
+        world: normalizeRecord(record.single?.world_rank),
+        continental: normalizeRecord(record.single?.continent_rank),
+        country: normalizeRecord(record.single?.country_rank),
+      },
+      averageRanks: {
+        world: normalizeRecord(record.average?.world_rank),
+        continental: normalizeRecord(record.average?.continent_rank),
+        country: normalizeRecord(record.average?.country_rank),
+      },
+    }))
+    .sort((left, right) => left.eventId.localeCompare(right.eventId));
   return {
     wcaId: person.wca_id,
     name: person.name,
     countryName: person.country?.name ?? "",
     countryIso2: person.country?.iso2 ?? person.country_iso2 ?? "",
     avatarUrl: person.avatar?.thumb_url ?? person.avatar?.url ?? null,
-    profileUrl: person.url ?? `https://www.worldcubeassociation.org/persons/${person.wca_id}`,
+    profileUrl:
+      person.url ??
+      `https://www.worldcubeassociation.org/persons/${person.wca_id}`,
     competitionCount: asNonNegativeInteger(payload.competition_count),
     totalSolves: asNonNegativeInteger(payload.total_solves),
     medals: {
@@ -312,21 +473,29 @@ export async function getWcaProfile(rawWcaId: string): Promise<WcaProfile> {
   };
 }
 
-export async function getWcaWorldRecords(): Promise<WcaWorldRecord[]> {
-  const payload = await fetchWcaJson<WcaRecordsPayload>("/records?region=world", 60 * 60 * 1000);
+export async function getWcaWorldRecords(
+  caller: WcaCallerKey
+): Promise<WcaWorldRecord[]> {
+  const payload = await fetchWcaJson<WcaRecordsPayload>(
+    "/records?region=world",
+    60 * 60 * 1000,
+    caller
+  );
   const worldRecords = payload.world_records ?? {};
   return Object.entries(worldRecords)
     .flatMap(([eventId, record]) => {
       const rank = WCA_WORLD_RECORD_EVENT_RANK.get(eventId);
       if (rank === undefined || !record) return [];
-      return [{
-        rank,
-        record: {
-          eventId,
-          single: normalizeRecord(record.single),
-          average: normalizeRecord(record.average),
-        } satisfies WcaWorldRecord,
-      }];
+      return [
+        {
+          rank,
+          record: {
+            eventId,
+            single: normalizeRecord(record.single),
+            average: normalizeRecord(record.average),
+          } satisfies WcaWorldRecord,
+        },
+      ];
     })
     .sort((left, right) => left.rank - right.rank)
     .map(({ record }) => record);

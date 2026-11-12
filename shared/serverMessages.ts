@@ -108,6 +108,7 @@ export const serverMessageKeys: Record<string, string> = {
 
   // WCA rate limiting and calendar
   "Yêu cầu WCA quá nhiều. Hãy thử lại sau.": "wca.errorRateLimited",
+  "Dịch vụ WCA đang bận. Hãy thử lại sau.": "wca.errorBusy",
   "Khoảng ngày quá dài. Tối đa 366 ngày.": "wca.errorDateRangeTooLong",
   "Mã WCA này đã được liên kết với tài khoản khác.": "wca.errorWcaIdTaken",
 };

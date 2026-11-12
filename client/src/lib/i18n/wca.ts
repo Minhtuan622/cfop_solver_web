@@ -153,6 +153,10 @@ export const wcaWords: Dictionary = {
     "Yêu cầu WCA quá nhiều. Hãy thử lại sau.",
     "Too many WCA requests. Please try again later.",
   ],
+  "wca.errorBusy": [
+    "Dịch vụ WCA đang bận. Hãy thử lại sau.",
+    "The WCA service is busy. Please try again later.",
+  ],
   "wca.errorDateRangeTooLong": [
     "Khoảng ngày quá dài. Tối đa 366 ngày.",
     "Date range too long. Maximum 366 days.",
