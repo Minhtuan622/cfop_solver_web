@@ -110,6 +110,7 @@ export function SolverSettingsGroup({
           </label>
           <Select
             id="setting-opening"
+            className="max-w-md"
             value={solver.opening}
             onChange={event =>
               onChange({
@@ -253,6 +254,7 @@ export function SolverSettingsGroup({
           </label>
           <Select
             id="setting-last-layer"
+            className="max-w-md"
             value={solver.lastLayer}
             onChange={event =>
               onChange({
