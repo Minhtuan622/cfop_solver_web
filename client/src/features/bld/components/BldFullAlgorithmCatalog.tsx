@@ -8,6 +8,7 @@ import {
 } from "@/features/bld";
 import type { StarterFormula } from "@/features/bld";
 import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 const PAGE_SIZE = 24;
 const groupLabel = (group: BldCatalogGroup, vi: boolean) =>
@@ -111,10 +112,11 @@ export function BldFullAlgorithmCatalog({
               : "All 3-Style cases and algorithm variants"}
           </h4>
         </div>
-        <button
+        <Button
+          variant="secondary"
+          size="md"
           type="button"
           onClick={() => setOpen(current => !current)}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
         >
           {open
             ? vi
@@ -123,7 +125,7 @@ export function BldFullAlgorithmCatalog({
             : vi
               ? "Mở thư viện đầy đủ"
               : "Open full library"}
-        </button>
+        </Button>
       </div>
       {open && (
         <div className="p-5 sm:p-6">
@@ -154,18 +156,15 @@ export function BldFullAlgorithmCatalog({
                 >
                   {(["edge", "corner", "special"] as BldCatalogGroup[]).map(
                     item => (
-                      <button
+                      <Button
+                        variant={group === item ? "primary" : "secondary"}
+                        size="md"
                         key={item}
                         type="button"
                         onClick={() => selectGroup(item)}
-                        className={
-                          group === item
-                            ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                            : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-                        }
                       >
                         {groupLabel(item, vi)}
-                      </button>
+                      </Button>
                     )
                   )}
                 </div>
@@ -222,13 +221,14 @@ export function BldFullAlgorithmCatalog({
                             {vi ? "biến thể" : "variants"}
                           </small>
                         </div>
-                        <button
+                        <Button
+                          variant="secondary"
+                          size="sm"
                           type="button"
                           onClick={() => setActive(entry)}
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
                         >
                           {vi ? "Xem biến thể" : "View variants"}
-                        </button>
+                        </Button>
                       </div>
                     </article>
                   </div>
@@ -283,15 +283,17 @@ export function BldFullAlgorithmCatalog({
                           <code className="text-sm break-words">
                             {algorithm}
                           </code>
-                          <button
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="md:self-start"
                             type="button"
                             onClick={() =>
                               onChoose(toFormula(active, algorithm))
                             }
-                            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-3 py-1.5 text-xs md:self-start"
                           >
                             {vi ? "Dùng biến thể này" : "Use this variant"}
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     ))}

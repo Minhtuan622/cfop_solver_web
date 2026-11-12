@@ -5,6 +5,7 @@ import { Cube3DGuide } from "@/components/common/Cube3DGuide";
 import type { StarterFormula } from "@/features/bld";
 import { SOLVED_FAST_STATE, traceFastMoves } from "@/lib/fastCube";
 import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 export function BldSightedCommutator({
   formula,
@@ -162,24 +163,26 @@ export function BldSightedCommutator({
                   : "Grade sighted commutator"
               }
             >
-              <button
+              <Button
+                variant="danger"
+                size="sm"
                 type="button"
                 onClick={() => {
                   onGrade(false);
                   setCursor(0);
                 }}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
               >
                 {vi ? "Chưa đúng" : "Not yet"}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
                 type="button"
                 onClick={() => onGrade(true)}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-3 py-1.5 text-xs"
               >
                 <Check className="text-base mr-1" />
                 {vi ? "Đã chạy đúng" : "I ran it correctly"}
-              </button>
+              </Button>
             </div>
           )}
         </div>

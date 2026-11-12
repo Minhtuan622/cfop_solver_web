@@ -51,13 +51,11 @@ export function BldMemoLab({
         ]
       : [];
     const fromResult = source.filter(item => item.memo);
-    const due: Prompt[] = dueMemoRecords(profile).map(
-      (record): Prompt => ({
-        key: record.key,
-        memo: record.memo,
-        kind: record.kind,
-      })
-    );
+    const due: Prompt[] = dueMemoRecords(profile).map((record): Prompt => ({
+      key: record.key,
+      memo: record.memo,
+      kind: record.kind,
+    }));
     const unique = new Map<string, Prompt>();
     [...due, ...fromResult].forEach(item => unique.set(item.key, item));
     return Array.from(unique.values());

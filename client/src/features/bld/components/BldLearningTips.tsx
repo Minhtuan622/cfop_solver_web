@@ -1,6 +1,7 @@
 /* Tailwind-only Study support: evidence-linked, beginner-friendly 3-Style practice tips. */
 import { useState } from "react";
 import { BoxArrowRight } from "@/components/ui/Icon";
+import { Button } from "@/components/ui/Button";
 type LearningTip = {
   titleVi: string;
   titleEn: string;
@@ -109,10 +110,11 @@ export function BldLearningTips({ language }: { language: "vi" | "en" }) {
               : "Five practical 3-Style practice rhythms"}
           </h4>
         </div>
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
           type="button"
           onClick={() => setExpanded(value => !value)}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
         >
           {expanded
             ? vi
@@ -121,7 +123,7 @@ export function BldLearningTips({ language }: { language: "vi" | "en" }) {
             : vi
               ? "Xem mẹo"
               : "View tips"}
-        </button>
+        </Button>
       </div>
       {expanded && (
         <div className="border-t border-line p-4">

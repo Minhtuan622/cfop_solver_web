@@ -76,8 +76,7 @@ export function StudyToolbar({
               {t("study.goalLabel")}
             </span>
             <strong className="text-sm tabular-nums text-ink">
-              {reviewedToday}/{dailyGoal}{" "}
-              {t("study.reviewedUnit")}
+              {reviewedToday}/{dailyGoal} {t("study.reviewedUnit")}
             </strong>
           </div>
           <div
@@ -93,9 +92,7 @@ export function StudyToolbar({
               style={{ width: `${goalPercent}%` }}
             />
           </div>
-          {hint ? (
-            <p className="mb-0 mt-2 text-xs text-muted">{hint}</p>
-          ) : null}
+          {hint ? <p className="mb-0 mt-2 text-xs text-muted">{hint}</p> : null}
         </div>
 
         <dl className="ml-auto mb-0 flex gap-6">

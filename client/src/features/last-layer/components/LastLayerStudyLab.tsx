@@ -31,6 +31,7 @@ import {
 import { StudyCasePanel } from "./StudyCasePanel";
 import { StudySchedulePanel } from "./StudySchedulePanel";
 import { StudyToolbar, type StudyLane } from "./StudyToolbar";
+import { Button } from "@/components/ui/Button";
 
 function download(name: string, value: unknown) {
   const url = URL.createObjectURL(
@@ -261,15 +262,18 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                 type="file"
                 className="hidden"
               />
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 type="button"
                 onClick={() => backupRef.current?.click()}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
               >
                 <FileUp className="text-base mr-1" />
                 {t("study.importProgress")}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
                 type="button"
                 onClick={() =>
                   download(
@@ -277,11 +281,10 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                     exportLastLayerStudy(study, masteredKeys)
                   )
                 }
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
               >
                 <Download className="text-base mr-1" />
                 {t("study.exportBackup")}
-              </button>
+              </Button>
             </>
           ) : undefined
         }

@@ -1,6 +1,8 @@
 import { Sparkles, TimerReset } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { WeeklyReviewDay } from "../lib/lastLayerStudy";
+import { Button } from "@/components/ui/Button";
+import { IconButton } from "@/components/ui/StudioUI";
 
 export type StudySchedulePanelProps = {
   schedule: WeeklyReviewDay[];
@@ -65,7 +67,9 @@ export function StudySchedulePanel({
                       "Thứ 5" sẽ xuống dòng (đo được: 33px cần ở 12px, chỉ còn
                       33px trong ô). Không dùng `whitespace-nowrap` để khi thiếu
                       chỗ nó xuống dòng chứ không tràn ra ngoài ô. */}
-                  <span className="block text-[11px] text-muted">{weekday}</span>
+                  <span className="block text-[11px] text-muted">
+                    {weekday}
+                  </span>
                   <b className="block text-base">{day.date.getDate()}</b>
                   <strong className="block text-sm tabular-nums text-primary">
                     {day.dueCount}
@@ -80,28 +84,28 @@ export function StudySchedulePanel({
           <div className="mt-4 flex items-center gap-2 rounded-panel border border-success/20 bg-success-soft px-4 py-3 text-sm text-ink">
             <Sparkles className="text-base text-success" />
             <span className="grow">{t("study.goalComplete")}</span>
-            <button
-              type="button"
+            <IconButton
+              className="ml-auto h-8 w-8 shrink-0 text-muted hover:bg-surface-3 hover:text-ink"
+              label={t("study.dismiss")}
+              icon={"✕"}
               onClick={onDismissCelebration}
-              className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted transition hover:bg-surface-3 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20"
-              aria-label={t("study.dismiss")}
-            >
-              ✕
-            </button>
+            />
           </div>
         ) : null}
 
         <div className="mt-6 border-t border-line pt-4">
           <p className="mb-2 text-sm text-muted">{t("study.weakCases")}</p>
-          <button
+          <Button
             type="button"
+            variant="outlined"
+            size="plain"
+            className="w-full px-4 py-2 text-sm"
             onClick={onReviewWeakest}
             disabled={!weakCaseCount}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <TimerReset className="text-base" />
             {t("study.weakest")}
-          </button>
+          </Button>
         </div>
       </div>
     </aside>

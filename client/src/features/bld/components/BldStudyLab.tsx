@@ -48,6 +48,7 @@ import {
 import { analyzeBldInBrowser, type BldResult } from "@/lib/solverRuntime";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 type FormulaKind = "edge" | "corner" | "parity" | "flip" | "twist";
 type FormulaGroup = "edge" | "corner" | "special";
@@ -527,14 +528,15 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
                     {profile.drillAttempts.length}/3{" "}
                     {vi ? "lượt drill đầu tiên" : "first drill attempts"}
                   </span>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="md"
                     type="button"
                     onClick={() => moveToStage(4)}
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
                   >
                     {vi ? "Sang ôn tập" : "Continue to review"}
                     <ChevronRight className="text-base ml-1" />
-                  </button>
+                  </Button>
                 </div>
               </section>
             )}
@@ -654,14 +656,16 @@ function OrientationStage({
             : "I understand the three beats of a BLD solve."}
         </label>
       </div>
-      <button
+      <Button
+        variant="primary"
+        size="md"
+        className="self-start mt-6"
         type="button"
         onClick={onContinue}
-        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover self-start mt-6"
       >
         {vi ? "Sang học công thức" : "Continue to algorithms"}
         <ChevronRight className="text-base ml-1" />
-      </button>
+      </Button>
     </section>
   );
 }
@@ -756,15 +760,12 @@ function FormulaStage({
         aria-label={vi ? "Nhóm starter pack" : "Starter pack group"}
       >
         {(["edge", "corner", "special"] as FormulaGroup[]).map(item => (
-          <button
+          <Button
+            variant={group === item ? "primary" : "secondary"}
+            size="md"
             key={item}
             type="button"
             onClick={() => onGroup(item)}
-            className={
-              group === item
-                ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-            }
           >
             {item === "edge"
               ? vi
@@ -777,7 +778,7 @@ function FormulaStage({
                 : vi
                   ? "Đặc biệt"
                   : "Special"}
-          </button>
+          </Button>
         ))}
       </div>
       <div className="grid grid-cols-12 gap-4">
@@ -813,14 +814,12 @@ function FormulaStage({
                             {vi ? formula.titleVi : formula.titleEn}
                           </h4>
                         </div>
-                        <button
+                        <Button
+                          variant={preferred ? "secondary" : "primary"}
+                          size="sm"
+                          className="self-start"
                           type="button"
                           onClick={() => onSelect(formula)}
-                          className={
-                            preferred
-                              ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs self-start"
-                              : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-3 py-1.5 text-xs self-start"
-                          }
                         >
                           {preferred ? (
                             <>
@@ -832,7 +831,7 @@ function FormulaStage({
                           ) : (
                             "Use this algorithm"
                           )}
-                        </button>
+                        </Button>
                       </div>
                       <p className="font-mono text-sm break-words bg-surface-2 p-2 rounded-xl mt-2 mb-2">
                         {formula.algorithm}
@@ -856,14 +855,10 @@ function FormulaStage({
         onChoose={onSelect}
       />
       <div className="flex flex-wrap gap-2 mt-6">
-        <button
-          type="button"
-          onClick={onContinue}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-        >
+        <Button variant="primary" size="md" type="button" onClick={onContinue}>
           {vi ? "Sang tạo memo" : "Continue to memo"}
           <ChevronRight className="text-base ml-1" />
-        </button>
+        </Button>
       </div>
     </section>
   );
@@ -1028,28 +1023,22 @@ function MemoStage({
             role="group"
             aria-label={vi ? "Nguồn memo" : "Memo source"}
           >
-            <button
+            <Button
+              variant={sourceMode === "scramble" ? "primary" : "secondary"}
+              size="md"
               type="button"
               onClick={() => onSourceMode("scramble")}
-              className={
-                sourceMode === "scramble"
-                  ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                  : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-              }
             >
               Scramble
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={sourceMode === "state" ? "primary" : "secondary"}
+              size="md"
               type="button"
               onClick={() => onSourceMode("state")}
-              className={
-                sourceMode === "state"
-                  ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                  : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-              }
             >
               54 sticker
-            </button>
+            </Button>
           </div>
           <label
             htmlFor="bld-learning-source"
@@ -1135,14 +1124,16 @@ function MemoStage({
               <strong className="font-mono break-words">
                 {cornerMemo || "—"}
               </strong>
-              <button
+              <Button
+                variant="primary"
+                size="md"
+                className="mt-4"
                 type="button"
                 onClick={onDrill}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover mt-4"
               >
                 {vi ? "Luyện case đặc biệt" : "Practice special cases"}
                 <ChevronRight className="text-base ml-1" />
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0">

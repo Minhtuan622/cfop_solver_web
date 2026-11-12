@@ -8,6 +8,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatTimerReadout } from "@/lib/solveHistory";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
+import { Button } from "@/components/ui/Button";
 
 export type StudyCasePanelProps = {
   activeCase: LastLayerCatalogCase | null;
@@ -109,15 +110,17 @@ export function StudyCasePanel({
 
       <div className="p-5 sm:p-6">
         <div className="mb-4 flex justify-end">
-          <button
+          <Button
             type="button"
+            variant="outlined"
+            size="plain"
+            className="px-3 py-1.5 text-xs"
             onClick={onChooseNext}
             disabled={!canChooseNext}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Dices className="text-base" />
             {t("study.chooseNext")}
-          </button>
+          </Button>
         </div>
 
         <div className="grid grid-cols-12 gap-6">
@@ -128,30 +131,26 @@ export function StudyCasePanel({
                 role="group"
                 aria-label={t("study.viewLabel")}
               >
-                <button
+                <Button
                   type="button"
+                  variant={view === "2d" ? "primary" : "outlined"}
+                  size="plain"
+                  className="px-4 py-2 text-sm"
                   aria-pressed={view === "2d"}
                   onClick={() => onViewChange("2d")}
-                  className={
-                    view === "2d"
-                      ? "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover"
-                      : "inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
-                  }
                 >
                   2D
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant={view === "3d" ? "primary" : "outlined"}
+                  size="plain"
+                  className="px-4 py-2 text-sm"
                   aria-pressed={view === "3d"}
                   onClick={() => onViewChange("3d")}
-                  className={
-                    view === "3d"
-                      ? "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover"
-                      : "inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
-                  }
                 >
                   3D
-                </button>
+                </Button>
               </div>
               <span className="text-sm text-muted">
                 {t("study.viewRecallTime")}
@@ -173,10 +172,12 @@ export function StudyCasePanel({
             )}
 
             <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
-              <button
+              <Button
                 type="button"
+                variant="outlined"
+                size="plain"
+                className="px-3 py-1.5 text-xs"
                 onClick={onToggleAlgorithm}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
               >
                 {showAlgorithm ? (
                   <Check className="text-base" />
@@ -186,15 +187,17 @@ export function StudyCasePanel({
                 {showAlgorithm
                   ? t("study.hideAlgorithm")
                   : t("study.showAlgorithm")}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="outlined"
+                size="plain"
+                className="px-3 py-1.5 text-xs"
                 onClick={onToggleMastered}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
               >
                 <Check className="text-base" />
                 {mastered ? t("study.unmarkMastered") : t("study.markMastered")}
-              </button>
+              </Button>
             </div>
 
             {showAlgorithm ? (

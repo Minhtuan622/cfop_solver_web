@@ -42,7 +42,11 @@ export function PracticeGroupPreview({
         aspectRatio: "1",
       }}
     >
-      <div className="aspect-square w-full" role="img" aria-label={t("study.previewFace", { label })}>
+      <div
+        className="aspect-square w-full"
+        role="img"
+        aria-label={t("study.previewFace", { label })}
+      >
         <div className="grid h-full grid-cols-3 gap-1 m-0">
           {stickers.map((sticker, index) => (
             <span

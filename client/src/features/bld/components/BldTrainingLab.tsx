@@ -15,6 +15,7 @@ import {
 } from "@/features/bld";
 import { fetchBldCatalogFile } from "@/features/bld/lib/bldCatalogSource";
 import type { BldResult } from "@/lib/solverRuntime";
+import { Button } from "@/components/ui/Button";
 
 type CatalogEntry = { key: string; algorithm: string; kind: BldDrillKind };
 type RawCatalog = Record<string, unknown>;
@@ -162,18 +163,15 @@ export function BldTrainingLab({
           aria-label={vi ? "Đổi loại tình huống" : "Change situation"}
         >
           {(Object.keys(labels) as BldDrillKind[]).map(item => (
-            <button
+            <Button
+              variant={kind === item ? "primary" : "secondary"}
+              size="md"
               key={item}
               type="button"
               onClick={() => choose(item)}
-              className={
-                kind === item
-                  ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                  : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-              }
             >
               {vi ? labels[item].vi : labels[item].en}
-            </button>
+            </Button>
           ))}
         </div>
         {loading ? (
@@ -233,20 +231,22 @@ export function BldTrainingLab({
                     {preferred ?? active.algorithm}
                   </pre>
                   <div className="inline-flex flex-wrap items-center gap-1 w-full">
-                    <button
+                    <Button
+                      variant="danger"
+                      size="md"
                       type="button"
                       onClick={() => grade(false)}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft"
                     >
                       {vi ? "Chưa nhớ" : "Not yet"}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="md"
                       type="button"
                       onClick={() => grade(true)}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
                     >
                       {vi ? "Đã nhớ" : "I remembered"}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

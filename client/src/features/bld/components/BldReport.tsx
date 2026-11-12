@@ -1,10 +1,6 @@
 /** Tailwind-native BLD report; specialized logic is retained while presentation uses cards and standard forms. */
 import { ExternalLink, Link2, ShieldCheck, X } from "@/components/ui/Icon";
-import {
-  IconButton,
-  SkeletonList,
-  StatTile,
-} from "@/components/ui/StudioUI";
+import { IconButton, SkeletonList, StatTile } from "@/components/ui/StudioUI";
 import { useEffect, useMemo, useState } from "react";
 import { Link as RouteLink } from "wouter";
 import {
@@ -340,8 +336,7 @@ export function BldReport({
     let live = true;
     setCatalogs(null);
     setCatalogError(false);
-    const request = <T,>(file: BldCatalogFile) =>
-      fetchBldCatalogFile<T>(file);
+    const request = <T,>(file: BldCatalogFile) => fetchBldCatalogFile<T>(file);
     Promise.all([
       request<Record<string, unknown>>("edge"),
       request<Record<string, unknown>>("corner"),

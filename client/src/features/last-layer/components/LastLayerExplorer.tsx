@@ -19,6 +19,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
+import { Button } from "@/components/ui/Button";
 
 type Family = "all" | "zbll" | "1lll";
 type Props = {
@@ -189,19 +190,15 @@ export function LastLayerExplorer({
         </div>
 
         <div className="flex flex-wrap gap-2 items-center mt-4">
-          <button
+          <Button
             type="button"
+            variant={onlyUnmastered ? "primary" : "secondary"}
+            size="sm"
             onClick={() => setOnlyUnmastered(value => !value)}
             aria-pressed={onlyUnmastered}
-            className={cn(
-              "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 px-3 py-1.5 text-xs",
-              onlyUnmastered
-                ? "bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                : "border-line bg-surface text-ink hover:bg-surface-2"
-            )}
           >
             {onlyUnmastered ? t("study.unmasteredOnly") : t("study.allCases")}
-          </button>
+          </Button>
           <IconButton
             label={t("study.randomPractice")}
             icon={<Dices className="text-base" />}
@@ -273,13 +270,15 @@ export function LastLayerExplorer({
                           >
                             {catalogCase.algorithm}
                           </code>
-                          <button
+                          <Button
                             type="button"
+                            variant="outline"
+                            size="plain"
+                            className="mt-4 px-3 py-1.5 text-xs"
                             onClick={() => selectCase(catalogCase)}
-                            className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-primary/35 bg-transparent px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary-soft"
                           >
                             {t("study.studyThisCase")}
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -351,10 +350,10 @@ export function LastLayerExplorer({
               </DialogTitle>
               <DialogDescription>{t("study.previewHint")}</DialogDescription>
             </div>
-            <button
-              type="button"
-              className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full p-0 text-muted transition hover:bg-surface-3 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20"
-              aria-label={t("study.closePreview")}
+            <IconButton
+              className="ml-auto h-8 w-8 shrink-0 text-muted hover:bg-surface-3 hover:text-ink"
+              label={t("study.closePreview")}
+              icon={null}
               onClick={() => setPreviewCase(null)}
             />
           </DialogHeader>
@@ -373,21 +372,21 @@ export function LastLayerExplorer({
             </div>
           ) : null}
           <DialogFooter className="flex-col sm:flex-row">
-            <button
+            <Button variant="secondary" size="md" className="w-full sm:grow-0" 
               type="button"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 w-full sm:grow-0"
+              
               onClick={() => setPreviewCase(null)}
             >
               {t("study.close")}
-            </button>
+            </Button>
             {previewCase ? (
-              <button
+              <Button variant="primary" size="md" className="w-full sm:grow-0" 
                 type="button"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover w-full sm:grow-0"
+                
                 onClick={() => selectCase(previewCase)}
               >
                 {t("study.studyThisCase")}
-              </button>
+              </Button>
             ) : null}
           </DialogFooter>
         </DialogContent>

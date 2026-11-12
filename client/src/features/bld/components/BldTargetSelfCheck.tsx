@@ -8,6 +8,7 @@ import {
   validateRecordedSolution,
 } from "@/lib/fastCube";
 import { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 function inverseAlgorithm(algorithm: string) {
   return parseFastMoves(algorithm)
@@ -123,14 +124,15 @@ export function BldTargetSelfCheck({
               }
             />
             <div className="flex flex-wrap gap-2 mt-4">
-              <button
+              <Button
+                variant="primary"
+                size="md"
                 type="button"
                 onClick={check}
                 disabled={!answer.trim()}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
               >
                 {vi ? "Kiểm tra solution" : "Check solution"}
-              </button>
+              </Button>
               <IconButton
                 label={
                   vi ? "Đổi AUF target scramble" : "Change AUF target scramble"
