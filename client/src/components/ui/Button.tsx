@@ -32,7 +32,13 @@ export type ButtonVariant =
   /** Nền đỏ đậm: hành động phá huỷ. */
   | "dangerSolid"
   /** Nền trong suốt, viền xanh. */
-  | "success";
+  | "success"
+  /** Nền cảnh báo màu hổ phách, chữ đậm. */
+  | "warning"
+  /** Nền đậm, chữ sáng: nút trên nền tối. */
+  | "inverse"
+  /** Nút dạng liên kết: chữ tím, gạch chân khi rê chuột. */
+  | "link";
 
 export type ButtonSize =
   /** Nút tự do: không ép khoảng đệm, cỡ chữ, chiều cao dòng hay cách xuống dòng. */
@@ -58,6 +64,9 @@ const buttonVariants: Record<ButtonVariant, string> = {
   danger: "border border-danger/35 bg-transparent text-danger hover:bg-danger-soft",
   dangerSolid: "bg-danger text-white shadow-sm hover:brightness-95",
   success: "border border-success/35 bg-transparent text-success hover:bg-success-soft",
+  warning: "bg-warning text-ink shadow-sm hover:brightness-95",
+  inverse: "bg-ink text-surface hover:opacity-90",
+  link: "bg-transparent text-primary hover:underline",
 };
 
 /**
