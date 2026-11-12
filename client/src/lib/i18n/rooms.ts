@@ -3,6 +3,10 @@ import type { Dictionary } from "./index";
 /** The rooms section: the lobby, the round panel, the sidebar and moderation. */
 export const roomsWords: Dictionary = {
   "rooms.title": ["Phòng thi đấu", "Competition rooms"],
+  "rooms.subtitle": [
+    "Tạo phòng, mời người khác hoặc theo dõi một phòng đang thi.",
+    "Create a room, invite others or watch a room in progress.",
+  ],
   "rooms.roomTitle": ["Phòng {code}", "Room {code}"],
   "rooms.loadingAccount": ["Đang tải tài khoản", "Loading your account"],
   "rooms.loadingRoom": ["Đang tải phòng thi đấu", "Loading the competition room"],

@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import type { TimerCompletion } from "@/components/common/SolveTimer";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import {
+  PageHeader,
   PendingButton,
   RefreshIndicator,
   SkeletonCard,
@@ -176,42 +177,48 @@ export default function Rooms() {
     );
   if (!code)
     return (
-      <RoomLobby
-        name={name}
-        onNameChange={setName}
-        eventId={eventId}
-        onEventIdChange={setEventId}
-        format={format}
-        onFormatChange={setFormat}
-        maxPlayers={maxPlayers}
-        onMaxPlayersChange={setMaxPlayers}
-        multiBlindCubes={multiBlindCubes}
-        onMultiBlindCubesChange={setMultiBlindCubes}
-        joinCode={joinCode}
-        onJoinCodeChange={setJoinCode}
-        createPending={create.isPending}
-        joinPending={join.isPending}
-        myRooms={
-          mine.data?.map(({ room }) => ({
-            id: room.id,
-            code: room.code,
-            name: room.name,
-            eventId: room.eventId,
-          })) ?? []
-        }
-        myRoomsPending={mine.isLoading}
-        onCreate={() =>
-          create.mutate({
-            name,
-            eventId,
-            format,
-            maxPlayers,
-            multiBlindCubes,
-          })
-        }
-        onJoin={() => join.mutate({ code: joinCode })}
-        error={error}
-      />
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+        <PageHeader
+          title={t("rooms.title")}
+          description={t("rooms.subtitle")}
+        />
+        <RoomLobby
+          name={name}
+          onNameChange={setName}
+          eventId={eventId}
+          onEventIdChange={setEventId}
+          format={format}
+          onFormatChange={setFormat}
+          maxPlayers={maxPlayers}
+          onMaxPlayersChange={setMaxPlayers}
+          multiBlindCubes={multiBlindCubes}
+          onMultiBlindCubesChange={setMultiBlindCubes}
+          joinCode={joinCode}
+          onJoinCodeChange={setJoinCode}
+          createPending={create.isPending}
+          joinPending={join.isPending}
+          myRooms={
+            mine.data?.map(({ room }) => ({
+              id: room.id,
+              code: room.code,
+              name: room.name,
+              eventId: room.eventId,
+            })) ?? []
+          }
+          myRoomsPending={mine.isLoading}
+          onCreate={() =>
+            create.mutate({
+              name,
+              eventId,
+              format,
+              maxPlayers,
+              multiBlindCubes,
+            })
+          }
+          onJoin={() => join.mutate({ code: joinCode })}
+          error={error}
+        />
+      </div>
     );
 
   const room = roomQuery.data;
