@@ -1,0 +1,18 @@
+{
+  "note": "Bộ đề cố định dùng chung cho scripts/bench-solver.mjs (Pyodide) và solver-python/bench_solver.py (CPython).",
+  "specified": [
+    "U L B2 L' F U2 B R2 B2 L2 R2 L U' R' F D U L D2 F'",
+    "D' U2 R' D U R2 L D2 F' L U' D B' L D' L2 B' U2 L2 R2",
+    "R U R' U' R' F R2 U' R' U' R U R' F' D L2 B2 U2 F2 L2 U'"
+  ],
+  "random": [
+    "F' R' B' D' B2 F L2 R2 L' D' R2 B' D' B R' B2 L R F' U F2 U",
+    "R' D' R2 U L2 D L U F2 R B2 F U L2 U' F D R' D2 R' D U'",
+    "F D L' F U D' U D B R' L D' U' D' B R F' D U L2 B' R'",
+    "R' F U2 L' R2 L R B' L D' R D R2 L R L2 U2 F2 B' D2 B D2",
+    "L R' L' D F U2 L' R' B2 F2 R D' B D' L2 D' U D' R2 B' U' D2",
+    "R L' D R D L F D2 B U' R' L D' B2 F L' B2 U D' B2 R B",
+    "U' F2 B' R D' L2 D2 L' R2 D' U' L' B' D' R2 L' R' F' R2 U R' L2",
+    "R' U2 F2 D2 R L' B F' U' R U L R2 L D2 F R' F D U' D F2"
+  ]
+}
