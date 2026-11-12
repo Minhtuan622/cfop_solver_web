@@ -1,15 +1,23 @@
 import {
   Children,
   isValidElement,
+  useCallback,
   useEffect,
   useId,
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
+import {
+  computeFloatingGeometry,
+  floatingStyle,
+  sameFloatingStyle,
+} from "@/components/ui/floating";
 
 /**
  * Dropdown chọn giá trị do app tự vẽ.
@@ -22,6 +30,11 @@ import { cn } from "@/lib/utils";
  * - Mũi tên lên/xuống để mở và chuyển lựa chọn, Home/End tới đầu/cuối
  * - Enter hoặc Space để chọn, Escape để đóng
  * - Đóng khi bấm ra ngoài hoặc nhấn Tab
+ *
+ * Danh sách gắn vào `document.body` qua portal và định vị tuyệt đối theo toạ
+ * độ tài liệu của nút (xem `floating.ts`), nên không bao giờ bị cắt bởi
+ * `overflow-hidden` của card hay dialog chứa nó, và lật lên khi sát đáy khung
+ * nhìn.
  *
  * Vùng danh sách dùng `aria-activedescendant` (mẫu combobox của WAI-ARIA) nên
  * trình đọc màn hình đọc đúng lựa chọn đang đứng.
@@ -73,6 +86,11 @@ export type SelectProps = {
   buttonClassName?: string;
 };
 
+type FloatingPosition = {
+  placement: "bottom" | "top";
+  style: CSSProperties;
+};
+
 export function Select({
   value,
   onChange,
@@ -87,7 +105,9 @@ export function Select({
   const options = useMemo(() => readOptions(children), [children]);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [floating, setFloating] = useState<FloatingPosition | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const generatedId = useId();
   const listId = `${id ?? generatedId}-list`;
@@ -95,14 +115,78 @@ export function Select({
   const selectedIndex = options.findIndex(option => option.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : options[0];
 
+  /** Đo chỗ trống quanh nút để quyết định hướng mở và chiều cao danh sách. */
+  const measure = useCallback(() => {
+    const button = buttonRef.current;
+    if (!button) return;
+    const rect = button.getBoundingClientRect();
+    const scrollX = window.pageXOffset;
+    const scrollY = window.pageYOffset;
+    const geometry = computeFloatingGeometry({
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      scrollX,
+      scrollY,
+      triggerTop: rect.top,
+      triggerBottom: rect.bottom,
+      triggerLeft: rect.left,
+      triggerWidth: rect.width,
+    });
+    const next: FloatingPosition = {
+      placement: geometry.placement,
+      style: floatingStyle(geometry, {
+        align: "start",
+        rightDoc: rect.right + scrollX,
+        viewportWidth: window.innerWidth,
+      }),
+    };
+    // Cuộn trang mà vị trí tương đối nút-trang không đổi thì đừng render lại
+    // (scroll bắn rất dồn trong lúc cuộn mượt).
+    setFloating(prev =>
+      prev &&
+      prev.placement === next.placement &&
+      sameFloatingStyle(prev.style, next.style)
+        ? prev
+        : next,
+    );
+  }, []);
+
+  /** Mở danh sách: đo trước vị trí nút để biết mở xuống hay lật lên. */
+  const openList = useCallback(() => {
+    if (disabled) return;
+    setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
+    measure();
+    setOpen(true);
+  }, [disabled, selectedIndex, measure]);
+
   useEffect(() => {
     if (!open) return;
     const closeOnOutsidePointer = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      const node = event.target as Node;
+      if (rootRef.current?.contains(node)) return;
+      // Danh sách nổi qua portal nằm ngoài root, phải giữ riêng nếu không
+      // lần pointerdown đầu trên danh sách sẽ đóng luôn.
+      if (listRef.current?.contains(node)) return;
+      setOpen(false);
     };
     document.addEventListener("pointerdown", closeOnOutsidePointer);
-    return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
+    return () =>
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
   }, [open]);
+
+  // Trong lúc danh sách mở, đo lại khi cuộn hoặc đổi cỡ khung nhìn để danh
+  // sách luôn bám theo nút. `capture: true` bắt cả scroll của các vùng cuộn
+  // bên trong trang (scroll không nổi bọt lên window).
+  useEffect(() => {
+    if (!open) return;
+    measure();
+    window.addEventListener("scroll", measure, true);
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("scroll", measure, true);
+      window.removeEventListener("resize", measure);
+    };
+  }, [open, measure]);
 
   /** Bỏ qua lựa chọn đang bị tắt. */
   const step = (from: number, delta: number) => {
@@ -132,8 +216,7 @@ export function Select({
       event.preventDefault();
       if (!open) {
         // Lần đầu chỉ mở danh sách, chưa di chuyển khỏi lựa chọn đang chọn.
-        setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
-        setOpen(true);
+        openList();
       } else {
         setActiveIndex(index => step(index, event.key === "ArrowDown" ? 1 : -1));
       }
@@ -152,10 +235,7 @@ export function Select({
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       if (open) choose(activeIndex);
-      else {
-        setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
-        setOpen(true);
-      }
+      else openList();
       return;
     }
     if (event.key === "Escape" && open) {
@@ -173,7 +253,9 @@ export function Select({
   // Đưa lựa chọn đang đứng vào tầm nhìn.
   useEffect(() => {
     if (!open) return;
-    const active = listRef.current?.querySelector<HTMLElement>(`#${CSS.escape(listId)}-option-${activeIndex}`);
+    const active = listRef.current?.querySelector<HTMLElement>(
+      `#${CSS.escape(listId)}-option-${activeIndex}`,
+    );
     // `scrollIntoView` không có trong mọi môi trường (ví dụ jsdom).
     if (typeof active?.scrollIntoView === "function") {
       active.scrollIntoView({ block: "nearest" });
@@ -183,6 +265,7 @@ export function Select({
   return (
     <div ref={rootRef} className={cn("relative", className)}>
       <button
+        ref={buttonRef}
         type="button"
         id={id}
         role="combobox"
@@ -195,8 +278,8 @@ export function Select({
         disabled={disabled}
         onClick={() => {
           if (disabled) return;
-          setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
-          setOpen(value => !value);
+          if (open) setOpen(false);
+          else openList();
         }}
         onKeyDown={onTriggerKeyDown}
         className={cn(
@@ -214,41 +297,48 @@ export function Select({
           aria-hidden="true"
         />
       </button>
-      {open ? (
-        <ul
-          ref={listRef}
-          id={listId}
-          role="listbox"
-          tabIndex={-1}
-          aria-label={rest["aria-label"]}
-          aria-labelledby={rest["aria-labelledby"]}
-          className="absolute z-50 mt-2 max-h-72 w-full min-w-48 list-none overflow-y-auto rounded-panel bg-surface-3 p-1.5"
-        >
-          {options.map((option, index) => {
-            const isSelected = option.value === value;
-            const isActive = index === activeIndex;
-            return (
-              <li
-                key={option.value}
-                id={`${listId}-option-${index}`}
-                role="option"
-                aria-selected={isSelected}
-                aria-disabled={option.disabled || undefined}
-                onMouseEnter={() => setActiveIndex(index)}
-                onClick={() => choose(index)}
-                className={cn(
-                  "cursor-pointer rounded-xl px-3 py-2 text-sm transition",
-                  isActive ? "bg-surface text-ink" : "text-muted",
-                  isSelected && "font-semibold text-primary",
-                  option.disabled && "cursor-not-allowed opacity-50"
-                )}
+      {open && floating
+        ? createPortal(
+            <div className="absolute inset-x-0 top-0 h-0">
+              <ul
+                ref={listRef}
+                id={listId}
+                role="listbox"
+                tabIndex={-1}
+                aria-label={rest["aria-label"]}
+                aria-labelledby={rest["aria-labelledby"]}
+                data-placement={floating.placement}
+                style={floating.style}
+                className="absolute z-50 list-none overflow-y-auto rounded-panel bg-surface-3 p-1.5"
               >
-                {option.label}
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
+                {options.map((option, index) => {
+                  const isSelected = option.value === value;
+                  const isActive = index === activeIndex;
+                  return (
+                    <li
+                      key={option.value}
+                      id={`${listId}-option-${index}`}
+                      role="option"
+                      aria-selected={isSelected}
+                      aria-disabled={option.disabled || undefined}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      onClick={() => choose(index)}
+                      className={cn(
+                        "cursor-pointer rounded-xl px-3 py-2 text-sm transition",
+                        isActive ? "bg-surface text-ink" : "text-muted",
+                        isSelected && "font-semibold text-primary",
+                        option.disabled && "cursor-not-allowed opacity-50"
+                      )}
+                    >
+                      {option.label}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>,
+            document.body
+          )
+        : null}
       {name ? <input type="hidden" name={name} value={value} /> : null}
     </div>
   );
