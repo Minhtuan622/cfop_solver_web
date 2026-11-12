@@ -583,9 +583,11 @@ export default function TimerLab() {
     };
   }, [spaceSplits]);
 
+  // Ô số liệu chưa đủ dữ liệu hiện dấu gạch dài: "--:--" trông như lỗi
+  // hiển thị chứ không phải một giá trị.
   const metric = (value: number | null | undefined) =>
     value === undefined
-      ? "--:--"
+      ? "—"
       : value === null
         ? "DNF"
         : formatSolveTime(value);
@@ -1193,7 +1195,7 @@ export default function TimerLab() {
                         {t("timer.progress")}
                       </h3>
                       {visibleEntries.length ? (
-                        <div className="aspect-video mt-6">
+                        <div className="h-72 mt-6">
                           <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={progress}>
                               <XAxis
@@ -1317,7 +1319,7 @@ export default function TimerLab() {
                             </span>
                           </div>
                           {phaseProgress.length ? (
-                            <div className="aspect-video mt-4">
+                            <div className="h-72 mt-4">
                               <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={phaseProgress}>
                                   <XAxis
@@ -1914,7 +1916,7 @@ export default function TimerLab() {
                                 <p className="text-sm font-semibold mb-1">
                                   {t("timer.tpsByPhase")}
                                 </p>
-                                <div className="aspect-[4/3]">
+                                <div className="h-64">
                                   <ResponsiveContainer
                                     width="100%"
                                     height="100%"
@@ -2107,7 +2109,7 @@ function EventProgressCard({
           </span>
         </div>
         {entries.length ? (
-          <div className="aspect-video mt-4">
+          <div className="h-72 mt-4">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={progress}>
                 <XAxis dataKey="solve" axisLine={false} tickLine={false} />
