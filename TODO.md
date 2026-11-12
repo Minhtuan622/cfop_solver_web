@@ -7,7 +7,11 @@ file; những ghi chú nghiên cứu cũ nằm trong `docs/archive/`.
 
 - [ ] Kiểm tra bằng mắt trên trình duyệt thật cho các trang đã thiết kế lại:
       xem lại bố cục, khoảng cách, độ tương phản và hành vi trên màn hình
-      nhỏ lẫn màn hình lớn.
+      nhỏ lẫn màn hình lớn. *(Đã rà tự động bằng ảnh chụp ở 1440px và đã sửa
+      những điểm không đều: cube trang trí che nút, tiêu đề trang thiếu ở Lịch
+      sử/Phòng thi, biểu đồ quá cao, ô số liệu xếp dọc, tương phản chữ trên
+      nền tím. Vẫn cần người xem bằng mắt trên thiết bị thật, và ở kích thước
+      điện thoại thật.)*
 - [ ] Thử build Docker và xác nhận bản Pyodide cục bộ có trong image
       (`client/public/pyodide` phải được copy sang `dist/public/pyodide` trước
       khi copy stage runtime).
