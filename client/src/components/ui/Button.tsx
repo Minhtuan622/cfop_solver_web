@@ -34,11 +34,17 @@ export type ButtonVariant =
   /** Nền trong suốt, viền xanh. */
   | "success";
 
-export type ButtonSize = "xs" | "sm" | "md" | "lg";
+export type ButtonSize =
+  /** Nút tự do: không ép khoảng đệm, cỡ chữ, chiều cao dòng hay cách xuống dòng. */
+  | "plain"
+  | "xs"
+  | "sm"
+  | "md"
+  | "lg";
 
 /** Phần chung của mọi nút: bố cục, bo góc, viền focus và trạng thái tắt. */
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-full font-semibold outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50";
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary: "bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover",
@@ -62,18 +68,17 @@ const buttonVariants: Record<ButtonVariant, string> = {
  * theo thứ tự cố định nên `px-4` luôn thắng — tức là các nút đó thực tế vẫn
  * có khoảng đệm cỡ `md`. Giữ nguyên thực tế đó để giao diện không đổi.
  *
- * Không chỉ định `size` thì nút giữ khoảng đệm chuẩn và **kế thừa cỡ chữ
- * của khối cha** — dành cho nút nằm trong toolbar đã đặt cỡ chữ sẵn.
+ * `whitespace-nowrap` và `leading-none` nằm ở kích thước chứ không ở phần
+ * chung: nút không chỉ định kích thước thì giữ chiều cao dòng và cách xuống
+ * dòng của khối cha — đúng như các nút viết tay trước đây.
  */
 const buttonSizes: Record<ButtonSize, string> = {
-  xs: "px-3 py-1.5 text-xs",
-  sm: "px-4 py-2 text-xs",
-  md: "px-4 py-2 text-sm",
-  lg: "px-5 py-3 text-base",
+  plain: "",
+  xs: "px-3 py-1.5 text-xs whitespace-nowrap leading-none",
+  sm: "px-4 py-2 text-xs whitespace-nowrap leading-none",
+  md: "px-4 py-2 text-sm whitespace-nowrap leading-none",
+  lg: "px-5 py-3 text-base whitespace-nowrap leading-none",
 };
-
-/** Khoảng đệm khi không chỉ định kích thước. */
-const buttonSizeDefault = "px-4 py-2";
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
@@ -89,7 +94,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
     variant = "secondary",
-    size,
+    size = "md",
     loading = false,
     icon,
     iconRight,
@@ -107,12 +112,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={cn(
-        buttonBase,
-        buttonVariants[variant],
-        size ? buttonSizes[size] : buttonSizeDefault,
-        className,
-      )}
+      className={cn(buttonBase, buttonVariants[variant], buttonSizes[size], className)}
       {...rest}
     >
       {loading ? (

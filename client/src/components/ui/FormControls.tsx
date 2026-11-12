@@ -74,7 +74,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
     <textarea
       ref={ref}
       rows={rows}
-      className={cn(controlBase, "resize-y px-3.5 py-2.5 leading-relaxed", className)}
+      className={cn(controlBase, "resize-y px-3.5 py-2.5", className)}
       {...rest}
     />
   );
