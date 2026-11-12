@@ -12,6 +12,7 @@ import { SolverDetails } from "./SolverDetails";
 import { SolverRecentStates } from "./SolverRecentStates";
 import type { SolverInputMode, SolverKind } from "./SolverToolbar";
 import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/FormControls";
 
 export type SolverInputPanelProps = {
   solverKind: SolverKind;
@@ -224,7 +225,7 @@ export function SolverInputPanel({
             />
             <SolverDetails summary={t("home.pasteState")} className="mt-4">
               <Field id="home-paste-state" label={t("home.stateField")}>
-                <textarea
+                <Textarea
                   id="home-paste-state"
                   value={value}
                   onChange={event =>
@@ -233,7 +234,7 @@ export function SolverInputPanel({
                     )
                   }
                   spellCheck={false}
-                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 font-mono"
+                  className="font-mono"
                   rows={3}
                 />
               </Field>

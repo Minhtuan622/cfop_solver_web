@@ -3,6 +3,7 @@ import { useState } from "react";
 import { RotateCcw, Undo2, X } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/StudioUI";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/FormControls";
 
 const BASE_MOVES = ["U", "R", "F", "D", "L", "B", "M", "E", "S", "x", "y", "z"];
 const MOVE_PATTERN = /(?:[URFDLBMESxyz](?:w)?(?:2|')?)/g;
@@ -113,11 +114,10 @@ export function MoveComposer({
           />
         </div>
         <div className="flex w-full items-stretch mt-4">
-          <input
+          <Input
             value={pasteValue}
             onChange={event => setPasteValue(event.target.value)}
             placeholder={pasteLabel}
-            className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
           />
           <Button
             variant="primary"

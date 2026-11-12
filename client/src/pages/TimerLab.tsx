@@ -119,6 +119,7 @@ import { IconButton, PageHeader, StatTile } from "@/components/ui/StudioUI";
 import { PanelHeader, RoundButton } from "@/components/ui/DesignSystem";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
+import { Input, Select, Textarea } from "@/components/ui/FormControls";
 
 const FACES = ["U", "R", "F", "D", "L", "B"] as const;
 const AVERAGES = TIMER_AVERAGE_SIZES;
@@ -1733,30 +1734,28 @@ export default function TimerLab() {
                       <span className="mb-1.5 block text-sm font-medium text-ink">
                         {t("timer.base")}
                       </span>
-                      <input
+                      <Input
                         type="number"
                         min="0"
                         step="0.01"
                         value={editSeconds}
                         onChange={event => setEditSeconds(event.target.value)}
-                        className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                       />
                     </label>
                     <label className="col-span-12 md:col-span-6">
                       <span className="mb-1.5 block text-sm font-medium text-ink">
                         {t("timer.penalty")}
                       </span>
-                      <select
+                      <Select
                         value={editPenalty}
                         onChange={event =>
                           setEditPenalty(event.target.value as SolvePenalty)
                         }
-                        className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <option value="none">{t("timer.noPenalty")}</option>
                         <option value="+2">{t("timer.plusTwo")}</option>
                         <option value="DNF">{t("timer.dnf")}</option>
-                      </select>
+                      </Select>
                     </label>
                     <div className="col-span-12">
                       <MoveComposer
@@ -1783,10 +1782,9 @@ export default function TimerLab() {
                       <span className="mb-1.5 block text-sm font-medium text-ink">
                         {t("timer.note")}
                       </span>
-                      <textarea
+                      <Textarea
                         value={editNote}
                         onChange={event => setEditNote(event.target.value)}
-                        className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                         rows={3}
                       />
                     </label>
@@ -1794,10 +1792,9 @@ export default function TimerLab() {
                       <span className="mb-1.5 block text-sm font-medium text-ink">
                         {t("timer.tags")}
                       </span>
-                      <input
+                      <Input
                         value={editTags}
                         onChange={event => setEditTags(event.target.value)}
-                        className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                       />
                     </label>
                   </div>

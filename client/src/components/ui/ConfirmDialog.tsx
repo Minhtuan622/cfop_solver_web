@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/StudioDialog";
 import { PendingButton } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/Button";
 
 type Props = {
   open: boolean;
@@ -53,14 +54,15 @@ export function ConfirmDialog({
           ) : null}
         </DialogHeader>
         <DialogFooter>
-          <button
+          <Button
             type="button"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+            variant="secondary"
+            size="md"
             onClick={onClose}
             disabled={pending}
           >
             {t("common.cancel")}
-          </button>
+          </Button>
           <PendingButton
             type="button"
             className={

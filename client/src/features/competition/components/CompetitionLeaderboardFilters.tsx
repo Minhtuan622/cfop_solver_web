@@ -5,6 +5,7 @@ import {
 } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/FormControls";
 
 export type CompetitionPeriod = "week" | "month";
 
@@ -53,9 +54,9 @@ export function CompetitionLeaderboardFilters({
       <label className="sr-only" htmlFor={`${idPrefix}-event`}>
         {t("competition.filter.eventLabel")}
       </label>
-      <select
+      <Select
         id={`${idPrefix}-event`}
-        className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 pr-8 text-xs"
+        className="rounded-lg px-3 py-1.5 pr-8 text-xs"
         value={eventId}
         onChange={event =>
           onEventChange(event.target.value as TimerEventId | "all")
@@ -67,7 +68,7 @@ export function CompetitionLeaderboardFilters({
             {timerEventLabel(item.id, language)}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   );
 }
