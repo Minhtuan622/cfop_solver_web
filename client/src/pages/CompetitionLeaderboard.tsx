@@ -194,19 +194,19 @@ function PlayerHistory({ accountId }: { accountId: number }) {
         }
       />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="col-span-12">
+        <div>
           <StatTile
             label={t("competition.player.statRooms")}
             value={history.length}
           />
         </div>
-        <div className="col-span-12">
+        <div>
           <StatTile
             label={t("competition.player.statRank")}
             value={bestRank === null ? "—" : `#${bestRank}`}
           />
         </div>
-        <div className="col-span-12">
+        <div>
           <StatTile
             label={t("competition.player.statRounds")}
             value={totalRounds}
@@ -407,28 +407,28 @@ function LeaderboardHome() {
         }
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        <div className="col-span-12">
+        <div>
           <StatTile
             label={t("competition.stat.players")}
             value={leaderboardQuery.isLoading ? "—" : players.length}
             detail={t("competition.stat.playersDetail")}
           />
         </div>
-        <div className="col-span-12">
+        <div>
           <StatTile
             label={t("competition.stat.wins")}
             value={leaderboardQuery.isLoading ? "—" : totalWins}
             detail={t("competition.stat.winsDetail")}
           />
         </div>
-        <div className="col-span-12">
+        <div>
           <StatTile
             label={t("competition.stat.rooms")}
             value={leaderboardQuery.isLoading ? "—" : totalRooms}
             detail={t("competition.stat.roomsDetail")}
           />
         </div>
-        <div className="col-span-12">
+        <div>
           <StatTile
             label={t("competition.stat.leader")}
             value={
