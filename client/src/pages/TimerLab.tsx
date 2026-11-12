@@ -1204,7 +1204,7 @@ export default function TimerLab() {
                                 }
                                 axisLine={false}
                                 tickLine={false}
-                                width={46}
+                                width={56}
                               />
                               <Tooltip
                                 formatter={value => [
@@ -1327,7 +1327,7 @@ export default function TimerLab() {
                                     }
                                     axisLine={false}
                                     tickLine={false}
-                                    width={42}
+                                    width={56}
                                   />
                                   <Tooltip
                                     formatter={value => [
@@ -2104,7 +2104,7 @@ function EventProgressCard({
                   }
                   axisLine={false}
                   tickLine={false}
-                  width={42}
+                  width={56}
                 />
                 <Tooltip
                   formatter={value => [

@@ -228,7 +228,7 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "flex h-full items-start justify-between gap-3 rounded-panel border p-4",
+        "flex h-full items-start justify-between gap-3 rounded-panel border p-4 @container",
         tone === "warning"
           ? "border-warning/20 bg-warning-soft"
           : dark
@@ -248,8 +248,10 @@ export function StatTile({
         </small>
         <strong
           className={cn(
-            "mt-1 block tabular-nums",
-            compact ? "text-lg" : "text-2xl font-bold tracking-tight"
+            // Cỡ chữ theo bề rộng của ô (container query) để thời gian dài
+            // không tràn ra ngoài ô.
+            "mt-1 block tabular-nums text-[clamp(0.8rem,21cqw,1.5rem)]",
+            compact && "text-[clamp(0.75rem,19cqw,1.125rem)]"
           )}
         >
           {value}

@@ -57,11 +57,15 @@ export function StudySchedulePanel({
                 <div
                   className={
                     day.isToday
-                      ? "rounded-xl bg-primary px-3 py-2 text-center text-sm font-semibold text-white"
-                      : "rounded-xl border border-line bg-surface px-3 py-2 text-center text-sm text-ink"
+                      ? "rounded-xl bg-primary px-1.5 py-2 text-center text-sm font-semibold text-white"
+                      : "rounded-xl border border-line bg-surface px-1.5 py-2 text-center text-sm text-ink"
                   }
                 >
-                  <span className="block text-xs text-muted">{weekday}</span>
+                  {/* Cột chỉ rộng ~45px: nhãn ngày phải nhỏ lại, nếu không
+                      "Thứ 5" sẽ xuống dòng (đo được: 33px cần ở 12px, chỉ còn
+                      33px trong ô). Không dùng `whitespace-nowrap` để khi thiếu
+                      chỗ nó xuống dòng chứ không tràn ra ngoài ô. */}
+                  <span className="block text-[11px] text-muted">{weekday}</span>
                   <b className="block text-base">{day.date.getDate()}</b>
                   <strong className="block text-sm tabular-nums text-primary">
                     {day.dueCount}

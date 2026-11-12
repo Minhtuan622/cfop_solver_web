@@ -31,7 +31,7 @@ export function ProfileProgressChart({
           <XAxis dataKey="day" tick={{ fontSize: 12 }} />
           <YAxis
             tickFormatter={value => `${(Number(value) / 1000).toFixed(0)}s`}
-            width={42}
+            width={56}
             tick={{ fontSize: 12 }}
           />
           <Tooltip

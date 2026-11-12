@@ -338,7 +338,7 @@ export function SolveTimer({
         setArmed(false);
       }}
       className={cn(
-        "relative rounded-card border-2 px-4 py-10 text-center transition-colors duration-150",
+        "relative rounded-card border-2 px-4 py-10 text-center transition-colors duration-150 @container",
         isInspection
           ? "border-warning/60 bg-warning-soft/40"
           : armed
@@ -350,7 +350,9 @@ export function SolveTimer({
       <div className="flex flex-col items-center justify-center gap-4">
         <p
           className={cn(
-            "mb-0 font-mono text-[clamp(3.2rem,10vw,5.5rem)] font-bold leading-none tracking-tight tabular-nums",
+            // Cỡ chữ theo bề rộng của khối đồng hồ (container query), không
+            // theo bề rộng cửa sổ: đặt trong một cột hẹp thì chữ vẫn vừa.
+            "mb-0 max-w-full font-mono text-[clamp(1.25rem,11cqw,5.5rem)] font-bold leading-none tracking-tight tabular-nums",
             isInspection ? "text-warning" : "text-ink"
           )}
         >
