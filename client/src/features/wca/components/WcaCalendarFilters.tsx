@@ -2,6 +2,7 @@ import { Field } from "@/components/ui/StudioUI";
 import { Search } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { WcaCountry } from "../lib/wcaCalendar";
+import { Button } from "@/components/ui/Button";
 
 export type WcaCalendarFiltersProps = {
   year: number;
@@ -73,16 +74,20 @@ export function WcaCalendarFilters({
             role="group"
             aria-label={t("wca.quickPeriods")}
           >
-            <button
+            <Button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
+              variant="outlined"
+              size="plain"
+              className="px-4 py-2 text-sm"
               onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
             >
               {t("wca.thisMonth")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
+              variant="outlined"
+              size="plain"
+              className="px-4 py-2 text-sm"
               onClick={() => {
                 const next = new Date();
                 next.setMonth(next.getMonth() + 1);
@@ -90,23 +95,27 @@ export function WcaCalendarFilters({
               }}
             >
               {t("wca.nextMonth")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
+              variant="outlined"
+              size="plain"
+              className="px-4 py-2 text-sm"
               onClick={() => jumpTo(currentYear, 0)}
             >
               {t("wca.thisYear")}
-            </button>
+            </Button>
           </div>
           {onReset ? (
-            <button
+            <Button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-transparent px-3 py-1.5 text-xs font-semibold text-primary transition hover:underline"
+              variant="link"
+              size="plain"
+              className="px-3 py-1.5 text-xs"
               onClick={onReset}
             >
               {t("wca.resetFilters")}
-            </button>
+            </Button>
           ) : null}
         </div>
       </div>

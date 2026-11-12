@@ -11,6 +11,7 @@ import { Calendar3, ExternalLink, Trophy } from "@/components/ui/Icon";
 import { trpc } from "@/lib/trpc";
 import { errorMessage } from "@/lib/apiError";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/Button";
 import {
   WcaCalendarFilters,
   WcaCompetitionList,
@@ -47,7 +48,7 @@ export default function WcaCompetitions() {
     return {
       start: `${year}-${String(startMonth).padStart(2, "0")}-01`,
       end: `${year}-${String(endMonth).padStart(2, "0")}-${String(
-        lastDay,
+        lastDay
       ).padStart(2, "0")}`,
       countryIso2: countryIso2 || null,
     };
@@ -74,9 +75,10 @@ export default function WcaCompetitions() {
     currentPage * PAGE_SIZE
   );
 
-  const groups = useMemo(() => groupByMonth(paginatedVisible), [
-    paginatedVisible,
-  ]);
+  const groups = useMemo(
+    () => groupByMonth(paginatedVisible),
+    [paginatedVisible]
+  );
 
   const resetFilters = () => {
     const today = new Date();
@@ -122,10 +124,7 @@ export default function WcaCompetitions() {
               </span>
             </div>
           </div>
-          <div
-            className="flex flex-col items-end gap-3"
-            aria-hidden="true"
-          >
+          <div className="flex flex-col items-end gap-3" aria-hidden="true">
             <div className="grid grid-cols-3 gap-1.5 opacity-70">
               {Array.from({ length: 9 }, (_, index) => (
                 <span
@@ -212,13 +211,15 @@ export default function WcaCompetitions() {
               icon={<Trophy className="text-2xl" />}
               title={t("wca.searchEmpty")}
               action={
-                <button
+                <Button
                   type="button"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
+                  variant="outlined"
+                  size="plain"
+                  className="px-3 py-1.5 text-xs"
                   onClick={() => setQuery("")}
                 >
                   {t("wca.clearSearch")}
-                </button>
+                </Button>
               }
             />
           ) : (
@@ -229,30 +230,34 @@ export default function WcaCompetitions() {
                   className="mt-6 flex items-center justify-center gap-3"
                   aria-label={t("wca.pagination")}
                 >
-                  <button
+                  <Button
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
+                    variant="outlined"
+                    size="plain"
+                    className="px-3 py-1.5 text-xs"
                     disabled={currentPage === 1}
                     onClick={() => setPage(value => Math.max(1, value - 1))}
                   >
                     {t("wca.pagePrev")}
-                  </button>
+                  </Button>
                   <span className="text-sm text-muted">
                     {t("wca.pageInfo", {
                       page: currentPage,
                       total: totalPages,
                     })}
                   </span>
-                  <button
+                  <Button
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
+                    variant="outlined"
+                    size="plain"
+                    className="px-3 py-1.5 text-xs"
                     disabled={currentPage === totalPages}
                     onClick={() =>
                       setPage(value => Math.min(totalPages, value + 1))
                     }
                   >
                     {t("wca.pageNext")}
-                  </button>
+                  </Button>
                 </nav>
               ) : null}
             </>

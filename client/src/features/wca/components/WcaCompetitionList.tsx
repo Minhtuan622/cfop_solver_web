@@ -36,7 +36,10 @@ export function WcaCompetitionList({
               {group.competitions.length}
             </span>
           </div>
-          <ul className="mt-4 divide-y divide-line" aria-label={t("wca.listLabel")}>
+          <ul
+            className="mt-4 divide-y divide-line"
+            aria-label={t("wca.listLabel")}
+          >
             {group.competitions.map(competition => (
               <WcaCompetitionRow
                 key={competition.id}

@@ -6,6 +6,7 @@ import { wcaEventName } from "@/lib/wcaEvents";
 import { formatWcaRecordValue, type WcaRecordField } from "../lib/wcaRecords";
 import type { WcaWorldRecord } from "../lib/wcaCalendar";
 import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 
 const WCA_RECORDS_URL = "https://www.worldcubeassociation.org/results/records";
 
@@ -63,9 +64,12 @@ export function WcaWorldRecords({
               : (preview ?? t("wca.records.hint"))}
           </p>
         </div>
-        <button
+        <Button
+          variant="outlined"
+          size="plain"
+          className="px-3 py-1.5 text-xs focus-visible:outline-none"
           type="button"
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+
           aria-expanded={open}
           aria-controls="wca-world-records-panel"
           onClick={() => setOpen(value => !value)}
@@ -76,7 +80,7 @@ export function WcaWorldRecords({
           <ChevronDown
             className={`text-base transition-transform ${open ? "rotate-180" : ""}`}
           />
-        </button>
+        </Button>
       </div>
 
       {open ? (
