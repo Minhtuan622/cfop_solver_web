@@ -1178,7 +1178,9 @@ export default function TimerLab() {
                             [t("timer.total"), String(visibleEntries.length)],
                           ] as const
                         ).map(([label, value]) => (
-                          <div key={label} className="col-span-4">
+                          // Hai ô mỗi hàng: ô hẹp (1/3 card) không đủ chỗ cho
+                          // thời gian dài như "83:20.00", chữ sẽ tràn ra ngoài.
+                          <div key={label} className="col-span-6">
                             <StatTile label={label} value={value} />
                           </div>
                         ))}

@@ -87,6 +87,17 @@ export function extractLiterals(expression) {
   let i = 0;
   while (i < expression.length) {
     const char = expression[i];
+    // Bỏ qua comment: `// ...` và `/* ... */`.
+    if (char === "/" && expression[i + 1] === "/") {
+      const end = expression.indexOf("\n", i);
+      i = end < 0 ? expression.length : end;
+      continue;
+    }
+    if (char === "/" && expression[i + 1] === "*") {
+      const end = expression.indexOf("*/", i + 2);
+      i = end < 0 ? expression.length : end + 2;
+      continue;
+    }
     if (char === '"' || char === "'") {
       const quote = char;
       const before = expression.slice(0, i).replace(/\s+$/, "");

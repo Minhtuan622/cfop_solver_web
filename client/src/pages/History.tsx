@@ -318,7 +318,7 @@ export default function History() {
                           tickFormatter={value => `${value}s`}
                           axisLine={false}
                           tickLine={false}
-                          width={42}
+                          width={56}
                         />
                         <Tooltip
                           formatter={value => [
