@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { Sparkles, Trophy } from "@/components/ui/Icon";
+import { Button } from "@/components/ui/Button";
 
 /**
  * The server reports a moderation removal with this exact Vietnamese prefix
@@ -79,9 +80,7 @@ export function CompetitionOutcomeCelebration() {
     const room = roomQuery.data;
     const account = accountQuery.data;
     if (!room || !account || room.room.status !== "finished") return;
-    const player = room.standings.find(
-      entry => entry.accountId === account.id
-    );
+    const player = room.standings.find(entry => entry.accountId === account.id);
     if (!player || player.score === undefined || player.score === null) return;
     const seenKey = `cfop-competition-celebrated-${room.room.id}`;
     if (localStorage.getItem(seenKey)) return;
@@ -131,14 +130,18 @@ export function CompetitionOutcomeCelebration() {
                 ? t("competition.outcome.winner")
                 : t("competition.outcome.record")}
             </h2>
-            <p className="mt-2 text-sm text-muted">{t("competition.outcome.detail")}</p>
-            <button
+            <p className="mt-2 text-sm text-muted">
+              {t("competition.outcome.detail")}
+            </p>
+            <Button
               type="button"
-              className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-surface transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+              variant="inverse"
+              size="plain"
+              className="mt-6 px-4 py-2 text-sm"
               onClick={() => setKind(null)}
             >
               {t("competition.outcome.dismiss")}
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}

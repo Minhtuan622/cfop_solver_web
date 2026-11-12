@@ -1,6 +1,7 @@
 import { PendingButton } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { RemovalTarget, RoomMember } from "../lib/roomTypes";
+import { Button } from "@/components/ui/Button";
 
 type Props = {
   members: RoomMember[];
@@ -69,13 +70,15 @@ export function RoomMemberRoster({
                 </PendingButton>
               ) : null}
               {(host || moderator) && member.role === "spectator" ? (
-                <button
+                <Button
+                  variant="danger"
+                  size="sm"
                   type="button"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
+
                   onClick={() => remove(member)}
                 >
                   {t("rooms.member.remove")}
-                </button>
+                </Button>
               ) : null}
             </span>
           </div>
