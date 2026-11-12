@@ -26,10 +26,12 @@ Cảm ơn bạn muốn cải thiện CFOP Solver Studio. Bạn có thể đóng 
   primitive dùng chung đã đáp ứng được nhu cầu.
 - **Dùng thành phần dùng chung, không tự viết chuỗi class.** Nút dùng
   `<Button>` (`client/src/components/ui/Button.tsx`), ô nhập dùng `<Input>`,
-  `<Select>`, `<Textarea>` (`FormControls.tsx`), panel dùng `<Card>`
+  `<Textarea>` (`FormControls.tsx`), ô chọn giá trị dùng `<Select>`
+  (`Select.tsx` — dropdown tự vẽ, không phải `<select>` của hệ điều hành),
+  panel dùng `<Card>`
   (`Card.tsx`), hộp thoại dùng `<Dialog>` (`StudioDialog.tsx`), nút chỉ có
   biểu tượng dùng `<IconButton>`, nhãn + ô nhập dùng `<Field>`.
-  - `variant` của nút: `primary`, `secondary` (mặc định), `outlined`, `soft`,
+  - `variant` của nút: `primary`, `secondary` (mặc định), `soft`,
     `outline`, `ghost`, `danger`, `dangerSolid`, `success`, `warning`,
     `inverse`, `link`.
   - `size` của nút: `plain` (tự kiểm soát khoảng đệm và cỡ chữ), `xs`,
