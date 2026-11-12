@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { RotateCcw, Undo2, X } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/StudioUI";
+import { Button } from "@/components/ui/Button";
 
 const BASE_MOVES = ["U", "R", "F", "D", "L", "B", "M", "E", "S", "x", "y", "z"];
 const MOVE_PATTERN = /(?:[URFDLBMESxyz](?:w)?(?:2|')?)/g;
@@ -45,17 +46,18 @@ export function MoveComposer({
           {moves.length ? (
             <div className="flex flex-wrap gap-1">
               {moves.map((move, index) => (
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   key={`${move}-${index}`}
                   type="button"
                   onClick={() =>
                     commit(moves.filter((_, itemIndex) => itemIndex !== index))
                   }
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
                 >
                   {move}
                   <X className="text-base ml-1" />
-                </button>
+                </Button>
               ))}
             </div>
           ) : (
@@ -66,27 +68,30 @@ export function MoveComposer({
           {BASE_MOVES.map(base => (
             <div key={base} className="col-span-12 sm:col-span-6">
               <div className="inline-flex flex-wrap items-center gap-1 w-full">
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   type="button"
                   onClick={() => append(base)}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
                 >
                   {base}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   type="button"
                   onClick={() => append(`${base}'`)}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
                 >
                   ′
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   type="button"
                   onClick={() => append(`${base}2`)}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
                 >
                   2
-                </button>
+                </Button>
               </div>
             </div>
           ))}
@@ -114,14 +119,15 @@ export function MoveComposer({
             placeholder={pasteLabel}
             className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
           />
-          <button
+          <Button
+            variant="primary"
+            size="md"
             type="button"
             onClick={appendPaste}
             disabled={!readMoves(pasteValue).length}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
           >
             Add
-          </button>
+          </Button>
         </div>
       </div>
     </section>

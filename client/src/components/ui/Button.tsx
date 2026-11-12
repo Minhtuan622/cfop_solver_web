@@ -58,7 +58,7 @@ const buttonVariants: Record<ButtonVariant, string> = {
   // (`border-line`) mà không đặt độ dày, nên về hình thức là không viền.
   secondary: "border-line bg-surface text-ink hover:bg-surface-2",
   outlined: "border border-line bg-surface text-ink hover:bg-surface-2",
-  soft: "border border-line bg-surface-2 text-ink hover:bg-surface-3",
+  soft: "border-line bg-surface-2 text-ink hover:bg-surface-3",
   outline: "border border-primary/35 bg-transparent text-primary hover:bg-primary-soft",
   ghost: "border border-transparent bg-transparent text-muted hover:bg-surface-2 hover:text-ink",
   danger: "border border-danger/35 bg-transparent text-danger hover:bg-danger-soft",

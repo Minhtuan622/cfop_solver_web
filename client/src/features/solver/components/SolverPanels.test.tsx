@@ -10,17 +10,37 @@ afterEach(() => cleanup());
 describe("the solver toolbar", () => {
   it("marks the chosen solver and input", () => {
     render(
-      <SolverToolbar solverKind="cfop" onSolverKindChange={() => undefined} mode="scramble" onModeChange={() => undefined} loading={false} status="" />,
+      <SolverToolbar
+        solverKind="cfop"
+        onSolverKindChange={() => undefined}
+        mode="scramble"
+        onModeChange={() => undefined}
+        loading={false}
+        status=""
+      />
     );
 
-    expect(screen.getByRole("button", { name: "3×3 CFOP" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "3×3 BLD" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "3×3 CFOP" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByRole("button", { name: "3×3 BLD" })).toHaveAttribute(
+      "aria-pressed",
+      "false"
+    );
     expect(screen.getByRole("status")).toHaveTextContent("Sẵn sàng");
   });
 
   it("tells the visitor that the engine is working", () => {
     render(
-      <SolverToolbar solverKind="cfop" onSolverKindChange={() => undefined} mode="scramble" onModeChange={() => undefined} loading status="Đang tìm cross…" />,
+      <SolverToolbar
+        solverKind="cfop"
+        onSolverKindChange={() => undefined}
+        mode="scramble"
+        onModeChange={() => undefined}
+        loading
+        status="Đang tìm cross…"
+      />
     );
 
     expect(screen.getByRole("status")).toHaveTextContent("Đang tìm cross…");
@@ -53,11 +73,13 @@ describe("the solver input panel", () => {
         onSelectRecentState={() => undefined}
         onRemoveRecentState={() => undefined}
         onCameraState={() => undefined}
-      />,
+      />
     );
 
     expect(screen.getByLabelText("Các nước xáo trộn")).toHaveValue("R U");
-    expect(screen.getByRole("button", { name: /Scramble ngẫu nhiên/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Scramble ngẫu nhiên/ })
+    ).toBeInTheDocument();
   });
 
   it("refuses to solve a state that has not been validated", () => {
@@ -86,10 +108,12 @@ describe("the solver input panel", () => {
         onSelectRecentState={() => undefined}
         onRemoveRecentState={() => undefined}
         onCameraState={() => undefined}
-      />,
+      />
     );
 
-    expect(screen.getByRole("button", { name: /Tìm cách giải/ })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /Tìm cách giải/ })
+    ).toBeDisabled();
   });
 });
 
@@ -116,7 +140,9 @@ describe("the solver solution panel", () => {
   it("hides the playback until there is something to play", () => {
     render(<SolverSolutionPanel {...base} hasResult={false} />);
 
-    expect(screen.queryByRole("button", { name: "Phát" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Phát" })
+    ).not.toBeInTheDocument();
     expect(screen.getByText(/Bấm “Tìm cách giải”/)).toBeInTheDocument();
   });
 

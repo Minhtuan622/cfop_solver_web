@@ -11,6 +11,7 @@ import type { RecentCubeState } from "../lib/recentStates";
 import { SolverDetails } from "./SolverDetails";
 import { SolverRecentStates } from "./SolverRecentStates";
 import type { SolverInputMode, SolverKind } from "./SolverToolbar";
+import { Button } from "@/components/ui/Button";
 
 export type SolverInputPanelProps = {
   solverKind: SolverKind;
@@ -124,25 +125,29 @@ export function SolverInputPanel({
                   />
                   {status || t("home.preparing")}
                 </div>
-                <button
+                <Button
+                  variant="danger"
+                  size="md"
                   type="button"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft"
+
                   onClick={onCancel}
                   aria-label={t("home.cancelSolver")}
                 >
                   {t("home.cancelSolver")}
-                </button>
+                </Button>
               </div>
             ) : (
-              <button
+              <Button
+                variant="primary"
+                size="md"
+                className="px-6 py-4"
                 type="button"
                 disabled={!value.trim()}
                 onClick={onSolve}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-6 py-4"
               >
                 <Play className="text-lg mr-1" aria-hidden="true" />
                 {solving ? t("home.buildMemo") : t("input.solve")}
-              </button>
+              </Button>
             )}
           </div>
         ) : (
@@ -180,23 +185,28 @@ export function SolverInputPanel({
 
         {mode === "scramble" ? (
           <div className="flex flex-wrap items-center gap-2 mt-2">
-            <button
+            <Button
+              variant="soft"
+              size="sm"
               type="button"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 px-3 py-1.5 text-xs border-line bg-surface-2 text-ink hover:bg-surface-3"
+
               onClick={onRandomScramble}
               disabled={loading}
             >
               <Dices className="text-base mr-1" aria-hidden="true" />
               {t("home.randomScramble")}
-            </button>
+            </Button>
             {onResetDefaults ? (
-              <button
+              <Button
+                variant="link"
+                size="sm"
+                className="border-0 p-0 no-underline"
                 type="button"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 px-3 py-1.5 text-xs border-0 bg-transparent p-0 text-primary hover:underline no-underline"
+
                 onClick={onResetDefaults}
               >
                 {t("home.resetOptions")}
-              </button>
+              </Button>
             ) : null}
           </div>
         ) : (
@@ -260,16 +270,16 @@ export function SolverInputPanel({
               />
               {status || t("home.preparing")}
             </div>
-            <button
+            <Button
               type="button"
-              className={cn(
-                "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft px-6 py-3 text-base"
-              )}
+              variant="danger"
+              size="plain"
+              className="px-6 py-3 text-base"
               onClick={onCancel}
               aria-label={t("home.cancelSolver")}
             >
               {t("home.cancelSolver")}
-            </button>
+            </Button>
           </div>
         ) : mode === "state" ? (
           <button

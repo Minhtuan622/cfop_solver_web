@@ -8,7 +8,11 @@ import { SolveTimer } from "./SolveTimer";
 describe("SolveTimer keyboard cancellation", () => {
   it("records a forced DNF when Escape is pressed during a running solve", () => {
     const onComplete = vi.fn();
-    render(<LanguageProvider><SolveTimer inspectionEnabled={false} onComplete={onComplete} /></LanguageProvider>);
+    render(
+      <LanguageProvider>
+        <SolveTimer inspectionEnabled={false} onComplete={onComplete} />
+      </LanguageProvider>
+    );
 
     fireEvent.keyDown(window, { code: "Space" });
     fireEvent.keyUp(window, { code: "Space" });
@@ -20,7 +24,11 @@ describe("SolveTimer keyboard cancellation", () => {
 
   it("cancels inspection with Escape without recording a solve", () => {
     const onComplete = vi.fn();
-    render(<LanguageProvider><SolveTimer inspectionEnabled onComplete={onComplete} /></LanguageProvider>);
+    render(
+      <LanguageProvider>
+        <SolveTimer inspectionEnabled onComplete={onComplete} />
+      </LanguageProvider>
+    );
 
     fireEvent.keyDown(window, { code: "Space" });
     fireEvent.keyUp(window, { code: "Space" });

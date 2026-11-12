@@ -9,6 +9,7 @@ import {
   type SplitPhase,
 } from "@/lib/solveHistory";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 export type TimerCompletion = {
   elapsedMs: number;
@@ -359,14 +360,12 @@ export function SolveTimer({
           {readout}
         </p>
         {!inspectionEnabled && (
-          <button
+          <Button
             type="button"
+            variant={mode === "running" ? "danger" : "primary"}
+            size="plain"
+            className="px-12 py-3 text-base focus-visible:outline-none"
             onClick={toggle}
-            className={
-              mode === "running"
-                ? "inline-flex items-center justify-center gap-2 rounded-full border border-danger/40 bg-transparent px-12 py-3 text-base font-semibold text-danger transition hover:bg-danger-soft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
-                : "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-12 py-3 text-base font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
-            }
           >
             {mode === "running"
               ? language === "vi"
@@ -375,7 +374,7 @@ export function SolveTimer({
               : language === "vi"
                 ? "Bắt đầu"
                 : "Start"}
-          </button>
+          </Button>
         )}
       </div>
       {armed && (

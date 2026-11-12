@@ -11,8 +11,13 @@ import { IconButton } from "@/components/ui/StudioUI";
 import { Chip } from "@/components/ui/DesignSystem";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-import { exportCFOPJson, phaseLessonUrl, phaseStudyNote } from "@/lib/solverPresentation";
+import {
+  exportCFOPJson,
+  phaseLessonUrl,
+  phaseStudyNote,
+} from "@/lib/solverPresentation";
 import type { SolverResult } from "@/lib/solverRuntime";
+import { Button } from "@/components/ui/Button";
 
 const COLLAPSED_PHASES = 4;
 type Phase = SolverResult["phases"][number];
@@ -74,9 +79,11 @@ export function CfopReport({
         />
       ))}
       {showToggle ? (
-        <button
+        <Button
+          variant="soft"
+          className="mt-2 flex w-full py-2.5 text-primary focus-visible:outline-none"
           type="button"
-          className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-line bg-surface-2 py-2.5 text-sm font-semibold text-primary transition hover:bg-surface-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+
           aria-expanded={expanded}
           onClick={() => setExpanded(value => !value)}
         >
@@ -86,7 +93,7 @@ export function CfopReport({
           ) : (
             <ChevronDown className="text-base" aria-hidden="true" />
           )}
-        </button>
+        </Button>
       ) : null}
     </section>
   );
@@ -125,34 +132,34 @@ function CfopPhaseRow({
       )}
     >
       <div className="flex items-center gap-3">
-        <button
+        <Button
           type="button"
-          onClick={() => onSelect(phase)}
+          variant={selected ? "primary" : "soft"}
+          size="plain"
           className={cn(
-            "grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold tabular-nums transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20",
-            selected
-              ? "bg-primary text-white shadow-sm shadow-primary/25"
-              : "bg-primary-soft text-primary"
+            "grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold tabular-nums focus-visible:outline-none",
+            !selected && "bg-primary-soft text-primary"
           )}
+          onClick={() => onSelect(phase)}
           aria-label={`${index + 1} ${compactName}`}
         >
           {String(index + 1).padStart(2, "0")}
-        </button>
+        </Button>
         <button
           type="button"
           onClick={() => onSelect(phase)}
           className="grow text-left text-ink"
         >
-          <strong className="block text-base font-semibold">{compactName}</strong>
+          <strong className="block text-base font-semibold">
+            {compactName}
+          </strong>
           <small className="text-muted">
             {phase.moves.length} {t("home.turnsUnit")}
           </small>
         </button>
         <span
           className={
-            invariantOK
-              ? "text-lg text-success"
-              : "text-lg text-danger"
+            invariantOK ? "text-lg text-success" : "text-lg text-danger"
           }
           title={studyNote}
           role="img"

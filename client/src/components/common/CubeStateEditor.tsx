@@ -13,6 +13,7 @@ import {
   SOLVED_STATE,
 } from "@/components/common/CubeNet";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 type Face = (typeof FACE_ORDER)[number];
 
@@ -189,17 +190,16 @@ function PaletteButton({
   disabled: boolean;
 }) {
   return (
-    <button
+    <Button
+      variant={selected ? "primary" : "secondary"}
+      size="sm"
+      className="w-full flex justify-between"
       type="button"
       disabled={disabled}
       role="radio"
       aria-checked={selected}
       onClick={() => onSelect(face)}
-      className={
-        selected
-          ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-3 py-1.5 text-xs w-full flex justify-between"
-          : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs w-full flex justify-between"
-      }
+
       aria-label={`Chọn màu ${face}: ${count} trên 9 sticker`}
     >
       <span className="inline-flex items-center gap-1">
@@ -216,7 +216,7 @@ function PaletteButton({
       <span className={count === 9 ? "text-success" : "text-danger"}>
         {count}/9
       </span>
-    </button>
+    </Button>
   );
 }
 
@@ -237,14 +237,16 @@ function EditorFace({
 }) {
   return (
     <div className={cn("cube-net-face", FACE_GRID[face])} data-cube-face={face}>
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="plain"
+        className="cube-editor-face-label px-1 py-0 text-xs"
         disabled={disabled}
         onClick={() => onFill(face, selectedColor)}
-        className="cube-editor-face-label inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs py-0 px-1"
       >
         {face}
-      </button>
+      </Button>
       <div className="cube-net-stickers">
         {Array.from({ length: 9 }, (_, index) => {
           const sticker = state[FACE_OFFSET[face] + index] as Face;
