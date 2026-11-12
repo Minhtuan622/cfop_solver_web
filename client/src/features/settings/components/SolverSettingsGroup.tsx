@@ -4,6 +4,7 @@ import { SectionCard, Switch } from "@/components/ui/StudioUI";
 import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
 import type { SolverSettings } from "@/lib/appSettings";
 import type { F2LSlot } from "../lib/useSettingsState";
+import { Button } from "@/components/ui/Button";
 
 const COLORS: {
   value: SolverSettings["crossColor"];
@@ -66,17 +67,18 @@ export function SolverSettingsGroup({
             aria-label={t("settings.crossColor")}
           >
             {COLORS.map(color => (
-              <button
+              <Button
+                variant={
+                  solver.crossColor === color.value ? "primary" : "secondary"
+                }
+                size="md"
+                className="p-1"
                 key={color.value}
                 type="button"
                 role="radio"
                 aria-checked={solver.crossColor === color.value}
                 onClick={() => onChange({ crossColor: color.value })}
-                className={
-                  solver.crossColor === color.value
-                    ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover p-1"
-                    : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 p-1"
-                }
+
                 title={t(color.labelKey)}
                 aria-label={t(color.labelKey)}
               >
@@ -88,7 +90,7 @@ export function SolverSettingsGroup({
                     height: "1.5rem",
                   }}
                 />
-              </button>
+              </Button>
             ))}
           </div>
           <p className="text-sm text-muted mb-0 mt-2">
@@ -185,19 +187,20 @@ export function SolverSettingsGroup({
                 className="inline-flex flex-wrap items-center gap-1 w-full"
                 role="group"
               >
-                <button
+                <Button
+                  variant={!solver.preferredSlot ? "primary" : "secondary"}
+                  size="md"
                   type="button"
                   onClick={() => onChange({ preferredSlot: undefined })}
-                  className={
-                    !solver.preferredSlot
-                      ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                      : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-                  }
                 >
                   {t("settings.auto")}
-                </button>
+                </Button>
                 {SLOTS.map(slot => (
-                  <button
+                  <Button
+                    variant={
+                      solver.preferredSlot === slot ? "primary" : "secondary"
+                    }
+                    size="md"
                     key={slot}
                     type="button"
                     disabled={solver.excludedSlots.includes(slot)}
@@ -207,14 +210,9 @@ export function SolverSettingsGroup({
                           solver.preferredSlot === slot ? undefined : slot,
                       })
                     }
-                    className={
-                      solver.preferredSlot === slot
-                        ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                        : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-                    }
                   >
                     {slot}
-                  </button>
+                  </Button>
                 ))}
               </div>
               <span className="mb-1.5 block text-sm font-medium text-ink mt-4">
@@ -225,18 +223,19 @@ export function SolverSettingsGroup({
                 role="group"
               >
                 {SLOTS.map(slot => (
-                  <button
+                  <Button
+                    variant={
+                      solver.excludedSlots.includes(slot)
+                        ? "dangerSolid"
+                        : "secondary"
+                    }
+                    size="md"
                     key={`exclude-${slot}`}
                     type="button"
                     onClick={() => onToggleExcluded(slot)}
-                    className={
-                      solver.excludedSlots.includes(slot)
-                        ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-danger text-white shadow-sm hover:brightness-95"
-                        : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-                    }
                   >
                     {slot}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
