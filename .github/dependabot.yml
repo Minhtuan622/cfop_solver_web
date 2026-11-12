@@ -13,6 +13,21 @@ updates:
 
     open-pull-requests-limit: 10
 
+    # Ba package dưới đây được ghim cố ý, Dependabot không được nâng:
+    # - three: cubing yêu cầu ^0.170.0. Khi có hai bản three trong bundle,
+    #   Object3D.intersectsFrustum bị thiếu và mô hình 3D 4×4×4 hỏng ngẫu
+    #   nhiên (xem server/threeVersion.test.ts).
+    # - @types/three: phải khớp với three đang chạy.
+    # - pyodide: bộ đo (scripts/bench-solver.mjs) phải dùng đúng runtime mà
+    #   trình duyệt nạp, tức là 0.27.7.
+    ignore:
+      - dependency-name: "three"
+        versions: [">=0.171.0"]
+      - dependency-name: "@types/three"
+        versions: [">=0.171.0"]
+      - dependency-name: "pyodide"
+        versions: [">=0.28.0"]
+
     groups:
       production-security:
         applies-to: security-updates
