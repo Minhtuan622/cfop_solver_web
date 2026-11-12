@@ -24,6 +24,20 @@ Cảm ơn bạn muốn cải thiện CFOP Solver Studio. Bạn có thể đóng 
 - Giao diện dùng **Tailwind CSS 4** và các primitive trong
   `client/src/components/ui/`. Không thêm custom CSS khi utility Tailwind hoặc
   primitive dùng chung đã đáp ứng được nhu cầu.
+- **Dùng thành phần dùng chung, không tự viết chuỗi class.** Nút dùng
+  `<Button>` (`client/src/components/ui/Button.tsx`), ô nhập dùng `<Input>`,
+  `<Select>`, `<Textarea>` (`FormControls.tsx`), panel dùng `<Card>`
+  (`Card.tsx`), hộp thoại dùng `<Dialog>` (`StudioDialog.tsx`), nút chỉ có
+  biểu tượng dùng `<IconButton>`, nhãn + ô nhập dùng `<Field>`.
+  - `variant` của nút: `primary`, `secondary` (mặc định), `outlined`, `soft`,
+    `outline`, `ghost`, `danger`, `dangerSolid`, `success`, `warning`,
+    `inverse`, `link`.
+  - `size` của nút: `plain` (tự kiểm soát khoảng đệm và cỡ chữ), `xs`,
+    `sm`, `md` (mặc định), `lg`.
+  - Chỗ nào khác về hình thức thì dùng `size="plain"` và tự thêm class, đừng
+    ép bằng `!`.
+  - `server/uiPrimitives.test.ts` chặn thẻ `button`/`input`/`select`/`textarea`
+    nào tự mang chuỗi class chuẩn; `pnpm audit:classes` kiểm kê ngoài CI.
 - **Không dùng class của Bootstrap.** Repo đã bỏ hẳn Bootstrap, nên các class
   như `card`, `col-lg-4`, `row`, `btn btn-primary`, `d-flex`, `form-control`,
   `text-muted` hay `rounded-pill` không tồn tại và sẽ **không có tác dụng
