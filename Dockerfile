@@ -14,6 +14,9 @@ COPY patches ./patches
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+# Bản trong image phải có Pyodide cục bộ: build không được lặng lẽ bỏ qua
+# bước tải rồi để bộ giải gọi CDN lúc chạy.
+ENV REQUIRE_LOCAL_PYODIDE=1
 RUN pnpm build
 
 # ---------------------------------------------------------------------------

@@ -20,9 +20,11 @@ test("bộ giải giải được khối CFOP trong trình duyệt", async ({ pa
   await page.locator("#home-scramble").fill("R U R' U'");
   await page.getByRole("button", { name: /Tìm cách giải/ }).click();
 
-  // Lời giải phải xuất hiện, không phải ô lỗi.
-  const solution = page.getByText("Lời giải").first();
-  await expect(solution).toBeVisible({ timeout: 180_000 });
+  // "Lời giải" chỉ là tiêu đề panel, luôn có; dấu hiệu thật là bảng tóm
+  // tắt số nước đã tìm ra.
+  await expect(page.getByText(/^\d+ nước · \d+ bước$/)).toBeVisible({
+    timeout: 180_000,
+  });
 
   await expect(page.getByText("Không thể chạy solver")).toHaveCount(0, {
     timeout: 5_000,

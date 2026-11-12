@@ -19,7 +19,10 @@ import process from "node:process";
 
 /** Phiên bản Pyodide — phải khớp với PYODIDE_VERSION trong pyodideLoader.ts. */
 const PYODIDE_VERSION = "0.27.7";
-const CDN_BASE = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full`;
+// Địa chỉ nguồn tải. Có thể ghi đè để kiểm thử tình huống mạng hỏng.
+const CDN_BASE =
+  process.env.PYODIDE_CDN_BASE ??
+  `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full`;
 const TARGET_DIR = path.resolve(
   import.meta.dirname,
   "..",
@@ -99,7 +102,23 @@ async function main() {
   console.log("[pyodide] xong.");
 }
 
+/**
+ * `REQUIRE_LOCAL_PYODIDE=1` biến việc tải Pyodide thành điều kiện bắt buộc.
+ *
+ * Mặc định (dev) lỗi tải chỉ được ghi cảnh báo và bộ giải dùng CDN dự
+ * phòng. Trong build và trong CI, bản cục bộ phải có mặt: nếu không, bản
+ * phát hành sẽ lặng lẽ phụ thuộc CDN mà không ai biết.
+ */
+const REQUIRED = process.env.REQUIRE_LOCAL_PYODIDE === "1";
+
 main().catch(error => {
+  if (REQUIRED) {
+    console.error(
+      `[pyodide] KHÔNG tải được bản cục bộ và REQUIRE_LOCAL_PYODIDE=1: ${error.message}`
+    );
+    process.exitCode = 1;
+    return;
+  }
   // Bộ giải vẫn chạy được nhờ CDN dự phòng, nên lỗi tải không được chặn
   // cả quá trình build hay dev.
   console.warn(

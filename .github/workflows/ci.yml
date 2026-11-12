@@ -12,6 +12,10 @@ jobs:
   check-test-build:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      # Bản phát hành phải có Pyodide cục bộ: không được lặng lẽ phụ thuộc
+      # CDN khi build.
+      REQUIRE_LOCAL_PYODIDE: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

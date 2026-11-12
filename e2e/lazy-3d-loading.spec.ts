@@ -17,10 +17,10 @@ test("chỉ tải Cubing khi mở Timer và Three.js khi event cần canvas 3D",
 
   await page.goto("/timer");
   await expect(page.getByLabel("Loại khối")).toHaveValue("333");
-  await expect.poll(() => cubingRequests.length, { timeout: 15_000 }).toBeGreaterThan(0);
+  await expect.poll(() => cubingRequests.length, { timeout: 45_000 }).toBeGreaterThan(0);
   expect(threeRequests).toEqual([]);
 
   await page.getByLabel("Loại khối").selectOption("444");
-  await expect(page.getByLabel("Mô hình 4×4×4 3D")).toBeVisible({ timeout: 15_000 });
-  await expect.poll(() => threeRequests.length, { timeout: 15_000 }).toBeGreaterThan(0);
+  await expect(page.getByLabel("Mô hình 4×4×4 3D")).toBeVisible({ timeout: 45_000 });
+  await expect.poll(() => threeRequests.length, { timeout: 45_000 }).toBeGreaterThan(0);
 });

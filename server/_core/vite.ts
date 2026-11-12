@@ -5,6 +5,17 @@ import { nanoid } from "nanoid";
 import path from "path";
 import type { InlineConfig, ViteDevServer } from "vite";
 
+/**
+ * Đường dẫn của bản Pyodide cục bộ.
+ *
+ * Một đường dẫn /pyodide/ không có file phải trả 404 chứ không rơi vào
+ * index.html của SPA: nếu không, trình duyệt nhận HTML (HTTP 200) rồi cố
+ * chạy nó như một module JavaScript và báo lỗi khó hiểu.
+ */
+export function isPyodidePath(requestPath: string): boolean {
+  return requestPath === "/pyodide" || requestPath.startsWith("/pyodide/");
+}
+
 export async function setupVite(app: Express, server: Server) {
   // The dev server and its config load inside this function, so the
   // production bundle never has to resolve the vite package it does not ship.
@@ -28,6 +39,11 @@ export async function setupVite(app: Express, server: Server) {
   app.use(vite.middlewares);
   app.use("/{*splat}", async (req, res, next) => {
     const url = req.originalUrl;
+
+    if (isPyodidePath(req.originalUrl.split("?")[0])) {
+      res.status(404).json({ message: "Không tìm thấy." });
+      return;
+    }
 
     try {
       const clientTemplate = path.resolve(
@@ -78,7 +94,13 @@ export function serveStatic(app: Express) {
   );
 
   // fall through to index.html if the file doesn't exist
-  app.use("/{*splat}", (_req, res) => {
+  app.use("/{*splat}", (req, res) => {
+    // `req.path` bị cắt theo điểm gắn ("/{*splat}"), nên phải dùng
+    // `originalUrl` để thấy được tiền tố /pyodide.
+    if (isPyodidePath(req.originalUrl.split("?")[0])) {
+      res.status(404).json({ message: "Không tìm thấy." });
+      return;
+    }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
