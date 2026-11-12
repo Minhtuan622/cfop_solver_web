@@ -401,7 +401,7 @@ export default function History() {
                         />
                       </div>
                     </div>
-                    <div className="col-span-12 md:col-auto">
+                    <div className="col-span-12">
                       <label className="sr-only" htmlFor="history-event-filter">
                         {t("history.eventFilterLabel")}
                       </label>
@@ -423,7 +423,7 @@ export default function History() {
                         ))}
                       </select>
                     </div>
-                    <div className="col-span-12 md:col-auto">
+                    <div className="col-span-12">
                       <label className="sr-only" htmlFor="history-tag-filter">
                         {t("history.tagFilterLabel")}
                       </label>
@@ -701,7 +701,7 @@ function SolveRow({
   return (
     <article className="block px-4 py-3 text-sm py-4">
       <div className="grid grid-cols-12 gap-2 items-center">
-        <div className="col-auto">
+        <div className="col-span-1">
           <input
             type="checkbox"
             className="h-4 w-4 rounded border-line accent-primary"
@@ -754,7 +754,7 @@ function SolveRow({
             </div>
           ) : null}
         </div>
-        <div className="col-span-12 lg:col-auto flex flex-wrap items-center gap-1">
+        <div className="col-span-12 flex flex-wrap items-center gap-1">
           <div className="inline-flex flex-wrap items-center gap-1 text-xs">
             <button
               type="button"
@@ -792,7 +792,7 @@ function SolveRow({
             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
           />
         </div>
-        <div className="col-auto text-right">
+        <div className="col-span-12 text-right">
           <strong className={item.penalty === "DNF" ? "text-danger" : ""}>
             {formatSolveResult(item)}
           </strong>

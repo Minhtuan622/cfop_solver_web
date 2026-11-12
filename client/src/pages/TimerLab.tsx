@@ -853,7 +853,7 @@ export default function TimerLab() {
                           ))}
                         </select>
                       </label>
-                      <div className="col-auto">
+                      <div className="col-span-12 sm:col-span-6">
                         <div className="flex items-center gap-2">
                           <RoundButton
                             label={t("timer.newCase")}
@@ -1152,7 +1152,7 @@ export default function TimerLab() {
               )}
 
               <section
-                className="mt-6"
+                className="col-span-12 mt-6"
                 aria-labelledby="timer-analytics-heading"
               >
                 <h2
@@ -2329,7 +2329,7 @@ function MetricDetailCard({
     <article className="block px-4 py-3 text-sm">
       <div className="grid grid-cols-12 gap-4 items-center">
         {isThreeByThree && showCubeNet && (
-          <div className="col-span-12 md:col-auto">
+          <div className="col-span-12">
             <button
               type="button"
               onClick={() => onExpand(entry)}

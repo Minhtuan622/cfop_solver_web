@@ -539,7 +539,7 @@ export default function Profile() {
                 </div>
               </div>
             </div>
-            <div className="col-span-12 lg:col-auto">
+            <div className="col-span-12">
               <div className="flex flex-wrap gap-2 lg:justify-end">
                 <Link
                   href="/timer"
