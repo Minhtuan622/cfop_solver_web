@@ -59,6 +59,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/FormControls";
 import { Textarea } from "@/components/ui/FormControls";
+import { PageHeader } from "@/components/ui/StudioUI";
 
 function average(values: number[]) {
   return values.length
@@ -249,24 +250,21 @@ export default function History() {
     : false;
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-      <section className="rounded-card border border-line/80 bg-surface shadow-soft">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6 gap-2">
-          <div>
-            <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
-              CFOP Solver Studio · {t("history.eyebrow")}
-            </p>
-            <h1 className="text-xl font-semibold tracking-tight mb-0">
-              {t("history.title")}
-            </h1>
-          </div>
+      <PageHeader
+        title={t("history.title")}
+        description={t("history.subtitle")}
+        eyebrow={t("history.eyebrow")}
+        actions={
           <Link
             href="/timer"
             aria-label={t("history.backToTimer")}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold leading-none text-ink outline-none transition hover:bg-surface-2 focus-visible:ring-4 focus-visible:ring-primary/20"
           >
             <ArrowLeft className="text-base" />
           </Link>
-        </div>
+        }
+      />
+      <section className="rounded-card border border-line/80 bg-surface shadow-soft">
         <div className="p-5 sm:p-6">
           {entries.length ? (
             <>
@@ -310,7 +308,7 @@ export default function History() {
                   </h2>
                 </div>
                 <div className="p-5 sm:p-6">
-                  <div className="aspect-video">
+                  <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={chart}>
                         <XAxis
