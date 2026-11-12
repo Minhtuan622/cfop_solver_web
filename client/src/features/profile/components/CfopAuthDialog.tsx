@@ -8,6 +8,11 @@ import {
   DialogTitle,
 } from "@/components/ui/StudioDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
+import { IconButton } from "@/components/ui/StudioUI";
 
 export type AuthMode = "login" | "register";
 
@@ -63,10 +68,10 @@ export function CfopAuthDialog({
               {t("account.dialog.description")}
             </DialogDescription>
           </div>
-          <button
-            type="button"
-            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full p-0 text-muted transition hover:bg-surface-3 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20"
-            aria-label={t("account.dialog.close")}
+          <IconButton
+            className="ml-auto h-8 w-8 shrink-0 text-muted hover:bg-surface-3 hover:text-ink"
+            label={t("account.dialog.close")}
+            icon={null}
             onClick={onClose}
           />
         </DialogHeader>
@@ -77,38 +82,35 @@ export function CfopAuthDialog({
               role="group"
               aria-label={t("account.dialog.actionLabel")}
             >
-              <button
+              <Button
+                variant={mode === "login" ? "primary" : "secondary"}
+                size="md"
                 type="button"
-                className={
-                  mode === "login"
-                    ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                    : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-                }
+
                 onClick={() => onModeChange("login")}
               >
                 {t("account.signIn")}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={mode === "register" ? "primary" : "secondary"}
+                size="md"
                 type="button"
-                className={
-                  mode === "register"
-                    ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                    : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
-                }
+
                 onClick={() => onModeChange("register")}
               >
                 {t("account.register")}
-              </button>
+              </Button>
             </div>
             {mode === "register" ? (
               <label className="mb-1.5 block text-sm font-medium text-ink w-full">
                 {t("account.dialog.displayName")}
-                <input
+                <Input
+                  className="mt-1"
                   required
                   minLength={2}
                   maxLength={80}
                   autoComplete="name"
-                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
+
                   value={displayName}
                   onChange={event => onDisplayNameChange(event.target.value)}
                 />
@@ -116,18 +118,20 @@ export function CfopAuthDialog({
             ) : null}
             <label className="mb-1.5 block text-sm font-medium text-ink w-full mt-2">
               {t("account.dialog.email")}
-              <input
+              <Input
+                className="mt-1"
                 required
                 type="email"
                 autoComplete="email"
-                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
+
                 value={email}
                 onChange={event => onEmailChange(event.target.value)}
               />
             </label>
             <label className="mb-1.5 block text-sm font-medium text-ink w-full mt-2">
               {t("account.dialog.password")}
-              <input
+              <Input
+                className="mt-1"
                 required
                 type="password"
                 minLength={10}
@@ -135,7 +139,7 @@ export function CfopAuthDialog({
                 autoComplete={
                   mode === "login" ? "current-password" : "new-password"
                 }
-                className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
+
                 value={password}
                 onChange={event => onPasswordChange(event.target.value)}
               />
@@ -155,17 +159,21 @@ export function CfopAuthDialog({
             ) : null}
           </div>
           <DialogFooter className="flex-wrap justify-end gap-2">
-            <button
+            <Button
+              variant="secondary"
+              size="md"
               type="button"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+
               onClick={onClose}
               disabled={pending}
             >
               {t("account.dialog.cancel")}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
               type="submit"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+
               disabled={pending}
             >
               {pending
@@ -173,7 +181,7 @@ export function CfopAuthDialog({
                 : mode === "login"
                   ? t("account.signIn")
                   : t("account.dialog.createAccount")}
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

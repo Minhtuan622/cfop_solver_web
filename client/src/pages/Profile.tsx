@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { ProfileProgressChart } from "@/features/profile/components/ProfileProgressChart";
-import { applyCfopCloudState, createCfopCloudState, mergeCfopCloudStates, parseCfopCloudState } from "@/lib/cloudSync";
+import {
+  applyCfopCloudState,
+  createCfopCloudState,
+  mergeCfopCloudStates,
+  parseCfopCloudState,
+} from "@/lib/cloudSync";
 import {
   filterProfileProgress,
   meetsAo5Goal,
@@ -45,6 +50,10 @@ import {
 } from "@/features/profile/lib/profilePresentation";
 import { errorMessage } from "@/lib/apiError";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/FormControls";
+import { Textarea } from "@/components/ui/FormControls";
 import {
   AlertTriangle,
   BookOpenCheck,
@@ -224,9 +233,12 @@ function WcaProfileDetails({
           }
         }
       />
-      <button
+      <Button
+        variant="secondary"
+        size="sm"
+        className="mt-4"
         type="button"
-        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mt-4"
+
         aria-expanded={showAllRecords}
         onClick={() => setShowAllRecords(value => !value)}
       >
@@ -235,7 +247,7 @@ function WcaProfileDetails({
           : t("profile.wcaRecordsToggle", {
               count: profile.personalRecords.length,
             })}
-      </button>
+      </Button>
       {showAllRecords ? (
         <div className="w-full overflow-x-auto mt-4">
           <table className="w-full border-collapse text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 align-middle mb-0">
@@ -313,11 +325,14 @@ export default function Profile() {
     },
     onError: next => setError(errorMessage(next, t)),
   });
-  const storageStatusQuery = trpc.cfopAccount.storageStatus.useQuery(undefined, {
-    enabled: Boolean(account),
-    staleTime: 10 * 60 * 1000,
-    retry: false,
-  });
+  const storageStatusQuery = trpc.cfopAccount.storageStatus.useQuery(
+    undefined,
+    {
+      enabled: Boolean(account),
+      staleTime: 10 * 60 * 1000,
+      retry: false,
+    }
+  );
   const uploadAvatar = trpc.cfopAccount.uploadAvatar.useMutation({
     onSuccess: async () => {
       await utils.cfopAccount.me.invalidate();
@@ -342,7 +357,7 @@ export default function Profile() {
         })
       );
     },
-    onError: async (next) => {
+    onError: async next => {
       const code = (next as { data?: { code?: string } }).data?.code;
       // Client quá cũ (tab mở từ trước khi triển khai): yêu cầu tải lại.
       if (code === "PRECONDITION_FAILED") {
@@ -357,7 +372,10 @@ export default function Profile() {
         const local = createCfopCloudState();
         const merged = mergeCfopCloudStates(local, parsed);
         applyCfopCloudState(merged);
-        manualSync.mutate({ ...merged, baseVersion: fresh.data?.revision ?? null });
+        manualSync.mutate({
+          ...merged,
+          baseVersion: fresh.data?.revision ?? null,
+        });
         return;
       }
       setError(errorMessage(next, t));
@@ -660,14 +678,14 @@ export default function Profile() {
                 >
                   {(["7d", "30d", "all"] as ProfileProgressRange[]).map(
                     range => (
-                      <button
+                      <Button
+                        variant={
+                          progressRange === range ? "primary" : "secondary"
+                        }
+                        size="sm"
                         key={range}
                         type="button"
-                        className={
-                          progressRange === range
-                            ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-3 py-1.5 text-xs"
-                            : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
-                        }
+
                         onClick={() => setProgressRange(range)}
                       >
                         {range === "7d"
@@ -675,7 +693,7 @@ export default function Profile() {
                           : range === "30d"
                             ? t("profile.range30d")
                             : t("profile.rangeAll")}
-                      </button>
+                      </Button>
                     )
                   )}
                 </div>
@@ -754,7 +772,10 @@ export default function Profile() {
                   ? ` · ${new Date(syncQuery.data.updatedAt).toLocaleString(locale)}`
                   : ` · ${t("profile.syncNeverSaved")}`}
               </p>
-              <button
+              <Button
+                variant="primary"
+                size="md"
+                className="w-full"
                 type="button"
                 onClick={() => {
                   setError("");
@@ -765,12 +786,11 @@ export default function Profile() {
                   });
                 }}
                 disabled={manualSync.isPending}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover w-full"
               >
                 {manualSync.isPending
                   ? t("profile.syncPending")
                   : t("profile.syncNow")}
-              </button>
+              </Button>
             </div>
           </div>
         </aside>
@@ -798,8 +818,7 @@ export default function Profile() {
                 target="_blank"
                 rel="noreferrer"
               >
-                {t("profile.wcaOpen")}{" "}
-                <BoxArrowRight className="ml-1" />
+                {t("profile.wcaOpen")} <BoxArrowRight className="ml-1" />
               </a>
             ) : null}
           </div>
@@ -824,9 +843,11 @@ export default function Profile() {
                 ? t("profile.wcaOauthReady")
                 : t("profile.wcaOauthPending")}
             </p>
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               type="button"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+
               disabled={
                 !wcaOauthStatusQuery.data?.configured || startWcaOAuth.isPending
               }
@@ -839,7 +860,7 @@ export default function Profile() {
               {startWcaOAuth.isPending
                 ? t("profile.wcaOauthLinkPending")
                 : t("profile.wcaOauthLink")}
-            </button>
+            </Button>
           </div>
         </div>
       </section>
@@ -889,50 +910,54 @@ export default function Profile() {
               <form onSubmit={submitProfile}>
                 <label className="mb-1.5 block text-sm font-medium text-ink w-full">
                   {t("profile.displayName")}
-                  <input
+                  <Input
+                    className="mt-1"
                     required
                     minLength={2}
                     maxLength={80}
                     value={displayName}
                     onChange={event => setDisplayName(event.target.value)}
-                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
                   />
                 </label>
                 <label className="mb-1.5 block text-sm font-medium text-ink w-full mt-4">
                   {t("profile.bio")}
-                  <textarea
+                  <Textarea
+                    className="mt-1"
                     maxLength={280}
                     value={bio}
                     onChange={event => setBio(event.target.value)}
-                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
+
                     rows={3}
                     placeholder={t("profile.bioPlaceholder")}
                   />
                 </label>
                 <label className="mb-1.5 block text-sm font-medium text-ink w-full mt-4">
                   {t("profile.goal")}
-                  <input
+                  <Input
+                    className="mt-1"
                     type="number"
                     inputMode="numeric"
                     min={1}
                     max={3600}
                     value={goalSeconds}
                     onChange={event => setGoalSeconds(event.target.value)}
-                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
+
                     placeholder={t("profile.goalPlaceholder")}
                   />
                   <span className="mt-1.5 text-xs text-muted">
                     {t("profile.goalHelp")}
                   </span>
                 </label>
-                <button
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="mt-4"
                   disabled={updateProfile.isPending}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover mt-4"
                 >
                   {updateProfile.isPending
                     ? t("profile.saveProfilePending")
                     : t("profile.saveProfile")}
-                </button>
+                </Button>
               </form>
             </div>
           </div>
@@ -952,7 +977,8 @@ export default function Profile() {
               <form onSubmit={submitPassword}>
                 <label className="mb-1.5 block text-sm font-medium text-ink w-full">
                   {t("profile.currentPassword")}
-                  <input
+                  <Input
+                    className="mt-1"
                     required
                     type="password"
                     autoComplete="current-password"
@@ -960,12 +986,12 @@ export default function Profile() {
                     maxLength={128}
                     value={currentPassword}
                     onChange={event => setCurrentPassword(event.target.value)}
-                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
                   />
                 </label>
                 <label className="mb-1.5 block text-sm font-medium text-ink w-full mt-4">
                   {t("profile.newPassword")}
-                  <input
+                  <Input
+                    className="mt-1"
                     required
                     type="password"
                     autoComplete="new-password"
@@ -973,17 +999,18 @@ export default function Profile() {
                     maxLength={128}
                     value={newPassword}
                     onChange={event => setNewPassword(event.target.value)}
-                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1"
                   />
                 </label>
-                <button
+                <Button
+                  variant="secondary"
+                  size="md"
+                  className="mt-4"
                   disabled={changePassword.isPending}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 mt-4"
                 >
                   {changePassword.isPending
                     ? t("profile.changePasswordPending")
                     : t("profile.changePassword")}
-                </button>
+                </Button>
               </form>
             </div>
           </div>

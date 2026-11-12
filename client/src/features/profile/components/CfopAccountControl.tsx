@@ -7,6 +7,7 @@ import { AccountDropdown } from "./AccountDropdown";
 import { CfopAuthDialog, type AuthMode } from "./CfopAuthDialog";
 import { errorMessage } from "@/lib/apiError";
 import { initials } from "../lib/profilePresentation";
+import { Button } from "@/components/ui/Button";
 
 export function CfopAccountControl() {
   const [open, setOpen] = useState(false);
@@ -71,9 +72,11 @@ export function CfopAccountControl() {
   if (account)
     return (
       <div ref={menuRef} className="relative">
-        <button
+        <Button
           type="button"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink shadow-sm transition hover:bg-surface-2 xl:w-auto"
+          variant="outlined"
+          size="plain"
+          className="w-full px-3 py-2 text-sm shadow-sm xl:w-auto"
           onClick={() => setMenuOpen(value => !value)}
           aria-expanded={menuOpen}
           aria-haspopup="menu"
@@ -101,7 +104,7 @@ export function CfopAccountControl() {
           <span className="hidden max-w-[10ch] truncate xl:inline">
             {account.displayName}
           </span>
-        </button>
+        </Button>
         {menuOpen ? (
           <AccountDropdown>
             <li>
@@ -141,9 +144,11 @@ export function CfopAccountControl() {
   return (
     <>
       <div ref={menuRef} className="relative">
-        <button
+        <Button
           type="button"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink shadow-sm transition hover:bg-surface-2 xl:w-auto"
+          variant="outlined"
+          size="plain"
+          className="w-full px-3 py-2 text-sm shadow-sm xl:w-auto"
           onClick={() => setMenuOpen(value => !value)}
           aria-expanded={menuOpen}
           aria-haspopup="menu"
@@ -151,7 +156,7 @@ export function CfopAccountControl() {
         >
           <PersonCircle className="text-base" />
           {t("account.signIn")}
-        </button>
+        </Button>
         {menuOpen ? (
           <AccountDropdown>
             <li>

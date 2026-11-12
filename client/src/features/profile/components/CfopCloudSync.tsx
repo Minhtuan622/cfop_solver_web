@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CFOP_CLOUD_SYNC_EVENT } from "@/lib/cloudSyncSignal";
-import { applyCfopCloudState, createCfopCloudState, mergeCfopCloudStates, parseCfopCloudState } from "@/lib/cloudSync";
+import {
+  applyCfopCloudState,
+  createCfopCloudState,
+  mergeCfopCloudStates,
+  parseCfopCloudState,
+} from "@/lib/cloudSync";
 import { trpc } from "@/lib/trpc";
 
 /** Số lần thử lại tối đa khi hai thiết bị liên tục ghi cùng lúc. */
@@ -11,9 +16,15 @@ const MAX_CONFLICT_RETRIES = 3;
 /** Keeps only Timer/Study state in the account cloud snapshot; settings stay device-local. */
 export function CfopCloudSync() {
   const { t } = useLanguage();
-  const accountQuery = trpc.cfopAccount.me.useQuery(undefined, { staleTime: 60_000, retry: false });
+  const accountQuery = trpc.cfopAccount.me.useQuery(undefined, {
+    staleTime: 60_000,
+    retry: false,
+  });
   const accountId = accountQuery.data?.id;
-  const remoteQuery = trpc.cfopAccount.cloudState.get.useQuery(undefined, { enabled: Boolean(accountId), retry: false });
+  const remoteQuery = trpc.cfopAccount.cloudState.get.useQuery(undefined, {
+    enabled: Boolean(accountId),
+    retry: false,
+  });
   /**
    * Revision của dòng cloud state mà máy này đã đọc. `null` nghĩa là chưa
    * đọc được (tài khoản chưa có dữ liệu cloud) — máy chủ coi như revision 0.
@@ -57,7 +68,10 @@ export function CfopCloudSync() {
   });
 
   useEffect(() => {
-    if (!accountId) { setReadyAccountId(null); return; }
+    if (!accountId) {
+      setReadyAccountId(null);
+      return;
+    }
     if (!remoteQuery.isSuccess || readyAccountId === accountId) return;
     const local = createCfopCloudState();
     const remote = parseCfopCloudState(remoteQuery.data?.payload);
@@ -66,17 +80,33 @@ export function CfopCloudSync() {
     revisionRef.current = remoteQuery.data?.revision ?? null;
     setReadyAccountId(accountId);
     save.mutate({ ...merged, baseVersion: revisionRef.current });
-  }, [accountId, readyAccountId, remoteQuery.data, remoteQuery.isSuccess, save]);
+  }, [
+    accountId,
+    readyAccountId,
+    remoteQuery.data,
+    remoteQuery.isSuccess,
+    save,
+  ]);
 
   useEffect(() => {
     if (!accountId || readyAccountId !== accountId) return;
     let timer: number | undefined;
     const scheduleSave = () => {
       if (timer) window.clearTimeout(timer);
-      timer = window.setTimeout(() => save.mutate({ ...createCfopCloudState(), baseVersion: revisionRef.current }), 900);
+      timer = window.setTimeout(
+        () =>
+          save.mutate({
+            ...createCfopCloudState(),
+            baseVersion: revisionRef.current,
+          }),
+        900
+      );
     };
     window.addEventListener(CFOP_CLOUD_SYNC_EVENT, scheduleSave);
-    return () => { window.removeEventListener(CFOP_CLOUD_SYNC_EVENT, scheduleSave); if (timer) window.clearTimeout(timer); };
+    return () => {
+      window.removeEventListener(CFOP_CLOUD_SYNC_EVENT, scheduleSave);
+      if (timer) window.clearTimeout(timer);
+    };
   }, [accountId, readyAccountId, save]);
 
   return null;
