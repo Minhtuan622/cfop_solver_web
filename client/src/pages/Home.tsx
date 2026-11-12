@@ -528,8 +528,10 @@ export default function Home() {
 
   const heroCube = (
     <svg
-      className="absolute hidden lg:block"
-      style={{ right: "6%", top: "-0.5rem", width: 190, height: 190 }}
+      // Cube trang trí: đặt cao và nhỏ lại để không che nút chuyển thể thức
+      // nằm cùng hàng với tiêu đề, và không bắt chuột.
+      className="pointer-events-none absolute hidden select-none xl:block"
+      style={{ right: "4%", top: "-3.5rem", width: 130, height: 130 }}
       viewBox="0 0 120 120"
       aria-hidden="true"
     >
