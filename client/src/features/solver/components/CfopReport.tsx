@@ -63,7 +63,7 @@ export function CfopReport({
           label={t("home.saveSteps")}
           icon={<FileJson className="text-base" />}
           onClick={() => exportCFOPJson(result)}
-          className="rounded-full border border-line bg-surface-2 px-3 py-1.5 text-xs text-ink transition hover:bg-surface-3"
+          className="rounded-full bg-surface-2 px-3 py-1.5 text-xs text-ink transition hover:bg-surface-3"
         />
       </div>
       {visible.map((phase, index) => (
@@ -125,10 +125,10 @@ function CfopPhaseRow({
   return (
     <article
       className={cn(
-        "mb-2.5 rounded-panel border-2 p-3 transition",
+        "mb-2.5 rounded-panel p-3 transition",
         selected
-          ? "border-primary bg-primary-soft/60"
-          : "border-transparent bg-surface-2 hover:border-line"
+          ? "bg-primary-soft/60"
+          : "bg-surface-2"
       )}
     >
       <div className="flex items-center gap-3">
@@ -171,7 +171,7 @@ function CfopPhaseRow({
           href={lessonUrl}
           target="_blank"
           rel="noreferrer"
-          className="grid h-8 w-8 place-items-center rounded-full border border-line bg-surface text-ink transition hover:bg-surface-3"
+          className="grid h-8 w-8 place-items-center rounded-full bg-surface text-ink transition hover:bg-surface-3"
           aria-label={t("home.learnMore")}
         >
           <Info className="text-base" />
@@ -180,7 +180,7 @@ function CfopPhaseRow({
           label={t("home.copyTurns")}
           icon={<ClipboardCopy className="text-base" />}
           onClick={() => navigator.clipboard?.writeText(notation)}
-          className="h-8 w-8 border border-line bg-surface text-ink transition hover:bg-surface-3"
+          className="h-8 w-8 bg-surface text-ink transition hover:bg-surface-3"
         />
       </div>
       {phase.moves.length > 0 && (

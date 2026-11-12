@@ -29,12 +29,12 @@ export function BldSightedCommutator({
   useEffect(() => setCursor(0), [formula.algorithm]);
   if (!trace)
     return (
-      <section className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+      <section className="rounded-card bg-surface mb-6">
         <div className="p-5 sm:p-6">
           <h3 className="text-sm font-semibold tracking-tight">
             {vi ? "Bài sighted-commutator" : "Sighted-commutator exercise"}
           </h3>
-          <div className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mb-0">
             {vi
               ? "Notation của case này chưa chạy được trên Cube 3D. Hãy chọn một starter case khác để luyện mở mắt."
               : "This case cannot run on the 3D Cube yet. Choose another starter case for sighted practice."}
@@ -52,8 +52,8 @@ export function BldSightedCommutator({
       : trace[cursor - 1];
   const complete = cursor === trace.length;
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+    <section className="rounded-card bg-surface mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
         <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
           {vi ? "BÀI THỰC HÀNH MỞ MẮT" : "SIGHTED PRACTICE"}
         </p>
@@ -84,7 +84,7 @@ export function BldSightedCommutator({
             />
           </div>
           <div className="col-span-12 md:col-span-5">
-            <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2 h-full">
+            <div className="rounded-card bg-surface bg-surface-2 h-full">
               <div className="p-5 sm:p-6">
                 <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-3 text-ink">
                   {formula.kind.toUpperCase()} · {formula.key}

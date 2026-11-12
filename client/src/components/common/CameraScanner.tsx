@@ -171,7 +171,7 @@ export function CameraScanner({
   }
 
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft">
+    <section className="rounded-card bg-surface">
       <div className="p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -190,12 +190,12 @@ export function CameraScanner({
               playsInline
               className="w-full h-full object-cover"
             />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 border border-line border-2 border-success pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 pointer-events-none">
               <div className="grid grid-cols-3 gap-0 h-full">
                 {Array.from({ length: 9 }).map((_, index) => (
                   <span
                     key={index}
-                    className="border border-line border-success"
+                    className={undefined}
                   />
                 ))}
               </div>
@@ -214,13 +214,7 @@ export function CameraScanner({
           {ORDER.map(face => (
             <span
               key={face}
-              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide transition border ${
-                captures[face]
-                  ? "border-transparent bg-success text-white"
-                  : face === currentFace
-                    ? "border-primary text-primary"
-                    : "border-line text-muted"
-              }`}
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide transition ${ captures[face] ? "bg-success text-white" : face === currentFace ? "text-primary" : "text-muted" }`}
             >
               {captures[face] ? <Check className="text-base" /> : face}
             </span>

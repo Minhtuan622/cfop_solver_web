@@ -41,7 +41,7 @@ export function ThemeSwitcher({ compact = false }: { compact?: boolean }) {
       menuLabel={t("theme.label")}
       buttonClassName={
         compact
-          ? "border-0 bg-transparent px-2.5 shadow-none hover:bg-surface-2"
+          ? "bg-transparent px-2.5 hover:bg-surface-2"
           : undefined
       }
       button={

@@ -9,7 +9,7 @@ export default function NotFound() {
   const { t } = useLanguage();
   return (
     <div className="mx-auto w-full max-w-2xl px-4 sm:px-6 py-10 lg:py-16">
-      <div className="rounded-card border border-line/80 bg-surface shadow-soft text-center">
+      <div className="rounded-card bg-surface text-center">
         <div className="p-6 sm:p-8 md:p-12">
           <AlertCircle className="text-4xl text-danger mb-4" />
           <p className="uppercase tracking-wide text-sm font-semibold text-muted mb-1">

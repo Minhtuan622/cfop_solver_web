@@ -26,7 +26,7 @@ export function SystemLeaderboard() {
     retry: false,
   });
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft mt-6">
+    <section className="rounded-card bg-surface mt-6">
       <div className="p-5 sm:p-6">
         <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
           <div>
@@ -54,14 +54,14 @@ export function SystemLeaderboard() {
           <SkeletonList rows={3} label={t("competition.loading")} />
         ) : leaderboardQuery.isError ? (
           <div
-            className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mb-0"
+            className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mb-0"
             role="alert"
           >
             {t("competition.filter.loadFailed")}
           </div>
         ) : leaderboardQuery.data?.players.length ? (
           <LoadingTransition>
-            <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
+            <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
               {leaderboardQuery.data.players.slice(0, 10).map(player => (
                 <li
                   key={player.accountId}

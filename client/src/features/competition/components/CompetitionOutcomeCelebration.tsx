@@ -120,7 +120,7 @@ export function CompetitionOutcomeCelebration() {
             className="absolute bottom-0 left-1/2 m-6 h-4 w-4 -translate-x-1/2 animate-ping rounded-full bg-current text-danger"
             aria-hidden="true"
           />
-          <div className="rounded-card border border-line bg-surface px-6 py-8 text-center shadow-float">
+          <div className="rounded-card bg-surface px-6 py-8 text-center">
             <Trophy
               className="mx-auto mb-2 h-10 w-10 text-warning"
               aria-hidden="true"

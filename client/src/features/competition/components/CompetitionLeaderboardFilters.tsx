@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 
+
 export type CompetitionPeriod = "week" | "month";
 
 type Props = {
@@ -36,7 +37,7 @@ export function CompetitionLeaderboardFilters({
           type="button"
           variant={period === "week" ? "primary" : "outline"}
           size="plain"
-          className="px-4 py-2 text-xs leading-none border-0!"
+          className="px-4 py-2 text-xs leading-none"
           onClick={() => onPeriodChange("week")}
         >
           {t("competition.filter.week")}
@@ -45,7 +46,7 @@ export function CompetitionLeaderboardFilters({
           type="button"
           variant={period === "month" ? "primary" : "outline"}
           size="plain"
-          className="px-4 py-2 text-xs leading-none border-0!"
+          className="px-4 py-2 text-xs leading-none"
           onClick={() => onPeriodChange("month")}
         >
           {t("competition.filter.month")}

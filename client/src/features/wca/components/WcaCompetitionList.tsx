@@ -22,10 +22,10 @@ export function WcaCompetitionList({
       {groups.map(group => (
         <section
           key={group.key}
-          className="rounded-card border border-line/80 bg-surface p-5 shadow-soft sm:p-6"
+          className="rounded-card bg-surface p-5 sm:p-6"
           aria-labelledby={`wca-month-${group.key}`}
         >
-          <div className="flex items-center justify-between gap-2 border-b border-line pb-3">
+          <div className="flex items-center justify-between gap-2 border-b pb-3">
             <h2
               id={`wca-month-${group.key}`}
               className="text-xs font-semibold tracking-[0.06em] text-muted uppercase"

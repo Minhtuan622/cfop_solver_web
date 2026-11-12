@@ -363,8 +363,8 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
     }
   };
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft mt-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6 flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <section className="rounded-card bg-surface mt-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6 flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
             3×3 BLD · {vi ? "LỘ TRÌNH HỌC" : "LEARNING PATH"}
@@ -380,7 +380,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
               : "There is no single formula for all BLD. Learn one small case at a time, then grow your library."}
           </p>
         </div>
-        <div className="rounded-panel border px-4 py-3 text-sm border-info/20 bg-info-soft text-ink mb-0 py-2">
+        <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mb-0 py-2">
           <Layers3 className="text-lg mr-1" />
           <strong>{completedCount}/5</strong>{" "}
           {vi ? "giai đoạn đã có tiến độ" : "stages have progress"}
@@ -401,7 +401,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
         <div className="grid grid-cols-12 gap-6">
           <aside className="col-span-12 xl:col-span-4">
             <div
-              className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface"
+              className="divide-y divide-line overflow-hidden rounded-panel bg-surface"
               role="tablist"
               aria-label={vi ? "Các giai đoạn học BLD" : "BLD learning stages"}
             >
@@ -437,7 +437,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
                 </button>
               ))}
             </div>
-            <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0">
+            <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
               <BookOpenCheck className="text-base mr-1" />
               {vi
                 ? "Trước khi bắt đầu: bạn đã giải được 3×3 cơ bản khi mở mắt."
@@ -507,7 +507,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
               />
             )}
             {stageIndex === 3 && (
-              <section className="rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6 h-full">
+              <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
                 <p className="text-sm uppercase tracking-wide font-semibold text-muted">
                   04 · {stages[3].shortTitle}
                 </p>
@@ -527,7 +527,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
                   onProfile={setProfile}
                   language={language}
                 />
-                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 mt-6">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-4 mt-6">
                   <span className="text-sm text-muted">
                     {profile.drillAttempts.length}/3{" "}
                     {vi ? "lượt drill đầu tiên" : "first drill attempts"}
@@ -545,7 +545,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
               </section>
             )}
             {stageIndex === 4 && (
-              <section className="rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6 h-full">
+              <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
                 <p className="text-sm uppercase tracking-wide font-semibold text-muted">
                   05 · {stages[4].shortTitle}
                 </p>
@@ -576,7 +576,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
                     />
                   </section>
                 </div>
-                <div className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink mt-6 mb-0">
+                <div className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink mt-6 mb-0">
                   <Check className="text-base mr-1" />
                   {vi
                     ? "Khi có scramble mới, quay lại Memo; khi quên một formula, quay lại giai đoạn Công thức rồi Drill."
@@ -606,7 +606,7 @@ function OrientationStage({
   onContinue: () => void;
 }) {
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6 h-full">
+    <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
       <p className="text-sm uppercase tracking-wide font-semibold text-muted">
         01 · {vi ? "Định hướng" : "Orient"}
       </p>
@@ -652,7 +652,7 @@ function OrientationStage({
               orientationDone: event.target.checked,
             }))
           }
-          className="h-4 w-4 rounded border-line accent-primary"
+          className="h-4 w-4 rounded accent-primary"
         />
         <label htmlFor="bld-orientation-done" className="text-sm text-ink">
           {vi
@@ -694,7 +694,7 @@ function FormulaStage({
   const formulas = STARTER_FORMULAS.filter(formula => formula.group === group);
   const selected = selectedFormula;
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6 h-full">
+    <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
       <p className="text-sm uppercase tracking-wide font-semibold text-muted">
         02 · {vi ? "Công thức" : "Algorithms"}
       </p>
@@ -729,7 +729,7 @@ function FormulaStage({
           }
         />
       </div>
-      <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink">
+      <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink">
         <strong>
           {vi
             ? "Quy trình 4 phút cho một công thức:"
@@ -804,8 +804,8 @@ function FormulaStage({
                   <div
                     className={
                       isSelected
-                        ? "rounded-card border border-line/80 bg-surface shadow-soft border-primary"
-                        : "rounded-card border border-line/80 bg-surface shadow-soft"
+                        ? "rounded-card bg-surface"
+                        : "rounded-card bg-surface"
                     }
                   >
                     <div className="p-5 sm:p-6">
@@ -886,8 +886,8 @@ function FormulaCubeDemo({
   useEffect(() => setCursor(0), [formula.algorithm]);
   if (!trace)
     return (
-      <section className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+      <section className="rounded-card bg-surface h-full">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
           <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
             {vi ? "MINH HỌA 3D" : "3D DEMO"}
           </p>
@@ -896,7 +896,7 @@ function FormulaCubeDemo({
           </h4>
         </div>
         <div className="p-5 sm:p-6">
-          <div className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mb-0">
             {vi
               ? "Ký hiệu của biến thể này chưa được Cube 3D hỗ trợ. Công thức vẫn có thể được tra cứu trong thư viện."
               : "This variant's notation is not yet supported by the 3D Cube. The algorithm remains available in the library."}
@@ -913,8 +913,8 @@ function FormulaCubeDemo({
         }
       : trace[cursor - 1];
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+    <section className="rounded-card bg-surface h-full">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
         <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
           {vi ? "MINH HỌA 3D" : "3D DEMO"}
         </p>
@@ -1006,7 +1006,7 @@ function MemoStage({
   onDrill: () => void;
 }) {
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6 h-full">
+    <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
       <p className="text-sm uppercase tracking-wide font-semibold text-muted">
         03 · {vi ? "Memo" : "Memo"}
       </p>
@@ -1107,7 +1107,7 @@ function MemoStage({
           ) : null}
         </div>
         <aside className="col-span-12 lg:col-span-5">
-          <div className="border border-line rounded-xl p-4 text-center">
+          <div className="rounded-xl p-4 text-center">
             <CubeNet state={previewState} compact />
           </div>
           {loading ? (
@@ -1117,7 +1117,7 @@ function MemoStage({
               label={vi ? "Đang tạo memo" : "Building memo"}
             />
           ) : result ? (
-            <div className="rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6 mt-4">
+            <div className="rounded-card bg-surface p-5 sm:p-6 mt-4">
               <p className="text-sm text-muted mb-1">{vi ? "Cạnh" : "Edges"}</p>
               <strong className="font-mono break-words">
                 {edgeMemo || "—"}
@@ -1140,7 +1140,7 @@ function MemoStage({
               </Button>
             </div>
           ) : (
-            <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0">
+            <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
               {vi
                 ? "Memo sẽ xuất hiện ở đây sau khi bạn tạo từ scramble."
                 : "Your memo will appear here after you build it from a scramble."}
@@ -1154,7 +1154,7 @@ function MemoStage({
 function PathBeat({ title, body }: { title: string; body: string }) {
   return (
     <div className="col-span-12 md:col-span-4">
-      <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2 h-full">
+      <div className="rounded-card bg-surface bg-surface-2 h-full">
         <div className="p-5 sm:p-6">
           <h4 className="text-sm font-semibold tracking-tight">{title}</h4>
           <p className="text-sm text-muted mb-0">{body}</p>
@@ -1166,7 +1166,7 @@ function PathBeat({ title, body }: { title: string; body: string }) {
 function NotationCard({ symbol, body }: { symbol: string; body: string }) {
   return (
     <div className="col-span-12 md:col-span-4">
-      <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2 h-full">
+      <div className="rounded-card bg-surface bg-surface-2 h-full">
         <div className="p-5 sm:p-6 py-2">
           <strong className="font-mono">{symbol}</strong>
           <p className="text-sm text-muted mb-0 mt-1">{body}</p>

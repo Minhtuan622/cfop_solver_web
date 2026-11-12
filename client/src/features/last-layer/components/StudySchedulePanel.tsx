@@ -28,7 +28,7 @@ export function StudySchedulePanel({
 
   return (
     <aside
-      className="h-full rounded-card border border-line/80 bg-surface shadow-soft"
+      className="h-full rounded-card bg-surface"
       aria-label={t("study.scheduleLabel")}
     >
       <div className="p-5 sm:p-6">
@@ -61,7 +61,7 @@ export function StudySchedulePanel({
                   className={
                     day.isToday
                       ? "rounded-xl bg-primary px-1.5 py-2 text-center text-sm font-semibold text-white"
-                      : "rounded-xl border border-line bg-surface px-1.5 py-2 text-center text-sm text-ink"
+                      : "rounded-xl bg-surface px-1.5 py-2 text-center text-sm text-ink"
                   }
                 >
                   {/* Cột chỉ rộng ~45px: nhãn ngày phải nhỏ lại, nếu không
@@ -95,7 +95,7 @@ export function StudySchedulePanel({
         </div>
 
         {celebration ? (
-          <div className="mt-4 flex items-center gap-2 rounded-panel border border-success/20 bg-success-soft px-4 py-3 text-sm text-ink">
+          <div className="mt-4 flex items-center gap-2 rounded-panel bg-success-soft px-4 py-3 text-sm text-ink">
             <Sparkles className="text-base text-success" />
             <span className="grow">{t("study.goalComplete")}</span>
             <IconButton
@@ -107,11 +107,11 @@ export function StudySchedulePanel({
           </div>
         ) : null}
 
-        <div className="mt-6 border-t border-line pt-4">
+        <div className="mt-6 border-t pt-4">
           <p className="mb-2 text-sm text-muted">{t("study.weakCases")}</p>
           <Button
             type="button"
-            variant="outlined"
+            variant="secondary"
             size="plain"
             className="w-full px-4 py-2 text-sm"
             onClick={onReviewWeakest}

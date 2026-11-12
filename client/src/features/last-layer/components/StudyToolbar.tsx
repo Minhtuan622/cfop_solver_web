@@ -40,12 +40,12 @@ export function StudyToolbar({
     cn(
       "inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 px-3 py-1.5 text-xs",
       lane === next
-        ? "bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-        : "border-line bg-surface text-ink hover:bg-surface-2"
+        ? "bg-primary text-white hover:bg-primary-hover"
+        : "bg-surface text-ink hover:bg-surface-2"
     );
 
   return (
-    <div className="rounded-card border border-line/80 bg-surface px-5 py-4 shadow-soft">
+    <div className="rounded-card bg-surface px-5 py-4">
       <div className="flex flex-wrap items-center gap-4">
         <div
           className="inline-flex flex-wrap items-center gap-1"

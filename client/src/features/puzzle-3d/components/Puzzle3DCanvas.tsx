@@ -453,7 +453,7 @@ export function Puzzle3DCanvas({
   const label = timerEventLabel(eventId, language);
   if (status === "error")
     return (
-      <div className="rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6 h-full flex flex-col items-center justify-center text-center">
+      <div className="rounded-card bg-surface p-5 sm:p-6 h-full flex flex-col items-center justify-center text-center">
         <BoxSeam className="text-4xl text-muted mb-4" />
         <p className="font-semibold mb-1">{label}</p>
         <p className="text-sm text-muted mb-0">
@@ -465,7 +465,7 @@ export function Puzzle3DCanvas({
     );
 
   return (
-    <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+    <div className="rounded-card bg-surface h-full">
       <div className="p-5 sm:p-6 p-2 relative">
         <div
           ref={hostRef}
@@ -492,7 +492,7 @@ export function Puzzle3DCanvas({
         <IconButton
           label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"}
           icon={<RotateCcw className="text-base" aria-hidden="true" />}
-          className="absolute bottom-0 right-0 m-2 inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+          className="absolute bottom-0 right-0 m-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
           onClick={() => {
             cancelInertia();
             resetRef.current?.();

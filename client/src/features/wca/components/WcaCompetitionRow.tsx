@@ -40,7 +40,7 @@ export function WcaCompetitionRow({
     competition.startDate <= today && competition.endDate >= today;
 
   return (
-    <li className="rounded-card border border-line/80 bg-surface p-4 shadow-soft sm:p-5">
+    <li className="rounded-card bg-surface p-4 sm:p-5">
       <div className="flex flex-wrap items-start gap-3">
         <div
           className="flex shrink-0 flex-col items-center leading-none"
@@ -126,7 +126,7 @@ export function WcaCompetitionRow({
             href={competition.website}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
           >
             {t("wca.website")}
             <ExternalLink className="ml-1" />

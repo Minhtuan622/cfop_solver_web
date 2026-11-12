@@ -79,7 +79,7 @@ export function BldBeginnerGuide({
   const guide = guides[Math.min(Math.max(stage, 0), guides.length - 1)];
   return (
     <div
-      className="border-l border-line border-4 border-primary bg-surface-2 px-4 py-2 mb-6"
+      className="border-l bg-surface-2 px-4 py-2 mb-6"
       role="status"
     >
       <div className="flex flex-wrap items-start justify-between gap-2">

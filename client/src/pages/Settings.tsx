@@ -59,7 +59,7 @@ export default function Settings() {
           <Button
             variant="link"
             size="sm"
-            className="border-0 bg-transparent p-0 text-primary hover:underline px-3 py-1.5 text-xs text-muted px-0 mt-4"
+            className="bg-transparent p-0 text-primary hover:underline px-3 py-1.5 text-xs text-muted px-0 mt-4"
             type="button"
             onClick={state.reset}
           >

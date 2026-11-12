@@ -12,7 +12,7 @@ export function AccountDropdown({ children }: Props) {
   return (
     <ul
       id="cfop-account-menu"
-      className="absolute right-0 z-50 mt-2 min-w-56 list-none rounded-2xl border border-line/80 bg-surface p-1.5 shadow-float"
+      className="absolute right-0 z-50 mt-2 min-w-56 list-none rounded-2xl bg-surface p-1.5"
       role="menu"
     >
       {children}

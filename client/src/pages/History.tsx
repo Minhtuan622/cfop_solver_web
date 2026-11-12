@@ -259,13 +259,13 @@ export default function History() {
           <Link
             href="/timer"
             aria-label={t("history.backToTimer")}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold leading-none text-ink outline-none transition hover:bg-surface-2 focus-visible:ring-4 focus-visible:ring-primary/20"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-surface px-3 py-1.5 text-xs font-semibold leading-none text-ink outline-none transition hover:bg-surface-2 focus-visible:ring-4 focus-visible:ring-primary/20"
           >
             <ArrowLeft className="text-base" />
           </Link>
         }
       />
-      <section className="rounded-card border border-line/80 bg-surface shadow-soft">
+      <section className="rounded-card bg-surface">
         <div className="p-5 sm:p-6">
           {entries.length ? (
             <>
@@ -302,8 +302,8 @@ export default function History() {
                   />
                 </div>
               </section>
-              <section className="rounded-card border border-line/80 bg-surface shadow-soft mt-6">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+              <section className="rounded-card bg-surface mt-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
                   <h2 className="text-base font-semibold tracking-tight mb-0">
                     {t("history.trendTitle")}
                   </h2>
@@ -341,8 +341,8 @@ export default function History() {
                   </div>
                 </div>
               </section>
-              <section className="rounded-card border border-line/80 bg-surface shadow-soft mt-6">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6 gap-2">
+              <section className="rounded-card bg-surface mt-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6 gap-2">
                   <h2 className="text-base font-semibold tracking-tight mb-0">
                     {t("history.manageTitle")}
                   </h2>
@@ -382,7 +382,7 @@ export default function History() {
                 </div>
                 <div className="p-5 sm:p-6">
                   {importError ? (
-                    <div className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink">
+                    <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink">
                       {importError}
                     </div>
                   ) : null}
@@ -392,7 +392,7 @@ export default function History() {
                         {t("history.searchLabel")}
                       </label>
                       <div className="flex w-full items-stretch">
-                        <span className="inline-flex items-center border border-line bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
+                        <span className="inline-flex items-center bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
                           <Search className="text-base" />
                         </span>
                         <Input
@@ -446,11 +446,11 @@ export default function History() {
                     </div>
                   </div>
                   {filtered.length ? (
-                    <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink flex flex-wrap justify-between items-center gap-2 mt-4 mb-0">
+                    <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink flex flex-wrap justify-between items-center gap-2 mt-4 mb-0">
                       <label className="flex items-center gap-2 mb-0">
                         <input
                           type="checkbox"
-                          className="h-4 w-4 rounded border-line accent-primary"
+                          className="h-4 w-4 rounded accent-primary"
                           checked={allSelected}
                           onChange={toggleVisible}
                         />{" "}
@@ -468,7 +468,7 @@ export default function History() {
                     </div>
                   ) : null}
                 </div>
-                <div className="divide-y divide-line bg-transparent border-0">
+                <div className="divide-y divide-line bg-transparent">
                   {filtered.length ? (
                     filtered
                       .slice(0, 100)
@@ -564,7 +564,7 @@ export default function History() {
               ) : null}
               {solutionError ? (
                 <div className="col-span-12">
-                  <div className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mb-0">
+                  <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mb-0">
                     {solutionError}
                   </div>
                 </div>
@@ -709,7 +709,7 @@ function SolveRow({
         <div className="col-span-1">
           <input
             type="checkbox"
-            className="h-4 w-4 rounded border-line accent-primary"
+            className="h-4 w-4 rounded accent-primary"
             checked={selected}
             onChange={onSelect}
             aria-label={t("history.selectSolve")}
@@ -788,7 +788,7 @@ function SolveRow({
             label={t("history.deleteRow")}
             icon={<Trash2 className="text-base" />}
             onClick={onDelete}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
           />
         </div>
         <div className="col-span-12 text-right">

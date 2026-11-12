@@ -91,7 +91,7 @@ export default function WcaCompetitions() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
       <section
-        className="relative overflow-hidden rounded-3xl border border-line/80 bg-surface px-5 py-6 shadow-soft sm:px-8"
+        className="relative overflow-hidden rounded-3xl bg-surface px-5 py-6 sm:px-8"
         aria-labelledby="wca-title"
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_0%,rgba(91,91,214,0.14),transparent_55%)]" />
@@ -137,7 +137,7 @@ export default function WcaCompetitions() {
               href={WCA_CALENDAR_URL}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t("wca.openCalendar")}
               <ExternalLink className="ml-1" />
@@ -213,7 +213,7 @@ export default function WcaCompetitions() {
               action={
                 <Button
                   type="button"
-                  variant="outlined"
+                  variant="secondary"
                   size="plain"
                   className="px-3 py-1.5 text-xs"
                   onClick={() => setQuery("")}
@@ -232,7 +232,7 @@ export default function WcaCompetitions() {
                 >
                   <Button
                     type="button"
-                    variant="outlined"
+                    variant="secondary"
                     size="plain"
                     className="px-3 py-1.5 text-xs"
                     disabled={currentPage === 1}
@@ -248,7 +248,7 @@ export default function WcaCompetitions() {
                   </span>
                   <Button
                     type="button"
-                    variant="outlined"
+                    variant="secondary"
                     size="plain"
                     className="px-3 py-1.5 text-xs"
                     disabled={currentPage === totalPages}

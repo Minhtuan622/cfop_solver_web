@@ -138,8 +138,8 @@ export function BldTrainingLab({
     : undefined;
   const copy = labels[kind];
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+    <section className="rounded-card bg-surface">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
         <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
           {vi ? "Bài tập công thức" : "Algorithm practice"}
         </p>
@@ -177,13 +177,13 @@ export function BldTrainingLab({
         {loading ? (
           <SkeletonCard
             lines={4}
-            className="border-0 p-0 shadow-none"
+            className="p-0"
             label={
               vi ? "Đang nạp catalog bài tập BLD" : "Loading BLD drill catalog"
             }
           />
         ) : failed ? (
-          <div className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mb-0">
             {vi
               ? "Không tải được bài tập khi đang ngoại tuyến. Hãy thử lại khi có mạng."
               : "The practice could not load while offline. Try again online."}
@@ -218,11 +218,11 @@ export function BldTrainingLab({
                   <Eye className="text-base" />
                 )
               }
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 self-start"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 self-start"
               onClick={() => setRevealed(current => !current)}
             />
             {revealed && (
-              <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2">
+              <div className="rounded-card bg-surface bg-surface-2">
                 <div className="p-5 sm:p-6">
                   <p className="text-sm text-muted mb-2">
                     {vi ? "Công thức để thực hiện" : "Algorithm to execute"}
@@ -254,12 +254,12 @@ export function BldTrainingLab({
             <IconButton
               label={vi ? "Đổi tình huống" : "Next situation"}
               icon={<RefreshCw className="text-base" />}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 self-start"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 self-start"
               onClick={next}
             />
           </div>
         ) : (
-          <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mb-0">
             {vi
               ? "Chưa có bài tập cho tình huống này."
               : "No exercise is available for this situation."}

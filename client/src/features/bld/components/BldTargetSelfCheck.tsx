@@ -73,7 +73,7 @@ export function BldTargetSelfCheck({
     );
   };
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2 mb-6">
+    <section className="rounded-card bg-surface bg-surface-2 mb-6">
       <div className="p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -97,7 +97,7 @@ export function BldTargetSelfCheck({
         </p>
         {target ? (
           <>
-            <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+            <div className="rounded-card bg-surface">
               <div className="p-5 sm:p-6 py-2">
                 <span className="text-sm text-muted block mb-1">
                   {vi ? "Target scramble" : "Target scramble"}
@@ -149,14 +149,14 @@ export function BldTargetSelfCheck({
             </div>
           </>
         ) : (
-          <div className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mt-4 mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mt-4 mb-0">
             {vi
               ? "Biến thể này có ký hiệu chưa được cube engine hỗ trợ nên chưa thể tạo target tự kiểm. Bạn vẫn có thể xem và chọn công thức trong thư viện."
               : "This variant uses notation the cube engine does not support, so a self-check target cannot be created yet. You can still view and choose it in the library."}
           </div>
         )}
         {result === "pass" && (
-          <div className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink mt-4 mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink mt-4 mb-0">
             <Check className="text-base mr-1" />
             {vi
               ? "Đúng. Solution của bạn đưa target scramble có AUF về khối đã giải."
@@ -164,14 +164,14 @@ export function BldTargetSelfCheck({
           </div>
         )}
         {result === "wrong" && (
-          <div className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mt-4 mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mt-4 mb-0">
             {vi
               ? "Chưa giải xong target. Kiểm tra lại công thức và phần AUF ở cuối scramble."
               : "The target is not solved yet. Check the algorithm and the AUF at the end of the scramble."}
           </div>
         )}
         {result === "invalid" && (
-          <div className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mt-4 mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mt-4 mb-0">
             {vi
               ? "Có ký hiệu nước chưa được hỗ trợ. Hãy dùng ký hiệu chuẩn như R, U', M hoặc l."
               : "An unsupported move notation was used. Try standard notation such as R, U', M, or l."}

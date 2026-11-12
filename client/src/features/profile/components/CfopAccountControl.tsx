@@ -74,9 +74,9 @@ export function CfopAccountControl() {
       <div ref={menuRef} className="relative">
         <Button
           type="button"
-          variant="outlined"
+          variant="secondary"
           size="plain"
-          className="w-full px-3 py-2 text-sm shadow-sm xl:w-auto"
+          className="w-full px-3 py-2 text-sm xl:w-auto"
           onClick={() => setMenuOpen(value => !value)}
           aria-expanded={menuOpen}
           aria-haspopup="menu"
@@ -119,7 +119,7 @@ export function CfopAccountControl() {
               </Link>
             </li>
             <li>
-              <hr className="my-1 h-px border-0 bg-line" />
+              <hr className="my-1 h-px bg-line" />
             </li>
             <li>
               <button
@@ -146,9 +146,9 @@ export function CfopAccountControl() {
       <div ref={menuRef} className="relative">
         <Button
           type="button"
-          variant="outlined"
+          variant="secondary"
           size="plain"
-          className="w-full px-3 py-2 text-sm shadow-sm xl:w-auto"
+          className="w-full px-3 py-2 text-sm xl:w-auto"
           onClick={() => setMenuOpen(value => !value)}
           aria-expanded={menuOpen}
           aria-haspopup="menu"

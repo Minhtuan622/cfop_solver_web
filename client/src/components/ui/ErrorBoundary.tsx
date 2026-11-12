@@ -36,7 +36,7 @@ class ErrorBoundaryView extends Component<
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-12 justify-center">
           <section className="col-span-12 lg:col-span-8">
-            <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+            <div className="rounded-card bg-surface">
               <div className="p-5 sm:p-6 p-6 md:p-12 text-center">
                 <AlertTriangle className="text-4xl text-danger mb-4" />
                 <h1 className="text-xl font-semibold tracking-tight">

@@ -98,9 +98,10 @@ describe("Card", () => {
     const { container } = render(<Card>Nội dung</Card>);
     const card = container.firstElementChild as HTMLElement;
     expect(card.className).toContain("rounded-card");
-    expect(card.className).toContain("border-line/80");
     expect(card.className).toContain("bg-surface");
-    expect(card.className).toContain("shadow-soft");
+    // Giao diện phẳng: không đổ bóng, không viền bao quanh.
+    expect(card.className).not.toContain("shadow");
+    expect(card.className).not.toContain("border");
   });
 
   it("thêm khoảng đệm khi được yêu cầu", () => {

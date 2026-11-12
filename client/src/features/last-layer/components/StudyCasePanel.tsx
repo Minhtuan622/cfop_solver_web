@@ -57,7 +57,7 @@ export function StudyCasePanel({
 
   if (!activeCase) {
     return (
-      <section className="h-full rounded-card border border-line/80 bg-surface shadow-soft">
+      <section className="h-full rounded-card bg-surface">
         <div className="p-5 sm:p-6">
           <p className="mb-1 text-sm font-semibold tracking-wide text-muted uppercase">
             {t("study.queueLabel")}
@@ -71,7 +71,7 @@ export function StudyCasePanel({
               role="status"
             >
               <span
-                className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+                className="inline-block h-4 w-4 animate-spin rounded-full"
                 aria-hidden="true"
               />
               {t("study.loadingCatalog")}
@@ -84,10 +84,10 @@ export function StudyCasePanel({
 
   return (
     <section
-      className="h-full rounded-card border border-line/80 bg-surface shadow-soft"
+      className="h-full rounded-card bg-surface"
       aria-label={t("study.caseLabel")}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
         <div className="min-w-0">
           <p className="mb-1 text-xs font-semibold tracking-[0.12em] text-muted uppercase">
             {t("study.caseLabel")}
@@ -112,7 +112,7 @@ export function StudyCasePanel({
         <div className="mb-4 flex justify-end">
           <Button
             type="button"
-            variant="outlined"
+            variant="secondary"
             size="plain"
             className="px-3 py-1.5 text-xs"
             onClick={onChooseNext}
@@ -133,7 +133,7 @@ export function StudyCasePanel({
               >
                 <Button
                   type="button"
-                  variant={view === "2d" ? "primary" : "outlined"}
+                  variant={view === "2d" ? "primary" : "secondary"}
                   size="plain"
                   className="px-4 py-2 text-sm"
                   aria-pressed={view === "2d"}
@@ -143,7 +143,7 @@ export function StudyCasePanel({
                 </Button>
                 <Button
                   type="button"
-                  variant={view === "3d" ? "primary" : "outlined"}
+                  variant={view === "3d" ? "primary" : "secondary"}
                   size="plain"
                   className="px-4 py-2 text-sm"
                   aria-pressed={view === "3d"}
@@ -158,7 +158,7 @@ export function StudyCasePanel({
             </div>
 
             {view === "2d" ? (
-              <div className="rounded-xl border border-line bg-surface-2 p-4 text-center">
+              <div className="rounded-xl bg-surface-2 p-4 text-center">
                 <CubeNet state={activeCase.state} />
               </div>
             ) : (
@@ -171,10 +171,10 @@ export function StudyCasePanel({
               />
             )}
 
-            <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
+            <div className="mt-4 flex flex-wrap gap-2 border-t pt-4">
               <Button
                 type="button"
-                variant="outlined"
+                variant="secondary"
                 size="plain"
                 className="px-3 py-1.5 text-xs"
                 onClick={onToggleAlgorithm}
@@ -190,7 +190,7 @@ export function StudyCasePanel({
               </Button>
               <Button
                 type="button"
-                variant="outlined"
+                variant="secondary"
                 size="plain"
                 className="px-3 py-1.5 text-xs"
                 onClick={onToggleMastered}
@@ -201,14 +201,14 @@ export function StudyCasePanel({
             </div>
 
             {showAlgorithm ? (
-              <pre className="mt-4 rounded-xl border border-line bg-surface-2 p-4 font-mono text-wrap">
+              <pre className="mt-4 rounded-xl bg-surface-2 p-4 font-mono text-wrap">
                 {activeCase.algorithm}
               </pre>
             ) : null}
           </div>
 
           <div className="col-span-12 lg:col-span-5">
-            <div className="h-full rounded-card border border-line/80 bg-surface shadow-soft">
+            <div className="h-full rounded-card bg-surface">
               <div className="p-5 sm:p-6">
                 <p className="mb-1 text-sm font-semibold tracking-wide text-muted uppercase">
                   {t("study.recallTitle")}
@@ -225,7 +225,7 @@ export function StudyCasePanel({
                   inspectionEnabled={false}
                 />
 
-                <div className="mt-4 border-t border-line pt-4">
+                <div className="mt-4 border-t pt-4">
                   <p className="mb-2 text-sm text-muted">
                     {lastElapsed === null
                       ? t("study.stopToGrade")
@@ -284,10 +284,10 @@ function GradeButton({
 }) {
   const className =
     tone === "red"
-      ? "inline-flex items-center justify-center rounded-full border border-danger/35 bg-transparent px-4 py-2 text-sm font-semibold text-danger transition hover:bg-danger-soft"
+      ? "inline-flex items-center justify-center rounded-full bg-transparent px-4 py-2 text-sm font-semibold text-danger transition hover:bg-danger-soft"
       : tone === "mint"
-        ? "inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover"
-        : "inline-flex items-center justify-center rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2";
+        ? "inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover"
+        : "inline-flex items-center justify-center rounded-full bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2";
   return (
     <button type="button" onClick={onClick} className={`${className} w-full`}>
       {label}

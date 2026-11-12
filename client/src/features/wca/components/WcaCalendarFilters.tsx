@@ -62,10 +62,10 @@ export function WcaCalendarFilters({
 
   return (
     <section
-      className="mt-8 rounded-card border border-line/80 bg-surface p-5 shadow-soft sm:p-6"
+      className="mt-8 rounded-card bg-surface p-5 sm:p-6"
       aria-label={t("wca.filters")}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
         <h2 className="text-base font-semibold tracking-tight text-ink">
           {t("wca.filters")}
         </h2>
@@ -77,7 +77,7 @@ export function WcaCalendarFilters({
           >
             <Button
               type="button"
-              variant="outlined"
+              variant="secondary"
               size="plain"
               className="px-4 py-2 text-sm"
               onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
@@ -86,7 +86,7 @@ export function WcaCalendarFilters({
             </Button>
             <Button
               type="button"
-              variant="outlined"
+              variant="secondary"
               size="plain"
               className="px-4 py-2 text-sm"
               onClick={() => {
@@ -99,7 +99,7 @@ export function WcaCalendarFilters({
             </Button>
             <Button
               type="button"
-              variant="outlined"
+              variant="secondary"
               size="plain"
               className="px-4 py-2 text-sm"
               onClick={() => jumpTo(currentYear, 0)}
@@ -180,13 +180,13 @@ export function WcaCalendarFilters({
           className="md:col-span-2"
         >
           <div className="flex h-full w-full items-stretch">
-            <span className="inline-flex items-center rounded-l-full border border-r-0 border-line bg-surface-2 px-3 text-sm text-muted">
+            <span className="inline-flex items-center rounded-l-full bg-surface-2 px-3 text-sm text-muted">
               <Search />
             </span>
             <input
               id="wca-search"
               type="search"
-              className="h-full w-full rounded-r-full border border-line bg-surface px-4 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-full w-full rounded-r-full bg-surface px-4 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
               value={query}
               placeholder={t("wca.searchPlaceholder")}
               onChange={event => onQueryChange(event.target.value)}

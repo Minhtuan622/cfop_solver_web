@@ -19,7 +19,7 @@ export function SolverDetails({
   return (
     <details
       className={cn(
-        "group rounded-panel border border-line bg-surface-2/60 open:bg-surface-2",
+        "group rounded-panel bg-surface-2/60 open:bg-surface-2",
         className
       )}
     >

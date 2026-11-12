@@ -94,7 +94,7 @@ export function BldMemoLab({
   const today = reviewedToday(profile);
   const due = dueMemoRecords(profile).length;
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+    <section className="rounded-card bg-surface h-full">
       <div className="p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -121,13 +121,13 @@ export function BldMemoLab({
             }
             className={
               profile.audioEnabled
-                ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-3 py-1.5 text-xs"
-                : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+                ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white hover:bg-primary-hover px-3 py-1.5 text-xs"
+                : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
             }
           />
         </div>
         {prompt ? (
-          <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2 mt-4">
+          <div className="rounded-card bg-surface bg-surface-2 mt-4">
             <div className="p-5 sm:p-6">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-semibold text-muted">
@@ -167,8 +167,8 @@ export function BldMemoLab({
               <div
                 className={
                   revealed
-                    ? "font-mono text-xl font-bold text-center py-4 mt-4 bg-surface border border-line rounded-xl"
-                    : "font-mono text-xl font-bold text-center py-4 mt-4 bg-surface border border-line rounded-xl text-muted"
+                    ? "font-mono text-xl font-bold text-center py-4 mt-4 bg-surface rounded-xl"
+                    : "font-mono text-xl font-bold text-center py-4 mt-4 bg-surface rounded-xl text-muted"
                 }
               >
                 {revealed ? prompt.memo : "••  ••  ••"}
@@ -178,11 +178,11 @@ export function BldMemoLab({
                   label={vi ? "Đọc letter" : "Speak letters"}
                   icon={<Volume2 className="text-base" />}
                   onClick={speak}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mt-2"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mt-2"
                 />
               )}
               {audioError && (
-                <div className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink py-2 mt-2 mb-0">
+                <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink py-2 mt-2 mb-0">
                   {audioError}
                 </div>
               )}
@@ -222,7 +222,7 @@ export function BldMemoLab({
             </div>
           </div>
         ) : (
-          <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
             {vi
               ? "Tạo memo 3-Style trong Studio hoặc nhập hồ sơ có mục đến hạn để bắt đầu ôn."
               : "Build a 3-Style memo in Studio or import a profile with due prompts to begin."}
@@ -236,7 +236,7 @@ export function BldMemoLab({
             setCursor(current => current + 1);
           }}
           disabled={!prompts.length}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mt-4"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mt-4"
         />
       </div>
     </section>
@@ -253,10 +253,10 @@ function GradeButton({
 }) {
   const className =
     tone === "red"
-      ? "inline-flex items-center justify-center gap-2 rounded-full border border-danger/35 bg-transparent px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger-soft"
+      ? "inline-flex items-center justify-center gap-2 rounded-full bg-transparent px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger-soft"
       : tone === "mint"
-        ? "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-primary/25 transition hover:bg-primary-hover"
-        : "inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2";
+        ? "inline-flex items-center justify-center gap-2 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-hover"
+        : "inline-flex items-center justify-center gap-2 rounded-full bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2";
   return (
     <button type="button" onClick={onClick} className={className}>
       {label}

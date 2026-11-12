@@ -119,9 +119,10 @@ import { IconButton, PageHeader, StatTile } from "@/components/ui/StudioUI";
 import { PanelHeader, RoundButton } from "@/components/ui/DesignSystem";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
+
+import { buttonClass } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
-import { buttonClass } from "@/components/ui/Button";
 
 const FACES = ["U", "R", "F", "D", "L", "B"] as const;
 const AVERAGES = TIMER_AVERAGE_SIZES;
@@ -828,7 +829,7 @@ export default function TimerLab() {
               actions={
                 <Link
                   href="/study"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface-2 text-ink hover:bg-surface-3"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface-2 text-ink hover:bg-surface-3"
                 >
                   <BookOpenCheck className="mr-2" />
                   {t("timer.openStudy")}
@@ -837,7 +838,7 @@ export default function TimerLab() {
             />
             <section className="grid grid-cols-12 gap-6">
               <section className="col-span-12 xl:col-span-8">
-                <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+                <div className="rounded-card bg-surface">
                   <div className="p-5 sm:p-6 p-6">
                     <div className="grid grid-cols-12 gap-2 items-end mb-2">
                       <label className="col-span-12 sm:col-span-6">
@@ -904,14 +905,14 @@ export default function TimerLab() {
                       </p>
                     )}
                     {scrambleError ? (
-                      <div className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mb-4">
+                      <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mb-4">
                         {scrambleError}
                       </div>
                     ) : null}
                     <div className="grid grid-cols-12 gap-2 mt-1 items-stretch">
                       <div className="col-span-12 lg:col-span-7">
                         {isMultiBlind && (
-                          <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2 mb-4">
+                          <div className="rounded-card bg-surface bg-surface-2 mb-4">
                             <div className="p-5 sm:p-6">
                               <div className="flex flex-wrap justify-between items-center gap-2">
                                 <label className="mb-1.5 block text-sm font-medium text-ink mb-0">
@@ -937,7 +938,7 @@ export default function TimerLab() {
                                       setMultiBlindScrambles([]);
                                       setScramble("");
                                     }}
-                                    className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
+                                    className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
                                   />
                                 </label>
                                 <span className="text-sm text-muted">
@@ -966,12 +967,12 @@ export default function TimerLab() {
                           </div>
                         )}
                         {scrambleLoading ? (
-                          <div className="rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6 animate-pulse text-center">
+                          <div className="rounded-card bg-surface p-5 sm:p-6 animate-pulse text-center">
                             <span className="block h-3 rounded-full bg-surface-3 w-8/12 mx-auto" />
                             <span className="block h-3 rounded-full bg-surface-3 w-5/12 mx-auto mt-4" />
                           </div>
                         ) : isMultiBlind && !multiBlindReady ? (
-                          <div className="rounded-panel border px-4 py-3 text-sm border-info/20 bg-info-soft text-ink mb-0">
+                          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mb-0">
                             {t("timer.multiBlindMissing")}
                           </div>
                         ) : (
@@ -997,12 +998,12 @@ export default function TimerLab() {
                           />
                         )}
                         {isThreeByThree && !isMultiBlind && spaceSplits && (
-                          <div className="rounded-panel border px-4 py-3 text-sm border-info/20 bg-info-soft text-ink mt-4 mb-0">
+                          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mt-4 mb-0">
                             {t("timer.splitHint")}
                           </div>
                         )}
                         {saved && (
-                          <div className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink mt-4 mb-0">
+                          <div className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink mt-4 mb-0">
                             {t("timer.saved")}
                           </div>
                         )}
@@ -1011,7 +1012,7 @@ export default function TimerLab() {
                           saved &&
                           latestRecorded &&
                           !latestRecorded.solution.trim() && (
-                            <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                               <span>{t("timer.addSolutionHint")}</span>
                               <Button
                                 variant="outline"
@@ -1044,7 +1045,7 @@ export default function TimerLab() {
                             language={language}
                           />
                         ) : (
-                          <div className="rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6 h-full flex justify-center text-center">
+                          <div className="rounded-card bg-surface p-5 sm:p-6 h-full flex justify-center text-center">
                             <Timer className="text-4xl text-muted mb-4" />
                             <p className="font-semibold mb-1">{eventLabel}</p>
                             <p className="text-sm text-muted mb-0">
@@ -1063,7 +1064,7 @@ export default function TimerLab() {
                 className="col-span-12 xl:col-span-4"
                 aria-label={t("timer.stats")}
               >
-                <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+                <div className="rounded-card bg-surface h-full">
                   <div className="p-5 sm:p-6">
                     <PanelHeader
                       icon={<BarChart3 className="text-lg" />}
@@ -1169,7 +1170,7 @@ export default function TimerLab() {
                 </h2>
                 <div className="mt-6 flex flex-col gap-6">
                   <section className="grid grid-cols-12 gap-6">
-                    <div className="col-span-12 xl:col-span-4 rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6">
+                    <div className="col-span-12 xl:col-span-4 rounded-card bg-surface p-5 sm:p-6">
                       <h3 className="text-sm font-semibold tracking-tight">
                         {t("timer.stats")}
                       </h3>
@@ -1192,7 +1193,7 @@ export default function TimerLab() {
                         ))}
                       </div>
                     </div>
-                    <div className="col-span-12 xl:col-span-8 rounded-card border border-line/80 bg-surface shadow-soft p-5 sm:p-6">
+                    <div className="col-span-12 xl:col-span-8 rounded-card bg-surface p-5 sm:p-6">
                       <h3 className="text-sm font-semibold tracking-tight">
                         {t("timer.progress")}
                       </h3>
@@ -1263,7 +1264,7 @@ export default function TimerLab() {
                           </ResponsiveContainer>
                         </div>
                       ) : (
-                        <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-6">
+                        <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-6">
                           {t("timer.chartEmpty")}
                         </div>
                       )}
@@ -1272,7 +1273,7 @@ export default function TimerLab() {
 
                   <section className="grid grid-cols-12 gap-6 mt-4">
                     <div className="col-span-12 lg:col-span-4">
-                      <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+                      <div className="rounded-card bg-surface h-full">
                         <div className="p-5 sm:p-6">
                           <h3 className="text-sm font-semibold tracking-tight">
                             {t("timer.targets")}
@@ -1280,7 +1281,7 @@ export default function TimerLab() {
                           {SPEED_PHASES.map(phase => (
                             <label
                               key={phase}
-                              className="mb-1.5 block text-sm font-medium text-ink flex items-center justify-between border-b border-line py-2 mb-0"
+                              className="mb-1.5 block text-sm font-medium text-ink flex items-center justify-between border-b py-2 mb-0"
                             >
                               <span>{phase}</span>
                               <div className="flex w-full items-stretch text-xs w-auto">
@@ -1298,9 +1299,9 @@ export default function TimerLab() {
                                         [phase]: next,
                                       }));
                                   }}
-                                  className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 text-right"
+                                  className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 text-right"
                                 />
-                                <span className="inline-flex items-center border border-line bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
+                                <span className="inline-flex items-center bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
                                   s
                                 </span>
                               </div>
@@ -1310,7 +1311,7 @@ export default function TimerLab() {
                       </div>
                     </div>
                     <div className="col-span-12 lg:col-span-8">
-                      <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+                      <div className="rounded-card bg-surface h-full">
                         <div className="p-5 sm:p-6">
                           <div className="flex justify-between items-center">
                             <h3 className="text-sm font-semibold tracking-tight mb-0">
@@ -1379,7 +1380,7 @@ export default function TimerLab() {
                               </ResponsiveContainer>
                             </div>
                           ) : (
-                            <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink text-center mt-4 mb-0">
+                            <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink text-center mt-4 mb-0">
                               {t("timer.phaseEmpty")}
                             </div>
                           )}
@@ -1390,7 +1391,7 @@ export default function TimerLab() {
 
                   <section className="grid grid-cols-12 gap-6 mt-4">
                     <div className="col-span-12 lg:col-span-4">
-                      <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+                      <div className="rounded-card bg-surface h-full">
                         <div className="p-5 sm:p-6">
                           <h3 className="text-sm font-semibold tracking-tight">
                             {t("timer.presets")}
@@ -1426,7 +1427,7 @@ export default function TimerLab() {
                       </div>
                     </div>
                     <div className="col-span-12 lg:col-span-8">
-                      <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+                      <div className="rounded-card bg-surface h-full">
                         <div className="p-5 sm:p-6">
                           <div className="flex justify-between items-center">
                             <h3 className="text-sm font-semibold tracking-tight mb-0">
@@ -1442,7 +1443,7 @@ export default function TimerLab() {
                                 key={phase}
                                 className="col-span-12 md:col-span-6"
                               >
-                                <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2 h-full">
+                                <div className="rounded-card bg-surface bg-surface-2 h-full">
                                   <div className="p-5 sm:p-6">
                                     <div className="flex justify-between">
                                       <strong>{phase}</strong>
@@ -1486,7 +1487,7 @@ export default function TimerLab() {
                     </div>
                   </section>
 
-                  <section className="rounded-card border border-line/80 bg-surface shadow-soft mt-6">
+                  <section className="rounded-card bg-surface mt-6">
                     <div className="p-5 sm:p-6">
                       <div className="flex flex-wrap justify-between gap-2">
                         <h3 className="text-sm font-semibold tracking-tight mb-0">
@@ -1527,7 +1528,7 @@ export default function TimerLab() {
                           </div>
                         </div>
                       ) : (
-                        <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0">
+                        <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
                           {t("timer.noSolutionToAnalyze")}
                         </div>
                       )}
@@ -1536,8 +1537,8 @@ export default function TimerLab() {
                 </div>
               </section>
               <section className="col-span-12">
-                <div className="rounded-card border border-line/80 bg-surface shadow-soft">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6 gap-2">
+                <div className="rounded-card bg-surface">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6 gap-2">
                     <div>
                       <h2 className="text-base font-semibold tracking-tight mb-0">
                         {t("timer.recentTitle", { event: eventLabel })}
@@ -1555,13 +1556,13 @@ export default function TimerLab() {
                   </div>
                   <div className="p-5 sm:p-6">
                     {eventEntries.length ? (
-                      <div className="divide-y divide-line bg-transparent border-0">
+                      <div className="divide-y divide-line bg-transparent">
                         {eventEntries.slice(0, 5).map(item => (
                           <RecentTimerSolve key={item.id} item={item} />
                         ))}
                       </div>
                     ) : (
-                      <div className="rounded-panel border px-4 py-3 text-sm border-info/20 bg-info-soft text-ink mb-0">
+                      <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mb-0">
                         {t("timer.noEventSolves", { event: eventLabel })}
                       </div>
                     )}
@@ -1651,7 +1652,7 @@ export default function TimerLab() {
                     </div>
                   )}
                   {selectedMetricDetail?.entries.length ? (
-                    <div className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface mt-4">
+                    <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface mt-4">
                       {selectedMetricDetail.entries.map(entry => (
                         <MetricDetailCard
                           key={entry.id}
@@ -1666,7 +1667,7 @@ export default function TimerLab() {
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0">
+                    <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
                       {t("timer.noScrambleYet")}
                     </div>
                   )}
@@ -1776,7 +1777,7 @@ export default function TimerLab() {
                       <div className="col-span-12">
                         <div
                           role="alert"
-                          className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mb-0"
+                          className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mb-0"
                         >
                           {solutionError}
                         </div>
@@ -1863,7 +1864,7 @@ export default function TimerLab() {
                         />
                       </div>
                       <div className="col-span-12 lg:col-span-5">
-                        <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+                        <div className="rounded-card bg-surface h-full">
                           <div className="p-5 sm:p-6">
                             <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
                               {t("timer.move")}
@@ -1952,7 +1953,7 @@ export default function TimerLab() {
                                 </div>
                               </div>
                             ) : (
-                              <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink py-2 mt-4 mb-0">
+                              <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink py-2 mt-4 mb-0">
                                 {t("timer.tpsEmpty")}
                               </div>
                             )}
@@ -2020,7 +2021,7 @@ export default function TimerLab() {
                       </div>
                     </div>
                   ) : (
-                    <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mb-0">
+                    <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mb-0">
                       {t("timer.noSolution")}
                     </div>
                   )}
@@ -2095,7 +2096,7 @@ function EventProgressCard({
 }) {
   const { t } = useLanguage();
   return (
-    <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+    <div className="rounded-card bg-surface h-full">
       <div className="p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -2160,7 +2161,7 @@ function EventProgressCard({
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="rounded-panel border px-4 py-3 text-sm border-info/20 bg-info-soft text-ink mt-4 mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mt-4 mb-0">
             {t("timer.firstSolveHint", { event: eventLabel })}
           </div>
         )}
@@ -2197,7 +2198,7 @@ function EventWcaComparisonCard({
 }) {
   const { t } = useLanguage();
   return (
-    <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+    <div className="rounded-card bg-surface">
       <div className="p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -2223,7 +2224,7 @@ function EventWcaComparisonCard({
           )}
         </div>
         {!hasWcaId ? (
-          <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
             {t("timer.wcaLinkHint")}
           </div>
         ) : loading ? (
@@ -2232,13 +2233,13 @@ function EventWcaComparisonCard({
             <span className="block h-3 rounded-full bg-surface-3 w-5/12 mt-2" />
           </div>
         ) : unavailable ? (
-          <div className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mt-4 mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mt-4 mb-0">
             {t("timer.wcaUnavailable")}
           </div>
         ) : (
           <>
             <div className="w-full overflow-x-auto mt-4">
-              <table className="w-full border-collapse text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 align-middle mb-0">
+              <table className="w-full text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 align-middle mb-0">
                 <thead>
                   <tr>
                     <th scope="col">{t("timer.wcaMetricColumn")}</th>
@@ -2451,7 +2452,7 @@ function MultiBlindScrambleList({
       <p className="text-sm font-semibold mb-2">
         {t("timer.multiBlindBundle", { count: scrambles.length })}
       </p>
-      <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
+      <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
         {scrambles.map((item, index) => (
           <li
             key={`${index}-${item}`}
@@ -2480,7 +2481,7 @@ function MultiBlindResultCard({
   const { t } = useLanguage();
   const result = multiBlindResult({ attempted, solved }, completion.elapsedMs);
   return (
-    <div className="rounded-card border border-line/80 bg-surface shadow-soft border-primary mt-4">
+    <div className="rounded-card bg-surface mt-4">
       <div className="p-5 sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -2509,15 +2510,15 @@ function MultiBlindResultCard({
                   )
                 )
               }
-              className="w-full rounded-field border border-line bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1 w-auto"
+              className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1 w-auto"
             />
           </label>
         </div>
         <div
           className={
             result.valid
-              ? "rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink mt-4 mb-4"
-              : "rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mt-4 mb-4"
+              ? "rounded-panel px-4 py-3 text-sm bg-success-soft text-ink mt-4 mb-4"
+              : "rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mt-4 mb-4"
           }
         >
           {t("timer.multiBlindSummary", {

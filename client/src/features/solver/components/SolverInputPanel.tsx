@@ -90,7 +90,7 @@ export function SolverInputPanel({
 
       <div className="px-6 pb-6">
         {solving ? (
-          <div className="rounded-panel border px-4 py-3 text-sm border-info/20 bg-info-soft text-ink">
+          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink">
             <strong>BUFFER / UF (C)</strong> · UBL (A)
             <br />
             {t("home.bldPrepare")}
@@ -122,7 +122,7 @@ export function SolverInputPanel({
                   aria-live="polite"
                 >
                   <span
-                    className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent align-[-0.125em] h-3.5 w-3.5 mr-2"
+                    className="inline-block h-4 w-4 animate-spin rounded-full align-[-0.125em] h-3.5 w-3.5 mr-2"
                     aria-hidden="true"
                   />
                   {status || t("home.preparing")}
@@ -202,7 +202,7 @@ export function SolverInputPanel({
               <Button
                 variant="link"
                 size="sm"
-                className="border-0 p-0 no-underline"
+                className="p-0 no-underline"
                 type="button"
 
                 onClick={onResetDefaults}
@@ -267,7 +267,7 @@ export function SolverInputPanel({
               aria-live="polite"
             >
               <span
-                className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent align-[-0.125em] h-3.5 w-3.5 mr-2"
+                className="inline-block h-4 w-4 animate-spin rounded-full align-[-0.125em] h-3.5 w-3.5 mr-2"
                 aria-hidden="true"
               />
               {status || t("home.preparing")}
@@ -291,7 +291,7 @@ export function SolverInputPanel({
             }
             onClick={onSolve}
             className={cn(
-              "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-6 py-3 text-base w-full mt-6"
+              "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white hover:bg-primary-hover px-6 py-3 text-base w-full mt-6"
             )}
           >
             <Play className="text-lg mr-1" aria-hidden="true" />

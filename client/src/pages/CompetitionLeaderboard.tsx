@@ -71,7 +71,7 @@ function LeaderboardTable({
   return (
     <LoadingTransition>
       <div className="w-full overflow-x-auto">
-        <table className="w-full border-collapse text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_tbody_tr:hover]:bg-surface-2 align-middle mb-0">
+        <table className="w-full text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_tbody_tr:hover]:bg-surface-2 align-middle mb-0">
           <caption className="sr-only">
             {t("competition.table.caption")}
           </caption>
@@ -286,7 +286,7 @@ function PlayerHistory({ accountId }: { accountId: number }) {
                     </h3>
                     {mine.length ? (
                       <div className="w-full overflow-x-auto">
-                        <table className="w-full border-collapse text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 [&_tbody_tr:hover]:bg-surface-2 align-middle">
+                        <table className="w-full text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 [&_tbody_tr:hover]:bg-surface-2 align-middle">
                           <thead>
                             <tr>
                               <th scope="col">
@@ -341,7 +341,7 @@ function PlayerHistory({ accountId }: { accountId: number }) {
                     <h3 className="text-sm font-semibold tracking-tight">
                       {t("competition.player.roomStandings")}
                     </h3>
-                    <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
+                    <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
                       {entry.standings.map(player => (
                         <li
                           key={player.accountId}
@@ -536,7 +536,7 @@ function LeaderboardHome() {
                 {t("competition.myHistory.failedDetail")}
               </StatusFeedback>
             ) : historyQuery.data?.length ? (
-              <div className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface">
+              <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface">
                 {historyQuery.data.slice(0, 6).map(entry => (
                   <Link
                     key={entry.room.id}
@@ -569,7 +569,7 @@ function LeaderboardHome() {
             {account ? (
               <Link
                 href={`/competition/player/${account.id}`}
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mt-4"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mt-4"
               >
                 {t("competition.myHistory.detail")}
               </Link>

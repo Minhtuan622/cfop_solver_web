@@ -81,14 +81,14 @@ export function AppNav() {
 
   return (
     <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4 lg:px-6">
-      <div className="mx-auto flex w-full max-w-[88rem] flex-wrap items-center gap-2 rounded-[1.4rem] border border-white/70 bg-surface/80 px-3 py-2 shadow-soft backdrop-blur-xl dark:border-line/70 sm:px-4">
+      <div className="mx-auto flex w-full max-w-[88rem] flex-wrap items-center gap-2 rounded-[1.4rem] bg-surface/80 px-3 py-2 backdrop-blur-xl sm:px-4">
         <Link
           href="/"
           className="group flex min-w-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
           aria-label={t("nav.brandLabel")}
           onClick={closeMenus}
         >
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-linear-to-br from-primary to-accent text-white shadow-lg shadow-primary/25 transition-transform duration-300 group-hover:-rotate-6">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-linear-to-br from-primary to-accent text-white transition-transform duration-300 group-hover:-rotate-6">
             <BoxSeam className="text-xl" />
           </span>
           <span className="min-w-0">
@@ -121,7 +121,7 @@ export function AppNav() {
           className={cn(
             "order-last basis-full flex-col gap-2 xl:order-none xl:flex xl:flex-1 xl:basis-auto xl:flex-row xl:items-center xl:justify-end xl:gap-1",
             expanded
-              ? "mt-2 flex border-t border-line/70 pt-3 xl:mt-0 xl:border-0 xl:pt-0"
+              ? "mt-2 flex border-t pt-3 xl:mt-0 xl:pt-0"
               : "hidden xl:flex"
           )}
         >
@@ -139,7 +139,7 @@ export function AppNav() {
                   className={cn(
                     "flex items-center rounded-full px-4 py-2.5 text-sm font-medium transition xl:py-2",
                     active
-                      ? "bg-primary text-white shadow-sm shadow-primary/25"
+                      ? "bg-primary text-white"
                       : "text-muted hover:bg-surface-2 hover:text-ink"
                   )}
                   aria-current={active ? "page" : undefined}
@@ -154,7 +154,7 @@ export function AppNav() {
               onNavigate={closeMenus}
             />
           </nav>
-          <div className="mt-2 flex items-center gap-1 border-t border-line/70 pt-3 xl:mt-0 xl:ml-2 xl:border-0 xl:pt-0">
+          <div className="mt-2 flex items-center gap-1 border-t pt-3 xl:mt-0 xl:ml-2 xl:pt-0">
             <LanguageSwitcher compact />
             <ThemeSwitcher compact />
             <CfopAccountControl />

@@ -171,7 +171,7 @@ export default function Rooms() {
           {t("rooms.title")}
         </h1>
         <SystemLeaderboard />
-        <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-6">
+        <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-6">
           {t("rooms.signInHint")}
         </div>
       </div>
@@ -232,7 +232,7 @@ export default function Rooms() {
   if (!room)
     return (
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink">
+        <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink">
           <h1 className="text-lg font-semibold tracking-tight">
             {t("rooms.roomTitle", { code })}
           </h1>
@@ -248,7 +248,7 @@ export default function Rooms() {
             </PendingButton>
             <PendingButton
               type="button"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft"
               pending={spectate.isPending}
               onClick={() => spectate.mutate({ code })}
             >
@@ -317,7 +317,7 @@ export default function Rooms() {
           <div className="flex flex-wrap gap-2">
             <PendingButton
               type="button"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs"
               pending={copyInvite.pending}
               onClick={() => void copyInvite.run()}
             >
@@ -326,7 +326,7 @@ export default function Rooms() {
             {room.isHost && room.room.status === "finished" ? (
               <PendingButton
                 type="button"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-success text-white shadow-sm hover:brightness-95 px-3 py-1.5 text-xs"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-success text-white hover:brightness-95 px-3 py-1.5 text-xs"
                 pending={rematch.isPending}
                 onClick={() => rematch.mutate({ code })}
               >
@@ -357,7 +357,7 @@ export default function Rooms() {
           </div>
         </div>
         {room.isSpectator ? (
-          <div className="rounded-panel border px-4 py-3 text-sm border-info/20 bg-info-soft text-ink">
+          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink">
             {t("rooms.spectatorNoticePrefix")}{" "}
             <strong>
               {room.isModerator
@@ -441,12 +441,12 @@ export default function Rooms() {
           />
         </div>
         {message ? (
-          <div className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink mt-6">
+          <div className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink mt-6">
             {message}
           </div>
         ) : null}
         {error ? (
-          <div className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mt-6">
+          <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mt-6">
             {error}
           </div>
         ) : null}

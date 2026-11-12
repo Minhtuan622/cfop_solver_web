@@ -80,7 +80,7 @@ export function RoomRoundPanel({
               ),
             })}
           </p>
-          <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
+          <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
             {activeRound.scrambleBundle.map((scramble, index) => (
               <li
                 key={`${index}-${scramble}`}
@@ -109,10 +109,10 @@ export function RoomRoundPanel({
   );
 
   return (
-    <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+    <div className="rounded-card bg-surface">
       <div className="p-5 sm:p-6">
         {status === "finished" ? (
-          <div className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink mb-0">
             {t("rooms.round.finished")}{" "}
             {isHost ? t("rooms.round.finishedHost") : ""}
           </div>
@@ -131,7 +131,7 @@ export function RoomRoundPanel({
               {isHost && activeRound.sequence < roundLimit ? (
                 <PendingButton
                   type="button"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft self-start"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft self-start"
                   pending={startPending}
                   onClick={onStartRound}
                 >
@@ -141,16 +141,16 @@ export function RoomRoundPanel({
             </div>
             <hr />
             {isSpectator ? (
-              <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mb-0">
+              <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mb-0">
                 {t("rooms.round.spectating")}
               </div>
             ) : isMultiBlind ? (
               submitted ? (
-                <div className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink">
+                <div className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink">
                   {t("rooms.round.submitted", { result: myResultLabel })}
                 </div>
               ) : pendingMultiBlind ? (
-                <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2">
+                <div className="rounded-card bg-surface bg-surface-2">
                   <div className="p-5 sm:p-6">
                     <h2 className="text-sm font-semibold tracking-tight">
                       {t("rooms.round.mbldTitle")}
@@ -201,7 +201,7 @@ export function RoomRoundPanel({
                 />
               )
             ) : submitted ? (
-              <div className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink">
+              <div className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink">
                 {t("rooms.round.submitted", { result: myResultLabel })}
               </div>
             ) : (
@@ -213,7 +213,7 @@ export function RoomRoundPanel({
             )}
           </>
         ) : (
-          <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mb-0">
             <h2 className="text-base font-semibold tracking-tight">
               {t("rooms.round.waitingTitle")}
             </h2>
@@ -230,7 +230,7 @@ export function RoomRoundPanel({
                 {currentRound ? (
                   <PendingButton
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-success/35 bg-transparent text-success hover:bg-success-soft"
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-success hover:bg-success-soft"
                     pending={finishPending}
                     onClick={onFinish}
                   >

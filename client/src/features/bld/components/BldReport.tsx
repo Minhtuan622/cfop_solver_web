@@ -209,7 +209,7 @@ function MemoTokens({
 }) {
   return (
     <section className="col-span-12 lg:col-span-6">
-      <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2 h-full">
+      <div className="rounded-card bg-surface bg-surface-2 h-full">
         <div className="p-5 sm:p-6">
           <div className="flex justify-between items-center">
             <h3 className="text-sm font-semibold tracking-tight mb-0">
@@ -224,7 +224,7 @@ function MemoTokens({
               memo.map((pair, index) => (
                 <span
                   key={`${pair}-${index}`}
-                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-2 text-ink border border-line font-mono"
+                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-2 text-ink font-mono"
                 >
                   {pair}
                 </span>
@@ -303,7 +303,7 @@ function AlgorithmRow({
               label={vi ? "Xóa ưu tiên" : "Clear preference"}
               icon={<X className="text-base" />}
               onClick={() => onProfile(setPreferredAlgorithm(profile, key, ""))}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-danger/35 bg-transparent text-danger hover:bg-danger-soft"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-danger hover:bg-danger-soft"
             />
           )}
         </div>
@@ -450,8 +450,8 @@ export function BldReport({
     return edge && corner ? `${edge}${corner}` : "";
   }, [catalogs, parityCorners, parityEdges]);
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6 gap-2">
+    <section className="rounded-card bg-surface">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6 gap-2">
         <div>
           <p className="text-sm uppercase tracking-wide text-muted font-semibold mb-1">
             3-Style BLD · Speffz
@@ -477,7 +477,7 @@ export function BldReport({
         </p>
         <RouteLink
           href="/study?lane=bld"
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs mb-4"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs mb-4"
         >
           {vi
             ? "Tiếp tục học 3-Style trong Study"
@@ -509,7 +509,7 @@ export function BldReport({
               }
             />
           ) : executions.length ? (
-            <div className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface mt-2">
+            <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface mt-2">
               {executions.map((entry, index) => (
                 <AlgorithmRow
                   key={`${entry.label}-${entry.key}-${index}`}
@@ -526,7 +526,7 @@ export function BldReport({
               ))}
             </div>
           ) : (
-            <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-2 mb-0">
+            <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-2 mb-0">
               {vi ? "Không có 3-cycle cần execute." : "No 3-cycles to execute."}
             </div>
           )}
@@ -547,7 +547,7 @@ export function BldReport({
           ) : !special.parity &&
             !special.edge_flips.length &&
             !special.corner_twists.length ? (
-            <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mb-0">
+            <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mb-0">
               {vi
                 ? "Không có parity, flip hoặc twist cần xử lý."
                 : "No parity, flip, or twist requires handling."}
@@ -555,7 +555,7 @@ export function BldReport({
           ) : (
             <div className="flex flex-col gap-2">
               {special.parity && (
-                <div className="rounded-card border border-line/80 bg-surface shadow-soft border-warning">
+                <div className="rounded-card bg-surface">
                   <div className="p-5 sm:p-6">
                     <h4 className="text-sm font-semibold tracking-tight text-warning">
                       Parity ·{" "}
@@ -626,7 +626,7 @@ export function BldReport({
                       )}
                     </div>
                     {parityKey ? (
-                      <div className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface mt-4">
+                      <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface mt-4">
                         <AlgorithmRow
                           type="parity"
                           label="PARITY"
@@ -650,7 +650,7 @@ export function BldReport({
                 </div>
               )}
               {flipPairs.length > 0 && (
-                <div className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface">
+                <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface">
                   {flipPairs.map(entry => (
                     <AlgorithmRow
                       key={entry.key}
@@ -668,7 +668,7 @@ export function BldReport({
                 </div>
               )}
               {Boolean(special.corner_twists.length) && (
-                <div className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface">
+                <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface">
                   <AlgorithmRow
                     type="twist"
                     label={`Twist · ${special.corner_twists.map(item => `${item.position} ${item.direction}`).join(" / ")}`}
@@ -717,7 +717,7 @@ export function BldReport({
             />
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line mt-6 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t mt-6 pt-4">
           <p className="text-sm text-muted mb-0">
             {vi
               ? "• = cycle break; cặp special chưa chọn không được tự suy đoán."
@@ -727,7 +727,7 @@ export function BldReport({
             href="https://blddb.net"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs gap-1"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs gap-1"
           >
             <Link2 className="text-base" />
             BLDDB

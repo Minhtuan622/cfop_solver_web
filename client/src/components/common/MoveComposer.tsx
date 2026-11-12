@@ -34,7 +34,7 @@ export function MoveComposer({
     setPasteValue("");
   };
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft mt-4">
+    <section className="rounded-card bg-surface mt-4">
       <div className="p-5 sm:p-6">
         <div className="flex items-center justify-between gap-4">
           <label className="mb-1.5 block text-sm font-medium text-ink mb-0">
@@ -44,7 +44,7 @@ export function MoveComposer({
             {moves.length} moves
           </span>
         </div>
-        <div className="border border-line rounded-xl p-2 mt-4">
+        <div className="rounded-xl p-2 mt-4">
           {moves.length ? (
             <div className="flex flex-wrap gap-1">
               {moves.map((move, index) => (

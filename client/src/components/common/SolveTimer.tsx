@@ -339,12 +339,12 @@ export function SolveTimer({
         setArmed(false);
       }}
       className={cn(
-        "relative rounded-card border-2 px-4 py-10 text-center transition-colors duration-150 @container",
+        "relative rounded-card px-4 py-10 text-center transition-colors duration-150 @container",
         isInspection
-          ? "border-warning/60 bg-warning-soft/40"
+          ? "bg-warning-soft/40"
           : armed
-            ? "border-primary bg-primary-soft/60"
-            : "border-transparent bg-surface-2"
+            ? "bg-primary-soft/60"
+            : "bg-surface-2"
       )}
       aria-live="polite"
     >
@@ -388,7 +388,7 @@ export function SolveTimer({
         </p>
       )}
       {splitEnabled && mode === "running" && (
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2 border-t border-line pt-4 text-sm">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2 border-t pt-4 text-sm">
           <span className="font-semibold text-primary">{labels.split}</span>
           <span className="text-muted">{labels.next}</span>
           <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-3 text-ink">
@@ -400,7 +400,7 @@ export function SolveTimer({
         </div>
       )}
       {helper && (
-        <div className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink py-2 mt-4 mb-0 text-left">
+        <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink py-2 mt-4 mb-0 text-left">
           {helper}
         </div>
       )}

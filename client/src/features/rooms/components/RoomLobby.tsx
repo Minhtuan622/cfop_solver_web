@@ -73,7 +73,7 @@ export function RoomLobby({
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="grid grid-cols-12 gap-6">
         <section className="col-span-12 xl:col-span-7">
-          <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+          <div className="rounded-card bg-surface">
             <div className="p-5 sm:p-6">
               <h1 className="text-xl font-semibold tracking-tight">
                 {t("rooms.lobby.title")}
@@ -196,7 +196,7 @@ export function RoomLobby({
           </div>
         </section>
         <aside className="col-span-12 xl:col-span-5">
-          <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+          <div className="rounded-card bg-surface">
             <div className="p-5 sm:p-6">
               <h2 className="text-base font-semibold tracking-tight">
                 {t("rooms.lobby.joinByCode")}
@@ -227,7 +227,7 @@ export function RoomLobby({
                   />
                 </Field>
                 <PendingButton
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft mt-4"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft mt-4"
                   pending={joinPending}
                 >
                   {t("rooms.lobby.join")}
@@ -240,7 +240,7 @@ export function RoomLobby({
                 <SkeletonList rows={3} label={t("rooms.lobby.loadingRooms")} />
               ) : myRooms.length ? (
                 <LoadingTransition>
-                  <div className="divide-y divide-line bg-transparent border-0">
+                  <div className="divide-y divide-line bg-transparent">
                     {myRooms.map(room => (
                       <Link
                         key={room.id}
@@ -268,7 +268,7 @@ export function RoomLobby({
       </div>
       <SystemLeaderboard />
       {error ? (
-        <div className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mt-6">
+        <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mt-6">
           {error}
         </div>
       ) : null}

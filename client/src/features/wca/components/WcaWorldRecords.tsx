@@ -46,7 +46,7 @@ export function WcaWorldRecords({
 
   return (
     <section
-      className="mt-8 rounded-card border border-line/80 bg-surface p-4 shadow-soft sm:p-5"
+      className="mt-8 rounded-card bg-surface p-4 sm:p-5"
       aria-labelledby="wca-world-records-title"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -65,7 +65,7 @@ export function WcaWorldRecords({
           </p>
         </div>
         <Button
-          variant="outlined"
+          variant="secondary"
           size="plain"
           className="px-3 py-1.5 text-xs focus-visible:outline-none"
           type="button"
@@ -86,7 +86,7 @@ export function WcaWorldRecords({
       {open ? (
         <div
           id="wca-world-records-panel"
-          className="mt-4 border-t border-line pt-4"
+          className="mt-4 border-t pt-4"
         >
           {isError ? (
             <StatusFeedback tone="danger" title={t("wca.records.loadFailed")}>
@@ -103,7 +103,7 @@ export function WcaWorldRecords({
               <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                 {records.map(record => (
                   <li
-                    className="rounded-panel border border-line bg-surface p-3"
+                    className="rounded-panel bg-surface p-3"
                     key={record.eventId}
                   >
                     <h3 className="mb-2 text-xs font-semibold tracking-tight text-ink">
@@ -150,7 +150,7 @@ export function WcaWorldRecords({
             >
               {Array.from({ length: 8 }, (_, index) => (
                 <div
-                  className="rounded-panel border border-line bg-surface p-3"
+                  className="rounded-panel bg-surface p-3"
                   key={index}
                 >
                   <span className="mb-2 block h-3 w-5/12 rounded-full bg-surface-3" />

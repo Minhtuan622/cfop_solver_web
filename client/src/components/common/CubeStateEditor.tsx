@@ -102,7 +102,7 @@ export function CubeStateEditor({
   };
 
   return (
-    <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2">
+    <div className="rounded-card bg-surface bg-surface-2">
       <div className="p-5 sm:p-6 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-0">
@@ -205,7 +205,7 @@ function PaletteButton({
     >
       <span className="inline-flex items-center gap-1">
         <span
-          className="rounded-xl border border-line"
+          className="rounded-xl"
           style={{
             width: "0.875rem",
             height: "0.875rem",

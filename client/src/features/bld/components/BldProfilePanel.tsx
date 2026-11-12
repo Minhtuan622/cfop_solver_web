@@ -51,7 +51,7 @@ export function BldProfilePanel({
     }
   };
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+    <section className="rounded-card bg-surface h-full">
       <div className="p-5 sm:p-6">
         <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
           BLD · {vi ? "Hồ sơ cá nhân" : "Personal profile"}
@@ -64,7 +64,7 @@ export function BldProfilePanel({
         <div className="flex items-center gap-2 mt-4">
           <input
             id="bld-audio-prompt"
-            className="h-4 w-4 rounded border-line accent-primary"
+            className="h-4 w-4 rounded accent-primary"
             type="checkbox"
             checked={profile.audioEnabled}
             onChange={() =>
@@ -97,7 +97,7 @@ export function BldProfilePanel({
           />
         </div>
         {error && (
-          <div className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mt-4 mb-0">
+          <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mt-4 mb-0">
             {error}
           </div>
         )}

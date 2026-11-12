@@ -51,7 +51,7 @@ export function BldStageChecklist({
   const vi = language === "vi";
   const done = items.filter(item => path[item.key]).length;
   return (
-    <section className="border border-line rounded-xl p-4 mb-6 bg-surface-2">
+    <section className="rounded-xl p-4 mb-6 bg-surface-2">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
@@ -79,10 +79,10 @@ export function BldStageChecklist({
       <div className="grid grid-cols-12 gap-2 mt-1">
         {items.map((item, index) => (
           <div className="col-span-12 md:col-span-6" key={item.key}>
-            <label className="border border-line rounded-xl p-2 flex items-start gap-2 w-full bg-surface">
+            <label className="rounded-xl p-2 flex items-start gap-2 w-full bg-surface">
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-line accent-primary mt-1"
+                className="h-4 w-4 rounded accent-primary mt-1"
                 checked={path[item.key]}
                 onChange={event =>
                   onPath({ ...path, [item.key]: event.target.checked })

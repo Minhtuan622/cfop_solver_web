@@ -19,8 +19,6 @@ export type ButtonVariant =
   | "primary"
   /** Nền trắng, không viền — mặc định của app. */
   | "secondary"
-  /** Nền trắng có viền xám. */
-  | "outlined"
   /** Nền xám nhạt có viền, dùng khi nút nằm trong panel. */
   | "soft"
   /** Nền trong suốt, viền tím. */
@@ -53,18 +51,17 @@ const buttonBase =
   "inline-flex items-center justify-center gap-2 rounded-full font-semibold outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50";
 
 const buttonVariants: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover",
+  primary: "bg-primary text-white hover:bg-primary-hover",
   // Không có `border`: nút nền trắng trong app vốn chỉ đặt màu viền
   // (`border-line`) mà không đặt độ dày, nên về hình thức là không viền.
-  secondary: "border-line bg-surface text-ink hover:bg-surface-2",
-  outlined: "border border-line bg-surface text-ink hover:bg-surface-2",
-  soft: "border-line bg-surface-2 text-ink hover:bg-surface-3",
-  outline: "border border-primary/35 bg-transparent text-primary hover:bg-primary-soft",
-  ghost: "border border-transparent bg-transparent text-muted hover:bg-surface-2 hover:text-ink",
-  danger: "border border-danger/35 bg-transparent text-danger hover:bg-danger-soft",
-  dangerSolid: "bg-danger text-white shadow-sm hover:brightness-95",
-  success: "border border-success/35 bg-transparent text-success hover:bg-success-soft",
-  warning: "bg-warning text-ink shadow-sm hover:brightness-95",
+  secondary: "bg-surface text-ink hover:bg-surface-2",
+  soft: "bg-surface-2 text-ink hover:bg-surface-3",
+  outline: "bg-transparent text-primary hover:bg-primary-soft",
+  ghost: "bg-transparent text-muted hover:bg-surface-2 hover:text-ink",
+  danger: "bg-transparent text-danger hover:bg-danger-soft",
+  dangerSolid: "bg-danger text-white hover:brightness-95",
+  success: "bg-transparent text-success hover:bg-success-soft",
+  warning: "bg-warning text-ink hover:brightness-95",
   inverse: "bg-ink text-surface hover:opacity-90",
   link: "bg-transparent text-primary hover:underline",
 };
@@ -137,7 +134,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     >
       {loading ? (
         <span
-          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+          className="h-4 w-4 animate-spin rounded-full"
           aria-hidden="true"
         />
       ) : (

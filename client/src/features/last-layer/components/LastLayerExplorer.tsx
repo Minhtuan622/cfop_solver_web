@@ -136,8 +136,8 @@ export function LastLayerExplorer({
   };
 
   return (
-    <details className="group rounded-card border border-line/80 bg-surface shadow-soft">
-      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-t-card border-b border-line px-5 py-4 text-sm font-semibold text-ink transition hover:text-primary [&::-webkit-details-marker]:hidden">
+    <details className="group rounded-card bg-surface">
+      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-t-card border-b px-5 py-4 text-sm font-semibold text-ink transition hover:text-primary [&::-webkit-details-marker]:hidden">
         <ChevronRight
           className="text-base text-muted transition-transform group-open:rotate-90"
           aria-hidden="true"
@@ -151,7 +151,7 @@ export function LastLayerExplorer({
         </small>
       </summary>
 
-      <div className="border-t border-line px-5 py-4">
+      <div className="border-t px-5 py-4">
         <div className="grid gap-4 md:grid-cols-12">
           <div className="md:col-span-4">
             <label
@@ -178,7 +178,7 @@ export function LastLayerExplorer({
               {t("study.searchCases")}
             </label>
             <div className="flex w-full items-stretch">
-              <span className="inline-flex items-center border border-line bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
+              <span className="inline-flex items-center bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
                 <Search className="text-lg" />
               </span>
               <Input
@@ -220,7 +220,7 @@ export function LastLayerExplorer({
                 label={t("study.allGroups")}
                 icon={<ChevronLeftIcon className="text-base" />}
                 onClick={() => setGroup("")}
-                className="inline-flex items-center justify-center rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
+                className="inline-flex items-center justify-center rounded-full bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
               />
               <strong className="text-sm">
                 {openGroup.name} · {openGroup.mastered}/{openGroup.total}
@@ -237,8 +237,8 @@ export function LastLayerExplorer({
                     <div key={`${catalogCase.family}:${catalogCase.id}`}>
                       <div
                         className={cn(
-                          "h-full rounded-card border border-line/80 bg-surface shadow-soft",
-                          active && "border-primary"
+                          "h-full rounded-card bg-surface",
+                          active && ""
                         )}
                       >
                         <div className="p-5 sm:p-6">
@@ -306,7 +306,7 @@ export function LastLayerExplorer({
                   <button
                     type="button"
                     onClick={() => setGroup(entry.name)}
-                    className="h-full w-full rounded-card border border-line/80 bg-surface-2 px-5 py-4 text-left shadow-soft transition hover:border-primary"
+                    className="h-full w-full rounded-card bg-surface-2 px-5 py-4 text-left transition"
                   >
                     <div className="flex items-center gap-2">
                       <PracticeGroupPreview

@@ -71,7 +71,7 @@ export function RoomSidebar({
   const isMultiBlind = eventId === "333mbf";
   return (
     <aside className="col-span-12 xl:col-span-4">
-      <div className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+      <div className="rounded-card bg-surface mb-6">
         <div className="p-5 sm:p-6">
           <h2 className="text-base font-semibold tracking-tight">
             {t("rooms.sidebar.standings")}
@@ -82,7 +82,7 @@ export function RoomSidebar({
               : t(formatDescriptionKey[format])}
           </p>
           {standings.length ? (
-            <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
+            <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
               {standings.map(player => (
                 <li
                   key={player.accountId}
@@ -100,7 +100,7 @@ export function RoomSidebar({
           )}
         </div>
       </div>
-      <div className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+      <div className="rounded-card bg-surface mb-6">
         <div className="p-5 sm:p-6">
           <h2 className="text-base font-semibold tracking-tight">
             {t("rooms.sidebar.members")}
@@ -126,7 +126,7 @@ export function RoomSidebar({
         </div>
       </div>
       {canManageSpectators ? (
-        <div className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+        <div className="rounded-card bg-surface mb-6">
           <div className="p-5 sm:p-6">
             <h2 className="text-base font-semibold tracking-tight">
               {t("rooms.sidebar.moderationLog")}
@@ -135,7 +135,7 @@ export function RoomSidebar({
               {t("rooms.sidebar.moderationHint")}
             </p>
             {moderationLogs.length ? (
-              <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
+              <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
                 {moderationLogs.map(entry => (
                   <li key={entry.id} className="block px-4 py-3 text-sm">
                     <strong>{entry.actorDisplayName}</strong>{" "}
@@ -162,18 +162,18 @@ export function RoomSidebar({
         </div>
       ) : null}
       {isSpectator ? (
-        <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+        <div className="rounded-card bg-surface">
           <div className="p-5 sm:p-6 text-muted text-sm">
             {t("rooms.sidebar.spectatorNote")}
           </div>
         </div>
       ) : (
-        <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+        <div className="rounded-card bg-surface">
           <div className="p-5 sm:p-6">
             <h2 className="text-base font-semibold tracking-tight">
               {t("rooms.sidebar.chat")}
             </h2>
-            <div className="divide-y divide-line bg-transparent border-0 mb-4">
+            <div className="divide-y divide-line bg-transparent mb-4">
               {messages.map(chatItem => (
                 <div key={chatItem.id} className="block px-4 py-3 text-sm px-0">
                   <strong className="text-sm">{chatItem.displayName}</strong>

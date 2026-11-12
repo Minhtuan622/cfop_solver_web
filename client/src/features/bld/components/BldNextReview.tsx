@@ -37,7 +37,7 @@ export function BldNextReview({
   }, [profile, vi]);
   const reviewed = reviewedToday(profile);
   return (
-    <section className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+    <section className="rounded-card bg-surface mb-6">
       <div className="p-5 sm:p-6">
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 lg:col-span-7">
@@ -55,7 +55,7 @@ export function BldNextReview({
               </span>
             </div>
             {recommendation ? (
-              <div className="rounded-card border border-line/80 bg-surface shadow-soft bg-surface-2 mt-4">
+              <div className="rounded-card bg-surface bg-surface-2 mt-4">
                 <div className="p-5 sm:p-6">
                   <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-3 text-ink">
                     {recommendation.label}
@@ -71,7 +71,7 @@ export function BldNextReview({
                 </div>
               </div>
             ) : (
-              <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0">
+              <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
                 {vi
                   ? "Chưa có case SRS. Hoàn thành bài sighted-commutator hoặc tự chấm một memo để tạo case ôn đầu tiên."
                   : "There is no SRS case yet. Complete the sighted-commutator exercise or self-grade one memo to create a first review."}

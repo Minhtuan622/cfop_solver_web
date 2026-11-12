@@ -127,7 +127,7 @@ export function AvatarCropDialog({
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
           <div className="flex justify-center">
             <div
-              className="relative overflow-hidden rounded-xl bg-surface-2 border border-line"
+              className="relative overflow-hidden rounded-xl bg-surface-2"
               style={{
                 width: AVATAR_CROP_FRAME,
                 height: AVATAR_CROP_FRAME,
@@ -213,7 +213,7 @@ export function AvatarCropDialog({
           )}
           {error ? (
             <div
-              className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mt-4 mb-0"
+              className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mt-4 mb-0"
               role="alert"
             >
               {error}

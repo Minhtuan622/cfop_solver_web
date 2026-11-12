@@ -23,7 +23,7 @@ export function BldReviewStreak({
         ? "Ôn một case hôm nay để nối streak."
         : "Review one case today to continue it.";
   return (
-    <section className="border border-line rounded-xl p-4 bg-surface h-full">
+    <section className="rounded-xl p-4 bg-surface h-full">
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
@@ -41,7 +41,7 @@ export function BldReviewStreak({
         <Trophy className="text-xl text-warning" />
       </div>
       <p className="text-sm text-muted mt-2 mb-0">{prompt}</p>
-      <div className="text-sm text-muted border-t border-line pt-2 mt-2">
+      <div className="text-sm text-muted border-t pt-2 mt-2">
         {vi ? "Kỷ lục" : "Best"}: <strong>{streak.longest}</strong>{" "}
         {vi ? "ngày" : "days"}
       </div>

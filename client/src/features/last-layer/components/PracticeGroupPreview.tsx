@@ -51,7 +51,7 @@ export function PracticeGroupPreview({
           {stickers.map((sticker, index) => (
             <span
               key={`${sticker}-${index}`}
-              className="rounded-md border border-line/60 p-0"
+              className="rounded-md p-0"
               style={{ backgroundColor: CUBE_COLOR[sticker] ?? "#6c757d" }}
             />
           ))}

@@ -151,7 +151,7 @@ export function CfopAuthDialog({
             ) : null}
             {error ? (
               <div
-                className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink mt-4 mb-0"
+                className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mt-4 mb-0"
                 role="alert"
               >
                 {error}

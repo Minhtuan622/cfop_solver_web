@@ -69,7 +69,7 @@ export function Dropdown({
           "inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20",
           variant === "nav"
             ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink"
-            : "rounded-full border border-line bg-surface px-3.5 py-2 text-ink shadow-sm hover:bg-surface-2",
+            : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2",
           buttonClassName
         )}
         onClick={() => setOpen(value => !value)}
@@ -90,7 +90,7 @@ export function Dropdown({
       {open ? (
         <ul
           className={cn(
-            "absolute z-50 mt-2 min-w-52 list-none rounded-2xl border border-line/80 bg-surface p-1.5 shadow-float",
+            "absolute z-50 mt-2 min-w-52 list-none rounded-2xl bg-surface p-1.5",
             align === "end" ? "right-0" : "left-0"
           )}
           role="menu"

@@ -37,7 +37,7 @@ export function RoomMemberRoster({
         : t("rooms.member.role.spectator");
   return (
     <>
-      <div className="divide-y divide-line bg-transparent border-0">
+      <div className="divide-y divide-line bg-transparent">
         {members.map(member => (
           <div
             key={member.accountId}
@@ -53,7 +53,7 @@ export function RoomMemberRoster({
               {host && member.role === "spectator" ? (
                 <PendingButton
                   type="button"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs"
                   pending={moderationPending}
                   onClick={() => grant(member.accountId)}
                 >
@@ -89,7 +89,7 @@ export function RoomMemberRoster({
         {t("rooms.member.watching", { count: onlineSpectators.length })}
       </h3>
       {onlineSpectators.length ? (
-        <ol className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface list-decimal pl-6">
+        <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
           {onlineSpectators.map(member => (
             <li
               key={member.accountId}
@@ -107,7 +107,7 @@ export function RoomMemberRoster({
       )}
       {notice ? (
         <div
-          className="rounded-panel border px-4 py-3 text-sm border-warning/25 bg-warning-soft text-ink mt-4 mb-0"
+          className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mt-4 mb-0"
           role="status"
         >
           {notice}

@@ -24,7 +24,7 @@ export function SolverRecentStates({
         <History className="text-base" aria-hidden="true" />
         {t("home.recentStates")}
       </h3>
-      <ul className="divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface-2/60">
+      <ul className="divide-y divide-line overflow-hidden rounded-panel bg-surface-2/60">
         {states.map(item => (
           <li key={item.id} className="flex items-center gap-2 px-3 py-1.5">
             <button

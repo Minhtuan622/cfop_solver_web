@@ -76,13 +76,13 @@ function WcaTimerComparison({
   const { t } = useLanguage();
   const rows = wcaTimerComparison(entries, record);
   return (
-    <div className="border-t border-line mt-4 pt-4">
+    <div className="border-t mt-4 pt-4">
       <h3 className="text-sm font-semibold tracking-tight mb-1">
         {t("profile.compare.title")}
       </h3>
       <p className="text-sm text-muted mb-2">{t("profile.compare.hint")}</p>
       <div className="w-full overflow-x-auto">
-        <table className="w-full border-collapse text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 align-middle mb-0">
+        <table className="w-full text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 align-middle mb-0">
           <thead>
             <tr>
               <th scope="col">{t("profile.compare.metric")}</th>
@@ -251,7 +251,7 @@ function WcaProfileDetails({
       </Button>
       {showAllRecords ? (
         <div className="w-full overflow-x-auto mt-4">
-          <table className="w-full border-collapse text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 align-middle mb-0">
+          <table className="w-full text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 align-middle mb-0">
             <thead>
               <tr>
                 <th scope="col">{t("profile.wcaEvent")}</th>
@@ -504,7 +504,7 @@ export default function Profile() {
   if (!account)
     return (
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mb-0">
+        <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mb-0">
           <h1 className="text-lg font-semibold tracking-tight">
             {t("profile.guestTitle")}
           </h1>
@@ -525,7 +525,7 @@ export default function Profile() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-      <section className="rounded-card border border-line/80 bg-surface shadow-soft mb-6 overflow-hidden">
+      <section className="rounded-card bg-surface mb-6 overflow-hidden">
         <div className="p-5 sm:p-6">
           <div className="grid grid-cols-12 items-center gap-6">
             <div className="col-span-12 lg:col-span-6">
@@ -585,7 +585,7 @@ export default function Profile() {
 
       {message ? (
         <div
-          className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink flex items-start gap-2"
+          className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink flex items-start gap-2"
           role="status"
         >
           <CheckCircleFill className="mt-1" />
@@ -594,7 +594,7 @@ export default function Profile() {
       ) : null}
       {error ? (
         <div
-          className="rounded-panel border px-4 py-3 text-sm border-danger/20 bg-danger-soft text-ink flex items-start gap-2"
+          className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink flex items-start gap-2"
           role="alert"
         >
           <AlertTriangle className="mt-1" />
@@ -638,7 +638,7 @@ export default function Profile() {
 
       {meetsAo5Goal(ao5, account.goalMs) ? (
         <section
-          className="rounded-panel border px-4 py-3 text-sm border-success/20 bg-success-soft text-ink flex flex-wrap items-center justify-between gap-4 mb-6"
+          className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink flex flex-wrap items-center justify-between gap-4 mb-6"
           role="status"
         >
           <div>
@@ -660,7 +660,7 @@ export default function Profile() {
 
       <div className="grid grid-cols-12 gap-6 mb-6">
         <section className="col-span-12 xl:col-span-8">
-          <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+          <div className="rounded-card bg-surface h-full">
             <div className="p-5 sm:p-6">
               <div className="flex flex-wrap justify-between items-end gap-2 mb-6">
                 <div>
@@ -704,7 +704,7 @@ export default function Profile() {
           </div>
         </section>
         <aside className="col-span-12 xl:col-span-4">
-          <div className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+          <div className="rounded-card bg-surface mb-6">
             <div className="p-5 sm:p-6">
               <Eyebrow>Study</Eyebrow>
               <h2 className="text-lg font-semibold tracking-tight mb-1">
@@ -713,7 +713,7 @@ export default function Profile() {
               <p className="text-sm text-muted mb-4">
                 {t("profile.studyHint")}
               </p>
-              <div className="divide-y divide-line bg-transparent border-0">
+              <div className="divide-y divide-line bg-transparent">
                 <div className="block px-4 py-3 text-sm px-0 flex justify-between">
                   <span>{t("profile.studyBldDue")}</span>
                   <strong>{due}</strong>
@@ -737,14 +737,14 @@ export default function Profile() {
               </div>
               <Link
                 href="/study"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 w-full mt-4"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 w-full mt-4"
               >
                 <BookOpenCheck className="mr-2" />
                 {t("profile.openStudy")}
               </Link>
             </div>
           </div>
-          <div className="rounded-card border border-line/80 bg-surface shadow-soft">
+          <div className="rounded-card bg-surface">
             <div className="p-5 sm:p-6">
               <div className="flex items-start gap-4">
                 <div className="bg-success-soft text-success rounded-xl p-2">
@@ -797,7 +797,7 @@ export default function Profile() {
         </aside>
       </div>
 
-      <section className="rounded-card border border-line/80 bg-surface shadow-soft mb-6">
+      <section className="rounded-card bg-surface mb-6">
         <div className="p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-2 mb-4">
             <div>
@@ -838,7 +838,7 @@ export default function Profile() {
           {wcaProfile ? (
             <WcaProfileDetails profile={wcaProfile} entries={entries} />
           ) : null}
-          <div className="border-t border-line mt-6 pt-4">
+          <div className="border-t mt-6 pt-4">
             <p className="text-sm mb-2">
               {wcaOauthStatusQuery.data?.configured
                 ? t("profile.wcaOauthReady")
@@ -868,7 +868,7 @@ export default function Profile() {
 
       <div className="grid grid-cols-12 gap-6">
         <section className="col-span-12 lg:col-span-7">
-          <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+          <div className="rounded-card bg-surface h-full">
             <div className="p-5 sm:p-6">
               <p className="text-sm uppercase tracking-wide font-semibold text-primary mb-1">
                 {t("profile.sectionAccount")}
@@ -894,7 +894,7 @@ export default function Profile() {
                   )}
                 </div>
                 {(storageStatusQuery.data?.enabled ?? true) && (
-                  <label className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mb-0">
+                  <label className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mb-0">
                     {uploadAvatar.isPending
                       ? t("profile.avatarUploadPending")
                       : t("profile.avatarUpload")}
@@ -964,7 +964,7 @@ export default function Profile() {
           </div>
         </section>
         <section className="col-span-12 lg:col-span-5">
-          <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+          <div className="rounded-card bg-surface h-full">
             <div className="p-5 sm:p-6">
               <p className="text-sm uppercase tracking-wide font-semibold text-primary mb-1">
                 {t("profile.sectionSecurity")}

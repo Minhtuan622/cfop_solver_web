@@ -108,12 +108,12 @@ export function SectionCard({
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-card border border-line/80 bg-surface shadow-soft",
+        "overflow-hidden rounded-card bg-surface",
         className
       )}
     >
       {title || description || actions ? (
-        <div className="flex flex-col gap-3 border-b border-line px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+        <div className="flex flex-col gap-3 border-b px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-6">
           <div>
             {title ? (
               <h2 className="text-lg font-semibold text-ink">{title}</h2>
@@ -133,11 +133,11 @@ export function SectionCard({
 }
 
 const feedbackTones = {
-  info: "border-info/20 bg-info-soft text-ink",
-  success: "border-success/20 bg-success-soft text-ink",
-  warning: "border-warning/25 bg-warning-soft text-ink",
-  danger: "border-danger/20 bg-danger-soft text-ink",
-  secondary: "border-line bg-surface-2 text-ink",
+  info: "bg-info-soft text-ink",
+  success: "bg-success-soft text-ink",
+  warning: "bg-warning-soft text-ink",
+  danger: "bg-danger-soft text-ink",
+  secondary: "bg-surface-2 text-ink",
 } as const;
 
 export function StatusFeedback({
@@ -154,7 +154,7 @@ export function StatusFeedback({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 rounded-panel border px-4 py-3 text-sm",
+        "flex flex-col gap-1 rounded-panel px-4 py-3 text-sm",
         feedbackTones[tone]
       )}
       role={tone === "danger" ? "alert" : "status"}
@@ -183,7 +183,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-card border border-dashed border-line bg-surface-2/50 px-6 py-12 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-card bg-surface-2/50 px-6 py-12 text-center",
         className
       )}
     >
@@ -228,12 +228,12 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "flex h-full items-start justify-between gap-3 rounded-panel border p-4",
+        "flex h-full items-start justify-between gap-3 rounded-panel p-4",
         tone === "warning"
-          ? "border-warning/20 bg-warning-soft"
+          ? "bg-warning-soft"
           : dark
-            ? "border-transparent bg-ink text-surface shadow-soft"
-            : "border-line/80 bg-surface-2",
+            ? "bg-ink text-surface"
+            : "bg-surface-2",
         className
       )}
     >
@@ -367,7 +367,7 @@ export function Switch({
           aria-hidden="true"
         />
         <span
-          className="absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5"
+          className="absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform peer-checked:translate-x-5"
           aria-hidden="true"
         />
       </label>
@@ -451,7 +451,7 @@ export function PendingButton({
     >
       {pending ? (
         <span
-          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+          className="h-4 w-4 animate-spin rounded-full"
           aria-hidden="true"
         />
       ) : null}
@@ -472,7 +472,7 @@ export function SkeletonCard({
   return (
     <div
       className={cn(
-        "animate-pulse rounded-card border border-line/70 bg-surface p-5 shadow-soft sm:p-6",
+        "animate-pulse rounded-card bg-surface p-5 sm:p-6",
         className
       )}
       role="status"
@@ -502,7 +502,7 @@ export function SkeletonList({
 }) {
   return (
     <div
-      className="animate-pulse divide-y divide-line overflow-hidden rounded-panel border border-line bg-surface"
+      className="animate-pulse divide-y divide-line overflow-hidden rounded-panel bg-surface"
       role="status"
       aria-label={label}
     >
@@ -536,7 +536,7 @@ export function SkeletonTable({
       <table className="w-full text-left text-sm">
         <tbody>
           {Array.from({ length: rows }, (_, row) => (
-            <tr key={row} className="border-b border-line last:border-0">
+            <tr key={row} className="border-b last:border-0">
               {Array.from({ length: columns }, (_, column) => (
                 <td key={column} className="px-3 py-3">
                   <span
@@ -568,7 +568,7 @@ export function RefreshIndicator({
       aria-live="polite"
     >
       <span
-        className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-r-transparent"
+        className="h-3.5 w-3.5 animate-spin rounded-full"
         aria-hidden="true"
       />
       {label}

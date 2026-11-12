@@ -76,7 +76,7 @@ export function SolverSolutionPanel({
       <div className="relative rounded-panel bg-[radial-gradient(ellipse_at_bottom,rgba(91,91,214,0.16),rgba(8,145,178,0.06)_48%,transparent_72%)] px-3 pb-3 pt-14">
         {hasResult ? (
           <div
-            className="absolute left-4 top-3 z-10 flex max-w-[calc(100%-13rem)] flex-wrap items-center gap-x-2 rounded-full border border-line/70 bg-surface/90 px-3.5 py-1.5 text-sm shadow-soft backdrop-blur"
+            className="absolute left-4 top-3 z-10 flex max-w-[calc(100%-13rem)] flex-wrap items-center gap-x-2 rounded-full bg-surface/90 px-3.5 py-1.5 text-sm backdrop-blur"
             title={typeof subtitle === "string" ? subtitle : undefined}
           >
             {eyebrow ? (
@@ -92,7 +92,7 @@ export function SolverSolutionPanel({
         ) : null}
         <PillBar
           variant="soft"
-          className="absolute right-4 top-3 z-10 border border-line/60 bg-surface/90 backdrop-blur"
+          className="absolute right-4 top-3 z-10 bg-surface/90 backdrop-blur"
         >
           <PillGroup<"2d" | "3d">
             size="sm"
@@ -117,7 +117,7 @@ export function SolverSolutionPanel({
       </div>
 
       {hasResult ? (
-        <div className="mx-auto mt-4 flex w-fit max-w-full flex-wrap items-center justify-center gap-2 rounded-full border border-line/70 bg-surface px-3 py-2 shadow-soft">
+        <div className="mx-auto mt-4 flex w-fit max-w-full flex-wrap items-center justify-center gap-2 rounded-full bg-surface px-3 py-2">
           <RoundButton
             label={t("guide.previous")}
             icon={<SkipStart />}

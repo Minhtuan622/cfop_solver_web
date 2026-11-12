@@ -75,7 +75,7 @@ function Router() {
 function AppFooter() {
   const { t } = useLanguage();
   return (
-    <footer className="mt-auto border-t border-line/70 bg-surface/50 py-8 backdrop-blur-sm">
+    <footer className="mt-auto border-t bg-surface/50 py-8 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
         <div>
           <p className="text-sm font-semibold tracking-tight text-ink">
@@ -125,7 +125,7 @@ function AppShell() {
       </Suspense>
       <CompetitionOutcomeCelebration />
       <a
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
         href="#main-content"
       >
         {t("nav.skip")}

@@ -170,7 +170,7 @@ function ModalShell({
           <div
             ref={dialogRef}
             className={cn(
-              "relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-[1.6rem] border border-line/80 bg-surface shadow-float outline-none sm:max-h-[min(88vh,56rem)] sm:max-w-2xl",
+              "relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-[1.6rem] bg-surface outline-none sm:max-h-[min(88vh,56rem)] sm:max-w-2xl",
               dialogClassName
             )}
             role="dialog"
@@ -229,7 +229,7 @@ export function DialogHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 border-b border-line px-6 py-5",
+        "flex flex-col gap-1 border-b px-6 py-5",
         className
       )}
     >
@@ -288,7 +288,7 @@ export function DialogFooter({
   return (
     <div
       className={cn(
-        "mt-auto flex flex-wrap items-center justify-end gap-2 border-t border-line px-6 py-4",
+        "mt-auto flex flex-wrap items-center justify-end gap-2 border-t px-6 py-4",
         className
       )}
     >

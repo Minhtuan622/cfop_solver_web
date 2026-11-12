@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 /** Chuỗi class chuẩn của panel — nguồn duy nhất. */
 export const cardClass =
-  "rounded-card border border-line/80 bg-surface shadow-soft";
+  "rounded-card bg-surface";
 
 export type CardProps = {
   /** Thẻ HTML dùng để bọc, mặc định `section`. */

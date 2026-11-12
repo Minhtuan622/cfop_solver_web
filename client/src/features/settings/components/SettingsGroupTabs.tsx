@@ -54,7 +54,7 @@ export function SettingsGroupTabs({
             className={cn(
               "shrink-0 rounded-full px-4 py-2 text-left text-sm font-medium transition lg:w-full",
               active
-                ? "bg-primary text-white shadow-sm shadow-primary/25"
+                ? "bg-primary text-white"
                 : "bg-surface-2 text-muted hover:bg-surface-3 hover:text-ink"
             )}
             onClick={() => onSelect(group.id)}

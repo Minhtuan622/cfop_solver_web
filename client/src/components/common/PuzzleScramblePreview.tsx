@@ -68,7 +68,7 @@ export function PuzzleScramblePreview({
   return config && config.puzzle !== "2x2x2" ? (
     <Suspense
       fallback={
-        <div className="rounded-card border border-line/80 bg-surface shadow-soft h-full">
+        <div className="rounded-card bg-surface h-full">
           <div className="p-5 sm:p-6 flex items-center justify-center text-sm text-muted">
             {language === "vi" ? "Đang tải mô hình 3D…" : "Loading 3D model…"}
           </div>
