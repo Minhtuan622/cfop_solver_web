@@ -388,7 +388,7 @@ export function SolveTimer({
         </p>
       )}
       {splitEnabled && mode === "running" && (
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2 border-t pt-4 text-sm">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2 pt-4 text-sm">
           <span className="font-semibold text-primary">{labels.split}</span>
           <span className="text-muted">{labels.next}</span>
           <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-3 text-ink">

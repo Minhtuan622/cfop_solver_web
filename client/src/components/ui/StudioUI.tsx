@@ -113,7 +113,7 @@ export function SectionCard({
       )}
     >
       {title || description || actions ? (
-        <div className="flex flex-col gap-3 border-b px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+        <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-6">
           <div>
             {title ? (
               <h2 className="text-lg font-semibold text-ink">{title}</h2>
@@ -502,7 +502,7 @@ export function SkeletonList({
 }) {
   return (
     <div
-      className="animate-pulse divide-y divide-line overflow-hidden rounded-panel bg-surface"
+      className="animate-pulse overflow-hidden rounded-panel bg-surface"
       role="status"
       aria-label={label}
     >
@@ -536,7 +536,7 @@ export function SkeletonTable({
       <table className="w-full text-left text-sm">
         <tbody>
           {Array.from({ length: rows }, (_, row) => (
-            <tr key={row} className="border-b last:border-0">
+            <tr key={row}>
               {Array.from({ length: columns }, (_, column) => (
                 <td key={column} className="px-3 py-3">
                   <span

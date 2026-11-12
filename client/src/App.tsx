@@ -75,7 +75,7 @@ function Router() {
 function AppFooter() {
   const { t } = useLanguage();
   return (
-    <footer className="mt-auto border-t bg-surface/50 py-8 backdrop-blur-sm">
+    <footer className="mt-auto bg-surface/50 py-8 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
         <div>
           <p className="text-sm font-semibold tracking-tight text-ink">

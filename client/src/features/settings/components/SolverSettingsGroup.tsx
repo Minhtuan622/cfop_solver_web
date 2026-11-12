@@ -274,7 +274,7 @@ export function SolverSettingsGroup({
         </div>
 
         <details className="rounded-card bg-surface-2/60 text-sm text-muted">
-          <summary className="cursor-pointer rounded-t-card border-b px-4 py-3 font-semibold text-ink first:rounded-t-card [&::-webkit-details-marker]:hidden">
+          <summary className="cursor-pointer rounded-t-card px-4 py-3 font-semibold text-ink first:rounded-t-card [&::-webkit-details-marker]:hidden">
             {t("settings.directNote")}
           </summary>
           <p className="mb-0 mt-2 px-4 py-3">

@@ -87,7 +87,7 @@ export function StudyCasePanel({
       className="h-full rounded-card bg-surface"
       aria-label={t("study.caseLabel")}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
         <div className="min-w-0">
           <p className="mb-1 text-xs font-semibold tracking-[0.12em] text-muted uppercase">
             {t("study.caseLabel")}
@@ -171,7 +171,7 @@ export function StudyCasePanel({
               />
             )}
 
-            <div className="mt-4 flex flex-wrap gap-2 border-t pt-4">
+            <div className="mt-4 flex flex-wrap gap-2 pt-4">
               <Button
                 type="button"
                 variant="secondary"
@@ -225,7 +225,7 @@ export function StudyCasePanel({
                   inspectionEnabled={false}
                 />
 
-                <div className="mt-4 border-t pt-4">
+                <div className="mt-4 pt-4">
                   <p className="mb-2 text-sm text-muted">
                     {lastElapsed === null
                       ? t("study.stopToGrade")

@@ -52,8 +52,8 @@ const buttonBase =
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary: "bg-primary text-white hover:bg-primary-hover",
-  // Không có `border`: nút nền trắng trong app vốn chỉ đặt màu viền
-  // (`border-line`) mà không đặt độ dày, nên về hình thức là không viền.
+  // Không có `border`: nút nền trắng trong app vốn không dùng đường viền,
+  // các biến thể chỉ khác nền và màu chữ.
   secondary: "bg-surface text-ink hover:bg-surface-2",
   soft: "bg-surface-2 text-ink hover:bg-surface-3",
   outline: "bg-transparent text-primary hover:bg-primary-soft",

@@ -61,7 +61,7 @@ export function SystemLeaderboard() {
           </div>
         ) : leaderboardQuery.data?.players.length ? (
           <LoadingTransition>
-            <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
+            <ol className="overflow-hidden rounded-panel bg-surface list-decimal pl-6">
               {leaderboardQuery.data.players.slice(0, 10).map(player => (
                 <li
                   key={player.accountId}

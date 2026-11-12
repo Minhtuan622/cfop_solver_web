@@ -80,7 +80,7 @@ export function RoomRoundPanel({
               ),
             })}
           </p>
-          <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
+          <ol className="overflow-hidden rounded-panel bg-surface list-decimal pl-6">
             {activeRound.scrambleBundle.map((scramble, index) => (
               <li
                 key={`${index}-${scramble}`}

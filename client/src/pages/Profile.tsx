@@ -76,7 +76,7 @@ function WcaTimerComparison({
   const { t } = useLanguage();
   const rows = wcaTimerComparison(entries, record);
   return (
-    <div className="border-t mt-4 pt-4">
+    <div className="mt-4 pt-4">
       <h3 className="text-sm font-semibold tracking-tight mb-1">
         {t("profile.compare.title")}
       </h3>
@@ -713,7 +713,7 @@ export default function Profile() {
               <p className="text-sm text-muted mb-4">
                 {t("profile.studyHint")}
               </p>
-              <div className="divide-y divide-line bg-transparent">
+              <div className="bg-transparent">
                 <div className="block px-4 py-3 text-sm px-0 flex justify-between">
                   <span>{t("profile.studyBldDue")}</span>
                   <strong>{due}</strong>
@@ -838,7 +838,7 @@ export default function Profile() {
           {wcaProfile ? (
             <WcaProfileDetails profile={wcaProfile} entries={entries} />
           ) : null}
-          <div className="border-t mt-6 pt-4">
+          <div className="mt-6 pt-4">
             <p className="text-sm mb-2">
               {wcaOauthStatusQuery.data?.configured
                 ? t("profile.wcaOauthReady")

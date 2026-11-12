@@ -198,9 +198,10 @@
 [data-sonner-toaster] {
   --normal-bg: var(--surface);
   --normal-text: var(--ink);
-  --normal-border: var(--line);
   --normal-bg-hover: var(--surface-2);
-  --normal-border-hover: var(--line);
+  /* Giao diện phẳng: toast không có đường viền, tách bằng nền và khoảng cách. */
+  --normal-border: transparent;
+  --normal-border-hover: transparent;
   --success-bg: var(--surface);
   --success-text: var(--success);
   --success-border: var(--success);

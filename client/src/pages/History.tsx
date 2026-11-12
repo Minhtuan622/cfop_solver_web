@@ -303,7 +303,7 @@ export default function History() {
                 </div>
               </section>
               <section className="rounded-card bg-surface mt-6">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
                   <h2 className="text-base font-semibold tracking-tight mb-0">
                     {t("history.trendTitle")}
                   </h2>
@@ -342,7 +342,7 @@ export default function History() {
                 </div>
               </section>
               <section className="rounded-card bg-surface mt-6">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6 gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6 gap-2">
                   <h2 className="text-base font-semibold tracking-tight mb-0">
                     {t("history.manageTitle")}
                   </h2>
@@ -468,7 +468,7 @@ export default function History() {
                     </div>
                   ) : null}
                 </div>
-                <div className="divide-y divide-line bg-transparent">
+                <div className="bg-transparent">
                   {filtered.length ? (
                     filtered
                       .slice(0, 100)

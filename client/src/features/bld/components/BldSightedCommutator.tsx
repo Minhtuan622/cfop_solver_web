@@ -53,7 +53,7 @@ export function BldSightedCommutator({
   const complete = cursor === trace.length;
   return (
     <section className="rounded-card bg-surface mb-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
         <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
           {vi ? "BÀI THỰC HÀNH MỞ MẮT" : "SIGHTED PRACTICE"}
         </p>

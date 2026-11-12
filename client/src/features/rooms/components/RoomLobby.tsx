@@ -240,7 +240,7 @@ export function RoomLobby({
                 <SkeletonList rows={3} label={t("rooms.lobby.loadingRooms")} />
               ) : myRooms.length ? (
                 <LoadingTransition>
-                  <div className="divide-y divide-line bg-transparent">
+                  <div className="bg-transparent">
                     {myRooms.map(room => (
                       <Link
                         key={room.id}

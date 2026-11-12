@@ -229,7 +229,7 @@ export function DialogHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 border-b px-6 py-5",
+        "flex flex-col gap-1 px-6 py-5",
         className
       )}
     >
@@ -288,7 +288,7 @@ export function DialogFooter({
   return (
     <div
       className={cn(
-        "mt-auto flex flex-wrap items-center justify-end gap-2 border-t px-6 py-4",
+        "mt-auto flex flex-wrap items-center justify-end gap-2 px-6 py-4",
         className
       )}
     >

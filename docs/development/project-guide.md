@@ -63,16 +63,18 @@ Mọi màu mới của app phải là **CSS token** trong `client/src/index.css`
 | Token | Dùng cho |
 |---|---|
 | `--canvas`, `--surface`, `--surface-2`, `--surface-3` | Nền app và các lớp panel. |
-| `--ink`, `--muted`, `--line` | Chữ chính, chữ phụ và đường viền. |
+| `--ink`, `--muted`, `--line` | Chữ chính, chữ phụ và vạch phân cách siêu nhỏ (`cube.css`, vạch `bg-line` giữa nút trong toolbar). |
 | `--primary` (+ `--primary-hover`, `--primary-soft`) | Màu nhấn. |
 | `--accent`, `--accent-soft` | Màu nhấn phụ. |
 | `--success`, `--warning`, `--danger`, `--info` (+ biến `-soft`) | Trạng thái. |
 | `--cube-stage*` | Nền khối 3D và màu nhấn của Studio. |
 
-Giao diện của app là **kiểu phẳng**: không đổ bóng và không viền bao quanh —
-các khối tách nhau bằng nền và khoảng cách; đường kẻ bên trong (`border-b`,
-`border-t`) và vòng focus bàn phím (`ring-*`) là thứ duy nhất được phép dùng
-viền. `server/flatUi.test.ts` chặn đổ bóng/viền bao quanh tái xuất hiện.
+Giao diện của app là **kiểu phẳng**: không đổ bóng và **không có bất kỳ đường
+viền hay đường kẻ phân cách nào** — các khối tách nhau chỉ bằng nền và khoảng
+cách. Vòng focus bàn phím (`ring-*`) là hiệu ứng viền duy nhất còn lại, vì là
+chỉ dẫn tiếp cận chứ không phải trang trí; `cube.css` vẫn viền sticker vì đó
+là hình học của khối Rubik. `server/flatUi.test.ts` chặn đổ bóng, viền
+(`border`, `border-b/t/l...`, `divide-*`) tái xuất hiện.
 
 Hai nơi khác thường cần nhớ:
 

@@ -451,7 +451,7 @@ export function BldReport({
   }, [catalogs, parityCorners, parityEdges]);
   return (
     <section className="rounded-card bg-surface">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6 gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6 gap-2">
         <div>
           <p className="text-sm uppercase tracking-wide text-muted font-semibold mb-1">
             3-Style BLD · Speffz
@@ -509,7 +509,7 @@ export function BldReport({
               }
             />
           ) : executions.length ? (
-            <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface mt-2">
+            <div className="overflow-hidden rounded-panel bg-surface mt-2">
               {executions.map((entry, index) => (
                 <AlgorithmRow
                   key={`${entry.label}-${entry.key}-${index}`}
@@ -626,7 +626,7 @@ export function BldReport({
                       )}
                     </div>
                     {parityKey ? (
-                      <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface mt-4">
+                      <div className="overflow-hidden rounded-panel bg-surface mt-4">
                         <AlgorithmRow
                           type="parity"
                           label="PARITY"
@@ -650,7 +650,7 @@ export function BldReport({
                 </div>
               )}
               {flipPairs.length > 0 && (
-                <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface">
+                <div className="overflow-hidden rounded-panel bg-surface">
                   {flipPairs.map(entry => (
                     <AlgorithmRow
                       key={entry.key}
@@ -668,7 +668,7 @@ export function BldReport({
                 </div>
               )}
               {Boolean(special.corner_twists.length) && (
-                <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface">
+                <div className="overflow-hidden rounded-panel bg-surface">
                   <AlgorithmRow
                     type="twist"
                     label={`Twist · ${special.corner_twists.map(item => `${item.position} ${item.direction}`).join(" / ")}`}
@@ -717,7 +717,7 @@ export function BldReport({
             />
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t mt-6 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-6 pt-4">
           <p className="text-sm text-muted mb-0">
             {vi
               ? "• = cycle break; cặp special chưa chọn không được tự suy đoán."

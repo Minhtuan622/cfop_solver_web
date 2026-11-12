@@ -105,7 +105,7 @@ export function BldFullAlgorithmCatalog({
   };
   return (
     <section className="rounded-card bg-surface mt-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6 gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6 gap-2">
         <div>
           <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
             {vi ? "THƯ VIỆN ĐẦY ĐỦ" : "FULL LIBRARY"}
@@ -268,7 +268,7 @@ export function BldFullAlgorithmCatalog({
               </div>
               {active && (
                 <div className="rounded-card bg-surface mt-6">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
+                  <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
                     <strong>
                       {kindLabel(active.kind, vi)} · {active.key}
                     </strong>
@@ -277,7 +277,7 @@ export function BldFullAlgorithmCatalog({
                       {vi ? "biến thể" : "variants"}
                     </span>
                   </div>
-                  <div className="divide-y divide-line bg-transparent">
+                  <div className="bg-transparent">
                     {active.algorithms.map((algorithm, index) => (
                       <div
                         className="block px-4 py-3 text-sm"

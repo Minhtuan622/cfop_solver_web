@@ -65,7 +65,7 @@ export function WcaCalendarFilters({
       className="mt-8 rounded-card bg-surface p-5 sm:p-6"
       aria-label={t("wca.filters")}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
         <h2 className="text-base font-semibold tracking-tight text-ink">
           {t("wca.filters")}
         </h2>

@@ -364,7 +364,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
   };
   return (
     <section className="rounded-card bg-surface mt-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6 flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6 flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
             3×3 BLD · {vi ? "LỘ TRÌNH HỌC" : "LEARNING PATH"}
@@ -401,7 +401,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
         <div className="grid grid-cols-12 gap-6">
           <aside className="col-span-12 xl:col-span-4">
             <div
-              className="divide-y divide-line overflow-hidden rounded-panel bg-surface"
+              className="overflow-hidden rounded-panel bg-surface"
               role="tablist"
               aria-label={vi ? "Các giai đoạn học BLD" : "BLD learning stages"}
             >
@@ -527,7 +527,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
                   onProfile={setProfile}
                   language={language}
                 />
-                <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-4 mt-6">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-4 mt-6">
                   <span className="text-sm text-muted">
                     {profile.drillAttempts.length}/3{" "}
                     {vi ? "lượt drill đầu tiên" : "first drill attempts"}
@@ -887,7 +887,7 @@ function FormulaCubeDemo({
   if (!trace)
     return (
       <section className="rounded-card bg-surface h-full">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
           <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
             {vi ? "MINH HỌA 3D" : "3D DEMO"}
           </p>
@@ -914,7 +914,7 @@ function FormulaCubeDemo({
       : trace[cursor - 1];
   return (
     <section className="rounded-card bg-surface h-full">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
         <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
           {vi ? "MINH HỌA 3D" : "3D DEMO"}
         </p>

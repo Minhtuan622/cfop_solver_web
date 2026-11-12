@@ -137,7 +137,7 @@ export function LastLayerExplorer({
 
   return (
     <details className="group rounded-card bg-surface">
-      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-t-card border-b px-5 py-4 text-sm font-semibold text-ink transition hover:text-primary [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-t-card px-5 py-4 text-sm font-semibold text-ink transition hover:text-primary [&::-webkit-details-marker]:hidden">
         <ChevronRight
           className="text-base text-muted transition-transform group-open:rotate-90"
           aria-hidden="true"
@@ -151,7 +151,7 @@ export function LastLayerExplorer({
         </small>
       </summary>
 
-      <div className="border-t px-5 py-4">
+      <div className="px-5 py-4">
         <div className="grid gap-4 md:grid-cols-12">
           <div className="md:col-span-4">
             <label

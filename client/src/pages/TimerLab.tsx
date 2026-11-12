@@ -1281,7 +1281,7 @@ export default function TimerLab() {
                           {SPEED_PHASES.map(phase => (
                             <label
                               key={phase}
-                              className="mb-1.5 block text-sm font-medium text-ink flex items-center justify-between border-b py-2 mb-0"
+                              className="mb-1.5 block text-sm font-medium text-ink flex items-center justify-between py-2 mb-0"
                             >
                               <span>{phase}</span>
                               <div className="flex w-full items-stretch text-xs w-auto">
@@ -1538,7 +1538,7 @@ export default function TimerLab() {
               </section>
               <section className="col-span-12">
                 <div className="rounded-card bg-surface">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6 gap-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6 gap-2">
                     <div>
                       <h2 className="text-base font-semibold tracking-tight mb-0">
                         {t("timer.recentTitle", { event: eventLabel })}
@@ -1556,7 +1556,7 @@ export default function TimerLab() {
                   </div>
                   <div className="p-5 sm:p-6">
                     {eventEntries.length ? (
-                      <div className="divide-y divide-line bg-transparent">
+                      <div className="bg-transparent">
                         {eventEntries.slice(0, 5).map(item => (
                           <RecentTimerSolve key={item.id} item={item} />
                         ))}
@@ -1652,7 +1652,7 @@ export default function TimerLab() {
                     </div>
                   )}
                   {selectedMetricDetail?.entries.length ? (
-                    <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface mt-4">
+                    <div className="overflow-hidden rounded-panel bg-surface mt-4">
                       {selectedMetricDetail.entries.map(entry => (
                         <MetricDetailCard
                           key={entry.id}
@@ -2452,7 +2452,7 @@ function MultiBlindScrambleList({
       <p className="text-sm font-semibold mb-2">
         {t("timer.multiBlindBundle", { count: scrambles.length })}
       </p>
-      <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
+      <ol className="overflow-hidden rounded-panel bg-surface list-decimal pl-6">
         {scrambles.map((item, index) => (
           <li
             key={`${index}-${item}`}

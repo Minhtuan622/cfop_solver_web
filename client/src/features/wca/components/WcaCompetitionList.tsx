@@ -25,7 +25,7 @@ export function WcaCompetitionList({
           className="rounded-card bg-surface p-5 sm:p-6"
           aria-labelledby={`wca-month-${group.key}`}
         >
-          <div className="flex items-center justify-between gap-2 border-b pb-3">
+          <div className="flex items-center justify-between gap-2 pb-3">
             <h2
               id={`wca-month-${group.key}`}
               className="text-xs font-semibold tracking-[0.06em] text-muted uppercase"
@@ -37,7 +37,7 @@ export function WcaCompetitionList({
             </span>
           </div>
           <ul
-            className="mt-4 divide-y divide-line"
+            className="mt-4"
             aria-label={t("wca.listLabel")}
           >
             {group.competitions.map(competition => (

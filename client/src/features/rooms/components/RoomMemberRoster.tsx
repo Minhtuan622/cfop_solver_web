@@ -37,7 +37,7 @@ export function RoomMemberRoster({
         : t("rooms.member.role.spectator");
   return (
     <>
-      <div className="divide-y divide-line bg-transparent">
+      <div className="bg-transparent">
         {members.map(member => (
           <div
             key={member.accountId}
@@ -89,7 +89,7 @@ export function RoomMemberRoster({
         {t("rooms.member.watching", { count: onlineSpectators.length })}
       </h3>
       {onlineSpectators.length ? (
-        <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
+        <ol className="overflow-hidden rounded-panel bg-surface list-decimal pl-6">
           {onlineSpectators.map(member => (
             <li
               key={member.accountId}

@@ -139,7 +139,7 @@ export function BldTrainingLab({
   const copy = labels[kind];
   return (
     <section className="rounded-card bg-surface">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
         <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
           {vi ? "Bài tập công thức" : "Algorithm practice"}
         </p>

@@ -86,7 +86,7 @@ export function WcaWorldRecords({
       {open ? (
         <div
           id="wca-world-records-panel"
-          className="mt-4 border-t pt-4"
+          className="mt-4 pt-4"
         >
           {isError ? (
             <StatusFeedback tone="danger" title={t("wca.records.loadFailed")}>

@@ -341,7 +341,7 @@ function PlayerHistory({ accountId }: { accountId: number }) {
                     <h3 className="text-sm font-semibold tracking-tight">
                       {t("competition.player.roomStandings")}
                     </h3>
-                    <ol className="divide-y divide-line overflow-hidden rounded-panel bg-surface list-decimal pl-6">
+                    <ol className="overflow-hidden rounded-panel bg-surface list-decimal pl-6">
                       {entry.standings.map(player => (
                         <li
                           key={player.accountId}
@@ -536,7 +536,7 @@ function LeaderboardHome() {
                 {t("competition.myHistory.failedDetail")}
               </StatusFeedback>
             ) : historyQuery.data?.length ? (
-              <div className="divide-y divide-line overflow-hidden rounded-panel bg-surface">
+              <div className="overflow-hidden rounded-panel bg-surface">
                 {historyQuery.data.slice(0, 6).map(entry => (
                   <Link
                     key={entry.room.id}

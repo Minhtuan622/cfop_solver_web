@@ -126,7 +126,7 @@ export function BldLearningTips({ language }: { language: "vi" | "en" }) {
         </Button>
       </div>
       {expanded && (
-        <div className="border-t p-4">
+        <div className="p-4">
           <p className="text-sm text-muted">
             {vi
               ? "Các mẹo này là gợi ý thực hành từ tutorial và cộng đồng 3BLD. Giữ cách giúp bạn giải đúng; không cần đổi hệ memo chỉ vì người khác dùng nhanh hơn."
@@ -157,7 +157,7 @@ export function BldLearningTips({ language }: { language: "vi" | "en" }) {
               </article>
             ))}
           </div>
-          <div className="border-t mt-4 pt-4">
+          <div className="mt-4 pt-4">
             <SourceList language={language} />
           </div>
         </div>
@@ -173,7 +173,7 @@ function SourceList({ language }: { language: "vi" | "en" }) {
       <p className="text-sm font-semibold mb-2">
         {vi ? "Video và bài đọc tham khảo" : "Referenced videos and reading"}
       </p>
-      <div className="divide-y divide-line bg-transparent">
+      <div className="bg-transparent">
         {sources.map(source => (
           <a
             className="block px-4 py-3 text-sm transition-colors hover:bg-surface-2 px-0"
