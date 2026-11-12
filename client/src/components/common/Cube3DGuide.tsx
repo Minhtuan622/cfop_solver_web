@@ -541,15 +541,13 @@ export function Cube3DGuide({
   );
   return (
     <div
-      className={`cube3d-guide w-full overflow-hidden rounded-card border border-line/80 bg-surface shadow-soft ${
+      className={`w-full overflow-hidden rounded-card border border-line/80 bg-surface shadow-soft ${
         surface === "light" ? "" : "bg-ink"
       }`}
     >
       <div className="p-5 sm:p-6 px-4">
         <div
-          className={`interactive-cube-stage cube3d-transition-${transition} ${
-            isOrbiting ? "is-orbiting" : ""
-          }`}
+          className={`interactive-cube-stage ${isOrbiting ? "is-orbiting" : ""}`}
           aria-label={
             language === "vi"
               ? "Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to"
@@ -564,9 +562,7 @@ export function Cube3DGuide({
           onTouchStart={touchStart}
           onTouchMove={touchMove}
         >
-          <div
-            className={`cube3d-motion-shell cube3d-motion-${transition} cube3d-motion-${transitionDirection}`}
-          >
+          <div className="cube3d-motion-shell">
             <div
               className="cube3d-model"
               style={
@@ -605,7 +601,7 @@ export function Cube3DGuide({
           {transition === "phase" && phaseLabel && (
             <div
               key={transitionId}
-              className="cube3d-phase-callout"
+              className="text-sm text-ink"
               aria-live="polite"
             >
               <span>{language === "vi" ? "CHUYỂN PHA" : "PHASE SHIFT"}</span>

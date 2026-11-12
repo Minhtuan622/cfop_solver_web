@@ -11,6 +11,7 @@
     "build": "node scripts/fetch-pyodide.mjs && node scripts/run-with-env.mjs production node node_modules/vite/bin/vite.js build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --splitting --outdir=dist && node scripts/verify-pyodide-dist.mjs",
     "start": "node scripts/run-with-env.mjs production node dist/index.js",
     "check": "tsc --noEmit",
+    "audit:classes": "node scripts/audit-bootstrap-classes.mjs && node scripts/audit-tailwind-classes.mjs",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:e2e": "playwright test",

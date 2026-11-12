@@ -673,7 +673,6 @@ export default function Home() {
                   selectedColor={paintColor}
                   onStateChange={applyStateEdit}
                   disabled={loading}
-                  emphasis="studio"
                 />
               ) : (
                 <Cube3DGuide
@@ -717,7 +716,7 @@ export default function Home() {
 
         <aside className="col-span-12 xl:col-span-4">
           <Surface
-            className="p-4 lg:p-6 sticky-xl-top"
+            className="p-4 lg:p-6 xl:sticky"
             style={{ top: "6rem" }}
             aria-label={t("home.solutionTitle")}
           >

@@ -28,7 +28,7 @@ export const FACE_OFFSET: Record<(typeof FACE_ORDER)[number], number> = {
 
 type Face = (typeof FACE_ORDER)[number];
 
-export function CubeNet({ state, compact = false, inspectCross = false, crossColor = "U", editable = false, selectedColor = "U", onStateChange, disabled = false, emphasis = "default" }: { state: string; compact?: boolean; inspectCross?: boolean; crossColor?: string; editable?: boolean; selectedColor?: Face; onStateChange?: (state: string) => void; disabled?: boolean; emphasis?: "default" | "studio" }) {
+export function CubeNet({ state, compact = false, inspectCross = false, crossColor = "U", editable = false, selectedColor = "U", onStateChange, disabled = false }: { state: string; compact?: boolean; inspectCross?: boolean; crossColor?: string; editable?: boolean; selectedColor?: Face; onStateChange?: (state: string) => void; disabled?: boolean }) {
   const safeState = state.length === 54 ? state : SOLVED_STATE;
   const paint = (face: Face, stickerIndex: number) => {
     if (!editable || disabled || stickerIndex === 4) return;
@@ -48,7 +48,6 @@ export function CubeNet({ state, compact = false, inspectCross = false, crossCol
         "cube-net",
         compact && "cube-net--compact",
         editable && "cube-net-editable",
-        emphasis === "studio" && "cube-net--studio",
       )}
     >
       {FACE_ORDER.map((face) => (
