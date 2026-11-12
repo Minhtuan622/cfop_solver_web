@@ -3,6 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { WeeklyReviewDay } from "../lib/lastLayerStudy";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/StudioUI";
+import { cn } from "@/lib/utils";
 
 export type StudySchedulePanelProps = {
   schedule: WeeklyReviewDay[];
@@ -66,12 +67,25 @@ export function StudySchedulePanel({
                   {/* Cột chỉ rộng ~45px: nhãn ngày phải nhỏ lại, nếu không
                       "Thứ 5" sẽ xuống dòng (đo được: 33px cần ở 12px, chỉ còn
                       33px trong ô). Không dùng `whitespace-nowrap` để khi thiếu
-                      chỗ nó xuống dòng chứ không tràn ra ngoài ô. */}
-                  <span className="block text-[11px] text-muted">
+                      chỗ nó xuống dòng chứ không tràn ra ngoài ô.
+
+                      Ô hôm nay nền tím nên chữ phải là chữ trắng: màu phụ
+                      và màu tím trên nền tím không đọc được. */}
+                  <span
+                    className={cn(
+                      "block text-[11px]",
+                      day.isToday ? "text-white/85" : "text-muted"
+                    )}
+                  >
                     {weekday}
                   </span>
                   <b className="block text-base">{day.date.getDate()}</b>
-                  <strong className="block text-sm tabular-nums text-primary">
+                  <strong
+                    className={cn(
+                      "block text-sm tabular-nums",
+                      day.isToday ? "text-white" : "text-primary"
+                    )}
+                  >
                     {day.dueCount}
                   </strong>
                 </div>
