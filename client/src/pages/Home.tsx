@@ -46,6 +46,7 @@ import {
   cancelSolverInBrowser,
   solveInBrowser,
   SolverCancelledError,
+  SolverLimitError,
   SolverTimeoutError,
   validateStateInBrowser,
   warmSolverInBrowser,
@@ -353,6 +354,8 @@ export default function Home() {
         setError(t("home.solverCancelled"));
       else if (reason instanceof SolverTimeoutError)
         setError(t("home.solverTimeout"));
+      else if (reason instanceof SolverLimitError)
+        setError(t("home.solverLimit"));
       else
         setError(
           reason instanceof Error

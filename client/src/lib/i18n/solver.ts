@@ -5,10 +5,7 @@ export const solverWords: Dictionary = {
   "input.solve": ["Tìm cách giải", "Find a solution"],
 
   "guide.ready": ["Sẵn sàng giải", "Ready to solve"],
-  "guide.help": [
-    "Khối của bạn sẽ hiện ở đây.",
-    "Your cube will appear here.",
-  ],
+  "guide.help": ["Khối của bạn sẽ hiện ở đây.", "Your cube will appear here."],
   "guide.previous": ["Trước", "Previous"],
   "guide.next": ["Sau", "Next"],
   "guide.play": ["Phát", "Play"],
@@ -18,7 +15,10 @@ export const solverWords: Dictionary = {
   "guide.step": ["Bước", "Step"],
 
   "camera.title": ["Quét bằng camera", "Scan with camera"],
-  "camera.help": ["Quét lần lượt 6 mặt theo ký hiệu hiển thị.", "Scan the 6 faces in the order shown."],
+  "camera.help": [
+    "Quét lần lượt 6 mặt theo ký hiệu hiển thị.",
+    "Scan the 6 faces in the order shown.",
+  ],
   "camera.open": ["Mở camera", "Open camera"],
   "camera.capture": ["Chụp mặt", "Capture face"],
   "camera.stop": ["Tắt camera", "Stop camera"],
@@ -54,7 +54,10 @@ export const solverWords: Dictionary = {
   "home.inputTitle.state": ["Tô màu trạng thái khối", "Paint the cube state"],
   "home.moreSteps": ["Xem thêm các bước", "Show more steps"],
   "home.fewerSteps": ["Thu gọn", "Show fewer steps"],
-  "home.toggleSolution": ["Thu gọn hoặc mở lời giải", "Collapse or expand the solution"],
+  "home.toggleSolution": [
+    "Thu gọn hoặc mở lời giải",
+    "Collapse or expand the solution",
+  ],
   "home.speedValue": ["Tốc độ: {speed}x", "Speed: {speed}x"],
   "home.resetOptions": ["Đặt lại tùy chọn", "Reset options"],
   "home.view3d": ["3D", "3D"],
@@ -82,18 +85,30 @@ export const solverWords: Dictionary = {
   "home.learnMore": ["Học thêm về bước này", "Learn more about this step"],
   "home.copyTurns": ["Sao chép các nước", "Copy the moves"],
   "home.saveSteps": ["Tải các bước giải", "Download the steps"],
-  "home.bldPrepare": ["Chuẩn bị trace memo và execution key.", "Prepare memo trace and execution key."],
+  "home.bldPrepare": [
+    "Chuẩn bị trace memo và execution key.",
+    "Prepare memo trace and execution key.",
+  ],
   "home.f2lSettings": ["Cài đặt slot F2L", "F2L slot settings"],
   "home.f2lPriority": ["Ưu tiên F2L", "F2L priority"],
   "home.f2lAny": ["Tự", "Any"],
   "home.f2lExclude": ["Loại trừ slot", "Exclude slots"],
-  "home.scramblePlaceholder": ["Nhập xáo trộn · R U R' U' …", "Enter scramble · R U R' U' …"],
+  "home.scramblePlaceholder": [
+    "Nhập xáo trộn · R U R' U' …",
+    "Enter scramble · R U R' U' …",
+  ],
   "home.paintHint": [
     "Tô trực tiếp trên CubeNet 2D lớn cạnh Cube 3D.",
     "Paint directly on the large 2D cube net beside the 3D cube.",
   ],
-  "home.waitingValidation": ["Đang chờ kiểm tra state.", "Waiting to validate state."],
-  "home.validatingState": ["Đang kiểm tra trạng thái khối.", "Validating cube state."],
+  "home.waitingValidation": [
+    "Đang chờ kiểm tra state.",
+    "Waiting to validate state.",
+  ],
+  "home.validatingState": [
+    "Đang kiểm tra trạng thái khối.",
+    "Validating cube state.",
+  ],
   "home.incompleteState": [
     "Cần đủ 54 sticker trước khi kiểm tra.",
     "Enter all 54 stickers before validation.",
@@ -106,8 +121,18 @@ export const solverWords: Dictionary = {
     "Không thể chạy solver với đầu vào này.",
     "The solver could not run with this input.",
   ],
-  "home.solverCancelled": ["Đã dừng solver theo yêu cầu.", "Solver stopped on request."],
-  "home.solverTimeout": ["Solver chạy quá lâu nên đã tự dừng. Vui lòng thử lại.", "The solver took too long and was stopped. Please try again."],
+  "home.solverCancelled": [
+    "Đã dừng solver theo yêu cầu.",
+    "Solver stopped on request.",
+  ],
+  "home.solverTimeout": [
+    "Solver chạy quá lâu nên đã tự dừng. Vui lòng thử lại.",
+    "The solver took too long and was stopped. Please try again.",
+  ],
+  "home.solverLimit": [
+    "Bộ giải đã hết ngân sách tìm kiếm với đề này. Hãy thử lại với một xáo trộn khác.",
+    "The solver ran out of search budget on this scramble. Please try a different scramble.",
+  ],
   "home.cancelSolver": ["Dừng", "Stop"],
   "home.preparing": ["Đang chuẩn bị dữ liệu cube…", "Preparing cube data…"],
   "home.buildingMemo": ["Đang dựng memo 3-Style…", "Building 3-Style memo…"],
@@ -122,7 +147,10 @@ export const solverWords: Dictionary = {
     "You are coloring the cube directly. Complete all six faces, then choose Find a solution.",
   ],
   "home.memoReady": ["Đường ghi nhớ đã sẵn sàng", "Memory path is ready"],
-  "home.memoBuild": ["Tạo memo từ trạng thái khối", "Build a memo from this cube"],
+  "home.memoBuild": [
+    "Tạo memo từ trạng thái khối",
+    "Build a memo from this cube",
+  ],
   "home.memoSeparated": [
     "Cạnh và góc đã được tách để bạn chuyển sang Study luyện theo từng bước.",
     "Edges and corners are separated; continue in Study for the guided learning path.",

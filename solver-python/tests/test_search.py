@@ -21,7 +21,7 @@ from cfop_solver.search import (
     piece_distance_view,
     solve_f2l_slot,
 )
-from cfop_solver.validation import is_valid
+from cfop_solver.validation import cubie_view, is_valid, view_is_solved
 
 
 def _apply(cube: Cube, moves) -> Cube:
@@ -82,16 +82,16 @@ class TestHeuristics:
 class TestIdaStarBudgets:
     def test_solved_start_returns_empty(self):
         cube = Cube()
-        assert ida_star(cube, lambda c: c.stickers == SOLVED, lambda c, v=None: 0, 5) == []
+        assert ida_star(cubie_view(cube), lambda v: view_is_solved(v), lambda v: 0, 5) == []
 
     def test_node_budget_raises_structured_error(self):
         cube = Cube("UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB")
         cube = _apply(cube, parse_moves("R U R' U' F R U R' U' F'"))
         with pytest.raises(SearchLimit) as exc:
             ida_star(
-                cube,
-                lambda c: False,
-                lambda c, v=None: 0,
+                cubie_view(cube),
+                lambda v: False,
+                lambda v: 0,
                 12,
                 node_budget=50,
             )
@@ -102,9 +102,9 @@ class TestIdaStarBudgets:
         cube = _apply(cube, parse_moves("R U R' U' F R U R' U' F'"))
         with pytest.raises(SearchLimit) as exc:
             ida_star(
-                cube,
-                lambda c: False,
-                lambda c, v=None: 0,
+                cubie_view(cube),
+                lambda v: False,
+                lambda v: 0,
                 12,
                 time_budget_sec=0.0001,
             )
@@ -114,7 +114,7 @@ class TestIdaStarBudgets:
         # With an unrealistic goal nothing is ever found; budget must still cap.
         cube = Cube()
         with pytest.raises(SearchLimit):
-            ida_star(cube, lambda c: False, lambda c, v=None: 0, 3, node_budget=100)
+            ida_star(cubie_view(cube), lambda v: False, lambda v: 0, 3, node_budget=100)
 
 
 class TestSolveF2lSlotBudget:

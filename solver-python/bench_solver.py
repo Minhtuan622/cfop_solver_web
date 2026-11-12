@@ -29,6 +29,9 @@ SOLVE_OPTIONS = {
     "xxxcross_depth": 8,
     "xxxxcross_depth": 8,
     "direct_node_budget": 5000,
+    # Cùng ngân sách với đường gọi của worker trong trình duyệt.
+    "time_budget_sec": 40,
+    "node_budget": 400000,
 }
 
 

@@ -1,6 +1,7 @@
 """Public CFOP solver API with phase transactions and invariant checks."""
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Callable, Literal
@@ -22,6 +23,31 @@ from .predicates import (
     xxxxcross_solved,
 )
 from .search import SearchLimit, solve_cross, solve_f2l_slot, solve_xcross, solve_xxcross, solve_xxxcross, solve_xxxxcross
+
+# Thứ tự giải các cặp F2L được thử lần lượt.
+#
+# Cặp F2L giải cuối có thể rơi vào trạng thái khó: bộ tìm kiếm phải duyệt
+# hàng triệu node và mất hàng chục giây, trong khi cùng bộ đề đó giải được
+# trong chưa tới một giây nếu đổi thứ tự. Đo trên bộ đề cố định cho thấy
+# khoảng hai phần ba các thứ tự vẫn nhanh, nên thử lần lượt vài thứ tự thay
+# vì bỏ cuộc.
+F2L_ORDER_CANDIDATES = (
+    F2L_ORDER,
+    ("FR", "BR", "BL", "FL"),
+    ("BL", "FL", "BR", "FR"),
+    ("FR", "BL", "BR", "FL"),
+    ("BR", "FR", "BL", "FL"),
+    ("FL", "FR", "BR", "BL"),
+)
+
+# Ngân sách thời gian cho một cặp F2L trong một lần thử (giây).
+#
+# Cặp dễ giải mất khoảng 0,2 giây, cặp khó mất hàng chục giây, nên ngân sách
+# này tách hai trường hợp rõ ràng mà vẫn dư ngân sách cho máy chậm.
+F2L_SLOT_BUDGET_SEC = 3.0
+
+# Ngân sách node cho một cặp F2L trong một lần thử.
+F2L_SLOT_NODE_BUDGET = 400_000
 from .validation import is_valid, validate_cube
 
 
@@ -85,6 +111,7 @@ def _restore_player_orientation(
         last_layer_attempts=list(normalized.last_layer_attempts),
         last_layer_achieved=normalized.last_layer_achieved,
         last_layer_case_id=normalized.last_layer_case_id,
+        f2l_attempts=list(normalized.f2l_attempts),
     )
     current = original
     for record in normalized.phases:
@@ -133,6 +160,7 @@ class CFOPSolution:
     last_layer_attempts: list[str] = field(default_factory=list)
     last_layer_achieved: str = ""
     last_layer_case_id: str | None = None
+    f2l_attempts: list[str] = field(default_factory=list)
 
     @property
     def moves(self) -> list[str]:
@@ -255,6 +283,7 @@ def solve(
     opening_find_result: bool = False,
     direct_node_budget: int = 5_000,
     time_budget_sec: float | None = None,
+    node_budget: int | None = None,
 ) -> CFOPSolution:
     """Solve a cube with a chosen Cross color; fixed-center API defaults to D."""
     try:
@@ -270,6 +299,17 @@ def solve(
         direct_node_budget=max(500, min(50_000, int(direct_node_budget))),
     )
     current = normalized_cube
+    started_at = time.monotonic()
+
+    def check_budget() -> None:
+        """Dừng ngay khi ngân sách tổng của lần giải đã hết.
+
+        Kiểm tra sau mỗi phase để kết quả không phụ thuộc vào việc phase đó
+        có chậm hay nhanh: một ngân sách nhỏ phải luôn cho lỗi có cấu trúc.
+        """
+        if time_budget_sec is not None and time.monotonic() - started_at > time_budget_sec:
+            raise SearchLimit(f"solve time budget {time_budget_sec}s exceeded")
+
     try:
         solved_slots: list[str] = []
         if opening == "xxxxcross":
@@ -340,22 +380,50 @@ def solve(
             if not result.opening_achieved:
                 result.opening_achieved = "cross"
 
-        for slot in F2L_ORDER:
-            if slot in solved_slots:
+        # Giải các cặp F2L. Thứ tự ảnh hưởng lớn tới thời gian, nên khi một
+        # cặp vượt ngân sách thì thử lại với thứ tự khác thay vì bỏ cuộc.
+        remaining = None if time_budget_sec is None else time_budget_sec - (time.monotonic() - started_at)
+        if remaining is not None and remaining <= 0:
+            raise SearchLimit(f"solve time budget {time_budget_sec}s exhausted before the F2L phase")
+        f2l_slot_budget = F2L_SLOT_BUDGET_SEC if remaining is None else min(F2L_SLOT_BUDGET_SEC, max(0.25, remaining / len(F2L_ORDER_CANDIDATES)))
+        f2l_slot_node_budget = node_budget if node_budget is not None else F2L_SLOT_NODE_BUDGET
+        f2l_start = current
+        f2l_slots = list(solved_slots)
+        f2l_failure: SearchLimit | None = None
+        for order in F2L_ORDER_CANDIDATES:
+            current = f2l_start
+            solved_slots = list(f2l_slots)
+            result.f2l_attempts.append("_".join(order))
+            phase_mark = len(result.phases)
+            try:
+                for slot in order:
+                    if slot in solved_slots:
+                        continue
+                    moves = solve_f2l_slot(
+                        current,
+                        slot,
+                        tuple(solved_slots),
+                        f2l_depth,
+                        node_budget=f2l_slot_node_budget,
+                        time_budget_sec=f2l_slot_budget,
+                    )
+                    def slot_goal(candidate: Cube, slot=slot, old=tuple(solved_slots)) -> bool:
+                        return cross_solved(candidate) and all(
+                            f2l_slot_solved(candidate, p) for p in old + (slot,)
+                        )
+                    current = _commit(current, f"f2l_{slot}", moves, slot_goal, result)
+                    solved_slots.append(slot)
+                    check_budget()
+                break
+            except SearchLimit as exc:
+                # Cặp này quá khó với thứ tự hiện tại: thử thứ tự khác. Các
+                # phase của lần thử hỏng phải bị gỡ bỏ, nếu không trạng thái
+                # cuối cùng sẽ trộn lẫn hai lần thử.
+                f2l_failure = exc
+                del result.phases[phase_mark:]
                 continue
-            moves = solve_f2l_slot(
-                current,
-                slot,
-                tuple(solved_slots),
-                f2l_depth,
-                time_budget_sec=time_budget_sec,
-            )
-            def slot_goal(candidate: Cube, slot=slot, old=tuple(solved_slots)) -> bool:
-                return cross_solved(candidate) and all(
-                    f2l_slot_solved(candidate, p) for p in old + (slot,)
-                )
-            current = _commit(current, f"f2l_{slot}", moves, slot_goal, result)
-            solved_slots.append(slot)
+        else:
+            raise f2l_failure or SearchLimit("F2L could not be solved within the budget")
 
         if last_layer in ("full", "oll_pll"):
             result.last_layer_attempts.append("oll_pll")
@@ -394,6 +462,7 @@ def solve(
                 pll_case, pll_moves = solve_pll_full(current)
                 current = _commit(current, "pll", pll_moves, cube_solved, result, pll_case)
                 result.last_layer_achieved = "oll_pll"
+                check_budget()
         else:
             raise CFOPError("invalid_mode", f"Unknown last_layer mode: {last_layer}")
     except SearchLimit as exc:

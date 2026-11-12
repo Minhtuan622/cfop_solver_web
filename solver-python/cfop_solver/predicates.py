@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from .cube import Cube
-from .validation import cubie_view
+from .validation import CubieView, cubie_view
 
 # Positions in validation.py: URF,UFL,ULB,UBR,DFR,DLF,DBL,DRB;
 # edges: UR,UF,UL,UB,DR,DF,DL,DB,FR,FL,BL,BR.
@@ -18,13 +18,18 @@ U_CORNERS = (0, 1, 2, 3)
 U_EDGES = (0, 1, 2, 3)
 
 
-def cross_solved(cube: Cube) -> bool:
-    view = cubie_view(cube)
+def cross_solved_view(view: CubieView) -> bool:
+    """Cross đã xong, đọc thẳng từ cubie view.
+
+    Bản view cho phép kiểm tra điều kiện mà không dựng lại facelet: trong
+    vòng tìm kiếm F2L, điều kiện được hỏi hàng trăm nghìn lần nên phần
+    dựng lại `cubie_view` là chi phí lớn nhất.
+    """
     return all(view.edge_perm[p] == p and view.edge_ori[p] == 0 for p in CROSS_SLOTS)
 
 
-def f2l_slot_solved(cube: Cube, slot: str) -> bool:
-    view = cubie_view(cube)
+def f2l_slot_solved_view(view: CubieView, slot: str) -> bool:
+    """Một cặp F2L đã vào đúng chỗ, đọc thẳng từ cubie view."""
     corner_pos, edge_pos = F2L_SLOTS[slot]
     return (
         view.corner_perm[corner_pos] == corner_pos
@@ -32,6 +37,14 @@ def f2l_slot_solved(cube: Cube, slot: str) -> bool:
         and view.edge_perm[edge_pos] == edge_pos
         and view.edge_ori[edge_pos] == 0
     )
+
+
+def cross_solved(cube: Cube) -> bool:
+    return cross_solved_view(cubie_view(cube))
+
+
+def f2l_slot_solved(cube: Cube, slot: str) -> bool:
+    return f2l_slot_solved_view(cubie_view(cube), slot)
 
 
 def xcross_solved(cube: Cube, slot: str) -> bool:

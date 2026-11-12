@@ -109,6 +109,20 @@ def cubie_view(cube: Cube) -> CubieView:
     return CubieView(tuple(cp), tuple(co), tuple(ep), tuple(eo))
 
 
+def view_is_solved(view: CubieView) -> bool:
+    """Khối đã giải xong, đọc thẳng từ cubie view.
+
+    Với tâm cố định (U/R/F/D/L/B), cubie view xác định duy nhất trạng thái
+    khối, nên kiểm tra "đã giải" không cần dựng lại facelet.
+    """
+    return (
+        view.corner_perm == tuple(range(8))
+        and view.edge_perm == tuple(range(12))
+        and not any(view.corner_ori)
+        and not any(view.edge_ori)
+    )
+
+
 def permutation_parity(values: tuple[int, ...]) -> int:
     return sum(values[i] > values[j] for i, j in combinations(range(len(values)), 2)) % 2
 

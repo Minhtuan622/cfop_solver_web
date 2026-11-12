@@ -17,8 +17,10 @@ from .predicates import (
     F2L_ORDER,
     F2L_SLOTS,
     cross_solved,
+    cross_solved_view,
     f2l_slots_solved,
     f2l_slot_solved,
+    f2l_slot_solved_view,
 )
 from .validation import cubie_view, CubieView
 
@@ -232,23 +234,57 @@ def piece_distance(cube: Cube, kind: str, piece: int, target_pos: int, view: Cub
     return _single_piece_distances(kind)[target_pos][(current_pos, ori[current_pos])]
 
 
-def f2l_heuristic(cube: Cube, slot: str, preserved: tuple[str, ...], view: CubieView | None = None) -> int:
-    if view is None:
-        view = cubie_view(cube)
-    corner_pos, edge_pos = {
-        "FR": (4, 8), "FL": (5, 9), "BL": (6, 10), "BR": (7, 11)
-    }[slot]
-    values = [cross_heuristic_view(view), piece_distance_view(view, "corner", corner_pos, corner_pos), piece_distance_view(view, "edge", edge_pos, edge_pos)]
+def _piece_positions(view: CubieView) -> tuple[dict[int, int], dict[int, int]]:
+    """Vị trí hiện tại của từng mảnh góc và cạnh, dựng một lần cho mỗi view.
+
+    `piece_distance_view` tự tìm vị trí bằng `perm.index(piece)`; trong
+    heuristic F2L có tới mười lần tra mỗi node, nên dựng sẵn hai bảng tra
+    rẻ hơn nhiều so với quét lại danh sách vị trí mỗi lần.
+    """
+    return (
+        {piece: pos for pos, piece in enumerate(view.corner_perm)},
+        {piece: pos for pos, piece in enumerate(view.edge_perm)},
+    )
+
+
+def f2l_heuristic_view(view: CubieView, slot: str, preserved: tuple[str, ...]) -> int:
+    """Cận cận dưới cho một cặp F2L, chỉ dùng cubie view."""
+    corner_pos, edge_pos = F2L_SLOTS[slot]
+    corner_positions, edge_positions = _piece_positions(view)
+    corner_distances = _single_piece_distances("corner")
+    edge_distances = _single_piece_distances("edge")
+
+    def distance(kind: str, piece: int) -> int:
+        if kind == "corner":
+            pos = corner_positions[piece]
+            return corner_distances[piece][(pos, view.corner_ori[pos])]
+        pos = edge_positions[piece]
+        return edge_distances[piece][(pos, view.edge_ori[pos])]
+
+    values = [
+        cross_heuristic_view(view),
+        distance("corner", corner_pos),
+        distance("edge", edge_pos),
+    ]
     for old in preserved:
-        old_corner, old_edge = {"FR": (4, 8), "FL": (5, 9), "BL": (6, 10), "BR": (7, 11)}[old]
-        values.extend((piece_distance_view(view, "corner", old_corner, old_corner), piece_distance_view(view, "edge", old_edge, old_edge)))
+        old_corner, old_edge = F2L_SLOTS[old]
+        values.append(distance("corner", old_corner))
+        values.append(distance("edge", old_edge))
     return max(values)
 
 
-def _f2l_goal(slot: str, preserved: tuple[str, ...]) -> Callable[[Cube], bool]:
-    return lambda candidate: cross_solved(candidate) and all(
-        f2l_slot_solved(candidate, piece) for piece in preserved + (slot,)
+def f2l_heuristic(cube: Cube, slot: str, preserved: tuple[str, ...], view: CubieView | None = None) -> int:
+    if view is None:
+        view = cubie_view(cube)
+    return f2l_heuristic_view(view, slot, preserved)
+
+
+def _f2l_goal(slot: str, preserved: tuple[str, ...]) -> Callable[[CubieView], bool]:
+    """Điều kiện đạt của một cặp F2L, đọc thẳng từ cubie view."""
+    return lambda candidate: cross_solved_view(candidate) and all(
+        f2l_slot_solved_view(candidate, piece) for piece in preserved + (slot,)
     )
+
 
 
 def _tracked_f2l_pieces(slot: str, preserved: tuple[str, ...]) -> tuple[tuple[str, int], ...]:
@@ -377,7 +413,7 @@ def _solve_f2l_meet_in_middle(
             next_path = path + [move]
             if len(next_path) <= max_depth and candidate in reverse:
                 solution = next_path + _path_from_reverse_frontier(candidate, reverse)
-                if len(solution) <= max_depth and goal(cube.apply_many(solution)):
+                if len(solution) <= max_depth and goal(cubie_view(cube.apply_many(solution))):
                     record("solved", len(visited))
                     return solution
             visited.add(candidate)
@@ -417,7 +453,7 @@ def _fast_f2l_slot(cube: Cube, slot: str, preserved: tuple[str, ...]) -> list[st
         pre = cube.apply_many(setup)
         for _case, macro in macros_for_slot(slot):
             moves = list(setup + macro)
-            if goal(pre.apply_many(macro)):
+            if goal(cubie_view(pre.apply_many(macro))):
                 return moves
     return None
 
@@ -427,9 +463,9 @@ class SearchLimit(Exception):
 
 
 def ida_star(
-    start: Cube,
-    goal: Callable[[Cube], bool],
-    heuristic: Callable[[Cube, CubieView | None], int],
+    start: CubieView,
+    goal: Callable[[CubieView], bool],
+    heuristic: Callable[[CubieView], int],
     max_depth: int,
     moves: tuple[str, ...] = FACE_MOVES,
     node_budget: int | None = None,
@@ -444,13 +480,16 @@ def ida_star(
     caps wall-clock time.  Either budget being exceeded raises
     :class:`SearchLimit` with a structured message so callers can fall back to
     an alternative phase or report a clear error instead of running forever.
+
+    The search runs on cubie views only: a node never materialises a ``Cube``,
+    so the hot loop pays for one integer transition instead of a facelet copy
+    plus a full cubie view rebuild.
     """
     if goal(start):
         return []
-    start_view = cubie_view(start)
-    bound = heuristic(start, start_view)
+    bound = heuristic(start)
     path: list[str] = []
-    visited: set[tuple[str, int]] = set()
+    visited: set[tuple[CubieView, int]] = set()
     nodes = 0
     start_time = time.monotonic() if time_budget_sec is not None else None
     time_check_interval = 1024
@@ -467,12 +506,12 @@ def ida_star(
         ):
             raise SearchLimit(f"IDA* time budget {time_budget_sec}s exceeded")
 
-    def dfs(cube: Cube, view: CubieView, depth: int, bound: int, previous: str | None):
+    def dfs(view: CubieView, depth: int, bound: int, previous: str | None):
         check_budget()
-        estimate = depth + heuristic(cube, view)
+        estimate = depth + heuristic(view)
         if estimate > bound:
             return estimate
-        if goal(cube):
+        if goal(view):
             return list(path)
         if depth == bound:
             return bound + 1
@@ -480,14 +519,13 @@ def ida_star(
         for move in moves:
             if not allowed_after(previous, move):
                 continue
-            candidate = cube.apply(move)
             next_view = cubie_view_after(view, move)
-            key = (candidate.stickers, depth)
+            key = (next_view, depth + 1)
             if key in visited:
                 continue
             visited.add(key)
             path.append(move)
-            result = dfs(candidate, next_view, depth + 1, bound, move)
+            result = dfs(next_view, depth + 1, bound, move)
             path.pop()
             if isinstance(result, list):
                 return result
@@ -496,11 +534,12 @@ def ida_star(
 
     while bound <= max_depth:
         visited.clear()
-        result = dfs(start, start_view, 0, bound, None)
+        result = dfs(start, 0, bound, None)
         if isinstance(result, list):
             return result
         bound = max(bound + 1, result)
     raise SearchLimit(f"No solution found within depth {max_depth}")
+
 
 
 def solve_cross(cube: Cube, max_depth: int = 12) -> list[str]:
@@ -551,9 +590,9 @@ def solve_f2l_slot(
         return bidirectional
 
     return ida_star(
-        cube,
+        cubie_view(cube),
         _f2l_goal(slot, preserved),
-        lambda c, v=None: f2l_heuristic(c, slot, preserved, v),
+        lambda view: f2l_heuristic_view(view, slot, preserved),
         max_depth,
         node_budget=node_budget,
         time_budget_sec=time_budget_sec,
@@ -588,7 +627,7 @@ def solve_xcross(
         moves = _solve_f2l_meet_in_middle(cube, slot, (), max_depth, node_budget, attempt_log)
         if moves is None:
             continue
-        if _f2l_goal(slot, ())(cube.apply_many(moves)):
+        if _f2l_goal(slot, ())(cubie_view(cube.apply_many(moves))):
             candidates.append((len(moves), slot_index, tuple(moves), slot, moves))
     if not candidates:
         raise SearchLimit(f"No XCross solution found within depth {max_depth}")
