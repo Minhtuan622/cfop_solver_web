@@ -1,5 +1,7 @@
 # Bản đồ refactor
 
+> **Lưu ý:** tài liệu này là bản audit tại thời điểm đã viết. Repo đã bỏ hẳn Bootstrap và dùng Tailwind CSS 4; các class Bootstrap được nhắc ở đây không còn tồn tại trong mã nguồn. Xem [hướng dẫn phát triển](../development/project-guide.md) cho quy ước giao diện hiện hành.
+
 ## Baseline
 
 Dự án hiện có khoảng **19.471 dòng TypeScript/TSX** trong `client/src`, `server`, `shared` và `drizzle`, cùng **32 file regression**. Đợt refactor sẽ bảo toàn hành vi trước, thực hiện từng nhóm nhỏ và chỉ loại bỏ mã sau khi đã kiểm tra import, route và test liên quan.

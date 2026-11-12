@@ -1,5 +1,7 @@
 # UX/UI Audit — CFOP Solver Studio
 
+> **Lưu ý:** tài liệu này là bản audit tại thời điểm đã viết. Repo đã bỏ hẳn Bootstrap và dùng Tailwind CSS 4; các class Bootstrap được nhắc ở đây không còn tồn tại trong mã nguồn. Xem [hướng dẫn phát triển](../development/project-guide.md) cho quy ước giao diện hiện hành.
+
 **Ngày audit:** 24/08/2026  
 **Phạm vi:** Studio CFOP/3-Style, Timer, Study, Settings, navigation và các component dùng chung.  
 **Ràng buộc bất biến:** Không thay đổi thuật toán solver, timer/inspection, state Cube 2D/3D, SRS, 3-Style, localStorage, import/export, routes hoặc flow nghiệp vụ khi chưa có lý do UX bắt buộc và kiểm thử hồi quy.

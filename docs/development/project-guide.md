@@ -58,19 +58,23 @@ Khi thêm tính năng mới, ưu tiên tạo module trong boundary phù hợp, e
 
 ### Design token
 
-Mọi màu mới của app phải là **CSS token** trong `client/src/index.css`, không hardcode hex trong TSX. Token bắt đầu bằng `--cfop-` và khai báo cho **cả hai** palette: block `:root, [data-bs-theme="light"]` và block `[data-bs-theme="dark"]`.
+Mọi màu mới của app phải là **CSS token** trong `client/src/index.css`, không hardcode hex trong TSX. Token khai báo cho **cả hai** palette: block `:root, [data-theme="light"]` và block `[data-theme="dark"]`, rồi expose qua `@theme inline` để Tailwind sinh utility tương ứng (`bg-surface`, `text-ink`, `border-line`...).
 
 | Token | Dùng cho |
 |---|---|
-| `--cfop-chart-1..6` | Màu series của mọi biểu đồ Recharts. Bản dark được nâng sáng để giữ tương phản. |
-| `--cfop-export-*` (13 token) | Bản xuất PNG của Timer; đọc qua `features/timer/lib/exportPalette.ts`. |
-| `--cfop-shadow-card` | Đổ bóng của panel. |
-| `--cfop-stage-*`, `--cfop-accent*`, `--cfop-cube-bg` | Nền khối 3D và màu nhấn của Studio. |
+| `--canvas`, `--surface`, `--surface-2`, `--surface-3` | Nền app và các lớp panel. |
+| `--ink`, `--muted`, `--line` | Chữ chính, chữ phụ và đường viền. |
+| `--primary` (+ `--primary-hover`, `--primary-soft`) | Màu nhấn. |
+| `--accent`, `--accent-soft` | Màu nhấn phụ. |
+| `--success`, `--warning`, `--danger`, `--info` (+ biến `-soft`) | Trạng thái. |
+| `--shadow-soft`, `--shadow-card`, `--shadow-float` | Đổ bóng của panel. |
+| `--cube-stage*` | Nền khối 3D và màu nhấn của Studio. |
 
 Hai nơi khác thường cần nhớ:
 
-- **`.card` của Bootstrap không dùng được.** `.border-0` và `.shadow-sm` là `!important`, nên rule `.card` toàn cục không bao giờ áp dụng cho các panel đang dùng chúng. Panel cần bề mặt nổi thì dùng class opt-in **`.cfop-card-surface`**.
-- **Dark mode** do `data-bs-theme` trên `<html>` điều khiển (`client/src/lib/theme.ts`, script inline trong `client/index.html` chạy trước first paint). Dùng biến Bootstrap (`bg-body-tertiary`, `text-body`) thay cho class cứng `bg-dark`/`text-white`.
+- **Repo không dùng Bootstrap.** Class của Bootstrap (`card`, `col-lg-4`, `row`, `d-flex`, `btn btn-primary`, `text-muted`, `rounded-pill`...) không tồn tại nên **không có tác dụng gì**, và giao diện hỏng mà không báo lỗi. Dùng utility Tailwind tương đương. `node scripts/audit-bootstrap-classes.mjs` liệt kê class Bootstrap còn sót.
+- **Dark mode** do `data-theme` trên `<html>` điều khiển (`client/src/lib/theme.ts`, script inline trong `client/index.html` chạy trước first paint). Dùng utility theo token (`bg-surface`, `text-muted`) thay cho class cứng `bg-dark`/`text-white`.
+- **Cỡ chữ theo vùng chứa** dùng container query (`@container` + `cqw`), không dùng `vw`: đặt trong một cột hẹp thì `vw` làm chữ tràn ra ngoài khối.
 
 ### Primitive
 
@@ -111,7 +115,7 @@ Một convention duy nhất: **`t("namespace.key")`**.
 
 ### Thông báo
 
-`sonner` là toast service duy nhất, mount một lần qua `<AppToaster />` trong `AppShell`. Màu toast được tie vào Bootstrap token trong `index.css` nên đọc đúng ở cả hai palette. Không tự dựng banner toast trong page.
+`sonner` là toast service duy nhất, mount một lần qua `<AppToaster />` trong `AppShell`. Màu toast bám theo token của theme trong `index.css` nên đọc đúng ở cả hai palette. Không tự dựng banner toast trong page.
 
 ### Điều hướng
 
@@ -152,7 +156,7 @@ Trang `/` là một **không gian làm việc** hai cột, không phải một c
 - **Cột trái — “Khối của bạn”**: ô nhập có `<label>` thật, badge nhị phân theo chế độ, nút “Scramble ngẫu nhiên”, và các khối gập bằng `<details>` native (cài đặt slot F2L · quét camera · dán 54 sticker).
 - **Cột phải — “Lời giải”**: khối cube 2D/3D và **khối phát lại chỉ hiện khi đã có lời giải** — trước đó có một dòng nhắc bấm nút.
 - **Báo cáo CFOP** nằm full-width dưới cả hai cột; số lượt và số chặng gộp vào header của chính báo cáo nên không còn thẻ số liệu trùng lặp.
-- Các khối gập dùng `<details>` native, không dựa vào JS của Bootstrap accordion.
+- Các khối gập dùng `<details>` native, không cần JS.
 
 ### Trang học thêm
 
@@ -339,7 +343,7 @@ Quy trình triển khai database:
 pnpm dev
 ```
 
-Server mặc định bắt đầu từ `PORT` hoặc cổng `3000`. Nếu cổng ưu tiên bận, bootstrap hiện tại tìm một cổng trống trong phạm vi kế tiếp. Development dùng Vite middleware và vẫn mount API tại `/api/trpc`.
+Server mặc định bắt đầu từ `PORT` hoặc cổng `3000`. Nếu cổng ưu tiên bận, tiến trình khởi tạo tìm một cổng trống trong phạm vi kế tiếp. Development dùng Vite middleware và vẫn mount API tại `/api/trpc`.
 
 Các route chính:
 
@@ -513,7 +517,7 @@ cfop_solver_web/
 ├── client/
 │   ├── index.html
 │   └── src/
-│       ├── components/       # AppNav, Bootstrap UI, Cube/3D, Account, Study, Rooms...
+│       ├── components/       # AppNav, UI dùng chung, Cube/3D, Account, Study, Rooms...
 │       ├── features/         # Feature boundary: timer, rooms, profile, puzzle-3d, solver, settings, bld, competition, wca
 │       ├── contexts/         # Language/theme và context dùng chung
 │       ├── hooks/             # React hooks dùng chung
@@ -521,7 +525,7 @@ cfop_solver_web/
 │       ├── pages/             # Home, TimerLab, History, Settings, Profile, Rooms, WCA
 │       ├── App.tsx            # App shell, routes, lazy page loading
 │       ├── main.tsx           # React providers và tRPC client
-│       └── index.css          # Global styles Bootstrap-compatible
+│       └── index.css          # Global styles + theme Tailwind
 ├── server/
 │   ├── _core/                # Framework/runtime; không sửa tùy tiện
 │   ├── db.ts                 # Query helpers và data access
@@ -559,7 +563,7 @@ cfop_solver_web/
 └── README.md                  # Entry point; tài liệu chi tiết nằm trong docs/
 ```
 
-`server/_core/` là framework plumbing của template, gồm bootstrap, Vite bridge, tRPC context, cookie helper và storage proxy. Không chỉnh sửa thư mục này trong feature work nếu chưa hiểu rõ contract runtime.
+`server/_core/` là framework plumbing của template, gồm khởi tạo server, Vite bridge, tRPC context, cookie helper và storage proxy. Không chỉnh sửa thư mục này trong feature work nếu chưa hiểu rõ contract runtime.
 
 ## 14. Quy tắc phát triển an toàn
 
@@ -613,7 +617,7 @@ CDN chỉ nên phục vụ static assets và chunk Cubing/Three.js. Lazy-load th
 
 - [React documentation](https://react.dev/learn)
 - [Vite guide](https://vite.dev/guide/)
-- [Bootstrap documentation](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
+- [Tailwind CSS documentation](https://tailwindcss.com/docs)
 - [tRPC documentation](https://trpc.io/docs)
 - [Drizzle ORM documentation](https://orm.drizzle.team/docs/overview)
 - [Playwright documentation](https://playwright.dev/docs/intro)
@@ -647,7 +651,7 @@ Giữ license hiện có của repository khi phát hành hoặc fork dự án. 
 
 [1]: https://react.dev/learn "React documentation"
 [2]: https://vite.dev/guide/ "Vite guide"
-[3]: https://getbootstrap.com/docs/5.3/getting-started/introduction/ "Bootstrap documentation"
+[3]: https://tailwindcss.com/docs "Tailwind CSS documentation"
 [4]: https://trpc.io/docs "tRPC documentation"
 [5]: https://orm.drizzle.team/docs/overview "Drizzle ORM documentation"
 [6]: https://playwright.dev/docs/intro "Playwright documentation"

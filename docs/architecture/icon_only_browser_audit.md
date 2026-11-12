@@ -1,5 +1,7 @@
 # Browser audit — icon-only controls
 
+> **Lưu ý:** tài liệu này là bản audit tại thời điểm đã viết. Repo đã bỏ hẳn Bootstrap và dùng Tailwind CSS 4; các class Bootstrap được nhắc ở đây không còn tồn tại trong mã nguồn. Xem [hướng dẫn phát triển](../development/project-guide.md) cho quy ước giao diện hiện hành.
+
 - URL đã kiểm tra: `/history?from_webdev=1` trong phiên browser người dùng.
 - Dữ liệu thực được giữ nguyên: History hiển thị 10 solve hợp lệ; không thực hiện thao tác nhập, xuất, xóa, chỉnh sửa hoặc thay đổi localStorage.
 - Các action nhập JSON, xuất JSON, xuất CSV và quay về Timer hiển thị dưới dạng icon-only với tên truy cập được.

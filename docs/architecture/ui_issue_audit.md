@@ -1,5 +1,7 @@
 # UI issue audit — 2026-08-24
 
+> **Lưu ý:** tài liệu này là bản audit tại thời điểm đã viết. Repo đã bỏ hẳn Bootstrap và dùng Tailwind CSS 4; các class Bootstrap được nhắc ở đây không còn tồn tại trong mã nguồn. Xem [hướng dẫn phát triển](../development/project-guide.md) cho quy ước giao diện hiện hành.
+
 ## Button contrast
 
 Hai ảnh do người dùng cung cấp xác nhận cùng một lỗi tương phản: nút primary nền xanh Bootstrap hiển thị chữ và icon tối/xám thay vì `--bs-btn-color` trắng.

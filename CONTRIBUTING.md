@@ -21,9 +21,23 @@ Cảm ơn bạn muốn cải thiện CFOP Solver Studio. Bạn có thể đóng 
 ## Quy ước code
 
 - TypeScript strict; ưu tiên module theo feature trong `client/src/features/`.
-- Giao diện dùng Bootstrap 5 và Bootstrap Icons; không thêm custom CSS khi Bootstrap hoặc primitive dùng chung đã đáp ứng được nhu cầu.
+- Giao diện dùng **Tailwind CSS 4** và các primitive trong
+  `client/src/components/ui/`. Không thêm custom CSS khi utility Tailwind hoặc
+  primitive dùng chung đã đáp ứng được nhu cầu.
+- **Không dùng class của Bootstrap.** Repo đã bỏ hẳn Bootstrap, nên các class
+  như `card`, `col-lg-4`, `row`, `btn btn-primary`, `d-flex`, `form-control`,
+  `text-muted` hay `rounded-pill` không tồn tại và sẽ **không có tác dụng
+  gì** — giao diện sẽ hỏng mà không báo lỗi. Dùng utility Tailwind tương đương
+  (`rounded-card`, `lg:col-span-4`, `grid`, `flex`, `text-sm`, `rounded-full`).
+  Lệnh `node scripts/audit-bootstrap-classes.mjs` liệt kê class Bootstrap còn
+  sót; `server/tailwindLayout.test.ts` chặn chúng quay lại.
 - UI mới phải hỗ trợ tiếng Việt và tiếng Anh qua `client/src/lib/i18n/`.
-- Màu mới phải dùng CSS token `--cfop-*` cho cả light và dark theme.
+- Màu mới phải dùng CSS token của theme (`--canvas`, `--surface`, `--ink`,
+  `--muted`, `--line`, `--primary`, `--success`, `--warning`, `--danger`,
+  `--info` và các biến `-soft`/`-hover` tương ứng) cho cả light và dark theme;
+  khai báo trong `client/src/index.css` và expose qua `@theme inline`.
+- Cỡ chữ theo vùng chứa phải dùng **container query** (`@container` + `cqw`),
+  không dùng `vw`: đặt trong một cột hẹp thì `vw` làm chữ tràn ra ngoài.
 - Không import Three.js/Cubing vào chunk eager; giữ các module 3D trong dynamic import.
 - Form control phải có label hoặc accessible name; không dùng `window.alert`/`window.confirm`.
 - Không commit secret, file `.env`, dữ liệu tài khoản hoặc artifact build.
