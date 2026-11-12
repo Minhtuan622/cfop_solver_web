@@ -249,13 +249,13 @@ async function fetchWcaJson<T>(
   // Chỉ tính hạn mức khi thực sự gọi ra WCA: bản trong bộ nhớ đệm thì không.
   if (!wcaCallerLimiter.consume(caller, WCA_CALLER_RATE_LIMIT).allowed) {
     throw new WcaApiError(
-      "UNAVAILABLE",
+      "RATE_LIMITED",
       "Yêu cầu WCA quá nhiều. Hãy thử lại sau."
     );
   }
   if (!wcaGlobalLimiter.consume("wca", WCA_GLOBAL_RATE_LIMIT).allowed) {
     throw new WcaApiError(
-      "UNAVAILABLE",
+      "RATE_LIMITED",
       "Dịch vụ WCA đang bận. Hãy thử lại sau."
     );
   }
@@ -302,8 +302,13 @@ async function fetchWcaJson<T>(
 }
 
 export class WcaApiError extends Error {
+  /**
+   * `RATE_LIMITED` tách riêng khỏi `UNAVAILABLE`: hết hạn mức là lỗi của
+   * phía người gọi (429, thử lại sau là được) còn WCA không phản hồi là lỗi
+   * dịch vụ (503). Gộp chung khiến người dùng không phân biệt được.
+   */
   constructor(
-    public readonly kind: "NOT_FOUND" | "UNAVAILABLE",
+    public readonly kind: "NOT_FOUND" | "UNAVAILABLE" | "RATE_LIMITED",
     message: string
   ) {
     super(message);

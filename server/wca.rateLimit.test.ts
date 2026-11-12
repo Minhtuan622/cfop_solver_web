@@ -154,6 +154,21 @@ describe("A2: hạn mức WCA theo người gọi", () => {
     expect(allowed).toBeLessThanOrEqual(WCA_GLOBAL_RATE_LIMIT.limit);
   });
 
+  it("hết hạn mức trả 429 chứ không phải 503", async () => {
+    // 503 là lỗi dịch vụ (WCA không phản hồi); hết hạn mức là lỗi phía
+    // người gọi và thử lại sau là được. Người dùng cần phân biệt hai việc.
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockJson([])));
+    const { wcaError } = await import("./routers/wca");
+    const { WcaApiError } = await import("./services/wcaApi");
+
+    expect(() =>
+      wcaError(new WcaApiError("RATE_LIMITED", "Yêu cầu WCA quá nhiều. Hãy thử lại sau.")),
+    ).toThrowError(expect.objectContaining({ code: "TOO_MANY_REQUESTS" }));
+    expect(() =>
+      wcaError(new WcaApiError("UNAVAILABLE", "Không thể kết nối WCA lúc này. Hãy thử lại sau.")),
+    ).toThrowError(expect.objectContaining({ code: "SERVICE_UNAVAILABLE" }));
+  });
+
   it("bảng đếm có kích thước tối đa", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockJson([])));
 

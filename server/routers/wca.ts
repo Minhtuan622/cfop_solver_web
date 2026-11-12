@@ -33,7 +33,14 @@ export function wcaError(error: unknown): never {
   if (error instanceof TRPCError) throw error;
   if (error instanceof WcaApiError)
     throw new TRPCError({
-      code: error.kind === "NOT_FOUND" ? "NOT_FOUND" : "SERVICE_UNAVAILABLE",
+      // Hết hạn mức là lỗi phía người gọi (429), khác với WCA không phản
+      // hồi dịch vụ (503).
+      code:
+        error.kind === "NOT_FOUND"
+          ? "NOT_FOUND"
+          : error.kind === "RATE_LIMITED"
+            ? "TOO_MANY_REQUESTS"
+            : "SERVICE_UNAVAILABLE",
       message: error.message,
     });
   if (error instanceof WcaOAuthError)
