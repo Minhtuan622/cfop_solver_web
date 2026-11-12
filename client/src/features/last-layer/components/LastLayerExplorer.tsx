@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
-import { Select } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/FormControls";
 import { buttonClass } from "@/components/ui/Button";
 

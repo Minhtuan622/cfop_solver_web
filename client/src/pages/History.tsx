@@ -57,7 +57,7 @@ import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
-import { Select } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/FormControls";
 import { PageHeader } from "@/components/ui/StudioUI";
 import { buttonClass } from "@/components/ui/Button";

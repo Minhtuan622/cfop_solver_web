@@ -11,7 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/StudioUI";
 import { Input } from "@/components/ui/FormControls";
-import { Select } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/FormControls";
 
 type Props = {

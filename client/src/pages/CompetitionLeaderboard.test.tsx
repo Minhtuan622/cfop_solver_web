@@ -47,9 +47,12 @@ describe("CompetitionLeaderboard", () => {
     expect(screen.getByRole("heading", { name: "Xếp hạng & lịch sử thi đấu" })).toBeInTheDocument();
     expect(screen.getByRole("cell", { name: "An" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "An" })).toHaveAttribute("href", "/competition/player/42");
-    expect(screen.getByLabelText("Bộ môn")).toHaveValue("all");
-    fireEvent.change(screen.getByLabelText("Bộ môn"), { target: { value: "333" } });
-    expect(screen.getByLabelText("Bộ môn")).toHaveValue("333");
+    // Dropdown tự vẽ: nhãn của nút là lựa chọn đang chọn, không còn .value
+    // như `<select>` gốc.
+    expect(screen.getByLabelText("Bộ môn")).toHaveTextContent("Mọi bộ môn");
+    fireEvent.click(screen.getByLabelText("Bộ môn"));
+    fireEvent.click(screen.getByRole("option", { name: "3×3×3" }));
+    expect(screen.getByLabelText("Bộ môn")).toHaveTextContent("3×3×3");
   });
 
   it("hiển thị skeleton khi đang tải bảng xếp hạng", () => {

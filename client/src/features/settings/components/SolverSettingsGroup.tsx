@@ -6,7 +6,7 @@ import type { SolverSettings } from "@/lib/appSettings";
 import type { F2LSlot } from "../lib/useSettingsState";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
-import { Select } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/FormControls";
 
 const COLORS: {

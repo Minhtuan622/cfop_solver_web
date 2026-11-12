@@ -9,7 +9,7 @@ import type { TimerEventId } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RoomMemberRoster } from "./RoomMemberRoster";
 import { Input } from "@/components/ui/FormControls";
-import { Select } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/FormControls";
 import { buttonClass } from "@/components/ui/Button";
 import type {

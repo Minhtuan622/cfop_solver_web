@@ -74,7 +74,9 @@ describe("Timer replay với solution đã lưu", () => {
     render(<LanguageProvider><TimerLab /></LanguageProvider>);
 
     const eventSelect = screen.getByLabelText("Loại khối");
-    fireEvent.change(eventSelect, { target: { value: "pyram" } });
+    // Dropdown tự vẽ: bấm để mở danh sách rồi chọn mục.
+    fireEvent.click(eventSelect);
+    fireEvent.click(screen.getByRole("option", { name: "Pyraminx" }));
 
     expect(await screen.findByText("pyram scramble")).toBeInTheDocument();
     expect(screen.getAllByText("Pyraminx").length).toBeGreaterThan(0);
@@ -83,12 +85,14 @@ describe("Timer replay với solution đã lưu", () => {
     expect(screen.getByText("Chưa có solve Pyraminx.")).toBeInTheDocument();
     expect(screen.getByText("Liên kết WCA ID")).toBeInTheDocument();
 
-    fireEvent.change(eventSelect, { target: { value: "444" } });
+    fireEvent.click(eventSelect);
+    fireEvent.click(screen.getByRole("option", { name: "4×4×4" }));
     expect(await screen.findByText("444 scramble")).toBeInTheDocument();
     expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("444 preview");
     expect(screen.getByText("Chưa có solve 4×4×4.")).toBeInTheDocument();
 
-    fireEvent.change(eventSelect, { target: { value: "333bf" } });
+    fireEvent.click(eventSelect);
+    fireEvent.click(screen.getByRole("option", { name: "3×3 BLD" }));
     expect(await screen.findByText("333bf scramble")).toBeInTheDocument();
     expect(screen.getAllByTestId("cube-guide").at(-1)).toHaveTextContent("ready · 0");
     expect(screen.getByText("Chưa có solve 3×3 BLD.")).toBeInTheDocument();
@@ -97,7 +101,8 @@ describe("Timer replay với solution đã lưu", () => {
   it("ghi điểm Multi-Blind từ số khối giải đúng và thời gian sau khi dừng timer", async () => {
     localStorage.setItem("cfop-language", "vi");
     render(<LanguageProvider><TimerLab /></LanguageProvider>);
-    fireEvent.change(screen.getByLabelText("Loại khối"), { target: { value: "333mbf" } });
+    fireEvent.click(screen.getByLabelText("Loại khối"));
+    fireEvent.click(screen.getByRole("option", { name: "3×3 MBLD" }));
     expect(await screen.findByText("2 SCRAMBLE RIÊNG · MỖI KHỐI MỘT SCRAMBLE")).toBeInTheDocument();
     expect(screen.queryByTestId("cube-guide")).not.toBeInTheDocument();
     expect(screen.getByText("Multi-Blind tập trung vào bộ scramble riêng cho từng khối.")).toBeInTheDocument();

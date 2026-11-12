@@ -119,7 +119,8 @@ import { IconButton, PageHeader, StatTile } from "@/components/ui/StudioUI";
 import { PanelHeader, RoundButton } from "@/components/ui/DesignSystem";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { Input, Select, Textarea } from "@/components/ui/FormControls";
+import { Input, Textarea } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 import { buttonClass } from "@/components/ui/Button";
 
 const FACES = ["U", "R", "F", "D", "L", "B"] as const;
@@ -843,8 +844,8 @@ export default function TimerLab() {
                         <span className="mb-1.5 block text-sm font-medium text-ink text-muted mb-1">
                           {t("timer.puzzle")}
                         </span>
-                        <select
-                          className="w-full rounded-full border border-line bg-surface px-3.5 py-2.5 pr-9 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+                        <Select
+                          className="rounded-full px-3.5 py-2.5"
                           value={eventId}
                           onChange={event =>
                             selectTimerEvent(event.target.value as TimerEventId)
@@ -855,7 +856,7 @@ export default function TimerLab() {
                               {timerEventLabel(event.id, language)}
                             </option>
                           ))}
-                        </select>
+                        </Select>
                       </label>
                       <div className="col-span-12 sm:col-span-6">
                         <div className="flex items-center gap-2">

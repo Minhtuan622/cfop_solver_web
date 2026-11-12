@@ -3,6 +3,7 @@ import { Search } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { WcaCountry } from "../lib/wcaCalendar";
 import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
 
 export type WcaCalendarFiltersProps = {
   year: number;
@@ -122,40 +123,40 @@ export function WcaCalendarFilters({
 
       <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Field id="wca-year" label={t("wca.year")}>
-          <select
+          <Select
             id="wca-year"
-            className="h-11 w-full rounded-full border border-line bg-surface px-4 py-2.5 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
-            value={year}
+            className="h-11 rounded-full px-4 py-2.5"
+            value={String(year)}
             onChange={event => onYearChange(Number(event.target.value))}
           >
             {years.map(value => (
-              <option key={value} value={value}>
+              <option key={value} value={String(value)}>
                 {value}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
 
         <Field id="wca-month" label={t("wca.month")}>
-          <select
+          <Select
             id="wca-month"
-            className="h-11 w-full rounded-full border border-line bg-surface px-4 py-2.5 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
-            value={month}
+            className="h-11 rounded-full px-4 py-2.5"
+            value={String(month)}
             onChange={event => onMonthChange(Number(event.target.value))}
           >
             <option value={0}>{t("wca.allMonths")}</option>
             {monthNames.map((name, index) => (
-              <option key={index + 1} value={index + 1}>
+              <option key={index + 1} value={String(index + 1)}>
                 {name}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
 
         <Field id="wca-country" label={t("wca.country")}>
-          <select
+          <Select
             id="wca-country"
-            className="h-11 w-full rounded-full border border-line bg-surface px-4 py-2.5 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-11 rounded-full px-4 py-2.5"
             value={countryIso2}
             onChange={event => onCountryChange(event.target.value)}
             disabled={countriesLoading}
@@ -170,7 +171,7 @@ export function WcaCalendarFilters({
                 {country.name}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
 
         <Field

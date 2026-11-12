@@ -5,7 +5,7 @@ import {
 } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 
 export type CompetitionPeriod = "week" | "month";
 

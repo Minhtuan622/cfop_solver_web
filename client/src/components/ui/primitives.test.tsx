@@ -3,7 +3,8 @@ import { describe, expect, it, afterEach } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, cardClass } from "@/components/ui/Card";
-import { Input, Select, Textarea } from "@/components/ui/FormControls";
+import { Input, Textarea } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 
 // Dự án không bật `globals` cho Vitest nên Testing Library không tự dọn DOM
 // giữa các test; dọn ở đây để mỗi test chỉ thấy phần tử của mình.
@@ -127,19 +128,7 @@ describe("ô nhập", () => {
     const input = screen.getByLabelText("Tên") as HTMLInputElement;
     expect(input.value).toBe("abc");
     expect(input.className).toContain("rounded-field");
-    expect(input.className).toContain("focus:border-primary");
-  });
-
-  it("Select dùng chung kiểu với Input", () => {
-    render(
-      <Select aria-label="Thể thức" defaultValue="333">
-        <option value="333">3x3x3</option>
-      </Select>,
-    );
-    const select = screen.getByLabelText("Thể thức") as HTMLSelectElement;
-    expect(select.value).toBe("333");
-    expect(select.className).toContain("rounded-field");
-    expect(select.className).toContain("cursor-pointer");
+    expect(input.className).toContain("focus:ring-primary");
   });
 
   it("Textarea có số dòng mặc định", () => {

@@ -31,17 +31,21 @@ describe("History theo loại Rubik", () => {
 
     expect(screen.getByText("R U R' U'")).toBeTruthy();
     expect(screen.getByText("U R F'")).toBeTruthy();
-    expect(screen.getAllByText("3×3×3").length).toBeGreaterThan(1);
-    expect(screen.getAllByText("FTO").length).toBeGreaterThan(1);
+    expect(screen.getByText("3×3×3")).toBeTruthy();
+    expect(screen.getByText("FTO")).toBeTruthy();
 
-    fireEvent.change(screen.getByLabelText("Loại khối"), { target: { value: "fto" } });
+    // Dropdown tự vẽ: bấm để mở danh sách rồi chọn mục FTO.
+    fireEvent.click(screen.getByLabelText("Loại khối"));
+    fireEvent.click(screen.getByRole("option", { name: "FTO" }));
     expect(screen.queryByText("R U R' U'")) .toBeNull();
     expect(screen.getByText("U R F'")) .toBeTruthy();
   });
 
   it("only shows the solution editor for the exact 3×3×3 event, including in All mode", () => {
     render(<History />);
-    fireEvent.change(screen.getByLabelText("Loại khối"), { target: { value: "all" } });
+    // Dropdown tự vẽ: bấm để mở danh sách rồi chọn "Mọi loại Rubik".
+    fireEvent.click(screen.getByLabelText("Loại khối"));
+    fireEvent.click(screen.getByRole("option", { name: "Mọi loại Rubik" }));
 
     const editButtons = screen.getAllByLabelText("Chỉnh sửa solve");
     fireEvent.click(editButtons[0]);

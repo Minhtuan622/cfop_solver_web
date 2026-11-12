@@ -20,7 +20,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { RoomSummary } from "../lib/roomTypes";
 import { Input } from "@/components/ui/FormControls";
-import { Select } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/FormControls";
 import { buttonClass } from "@/components/ui/Button";
 
@@ -148,14 +148,13 @@ export function RoomLobby({
                   >
                     <Select
                       id="room-max-players"
-
-                      value={maxPlayers}
+                      value={String(maxPlayers)}
                       onChange={input =>
                         onMaxPlayersChange(Number(input.target.value))
                       }
                     >
                       {[2, 4, 6, 8, 12, 16].map(value => (
-                        <option key={value}>
+                        <option key={value} value={String(value)}>
                           {t("rooms.lobby.playerCount", { count: value })}
                         </option>
                       ))}

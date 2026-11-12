@@ -15,7 +15,7 @@ import {
 } from "@/features/bld/lib/bldCatalogSource";
 import type { BldResult } from "@/lib/solverRuntime";
 import { Input } from "@/components/ui/FormControls";
-import { Select } from "@/components/ui/FormControls";
+import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/FormControls";
 
 type Catalog = Record<string, string>;
@@ -596,7 +596,7 @@ export function BldReport({
                                   ? EDGE_POSITIONS
                                   : CORNER_POSITIONS
                                 ).map(position => (
-                                  <option key={position}>{position}</option>
+                                  <option key={position} value={String(position)}>{position}</option>
                                 ))}
                               </Select>
                               <Select
@@ -617,7 +617,7 @@ export function BldReport({
                                   ? EDGE_POSITIONS
                                   : CORNER_POSITIONS
                                 ).map(position => (
-                                  <option key={position}>{position}</option>
+                                  <option key={position} value={String(position)}>{position}</option>
                                 ))}
                               </Select>
                             </div>

@@ -1,18 +1,23 @@
 /**
- * The form controls of the app: text field, select and textarea.
+ * The form controls of the app: text field and textarea.
  *
- * Cả ba dùng chung một kiểu ô nhập (viền, bo góc, vòng focus, trạng thái tắt)
- * nên nhìn luôn giống nhau và một đổi trong file này áp dụng cho cả giao diện.
+ * Cả hai dùng chung một kiểu ô nhập (nền nhạt, bo góc ô, vòng focus, trạng
+ * thái tắt) nên nhìn luôn giống nhau và một đổi trong file này áp dụng cho
+ * cả giao diện.
+ *
+ * Ô nhập không dùng viền: ranh giới được tạo bằng nền khác nền của khối chứa
+ * nó, và vòng focus (viền focus) khi điều hướng bằng bàn phím vẫn giữ nguyên.
+ * Ô chọn giá trị nằm ở `Select.tsx`.
  *
  * Nhãn, gợi ý và thông báo lỗi do `Field` của `StudioUI` đảm nhiệm: mọi ô
  * nhập phải có tên nhìn thấy được.
  */
-import { forwardRef, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { forwardRef, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-/** Kiểu chung của ô nhập: viền, bo góc, nền, focus và trạng thái tắt. */
+/** Kiểu chung của ô nhập: nền, bo góc, focus và trạng thái tắt. */
 const controlBase =
-  "w-full rounded-field border border-line bg-surface text-sm text-ink shadow-sm outline-none transition placeholder:text-muted/60 focus:border-primary focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60";
+  "w-full rounded-field bg-surface-3 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:bg-surface focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60";
 
 export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   /** Icon nằm trong ô, bên trái nội dung. */
@@ -46,21 +51,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {...rest}
       />
     </span>
-  );
-});
-
-export type SelectProps = SelectHTMLAttributes<HTMLSelectElement>;
-
-export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { className, ...rest },
-  ref,
-) {
-  return (
-    <select
-      ref={ref}
-      className={cn(controlBase, "cursor-pointer px-3.5 py-2.5 pr-9", className)}
-      {...rest}
-    />
   );
 });
 
