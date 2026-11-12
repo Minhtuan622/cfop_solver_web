@@ -17,9 +17,11 @@ import { cn } from "@/lib/utils";
 export type ButtonVariant =
   /** Hành động chính của màn hình: nền tím, chữ trắng. */
   | "primary"
-  /** Nút nền trắng có viền — mặc định của app. */
+  /** Nền trắng, không viền — mặc định của app. */
   | "secondary"
-  /** Nút nền xám nhạt, dùng khi nút nằm trong panel. */
+  /** Nền trắng có viền xám. */
+  | "outlined"
+  /** Nền xám nhạt có viền, dùng khi nút nằm trong panel. */
   | "soft"
   /** Nền trong suốt, viền tím. */
   | "outline"
@@ -40,7 +42,10 @@ const buttonBase =
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary: "bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover",
-  secondary: "border border-line bg-surface text-ink hover:bg-surface-2",
+  // Không có `border`: nút nền trắng trong app vốn chỉ đặt màu viền
+  // (`border-line`) mà không đặt độ dày, nên về hình thức là không viền.
+  secondary: "border-line bg-surface text-ink hover:bg-surface-2",
+  outlined: "border border-line bg-surface text-ink hover:bg-surface-2",
   soft: "border border-line bg-surface-2 text-ink hover:bg-surface-3",
   outline: "border border-primary/35 bg-transparent text-primary hover:bg-primary-soft",
   ghost: "border border-transparent bg-transparent text-muted hover:bg-surface-2 hover:text-ink",
@@ -56,6 +61,9 @@ const buttonVariants: Record<ButtonVariant, string> = {
  * "nhỏ" trong app viết cả `px-4 py-2` lẫn `px-3 py-1.5`, mà Tailwind sinh CSS
  * theo thứ tự cố định nên `px-4` luôn thắng — tức là các nút đó thực tế vẫn
  * có khoảng đệm cỡ `md`. Giữ nguyên thực tế đó để giao diện không đổi.
+ *
+ * Không chỉ định `size` thì nút giữ khoảng đệm chuẩn và **kế thừa cỡ chữ
+ * của khối cha** — dành cho nút nằm trong toolbar đã đặt cỡ chữ sẵn.
  */
 const buttonSizes: Record<ButtonSize, string> = {
   xs: "px-3 py-1.5 text-xs",
@@ -63,6 +71,9 @@ const buttonSizes: Record<ButtonSize, string> = {
   md: "px-4 py-2 text-sm",
   lg: "px-5 py-3 text-base",
 };
+
+/** Khoảng đệm khi không chỉ định kích thước. */
+const buttonSizeDefault = "px-4 py-2";
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
@@ -78,7 +89,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
     variant = "secondary",
-    size = "md",
+    size,
     loading = false,
     icon,
     iconRight,
@@ -96,7 +107,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={cn(buttonBase, buttonVariants[variant], buttonSizes[size], className)}
+      className={cn(
+        buttonBase,
+        buttonVariants[variant],
+        size ? buttonSizes[size] : buttonSizeDefault,
+        className,
+      )}
       {...rest}
     >
       {loading ? (

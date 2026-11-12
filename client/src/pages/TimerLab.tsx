@@ -118,6 +118,7 @@ import { MetricButton } from "@/features/timer";
 import { IconButton, PageHeader, StatTile } from "@/components/ui/StudioUI";
 import { PanelHeader, RoundButton } from "@/components/ui/DesignSystem";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
 
 const FACES = ["U", "R", "F", "D", "L", "B"] as const;
 const AVERAGES = TIMER_AVERAGE_SIZES;
@@ -538,8 +539,7 @@ export default function TimerLab() {
     [replay]
   );
   const timerWcaProfile = wcaProfileQuery.data as
-    | { personalRecords?: TimerWcaRecord[] }
-    | undefined;
+    { personalRecords?: TimerWcaRecord[] } | undefined;
   const eventWcaRecord = useMemo(
     () =>
       timerWcaProfile?.personalRecords?.find(
@@ -892,10 +892,7 @@ export default function TimerLab() {
                         loading={scrambleLoading}
                       />
                     ) : (
-                      <p
-                        className="break-words mb-4"
-                        aria-live="polite"
-                      >
+                      <p className="break-words mb-4" aria-live="polite">
                         {scrambleLoading
                           ? t("timer.generating", { event: eventLabel })
                           : scramble}
@@ -944,9 +941,11 @@ export default function TimerLab() {
                                     multiBlindTimeLimitMs(multiBlindAttempted)
                                   )}
                                 </span>
-                                <button
+                                <Button
+                                  variant="outline"
+                                  size="xs"
                                   type="button"
-                                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs"
+
                                   disabled={scrambleLoading}
                                   onClick={() =>
                                     void generateMultiBlindScrambles()
@@ -956,7 +955,7 @@ export default function TimerLab() {
                                   {t("timer.multiBlindGenerate", {
                                     count: multiBlindAttempted,
                                   })}
-                                </button>
+                                </Button>
                               </div>
                             </div>
                           </div>
@@ -1009,13 +1008,15 @@ export default function TimerLab() {
                           !latestRecorded.solution.trim() && (
                             <div className="rounded-panel border px-4 py-3 text-sm border-line bg-surface-2 text-ink mt-4 mb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                               <span>{t("timer.addSolutionHint")}</span>
-                              <button
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                className="shrink-0"
                                 type="button"
                                 onClick={() => openEdit(latestRecorded)}
-                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-primary/35 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs shrink-0"
                               >
                                 {t("timer.addSolution")}
-                              </button>
+                              </Button>
                             </div>
                           )}
                       </div>
@@ -1400,22 +1401,19 @@ export default function TimerLab() {
                                 phase => phaseTargets[phase] === targets[phase]
                               );
                               return (
-                                <button
+                                <Button
+                                  variant={active ? "primary" : "secondary"}
+                                  size="md"
                                   key={name}
                                   onClick={() =>
                                     setPhaseTargets({ ...targets })
-                                  }
-                                  className={
-                                    active
-                                      ? "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-                                      : "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
                                   }
                                 >
                                   {name} ·{" "}
                                   {active
                                     ? t("timer.applied")
                                     : t("timer.apply")}
-                                </button>
+                                </Button>
                               );
                             })}
                           </div>
@@ -1669,13 +1667,14 @@ export default function TimerLab() {
                   )}
                 </div>
                 <DialogFooter>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="md"
                     type="button"
                     onClick={() => setSelectedMetric(null)}
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
                   >
                     {t("timer.close")}
-                  </button>
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -1702,13 +1701,14 @@ export default function TimerLab() {
                   )}
                 </div>
                 <DialogFooter>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="md"
                     type="button"
                     onClick={() => setExpandedMetricCube(null)}
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
                   >
                     {t("timer.close")}
-                  </button>
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -1803,20 +1803,22 @@ export default function TimerLab() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="md"
                     type="button"
                     onClick={() => setEditing(null)}
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
                   >
                     {t("timer.cancel")}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="md"
                     type="button"
                     onClick={saveEdit}
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
                   >
                     {t("timer.save")}
-                  </button>
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -1957,22 +1959,25 @@ export default function TimerLab() {
                               className="inline-flex flex-wrap items-center gap-1 w-full mt-4"
                               role="group"
                             >
-                              <button
+                              <Button
+                                variant="secondary"
+                                size="md"
                                 type="button"
                                 onClick={() =>
                                   setReplayStep(value => Math.max(0, value - 1))
                                 }
-                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+
                                 aria-label={t("timer.previousMove")}
                               >
                                 ←
-                              </button>
-                              <button
+                              </Button>
+                              <Button
+                                variant="primary"
+                                size="md"
                                 type="button"
                                 onClick={() =>
                                   setReplayPlaying(value => !value)
                                 }
-                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
                               >
                                 {replayPlaying ? (
                                   <Pause className="text-base mr-1" />
@@ -1980,31 +1985,35 @@ export default function TimerLab() {
                                   <Play className="text-base mr-1" />
                                 )}
                                 {replayPlaying ? "Pause" : "Play"}
-                              </button>
-                              <button
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="md"
                                 type="button"
                                 onClick={() =>
                                   setReplayStep(value =>
                                     Math.min(replayTrace.length, value + 1)
                                   )
                                 }
-                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+
                                 aria-label={t("timer.nextMove")}
                               >
                                 →
-                              </button>
+                              </Button>
                             </div>
-                            <button
+                            <Button
+                              variant="secondary"
+                              size="md"
+                              className="w-full mt-2 gap-1"
                               type="button"
                               onClick={() => {
                                 setReplayStep(0);
                                 setReplayPlaying(false);
                               }}
-                              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 w-full mt-2 gap-1"
                             >
                               <RotateCcw className="text-base" />
                               {t("timer.restart")}
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -2016,13 +2025,14 @@ export default function TimerLab() {
                   )}
                 </div>
                 <DialogFooter>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="md"
                     type="button"
                     onClick={() => setReplay(null)}
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
                   >
                     {t("timer.close")}
-                  </button>
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -2041,16 +2051,20 @@ export default function TimerLab() {
                   </div>
                 </DialogHeader>
                 <DialogFooter>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="md"
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+
                     onClick={() => setDeleteTarget(null)}
                   >
                     {t("timer.cancel")}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="dangerSolid"
+                    size="md"
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-danger text-white shadow-sm hover:brightness-95"
+
                     onClick={() => {
                       if (deleteTarget)
                         setEntries(deleteSolveHistory(deleteTarget.id));
@@ -2058,7 +2072,7 @@ export default function TimerLab() {
                     }}
                   >
                     {t("timer.remove")}
-                  </button>
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -2332,14 +2346,15 @@ function MetricDetailCard({
       <div className="grid grid-cols-12 gap-4 items-center">
         {isThreeByThree && showCubeNet && (
           <div className="col-span-12">
-            <button
+            <Button
+              variant="secondary"
+              size="xs"
               type="button"
               onClick={() => onExpand(entry)}
               aria-label={t("timer.enlargeCubeNet")}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
             >
               <CubeNet state={state} compact />
-            </button>
+            </Button>
           </div>
         )}
         <div className="col-span-12">
@@ -2513,13 +2528,9 @@ function MultiBlindResultCard({
           })}
           {!result.valid ? t("timer.multiBlindDnf") : ""}
         </div>
-        <button
-          type="button"
-          onClick={onSave}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
-        >
+        <Button variant="primary" size="md" type="button" onClick={onSave}>
           {t("timer.multiBlindSave")}
-        </button>
+        </Button>
       </div>
     </div>
   );
