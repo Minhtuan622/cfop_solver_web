@@ -19,6 +19,7 @@ import {
   updateCfopAccountWcaId,
 } from "../db";
 import { clientAddress } from "../infrastructure/rateLimit";
+import { proxyTrustEnabled } from "../_core/proxy";
 import { wcaCalendarInput, wcaIdInput } from "./inputs";
 
 /**
@@ -52,7 +53,7 @@ function callerKey(req: {
   headers: Record<string, string | string[] | undefined>;
   socket?: { remoteAddress?: string };
 }) {
-  return clientAddress(req);
+  return clientAddress(req, proxyTrustEnabled());
 }
 
 export const accountWcaRouter = router({

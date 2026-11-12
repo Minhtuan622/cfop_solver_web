@@ -252,6 +252,29 @@ BUILT_IN_FORGE_API_KEY=
 
 Các biến này phục vụ storage proxy/tích hợp storage đã cấu hình. Không đưa key thật vào README, `.env.example` hoặc commit.
 
+### 5.5. TRUST_PROXY
+
+```dotenv
+# Bật khi máy chủ đứng sau một reverse proxy (Railway, nginx, Cloudflare…)
+TRUST_PROXY=1
+```
+
+`X-Forwarded-For` do chính client gửi lên nên **không đáng tin** nếu máy chủ
+không đứng sau proxy đã cấu hình. Vì vậy:
+
+- **Bật** (`TRUST_PROXY=1`): địa chỉ client lấy từ hop cuối cùng của
+  `X-Forwarded-For` — đó là địa chỉ proxy vừa ghi, không thể giả.
+- **Không bật**: địa chỉ client lấy từ địa chỉ socket, header bị bỏ qua.
+
+Hệ quả trực tiếp lên hạn mức tần suất:
+
+| Tình huống | Hậu quả |
+|---|---|
+| Có proxy nhưng quên bật `TRUST_PROXY` | Mọi người dùng dùng chung một địa chỉ ⇒ dùng chung hạn mức (đăng nhập, tra lịch sử, gọi WCA). |
+| Bật `TRUST_PROXY=1` | Mỗi người dùng có hạn mức riêng. |
+
+Vì vậy khi triển khai sau reverse proxy, **luôn đặt `TRUST_PROXY=1`**.
+
 ## 6. Database local nhanh bằng Docker
 
 Để tránh phải cài MySQL/MariaDB riêng trên cả macOS và Windows, môi trường phát triển dùng **MariaDB trong Docker Compose**. Schema và query vẫn giữ dialect MySQL hiện tại, vì vậy không tạo thêm nhánh SQLite khác với production.

@@ -87,34 +87,65 @@ describe("RateLimiter", () => {
 describe("clientAddress", () => {
   const proxied = { socket: { remoteAddress: "10.0.0.1" } };
 
-  it("uses the forwarded hop when the request comes from a private peer", () => {
-    expect(clientAddress({ ...proxied, headers: { "x-forwarded-for": "203.0.113.7" } })).toBe("203.0.113.7");
+  it("dùng hop của header khi proxy được tin (TRUST_PROXY bật)", () => {
+    expect(
+      clientAddress(
+        { ...proxied, headers: { "x-forwarded-for": "203.0.113.7" } },
+        true
+      )
+    ).toBe("203.0.113.7");
   });
 
-  it("takes the right most hop so a forged chain cannot mint a new bucket", () => {
-    expect(clientAddress({ ...proxied, headers: { "x-forwarded-for": "1.1.1.1, 198.51.100.2" } })).toBe("198.51.100.2");
+  it("lấy hop cuối cùng để chuỗi giả không tạo được bucket mới", () => {
+    expect(
+      clientAddress(
+        { ...proxied, headers: { "x-forwarded-for": "1.1.1.1, 198.51.100.2" } },
+        true
+      )
+    ).toBe("198.51.100.2");
   });
 
-  it("ignores the forwarded header when the request arrives from the public internet", () => {
-    const direct = { socket: { remoteAddress: "198.51.100.9" }, headers: { "x-forwarded-for": "203.0.113.7" } };
+  it("bỏ qua header khi proxy không được tin", () => {
+    const direct = {
+      socket: { remoteAddress: "198.51.100.9" },
+      headers: { "x-forwarded-for": "203.0.113.7" },
+    };
     expect(clientAddress(direct)).toBe("198.51.100.9");
   });
 
-  it("falls back to the socket address when the header is missing or empty", () => {
-    expect(clientAddress({ ...proxied, headers: {} })).toBe("10.0.0.1");
-    expect(clientAddress({ ...proxied, headers: { "x-forwarded-for": "  " } })).toBe("10.0.0.1");
+  it("bỏ qua header giả kể cả khi peer ở mạng nội bộ", () => {
+    // Header do client tự viết: chỉ cần đổi giá trị là thoát hạn mức.
+    expect(
+      clientAddress({
+        ...proxied,
+        headers: { "x-forwarded-for": "203.0.113.7" },
+      })
+    ).toBe("10.0.0.1");
   });
 
-  it("falls back to unknown when there is neither a header nor a socket", () => {
+  it("rơi về địa chỉ socket khi thiếu header", () => {
+    expect(clientAddress({ ...proxied, headers: {} }, true)).toBe("10.0.0.1");
+    expect(
+      clientAddress({ ...proxied, headers: { "x-forwarded-for": "  " } }, true)
+    ).toBe("10.0.0.1");
+  });
+
+  it("rơi về unknown khi không có header lẫn socket", () => {
     expect(clientAddress({ headers: {} })).toBe("unknown");
   });
 
-  it("reads the first entry when the header arrives as an array", () => {
-    expect(clientAddress({ ...proxied, headers: { "x-forwarded-for": ["203.0.113.7"] } })).toBe("203.0.113.7");
+  it("đọc phần tử đầu khi header đến dạng mảng", () => {
+    expect(
+      clientAddress(
+        { ...proxied, headers: { "x-forwarded-for": ["203.0.113.7"] } },
+        true
+      )
+    ).toBe("203.0.113.7");
   });
 
-  it("treats an IPv4 mapped IPv6 peer as private", () => {
-    const mapped = { socket: { remoteAddress: "::ffff:10.0.0.1" }, headers: { "x-forwarded-for": "203.0.113.7" } };
-    expect(clientAddress(mapped)).toBe("203.0.113.7");
+  it("dùng req.ip khi proxy được tin nhưng không có header", () => {
+    expect(
+      clientAddress({ ...proxied, headers: {}, ip: "203.0.113.7" }, true)
+    ).toBe("203.0.113.7");
   });
 });

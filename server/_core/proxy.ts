@@ -19,16 +19,35 @@ export function proxyConfigured(settings: string | undefined): boolean {
 }
 
 /** The value `app.set("trust proxy")` takes for one `TRUST_PROXY` setting. */
-export function proxyTrustValue(settings: string | undefined): boolean | number | string | string[] {
+export function proxyTrustValue(
+  settings: string | undefined
+): boolean | number | string | string[] {
   const value = settings?.trim();
   if (value && /^\d+$/.test(value)) return parseInt(value, 10);
   const lowered = value?.toLowerCase();
   if (lowered === "true") return true;
   if (lowered === "loopback") return "loopback";
-  return (value ?? "").split(",").map((address) => address.trim()).filter(Boolean);
+  return (value ?? "")
+    .split(",")
+    .map(address => address.trim())
+    .filter(Boolean);
 }
 
 /** Applies `TRUST_PROXY`; leave it unset when the server is exposed directly. */
-export function configureProxyTrust(app: Express, settings: string | undefined): void {
-  if (proxyConfigured(settings)) app.set("trust proxy", proxyTrustValue(settings));
+export function configureProxyTrust(
+  app: Express,
+  settings: string | undefined
+): void {
+  if (proxyConfigured(settings))
+    app.set("trust proxy", proxyTrustValue(settings));
+}
+
+/**
+ * Máy chủ có đang tin `X-Forwarded-*` hay không.
+ *
+ * Dùng cho việc lấy địa chỉ client làm khóa hạn mức: chỉ khi proxy được
+ * tin thì `X-Forwarded-For` mới đáng tin.
+ */
+export function proxyTrustEnabled(): boolean {
+  return proxyConfigured(process.env.TRUST_PROXY);
 }

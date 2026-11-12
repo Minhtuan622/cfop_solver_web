@@ -119,50 +119,40 @@ export class RateLimiter {
 }
 
 /**
- * Resolves the client address used as a rate limit key.
+ * Địa chỉ client dùng làm khóa hạn mức.
  *
- * The app runs behind Railway's proxy, so the real client address only shows
- * up in `x-forwarded-for`. The header is read as a chain and the **right most**
- * hop is used: a proxy appends the address it observed, so that entry is the
- * one a client cannot forge. The left most entry is whatever the client sent
- * and would let an attacker mint a fresh bucket per request.
+ * `X-Forwarded-For` do chính client gửi lên nên chỉ đáng tin khi máy chủ
+ * đứng sau một proxy đã được cấu hình (`TRUST_PROXY`). Khi proxy được tin,
+ * lấy **hop cuối cùng** của chuỗi: đó là địa chỉ mà proxy vừa ghi vào, không
+ * thể giả. Hop đầu là do client tự gửi nên không dùng.
  *
- * The forwarded header is only trusted while the request arrives from a
- * private peer address, which is what the proxy looks like from inside the
- * network. A request that reaches the app straight from the public internet
- * is keyed on its socket address instead.
+ * Khi proxy không được tin, chỉ dùng địa chỉ socket: nếu vẫn đọc
+ * `X-Forwarded-For` thì kẻ gọi chỉ cần đổi header là thoát hạn mức, và sau
+ * một reverse proxy mọi người dùng sẽ dùng chung một hạn mức.
+ *
+ * @param trustProxy có tin `X-Forwarded-*` hay không (xem `TRUST_PROXY`).
  */
-export function clientAddress(req: {
-  headers: Record<string, string | string[] | undefined>;
-  socket?: { remoteAddress?: string };
-}): string {
-  const remote = req.socket?.remoteAddress?.trim();
-
-  if (remote && !isPrivateAddress(remote)) return remote;
-
-  const forwarded = req.headers["x-forwarded-for"];
-  const value = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-  if (value) {
-    const hops = value
-      .split(",")
-      .map(hop => hop.trim())
-      .filter(Boolean);
-    if (hops.length) return hops[hops.length - 1];
+export function clientAddress(
+  req: {
+    headers: Record<string, string | string[] | undefined>;
+    socket?: { remoteAddress?: string };
+    ip?: string;
+  },
+  trustProxy = false
+): string {
+  if (trustProxy) {
+    const forwarded = req.headers["x-forwarded-for"];
+    const value = Array.isArray(forwarded) ? forwarded[0] : forwarded;
+    if (value) {
+      const hops = value
+        .split(",")
+        .map(hop => hop.trim())
+        .filter(Boolean);
+      if (hops.length) return hops[hops.length - 1];
+    }
+    const ip = typeof req.ip === "string" ? req.ip.trim() : "";
+    if (ip) return ip;
   }
-
+  const remote = req.socket?.remoteAddress?.trim();
   return remote || "unknown";
-}
-
-/** Tells whether an address belongs to a private or loopback range. */
-function isPrivateAddress(address: string): boolean {
-  const value = address.trim().toLowerCase();
-  if (value === "::1") return true;
-  if (value.startsWith("::ffff:")) return isPrivateAddress(value.slice(7));
-  if (value.startsWith("fc") || value.startsWith("fd")) return true;
-  if (value.startsWith("fe80:")) return true;
-  if (value.startsWith("10.")) return true;
-  if (value.startsWith("192.168.")) return true;
-  if (value.startsWith("169.254.")) return true;
-  if (/^172\.(1[6-9]|2\d|3[01])\./.test(value)) return true;
-  return false;
 }

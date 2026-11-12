@@ -1,7 +1,12 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { serverMessageKeys } from "../../shared/serverMessages";
-import { clientAddress, RateLimiter, type RateLimitRule } from "../infrastructure/rateLimit";
+import {
+  clientAddress,
+  RateLimiter,
+  type RateLimitRule,
+} from "../infrastructure/rateLimit";
+import { proxyTrustEnabled } from "./proxy";
 import type { TrpcContext } from "./context";
 
 /**
@@ -27,11 +32,16 @@ export const VALIDATION_ERROR_PREFIX = "Dữ liệu không hợp lệ:";
 function restatesCause(error: TRPCError): boolean {
   if (error.cause == null) return false;
   const causeMessage = (error.cause as { message?: unknown }).message;
-  return error.message === (typeof causeMessage === "string" ? causeMessage : undefined);
+  return (
+    error.message ===
+    (typeof causeMessage === "string" ? causeMessage : undefined)
+  );
 }
 
 /** The first issue of a caught validation failure, as plain words. */
-function firstSchemaIssue(error: TRPCError): { path: string; message: string } | null {
+function firstSchemaIssue(
+  error: TRPCError
+): { path: string; message: string } | null {
   // The parser middleware wraps a failed schema check in a BAD_REQUEST whose
   // message is the raw text of the cause; a hand-thrown sentence never matches.
   if (error.code !== "BAD_REQUEST" || !restatesCause(error)) return null;
@@ -39,11 +49,14 @@ function firstSchemaIssue(error: TRPCError): { path: string; message: string } |
   if (!Array.isArray(issues) || issues.length === 0) return null;
   const issue = issues.find(
     (candidate): candidate is { message?: unknown; path?: unknown } =>
-      typeof candidate === "object" && candidate !== null,
+      typeof candidate === "object" && candidate !== null
   );
-  if (!issue || typeof issue.message !== "string" || !issue.message.trim()) return null;
+  if (!issue || typeof issue.message !== "string" || !issue.message.trim())
+    return null;
   const path = Array.isArray(issue.path)
-    ? issue.path.filter((part) => typeof part === "string" || typeof part === "number").join(".")
+    ? issue.path
+        .filter(part => typeof part === "string" || typeof part === "number")
+        .join(".")
     : "";
   return { path, message: issue.message.trim() };
 }
@@ -57,13 +70,15 @@ function firstSchemaIssue(error: TRPCError): { path: string; message: string } |
  * the generic sentence; the original wording goes to the server log.
  */
 function visitorMessage(error: TRPCError): string {
-  if (error.code === "INTERNAL_SERVER_ERROR" && restatesCause(error)) return UNEXPECTED_ERROR_MESSAGE;
+  if (error.code === "INTERNAL_SERVER_ERROR" && restatesCause(error))
+    return UNEXPECTED_ERROR_MESSAGE;
   const issue = firstSchemaIssue(error);
   if (!issue) return error.message;
   // A sentence the catalogue already lists, such as "Email không hợp lệ.",
   // reads on its own; a raw wording needs the field name to point at.
   const named = Object.hasOwn(serverMessageKeys, issue.message);
-  const detail = !named && issue.path ? `${issue.path}: ${issue.message}` : issue.message;
+  const detail =
+    !named && issue.path ? `${issue.path}: ${issue.message}` : issue.message;
   return `${VALIDATION_ERROR_PREFIX} ${detail}`;
 }
 
@@ -72,7 +87,10 @@ const t = initTRPC.context<TrpcContext>().create({
   errorFormatter: ({ shape, error, path }) => {
     const message = visitorMessage(error);
     if (message !== error.message) {
-      console.error(`[trpc] hidden error detail in "${path ?? "unknown"}":`, error.cause ?? error);
+      console.error(
+        `[trpc] hidden error detail in "${path ?? "unknown"}":`,
+        error.cause ?? error
+      );
     }
     // The stack is a detail of the server, never of the visitor; the logged
     // copy above keeps it. Code, HTTP status and the procedure path stay.
@@ -107,12 +125,27 @@ export const AUTH_RATE_LIMITS = {
    * is loose enough that a club, school or office behind one shared IP can
    * still sign several people in at once.
    */
-  login: { address: { limit: 60, windowMs: 15 * MINUTE }, subject: { limit: 10, windowMs: 15 * MINUTE } },
-  register: { address: { limit: 30, windowMs: 60 * MINUTE }, subject: { limit: 5, windowMs: 60 * MINUTE } },
-  requestPasswordReset: { address: { limit: 20, windowMs: 60 * MINUTE }, subject: { limit: 5, windowMs: 60 * MINUTE } },
+  login: {
+    address: { limit: 60, windowMs: 15 * MINUTE },
+    subject: { limit: 10, windowMs: 15 * MINUTE },
+  },
+  register: {
+    address: { limit: 30, windowMs: 60 * MINUTE },
+    subject: { limit: 5, windowMs: 60 * MINUTE },
+  },
+  requestPasswordReset: {
+    address: { limit: 20, windowMs: 60 * MINUTE },
+    subject: { limit: 5, windowMs: 60 * MINUTE },
+  },
   /** A reset carries a token rather than an email, so only the address bucket applies. */
-  resetPassword: { address: { limit: 20, windowMs: 15 * MINUTE }, subject: null },
-} as const satisfies Record<string, { address: RateLimitRule; subject: RateLimitRule | null }>;
+  resetPassword: {
+    address: { limit: 20, windowMs: 15 * MINUTE },
+    subject: null,
+  },
+} as const satisfies Record<
+  string,
+  { address: RateLimitRule; subject: RateLimitRule | null }
+>;
 
 export type AuthRateLimitAction = keyof typeof AUTH_RATE_LIMITS;
 
@@ -123,14 +156,26 @@ export type AuthRateLimitAction = keyof typeof AUTH_RATE_LIMITS;
  * the limiter slow a targeted guessing run. An empty subject means the action
  * carries no account identifier and only the address bucket applies.
  */
-export function rateLimitMiddleware<TAction extends AuthRateLimitAction>(action: TAction, subject: (input: unknown) => string) {
+export function rateLimitMiddleware<TAction extends AuthRateLimitAction>(
+  action: TAction,
+  subject: (input: unknown) => string
+) {
   const rules = AUTH_RATE_LIMITS[action];
   return t.middleware(async ({ ctx, input, next }) => {
-    const address = clientAddress(ctx.req as { headers: Record<string, string | string[] | undefined>; socket?: { remoteAddress?: string } });
+    const address = clientAddress(
+      ctx.req as {
+        headers: Record<string, string | string[] | undefined>;
+        socket?: { remoteAddress?: string };
+      },
+      proxyTrustEnabled()
+    );
     const target = subject(input);
 
-    const buckets: { key: string; rule: RateLimitRule }[] = [{ key: `${action}:address:${address}`, rule: rules.address }];
-    if (rules.subject && target) buckets.push({ key: `${action}:subject:${target}`, rule: rules.subject });
+    const buckets: { key: string; rule: RateLimitRule }[] = [
+      { key: `${action}:address:${address}`, rule: rules.address },
+    ];
+    if (rules.subject && target)
+      buckets.push({ key: `${action}:subject:${target}`, rule: rules.subject });
 
     // The headers report the tightest bucket, which is the one a caller hits first.
     let tightest: { limit: number; remaining: number } | null = null;
@@ -141,14 +186,18 @@ export function rateLimitMiddleware<TAction extends AuthRateLimitAction>(action:
       if (!result.allowed) {
         ctx.res.setHeader("X-RateLimit-Limit", String(result.limit));
         ctx.res.setHeader("X-RateLimit-Remaining", "0");
-        ctx.res.setHeader("Retry-After", String(Math.ceil(result.retryAfterMs / 1000)));
+        ctx.res.setHeader(
+          "Retry-After",
+          String(Math.ceil(result.retryAfterMs / 1000))
+        );
         throw new TRPCError({
           code: "TOO_MANY_REQUESTS",
           message: "Bạn đã thử quá nhiều lần. Vui lòng thử lại sau.",
         });
       }
 
-      if (!tightest || result.remaining < tightest.remaining) tightest = { limit: result.limit, remaining: result.remaining };
+      if (!tightest || result.remaining < tightest.remaining)
+        tightest = { limit: result.limit, remaining: result.remaining };
     }
 
     if (tightest) {
@@ -162,7 +211,11 @@ export function rateLimitMiddleware<TAction extends AuthRateLimitAction>(action:
 
 export const cfopAccountProcedure = t.procedure.use(
   t.middleware(async ({ ctx, next }) => {
-    if (!ctx.cfopAccount) throw new TRPCError({ code: "UNAUTHORIZED", message: "CFOP_ACCOUNT_REQUIRED" });
+    if (!ctx.cfopAccount)
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "CFOP_ACCOUNT_REQUIRED",
+      });
     return next({ ctx: { ...ctx, cfopAccount: ctx.cfopAccount } });
-  }),
+  })
 );

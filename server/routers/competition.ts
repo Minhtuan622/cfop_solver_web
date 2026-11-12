@@ -1,32 +1,99 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
-import { RateLimiter } from "../infrastructure/rateLimit";
+import { clientAddress, RateLimiter } from "../infrastructure/rateLimit";
+import { proxyTrustEnabled } from "../_core/proxy";
 import { TtlCache } from "../infrastructure/cache";
-import { buildCompetitionLeaderboard, competitionRoundLimit, createCompetitionCode, createCompetitionScrambleBundle } from "../services/competition";
-import { createCompetitionMessage, createCompetitionModerationLog, createCompetitionRematch, createCompetitionRoom, deleteCompetitionRoom, findCompetitionMember, findCompetitionResult, findCompetitionRoomByCode, finishCompetitionRoom, finishCompetitionRound, getCompetitionActiveRound, joinCompetitionRoom, leaveCompetitionRoom, listCompetitionMembers, listCompetitionResults, listCompetitionResultsForRooms, listCompetitionRoomsForAccount, listFinishedCompetitionRoomsForAccount, listFinishedCompetitionResultsBetween, markCompetitionSpectatorRemoved, startCompetitionRound, submitCompetitionResult, updateCompetitionMemberRole } from "../db";
+import {
+  buildCompetitionLeaderboard,
+  competitionRoundLimit,
+  createCompetitionCode,
+  createCompetitionScrambleBundle,
+} from "../services/competition";
+import {
+  createCompetitionMessage,
+  createCompetitionModerationLog,
+  createCompetitionRematch,
+  createCompetitionRoom,
+  deleteCompetitionRoom,
+  findCompetitionMember,
+  findCompetitionResult,
+  findCompetitionRoomByCode,
+  finishCompetitionRoom,
+  finishCompetitionRound,
+  getCompetitionActiveRound,
+  joinCompetitionRoom,
+  leaveCompetitionRoom,
+  listCompetitionMembers,
+  listCompetitionResults,
+  listCompetitionResultsForRooms,
+  listCompetitionRoomsForAccount,
+  listFinishedCompetitionRoomsForAccount,
+  listFinishedCompetitionResultsBetween,
+  markCompetitionSpectatorRemoved,
+  startCompetitionRound,
+  submitCompetitionResult,
+  updateCompetitionMemberRole,
+} from "../db";
 import { isTimerEventId, DEFAULT_TIMER_EVENT } from "../../shared/timerEvents";
 import { multiBlindResult } from "../../shared/multiBlind";
-import { createRoomInput, leaderboardInput, memberTargetInput, messageInput, removeSpectatorInput, resultInput, roomCodeInput } from "./inputs";
+import {
+  createRoomInput,
+  leaderboardInput,
+  memberTargetInput,
+  messageInput,
+  removeSpectatorInput,
+  resultInput,
+  roomCodeInput,
+} from "./inputs";
 import { cacheKey } from "../infrastructure/cache";
-import { competitionHistory, competitionRoomState, leaderboardRange, requireCompetitionMember, requireCompetitionRoom, standingsFromResults } from "./competitionShared";
+import {
+  competitionHistory,
+  competitionRoomState,
+  leaderboardRange,
+  requireCompetitionMember,
+  requireCompetitionRoom,
+  standingsFromResults,
+} from "./competitionShared";
 
-type LeaderboardResponse = { period: "week" | "month"; eventId: string | null; startAt: Date; endAt: Date; players: ReturnType<typeof buildCompetitionLeaderboard> };
-export const leaderboardCache = new TtlCache<LeaderboardResponse>({ ttlMs: 30_000, maxEntries: 64 });
+type LeaderboardResponse = {
+  period: "week" | "month";
+  eventId: string | null;
+  startAt: Date;
+  endAt: Date;
+  players: ReturnType<typeof buildCompetitionLeaderboard>;
+};
+export const leaderboardCache = new TtlCache<LeaderboardResponse>({
+  ttlMs: 30_000,
+  maxEntries: 64,
+});
 
 /** Giới hạn tin nhắn chat: 10 tin/10 giây cho mỗi người dùng trong mỗi phòng. */
 export const chatLimiter = new RateLimiter();
 /** Giới hạn tạo phòng: 5 phòng/giờ cho mỗi người dùng. */
 export const roomCreateLimiter = new RateLimiter();
+/**
+ * Giới hạn xem lịch sử người chơi: 30 lần/giờ cho mỗi địa chỉ client.
+ *
+ * Limiter riêng, không mượn `roomCreateLimiter`: hai hạn mức khác nhau về
+ * mức độ và về vòng đời, dùng chung một bảng đếm sẽ làm hạn mức của bên
+ * này bị bên kia ảnh hưởng.
+ */
+export const playerHistoryLimiter = new RateLimiter();
 /** Tối đa số khán giả trong một phòng. */
 export const MAX_SPECTATORS_PER_ROOM = 50;
 /** Số tin nhắn mới nhất trả về trong competition.state. */
 export const LATEST_MESSAGES_LIMIT = 50;
 /** Kiểu dữ liệu trả về của playerHistory, dùng để type-cache. */
-export type PlayerHistoryEntry = Awaited<ReturnType<typeof playerHistoryQuery>>[number];
+export type PlayerHistoryEntry = Awaited<
+  ReturnType<typeof playerHistoryQuery>
+>[number];
 
 /** Cache ngắn cho playerHistory (tránh truy vấn lặp lại trong thời gian ngắn). */
-export const playerHistoryCache = new TtlCache<PlayerHistoryEntry[]>({ ttlMs: 60_000, maxEntries: 256 });
+export const playerHistoryCache = new TtlCache<PlayerHistoryEntry[]>({
+  ttlMs: 60_000,
+  maxEntries: 256,
+});
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -42,54 +109,449 @@ function roomCreateRateKey(accountId: number) {
 }
 
 export const competitionRouter = router({
-  leaderboard: publicProcedure.input(leaderboardInput).query(async ({ input }) => {
-    const eventId = input.eventId ?? null;
-    return leaderboardCache.getOrSet(cacheKey(["leaderboard", input.period, eventId]), async () => {
-      const { startAt, endAt } = leaderboardRange(input.period);
-      const results = await listFinishedCompetitionResultsBetween(startAt, endAt, eventId);
-      return { period: input.period, eventId, startAt, endAt, players: buildCompetitionLeaderboard(results).slice(0, 50) };
-    });
-  }),
-  playerHistory: publicProcedure.input(z.object({ accountId: z.number().int().positive() })).query(async ({ input, ctx }) => {
-    // Rate limit: mỗi người dùng được tra lịch sử không quá thường xuyên.
-    const address = (ctx as { req: { headers: Record<string, string | string[] | undefined>; socket?: { remoteAddress?: string } } }).req;
-    const rateResult = roomCreateLimiter.consume(`playerHistory:${address.socket?.remoteAddress ?? "unknown"}`, { limit: 30, windowMs: HOUR });
-    if (!rateResult.allowed) throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Bạn tra lịch sử quá thường xuyên. Vui lòng thử lại sau." });
+  leaderboard: publicProcedure
+    .input(leaderboardInput)
+    .query(async ({ input }) => {
+      const eventId = input.eventId ?? null;
+      return leaderboardCache.getOrSet(
+        cacheKey(["leaderboard", input.period, eventId]),
+        async () => {
+          const { startAt, endAt } = leaderboardRange(input.period);
+          const results = await listFinishedCompetitionResultsBetween(
+            startAt,
+            endAt,
+            eventId
+          );
+          return {
+            period: input.period,
+            eventId,
+            startAt,
+            endAt,
+            players: buildCompetitionLeaderboard(results).slice(0, 50),
+          };
+        }
+      );
+    }),
+  playerHistory: publicProcedure
+    .input(z.object({ accountId: z.number().int().positive() }))
+    .query(async ({ input, ctx }) => {
+      // Rate limit: mỗi người dùng được tra lịch sử không quá thường xuyên.
+      // Khóa là địa chỉ client (đã tôn trọng TRUST_PROXY), không phải địa chỉ
+      // socket: sau một reverse proxy, mọi người dùng sẽ dùng chung một hạn mức.
+      const address = clientAddress(
+        ctx.req as {
+          headers: Record<string, string | string[] | undefined>;
+          socket?: { remoteAddress?: string };
+        },
+        proxyTrustEnabled()
+      );
+      const rateResult = playerHistoryLimiter.consume(
+        `playerHistory:${address}`,
+        { limit: 30, windowMs: HOUR }
+      );
+      if (!rateResult.allowed)
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Bạn tra lịch sử quá thường xuyên. Vui lòng thử lại sau.",
+        });
 
-    const cacheKey = `playerHistory:${input.accountId}`;
-    return playerHistoryCache.getOrSet(cacheKey, () => playerHistoryQuery(input));
-  }),
-  listMine: cfopAccountProcedure.query(({ ctx }) => listCompetitionRoomsForAccount(ctx.cfopAccount.id)),
-  history: cfopAccountProcedure.query(({ ctx }) => competitionHistory(ctx.cfopAccount.id)),
-  create: cfopAccountProcedure.input(createRoomInput).mutation(async ({ ctx, input }) => {
-    const rateResult = roomCreateLimiter.consume(roomCreateRateKey(ctx.cfopAccount.id), { limit: 5, windowMs: HOUR });
-    if (!rateResult.allowed) throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Bạn tạo phòng quá nhiều trong một giờ. Vui lòng thử lại sau." });
-    let room = null;
-    for (let attempt = 0; attempt < 5 && !room; attempt += 1) { const code = createCompetitionCode(); if (await findCompetitionRoomByCode(code)) continue; room = await createCompetitionRoom({ code, name: input.name, maxPlayers: input.maxPlayers, format: input.format, eventId: input.eventId, multiBlindCubes: input.eventId === "333mbf" ? input.multiBlindCubes : 2, hostAccountId: ctx.cfopAccount.id }); }
-    if (!room) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Không thể tạo mã phòng. Hãy thử lại." });
-    return { code: room.code };
-  }),
-  join: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); if (await findCompetitionMember(room.id, ctx.cfopAccount.id)) return { code: room.code }; if (room.status !== "waiting") throw new TRPCError({ code: "BAD_REQUEST", message: "Phòng đã bắt đầu; không thể tham gia lượt này." }); if ((await listCompetitionMembers(room.id)).length >= room.maxPlayers) throw new TRPCError({ code: "CONFLICT", message: "Phòng đã đủ người chơi." }); await joinCompetitionRoom(room.id, ctx.cfopAccount.id); return { code: room.code }; }),
-  spectate: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); if (!await findCompetitionMember(room.id, ctx.cfopAccount.id)) { const members = await listCompetitionMembers(room.id); const spectators = members.filter((member) => member.role === "spectator").length; if (spectators >= MAX_SPECTATORS_PER_ROOM) throw new TRPCError({ code: "BAD_REQUEST", message: "Phòng đã đủ khán giả." }); await joinCompetitionRoom(room.id, ctx.cfopAccount.id, "spectator"); } return { code: room.code }; }),
-  grantModerator: cfopAccountProcedure.input(memberTargetInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được cấp quyền moderator." }); const target = await requireCompetitionMember(room.id, input.accountId); if (target.role !== "spectator") throw new TRPCError({ code: "BAD_REQUEST", message: "Chỉ spectator có thể được nâng lên moderator." }); await updateCompetitionMemberRole(room.id, input.accountId, "moderator"); return { success: true } as const; }),
-  revokeModerator: cfopAccountProcedure.input(memberTargetInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được gỡ quyền moderator." }); const target = await requireCompetitionMember(room.id, input.accountId); if (target.role !== "moderator") throw new TRPCError({ code: "BAD_REQUEST", message: "Thành viên này không phải moderator." }); await updateCompetitionMemberRole(room.id, input.accountId, "spectator"); return { success: true } as const; }),
-  removeSpectator: cfopAccountProcedure.input(removeSpectatorInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); const actor = await requireCompetitionMember(room.id, ctx.cfopAccount.id); if (room.hostAccountId !== ctx.cfopAccount.id && actor.role !== "moderator") throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng hoặc moderator được quản lý khán giả." }); const target = await requireCompetitionMember(room.id, input.accountId); if (target.role !== "spectator") throw new TRPCError({ code: "BAD_REQUEST", message: "Chỉ có thể loại spectator." }); await createCompetitionModerationLog({ roomId: room.id, actorAccountId: ctx.cfopAccount.id, targetAccountId: input.accountId, reason: input.reason }); await createCompetitionMessage({ roomId: room.id, accountId: ctx.cfopAccount.id, content: "[system] Moderator đã loại một người xem khỏi phòng." }); await markCompetitionSpectatorRemoved(room.id, input.accountId); return { success: true } as const; }),
-  state: cfopAccountProcedure.input(roomCodeInput).query(({ ctx, input }) => competitionRoomState(input.code, ctx.cfopAccount.id)),
-  leave: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); if (room.hostAccountId === ctx.cfopAccount.id) throw new TRPCError({ code: "BAD_REQUEST", message: "Chủ phòng không thể rời phòng. Hãy tạo phòng mới nếu cần." }); await requireCompetitionMember(room.id, ctx.cfopAccount.id); await leaveCompetitionRoom(room.id, ctx.cfopAccount.id); return { success: true } as const; }),
-  startRound: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được bắt đầu lượt mới." }); if (room.status === "finished") throw new TRPCError({ code: "BAD_REQUEST", message: "Thể thức này đã kết thúc. Hãy tạo phòng mới để thi tiếp." }); if ((await listCompetitionMembers(room.id)).filter((member) => member.role === "player").length < 2) throw new TRPCError({ code: "BAD_REQUEST", message: "Cần ít nhất 2 người thi trong phòng để bắt đầu thi đấu." }); if (room.currentRound >= competitionRoundLimit(room.format, room.eventId)) throw new TRPCError({ code: "BAD_REQUEST", message: "Đã đủ số lượt của thể thức này. Hãy hoàn tất phòng để chốt bảng xếp hạng." }); const activeRound = await getCompetitionActiveRound(room.id); if (activeRound) await finishCompetitionRound(activeRound.id); const eventId = isTimerEventId(room.eventId) ? room.eventId : DEFAULT_TIMER_EVENT; const scrambleBundle = await createCompetitionScrambleBundle(eventId, room.multiBlindCubes); const round = await startCompetitionRound(room.id, room.currentRound + 1, scrambleBundle[0] ?? "", eventId === "333mbf" ? scrambleBundle : undefined); return { sequence: round.sequence, scramble: round.scramble, scrambleBundle }; }),
-  submit: cfopAccountProcedure.input(resultInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); const membership = await requireCompetitionMember(room.id, ctx.cfopAccount.id); if (membership.role !== "player") throw new TRPCError({ code: "FORBIDDEN", message: "Người xem chỉ có thể theo dõi, không thể nộp kết quả." }); const activeRound = await getCompetitionActiveRound(room.id); if (!activeRound) throw new TRPCError({ code: "BAD_REQUEST", message: "Phòng chưa có lượt thi đấu đang mở." }); if (activeRound.id !== input.roundId) throw new TRPCError({ code: "CONFLICT", message: "Lượt thi đấu đã chuyển. Hãy đồng bộ lại phòng trước khi nộp kết quả." }); if (await findCompetitionResult(activeRound.id, ctx.cfopAccount.id)) throw new TRPCError({ code: "CONFLICT", message: "Bạn đã nộp kết quả cho lượt này." }); const isMultiBlind = room.eventId === "333mbf"; if (isMultiBlind && !input.multiBlind) throw new TRPCError({ code: "BAD_REQUEST", message: "Cần nhập số khối MBLD giải đúng." }); if (isMultiBlind && input.multiBlind?.attempted !== room.multiBlindCubes) throw new TRPCError({ code: "BAD_REQUEST", message: "Số khối MBLD không khớp bundle của phòng." }); const multiBlind = isMultiBlind && input.multiBlind ? multiBlindResult(input.multiBlind, input.elapsedMs) : null; const penalty = input.penalty === "DNF" || (multiBlind && !multiBlind.valid) ? "DNF" : input.penalty; await submitCompetitionResult({ roundId: activeRound.id, accountId: ctx.cfopAccount.id, elapsedMs: input.elapsedMs, inspectionMs: input.inspectionMs, penalty, ...(multiBlind ? { multiBlindAttempted: multiBlind.attempted, multiBlindSolved: multiBlind.solved, multiBlindScore: multiBlind.score } : {}) }); if (activeRound.sequence >= competitionRoundLimit(room.format, room.eventId)) { const [members, results] = await Promise.all([listCompetitionMembers(room.id), listCompetitionResults(room.id)]); const allSubmitted = members.filter((member) => member.role === "player").every((member) => results.some((result) => result.roundId === activeRound.id && result.accountId === member.accountId)); if (allSubmitted) { await finishCompetitionRound(activeRound.id); await finishCompetitionRoom(room.id); leaderboardCache.invalidate(); } } return { success: true } as const; }),
-  sendMessage: cfopAccountProcedure.input(messageInput).mutation(async ({ ctx, input }) => {
-    const room = await requireCompetitionRoom(input.code);
-    const membership = await requireCompetitionMember(room.id, ctx.cfopAccount.id);
-    if (membership.role !== "player") throw new TRPCError({ code: "FORBIDDEN", message: "Người xem không thể gửi chat trong phòng này." });
-    const chatRate = chatLimiter.consume(chatRateKey(ctx.cfopAccount.id, room.id), { limit: 10, windowMs: 10 * 1000 });
-    if (!chatRate.allowed) throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ một chút rồi gửi lại." });
-    await createCompetitionMessage({ roomId: room.id, accountId: ctx.cfopAccount.id, content: input.content });
-    return { success: true } as const;
-  }),
-  delete: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được xóa phòng." }); if (room.status === "active") throw new TRPCError({ code: "BAD_REQUEST", message: "Không thể xóa khi phòng đang thi. Hãy hoàn tất thể thức trước." }); await deleteCompetitionRoom(room.id); return { success: true } as const; }),
-  finish: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => { const room = await requireCompetitionRoom(input.code); if (room.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được hoàn tất thể thức." }); const activeRound = await getCompetitionActiveRound(room.id); if (activeRound) await finishCompetitionRound(activeRound.id); await finishCompetitionRoom(room.id); leaderboardCache.invalidate(); return { success: true } as const; }),
-  rematch: cfopAccountProcedure.input(roomCodeInput).mutation(async ({ ctx, input }) => { const source = await requireCompetitionRoom(input.code); if (source.hostAccountId !== ctx.cfopAccount.id) throw new TRPCError({ code: "FORBIDDEN", message: "Chỉ chủ phòng được tạo Đấu lại." }); if (source.status !== "finished") throw new TRPCError({ code: "BAD_REQUEST", message: "Chỉ có thể Đấu lại sau khi phòng kết thúc." }); let room = null; for (let attempt = 0; attempt < 5 && !room; attempt += 1) { const code = createCompetitionCode(); if (await findCompetitionRoomByCode(code)) continue; room = await createCompetitionRematch(source.id, code); } if (!room) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Không thể tạo phòng Đấu lại. Hãy thử lại." }); return { code: room.code }; }),
+      const cacheKey = `playerHistory:${input.accountId}`;
+      return playerHistoryCache.getOrSet(cacheKey, () =>
+        playerHistoryQuery(input)
+      );
+    }),
+  listMine: cfopAccountProcedure.query(({ ctx }) =>
+    listCompetitionRoomsForAccount(ctx.cfopAccount.id)
+  ),
+  history: cfopAccountProcedure.query(({ ctx }) =>
+    competitionHistory(ctx.cfopAccount.id)
+  ),
+  create: cfopAccountProcedure
+    .input(createRoomInput)
+    .mutation(async ({ ctx, input }) => {
+      const rateResult = roomCreateLimiter.consume(
+        roomCreateRateKey(ctx.cfopAccount.id),
+        { limit: 5, windowMs: HOUR }
+      );
+      if (!rateResult.allowed)
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message:
+            "Bạn tạo phòng quá nhiều trong một giờ. Vui lòng thử lại sau.",
+        });
+      let room = null;
+      for (let attempt = 0; attempt < 5 && !room; attempt += 1) {
+        const code = createCompetitionCode();
+        if (await findCompetitionRoomByCode(code)) continue;
+        room = await createCompetitionRoom({
+          code,
+          name: input.name,
+          maxPlayers: input.maxPlayers,
+          format: input.format,
+          eventId: input.eventId,
+          multiBlindCubes:
+            input.eventId === "333mbf" ? input.multiBlindCubes : 2,
+          hostAccountId: ctx.cfopAccount.id,
+        });
+      }
+      if (!room)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Không thể tạo mã phòng. Hãy thử lại.",
+        });
+      return { code: room.code };
+    }),
+  join: cfopAccountProcedure
+    .input(roomCodeInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (await findCompetitionMember(room.id, ctx.cfopAccount.id))
+        return { code: room.code };
+      if (room.status !== "waiting")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Phòng đã bắt đầu; không thể tham gia lượt này.",
+        });
+      if ((await listCompetitionMembers(room.id)).length >= room.maxPlayers)
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Phòng đã đủ người chơi.",
+        });
+      await joinCompetitionRoom(room.id, ctx.cfopAccount.id);
+      return { code: room.code };
+    }),
+  spectate: cfopAccountProcedure
+    .input(roomCodeInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (!(await findCompetitionMember(room.id, ctx.cfopAccount.id))) {
+        const members = await listCompetitionMembers(room.id);
+        const spectators = members.filter(
+          member => member.role === "spectator"
+        ).length;
+        if (spectators >= MAX_SPECTATORS_PER_ROOM)
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Phòng đã đủ khán giả.",
+          });
+        await joinCompetitionRoom(room.id, ctx.cfopAccount.id, "spectator");
+      }
+      return { code: room.code };
+    }),
+  grantModerator: cfopAccountProcedure
+    .input(memberTargetInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId !== ctx.cfopAccount.id)
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Chỉ chủ phòng được cấp quyền moderator.",
+        });
+      const target = await requireCompetitionMember(room.id, input.accountId);
+      if (target.role !== "spectator")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Chỉ spectator có thể được nâng lên moderator.",
+        });
+      await updateCompetitionMemberRole(room.id, input.accountId, "moderator");
+      return { success: true } as const;
+    }),
+  revokeModerator: cfopAccountProcedure
+    .input(memberTargetInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId !== ctx.cfopAccount.id)
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Chỉ chủ phòng được gỡ quyền moderator.",
+        });
+      const target = await requireCompetitionMember(room.id, input.accountId);
+      if (target.role !== "moderator")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Thành viên này không phải moderator.",
+        });
+      await updateCompetitionMemberRole(room.id, input.accountId, "spectator");
+      return { success: true } as const;
+    }),
+  removeSpectator: cfopAccountProcedure
+    .input(removeSpectatorInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      const actor = await requireCompetitionMember(room.id, ctx.cfopAccount.id);
+      if (
+        room.hostAccountId !== ctx.cfopAccount.id &&
+        actor.role !== "moderator"
+      )
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Chỉ chủ phòng hoặc moderator được quản lý khán giả.",
+        });
+      const target = await requireCompetitionMember(room.id, input.accountId);
+      if (target.role !== "spectator")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Chỉ có thể loại spectator.",
+        });
+      await createCompetitionModerationLog({
+        roomId: room.id,
+        actorAccountId: ctx.cfopAccount.id,
+        targetAccountId: input.accountId,
+        reason: input.reason,
+      });
+      await createCompetitionMessage({
+        roomId: room.id,
+        accountId: ctx.cfopAccount.id,
+        content: "[system] Moderator đã loại một người xem khỏi phòng.",
+      });
+      await markCompetitionSpectatorRemoved(room.id, input.accountId);
+      return { success: true } as const;
+    }),
+  state: cfopAccountProcedure
+    .input(roomCodeInput)
+    .query(({ ctx, input }) =>
+      competitionRoomState(input.code, ctx.cfopAccount.id)
+    ),
+  leave: cfopAccountProcedure
+    .input(roomCodeInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId === ctx.cfopAccount.id)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Chủ phòng không thể rời phòng. Hãy tạo phòng mới nếu cần.",
+        });
+      await requireCompetitionMember(room.id, ctx.cfopAccount.id);
+      await leaveCompetitionRoom(room.id, ctx.cfopAccount.id);
+      return { success: true } as const;
+    }),
+  startRound: cfopAccountProcedure
+    .input(roomCodeInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId !== ctx.cfopAccount.id)
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Chỉ chủ phòng được bắt đầu lượt mới.",
+        });
+      if (room.status === "finished")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Thể thức này đã kết thúc. Hãy tạo phòng mới để thi tiếp.",
+        });
+      if (
+        (await listCompetitionMembers(room.id)).filter(
+          member => member.role === "player"
+        ).length < 2
+      )
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cần ít nhất 2 người thi trong phòng để bắt đầu thi đấu.",
+        });
+      if (room.currentRound >= competitionRoundLimit(room.format, room.eventId))
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Đã đủ số lượt của thể thức này. Hãy hoàn tất phòng để chốt bảng xếp hạng.",
+        });
+      const activeRound = await getCompetitionActiveRound(room.id);
+      if (activeRound) await finishCompetitionRound(activeRound.id);
+      const eventId = isTimerEventId(room.eventId)
+        ? room.eventId
+        : DEFAULT_TIMER_EVENT;
+      const scrambleBundle = await createCompetitionScrambleBundle(
+        eventId,
+        room.multiBlindCubes
+      );
+      const round = await startCompetitionRound(
+        room.id,
+        room.currentRound + 1,
+        scrambleBundle[0] ?? "",
+        eventId === "333mbf" ? scrambleBundle : undefined
+      );
+      return {
+        sequence: round.sequence,
+        scramble: round.scramble,
+        scrambleBundle,
+      };
+    }),
+  submit: cfopAccountProcedure
+    .input(resultInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      const membership = await requireCompetitionMember(
+        room.id,
+        ctx.cfopAccount.id
+      );
+      if (membership.role !== "player")
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Người xem chỉ có thể theo dõi, không thể nộp kết quả.",
+        });
+      const activeRound = await getCompetitionActiveRound(room.id);
+      if (!activeRound)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Phòng chưa có lượt thi đấu đang mở.",
+        });
+      if (activeRound.id !== input.roundId)
+        throw new TRPCError({
+          code: "CONFLICT",
+          message:
+            "Lượt thi đấu đã chuyển. Hãy đồng bộ lại phòng trước khi nộp kết quả.",
+        });
+      if (await findCompetitionResult(activeRound.id, ctx.cfopAccount.id))
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Bạn đã nộp kết quả cho lượt này.",
+        });
+      const isMultiBlind = room.eventId === "333mbf";
+      if (isMultiBlind && !input.multiBlind)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cần nhập số khối MBLD giải đúng.",
+        });
+      if (isMultiBlind && input.multiBlind?.attempted !== room.multiBlindCubes)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Số khối MBLD không khớp bundle của phòng.",
+        });
+      const multiBlind =
+        isMultiBlind && input.multiBlind
+          ? multiBlindResult(input.multiBlind, input.elapsedMs)
+          : null;
+      const penalty =
+        input.penalty === "DNF" || (multiBlind && !multiBlind.valid)
+          ? "DNF"
+          : input.penalty;
+      await submitCompetitionResult({
+        roundId: activeRound.id,
+        accountId: ctx.cfopAccount.id,
+        elapsedMs: input.elapsedMs,
+        inspectionMs: input.inspectionMs,
+        penalty,
+        ...(multiBlind
+          ? {
+              multiBlindAttempted: multiBlind.attempted,
+              multiBlindSolved: multiBlind.solved,
+              multiBlindScore: multiBlind.score,
+            }
+          : {}),
+      });
+      if (
+        activeRound.sequence >= competitionRoundLimit(room.format, room.eventId)
+      ) {
+        const [members, results] = await Promise.all([
+          listCompetitionMembers(room.id),
+          listCompetitionResults(room.id),
+        ]);
+        const allSubmitted = members
+          .filter(member => member.role === "player")
+          .every(member =>
+            results.some(
+              result =>
+                result.roundId === activeRound.id &&
+                result.accountId === member.accountId
+            )
+          );
+        if (allSubmitted) {
+          await finishCompetitionRound(activeRound.id);
+          await finishCompetitionRoom(room.id);
+          leaderboardCache.invalidate();
+        }
+      }
+      return { success: true } as const;
+    }),
+  sendMessage: cfopAccountProcedure
+    .input(messageInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      const membership = await requireCompetitionMember(
+        room.id,
+        ctx.cfopAccount.id
+      );
+      if (membership.role !== "player")
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Người xem không thể gửi chat trong phòng này.",
+        });
+      const chatRate = chatLimiter.consume(
+        chatRateKey(ctx.cfopAccount.id, room.id),
+        { limit: 10, windowMs: 10 * 1000 }
+      );
+      if (!chatRate.allowed)
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message:
+            "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ một chút rồi gửi lại.",
+        });
+      await createCompetitionMessage({
+        roomId: room.id,
+        accountId: ctx.cfopAccount.id,
+        content: input.content,
+      });
+      return { success: true } as const;
+    }),
+  delete: cfopAccountProcedure
+    .input(roomCodeInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId !== ctx.cfopAccount.id)
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Chỉ chủ phòng được xóa phòng.",
+        });
+      if (room.status === "active")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Không thể xóa khi phòng đang thi. Hãy hoàn tất thể thức trước.",
+        });
+      await deleteCompetitionRoom(room.id);
+      return { success: true } as const;
+    }),
+  finish: cfopAccountProcedure
+    .input(roomCodeInput)
+    .mutation(async ({ ctx, input }) => {
+      const room = await requireCompetitionRoom(input.code);
+      if (room.hostAccountId !== ctx.cfopAccount.id)
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Chỉ chủ phòng được hoàn tất thể thức.",
+        });
+      const activeRound = await getCompetitionActiveRound(room.id);
+      if (activeRound) await finishCompetitionRound(activeRound.id);
+      await finishCompetitionRoom(room.id);
+      leaderboardCache.invalidate();
+      return { success: true } as const;
+    }),
+  rematch: cfopAccountProcedure
+    .input(roomCodeInput)
+    .mutation(async ({ ctx, input }) => {
+      const source = await requireCompetitionRoom(input.code);
+      if (source.hostAccountId !== ctx.cfopAccount.id)
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Chỉ chủ phòng được tạo Đấu lại.",
+        });
+      if (source.status !== "finished")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Chỉ có thể Đấu lại sau khi phòng kết thúc.",
+        });
+      let room = null;
+      for (let attempt = 0; attempt < 5 && !room; attempt += 1) {
+        const code = createCompetitionCode();
+        if (await findCompetitionRoomByCode(code)) continue;
+        room = await createCompetitionRematch(source.id, code);
+      }
+      if (!room)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Không thể tạo phòng Đấu lại. Hãy thử lại.",
+        });
+      return { code: room.code };
+    }),
 });
 
 /** Lấy lịch sử thi đấu của một tài khoản với một truy vấn duy nhất cho kết quả (không N+1). */
@@ -98,18 +560,36 @@ export async function playerHistoryQuery(input: { accountId: number }) {
   const roomIds = rooms.map(({ room }) => room.id);
   // Một truy vấn duy nhất lấy kết quả của mọi phòng, kèm roomId để nhóm trong bộ nhớ.
   const allResults = await listCompetitionResultsForRooms(roomIds);
-  const resultsByRoom = new Map<number, typeof allResults[number][]>();
+  const resultsByRoom = new Map<number, (typeof allResults)[number][]>();
   for (const result of allResults) {
     const bucket = resultsByRoom.get(result.roomId) ?? [];
     bucket.push(result);
     resultsByRoom.set(result.roomId, bucket);
   }
-  const history = await Promise.all(rooms.map(async ({ room, joinedAt }) => {
-    const results = resultsByRoom.get(room.id) ?? [];
-    const standings = standingsFromResults(room.format, room.eventId, results);
-    const mine = standings.find((player) => player.accountId === input.accountId);
-    if (!mine) return null;
-    return { room, joinedAt, roundLimit: competitionRoundLimit(room.format, room.eventId), standings, results, myRank: mine.rank, myScore: mine.score ?? undefined };
-  }));
-  return history.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+  const history = await Promise.all(
+    rooms.map(async ({ room, joinedAt }) => {
+      const results = resultsByRoom.get(room.id) ?? [];
+      const standings = standingsFromResults(
+        room.format,
+        room.eventId,
+        results
+      );
+      const mine = standings.find(
+        player => player.accountId === input.accountId
+      );
+      if (!mine) return null;
+      return {
+        room,
+        joinedAt,
+        roundLimit: competitionRoundLimit(room.format, room.eventId),
+        standings,
+        results,
+        myRank: mine.rank,
+        myScore: mine.score ?? undefined,
+      };
+    })
+  );
+  return history.filter((entry): entry is NonNullable<typeof entry> =>
+    Boolean(entry)
+  );
 }
