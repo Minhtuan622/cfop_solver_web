@@ -1,10 +1,20 @@
-"""Thử nghiệm: thứ tự giải các cặp F2L nào là nhanh.
+"""Công cụ chẩn đoán: thứ tự giải các cặp F2L nào là nhanh.
 
-Mỗi cặp F2L được giải với một ngân sách thời gian; cặp nào vượt ngân sách
-thì thứ tự đó bị loại. Mục đích: tìm ra cách chọn thứ tự sao cho không cặp
-nào rơi vào trạng thái khó.
+KHÔNG phải mã của sản phẩm. Đây là công cụ đã dùng để tìm ra danh sách
+thứ tự mà `cfop_solver.solver.F2L_ORDER_CANDIDATES` dựa vào.
 
-    python3 solver-python/experiment_f2l_order.py
+Bối cảnh: cặp F2L giải cuối có thể rơi vào một trạng thái khó, khiến bộ
+tìm kiếm phải duyệt hàng triệu node và mất hàng chục giây. Đo cả 24 thứ tự
+cho thấy khoảng hai phần ba thứ tự vẫn nhanh (~0,3 giây) cho cùng một khối,
+nên solver thử lần lượt vài thứ tự thay vì bỏ cuộc.
+
+Cách dùng (từ thư mục gốc repo, cần `pip install pytest` hoặc chỉ cần
+CPython):
+
+    python3 solver-python/tools/experiment_f2l_order.py
+
+Kết quả dùng để chọn `F2L_ORDER_CANDIDATES` trong
+`solver-python/cfop_solver/solver.py`.
 """
 from __future__ import annotations
 

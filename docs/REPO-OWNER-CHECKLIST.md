@@ -6,22 +6,26 @@ trên nhánh `main`. Không phải mã nguồn — chỉ là quy định vận h
 
 ## 1. Branch protection cho `main`
 
-Bật branch protection trên nhánh `main` với các điều kiện sau:
+**Đã bật** trên nhánh `main` với các điều kiện sau:
 
-- **Require a pull request before merging**: không cho push trực tiếp lên `main`.
+- **Require a pull request before merging**: PR là bắt buộc (không cần review
+  duyệt, 0 approval).
 - **Require status checks to pass before merge**: các check bắt buộc sau phải xanh
   trước khi merge:
   - `check-test-build` (typecheck + unit tests + build + e2e + audit)
-  - `solver-tests` (pytest cho solver-python)
+  - `Solver tests (pytest)` (pytest cho solver-python)
+- **Require branches to be up to date before merging** (`strict`): đây là điều
+  kiện quan trọng nhất cho Dependabot — một nhánh Dependabot tạo từ `main` cũ sẽ
+  không được merge cho tới khi được cập nhật, nên không thể vô tình đè lên thay
+  đổi mới (đúng cái đã xảy ra với PR #23, làm mất các thay đổi D1).
 - **Require conversation resolution before merge**: mọi bình luận trên PR phải
   được giải quyết trước khi merge.
-- **Require signed commits**: tuỳ chọn, khuyến khích cho các tác giả cốt lõi.
-- **Restrict pushes**: không ai (trừ các tài khoản được chỉ định) được push trực
-  tiếp vào `main`.
-- **Do not allow bypassing the above settings**: quản trị viên kho cũng không
-  được bỏ qua các check bắt buộc.
+- Không cho force push và không cho xoá nhánh.
+- **Do not allow bypassing**: đang để `enforce_admins` tắt, nên chủ kho vẫn push
+  trực tiếp được khi cần (giữ nguyên thói quen làm việc). Muốn siết hơn thì
+  bật "Do not allow bypassing the above settings" trong Settings → Branches.
 
-Quy trình merge: PR → CI xanh toàn bộ check bắt buộc → review duyệt → merge.
+Quy trình merge: PR → CI xanh toàn bộ check bắt buộc → merge.
 
 ## 2. Dependabot automerge chỉ khi check xánh
 
