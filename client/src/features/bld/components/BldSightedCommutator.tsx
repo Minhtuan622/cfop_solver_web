@@ -6,6 +6,7 @@ import type { StarterFormula } from "@/features/bld";
 import { SOLVED_FAST_STATE, traceFastMoves } from "@/lib/fastCube";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { buttonClass } from "@/components/ui/Button";
 
 export function BldSightedCommutator({
   formula,
@@ -135,13 +136,13 @@ export function BldSightedCommutator({
               icon={<ArrowLeft className="text-base" />}
               onClick={() => setCursor(value => Math.max(0, value - 1))}
               disabled={!cursor}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+              className={`${buttonClass("secondary", "md")}`}
             />
             <IconButton
               label={vi ? "Chạy lại bài mở mắt" : "Restart sighted practice"}
               icon={<Redo2 className="text-base" />}
               onClick={() => setCursor(0)}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+              className={`${buttonClass("secondary", "md")}`}
             />
             <IconButton
               label={vi ? "Nước kế bài mở mắt" : "Next sighted move"}
@@ -150,7 +151,7 @@ export function BldSightedCommutator({
                 setCursor(value => Math.min(trace.length, value + 1))
               }
               disabled={complete}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+              className={`${buttonClass("primary", "md")}`}
             />
           </div>
           {complete && (

@@ -60,6 +60,7 @@ import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/FormControls";
 import { Textarea } from "@/components/ui/FormControls";
 import { PageHeader } from "@/components/ui/StudioUI";
+import { buttonClass } from "@/components/ui/Button";
 
 function average(values: number[]) {
   return values.length
@@ -357,7 +358,7 @@ export default function History() {
                       label={t("history.importJson")}
                       icon={<FileUp className="text-base" />}
                       onClick={() => fileRef.current?.click()}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+                      className={`${buttonClass("secondary", "sm")}`}
                     />
                     <IconButton
                       label={t("history.exportJson")}
@@ -369,13 +370,13 @@ export default function History() {
                           JSON.stringify(exportSolveHistory(), null, 2)
                         )
                       }
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+                      className={`${buttonClass("secondary", "sm")}`}
                     />
                     <IconButton
                       label={t("history.exportCsv")}
                       icon={<Download className="text-base" />}
                       onClick={exportCsv}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+                      className={`${buttonClass("secondary", "sm")}`}
                     />
                   </div>
                 </div>
@@ -462,7 +463,7 @@ export default function History() {
                         icon={<Trash2 className="text-base" />}
                         disabled={!selectedIds.size}
                         onClick={() => setBulkDeleteOpen(true)}
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+                        className={`${buttonClass("secondary", "sm")}`}
                       />
                     </div>
                   ) : null}
@@ -500,7 +501,7 @@ export default function History() {
                 <Link
                   href="/timer"
                   aria-label={t("history.openTimer")}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-3 py-1.5 text-xs"
+                  className={`${buttonClass("primary", "sm")}`}
                 >
                   <Play className="text-base" />
                 </Link>
@@ -603,7 +604,7 @@ export default function History() {
               label={t("history.saveSolve")}
               icon={<Check className="text-base" />}
               onClick={saveEdit}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+              className={`${buttonClass("primary", "md")}`}
             />
           </DialogFooter>
         </DialogContent>
@@ -632,7 +633,7 @@ export default function History() {
             <IconButton
               label={t("history.deleteSolve")}
               icon={<Trash2 className="text-base" />}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+              className={`${buttonClass("secondary", "md")}`}
               onClick={() => {
                 if (deleteTarget)
                   setEntries(deleteSolveHistory(deleteTarget.id));
@@ -665,7 +666,7 @@ export default function History() {
             <IconButton
               label={t("history.deleteSelected")}
               icon={<Trash2 className="text-base" />}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+              className={`${buttonClass("secondary", "md")}`}
               onClick={() => {
                 setEntries(deleteSolveHistoryMany(selectedIds));
                 setSelectedIds(new Set());
@@ -781,7 +782,7 @@ function SolveRow({
             label={t("history.editSolve")}
             icon={<Pencil className="text-base" />}
             onClick={onEdit}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+            className={`${buttonClass("secondary", "sm")}`}
           />
           <IconButton
             label={t("history.deleteRow")}

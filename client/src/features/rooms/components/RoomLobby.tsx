@@ -22,6 +22,7 @@ import type { RoomSummary } from "../lib/roomTypes";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/FormControls";
 import { Textarea } from "@/components/ui/FormControls";
+import { buttonClass } from "@/components/ui/Button";
 
 type Props = {
   name: string;
@@ -186,7 +187,7 @@ export function RoomLobby({
                   ) : null}
                 </div>
                 <PendingButton
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover mt-4"
+                  className={`${buttonClass("primary", "md")} mt-4`}
                   pending={createPending}
                 >
                   {t("rooms.lobby.create")}

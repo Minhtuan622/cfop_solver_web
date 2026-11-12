@@ -2,6 +2,7 @@
 import { Download, FileUp } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/StudioUI";
 import { useRef, useState, type ChangeEvent } from "react";
+import { buttonClass } from "@/components/ui/Button";
 import {
   importBldProfile,
   profileExport,
@@ -86,13 +87,13 @@ export function BldProfilePanel({
             label={vi ? "Nhập hồ sơ" : "Import profile"}
             icon={<FileUp className="text-base" />}
             onClick={() => input.current?.click()}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+            className={`${buttonClass("secondary", "md")}`}
           />
           <IconButton
             label={vi ? "Xuất hồ sơ" : "Export profile"}
             icon={<Download className="text-base" />}
             onClick={() => downloadProfile(profile)}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+            className={`${buttonClass("secondary", "md")}`}
           />
         </div>
         {error && (

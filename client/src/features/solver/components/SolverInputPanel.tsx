@@ -13,6 +13,7 @@ import { SolverRecentStates } from "./SolverRecentStates";
 import type { SolverInputMode, SolverKind } from "./SolverToolbar";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/FormControls";
+import { buttonClass } from "@/components/ui/Button";
 
 export type SolverInputPanelProps = {
   solverKind: SolverKind;
@@ -116,7 +117,7 @@ export function SolverInputPanel({
             {loading ? (
               <div className="flex gap-2">
                 <div
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-6 py-4 grow"
+                  className={`${buttonClass("primary", "plain")} px-6 py-4 grow`}
                   role="status"
                   aria-live="polite"
                 >
@@ -261,7 +262,7 @@ export function SolverInputPanel({
         {mode === "state" && loading ? (
           <div className="flex gap-2 mt-6">
             <div
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover px-6 py-3 text-base grow"
+              className={`${buttonClass("primary", "plain")} px-6 py-3 text-base grow`}
               role="status"
               aria-live="polite"
             >

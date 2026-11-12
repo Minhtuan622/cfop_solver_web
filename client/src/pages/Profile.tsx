@@ -54,6 +54,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/FormControls";
 import { Textarea } from "@/components/ui/FormControls";
+import { buttonClass } from "@/components/ui/Button";
 import {
   AlertTriangle,
   BookOpenCheck,
@@ -510,7 +511,7 @@ export default function Profile() {
           <p className="mb-4">{t("profile.guestDetail")}</p>
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+            className={`${buttonClass("primary", "md")}`}
           >
             {t("profile.guestCta")}
           </Link>
@@ -561,14 +562,14 @@ export default function Profile() {
               <div className="flex flex-wrap gap-2 lg:justify-end">
                 <Link
                   href="/timer"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+                  className={`${buttonClass("primary", "md")}`}
                 >
                   <Timer className="mr-2" />
                   {t("profile.openTimer")}
                 </Link>
                 <Link
                   href="/history"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+                  className={`${buttonClass("secondary", "md")}`}
                 >
                   <Clock3 className="mr-2" />
                   {t("profile.openHistory")}
@@ -810,7 +811,7 @@ export default function Profile() {
             </div>
             {account.wcaId ? (
               <a
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+                className={`${buttonClass("secondary", "sm")}`}
                 href={
                   wcaProfile?.profileUrl ??
                   `https://www.worldcubeassociation.org/persons/${account.wcaId}`

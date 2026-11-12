@@ -52,6 +52,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/FormControls";
 import { Textarea } from "@/components/ui/FormControls";
+import { buttonClass } from "@/components/ui/Button";
 
 type FormulaKind = "edge" | "corner" | "parity" | "flip" | "twist";
 type FormulaGroup = "edge" | "corner" | "special";
@@ -950,13 +951,13 @@ function FormulaCubeDemo({
               setCursor(currentStep => Math.max(0, currentStep - 1))
             }
             disabled={!cursor}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+            className={`${buttonClass("secondary", "md")}`}
           />
           <IconButton
             label={vi ? "Phát lại công thức" : "Replay algorithm"}
             icon={<Redo2 className="text-base" />}
             onClick={() => setCursor(0)}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+            className={`${buttonClass("secondary", "md")}`}
           />
           <IconButton
             label={vi ? "Nước kế" : "Next move"}
@@ -965,7 +966,7 @@ function FormulaCubeDemo({
               setCursor(currentStep => Math.min(trace.length, currentStep + 1))
             }
             disabled={cursor >= trace.length}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+            className={`${buttonClass("secondary", "md")}`}
           />
         </div>
       </div>
@@ -1070,7 +1071,7 @@ function MemoStage({
               label={vi ? "Tạo scramble mới" : "Create a new scramble"}
               icon={<Dices className="text-base" />}
               onClick={onScramble}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+              className={`${buttonClass("secondary", "md")}`}
             />
             <IconButton
               label={
@@ -1091,7 +1092,7 @@ function MemoStage({
               }
               onClick={onBuild}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+              className={`${buttonClass("primary", "md")}`}
             />
           </div>
           {error ? (

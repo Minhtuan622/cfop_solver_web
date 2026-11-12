@@ -12,6 +12,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { type TimerEventId } from "@/lib/timerEvents";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { buttonClass } from "@/components/ui/Button";
 
 export function SystemLeaderboard() {
   const { t } = useLanguage();
@@ -93,7 +94,7 @@ export function SystemLeaderboard() {
         <div className="mt-4">
           <Link
             href="/competition"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+            className={`${buttonClass("secondary", "sm")}`}
           >
             {t("competition.filter.fullBoard")}
           </Link>

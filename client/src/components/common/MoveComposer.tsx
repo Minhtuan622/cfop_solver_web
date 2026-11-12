@@ -4,6 +4,7 @@ import { RotateCcw, Undo2, X } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/StudioUI";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
+import { buttonClass } from "@/components/ui/Button";
 
 const BASE_MOVES = ["U", "R", "F", "D", "L", "B", "M", "E", "S", "x", "y", "z"];
 const MOVE_PATTERN = /(?:[URFDLBMESxyz](?:w)?(?:2|')?)/g;
@@ -103,14 +104,14 @@ export function MoveComposer({
             icon={<Undo2 className="text-lg" />}
             onClick={() => commit(moves.slice(0, -1))}
             disabled={!moves.length}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+            className={`${buttonClass("secondary", "sm")}`}
           />
           <IconButton
             label="Clear moves"
             icon={<RotateCcw className="text-lg" />}
             onClick={() => commit([])}
             disabled={!moves.length}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+            className={`${buttonClass("secondary", "sm")}`}
           />
         </div>
         <div className="flex w-full items-stretch mt-4">

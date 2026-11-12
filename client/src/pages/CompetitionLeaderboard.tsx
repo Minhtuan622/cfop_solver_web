@@ -26,6 +26,7 @@ import { type TimerEventId } from "@/lib/timerEvents";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import type { Translate } from "@/lib/i18n";
 import { PersonCircle } from "@/components/ui/Icon";
+import { buttonClass } from "@/components/ui/Button";
 
 function formatDate(value: Date | string, language: Language) {
   return new Date(value).toLocaleString(language === "vi" ? "vi-VN" : "en-US", {
@@ -187,7 +188,7 @@ function PlayerHistory({ accountId }: { accountId: number }) {
         actions={
           <Link
             href="/competition"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+            className={`${buttonClass("secondary", "md")}`}
           >
             {t("competition.player.back")}
           </Link>
@@ -400,7 +401,7 @@ function LeaderboardHome() {
         actions={
           <Link
             href="/rooms"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+            className={`${buttonClass("primary", "md")}`}
           >
             {t("competition.leaderboard.cta")}
           </Link>
@@ -499,7 +500,7 @@ function LeaderboardHome() {
             </p>
             <Link
               href="/rooms"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs"
+              className={`${buttonClass("secondary", "sm")}`}
             >
               {t("competition.leaderboard.viewRooms")}
             </Link>

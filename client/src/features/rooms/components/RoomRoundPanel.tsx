@@ -11,6 +11,7 @@ import type { PendingSolve, RoomActiveRound } from "../lib/roomTypes";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/FormControls";
 import { Textarea } from "@/components/ui/FormControls";
+import { buttonClass } from "@/components/ui/Button";
 
 type Props = {
   status: "waiting" | "active" | "finished";
@@ -184,7 +185,7 @@ export function RoomRoundPanel({
                     </p>
                     <PendingButton
                       type="button"
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+                      className={`${buttonClass("primary", "md")}`}
                       pending={submitPending}
                       onClick={onSubmitMultiBlind}
                     >
@@ -220,7 +221,7 @@ export function RoomRoundPanel({
               <div className="flex gap-2">
                 <PendingButton
                   type="button"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-primary text-white shadow-sm shadow-primary/25 hover:bg-primary-hover"
+                  className={`${buttonClass("primary", "md")}`}
                   pending={startPending}
                   onClick={onStartRound}
                 >

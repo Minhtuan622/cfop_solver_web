@@ -89,6 +89,17 @@ const buttonSizes: Record<ButtonSize, string> = {
   lg: "px-5 py-3 text-base whitespace-nowrap leading-none",
 };
 
+/**
+ * Class của nút theo kiểu màu và kích thước.
+ *
+ * Dùng cho thẻ `<a>` / `<Link>` — thẻ này không thể dùng `<Button>` nhưng
+ * vẫn phải trông đúng như nút. Nhờ đó chỉ có một nơi định nghĩa hình thức
+ * của nút trong toàn app.
+ */
+export function buttonClass(variant: ButtonVariant = "secondary", size: ButtonSize = "md"): string {
+  return cn(buttonBase, buttonVariants[variant], buttonSizes[size]);
+}
+
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -121,7 +132,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={cn(buttonBase, buttonVariants[variant], buttonSizes[size], className)}
+      className={cn(buttonClass(variant, size), className)}
       {...rest}
     >
       {loading ? (

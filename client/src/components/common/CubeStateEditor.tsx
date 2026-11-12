@@ -14,6 +14,7 @@ import {
 } from "@/components/common/CubeNet";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { buttonClass } from "@/components/ui/Button";
 
 type Face = (typeof FACE_ORDER)[number];
 
@@ -113,7 +114,7 @@ export function CubeStateEditor({
               icon={<Undo2 className="text-base" />}
               disabled={disabled || !canUndo}
               onClick={onUndo}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+              className={`${buttonClass("secondary", "md")}`}
               title="Undo · Ctrl/Cmd + Z"
             />
             <IconButton
@@ -121,7 +122,7 @@ export function CubeStateEditor({
               icon={<Redo2 className="text-base" />}
               disabled={disabled || !canRedo}
               onClick={onRedo}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+              className={`${buttonClass("secondary", "md")}`}
               title="Redo · Ctrl/Cmd + Shift + Z"
             />
             <IconButton
@@ -129,7 +130,7 @@ export function CubeStateEditor({
               icon={<RotateCcw className="text-base" />}
               disabled={disabled}
               onClick={() => onChange(SOLVED_STATE)}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+              className={`${buttonClass("secondary", "md")}`}
             />
           </div>
         </div>

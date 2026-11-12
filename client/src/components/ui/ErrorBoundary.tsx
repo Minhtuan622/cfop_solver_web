@@ -3,6 +3,7 @@ import { AlertTriangle, RotateCcw } from "@/components/ui/Icon";
 import { IconButton } from "./StudioUI";
 import { Component, type ReactNode } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { buttonClass } from "@/components/ui/Button";
 
 interface Props {
   children: ReactNode;
@@ -46,7 +47,7 @@ class ErrorBoundaryView extends Component<
                   label={t("error.reload")}
                   icon={<RotateCcw className="text-base" />}
                   onClick={() => window.location.reload()}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+                  className={`${buttonClass("secondary", "md")}`}
                 />
               </div>
             </div>

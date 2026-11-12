@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/FormControls";
 import { Textarea } from "@/components/ui/FormControls";
+import { buttonClass } from "@/components/ui/Button";
 
 const PAGE_SIZE = 24;
 const groupLabel = (group: BldCatalogGroup, vi: boolean) =>
@@ -250,7 +251,7 @@ export function BldFullAlgorithmCatalog({
                   icon={<ChevronLeftIcon className="text-base" />}
                   onClick={() => setPage(current => Math.max(0, current - 1))}
                   disabled={!page}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+                  className={`${buttonClass("secondary", "md")}`}
                 />
                 <span className="text-sm text-muted">
                   {page + 1}/{maxPage + 1}
@@ -262,7 +263,7 @@ export function BldFullAlgorithmCatalog({
                     setPage(current => Math.min(maxPage, current + 1))
                   }
                   disabled={page >= maxPage}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 border-line bg-surface text-ink hover:bg-surface-2"
+                  className={`${buttonClass("secondary", "md")}`}
                 />
               </div>
               {active && (
