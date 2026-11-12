@@ -104,6 +104,7 @@ export const serverMessageKeys: Record<string, string> = {
 
   // Đồng bộ đám mây
   "Trạng thái đám mây đã được cập nhật ở thiết bị khác. Hãy tải lại và đồng bộ lại.": "cloud.errorConflict",
+  "Ứng dụng đã được cập nhật. Hãy tải lại trang để đồng bộ dữ liệu.": "profile.syncReloadRequired",
   "Tính năng tải ảnh chưa được cấu hình trên máy chủ.": "cloud.errorStorageNotConfigured",
 
   // WCA rate limiting and calendar

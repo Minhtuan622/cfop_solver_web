@@ -14,10 +14,15 @@ export const avatarInput = z.object({ data: z.string().min(8).max(2_800_000), co
 export const cloudStateInput = z.object({
   schema: z.literal("cfop-account-cloud-state"),
   // Định dạng của payload (khác với `baseVersion` là revision của dòng).
-  schemaVersion: z.union([z.literal(1), z.literal(2)]),
+  // `version` là tên cũ: một tab đã mở từ trước khi triển khai vẫn gửi
+  // tên cũ, nên nó vẫn được chấp nhận để lỗi báo ra là lỗi dễ hiểu.
+  schemaVersion: z.union([z.literal(1), z.literal(2)]).optional(),
+  version: z.union([z.literal(1), z.literal(2)]).optional(),
   // Revision của dòng cloud state mà client đã đọc. `null` nghĩa là client
-  // chưa từng đọc (lần lưu đầu tiên của tài khoản).
-  baseVersion: z.number().int().nonnegative().nullable(),
+  // chưa từng đọc (lần lưu đầu tiên của tài khoản). Thiếu hẳn trường này
+  // nghĩa là client quá cũ, không biết revision: server sẽ yêu cầu tải lại
+  // trang thay vì ghi đè mất dữ liệu.
+  baseVersion: z.number().int().nonnegative().nullable().optional(),
   capturedAt: z.number().int().nonnegative(),
   timer: z.array(z.unknown()).max(MAX_CLOUD_TIMER_ENTRIES),
   lastLayer: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }),

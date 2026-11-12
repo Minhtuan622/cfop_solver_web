@@ -141,12 +141,41 @@ describe("A1: cloud state dùng revision của dòng", () => {
     expect(result?.revision).toBe(11);
   });
 
-  it("bắt buộc có baseVersion trong payload", async () => {
+  it("tab cũ (thiếu baseVersion) nhận thông báo yêu cầu tải lại, không phải lỗi kỹ thuật", async () => {
+    // Một tab đã mở từ trước khi triển khai gửi payload không có
+    // baseVersion. Nếu coi như revision 0 thì sẽ ghi đè mất dữ liệu của
+    // thiết bị khác, nên máy chủ phải từ chối bằng thông báo dễ hiểu.
+    vi.mocked(getCfopAccountCloudState).mockResolvedValue({ version: 7 } as never);
     const caller = appRouter.createCaller(makeContext());
-    const { baseVersion: _ignored, ...withoutBaseVersion } = payload;
+    const { baseVersion: _ignored, ...legacy } = payload;
 
     await expect(
-      caller.cfopAccount.cloudState.save(withoutBaseVersion as never)
-    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+      caller.cfopAccount.cloudState.save(legacy as never)
+    ).rejects.toMatchObject({
+      code: "PRECONDITION_FAILED",
+      message:
+        "Ứng dụng đã được cập nhật. Hãy tải lại trang để đồng bộ dữ liệu.",
+    });
+    // Không được ghi gì cả.
+    expect(saveCfopAccountCloudState).not.toHaveBeenCalled();
+  });
+
+  it("chấp nhận payload của tab cũ (dùng `version` thay `schemaVersion`)", async () => {
+    vi.mocked(getCfopAccountCloudState).mockResolvedValue({ version: 7 } as never);
+    vi.mocked(saveCfopAccountCloudState).mockResolvedValue({ version: 8 } as never);
+    const caller = appRouter.createCaller(makeContext());
+
+    await caller.cfopAccount.cloudState.save({
+      ...payload,
+      schemaVersion: undefined,
+      version: 2,
+    } as never);
+
+    // Payload lưu xuống chỉ dùng tên mới.
+    const stored = vi.mocked(saveCfopAccountCloudState).mock.calls[0]?.[1] as
+      | Record<string, unknown>
+      | undefined;
+    expect(stored?.schemaVersion).toBe(2);
+    expect(stored?.version).toBeUndefined();
   });
 });

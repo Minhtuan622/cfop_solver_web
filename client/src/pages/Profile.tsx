@@ -343,7 +343,13 @@ export default function Profile() {
       );
     },
     onError: async (next) => {
-      if ((next as { data?: { code?: string } }).data?.code === "CONFLICT") {
+      const code = (next as { data?: { code?: string } }).data?.code;
+      // Client quá cũ (tab mở từ trước khi triển khai): yêu cầu tải lại.
+      if (code === "PRECONDITION_FAILED") {
+        setError(t("profile.syncReloadRequired"));
+        return;
+      }
+      if (code === "CONFLICT") {
         // Thiết bị khác vừa ghi: đọc bản mới từ máy chủ, gộp với dữ liệu cục
         // bộ rồi lưu lại với revision mới.
         const fresh = await syncQuery.refetch();

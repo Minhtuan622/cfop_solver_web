@@ -28,7 +28,13 @@ export function CfopCloudSync() {
       conflictAttemptsRef.current = 0;
     },
     onError: async error => {
-      if ((error as { data?: { code?: string } }).data?.code !== "CONFLICT" || !accountId) {
+      const code = (error as { data?: { code?: string } }).data?.code;
+      // Client quá cũ (tab mở từ trước khi triển khai): yêu cầu tải lại.
+      if (code === "PRECONDITION_FAILED") {
+        toast.error(t("profile.syncReloadRequired"));
+        return;
+      }
+      if (code !== "CONFLICT" || !accountId) {
         toast.error(t("profile.syncFailed"));
         return;
       }

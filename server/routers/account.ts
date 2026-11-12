@@ -28,6 +28,18 @@ function validateCloudPayload(payload: unknown) {
   return payload;
 }
 
+/**
+ * Đưa payload về dạng lưu trữ: chỉ giữ `schemaVersion`.
+ *
+ * Một tab cũ gửi `version`; payload lưu xuống luôn dùng tên mới để hai khái
+ * niệm không bị trộn lẫn. `baseVersion` là tham số điều khiển, không thuộc
+ * payload.
+ */
+function normalizeCloudPayload(input: { schemaVersion?: 1 | 2; version?: 1 | 2; baseVersion?: number | null } & Record<string, unknown>) {
+  const { schemaVersion, version, baseVersion: _baseVersion, ...rest } = input;
+  return { ...rest, schema: "cfop-account-cloud-state", schemaVersion: schemaVersion ?? version };
+}
+
 function validateAvatarBytes(data: string, contentType: "image/jpeg" | "image/png" | "image/webp") {
   if (!/^[A-Za-z0-9+/=]+$/.test(data)) throw new TRPCError({ code: "BAD_REQUEST", message: "Ảnh đại diện không đúng định dạng." });
   const bytes = Buffer.from(data, "base64");
@@ -76,11 +88,20 @@ export const accountRouter = router({
   cloudState: router({
     get: cfopAccountProcedure.query(async ({ ctx }) => { const state = await getCfopAccountCloudState(ctx.cfopAccount.id); return state ? { payload: state.payload, updatedAt: state.updatedAt, revision: state.version } : null; }),
     save: cfopAccountProcedure.input(cloudStateInput).mutation(async ({ ctx, input }) => {
+      // Một tab đã mở từ trước khi triển khai gửi payload không có
+      // `baseVersion`. Không được coi như revision 0: sẽ ghi đè mất dữ liệu
+      // của thiết bị khác. Thay vào đó yêu cầu người dùng tải lại trang.
+      if (input.baseVersion === undefined) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Ứng dụng đã được cập nhật. Hãy tải lại trang để đồng bộ dữ liệu.",
+        });
+      }
       try {
         // `baseVersion` là revision của dòng mà client đã đọc, do client gửi
         // lên. Máy chủ so với revision hiện tại: lệch thì báo CONFLICT chứ
         // không ghi, để client đọc bản mới, gộp rồi lưu lại.
-        const state = await saveCfopAccountCloudState(ctx.cfopAccount.id, validateCloudPayload(input), input.baseVersion);
+        const state = await saveCfopAccountCloudState(ctx.cfopAccount.id, validateCloudPayload(normalizeCloudPayload(input)), input.baseVersion);
         return { updatedAt: state?.updatedAt ?? new Date(), revision: state?.version ?? 0 };
       } catch (error) {
         if ((error as { code?: string }).code === "CONFLICT") {
