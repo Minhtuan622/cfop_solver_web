@@ -17,5 +17,9 @@ Tài liệu được tập trung trong thư mục này. Các file ở root chỉ
 - [Kiểm thử và xác minh](validation/)
 - [Cộng đồng](community/)
 - [Lưu trữ ghi chú nội bộ](archive/internal/)
+- [Checklist thay đổi đã hoàn thành](archive/planning-TODO.md)
+
+Danh sách việc **còn mở** nằm ở [TODO.md](../TODO.md) ở thư mục gốc; checklist
+lịch sử đã lưu trong `docs/archive/`.
 
 Khi thêm tài liệu mới, đặt nó vào đúng nhóm trong `docs/` thay vì tạo Markdown mới ở root.

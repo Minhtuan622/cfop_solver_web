@@ -86,6 +86,7 @@ pnpm audit --prod --audit-level=high
 
 - [Documentation index](docs/README.md)
 - [Detailed development guide](docs/development/project-guide.md)
+- [Open work items](TODO.md)
 - [Contributing](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security vulnerability reporting](SECURITY.md)

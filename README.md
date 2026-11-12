@@ -85,6 +85,7 @@ pnpm audit --prod --audit-level=high
 
 - [Mục lục tài liệu](docs/README.md)
 - [Hướng dẫn phát triển chi tiết](docs/development/project-guide.md)
+- [Danh sách việc còn mở](TODO.md)
 - [Đóng góp cho dự án](CONTRIBUTING.md)
 - [Quy tắc cộng đồng](CODE_OF_CONDUCT.md)
 - [Báo cáo lỗ hổng bảo mật](SECURITY.md)

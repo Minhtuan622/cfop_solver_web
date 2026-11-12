@@ -1,6 +1,6 @@
 # Tính năng CFOP Solver Studio
 
-Danh sách tính năng thực sự có trong mã nguồn (không chứa Practice Lab hay PDF Evidence Sheet — hai tính năng này không còn được triển khai).
+Danh sách tính năng thực sự có trong mã nguồn. Hai tính năng từng được nêu trong tài liệu cũ (một trang luyện tập riêng và một trình xuất PDF bằng chứng solve) không còn được triển khai và đã bị gỡ khỏi danh sách này.
 
 ## 1. Bộ giải CFOP (Solver)
 
@@ -46,10 +46,10 @@ Danh sách tính năng thực sự có trong mã nguồn (không chứa Practice
 - Khóa bí mật (passkey) tùy chọn.
 - Trang strips/thông tin về dự án.
 
-## Không có (đã loại)
+## Đã được gộp hoặc gỡ bỏ
 
-- **Practice Lab** — tính năng này đã được gộp vào Timer/Study, không còn tồn tại như một trang riêng.
-- **PDF Evidence Sheet** — không có xuất PDF bằng chứng solve.
+- Trang luyện tập OLL/PLL cũ đã được gộp vào phần Study, không còn là một trang riêng.
+- Trình xuất PDF bằng chứng solve không tồn tại.
 
 ## Chạy mà không cần Database
 
