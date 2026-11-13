@@ -90,7 +90,7 @@ export function SolverInputPanel({
 
       <div className="px-6 pb-6">
         {solving ? (
-          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink">
+          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mb-4">
             <strong>BUFFER / UF (C)</strong> · UBL (A)
             <br />
             {t("home.bldPrepare")}
@@ -186,7 +186,7 @@ export function SolverInputPanel({
         )}
 
         {mode === "scramble" ? (
-          <div className="flex flex-wrap items-center gap-2 mt-2">
+          <div className="flex flex-wrap items-center gap-2 mt-3">
             <Button
               variant="soft"
               size="sm"
@@ -212,7 +212,7 @@ export function SolverInputPanel({
             ) : null}
           </div>
         ) : (
-          <div className="flex flex-wrap items-center gap-2 mt-2">
+          <div className="flex flex-wrap items-center gap-2 mt-3">
             <span className="text-sm text-muted">{t("home.stateHint")}</span>
           </div>
         )}
