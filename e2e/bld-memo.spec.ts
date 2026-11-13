@@ -17,10 +17,17 @@ test("tạo memo 3-Style và hiện báo cáo BLD", async ({ page }) => {
   await page.locator("#home-scramble").fill("R U R' U'");
   await page.getByRole("button", { name: /TẠO MEMO 3-STYLE/ }).click();
 
+  // Ngân sách chờ khớp với bước "Memo và execution": CI đôi khi chậm hơn
+  // local vài giây, và timeout mặc định của bài test không được nhỏ hơn
+  // timeout của từng assertion bên trong.
+  test.setTimeout(240_000);
+
   await expect(page.getByText("Memo và execution")).toBeVisible({
     timeout: 180_000,
   });
-  await expect(page.getByText("3-Style BLD · Speffz")).toBeVisible();
+  await expect(page.getByText("3-Style BLD · Speffz")).toBeVisible({
+    timeout: 180_000,
+  });
   await expect(page.getByText("Đã xảy ra lỗi không mong muốn.")).toHaveCount(0);
 
   expect(errors).toEqual([]);
