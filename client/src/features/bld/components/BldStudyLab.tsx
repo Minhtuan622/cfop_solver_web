@@ -507,7 +507,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
               />
             )}
             {stageIndex === 3 && (
-              <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
+              <section className="rounded-card bg-surface p-5 sm:p-6">
                 <p className="text-sm uppercase tracking-wide font-semibold text-muted">
                   04 · {stages[3].shortTitle}
                 </p>
@@ -545,7 +545,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
               </section>
             )}
             {stageIndex === 4 && (
-              <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
+              <section className="rounded-card bg-surface p-5 sm:p-6">
                 <p className="text-sm uppercase tracking-wide font-semibold text-muted">
                   05 · {stages[4].shortTitle}
                 </p>
@@ -606,7 +606,7 @@ function OrientationStage({
   onContinue: () => void;
 }) {
   return (
-    <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
+    <section className="rounded-card bg-surface p-5 sm:p-6">
       <p className="text-sm uppercase tracking-wide font-semibold text-muted">
         01 · {vi ? "Định hướng" : "Orient"}
       </p>
@@ -694,7 +694,7 @@ function FormulaStage({
   const formulas = STARTER_FORMULAS.filter(formula => formula.group === group);
   const selected = selectedFormula;
   return (
-    <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
+    <section className="rounded-card bg-surface p-5 sm:p-6">
       <p className="text-sm uppercase tracking-wide font-semibold text-muted">
         02 · {vi ? "Công thức" : "Algorithms"}
       </p>
@@ -886,7 +886,7 @@ function FormulaCubeDemo({
   useEffect(() => setCursor(0), [formula.algorithm]);
   if (!trace)
     return (
-      <section className="rounded-card bg-surface h-full">
+      <section className="rounded-card bg-surface">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
           <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
             {vi ? "MINH HỌA 3D" : "3D DEMO"}
@@ -913,7 +913,7 @@ function FormulaCubeDemo({
         }
       : trace[cursor - 1];
   return (
-    <section className="rounded-card bg-surface h-full">
+    <section className="rounded-card bg-surface">
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6">
         <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
           {vi ? "MINH HỌA 3D" : "3D DEMO"}
@@ -1006,7 +1006,7 @@ function MemoStage({
   onDrill: () => void;
 }) {
   return (
-    <section className="rounded-card bg-surface p-5 sm:p-6 h-full">
+    <section className="rounded-card bg-surface p-5 sm:p-6">
       <p className="text-sm uppercase tracking-wide font-semibold text-muted">
         03 · {vi ? "Memo" : "Memo"}
       </p>
