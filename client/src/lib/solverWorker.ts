@@ -73,6 +73,21 @@ self.onmessage = async (
       });
       return;
     }
+    if (command === "bld") {
+      // 3-Style memo: trace the cycles and return the plan. The UI resolves
+      // execution keys against the BLDDB catalog; the solver never guesses
+      // commutators.
+      const output = await runtime.runPythonAsync(`
+import json
+from cfop_solver import Cube, parse_moves, analyze_3style, validate_cube
+request = json.loads(${JSON.stringify(request)})
+initial = Cube(request["value"]) if request["kind"] == "state" else Cube().apply_many(parse_moves(request["value"]))
+validate_cube(initial)
+json.dumps({"initial_state": initial.stickers, "analysis": analyze_3style(initial)})
+`);
+      self.postMessage({ id, ok: true, output: String(output) });
+      return;
+    }
     const output = await runtime.runPythonAsync(`
 import json
 from cfop_solver import Cube, parse_moves, solve

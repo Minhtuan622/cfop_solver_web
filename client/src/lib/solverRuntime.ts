@@ -85,14 +85,7 @@ export type BldCycle = {
 };
 export type BldResult = {
   initial_state: string;
-  final_state: string;
-  algorithm: string;
-  phases: PhaseResult[];
-  trace: TraceStep[];
-  opening: OpeningTelemetry;
-  last_layer: LastLayerTelemetry;
   analysis: BldAnalysis;
-  solved: boolean;
 };
 export type BldAnalysis = {
   method: string;
@@ -100,8 +93,8 @@ export type BldAnalysis = {
     edge: { letter: string; position: string };
     corner: { letter: string; position: string };
   };
-  edges: { cycles: string[]; memo: string[]; execution_keys: string[] };
-  corners: { cycles: string[]; memo: string[]; execution_keys: string[] };
+  edges: { cycles: BldCycle[]; memo: string[]; execution_keys: string[] };
+  corners: { cycles: BldCycle[]; memo: string[]; execution_keys: string[] };
   special: {
     parity: boolean;
     edge_flips: string[];
@@ -110,6 +103,7 @@ export type BldAnalysis = {
     corner_orientation_sum: number;
   };
   solved: boolean;
+  catalog: { provider: string; source: string; note: string };
 };
 
 export const SOLVER_TIMEOUT_MS = 45000;
