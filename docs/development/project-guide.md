@@ -91,6 +91,11 @@ Hai nơi khác thường cần nhớ:
 - **Dark mode** do `data-theme` trên `<html>` điều khiển (`client/src/lib/theme.ts`, script inline trong `client/index.html` chạy trước first paint). Dùng utility theo token (`bg-surface`, `text-muted`) thay cho class cứng `bg-dark`/`text-white`.
 - **Cỡ chữ theo vùng chứa** dùng container query (`@container` + `cqw`), không dùng `vw`: đặt trong một cột hẹp thì `vw` làm chữ tràn ra ngoài khối.
 
+**Stage Cube 3D** phải đủ chỗ cho cả góc xoay lẫn mức zoom tối đa, không chỉ
+khung mặc định: `Cube3DGuide` dùng `min-h-84` (336px) và trần zoom `1.25`
+(nhân `DISPLAY_SCALE` 1.25). `e2e/cube-stage-bounds.spec.ts` đo hình học thật
+để chặn cube tràn khỏi stage.
+
 ### Primitive
 
 Component trình bày dùng chung nằm ở `client/src/components/ui/`. Dùng lại thay vì viết lần thứ hai:
