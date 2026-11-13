@@ -121,7 +121,7 @@ export function AppNav() {
           className={cn(
             "order-last basis-full flex-col gap-2 xl:order-none xl:flex xl:flex-1 xl:basis-auto xl:flex-row xl:items-center xl:justify-end xl:gap-1",
             expanded
-              ? "mt-2 flex pt-3 xl:mt-0 xl:pt-0"
+              ? "mt-4 flex xl:mt-0"
               : "hidden xl:flex"
           )}
         >
@@ -154,7 +154,7 @@ export function AppNav() {
               onNavigate={closeMenus}
             />
           </nav>
-          <div className="mt-2 flex items-center gap-1 pt-3 xl:mt-0 xl:ml-2 xl:pt-0">
+          <div className="mt-4 flex items-center gap-1 xl:mt-0 xl:ml-2">
             <LanguageSwitcher compact />
             <ThemeSwitcher compact />
             <CfopAccountControl />

@@ -107,7 +107,7 @@ export function StudySchedulePanel({
           </div>
         ) : null}
 
-        <div className="mt-6 pt-4">
+        <div className="mt-6">
           <p className="mb-2 text-sm text-muted">{t("study.weakCases")}</p>
           <Button
             type="button"

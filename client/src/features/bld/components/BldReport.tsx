@@ -717,7 +717,7 @@ export function BldReport({
             />
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2 mt-6 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-6">
           <p className="text-sm text-muted mb-0">
             {vi
               ? "• = cycle break; cặp special chưa chọn không được tự suy đoán."

@@ -171,7 +171,7 @@ export function StudyCasePanel({
               />
             )}
 
-            <div className="mt-4 flex flex-wrap gap-2 pt-4">
+            <div className="mt-4 flex flex-wrap gap-2">
               <Button
                 type="button"
                 variant="secondary"
@@ -225,7 +225,7 @@ export function StudyCasePanel({
                   inspectionEnabled={false}
                 />
 
-                <div className="mt-4 pt-4">
+                <div className="mt-4">
                   <p className="mb-2 text-sm text-muted">
                     {lastElapsed === null
                       ? t("study.stopToGrade")

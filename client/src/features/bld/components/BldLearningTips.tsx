@@ -126,7 +126,7 @@ export function BldLearningTips({ language }: { language: "vi" | "en" }) {
         </Button>
       </div>
       {expanded && (
-        <div className="p-4">
+        <div className="px-4 pb-4">
           <p className="text-sm text-muted">
             {vi
               ? "Các mẹo này là gợi ý thực hành từ tutorial và cộng đồng 3BLD. Giữ cách giúp bạn giải đúng; không cần đổi hệ memo chỉ vì người khác dùng nhanh hơn."
@@ -157,7 +157,7 @@ export function BldLearningTips({ language }: { language: "vi" | "en" }) {
               </article>
             ))}
           </div>
-          <div className="mt-4 pt-4">
+          <div className="mt-4">
             <SourceList language={language} />
           </div>
         </div>

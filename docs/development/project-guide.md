@@ -76,6 +76,15 @@ chỉ dẫn tiếp cận chứ không phải trang trí; `cube.css` vẫn viền
 là hình học của khối Rubik. `server/flatUi.test.ts` chặn đổ bóng, viền
 (`border`, `border-b/t/l...`, `divide-*`) tái xuất hiện.
 
+Khoảng cách cũng có quy tắc riêng: chỉ dùng **scale Tailwind** (`gap-4`,
+`py-3`…), không "gán cứng" bằng giá trị tuỳ ý (`px-[37px]`, `mt-[10px]`) —
+scale chạy theo `--spacing` nên co giãn theo cỡ chữ, giá trị tuỳ ý thì không.
+Và một khối không được **vừa có `mt-*` vừa có `pt-*`** (margin-top + padding-top
+trong cùng class): đó là đệm đôi — từng dùng để né đường kẻ đã bị xoá, giờ thành
+khoảng chết. Tách dọc bằng `mt-*` là đủ; `pt-*` chỉ dùng khi cần đệm bên trong
+khối. `server/flatUi.test.ts` chặn cả hai (quét mọi chuỗi literals trong
+client, kể cả class nằm trong `cn(…)`).
+
 Hai nơi khác thường cần nhớ:
 
 - **Repo không dùng Bootstrap.** Class của Bootstrap (`card`, `col-lg-4`, `row`, `d-flex`, `btn btn-primary`, `text-muted`, `rounded-pill`...) không tồn tại nên **không có tác dụng gì**, và giao diện hỏng mà không báo lỗi. Dùng utility Tailwind tương đương. `node scripts/audit-bootstrap-classes.mjs` liệt kê class Bootstrap còn sót.

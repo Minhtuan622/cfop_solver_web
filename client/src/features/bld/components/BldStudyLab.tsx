@@ -527,7 +527,7 @@ export function BldStudyLab({ language }: { language: "vi" | "en" }) {
                   onProfile={setProfile}
                   language={language}
                 />
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-4 mt-6">
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-6">
                   <span className="text-sm text-muted">
                     {profile.drillAttempts.length}/3{" "}
                     {vi ? "lượt drill đầu tiên" : "first drill attempts"}
