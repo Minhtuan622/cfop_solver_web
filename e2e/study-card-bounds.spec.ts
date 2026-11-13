@@ -43,3 +43,21 @@ test("/study?lane=bld không có card tràn qua footer", async ({ page }) => {
       .join("\n"),
   ).toEqual([]);
 });
+
+test("/study card Lịch ôn ôm nội dung, không bị kéo giãn đáy trống", async ({ page }) => {
+  await page.goto("/study");
+  await page.waitForTimeout(2500);
+
+  const slack = await page.evaluate(() => {
+    const aside = document.querySelector<HTMLElement>("main aside.rounded-card");
+    if (!aside) return null;
+    const inner = aside.firstElementChild as HTMLElement | null;
+    if (!inner) return null;
+    // Card không có padding riêng nên chiều cao card phải bằng khối nội dung
+    // bên trong. Khi còn `h-full` (kéo giãn theo card "Case đang học"), lệch
+    // là ~330px trên màn 1920.
+    return Math.round(aside.clientHeight - inner.clientHeight);
+  });
+  expect(slack).not.toBeNull();
+  expect(slack).toBeLessThanOrEqual(8);
+});

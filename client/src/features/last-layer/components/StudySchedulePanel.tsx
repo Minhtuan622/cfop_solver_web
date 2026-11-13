@@ -28,7 +28,7 @@ export function StudySchedulePanel({
 
   return (
     <aside
-      className="h-full rounded-card bg-surface"
+      className="rounded-card bg-surface"
       aria-label={t("study.scheduleLabel")}
     >
       <div className="p-5 sm:p-6">
