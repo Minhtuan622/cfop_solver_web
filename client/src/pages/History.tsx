@@ -46,6 +46,7 @@ import {
   DialogTitle,
 } from "@/components/ui/StudioDialog";
 import { EmptyState, IconButton, StatTile } from "@/components/ui/StudioUI";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   TIMER_EVENTS,
@@ -447,17 +448,11 @@ export default function History() {
                   </div>
                   {filtered.length ? (
                     <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink flex flex-wrap justify-between items-center gap-2 mt-4 mb-0">
-                      <label className="flex items-center gap-2 mb-0">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 rounded accent-primary"
-                          checked={allSelected}
-                          onChange={toggleVisible}
-                        />{" "}
-                        <span className="text-sm text-ink">
-                          {t("history.selectFiltered")}
-                        </span>
-                      </label>
+                      <Checkbox
+                        checked={allSelected}
+                        onChange={toggleVisible}
+                        label={t("history.selectFiltered")}
+                      />
                       <IconButton
                         label={t("history.deleteSelected")}
                         icon={<Trash2 className="text-base" />}
@@ -707,12 +702,10 @@ function SolveRow({
     <article className="rounded-card bg-surface p-4 mb-3">
       <div className="grid grid-cols-12 gap-2 items-center">
         <div className="col-span-1">
-          <input
-            type="checkbox"
-            className="h-4 w-4 rounded accent-primary"
+          <Checkbox
             checked={selected}
-            onChange={onSelect}
-            aria-label={t("history.selectSolve")}
+            onChange={() => onSelect()}
+            ariaLabel={t("history.selectSolve")}
           />
         </div>
         <div className="col-span-12">
