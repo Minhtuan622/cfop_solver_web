@@ -20,6 +20,10 @@ export function useSettingsState() {
   const [sound, setSound] = useState(() => readStoredValue("cfop-inspection-sound") !== "off");
   const [splits, setSplits] = useState(() => readStoredValue("cfop-space-splits") !== "off");
   const [highlight, setHighlight] = useState(() => readStoredValue("cfop-cross-highlight") !== "off");
+const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
+  const stored = readStoredValue("cfop-scramble-size");
+  return stored === "sm" || stored === "lg" ? stored : "md";
+});
   const [dailyGoal, setDailyGoal] = useState(() => readLastLayerStudy().dailyGoal);
   const [saveState, setSaveState] = useState<SettingsSaveState>("idle");
   const firstSave = useRef(true);
@@ -33,11 +37,12 @@ export function useSettingsState() {
       writeStoredValue("cfop-inspection-sound", sound ? "on" : "off");
       writeStoredValue("cfop-space-splits", splits ? "on" : "off");
       writeStoredValue("cfop-cross-highlight", highlight ? "on" : "off");
+      writeStoredValue("cfop-scramble-size", scrambleSize);
       writeLastLayerStudy({ ...readLastLayerStudy(), dailyGoal });
       setSaveState("saved");
     }, 350);
     return () => window.clearTimeout(id);
-  }, [solver, sound, splits, highlight, dailyGoal, language]);
+  }, [solver, sound, splits, highlight, dailyGoal, scrambleSize, language]);
 
   useEffect(() => {
     if (saveState !== "saved") return;
@@ -50,13 +55,14 @@ export function useSettingsState() {
     const excludedSlots = current.excludedSlots.includes(slot) ? current.excludedSlots.filter((value) => value !== slot) : [...current.excludedSlots, slot];
     return { ...current, excludedSlots, preferredSlot: current.preferredSlot === slot ? undefined : current.preferredSlot };
   });
-  const reset = () => { setSolver(DEFAULT_SOLVER_SETTINGS); setSound(true); setSplits(true); setHighlight(true); setDailyGoal(12); };
+  const reset = () => { setSolver(DEFAULT_SOLVER_SETTINGS); setSound(true); setSplits(true); setHighlight(true); setScrambleSize("md"); setDailyGoal(12); };
 
   return {
     solver,
     sound,
     splits,
     highlight,
+    scrambleSize,
     dailyGoal,
     saveState,
     updateSolver,
@@ -64,6 +70,7 @@ export function useSettingsState() {
     setSound,
     setSplits,
     setHighlight,
+    setScrambleSize,
     setDailyGoal,
     reset,
   };

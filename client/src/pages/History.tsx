@@ -54,6 +54,7 @@ import {
   type TimerEventId,
 } from "@/lib/timerEvents";
 import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";
+import { readStoredValue } from "@/lib/browserStorage";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
@@ -698,6 +699,12 @@ function SolveRow({
   onDelete: () => void;
 }) {
   const { t } = useLanguage();
+  const scrambleSizeClass =
+    readStoredValue("cfop-scramble-size") === "sm"
+      ? "text-sm"
+      : readStoredValue("cfop-scramble-size") === "lg"
+        ? "text-2xl"
+        : "text-lg";
   const bundle = item.multiBlindScrambles;
   const eventLabel = timerEventLabel(
     normalizeTimerEventId(item.eventId),
@@ -724,7 +731,7 @@ function SolveRow({
               <summary className="font-mono break-words">
                 {t("history.multiBlindBundle", { count: bundle.length })}
               </summary>
-              <ol className="font-mono text-sm mb-2 mt-2 pl-6">
+              <ol className={`font-mono mb-2 mt-2 pl-6 ${scrambleSizeClass}`}>
                 {bundle.map((scramble, index) => (
                   <li key={`${index}-${scramble}`} className="break-words">
                     {scramble}
@@ -733,7 +740,7 @@ function SolveRow({
               </ol>
             </details>
           ) : (
-            <p className="font-mono break-words mb-1">
+            <p className={`font-mono break-words mb-1 ${scrambleSizeClass}`}>
               {item.inputKind === "scramble"
                 ? item.input
                 : t("history.sixFaceState")}
