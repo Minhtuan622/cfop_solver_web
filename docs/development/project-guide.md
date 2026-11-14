@@ -439,6 +439,11 @@ tổng `TOTAL_LIMIT_SEC` **chỉ áp dụng cho lần chạy chính**; `wallCloc
 là số đo bổ sung để đối chiếu ngân sách thời gian của job (ví dụ khi nhiều đề
 phải chạy lại), **không** tham gia quyết định PASS/FAIL. Artifact cũ không có
 trường này vẫn đọc được — chỉ là thiếu số đo bổ sung.
+JSON artifact (`--json-file`) có thêm các trường cấp cao nhất
+`pyodideVersion`, `nodeVersion`, `platform`, `arch`. `pyodideVersion` được đọc
+từ `package.json` của gói `pyodide` thật trong `node_modules` (qua
+`import.meta.resolve("pyodide")`), không đọc hằng số trong source hay
+`package.json` của repo — nhờ vậy mỗi artifact tự mô tả runtime đã đo.
 
 ### Lưu ý quan trọng về `pnpm build`
 
