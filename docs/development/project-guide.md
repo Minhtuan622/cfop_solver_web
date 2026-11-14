@@ -392,6 +392,34 @@ Các route chính:
 | `pnpm run embed-solver` | Tái tạo bundle solver từ `solver-python/cfop_solver`; chỉ cần khi sửa Python solver. |
 | `pnpm db:push` | Generate và apply Drizzle migration; không chạy tự động trong deploy nếu chưa kiểm soát. |
 | `pnpm format` | Format bằng Prettier. |
+| `node scripts/bench-solver.mjs` | Đo hiệu năng bộ giải trong Pyodide. |
+| `node scripts/bench-solver.mjs --check` | Đo **kèm kiểm tra ngưỡng thời gian**; thoát mã khác 0 khi vi phạm. |
+
+### Bộ đo bộ giải và ngưỡng thời gian
+
+`scripts/bench-solver.mjs` giải 11 đề cố định (`scripts/bench-scrambles.json`)
+trong Pyodide và in ra bảng: đề, đúng/sai, số nước, thời gian.
+
+Thêm `--check` để **kiểm tra ngưỡng thời gian** — đây là chế độ CI dùng
+(job `Solver benchmark (Pyodide)`):
+
+```bash
+node scripts/bench-solver.mjs --check
+node scripts/bench-solver.mjs --check --json-file bench-result.json
+```
+
+Job đỏ (thoát mã khác 0) khi:
+
+| Điều kiện | Ngưỡng | Ghi chú |
+|---|---|---|
+| Có đề giải sai | — | Không bao giờ thử lại. |
+| Có đề chậm hơn ngưỡng mỗi đề | `PER_SCRAMBLE_LIMIT_SEC` (mặc định 20s) | Đề vượt ngưỡng được **chạy lại đúng một lần**; chỉ tính là lỗi khi lần chạy lại vẫn vượt ngưỡng (loại nhiễu đo). |
+| Tổng thời gian vượt ngưỡng | `TOTAL_LIMIT_SEC` (mặc định 80s) | Tổng tính trên lần chạy chính. |
+
+Hai ngưỡng ghi đè được bằng biến môi trường `PER_SCRAMBLE_LIMIT_SEC` và
+`TOTAL_LIMIT_SEC`. Logic chấm điểm nằm trong `scripts/bench-check.mjs` (hàm
+thuần, không cần Pyodide) và được kiểm thử bằng dữ liệu giả lập trong
+`server/benchSolver.test.ts`.
 
 ### Lưu ý quan trọng về `pnpm build`
 
