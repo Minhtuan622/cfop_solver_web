@@ -30,7 +30,7 @@ export function SolverDetails({
         />
         <span>{summary}</span>
       </summary>
-      <div className="px-3.5 pb-3.5">{children}</div>
+      <div className="px-3.5 pb-3.5 pt-2">{children}</div>
     </details>
   );
 }

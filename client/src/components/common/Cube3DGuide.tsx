@@ -421,7 +421,7 @@ export function Cube3DGuide({
     setCamera(previous => ({
       ...previous,
       zoom: Math.min(
-        1.42,
+        1.25,
         Math.max(0.78, Number((previous.zoom + amount).toFixed(2)))
       ),
     }));
@@ -545,7 +545,7 @@ export function Cube3DGuide({
     >
       <div className="p-5 sm:p-6 px-4">
         <div
-          className={`interactive-cube-stage ${isOrbiting ? "is-orbiting" : ""}`}
+          className={`interactive-cube-stage grid min-h-84 place-items-center ${isOrbiting ? "is-orbiting" : ""}`}
           aria-label={
             language === "vi"
               ? "Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to"
@@ -560,7 +560,7 @@ export function Cube3DGuide({
           onTouchStart={touchStart}
           onTouchMove={touchMove}
         >
-          <div className="cube3d-motion-shell">
+          <div className="cube3d-motion-shell w-full">
             <div
               className="cube3d-model"
               style={
