@@ -9,12 +9,15 @@ Bài này **chỉ kiểm tra token màu** khai báo trong `client/src/index.css`
 thật sự dùng trong `client/src/components/ui/`. Những điều sau **chưa** được
 tính:
 
-- **Độ trong suốt nhiều lớp**: token có alpha (`muted/60`) được phủ lên đúng
-  nền của cặp đó, nhưng các lớp chồng nhiều lớp, `color-mix`, `backdrop-filter`
-  hay vùng gradient chưa được mô phỏng.
+- **Độ trong suốt**: phép đo chuẩn **bỏ qua alpha** (theo yêu cầu C5):
+  `muted/60` được coi như `muted`. Hệ quả là bài kiểm tra **không phát hiện
+  được** lỗi chữ gợi ý trong ô nhập; 4 mục placeholder vẫn được giữ trong
+  `KNOWN_FAILURES` bằng phép đo **có** alpha để không mất thông tin — xem mục
+  "Độ trong suốt" bên dưới. Các lớp chồng nhiều lớp, `color-mix`,
+  `backdrop-filter`, gradient và ảnh nền vẫn chưa được mô phỏng.
 - **Gradient, ảnh nền, hình ảnh và video** làm nền: không tính.
 - **Font thực tế**: tỉ lệ tính theo màu, không theo độ đậm của chữ, độ mờ của
-  chữ mờ (`text-muted/60` được tính như một màu đục sau khi phủ) hay khoảng
+  chữ mờ (phép đo chuẩn bỏ qua alpha; xem mục "Độ trong suốt") hay khoảng
   cách chữ.
 - **Trạng thái hover/focus/disabled** chỉ được đo ở trạng thái nền.
 - **Chưa phải thay thế cho kiểm tra bằng công cụ trên trình duyệt thật**
@@ -35,7 +38,31 @@ tính:
   pnpm exec vitest run server/contrast.test.ts --reporter=verbose --disable-console-intercept
   ```
 
+## Độ trong suốt (C5)
+
+Phép đo chuẩn của bài kiểm tra **bỏ qua alpha**: `muted/60` được tính như
+`muted`. Vì vậy phép đo chuẩn **không phát hiện được** 4 lỗi chữ gợi ý
+(`FormControls.tsx` và `DesignSystem.tsx`): nếu bỏ alpha, cặp này báo đạt
+4.86:1 (sáng) / 5.69:1 (tối) — và 5.21:1 / 6.48:1 cho `PillInput` — thay vì
+2.34–3.24:1.
+
+Để không mất 4 lỗi thật, `KNOWN_FAILURES` vẫn giữ 4 mục placeholder với số đo
+**có alpha**:
+
+| Cặp | Sáng | Tối | Nguồn |
+|---|---:|---:|---|
+| `muted/60` trên `surface-3` | 2.34 | 3.02 | `FormControls.tsx` |
+| `muted/60` trên `surface-2` | 2.41 | 3.24 | `DesignSystem.tsx` `PillInput` |
+
+Đây là **thông tin lưu trữ**, không phải kết quả của phép đo chuẩn; bài kiểm
+tra chỉ dùng phép đo có alpha cho các mục này khi kiểm tra danh sách
+`KNOWN_FAILURES`. Muốn chặn lỗi placeholder trong CI phải dùng phép đo có
+alpha hoặc công cụ trên trình duyệt thật (`@axe-core/playwright`).
+
 ## Bảng số đo
+
+> Các dòng 27 và 29 dùng số đo **có alpha** cho phần chữ gợi ý; các dòng còn
+> lại là phép đo chuẩn (bỏ qua alpha).
 
 | # | Cặp màu | Nguồn trong mã nguồn | Chế độ sáng | Chế độ tối | Ngưỡng | Sáng | Tối |
 |---|---|---|---:|---:|---:|---|---|
@@ -162,7 +189,7 @@ thương hiệu):
 
 ## Cách bài kiểm tra bảo vệ palette
 
-`server/contrast.test.ts` (7 test):
+`server/contrast.test.ts` (8 test):
 
 1. đọc được token của cả hai chế độ;
 2. **mọi cặp đang đạt phải tiếp tục đạt** — đổi màu làm tụt một cặp thì test đỏ,
@@ -171,5 +198,7 @@ thương hiệu):
    chưa được gỡ khỏi danh sách thì test đỏ, để danh sách luôn trung thực;
 4. số đo ghi trong `KNOWN_FAILURES` phải khớp palette hiện tại (sai số 0.05);
 5. mọi mục trong `KNOWN_FAILURES` phải tồn tại và có lý do;
-6. in bảng tương phản đầy đủ;
-7. in các cặp chỉ để tham khảo.
+6. **phép đo chuẩn bỏ qua alpha** — khẳng định phép đo chuẩn báo đạt còn phép
+   đo có alpha báo không đạt cho placeholder, và 4 mục placeholder vẫn được giữ;
+7. in bảng tương phản đầy đủ;
+8. in các cặp chỉ để tham khảo.
