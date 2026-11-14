@@ -716,6 +716,11 @@ function knownFailure(id: string, mode: Mode) {
   return KNOWN_FAILURES.find(item => item.id === id && item.mode === mode);
 }
 
+/** Số đo dùng để in bảng: mục KNOWN_FAILURES dùng đúng phép đo của trạng thái. */
+function measureForStatus(mode: Mode, pair: Pair): number {
+  return knownFailure(pair.id, mode) ? measureKnown(mode, pair) : measure(mode, pair);
+}
+
 /* ------------------------------------------------------------------ *
  * 4. Test
  * ------------------------------------------------------------------ */
@@ -814,24 +819,34 @@ describe("tương phản màu của giao diện phẳng", () => {
 
   it("in bảng tương phản đầy đủ", () => {
     const lines: string[] = [];
+    const mismatches: string[] = [];
     for (const pair of PAIRS) {
-      const light = measure("light", pair);
-      const dark = measure("dark", pair);
-      const mark = (ratio: number, mode: Mode) => {
-        const known = knownFailure(pair.id, mode);
-        if (known) return "KHONG-DAT";
-        return ratio >= pair.min ? "dat" : "KHONG-DAT";
-      };
+      // Mục KNOWN_FAILURES phải in bằng phép đo khớp với trạng thái: nếu in
+      // phép đo chuẩn (bỏ qua alpha) thì placeholder sẽ hiện 4.86:1 nhưng vẫn
+      // bị đánh KHONG-DAT — bảng tự mâu thuẫn.
+      const light = measureForStatus("light", pair);
+      const dark = measureForStatus("dark", pair);
+      const mark = (ratio: number) => (ratio >= pair.min ? "dat" : "KHONG-DAT");
+      for (const [mode, ratio] of [
+        ["light", light],
+        ["dark", dark],
+      ] as Array<[Mode, number]>) {
+        const status = mark(ratio);
+        if (status === "dat" && knownFailure(pair.id, mode)) {
+          mismatches.push(`${pair.id} (${MODE_LABEL[mode]}): ${ratio.toFixed(2)}:1 nhưng KHONG-DAT`);
+        }
+      }
       lines.push(
         `${pair.id} | ${pair.label} | ${light.toFixed(2)} | ${dark.toFixed(2)} | ` +
-          `${pair.min} | ${mark(light, "light")}/${mark(dark, "dark")}`
+          `${pair.min} | ${mark(light)}/${mark(dark)}`
       );
     }
     console.log(
       `\nBẢNG TƯƠNG PHẢN (id | nhãn | sáng | tối | ngưỡng | trạng thái)\n` +
-        `(phép đo chuẩn bỏ qua alpha; 4 mục placeholder trong KNOWN_FAILURES ` +
-        `được đo có alpha riêng)\n${lines.join("\n")}`
+        `(phép đo chuẩn bỏ qua alpha; mục trong KNOWN_FAILURES dùng phép đo ` +
+        `khớp với trạng thái, có alpha khi cần)\n${lines.join("\n")}`
     );
+    expect(mismatches).toEqual([]);
     expect(lines.length).toBe(PAIRS.length);
   });
 
