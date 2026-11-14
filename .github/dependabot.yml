@@ -19,14 +19,22 @@ updates:
     #   nhiên (xem server/threeVersion.test.ts).
     # - @types/three: phải khớp với three đang chạy.
     # - pyodide: bộ đo (scripts/bench-solver.mjs) phải dùng đúng runtime mà
-    #   trình duyệt nạp, tức là 0.27.7.
+    #   trình duyệt nạp. Việc nâng Pyodide phải làm THỦ CÔNG, và phải sửa
+    #   cùng lúc CÁ BA nơi sau đây:
+    #     1. hằng số PYODIDE_VERSION trong client/src/lib/pyodideLoader.ts,
+    #     2. hằng số PYODIDE_VERSION trong scripts/fetch-pyodide.mjs,
+    #     3. devDependency "pyodide" trong package.json (bản đích xác, không
+    #        dùng ^ hay ~).
+    #   server/pyodideAssets.test.ts chặn lệch ở cả ba nơi.
     ignore:
       - dependency-name: "three"
         versions: [">=0.171.0"]
       - dependency-name: "@types/three"
         versions: [">=0.171.0"]
+      # Chặn MỌI bản nâng của pyodide, không giới hạn phiên bản: trước đây
+      # luật ignore chỉ chặn từ 0.28.0 trở lên nên bản vá 0.27.x lọt qua và
+      # bộ đo đo một bản khác với bản đang phát hành.
       - dependency-name: "pyodide"
-        versions: [">=0.28.0"]
 
     groups:
       production-security:
