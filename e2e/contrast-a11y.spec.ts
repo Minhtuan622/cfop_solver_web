@@ -67,7 +67,12 @@ try {
 } catch {
   baselineKeys = [];
 }
-const KNOWN_FINDINGS = new Set(baselineKeys);
+// Đếm số lần xuất hiện của mỗi khóa trong baseline — để không đánh mất vi phạm
+// mới khi một trang có thêm phần tử thứ hai giống hệt phần tử đã biết.
+const KNOWN_COUNTS = new Map<string, number>();
+for (const key of baselineKeys) {
+  KNOWN_COUNTS.set(key, (KNOWN_COUNTS.get(key) ?? 0) + 1);
+}
 
 const COLLECTED: Finding[] = [];
 
@@ -203,8 +208,17 @@ for (const theme of THEMES) {
 
         const known: Finding[] = [];
         const fresh: Finding[] = [];
+        const seenCounts = new Map<string, number>();
         for (const finding of findings) {
-          (KNOWN_FINDINGS.has(findingKey(finding)) ? known : fresh).push(finding);
+          const key = findingKey(finding);
+          const seen = seenCounts.get(key) ?? 0;
+          const baseline = KNOWN_COUNTS.get(key) ?? 0;
+          if (seen < baseline) {
+            known.push(finding);
+          } else {
+            fresh.push(finding);
+          }
+          seenCounts.set(key, seen + 1);
         }
 
         for (const finding of findings) {
@@ -240,18 +254,19 @@ for (const theme of THEMES) {
 
 test.afterAll(() => {
   if (process.env.AXE_UPDATE_BASELINE !== "1") return;
-  const unique = Array.from(
-    new Map(COLLECTED.map(f => [findingKey(f), f])).values()
-  );
+  // Giữ nguyên số lần xuất hiện (không khử trùng) để bài kiểm tra phân biệt
+  // được phần tử thứ hai giống hệt phần tử đã biết.
   const payload = {
-    version: 2,
+    version: 3,
     generated: new Date().toISOString(),
     note:
-      "Khoa (key) nhan dien vi pham axe hien co tren 6 trang x 2 che do. " +
-      "Vi pham moi (khong co trong danh sach nay) se lam test that bai. " +
-      "Muc dich bao cao, khong tu sua mau.",
-    keys: unique.map(findingKey),
-    findings: unique.map(({ page, theme, rule, target }) => ({
+      "Khoa (key) nhan dien vi pham axe hien co tren 6 trang x 2 che do, " +
+      "giu nguyen so lan xuat hien. Vi pham moi (khong co trong danh sach " +
+      "nay) se lam test that bai. Muc dich bao cao, khong tu sua mau.",
+    keys: COLLECTED.map(findingKey),
+    findings: Array.from(
+      new Map(COLLECTED.map(f => [findingKey(f), f])).values()
+    ).map(({ page, theme, rule, target }) => ({
       page,
       theme,
       rule,
@@ -259,5 +274,5 @@ test.afterAll(() => {
     })),
   };
   writeFileSync(BASELINE_PATH, JSON.stringify(payload, null, 2) + "\n", "utf8");
-  console.log(`[axe] wrote baseline with ${unique.length} findings`);
+  console.log(`[axe] wrote baseline with ${COLLECTED.length} findings`);
 });
