@@ -200,6 +200,26 @@
   --normal-text: var(--ink);
   --normal-bg-hover: var(--surface-2);
 
+
+  /* Giao diện phẳng: toast không có đường viền, tách bằng nền và khoảng cách. */
+  --normal-border: transparent;
+  --normal-border-hover: transparent;
+  --success-bg: var(--surface);
+  --success-text: var(--success);
+  --success-border: var(--success);
+  --error-bg: var(--surface);
+  --error-text: var(--danger);
+  --error-border: var(--danger);
+  --warning-bg: var(--surface);
+  --warning-text: var(--warning);
+  --warning-border: var(--warning);
+  --info-bg: var(--surface);
+  --info-text: var(--info);
+  --info-border: var(--info);
+  --border-radius: 1rem;
+  font-family: var(--font-sans);
+}
+
 /* Custom scrollbar — minimalist, soft, matches flat palette. */
 * {
   scrollbar-width: thin;
@@ -235,22 +255,4 @@
 
 *::-webkit-scrollbar-corner {
   background: transparent;
-}
-  /* Giao diện phẳng: toast không có đường viền, tách bằng nền và khoảng cách. */
-  --normal-border: transparent;
-  --normal-border-hover: transparent;
-  --success-bg: var(--surface);
-  --success-text: var(--success);
-  --success-border: var(--success);
-  --error-bg: var(--surface);
-  --error-text: var(--danger);
-  --error-border: var(--danger);
-  --warning-bg: var(--surface);
-  --warning-text: var(--warning);
-  --warning-border: var(--warning);
-  --info-bg: var(--surface);
-  --info-text: var(--info);
-  --info-border: var(--info);
-  --border-radius: 1rem;
-  font-family: var(--font-sans);
 }
