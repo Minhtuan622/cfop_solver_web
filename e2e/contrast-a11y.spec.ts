@@ -149,8 +149,9 @@ async function openPage(page: Page, path: string, theme: Theme) {
   await expect(page.locator("main")).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   // Cho các query tRPC giả lập và biểu đồ/layout ổn định trước khi đo màu.
-  await page.waitForLoadState("networkidle").catch(() => {});
-  await page.waitForTimeout(1000);
+  // Tránh waitForLoadState("networkidle"): websocket của Vite HMR có thể giữ
+  // kết nối mở và treo bước này trên CI. Chờ cố định đủ để layout/query ổn định.
+  await page.waitForTimeout(1500);
 }
 
 async function scan(page: Page, path: string, theme: Theme) {
