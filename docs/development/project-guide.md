@@ -461,15 +461,42 @@ dự phòng khi bản cục bộ chưa có.
 
 Những điều cần nhớ:
 
-- **Phiên bản phải khớp ở hai nơi**: `PYODIDE_VERSION` trong
-  `client/src/lib/pyodideLoader.ts` và trong `scripts/fetch-pyodide.mjs`. Đổi
-  phiên bản thì sửa cả hai rồi chạy lại `pnpm fetch-pyodide --force`.
+- **Phiên bản phải khớp ở ba nơi**: `PYODIDE_VERSION` trong
+  `client/src/lib/pyodideLoader.ts`, `PYODIDE_VERSION` trong
+  `scripts/fetch-pyodide.mjs`, và devDependency `"pyodide"` trong
+  `package.json`. Đổi phiên bản thì sửa cả ba rồi chạy lại
+  `pnpm fetch-pyodide --force` (xem mục "Nâng cấp Pyodide" bên dưới).
 - **Thư mục `client/public/pyodide` bị gitignore**, nên repo không phình;
   bản build trên CI có nó vì script tải chạy trước khi build.
 - **Ở chế độ dev, Vite gắn `?import` vào mọi dynamic import** và từ chối
   transform file trong `/public`. Vì vậy `vite.config.ts` có plugin
   `localPyodidePlugin` tự phục vụ các file đó. Bỏ plugin này thì dev server
   sẽ âm thầm lùi về CDN.
+
+### Nâng cấp Pyodide
+
+Việc nâng Pyodide **phải làm thủ công** — Dependabot bị chặn nâng package
+`pyodide` ở `.github/dependabot.yml` (không giới hạn phiên bản) — và phải sửa
+**cùng lúc ba nơi**:
+
+| # | Nơi | Nội dung cần đổi |
+|---|---|---|
+| 1 | `client/src/lib/pyodideLoader.ts` | hằng số `PYODIDE_VERSION` (runtime trình duyệt nạp) |
+| 2 | `scripts/fetch-pyodide.mjs` | hằng số `PYODIDE_VERSION` (bản phân phối cục bộ tải về) |
+| 3 | `package.json` | devDependency `"pyodide"` — bản **đích xác**, không dùng `^` hay `~` |
+
+Sau khi sửa, kiểm tra bằng:
+
+```bash
+pnpm install                              # cập nhật pnpm-lock.yaml
+pnpm test --run server/pyodideAssets.test.ts
+node scripts/bench-solver.mjs
+```
+
+`server/pyodideAssets.test.ts` khẳng định ba nơi trên cùng một phiên bản và
+bản `pyodide` thực sự nằm trong `node_modules` cũng vậy, nên sửa thiếu một nơi
+là test FAIL. `node scripts/bench-solver.mjs` đo lại bộ giải trên runtime mới
+để so với số liệu cũ.
 
 
 ## 10. Kiểm thử trước khi commit
