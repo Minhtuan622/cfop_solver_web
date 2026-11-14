@@ -71,10 +71,14 @@ Mọi màu mới của app phải là **CSS token** trong `client/src/index.css`
 
 Giao diện của app là **kiểu phẳng**: không đổ bóng và **không có bất kỳ đường
 viền hay đường kẻ phân cách nào** — các khối tách nhau chỉ bằng nền và khoảng
-cách. Vòng focus bàn phím (`ring-*`) là hiệu ứng viền duy nhất còn lại, vì là
-chỉ dẫn tiếp cận chứ không phải trang trí; `cube.css` vẫn viền sticker vì đó
-là hình học của khối Rubik. `server/flatUi.test.ts` chặn đổ bóng, viền
-(`border`, `border-b/t/l...`, `divide-*`) tái xuất hiện.
+cách. Vòng focus bàn phím gồm **outline đặc** từ `:focus-visible` trong
+`index.css` và `ring-*` trên từng phần tử; đây là chỉ dẫn tiếp cận, không phải
+trang trí. Class `outline-none` / `focus-visible:outline-none` **bị cấm** vì
+lớp `utilities` sẽ xoá outline toàn cục, chỉ còn hào ring 20% không đạt 3:1.
+`cube.css` vẫn viền sticker vì đó là hình học của khối Rubik.
+`server/flatUi.test.ts` chặn đổ bóng, viền (`border`, `border-b/t/l...`,
+`divide-*`) và `outline-none` tái xuất hiện, đồng thời khẳng định khối
+`:focus-visible` toàn cục vẫn còn.
 
 Vì màu là tín hiệu duy nhất còn lại, `server/contrast.test.ts` kiểm tra tự
 động tỉ lệ tương phản WCAG 2.x của các cặp màu chính ở **cả hai** chế độ

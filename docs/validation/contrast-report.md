@@ -139,16 +139,26 @@ lỗi — nhưng chủ sản phẩm cần số liệu này để quyết định
 Bài kiểm tra đo vòng focus **đặc** (`--primary`), vì đó là chỉ dẫn tiếp cận
 được khai báo trong `client/src/index.css`:
 `:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }`.
+Bốn cặp `focus/*` đạt 4.46–6.08:1, trên ngưỡng 3:1.
 
-Nhưng phần lớn nút và ô nhập lại thêm class `outline-none` (Tailwind) — lớp
-`utilities` đứng sau lớp `base` nên `outline-style: none` **thắng** — rồi dùng
-`focus-visible:ring-4 focus-visible:ring-primary/20`, tức là chỉ còn lại một
-**hào mờ 20%** với tỉ lệ ~1.3:1. Với các phần tử đó, chỉ dẫn tiếp cận hiện tại
-không đạt ngưỡng 3:1.
+Trước đây phần lớn nút và ô nhập thêm class `outline-none` (Tailwind) — lớp
+`utilities` đứng sau lớp `base` nên `outline-style: none` **thắng** — và chỉ
+còn `focus-visible:ring-4 focus-visible:ring-primary/20`, tức **hào mờ 20%**
+với tỉ lệ ~1.3:1. Chủ sản phẩm đã duyệt **hướng A**: bỏ toàn bộ **47** chỗ
+`outline-none` / `focus-visible:outline-none`, giữ nguyên ring. Outline toàn
+cục hiện lại, nên chỉ dẫn focus đạt ngưỡng.
 
-Đây là vấn đề **cấp phần tử** (cascade của CSS), không phải vấn đề token màu
-nên bài kiểm tra token **không assert** vào đó — chỉ in ra số đo. Muốn xác
-nhận chắc chắn thì cần chạy công cụ kiểm tra trên trình duyệt thật.
+Bằng chứng trên Chromium thật (Playwright, `/timer`, focus bằng Tab vào link
+thương hiệu):
+
+| | `outline-style` | `outline-width` | `outline-color` | ring |
+|---|---|---:|---|---|
+| Trước | `none` | 2px | `rgb(91, 91, 214)` (bị xoá) | 20% alpha |
+| Sau | `solid` | 2px | `rgb(91, 91, 214)` | 20% alpha |
+
+`server/flatUi.test.ts` chặn `outline-none` tái xuất và khẳng định khối
+`:focus-visible` toàn cục vẫn còn. Đây là thay đổi **cấp phần tử**, không phải
+đổi token màu; bảng số đo token ở trên không đổi.
 
 ## Cách bài kiểm tra bảo vệ palette
 

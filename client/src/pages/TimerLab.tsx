@@ -829,7 +829,7 @@ export default function TimerLab() {
               actions={
                 <Link
                   href="/study"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface-2 text-ink hover:bg-surface-3"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface-2 text-ink hover:bg-surface-3"
                 >
                   <BookOpenCheck className="mr-2" />
                   {t("timer.openStudy")}
@@ -938,7 +938,7 @@ export default function TimerLab() {
                                       setMultiBlindScrambles([]);
                                       setScramble("");
                                     }}
-                                    className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
+                                    className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
                                   />
                                 </label>
                                 <span className="text-sm text-muted">
@@ -1299,7 +1299,7 @@ export default function TimerLab() {
                                         [phase]: next,
                                       }));
                                   }}
-                                  className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 text-right"
+                                  className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 text-right"
                                 />
                                 <span className="inline-flex items-center bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
                                   s
@@ -2510,7 +2510,7 @@ function MultiBlindResultCard({
                   )
                 )
               }
-              className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1 w-auto"
+              className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1 w-auto"
             />
           </label>
         </div>

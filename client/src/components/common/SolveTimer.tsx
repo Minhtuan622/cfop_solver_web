@@ -364,7 +364,7 @@ export function SolveTimer({
             type="button"
             variant={mode === "running" ? "danger" : "primary"}
             size="plain"
-            className="px-12 py-3 text-base focus-visible:outline-none"
+            className="px-12 py-3 text-base"
             onClick={toggle}
           >
             {mode === "running"

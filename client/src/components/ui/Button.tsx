@@ -48,7 +48,7 @@ export type ButtonSize =
 
 /** Phần chung của mọi nút: bố cục, bo góc, viền focus và trạng thái tắt. */
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full font-semibold outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50";
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary: "bg-primary text-white hover:bg-primary-hover",

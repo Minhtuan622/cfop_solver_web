@@ -737,7 +737,7 @@ export default function Profile() {
               </div>
               <Link
                 href="/study"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 w-full mt-4"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 w-full mt-4"
               >
                 <BookOpenCheck className="mr-2" />
                 {t("profile.openStudy")}
@@ -894,7 +894,7 @@ export default function Profile() {
                   )}
                 </div>
                 {(storageStatusQuery.data?.enabled ?? true) && (
-                  <label className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mb-0">
+                  <label className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs mb-0">
                     {uploadAvatar.isPending
                       ? t("profile.avatarUploadPending")
                       : t("profile.avatarUpload")}

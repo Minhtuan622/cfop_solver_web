@@ -67,7 +67,7 @@ export function WcaWorldRecords({
         <Button
           variant="secondary"
           size="plain"
-          className="px-3 py-1.5 text-xs focus-visible:outline-none"
+          className="px-3 py-1.5 text-xs"
           type="button"
 
           aria-expanded={open}

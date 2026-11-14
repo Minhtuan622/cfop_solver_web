@@ -81,7 +81,7 @@ export function CfopReport({
       {showToggle ? (
         <Button
           variant="soft"
-          className="mt-2 flex w-full py-2.5 text-primary focus-visible:outline-none"
+          className="mt-2 flex w-full py-2.5 text-primary"
           type="button"
 
           aria-expanded={expanded}
@@ -137,7 +137,7 @@ function CfopPhaseRow({
           variant={selected ? "primary" : "soft"}
           size="plain"
           className={cn(
-            "grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold tabular-nums focus-visible:outline-none",
+            "grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold tabular-nums",
             !selected && "bg-primary-soft text-primary"
           )}
           onClick={() => onSelect(phase)}

@@ -151,7 +151,7 @@ export function Dropdown({
         ref={buttonRef}
         type="button"
         className={cn(
-          "inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20",
+          "inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20",
           variant === "nav"
             ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink"
             : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2",
