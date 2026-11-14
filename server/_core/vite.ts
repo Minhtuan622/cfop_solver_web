@@ -4,6 +4,7 @@ import { type Server } from "http";
 import { nanoid } from "nanoid";
 import path from "path";
 import type { InlineConfig, ViteDevServer } from "vite";
+import { cacheControlForFile } from "./staticCache";
 
 /**
  * Đường dẫn của bản Pyodide cục bộ.
@@ -84,10 +85,9 @@ export function serveStatic(app: Express) {
   app.use(
     express.static(distPath, {
       setHeaders(res, filePath) {
-        if (filePath.includes("/assets/")) {
-          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-        } else if (filePath.endsWith("index.html")) {
-          res.setHeader("Cache-Control", "no-cache");
+        const cacheControl = cacheControlForFile(filePath);
+        if (cacheControl) {
+          res.setHeader("Cache-Control", cacheControl);
         }
       },
     }),
