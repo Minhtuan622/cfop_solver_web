@@ -426,12 +426,19 @@ Job đỏ (thoát mã khác 0) khi:
 |---|---|---|
 | Có đề giải sai | — | Không bao giờ thử lại. |
 | Có đề chậm hơn ngưỡng mỗi đề | `PER_SCRAMBLE_LIMIT_SEC` (mặc định 20s) | Đề vượt ngưỡng được **chạy lại đúng một lần**; chỉ tính là lỗi khi lần chạy lại vẫn vượt ngưỡng (loại nhiễu đo). |
-| Tổng thời gian vượt ngưỡng | `TOTAL_LIMIT_SEC` (mặc định 80s) | Tổng tính trên lần chạy chính. |
+| Tổng thời gian vượt ngưỡng | `TOTAL_LIMIT_SEC` (mặc định 80s) | Tổng tính trên **lần chạy chính**. |
 
 Hai ngưỡng ghi đè được bằng biến môi trường `PER_SCRAMBLE_LIMIT_SEC` và
 `TOTAL_LIMIT_SEC`. Logic chấm điểm nằm trong `scripts/bench-check.mjs` (hàm
 thuần, không cần Pyodide) và được kiểm thử bằng dữ liệu giả lập trong
 `server/benchSolver.test.ts`.
+
+Báo cáo còn in thêm **`totals.wallClockSeconds`** = tổng lần chạy chính +
+tổng thời gian các lần chạy lại, và ghi trường này vào JSON artifact. Ngưỡng
+tổng `TOTAL_LIMIT_SEC` **chỉ áp dụng cho lần chạy chính**; `wallClockSeconds`
+là số đo bổ sung để đối chiếu ngân sách thời gian của job (ví dụ khi nhiều đề
+phải chạy lại), **không** tham gia quyết định PASS/FAIL. Artifact cũ không có
+trường này vẫn đọc được — chỉ là thiếu số đo bổ sung.
 
 ### Lưu ý quan trọng về `pnpm build`
 

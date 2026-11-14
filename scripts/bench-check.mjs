@@ -9,7 +9,11 @@
  * (a) có đề giải sai (hoặc lỗi) — không bao giờ thử lại;
  * (b) có đề chậm hơn `PER_SCRAMBLE_LIMIT_SEC` — chạy lại đề đó **một lần**,
  *     chỉ tính là lỗi khi lần chạy lại vẫn vượt ngưỡng (đo nhiễu);
- * (c) tổng thời gian vượt `TOTAL_LIMIT_SEC`.
+ * (c) tổng thời gian vượt `TOTAL_LIMIT_SEC` — chỉ tính **lần chạy chính**.
+ *
+ * Ngoài chỉ số kiểm tra, báo cáo còn có `totals.wallClockSeconds`: tổng lần
+ * chạy chính **cộng** thời gian các lần chạy lại. Số này chỉ để đối chiếu
+ * ngân sách thời gian của job, không tham gia quyết định PASS/FAIL.
  */
 
 /** Ngưỡng mặc định cho từng đề (giây). */
@@ -68,7 +72,10 @@ export function resolveLimits(env = {}) {
  * @param {{perScrambleLimitSec: number, totalLimitSec: number}} input.limits
  * @returns {{
  *   ok: boolean, exitCode: 0 | 1, limits: object,
- *   totals: {count: number, solvedCount: number, totalSeconds: number, slowest: object | null},
+ *   totals: {
+ *     count: number, solvedCount: number, totalSeconds: number,
+ *     wallClockSeconds: number, slowest: object | null
+ *   },
  *   failures: Array<object>, noisy: Array<object>,
  * }}
  */
@@ -77,11 +84,13 @@ export function evaluateRun({ results, retries = [], limits }) {
   const noisy = [];
 
   let totalSeconds = 0;
+  let wallClockSeconds = 0;
   let solvedCount = 0;
   let slowest = null;
 
   for (const result of results) {
     totalSeconds += result.seconds;
+    wallClockSeconds += result.seconds;
     if (result.solved) solvedCount += 1;
     if (!slowest || result.seconds > slowest.seconds) slowest = result;
 
@@ -123,6 +132,12 @@ export function evaluateRun({ results, retries = [], limits }) {
     }
   }
 
+  // Thời gian chạy lại không tham gia ngưỡng tổng, nhưng phải được cộng vào
+  // wall-clock để phản ánh thời gian thực của tiến trình.
+  for (const retry of retries) {
+    wallClockSeconds += retry.seconds;
+  }
+
   // (c) tổng thời gian.
   if (totalSeconds > limits.totalLimitSec) {
     failures.push({
@@ -145,6 +160,7 @@ export function evaluateRun({ results, retries = [], limits }) {
       count: results.length,
       solvedCount,
       totalSeconds,
+      wallClockSeconds,
       slowest,
     },
     failures,

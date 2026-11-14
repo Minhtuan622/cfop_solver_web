@@ -141,6 +141,18 @@ describe("B2/B5: chế độ kiểm tra ngưỡng thời gian", () => {
     expect(report.totals.solvedCount).toBe(3);
   });
 
+  it("wallClockSeconds cộng thời gian chạy lại và không đổi kết luận", () => {
+    const report = evaluateRun({
+      results: [row({ scramble: "A", seconds: 25 })],
+      retries: [row({ scramble: "A", seconds: 21 })],
+      limits: { perScrambleLimitSec: 30, totalLimitSec: 80 },
+    });
+    expect(report.ok).toBe(true);
+    expect(report.totals.totalSeconds).toBe(25);
+    // 25s lần chạy chính + 21s chạy lại = 46s thời gian thực.
+    expect(report.totals.wallClockSeconds).toBe(46);
+  });
+
   it("một đề giải sai thì thoát khác 0", () => {
     const report = evaluateRun({
       results: [
@@ -239,6 +251,8 @@ describe("B1: chế độ --check chạy thật", () => {
     });
     expect(report.results).toHaveLength(1);
     expect(report.results[0].solved).toBe(true);
+    // Số đo wall-clock phải có trong artifact; smoke không chạy lại nên bằng tổng.
+    expect(report.totals.wallClockSeconds).toBe(report.totals.totalSeconds);
   }, 200_000);
 
   it("tổng thời gian vượt ngưỡng thì bộ đo thoát khác 0 và nêu rõ lý do", () => {

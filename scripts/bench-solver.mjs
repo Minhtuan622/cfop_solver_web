@@ -134,6 +134,13 @@ function printReport(report) {
       (slowest ? ` · ${slowest.scramble}` : "")
   );
   console.log(`  tổng           : ${totals.totalSeconds.toFixed(2)}s`);
+  const retrySeconds = totals.wallClockSeconds - totals.totalSeconds;
+  console.log(
+    `  wall-clock     : ${totals.wallClockSeconds.toFixed(2)}s` +
+      (retrySeconds > 0.005
+        ? ` (gồm ${retrySeconds.toFixed(2)}s chạy lại)`
+        : "")
+  );
 
   for (const item of report.noisy) {
     console.log(
@@ -145,7 +152,8 @@ function printReport(report) {
     console.log(
       `\nKẾT LUẬN: PASS — ${totals.solvedCount}/${totals.count} đề giải đúng, ` +
         `chậm nhất ${slowest ? slowest.seconds.toFixed(2) : "0.00"}s, ` +
-        `tổng ${totals.totalSeconds.toFixed(2)}s ` +
+        `tổng ${totals.totalSeconds.toFixed(2)}s, ` +
+        `wall-clock ${totals.wallClockSeconds.toFixed(2)}s ` +
         `(ngưỡng ${limits.perScrambleLimitSec.toFixed(2)}s/đề, ${limits.totalLimitSec.toFixed(2)}s tổng).`
     );
     return;
