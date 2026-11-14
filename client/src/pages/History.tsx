@@ -386,7 +386,7 @@ export default function History() {
                       {importError}
                     </div>
                   ) : null}
-                  <div className="grid grid-cols-12 gap-2">
+                  <div className="grid grid-cols-12 gap-3">
                     <div className="col-span-12 md:col-span-6">
                       <label className="sr-only" htmlFor="history-search">
                         {t("history.searchLabel")}
@@ -704,7 +704,7 @@ function SolveRow({
     language
   );
   return (
-    <article className="block px-4 py-3 text-sm py-4">
+    <article className="rounded-card bg-surface p-4 mb-3">
       <div className="grid grid-cols-12 gap-2 items-center">
         <div className="col-span-1">
           <input
