@@ -40,6 +40,26 @@ const scrambles = JSON.parse(
 /** Thư mục chứa package Python trong hệ thống file của Pyodide. */
 const PACKAGE_DIR = "/home/pyodide/cfop_solver";
 
+/**
+ * Metadata của runtime đo được — đọc từ gói đang cài, không đọc hằng số
+ * trong source hay `package.json` của repo.
+ *
+ * `import.meta.resolve("pyodide")` trỏ tới entry thật trong `node_modules`
+ * (qua symlink pnpm); `package.json` cùng thư mục là phiên bản đang chạy.
+ */
+function runtimeMetadata() {
+  const entry = fileURLToPath(import.meta.resolve("pyodide"));
+  const pkg = JSON.parse(
+    readFileSync(path.join(path.dirname(entry), "package.json"), "utf8")
+  );
+  return {
+    pyodideVersion: pkg.version,
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+  };
+}
+
 /** Tham số giải giống hệt đường gọi của worker trong trình duyệt. */
 const SOLVE_OPTIONS = {
   last_layer: "auto",
@@ -175,6 +195,12 @@ async function main() {
   const jsonFile =
     jsonFileIndex >= 0 ? args[jsonFileIndex + 1] : undefined;
 
+  const runtimeInfo = runtimeMetadata();
+  console.log(
+    `[bench] pyodide ${runtimeInfo.pyodideVersion} · node ${runtimeInfo.nodeVersion} · ` +
+      `${runtimeInfo.platform}/${runtimeInfo.arch}`
+  );
+
   const runtime = await createRuntime();
 
   const results = [];
@@ -226,15 +252,13 @@ async function main() {
   const report = evaluateRun({ results, retries, limits });
   printReport(report);
 
+  const artifact = { ...runtimeInfo, ...report, results, retries };
+
   if (jsonFile) {
-    writeFileSync(
-      jsonFile,
-      JSON.stringify({ ...report, results, retries }, null, 2),
-      "utf8"
-    );
+    writeFileSync(jsonFile, JSON.stringify(artifact, null, 2), "utf8");
     console.log(`\n[bench] đã ghi JSON: ${jsonFile}`);
   } else if (args.includes("--json")) {
-    console.log(JSON.stringify({ ...report, results, retries }, null, 2));
+    console.log(JSON.stringify(artifact, null, 2));
   }
 
   process.exitCode = report.exitCode;

@@ -245,6 +245,18 @@ describe("B1: chế độ --check chạy thật", () => {
     const report = JSON.parse(readFileSync(jsonFile, "utf8"));
     expect(report.ok).toBe(true);
     expect(report.exitCode).toBe(0);
+    // Artifact tự mô tả runtime đã đo: đọc từ gói pyodide đang cài, không
+    // phải hằng số trong source hay package.json của repo.
+    const installed = JSON.parse(
+      readFileSync(
+        path.join(root, "node_modules", "pyodide", "package.json"),
+        "utf8"
+      )
+    ) as { version: string };
+    expect(report.pyodideVersion).toBe(installed.version);
+    expect(report.nodeVersion).toBe(process.version);
+    expect(report.platform).toBe(process.platform);
+    expect(report.arch).toBe(process.arch);
     expect(report.limits).toEqual({
       perScrambleLimitSec: 20,
       totalLimitSec: 80,
