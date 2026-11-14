@@ -2,10 +2,18 @@
  * Bộ đo bộ giải CFOP trong Pyodide — chạy được trong sandbox không có trình
  * duyệt.
  *
- * Dùng đúng gói `pyodide` 0.27.7 mà ứng dụng chạy trong trình duyệt, nạp mã
- * Python từ `solver-python/cfop_solver` vào hệ thống file của Pyodide giống hệt
- * `writeSolverFiles` trong `client/src/lib/pyodideLoader.ts`, rồi giải bộ đề
- * cố định và in ra bảng: đề, đúng/sai, số nước, thời gian.
+ * Dùng đúng gói `pyodide` mà ứng dụng chạy trong trình duyệt. Phiên bản được
+ * ghim ở ba nơi và phải khớp nhau: hằng số `PYODIDE_VERSION` trong
+ * `client/src/lib/pyodideLoader.ts`, hằng số `PYODIDE_VERSION` trong
+ * `scripts/fetch-pyodide.mjs`, và devDependency `pyodide` trong
+ * `package.json` (bản đích xác, không dùng `^` hay `~`).
+ * `server/pyodideAssets.test.ts` chặn lệch ở cả ba nơi, nên bộ đo luôn đo
+ * đúng runtime đang phát hành — không cần nhắc phiên bản cứng ở đây.
+ *
+ * Bộ đo nạp mã Python từ `solver-python/cfop_solver` vào hệ thống file của
+ * Pyodide giống hệt `writeSolverFiles` trong
+ * `client/src/lib/pyodideLoader.ts`, rồi giải bộ đề cố định và in ra bảng:
+ * đề, đúng/sai, số nước, thời gian.
  *
  *   node scripts/bench-solver.mjs
  *   node scripts/bench-solver.mjs --json      # xuất JSON để so sánh tự động
