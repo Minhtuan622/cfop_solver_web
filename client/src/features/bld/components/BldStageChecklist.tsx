@@ -1,5 +1,6 @@
 /* Tailwind-only Study checklist: persistent, explicit completion state for the five BLD stages. */
 import type { BldLearningPathProgress } from "@/features/bld";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 type Item = {
   key:
@@ -80,13 +81,10 @@ export function BldStageChecklist({
         {items.map((item, index) => (
           <div className="col-span-12 md:col-span-6" key={item.key}>
             <label className="rounded-xl p-2 flex items-start gap-2 w-full bg-surface">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded accent-primary mt-1"
+              <Checkbox
                 checked={path[item.key]}
-                onChange={event =>
-                  onPath({ ...path, [item.key]: event.target.checked })
-                }
+                onChange={next => onPath({ ...path, [item.key]: next })}
+                ariaLabel={item.key}
               />
               <span>
                 <strong className="text-sm block">

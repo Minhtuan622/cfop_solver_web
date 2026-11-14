@@ -68,7 +68,7 @@ describe("giao diện dùng bộ thành phần dùng chung", () => {
   const controls = controlClasses();
 
   it("tìm được thẻ control để kiểm tra", () => {
-    expect(controls.length).toBeGreaterThan(30);
+    expect(controls.length).toBeGreaterThan(28);
   });
 
   it("không còn nút viết tay chuỗi class chuẩn", () => {

@@ -53,6 +53,7 @@ import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/FormControls";
 import { buttonClass } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 type FormulaKind = "edge" | "corner" | "parity" | "flip" | "twist";
 type FormulaGroup = "edge" | "corner" | "special";
@@ -642,18 +643,25 @@ function OrientationStage({
         />
       </div>
       <div className="flex items-center gap-2 mt-6">
-        <input
-          id="bld-orientation-done"
-          type="checkbox"
-          checked={path.orientationDone}
-          onChange={event =>
-            onPath(current => ({
-              ...current,
-              orientationDone: event.target.checked,
-            }))
-          }
-          className="h-4 w-4 rounded accent-primary"
-        />
+        <Checkbox
+            checked={path.orientationDone}
+            onChange={next =>
+              onPath(current => ({
+                ...current,
+                orientationDone: next,
+              }))
+            }
+            label={
+              vi
+                ? "Tôi hiểu ba nhịp của một lượt BLD."
+                : "I understand the three beats of a BLD solve."
+            }
+            ariaLabel={
+              vi
+                ? "Tôi hiểu ba nhịp của một lượt BLD."
+                : "I understand the three beats of a BLD solve."
+            }
+          />
         <label htmlFor="bld-orientation-done" className="text-sm text-ink">
           {vi
             ? "Tôi hiểu ba nhịp của một lượt BLD."

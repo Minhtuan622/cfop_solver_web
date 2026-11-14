@@ -1,6 +1,7 @@
 /* Xưởng Cơ Khí Tốc Độ — a compact local record sheet for portable BLD preferences. */
 import { Download, FileUp } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/StudioUI";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { useRef, useState, type ChangeEvent } from "react";
 import { buttonClass } from "@/components/ui/Button";
 import {
@@ -62,18 +63,14 @@ export function BldProfilePanel({
             : `${Object.keys(profile.preferredAlgorithms).length} preferred algorithms · ${Object.keys(profile.memoRecords).length} SRS memo records`}
         </p>
         <div className="flex items-center gap-2 mt-4">
-          <input
-            id="bld-audio-prompt"
-            className="h-4 w-4 rounded accent-primary"
-            type="checkbox"
+          <Checkbox
             checked={profile.audioEnabled}
             onChange={() =>
               onProfile({ ...profile, audioEnabled: !profile.audioEnabled })
             }
+            label={vi ? "Âm thanh đọc memo" : "Memo audio prompt"}
+            ariaLabel={vi ? "Âm thanh đọc memo" : "Memo audio prompt"}
           />
-          <label className="text-sm text-ink" htmlFor="bld-audio-prompt">
-            {vi ? "Âm thanh đọc memo" : "Memo audio prompt"}
-          </label>
         </div>
         <div className="flex gap-2 mt-4">
           <input
