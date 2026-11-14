@@ -3,10 +3,11 @@ import type { AddressInfo } from "node:net";
 import express from "express";
 import compression from "compression";
 import { createServer, type Server } from "node:http";
-import { createWriteStream, mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { securityHeaders } from "./_core/securityHeaders";
+import { cacheControlForFile } from "./_core/staticCache";
 
 /**
  * The production header stack lives in server/_core/securityHeaders.ts
@@ -24,6 +25,7 @@ describe("the production header stack", () => {
     mkdirSync(path.join(publicDir, "assets", "x"), { recursive: true });
     writeFileSync(path.join(publicDir, "assets", "x", "main.a1b2.js"), "console.log(1);" + "x".repeat(2000));
     writeFileSync(path.join(publicDir, "index.html"), "<html></html>");
+    writeFileSync(path.join(publicDir, "robots.txt"), "User-agent: *\n");
 
     const app = express();
     app.disable("x-powered-by");
@@ -32,10 +34,9 @@ describe("the production header stack", () => {
     app.use(
       express.static(publicDir, {
         setHeaders(res, filePath) {
-          if (filePath.includes("/assets/")) {
-            res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-          } else if (filePath.endsWith("index.html")) {
-            res.setHeader("Cache-Control", "no-cache");
+          const cacheControl = cacheControlForFile(filePath);
+          if (cacheControl) {
+            res.setHeader("Cache-Control", cacheControl);
           }
         },
       }),
@@ -97,10 +98,58 @@ describe("the production header stack", () => {
     expect(response.headers.get("cache-control")).toBe("no-cache");
   });
 
+  it("does not give non-hashed files the immutable cache", async () => {
+    const response = await fetch(`http://127.0.0.1:${port}/robots.txt`);
+    expect(response.headers.get("cache-control") ?? "").not.toContain(
+      "immutable"
+    );
+  });
+
   it("answers unknown /api/* paths with JSON instead of an HTML 200", async () => {
     const response = await fetch(`http://127.0.0.1:${port}/api/nope`);
     expect(response.status).toBe(404);
     expect(response.headers.get("content-type")).toContain("application/json");
     expect(await response.json()).toEqual({ message: "Không tìm thấy." });
+  });
+});
+
+describe("cacheControlForFile", () => {
+  const immutable = "public, max-age=31536000, immutable";
+
+  it("nhận diện file có hash trên đường dẫn POSIX", () => {
+    expect(
+      cacheControlForFile("/srv/app/dist/public/assets/main.a1b2.js")
+    ).toBe(immutable);
+  });
+
+  it("nhận diện file có hash trên đường dẫn Windows", () => {
+    expect(
+      cacheControlForFile("C:\\app\\dist\\public\\assets\\main.a1b2.js")
+    ).toBe(immutable);
+  });
+
+  it("nhận diện file có hash trên đường dẫn tương đối", () => {
+    expect(cacheControlForFile("assets/main.a1b2.js")).toBe(immutable);
+  });
+
+  it("không nhầm thư mục có tên kết thúc bằng 'assets'", () => {
+    expect(
+      cacheControlForFile("C:\\app\\dist\\public\\myassets\\main.a1b2.js")
+    ).toBeUndefined();
+  });
+
+  it("trả no-cache cho index.html ở cả hai hệ điều hành", () => {
+    expect(cacheControlForFile("/srv/app/dist/public/index.html")).toBe(
+      "no-cache"
+    );
+    expect(cacheControlForFile("C:\\app\\dist\\public\\index.html")).toBe(
+      "no-cache"
+    );
+  });
+
+  it("không đặt cache cho file không có hash và không phải index.html", () => {
+    expect(
+      cacheControlForFile("/srv/app/dist/public/robots.txt")
+    ).toBeUndefined();
   });
 });
