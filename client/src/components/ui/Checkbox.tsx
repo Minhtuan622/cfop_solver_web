@@ -28,7 +28,7 @@ export function Checkbox({
         className
       )}
     >
-      <span className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center">
+      <span className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center">
         <input
           type="checkbox"
           className="peer sr-only"
@@ -38,11 +38,11 @@ export function Checkbox({
           onChange={event => onChange(event.target.checked)}
         />
         <span
-          className="absolute inset-0 rounded-md bg-surface-3 transition peer-checked:bg-primary peer-focus-visible:ring-4 peer-focus-visible:ring-primary/20"
+          className="absolute inset-0 rounded-lg bg-surface-3 transition peer-checked:bg-primary peer-focus-visible:ring-4 peer-focus-visible:ring-primary/20"
           aria-hidden="true"
         />
         <svg
-          className="relative h-3.5 w-3.5 text-white opacity-0 transition peer-checked:opacity-100"
+          className="relative h-4 w-4 text-white opacity-0 transition peer-checked:opacity-100"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
