@@ -400,6 +400,34 @@ Các route chính:
 | `pnpm run embed-solver` | Tái tạo bundle solver từ `solver-python/cfop_solver`; chỉ cần khi sửa Python solver. |
 | `pnpm db:push` | Generate và apply Drizzle migration; không chạy tự động trong deploy nếu chưa kiểm soát. |
 | `pnpm format` | Format bằng Prettier. |
+| `node scripts/bench-solver.mjs` | Đo hiệu năng bộ giải trong Pyodide. |
+| `node scripts/bench-solver.mjs --check` | Đo **kèm kiểm tra ngưỡng thời gian**; thoát mã khác 0 khi vi phạm. |
+
+### Bộ đo bộ giải và ngưỡng thời gian
+
+`scripts/bench-solver.mjs` giải 11 đề cố định (`scripts/bench-scrambles.json`)
+trong Pyodide và in ra bảng: đề, đúng/sai, số nước, thời gian.
+
+Thêm `--check` để **kiểm tra ngưỡng thời gian** — đây là chế độ CI dùng
+(job `Solver benchmark (Pyodide)`):
+
+```bash
+node scripts/bench-solver.mjs --check
+node scripts/bench-solver.mjs --check --json-file bench-result.json
+```
+
+Job đỏ (thoát mã khác 0) khi:
+
+| Điều kiện | Ngưỡng | Ghi chú |
+|---|---|---|
+| Có đề giải sai | — | Không bao giờ thử lại. |
+| Có đề chậm hơn ngưỡng mỗi đề | `PER_SCRAMBLE_LIMIT_SEC` (mặc định 20s) | Đề vượt ngưỡng được **chạy lại đúng một lần**; chỉ tính là lỗi khi lần chạy lại vẫn vượt ngưỡng (loại nhiễu đo). |
+| Tổng thời gian vượt ngưỡng | `TOTAL_LIMIT_SEC` (mặc định 80s) | Tổng tính trên lần chạy chính. |
+
+Hai ngưỡng ghi đè được bằng biến môi trường `PER_SCRAMBLE_LIMIT_SEC` và
+`TOTAL_LIMIT_SEC`. Logic chấm điểm nằm trong `scripts/bench-check.mjs` (hàm
+thuần, không cần Pyodide) và được kiểm thử bằng dữ liệu giả lập trong
+`server/benchSolver.test.ts`.
 
 ### Lưu ý quan trọng về `pnpm build`
 
@@ -469,15 +497,42 @@ dự phòng khi bản cục bộ chưa có.
 
 Những điều cần nhớ:
 
-- **Phiên bản phải khớp ở hai nơi**: `PYODIDE_VERSION` trong
-  `client/src/lib/pyodideLoader.ts` và trong `scripts/fetch-pyodide.mjs`. Đổi
-  phiên bản thì sửa cả hai rồi chạy lại `pnpm fetch-pyodide --force`.
+- **Phiên bản phải khớp ở ba nơi**: `PYODIDE_VERSION` trong
+  `client/src/lib/pyodideLoader.ts`, `PYODIDE_VERSION` trong
+  `scripts/fetch-pyodide.mjs`, và devDependency `"pyodide"` trong
+  `package.json`. Đổi phiên bản thì sửa cả ba rồi chạy lại
+  `pnpm fetch-pyodide --force` (xem mục "Nâng cấp Pyodide" bên dưới).
 - **Thư mục `client/public/pyodide` bị gitignore**, nên repo không phình;
   bản build trên CI có nó vì script tải chạy trước khi build.
 - **Ở chế độ dev, Vite gắn `?import` vào mọi dynamic import** và từ chối
   transform file trong `/public`. Vì vậy `vite.config.ts` có plugin
   `localPyodidePlugin` tự phục vụ các file đó. Bỏ plugin này thì dev server
   sẽ âm thầm lùi về CDN.
+
+### Nâng cấp Pyodide
+
+Việc nâng Pyodide **phải làm thủ công** — Dependabot bị chặn nâng package
+`pyodide` ở `.github/dependabot.yml` (không giới hạn phiên bản) — và phải sửa
+**cùng lúc ba nơi**:
+
+| # | Nơi | Nội dung cần đổi |
+|---|---|---|
+| 1 | `client/src/lib/pyodideLoader.ts` | hằng số `PYODIDE_VERSION` (runtime trình duyệt nạp) |
+| 2 | `scripts/fetch-pyodide.mjs` | hằng số `PYODIDE_VERSION` (bản phân phối cục bộ tải về) |
+| 3 | `package.json` | devDependency `"pyodide"` — bản **đích xác**, không dùng `^` hay `~` |
+
+Sau khi sửa, kiểm tra bằng:
+
+```bash
+pnpm install                              # cập nhật pnpm-lock.yaml
+pnpm test --run server/pyodideAssets.test.ts
+node scripts/bench-solver.mjs
+```
+
+`server/pyodideAssets.test.ts` khẳng định ba nơi trên cùng một phiên bản và
+bản `pyodide` thực sự nằm trong `node_modules` cũng vậy, nên sửa thiếu một nơi
+là test FAIL. `node scripts/bench-solver.mjs` đo lại bộ giải trên runtime mới
+để so với số liệu cũ.
 
 
 ## 10. Kiểm thử trước khi commit
