@@ -76,6 +76,14 @@ chỉ dẫn tiếp cận chứ không phải trang trí; `cube.css` vẫn viền
 là hình học của khối Rubik. `server/flatUi.test.ts` chặn đổ bóng, viền
 (`border`, `border-b/t/l...`, `divide-*`) tái xuất hiện.
 
+Vì màu là tín hiệu duy nhất còn lại, `server/contrast.test.ts` kiểm tra tự
+động tỉ lệ tương phản WCAG 2.x của các cặp màu chính ở **cả hai** chế độ
+sáng và tối (4.5:1 cho chữ, 3:1 cho vòng focus và biểu tượng trạng thái).
+Bài kiểm tra **không đổi màu**: cặp đang không đạt nằm trong `KNOWN_FAILURES`
+kèm lý do, nên CI vẫn xanh — nhưng danh sách phải được cập nhật khi palette
+đổi. Bảng số đo đầy đủ và danh sách cặp không đạt nằm ở
+`docs/validation/contrast-report.md`.
+
 Khoảng cách cũng có quy tắc riêng: chỉ dùng **scale Tailwind** (`gap-4`,
 `py-3`…), không "gán cứng" bằng giá trị tuỳ ý (`px-[37px]`, `mt-[10px]`) —
 scale chạy theo `--spacing` nên co giãn theo cỡ chữ, giá trị tuỳ ý thì không.
