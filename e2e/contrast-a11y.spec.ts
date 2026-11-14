@@ -71,12 +71,25 @@ const KNOWN_FINDINGS = new Set(baselineKeys);
 
 const COLLECTED: Finding[] = [];
 
+function normalizeHtml(html: string): string {
+  // Bỏ thuộc tính data-loc (đường dẫn file theo OS: Windows dùng '\\' còn Linux
+  // dùng '/') và gộp khoảng trắng — nếu không, khóa baseline sinh trên Windows
+  // sẽ không khớp với CI chạy trên Linux.
+  return html.replace(/\\s*data-loc="[^"]*"/g, "").replace(/\\s+/g, " ").trim();
+}
+
 function findingKey(finding: Finding): string {
-  // Dùng html + failureSummary thay cho target: selector CSS sinh ra bởi axe có
-  // thể đổi giữa các lần chạy (nth-child, lớp xuất hiện theo trạng thái tải),
-  // trong khi html và tỉ lệ đo được là ổn định. Khi palette bị làm hỏng, tỉ lệ
-  // trong failureSummary đổi → khóa mới → test FAIL.
-  return [finding.page, finding.theme, finding.rule, finding.html, finding.failureSummary].join("|");
+  // Dùng html đã chuẩn hoá + failureSummary thay cho target: selector CSS sinh ra
+  // bởi axe có thể đổi giữa các lần chạy, trong khi html và tỉ lệ đo được là
+  // ổn định. Khi palette bị làm hỏng, tỉ lệ trong failureSummary đổi → khóa
+  // mới → test FAIL.
+  return [
+    finding.page,
+    finding.theme,
+    finding.rule,
+    normalizeHtml(finding.html),
+    finding.failureSummary,
+  ].join("|");
 }
 
 function trpcBatch(dataFor: (path: string) => unknown) {
