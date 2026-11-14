@@ -75,7 +75,7 @@ function normalizeHtml(html: string): string {
   // Bỏ thuộc tính data-loc (đường dẫn file theo OS: Windows dùng '\\' còn Linux
   // dùng '/') và gộp khoảng trắng — nếu không, khóa baseline sinh trên Windows
   // sẽ không khớp với CI chạy trên Linux.
-  return html.replace(/\\s*data-loc="[^"]*"/g, "").replace(/\\s+/g, " ").trim();
+  return html.replace(/\s*data-loc="[^"]*"/g, "").replace(/\s+/g, " ").trim();
 }
 
 function findingKey(finding: Finding): string {
