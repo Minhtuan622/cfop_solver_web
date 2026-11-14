@@ -672,13 +672,39 @@ function resolveColor(tokens: Record<string, string>, ref: ColorRef): Rgb {
   return { ...base, a: ref.alpha };
 }
 
-/** Đo tỉ lệ tương phản của một cặp ở một chế độ. */
+/**
+ * Đo chuẩn theo yêu cầu C5: **bỏ qua alpha**, coi `muted/60` như `muted`.
+ *
+ * Hệ quả đã biết: phép đo này không phát hiện được lỗi chữ gợi ý trong ô
+ * nhập (xem test "phép đo chuẩn bỏ qua alpha…"). Bốn mục placeholder vẫn
+ * được giữ trong `KNOWN_FAILURES` bằng phép đo có alpha bên dưới.
+ */
 function measure(mode: Mode, pair: Pair): number {
+  const tokens = mode === "light" ? LIGHT : DARK;
+  const background = resolveColor(tokens, pair.bg);
+  const foreground = resolveColor(tokens, pair.fg);
+  return contrastRatio(foreground, background);
+}
+
+/**
+ * Đo **có** tính alpha (alpha compositing của trình duyệt).
+ *
+ * Chỉ dùng cho các mục `KNOWN_FAILURES` có alpha tường minh — chủ yếu là chữ
+ * gợi ý `muted/60` — để không mất 4 lỗi thật khi phép đo chuẩn bỏ qua alpha.
+ */
+function measureWithAlpha(mode: Mode, pair: Pair): number {
   const tokens = mode === "light" ? LIGHT : DARK;
   const background = resolveColor(tokens, pair.bg);
   let foreground = resolveColor(tokens, pair.fg);
   if (foreground.a < 1) foreground = composite(foreground, background);
   return contrastRatio(foreground, background);
+}
+
+/** Chọn phép đo cho một mục `KNOWN_FAILURES`: có alpha thì đo có alpha. */
+function measureKnown(mode: Mode, pair: Pair): number {
+  return pair.fg.alpha === undefined
+    ? measure(mode, pair)
+    : measureWithAlpha(mode, pair);
 }
 
 const MODE_LABEL: Record<Mode, string> = {
@@ -688,6 +714,11 @@ const MODE_LABEL: Record<Mode, string> = {
 
 function knownFailure(id: string, mode: Mode) {
   return KNOWN_FAILURES.find(item => item.id === id && item.mode === mode);
+}
+
+/** Số đo dùng để in bảng: mục KNOWN_FAILURES dùng đúng phép đo của trạng thái. */
+function measureForStatus(mode: Mode, pair: Pair): number {
+  return knownFailure(pair.id, mode) ? measureKnown(mode, pair) : measure(mode, pair);
 }
 
 /* ------------------------------------------------------------------ *
@@ -726,7 +757,7 @@ describe("tương phản màu của giao diện phẳng", () => {
       const pair = PAIRS.find(item => item.id === entry.id);
       expect(pair, `KNOWN_FAILURES chứa cặp không tồn tại: ${entry.id}`).toBeTruthy();
       if (!pair) continue;
-      const ratio = measure(entry.mode, pair);
+      const ratio = measureKnown(entry.mode, pair);
       if (ratio >= pair.min) {
         stale.push(
           `${entry.id} (${MODE_LABEL[entry.mode]}): đã đạt ${ratio.toFixed(2)}:1 ` +
@@ -742,7 +773,7 @@ describe("tương phản màu của giao diện phẳng", () => {
     for (const entry of KNOWN_FAILURES) {
       const pair = PAIRS.find(item => item.id === entry.id);
       if (!pair) continue;
-      const ratio = measure(entry.mode, pair);
+      const ratio = measureKnown(entry.mode, pair);
       // Sai số 0.05 để không vỡ khi palette chỉ nhích vài đơn vị màu.
       if (Math.abs(ratio - entry.ratio) > 0.05) {
         drift.push(
@@ -764,31 +795,67 @@ describe("tương phản màu của giao diện phẳng", () => {
     }
   });
 
+  it("phép đo chuẩn bỏ qua alpha nên không phát hiện được lỗi placeholder (C5)", () => {
+    const placeholder = PAIRS.find(pair => pair.id === "input/placeholder");
+    expect(placeholder).toBeTruthy();
+    if (!placeholder) return;
+
+    // Phép đo chuẩn coi muted/60 như muted: báo "đạt" ở cả hai chế độ.
+    expect(measure("light", placeholder)).toBeGreaterThanOrEqual(placeholder.min);
+    expect(measure("dark", placeholder)).toBeGreaterThanOrEqual(placeholder.min);
+
+    // Phép đo có alpha mới thấy lỗi thật.
+    expect(measureWithAlpha("light", placeholder)).toBeLessThan(placeholder.min);
+    expect(measureWithAlpha("dark", placeholder)).toBeLessThan(placeholder.min);
+
+    // Bốn mục placeholder (2 ô nhập × 2 chế độ) vẫn được giữ để không mất thông tin.
+    const placeholders = KNOWN_FAILURES.filter(
+      entry =>
+        entry.id === "input/placeholder" ||
+        entry.id === "input/pillPlaceholder"
+    );
+    expect(placeholders).toHaveLength(4);
+  });
+
   it("in bảng tương phản đầy đủ", () => {
     const lines: string[] = [];
+    const mismatches: string[] = [];
     for (const pair of PAIRS) {
-      const light = measure("light", pair);
-      const dark = measure("dark", pair);
-      const mark = (ratio: number, mode: Mode) => {
-        const known = knownFailure(pair.id, mode);
-        if (known) return "KHONG-DAT";
-        return ratio >= pair.min ? "dat" : "KHONG-DAT";
-      };
+      // Mục KNOWN_FAILURES phải in bằng phép đo khớp với trạng thái: nếu in
+      // phép đo chuẩn (bỏ qua alpha) thì placeholder sẽ hiện 4.86:1 nhưng vẫn
+      // bị đánh KHONG-DAT — bảng tự mâu thuẫn.
+      const light = measureForStatus("light", pair);
+      const dark = measureForStatus("dark", pair);
+      const mark = (ratio: number) => (ratio >= pair.min ? "dat" : "KHONG-DAT");
+      for (const [mode, ratio] of [
+        ["light", light],
+        ["dark", dark],
+      ] as Array<[Mode, number]>) {
+        const status = mark(ratio);
+        if (status === "dat" && knownFailure(pair.id, mode)) {
+          mismatches.push(`${pair.id} (${MODE_LABEL[mode]}): ${ratio.toFixed(2)}:1 nhưng KHONG-DAT`);
+        }
+      }
       lines.push(
         `${pair.id} | ${pair.label} | ${light.toFixed(2)} | ${dark.toFixed(2)} | ` +
-          `${pair.min} | ${mark(light, "light")}/${mark(dark, "dark")}`
+          `${pair.min} | ${mark(light)}/${mark(dark)}`
       );
     }
     console.log(
-      `\nBẢNG TƯƠNG PHẢN (id | nhãn | sáng | tối | ngưỡng | trạng thái)\n${lines.join("\n")}`
+      `\nBẢNG TƯƠNG PHẢN (id | nhãn | sáng | tối | ngưỡng | trạng thái)\n` +
+        `(phép đo chuẩn bỏ qua alpha; mục trong KNOWN_FAILURES dùng phép đo ` +
+        `khớp với trạng thái, có alpha khi cần)\n${lines.join("\n")}`
     );
+    expect(mismatches).toEqual([]);
     expect(lines.length).toBe(PAIRS.length);
   });
 
   it("in các cặp chỉ để tham khảo (không làm fail)", () => {
+    const measureAdvisory = (mode: Mode, pair: Pair) =>
+      pair.fg.alpha === undefined ? measure(mode, pair) : measureWithAlpha(mode, pair);
     const lines = ADVISORY.map(pair => {
-      const light = measure("light", pair);
-      const dark = measure("dark", pair);
+      const light = measureAdvisory("light", pair);
+      const dark = measureAdvisory("dark", pair);
       return `${pair.id} | ${pair.label} | ${light.toFixed(2)} | ${dark.toFixed(2)}`;
     });
     console.log(
