@@ -492,7 +492,7 @@ export function Puzzle3DCanvas({
         <IconButton
           label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"}
           icon={<RotateCcw className="text-base" aria-hidden="true" />}
-          className="absolute bottom-0 right-0 m-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+          className="absolute bottom-0 right-0 m-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
           onClick={() => {
             cancelInertia();
             resetRef.current?.();

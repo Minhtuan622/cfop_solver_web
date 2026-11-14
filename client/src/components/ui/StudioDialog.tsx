@@ -170,7 +170,7 @@ function ModalShell({
           <div
             ref={dialogRef}
             className={cn(
-              "relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-[1.6rem] bg-surface outline-none sm:max-h-[min(88vh,56rem)] sm:max-w-2xl",
+              "relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-[1.6rem] bg-surface sm:max-h-[min(88vh,56rem)] sm:max-w-2xl",
               dialogClassName
             )}
             role="dialog"

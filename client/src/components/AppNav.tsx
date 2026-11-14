@@ -84,7 +84,7 @@ export function AppNav() {
       <div className="mx-auto flex w-full max-w-[88rem] flex-wrap items-center gap-2 rounded-[1.4rem] bg-surface/90 bg-linear-to-b from-white/55 to-transparent px-3 py-2 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-surface/55 dark:from-white/10 sm:px-4">
         <Link
           href="/"
-          className="group flex min-w-0 items-center gap-2.5 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+          className="group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20"
           aria-label={t("nav.brandLabel")}
           onClick={closeMenus}
         >

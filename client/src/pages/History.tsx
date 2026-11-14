@@ -259,7 +259,7 @@ export default function History() {
           <Link
             href="/timer"
             aria-label={t("history.backToTimer")}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-surface px-3 py-1.5 text-xs font-semibold leading-none text-ink outline-none transition hover:bg-surface-2 focus-visible:ring-4 focus-visible:ring-primary/20"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-surface px-3 py-1.5 text-xs font-semibold leading-none text-ink transition hover:bg-surface-2 focus-visible:ring-4 focus-visible:ring-primary/20"
           >
             <ArrowLeft className="text-base" />
           </Link>
@@ -788,7 +788,7 @@ function SolveRow({
             label={t("history.deleteRow")}
             icon={<Trash2 className="text-base" />}
             onClick={onDelete}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
           />
         </div>
         <div className="col-span-12 text-right">

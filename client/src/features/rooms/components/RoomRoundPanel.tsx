@@ -131,7 +131,7 @@ export function RoomRoundPanel({
               {isHost && activeRound.sequence < roundLimit ? (
                 <PendingButton
                   type="button"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft self-start"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft self-start"
                   pending={startPending}
                   onClick={onStartRound}
                 >
@@ -230,7 +230,7 @@ export function RoomRoundPanel({
                 {currentRound ? (
                   <PendingButton
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-success hover:bg-success-soft"
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-success hover:bg-success-soft"
                     pending={finishPending}
                     onClick={onFinish}
                   >

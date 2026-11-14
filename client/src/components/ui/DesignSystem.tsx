@@ -185,7 +185,7 @@ export function PillGroup<T extends string>({
           aria-pressed={value === option.value}
           aria-label={option.ariaLabel}
           className={cn(
-            "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-muted transition outline-none hover:bg-surface-2 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20 aria-pressed:bg-primary aria-pressed:text-white aria-pressed:hover:bg-primary",
+            "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-muted transition hover:bg-surface-2 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20 aria-pressed:bg-primary aria-pressed:text-white aria-pressed:hover:bg-primary",
             size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm",
             fill && "flex-1"
           )}
@@ -261,7 +261,7 @@ export const PillInput = forwardRef<
     <input
       ref={ref}
       className={cn(
-        "h-11 w-full rounded-full bg-surface-2 px-5 font-mono text-sm text-ink outline-none transition placeholder:text-muted/60 focus:bg-surface focus:ring-4 focus:ring-primary/15",
+        "h-11 w-full rounded-full bg-surface-2 px-5 font-mono text-sm text-ink transition placeholder:text-muted/60 focus:bg-surface focus:ring-4 focus:ring-primary/15",
         className
       )}
       {...rest}

@@ -186,7 +186,7 @@ export function WcaCalendarFilters({
             <input
               id="wca-search"
               type="search"
-              className="h-full w-full rounded-r-full bg-surface px-4 py-2.5 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-full w-full rounded-r-full bg-surface px-4 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
               value={query}
               placeholder={t("wca.searchPlaceholder")}
               onChange={event => onQueryChange(event.target.value)}

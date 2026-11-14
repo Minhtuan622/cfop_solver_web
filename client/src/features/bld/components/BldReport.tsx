@@ -303,7 +303,7 @@ function AlgorithmRow({
               label={vi ? "Xóa ưu tiên" : "Clear preference"}
               icon={<X className="text-base" />}
               onClick={() => onProfile(setPreferredAlgorithm(profile, key, ""))}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-danger hover:bg-danger-soft"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-danger hover:bg-danger-soft"
             />
           )}
         </div>
@@ -477,7 +477,7 @@ export function BldReport({
         </p>
         <RouteLink
           href="/study?lane=bld"
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs mb-4"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft px-3 py-1.5 text-xs mb-4"
         >
           {vi
             ? "Tiếp tục học 3-Style trong Study"
@@ -727,7 +727,7 @@ export function BldReport({
             href="https://blddb.net"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none outline-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs gap-1"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface text-ink hover:bg-surface-2 px-3 py-1.5 text-xs gap-1"
           >
             <Link2 className="text-base" />
             BLDDB

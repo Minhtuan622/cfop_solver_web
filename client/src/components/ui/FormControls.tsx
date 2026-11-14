@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 
 /** Kiểu chung của ô nhập: nền, bo góc, focus và trạng thái tắt. */
 const controlBase =
-  "w-full rounded-field bg-surface-3 text-sm text-ink outline-none transition placeholder:text-muted/60 focus:bg-surface focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60";
+  "w-full rounded-field bg-surface-3 text-sm text-ink transition placeholder:text-muted/60 focus:bg-surface focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60";
 
 export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   /** Icon nằm trong ô, bên trái nội dung. */

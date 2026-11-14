@@ -7,9 +7,10 @@ import path from "node:path";
  * viền nào (cả viền bao quanh lẫn đường kẻ phân cách bên trong).
  *
  * Yêu cầu của sản phẩm: các khối tách nhau chỉ bằng nền và khoảng cách.
- * Đường viền duy nhất được giữ lại là vòng focus bàn phím (`ring-*`) — chỉ
- * dẫn tiếp cận — và viền sticker trong `cube.css` (hình học của khối Rubik,
- * không nằm trong phạm vi quét class TSX ở dưới).
+ * Đường viền duy nhất được giữ lại là vòng focus bàn phím (`outline` đặc từ
+ * `:focus-visible` + `ring-*`) — chỉ dẫn tiếp cận — và viền sticker trong
+ * `cube.css` (hình học của khối Rubik, không nằm trong phạm vi quét class TSX
+ * ở dưới). Class `outline-none` bị cấm vì nó xoá outline focus.
  *
  * Cùng tinh thần đó, khoảng cách giữa các khối chỉ dùng scale Tailwind
  * (`gap-4`, `py-3`…) — không "gán cứng" bằng giá trị tuỳ ý (`px-[37px]`) —
@@ -128,6 +129,16 @@ describe("giao diện phẳng", () => {
     expect(css).toMatch(/--normal-border:\s*transparent/);
     expect(css).toMatch(/--normal-border-hover:\s*transparent/);
   });
+
+  it("giữ chỉ dẫn focus-visible đặc của toàn cục", () => {
+    const css = readFileSync(
+      path.join(clientSrc, "index.css"),
+      "utf8",
+    );
+    expect(css).toMatch(
+      /:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--primary\)/,
+    );
+  });
 });
 
 describe("khoảng cách theo scale, không đệm đôi", () => {
@@ -151,6 +162,18 @@ describe("khoảng cách theo scale, không đệm đôi", () => {
     const offenders: string[] = [];
     for (const item of literals) {
       if (MARGIN_TOP.test(item.text) && PADDING_TOP.test(item.text)) {
+        offenders.push(`${item.file}:${item.line} «${item.text.slice(0, 60)}»`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it("không vô hiệu hoá outline focus bằng outline-none", () => {
+    const offenders: string[] = [];
+    for (const item of literals) {
+      if (
+        /(^|[\s"'`])(?:focus-visible:)?outline-none(?=$|[\s"'`])/.test(item.text)
+      ) {
         offenders.push(`${item.file}:${item.line} «${item.text.slice(0, 60)}»`);
       }
     }
