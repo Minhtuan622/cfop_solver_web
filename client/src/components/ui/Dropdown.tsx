@@ -39,6 +39,8 @@ export type DropdownProps = {
   variant?: "button" | "nav";
   className?: string;
   buttonClassName?: string;
+  /** Ghi đè nền/bo góc/đệm của khung menu. */
+  menuClassName?: string;
   children: ReactNode;
 };
 
@@ -60,6 +62,7 @@ export function Dropdown({
   variant = "button",
   className,
   buttonClassName,
+  menuClassName,
   children,
 }: DropdownProps) {
   const [open, setOpen] = useState(false);
@@ -181,7 +184,8 @@ export function Dropdown({
               <ul
                 ref={menuRef}
                 className={cn(
-                  "absolute z-50 min-w-52 list-none rounded-2xl bg-surface p-1.5",
+                  "absolute z-50 min-w-52 list-none rounded-2xl",
+                  menuClassName ?? "bg-surface p-1.5",
                 )}
                 style={floating.style}
                 data-placement={floating.placement}

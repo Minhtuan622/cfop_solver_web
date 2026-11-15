@@ -33,11 +33,14 @@ const LANGUAGES = [
  * Một nút duy nhất ở thanh điều hướng gom tài khoản, ngôn ngữ và giao diện.
  *
  * Trước đây ba nút chiếm chỗ trên thanh; gom vào một menu giữ cho thanh gọn
- * và đặt mọi tuỳ chọn cá nhân ở đúng một chỗ.
+ * và đặt mọi tuỳ chọn cá nhân ở đúng một chỗ. Menu dùng nền `surface-2` (tách
+ * rõ khỏi thanh kính mờ mà không cần đường viền hay đổ bóng); mục đang chọn
+ * dùng nền `primary-soft` với chữ tím — cùng ngôn ngữ với các nút mềm trong
+ * hệ thống.
  */
 export function NavUtilityMenu() {
   const { language, setLanguage, t } = useLanguage();
-  const { theme, resolved, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const session = useCfopAccountSession();
 
   const themeLabels = useMemo(
@@ -49,8 +52,10 @@ export function NavUtilityMenu() {
     [t],
   );
 
-  const currentThemeIcon = resolved === "dark" ? MoonStars : SunFill;
-  const CurrentThemeIcon = currentThemeIcon;
+  const itemClass =
+    "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3";
+  const activeItemClass =
+    "bg-primary-soft font-semibold text-primary hover:bg-primary-soft";
 
   return (
     <>
@@ -59,7 +64,8 @@ export function NavUtilityMenu() {
         label={t("nav.utilities")}
         title={t("nav.utilities")}
         menuLabel={t("nav.utilities")}
-        buttonClassName="bg-transparent px-2 hover:bg-surface-2"
+        buttonClassName="bg-transparent px-2 hover:bg-surface-3"
+        menuClassName="rounded-2xl bg-surface-2 p-2"
         button={
           session.account ? (
             session.account.avatarUrl ? (
@@ -88,7 +94,7 @@ export function NavUtilityMenu() {
         }
       >
         <li>
-          <p className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+          <p className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
             {t("account.group")}
           </p>
         </li>
@@ -98,7 +104,7 @@ export function NavUtilityMenu() {
               <Link
                 href="/profile"
                 role="menuitem"
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-ink transition hover:bg-surface-2"
+                className={itemClass}
               >
                 <PersonCircle className="text-base" />
                 {t("account.profile")}
@@ -108,7 +114,7 @@ export function NavUtilityMenu() {
               <button
                 type="button"
                 role="menuitem"
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2 disabled:opacity-50"
+                className={`${itemClass} disabled:opacity-50`}
                 onClick={() => session.logout.mutate()}
                 disabled={session.logoutPending}
               >
@@ -123,7 +129,7 @@ export function NavUtilityMenu() {
               <button
                 type="button"
                 role="menuitem"
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2"
+                className={itemClass}
                 onClick={() => session.show("login")}
               >
                 <PersonCircle className="text-base" />
@@ -134,7 +140,7 @@ export function NavUtilityMenu() {
               <button
                 type="button"
                 role="menuitem"
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2"
+                className={itemClass}
                 onClick={() => session.show("register")}
               >
                 {t("account.register")}
@@ -143,10 +149,7 @@ export function NavUtilityMenu() {
           </>
         )}
         <li>
-          <hr className="my-1 h-px bg-line" />
-        </li>
-        <li>
-          <p className="px-3 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+          <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
             {t("language.label")}
           </p>
         </li>
@@ -158,7 +161,7 @@ export function NavUtilityMenu() {
                 type="button"
                 role="menuitemradio"
                 aria-checked={active}
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2 aria-checked:bg-primary-soft aria-checked:font-semibold aria-checked:text-primary"
+                className={`${itemClass} ${active ? activeItemClass : ""}`}
                 onClick={() => setLanguage(option.value)}
               >
                 <Translate className="text-base" />
@@ -168,10 +171,7 @@ export function NavUtilityMenu() {
           );
         })}
         <li>
-          <hr className="my-1 h-px bg-line" />
-        </li>
-        <li>
-          <p className="px-3 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+          <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
             {t("theme.label")}
           </p>
         </li>
@@ -184,7 +184,7 @@ export function NavUtilityMenu() {
                 type="button"
                 role="menuitemradio"
                 aria-checked={active}
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2 aria-checked:bg-primary-soft aria-checked:font-semibold aria-checked:text-primary"
+                className={`${itemClass} ${active ? activeItemClass : ""}`}
                 onClick={() => setTheme(option.value)}
               >
                 <OptionIcon className="text-base" />
