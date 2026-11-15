@@ -160,8 +160,6 @@ export default function WcaCompetitions() {
         countries={countriesQuery.data ?? []}
         countriesLoading={countriesQuery.isLoading}
         query={query}
-        shownCount={visible.length}
-        totalCount={competitions?.length ?? 0}
         onYearChange={setYear}
         onMonthChange={setMonth}
         onCountryChange={setCountryIso2}
@@ -170,22 +168,27 @@ export default function WcaCompetitions() {
       />
 
       <section className="mt-6" aria-labelledby="wca-agenda-title">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2
-              id="wca-agenda-title"
-              className="text-base font-semibold tracking-tight text-ink"
-            >
-              {t("wca.agendaTitle")}
-            </h2>
-            <p className="mt-0.5 text-sm text-muted">
-              {t("wca.agendaSubtitle", { count: visible.length })}
-            </p>
-          </div>
-          {competitionsQuery.isFetching ? (
-            <RefreshIndicator label={t("wca.refreshing")} />
-          ) : null}
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-3">
+          <h2
+            id="wca-agenda-title"
+            className="text-sm font-semibold tracking-tight text-ink"
+          >
+            {t("wca.agendaTitle")}
+          </h2>
+          <p
+            className="text-[11px] tabular-nums text-muted"
+            role="status"
+            aria-live="polite"
+          >
+            {t("wca.agendaSubtitle", { count: visible.length })}
+          </p>
         </div>
+
+        {competitionsQuery.isFetching ? (
+          <div className="mt-1 px-3">
+            <RefreshIndicator label={t("wca.refreshing")} />
+          </div>
+        ) : null}
 
         {competitionsQuery.isLoading ? (
           <SkeletonList rows={6} label={t("wca.loading")} />

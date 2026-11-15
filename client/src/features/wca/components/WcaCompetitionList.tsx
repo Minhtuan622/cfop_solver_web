@@ -5,8 +5,8 @@ import { WcaCompetitionRow } from "./WcaCompetitionRow";
 
 /**
  * The calendar itself: one section per month, each holding the competitions
- * that start in it. Reading the list is then a matter of scanning the months
- * instead of hunting through a wall of cards.
+ * that start in it. Competitions render as a grid of cards so the width is
+ * used evenly instead of a one-sided list.
  */
 export function WcaCompetitionList({
   groups,
@@ -18,26 +18,25 @@ export function WcaCompetitionList({
   const { t } = useLanguage();
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-4">
       {groups.map(group => (
         <section
           key={group.key}
-          className="rounded-card bg-surface p-3 sm:p-4"
           aria-labelledby={`wca-month-${group.key}`}
         >
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-baseline justify-between gap-2 px-3">
             <h2
               id={`wca-month-${group.key}`}
-              className="text-[11px] font-semibold tracking-[0.08em] text-muted uppercase"
+              className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted"
             >
               {monthLabel(group.year, group.month, language)}
             </h2>
-            <span className="rounded-full bg-surface-3 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-ink">
-              {group.competitions.length}
+            <span className="text-[11px] tabular-nums text-muted">
+              {t("wca.resultsCount", { count: group.competitions.length })}
             </span>
           </div>
           <ul
-            className="mt-2 grid gap-1.5"
+            className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3"
             aria-label={t("wca.listLabel")}
           >
             {group.competitions.map(competition => (
