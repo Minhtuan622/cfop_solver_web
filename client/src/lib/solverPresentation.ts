@@ -3,7 +3,8 @@ import { downloadFile } from "./browserDownload";
 
 export const F2L_SLOTS: F2LSlot[] = ["FR", "FL", "BL", "BR"];
 export const OPENING_OPTIONS: { value: OpeningMode; vi: string; en: string; compact: string }[] = [
-  { value: "cross", vi: "Cross chuẩn", en: "Standard Cross", compact: "CROSS" }, { value: "auto", vi: "XCross · Cross + 1 F2L", en: "XCross · Cross + 1 F2L", compact: "XCROSS" },
+  { value: "cross", vi: "Cross chuẩn", en: "Standard Cross", compact: "CROSS" }, { value: "auto", vi: "Tự động · tầng cao nhất trong 8 nước", en: "Auto · highest tier within 8 moves", compact: "AUTO" },
+  { value: "xcross", vi: "XCross · Cross + 1 F2L", en: "XCross · Cross + 1 F2L", compact: "XCROSS" },
   { value: "xxcross", vi: "XXCross · Cross + 2 F2L", en: "XXCross · Cross + 2 F2L", compact: "XXCROSS" }, { value: "xxxcross", vi: "XXXCross · Cross + 3 F2L", en: "XXXCross · Cross + 3 F2L", compact: "XXXCROSS" },
   { value: "xxxxcross", vi: "XXXXCross · Full F2L", en: "XXXXCross · Full F2L", compact: "XXXXCROSS" },
 ];

@@ -2,7 +2,7 @@ import { readStoredJson, writeStoredValue } from "./browserStorage";
 
 export type SolverSettings = {
   crossColor: "U" | "R" | "F" | "D" | "L" | "B";
-  opening: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross";
+  opening: "cross" | "auto" | "xcross" | "xxcross" | "xxxcross" | "xxxxcross";
   openingDepth: number;
   openingFindResult: boolean;
   directNodeBudget: number;
@@ -15,7 +15,7 @@ const SOLVER_SETTINGS_KEY = "cfop-app-solver-settings-v1";
 export const DEFAULT_SOLVER_SETTINGS: SolverSettings = { crossColor: "U", opening: "cross", openingDepth: 8, openingFindResult: false, directNodeBudget: 5000, lastLayer: "auto", excludedSlots: [] };
 
 const COLORS = new Set<SolverSettings["crossColor"]>(["U", "R", "F", "D", "L", "B"]);
-const OPENINGS = new Set<SolverSettings["opening"]>(["cross", "auto", "xxcross", "xxxcross", "xxxxcross"]);
+const OPENINGS = new Set<SolverSettings["opening"]>(["cross", "auto", "xcross", "xxcross", "xxxcross", "xxxxcross"]);
 const LAST_LAYERS = new Set<SolverSettings["lastLayer"]>(["auto", "oll_pll", "zbll", "1lll"]);
 const SLOTS = new Set<NonNullable<SolverSettings["preferredSlot"]>>(["FR", "FL", "BL", "BR"]);
 
