@@ -38,7 +38,7 @@ export function Checkbox({
           aria-hidden="true"
         />
         <svg
-          className="relative h-4 w-4 text-white opacity-0 transition peer-checked:opacity-100"
+          className="relative h-4 w-4 text-on-primary opacity-0 transition peer-checked:opacity-100"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

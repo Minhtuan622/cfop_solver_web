@@ -99,7 +99,7 @@ describe("Dropdown nổi qua portal", () => {
     expect(menu).toHaveAttribute("data-placement", "bottom");
     expect(menu.style.top).toBe("150px"); // 142 + 8
     expect(menu.style.right).toBe("180px"); // 1280 - 1100
-    expect(menu.style.maxHeight).toBe("288px");
+    expect(menu.style.maxHeight).toBe("448px");
     expect(menu.style.width).toBe("208px"); // nút hẹp → mức tối thiểu min-w-52
   });
 
@@ -117,6 +117,6 @@ describe("Dropdown nổi qua portal", () => {
     // Mép dưới menu khớp mép trên nút: 700 - 8, neo bằng translateY(-100%).
     expect(menu.style.top).toBe("692px");
     expect(menu.style.transform).toBe("translateY(-100%)");
-    expect(menu.style.maxHeight).toBe("288px");
+    expect(menu.style.maxHeight).toBe("448px");
   });
 });

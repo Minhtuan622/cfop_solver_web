@@ -189,7 +189,7 @@ export function Dropdown({
               <ul
                 ref={menuRef}
                 className={cn(
-                  "absolute z-50 min-w-52 list-none rounded-2xl",
+                  "absolute z-50 min-w-52 list-none overflow-y-auto rounded-2xl",
                   menuClassName ?? "p-1.5",
                 )}
                 // Nền đặc của menu phải không phụ thuộc vào việc Tailwind

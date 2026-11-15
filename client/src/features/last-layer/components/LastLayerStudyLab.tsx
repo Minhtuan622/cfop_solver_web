@@ -355,6 +355,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                 setActiveCase(null);
               }}
               onSelect={selectCase}
+              onMasteredChange={setMasteredKeys}
             />
           </div>
         </>

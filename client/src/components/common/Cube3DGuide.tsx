@@ -24,9 +24,9 @@ const faceOffset: Record<"U" | "R" | "F" | "D" | "L" | "B", number> = {
 };
 const DEFAULT_CAMERA = { orbit: 0, pitch: 0, zoom: 1 };
 const DISPLAY_SCALE = 1.25;
-// The display state already places the selected Cross on D. Keep the camera
-// square to that axis at rest; users can reveal depth with their own drag.
-const DEFAULT_ORIENTATION = "rotateX(0deg) rotateY(0deg)";
+// Đặt góc nhìn mặc định nghiêng 3 mặt như khối rubik thật, người dùng kéo
+// để xoay vẫn giữ nguyên được.
+const DEFAULT_ORIENTATION = "rotateX(-22deg) rotateY(30deg)";
 const DRAG_THRESHOLD_PX = 7;
 const TOUCH_DRAG_THRESHOLD_PX = 14;
 const TOUCH_HOLD_TO_ORBIT_MS = 180;
