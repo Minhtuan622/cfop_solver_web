@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { cn } from "@/lib/utils";
 import {
   CfopAuthDialog,
   useCfopAccountSession,
@@ -33,10 +34,9 @@ const LANGUAGES = [
  * Một nút duy nhất ở thanh điều hướng gom tài khoản, ngôn ngữ và giao diện.
  *
  * Trước đây ba nút chiếm chỗ trên thanh; gom vào một menu giữ cho thanh gọn
- * và đặt mọi tuỳ chọn cá nhân ở đúng một chỗ. Menu dùng nền `surface-2` (tách
- * rõ khỏi thanh kính mờ mà không cần đường viền hay đổ bóng); mục đang chọn
- * dùng nền `primary-soft` với chữ tím — cùng ngôn ngữ với các nút mềm trong
- * hệ thống.
+ * và đặt mọi tuỳ chọn cá nhân ở đúng một chỗ. Menu là tấm nền đặc `surface`
+ * với từng mục là chip `surface-2` (hover `surface-3`) — cùng ngôn ngữ với
+ * nút "soft" trong hệ thống; mục đang chọn dùng `primary-soft` với chữ tím.
  */
 export function NavUtilityMenu() {
   const { language, setLanguage, t } = useLanguage();
@@ -53,7 +53,8 @@ export function NavUtilityMenu() {
   );
 
   const itemClass =
-    "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3";
+    "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition";
+  const baseChipClass = "bg-surface-2 hover:bg-surface-3";
   const activeItemClass =
     "bg-primary-soft font-semibold text-primary hover:bg-primary-soft";
 
@@ -104,7 +105,7 @@ export function NavUtilityMenu() {
               <Link
                 href="/profile"
                 role="menuitem"
-                className={itemClass}
+                className={cn(itemClass, baseChipClass)}
               >
                 <PersonCircle className="text-base" />
                 {t("account.profile")}
@@ -114,7 +115,7 @@ export function NavUtilityMenu() {
               <button
                 type="button"
                 role="menuitem"
-                className={`${itemClass} disabled:opacity-50`}
+                className={cn(itemClass, baseChipClass, "disabled:opacity-50")}
                 onClick={() => session.logout.mutate()}
                 disabled={session.logoutPending}
               >
@@ -129,7 +130,7 @@ export function NavUtilityMenu() {
               <button
                 type="button"
                 role="menuitem"
-                className={itemClass}
+                className={cn(itemClass, baseChipClass)}
                 onClick={() => session.show("login")}
               >
                 <PersonCircle className="text-base" />
@@ -140,7 +141,7 @@ export function NavUtilityMenu() {
               <button
                 type="button"
                 role="menuitem"
-                className={itemClass}
+                className={cn(itemClass, baseChipClass)}
                 onClick={() => session.show("register")}
               >
                 {t("account.register")}
@@ -161,7 +162,7 @@ export function NavUtilityMenu() {
                 type="button"
                 role="menuitemradio"
                 aria-checked={active}
-                className={`${itemClass} ${active ? activeItemClass : ""}`}
+                className={cn(itemClass, active ? activeItemClass : baseChipClass)}
                 onClick={() => setLanguage(option.value)}
               >
                 <Translate className="text-base" />
@@ -184,7 +185,7 @@ export function NavUtilityMenu() {
                 type="button"
                 role="menuitemradio"
                 aria-checked={active}
-                className={`${itemClass} ${active ? activeItemClass : ""}`}
+                className={cn(itemClass, active ? activeItemClass : baseChipClass)}
                 onClick={() => setTheme(option.value)}
               >
                 <OptionIcon className="text-base" />

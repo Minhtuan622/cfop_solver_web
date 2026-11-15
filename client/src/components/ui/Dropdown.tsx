@@ -191,11 +191,13 @@ export function Dropdown({
                   menuClassName ?? "p-1.5",
                 )}
                 // Nền đặc của menu phải không phụ thuộc vào việc Tailwind
-                // có sinh ra class nền hay không: inline style luôn thắng,
-                // kể cả khi trình duyệt giữ CSS cache cũ.
+                // có sinh ra class nền hay không: inline style luôn thắng.
+                // Fallback kép qua `light-dark()` để vẫn đặc kể cả khi
+                // token `--surface` không resolve được — không bao giờ trong suốt.
                 style={{
                   ...floating.style,
-                  backgroundColor: "var(--surface-2)",
+                  backgroundColor:
+                    "var(--surface, light-dark(#ffffff, #141a2c))",
                 }}
                 data-placement={floating.placement}
                 role="menu"

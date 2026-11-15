@@ -298,6 +298,7 @@ export function Field({
   error,
   required,
   className,
+  labelClassName,
   children,
 }: {
   id: string;
@@ -306,11 +307,19 @@ export function Field({
   error?: ReactNode;
   required?: boolean;
   className?: string;
+  /** Ghi đè kiểu chữ của nhãn (mặc định: `mb-1.5 block text-sm font-medium text-ink`). */
+  labelClassName?: string;
   children: ReactNode;
 }) {
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-ink">
+      <label
+        htmlFor={id}
+        className={cn(
+          "mb-1.5 block text-sm font-medium text-ink",
+          labelClassName,
+        )}
+      >
         {label}
         {required ? (
           <span className="ml-1 text-danger" aria-hidden="true">

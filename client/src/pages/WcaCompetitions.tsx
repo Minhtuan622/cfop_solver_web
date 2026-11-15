@@ -169,7 +169,7 @@ export default function WcaCompetitions() {
         onReset={resetFilters}
       />
 
-      <section className="mt-8" aria-labelledby="wca-agenda-title">
+      <section className="mt-6" aria-labelledby="wca-agenda-title">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2

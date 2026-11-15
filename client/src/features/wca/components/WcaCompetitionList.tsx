@@ -18,26 +18,26 @@ export function WcaCompetitionList({
   const { t } = useLanguage();
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-3">
       {groups.map(group => (
         <section
           key={group.key}
-          className="rounded-card bg-surface p-5 sm:p-6"
+          className="rounded-card bg-surface p-3 sm:p-4"
           aria-labelledby={`wca-month-${group.key}`}
         >
-          <div className="flex items-center justify-between gap-2 pb-3">
+          <div className="flex items-center justify-between gap-2">
             <h2
               id={`wca-month-${group.key}`}
-              className="text-xs font-semibold tracking-[0.06em] text-muted uppercase"
+              className="text-[11px] font-semibold tracking-[0.08em] text-muted uppercase"
             >
               {monthLabel(group.year, group.month, language)}
             </h2>
-            <span className="rounded-full bg-surface-3 px-2.5 py-0.5 text-xs font-semibold text-ink">
+            <span className="rounded-full bg-surface-3 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-ink">
               {group.competitions.length}
             </span>
           </div>
           <ul
-            className="mt-4"
+            className="mt-2 grid gap-1.5"
             aria-label={t("wca.listLabel")}
           >
             {group.competitions.map(competition => (
