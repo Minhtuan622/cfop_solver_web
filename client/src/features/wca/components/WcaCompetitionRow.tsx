@@ -69,12 +69,12 @@ export function WcaCompetitionRow({
             </h3>
             <div className="flex flex-wrap gap-1.5">
               {ongoing ? (
-                <span className="inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-white">
+                <span className="inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-on-success">
                   {t("wca.ongoing")}
                 </span>
               ) : null}
               {cancelled ? (
-                <span className="inline-flex items-center rounded-full bg-danger px-2.5 py-1 text-[11px] font-semibold text-white">
+                <span className="inline-flex items-center rounded-full bg-danger px-2.5 py-1 text-[11px] font-semibold text-on-danger">
                   {competitionStatusLabel(competition.status, t)}
                 </span>
               ) : null}

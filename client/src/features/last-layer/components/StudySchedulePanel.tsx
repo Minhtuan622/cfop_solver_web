@@ -60,7 +60,7 @@ export function StudySchedulePanel({
                 <div
                   className={
                     day.isToday
-                      ? "rounded-xl bg-primary px-1.5 py-2 text-center text-sm font-semibold text-white"
+                      ? "rounded-xl bg-primary px-1.5 py-2 text-center text-sm font-semibold text-on-primary"
                       : "rounded-xl bg-surface px-1.5 py-2 text-center text-sm text-ink"
                   }
                 >
@@ -74,7 +74,7 @@ export function StudySchedulePanel({
                   <span
                     className={cn(
                       "block text-[11px]",
-                      day.isToday ? "text-white/85" : "text-muted"
+                      day.isToday ? "text-on-primary/90" : "text-muted"
                     )}
                   >
                     {weekday}

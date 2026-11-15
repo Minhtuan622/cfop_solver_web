@@ -51,7 +51,7 @@ const buttonBase =
   "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50";
 
 const buttonVariants: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-white hover:bg-primary-hover",
+  primary: "bg-primary text-on-primary hover:bg-primary-hover",
   // Không có `border`: nút nền trắng trong app vốn không dùng đường viền,
   // các biến thể chỉ khác nền và màu chữ.
   secondary: "bg-surface text-ink hover:bg-surface-2",
@@ -59,9 +59,9 @@ const buttonVariants: Record<ButtonVariant, string> = {
   outline: "bg-transparent text-primary hover:bg-primary-soft",
   ghost: "bg-transparent text-muted hover:bg-surface-2 hover:text-ink",
   danger: "bg-transparent text-danger hover:bg-danger-soft",
-  dangerSolid: "bg-danger text-white hover:brightness-95",
+  dangerSolid: "bg-danger text-on-danger hover:brightness-95",
   success: "bg-transparent text-success hover:bg-success-soft",
-  warning: "bg-warning text-ink hover:brightness-95",
+  warning: "bg-warning text-on-warning hover:brightness-95",
   inverse: "bg-ink text-surface hover:opacity-90",
   link: "bg-transparent text-primary hover:underline",
 };

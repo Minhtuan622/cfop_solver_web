@@ -48,7 +48,7 @@ describe("Button", () => {
     const { rerender } = render(<Button variant="primary">Nút</Button>);
     const button = screen.getByRole("button", { name: "Nút" });
     expect(button.className).toContain("bg-primary");
-    expect(button.className).toContain("text-white");
+    expect(button.className).toContain("text-on-primary");
 
     rerender(<Button variant="secondary">Nút</Button>);
     expect(button.className).toContain("bg-surface");

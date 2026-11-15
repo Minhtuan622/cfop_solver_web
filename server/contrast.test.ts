@@ -226,11 +226,11 @@ const PAIRS: Pair[] = [
   /* Nhãn chữ trên nút — mọi biến thể trong Button.tsx. */
   {
     id: "button/primary",
-    label: "nút chính — chữ trắng trên nền tím",
-    fg: { literal: "#ffffff" },
+    label: "nút chính — chữ trên nền tím",
+    fg: { token: "on-primary" },
     bg: { token: "primary" },
     min: TEXT_MIN,
-    source: "Button.tsx variant primary (bg-primary text-white)",
+    source: "Button.tsx variant primary (bg-primary text-on-primary)",
   },
   {
     id: "button/secondary",
@@ -298,11 +298,11 @@ const PAIRS: Pair[] = [
   },
   {
     id: "button/dangerSolid",
-    label: "nút dangerSolid — chữ trắng trên nền đỏ",
-    fg: { literal: "#ffffff" },
+    label: "nút dangerSolid — chữ trên nền đỏ",
+    fg: { token: "on-danger" },
     bg: { token: "danger" },
     min: TEXT_MIN,
-    source: "Button.tsx variant dangerSolid (bg-danger text-white)",
+    source: "Button.tsx variant dangerSolid (bg-danger text-on-danger)",
   },
   {
     id: "button/success",
@@ -322,19 +322,19 @@ const PAIRS: Pair[] = [
   },
   {
     id: "button/successSolid",
-    label: "nút successSolid — chữ trắng trên nền xanh",
-    fg: { literal: "#ffffff" },
+    label: "nút successSolid — chữ trên nền xanh",
+    fg: { token: "on-success" },
     bg: { token: "success" },
     min: TEXT_MIN,
-    source: "bg-success text-white (Rooms.tsx, TimerLab.tsx, Profile.tsx)",
+    source: "bg-success text-on-success (Rooms.tsx, TimerLab.tsx, Profile.tsx)",
   },
   {
     id: "button/warning",
-    label: "nút warning — chữ chính trên nền hổ phách",
-    fg: { token: "ink" },
+    label: "nút warning — chữ trên nền hổ phách",
+    fg: { token: "on-warning" },
     bg: { token: "warning" },
     min: TEXT_MIN,
-    source: "Button.tsx variant warning (bg-warning text-ink)",
+    source: "Button.tsx variant warning (bg-warning text-on-warning)",
   },
   {
     id: "button/inverse",
@@ -391,10 +391,10 @@ const PAIRS: Pair[] = [
   {
     id: "input/placeholder",
     label: "chữ gợi ý trong ô nhập",
-    fg: { token: "muted", alpha: 0.6 },
+    fg: { token: "placeholder" },
     bg: { token: "surface-3" },
     min: TEXT_MIN,
-    source: "FormControls.tsx controlBase (placeholder:text-muted/60)",
+    source: "FormControls.tsx controlBase (placeholder:text-placeholder)",
   },
   {
     id: "input/pillText",
@@ -407,10 +407,10 @@ const PAIRS: Pair[] = [
   {
     id: "input/pillPlaceholder",
     label: "chữ gợi ý trong PillInput",
-    fg: { token: "muted", alpha: 0.6 },
+    fg: { token: "placeholder" },
     bg: { token: "surface-2" },
     min: TEXT_MIN,
-    source: "DesignSystem.tsx PillInput (placeholder:text-muted/60)",
+    source: "DesignSystem.tsx PillInput (placeholder:text-placeholder)",
   },
 
   /* Vòng focus: `:focus-visible { outline: 2px solid var(--primary) }`. */
@@ -469,12 +469,13 @@ const PAIRS: Pair[] = [
 /**
  * Cặp đang KHÔNG đạt ngưỡng.
  *
- * Bài kiểm tra **không được tự sửa màu** (màu sản phẩm là quyết định của
- * chủ sản phẩm). Mỗi mục ghi lý do và số đo hiện tại; xem đầy đủ ở
- * `docs/validation/contrast-report.md`.
+ * Danh sách này **rỗng**: bảng màu đã được căn lại để mọi cặp đạt WCAG AA.
+ * Bài kiểm tra giờ chỉ cần bảo đảm các cặp ở trên không bao giờ tụt dưới
+ * ngưỡng — nếu một bản sửa đổi màu làm hỏng một cặp, bài này FAIL.
  *
- * Khi palette được sửa và một cặp ở đây đã đạt, phải **xoá mục tương ứng**
- * khỏi danh sách — bài kiểm tra sẽ FAIL nếu quên.
+ * Vì sao vẫn giữ cơ chế này: khi ai đó đổi palette, mọi cặp đã đạt phải được
+ * kiểm lại bằng số đo thật, và mọi cặp chưa đạt phải được ghi lại kèm lý do
+ * thay vì im lặng bỏ qua.
  */
 const KNOWN_FAILURES: Array<{
   id: string;
@@ -482,118 +483,7 @@ const KNOWN_FAILURES: Array<{
   reason: string;
   /** Số đo hiện tại, làm tròn 2 chữ số — cập nhật khi palette đổi. */
   ratio: number;
-}> = [
-  {
-    id: "button/danger@canvas",
-    mode: "light",
-    ratio: 4.32,
-    reason:
-      "Nút danger nền trong suốt (chữ đỏ trên nền trang) chỉ đạt 4.32:1, " +
-      "thiếu 0.18:1. Giữ nguyên màu — chủ sản phẩm quyết định.",
-  },
-  {
-    id: "button/success",
-    mode: "light",
-    ratio: 3.38,
-    reason:
-      "Nút success nền trong suốt: chữ xanh #0f9f6e trên nền thẻ chỉ đạt " +
-      "3.38:1. Màu --success còn dùng cho badge nền xanh nên không thể đổi " +
-      "đơn lẻ mà không phá chỗ khác.",
-  },
-  {
-    id: "button/success@canvas",
-    mode: "light",
-    ratio: 3.11,
-    reason: "Cùng lý do với button/success, nền trang thay cho nền thẻ.",
-  },
-  {
-    id: "button/successSolid",
-    mode: "light",
-    ratio: 3.38,
-    reason:
-      "Nút xanh đặc (bg-success text-white) chỉ đạt 3.38:1 vì chữ trắng " +
-      "trên #0f9f6e. Cần nền đậm hơn cho chữ trắng.",
-  },
-  {
-    id: "chip/accent",
-    mode: "light",
-    ratio: 3.37,
-    reason:
-      "Token --accent #0891b2 trên --accent-soft chỉ đạt 3.37:1. Hiện chưa " +
-      "dùng cho chữ nào trong UI nên giữ để theo dõi trước khi dùng.",
-  },
-  {
-    id: "input/placeholder",
-    mode: "light",
-    ratio: 2.34,
-    reason:
-      "Chữ gợi ý dùng muted/60 trên nền surface-3 chỉ đạt 2.34:1. Cần " +
-      "bỏ hết độ trong suốt hoặc đậm hơn.",
-  },
-  {
-    id: "input/pillPlaceholder",
-    mode: "light",
-    ratio: 2.41,
-    reason: "Cùng lý do với input/placeholder, nền surface-2 thay cho surface-3.",
-  },
-  {
-    id: "icon/warning",
-    mode: "light",
-    ratio: 2.97,
-    reason:
-      "Biểu tượng hổ phách trên nền warning-soft đạt 2.97:1, thiếu 0.03:1 " +
-      "so với ngưỡng 3:1 cho phần tử không phải chữ.",
-  },
-  {
-    id: "button/primary",
-    mode: "dark",
-    ratio: 3.14,
-    reason:
-      "Nút chính ở chế độ tối: chữ trắng trên --primary #8585f6 chỉ đạt " +
-      "3.14:1. Đây chính là lỗi 'chữ trên nền tím' đã từng được sửa ở chế " +
-      "độ sáng nhưng chế độ tối vẫn chưa đạt.",
-  },
-  {
-    id: "button/dangerSolid",
-    mode: "dark",
-    ratio: 2.69,
-    reason:
-      "Nút đỏ đặc ở chế độ tối: chữ trắng trên --danger #fb7185 chỉ đạt " +
-      "2.69:1.",
-  },
-  {
-    id: "button/successSolid",
-    mode: "dark",
-    ratio: 1.92,
-    reason:
-      "Nút xanh đặc ở chế độ tối: chữ trắng trên --success #34d399 chỉ đạt " +
-      "1.92:1 — thấp nhất trong toàn bộ bảng.",
-  },
-  {
-    id: "button/warning",
-    mode: "dark",
-    ratio: 1.43,
-    reason:
-      "Nút hổ phách ở chế độ tối: chữ chính #e9edf9 trên --warning #fbbf24 " +
-      "chỉ đạt 1.43:1.",
-  },
-  {
-    id: "input/placeholder",
-    mode: "dark",
-    ratio: 3.02,
-    reason:
-      "Chữ gợi ý ở chế độ tối (muted/60 trên surface-3) đạt 3.02:1, thiếu " +
-      "1.48:1 so với ngưỡng 4.5:1 cho chữ.",
-  },
-  {
-    id: "input/pillPlaceholder",
-    mode: "dark",
-    ratio: 3.24,
-    reason:
-      "Cùng lý do với input/placeholder ở chế độ tối, nền surface-2 thay " +
-      "cho surface-3.",
-  },
-];
+}> = [];
 
 /**
  * Cặp chỉ để **in ra**, không làm test fail.
@@ -795,26 +685,44 @@ describe("tương phản màu của giao diện phẳng", () => {
     }
   });
 
-  it("phép đo chuẩn bỏ qua alpha nên không phát hiện được lỗi placeholder (C5)", () => {
+  it("chữ gợi ý dùng token riêng nên đạt chuẩn ở cả hai chế độ", () => {
     const placeholder = PAIRS.find(pair => pair.id === "input/placeholder");
-    expect(placeholder).toBeTruthy();
-    if (!placeholder) return;
-
-    // Phép đo chuẩn coi muted/60 như muted: báo "đạt" ở cả hai chế độ.
-    expect(measure("light", placeholder)).toBeGreaterThanOrEqual(placeholder.min);
-    expect(measure("dark", placeholder)).toBeGreaterThanOrEqual(placeholder.min);
-
-    // Phép đo có alpha mới thấy lỗi thật.
-    expect(measureWithAlpha("light", placeholder)).toBeLessThan(placeholder.min);
-    expect(measureWithAlpha("dark", placeholder)).toBeLessThan(placeholder.min);
-
-    // Bốn mục placeholder (2 ô nhập × 2 chế độ) vẫn được giữ để không mất thông tin.
-    const placeholders = KNOWN_FAILURES.filter(
-      entry =>
-        entry.id === "input/placeholder" ||
-        entry.id === "input/pillPlaceholder"
+    const pillPlaceholder = PAIRS.find(
+      pair => pair.id === "input/pillPlaceholder"
     );
-    expect(placeholders).toHaveLength(4);
+    expect(placeholder).toBeTruthy();
+    expect(pillPlaceholder).toBeTruthy();
+    if (!placeholder || !pillPlaceholder) return;
+
+    // Chữ gợi ý đã dùng token `--placeholder` đủ đậm (không còn phủ alpha),
+    // nên phép đo chuẩn bắt được và cả hai chế độ đều đạt.
+    for (const mode of ["light", "dark"] as Mode[]) {
+      expect(measure(mode, placeholder)).toBeGreaterThanOrEqual(
+        placeholder.min
+      );
+      expect(measure(mode, pillPlaceholder)).toBeGreaterThanOrEqual(
+        pillPlaceholder.min
+      );
+    }
+  });
+
+  it("phép đo chuẩn bỏ qua alpha, phép đo có alpha thì không (C5)", () => {
+    // Cặp minh hoạ: một màu phủ 60% alpha trên nền surface-3 — kiểu màu mà
+    // trình duyệt thực sự dựng.
+    const veiled: Pair = {
+      id: "demo/veiled",
+      label: "màu phủ alpha trên nền ô nhập",
+      fg: { token: "muted", alpha: 0.6 },
+      bg: { token: "surface-3" },
+      min: TEXT_MIN,
+      source: "ví dụ minh hoạ cho phép đo alpha",
+    };
+
+    // Phép đo chuẩn coi màu phủ alpha như màu đặc: báo "đạt".
+    expect(measure("light", veiled)).toBeGreaterThanOrEqual(veiled.min);
+
+    // Phép đo có alpha mới thấy màu thật trên màn hình.
+    expect(measureWithAlpha("light", veiled)).toBeLessThan(veiled.min);
   });
 
   it("in bảng tương phản đầy đủ", () => {

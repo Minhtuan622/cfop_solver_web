@@ -214,7 +214,7 @@ export function CameraScanner({
           {ORDER.map(face => (
             <span
               key={face}
-              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide transition ${ captures[face] ? "bg-success text-white" : face === currentFace ? "text-primary" : "text-muted" }`}
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide transition ${ captures[face] ? "bg-success text-on-success" : face === currentFace ? "text-primary" : "text-muted" }`}
             >
               {captures[face] ? <Check className="text-base" /> : face}
             </span>

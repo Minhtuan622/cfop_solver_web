@@ -253,8 +253,8 @@ export function LastLayerExplorer({
                               <span
                                 className={
                                   active
-                                    ? "inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold text-white"
-                                    : "inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-white"
+                                    ? "inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold text-on-primary"
+                                    : "inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-on-success"
                                 }
                               >
                                 ✓

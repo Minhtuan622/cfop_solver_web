@@ -894,7 +894,7 @@ export default function TimerLab() {
                                       setMultiBlindScrambles([]);
                                       setScramble("");
                                     }}
-                                    className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
+                                    className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-placeholder focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
                                   />
                                 </label>
                                 <span className="text-sm text-muted">
@@ -1385,10 +1385,10 @@ export default function TimerLab() {
                   </div>
                   {selectedMetric?.startsWith("ao") && (
                     <div className="flex flex-wrap gap-1 mt-4">
-                      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-white">
+                      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-on-success">
                         {t("timer.bestDiscarded")}
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-white">
+                      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-on-danger">
                         {t("timer.worstDiscarded")}
                       </span>
                     </div>
@@ -2116,8 +2116,8 @@ function MetricDetailCard({
                 <span
                   className={
                     entry.penalty === "DNF"
-                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-white"
-                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-warning text-ink"
+                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-on-danger"
+                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-warning text-on-warning"
                   }
                 >
                   {entry.penalty}
@@ -2127,8 +2127,8 @@ function MetricDetailCard({
                 <span
                   className={
                     exclusion === "best"
-                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-white"
-                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-white"
+                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-on-success"
+                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-on-danger"
                   }
                 >
                   {exclusion === "best"
@@ -2252,7 +2252,7 @@ function MultiBlindResultCard({
                   )
                 )
               }
-              className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1 w-auto"
+              className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-placeholder focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1 w-auto"
             />
           </label>
         </div>

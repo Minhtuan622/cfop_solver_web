@@ -275,7 +275,7 @@ function AlgorithmRow({
       <p className="font-mono break-words text-sm mt-2 mb-2">
         {preferred ? (
           <>
-            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-white mr-1">
+            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-on-success mr-1">
               Profile
             </span>
             {preferred}
@@ -464,7 +464,7 @@ export function BldReport({
               : "Memo và execution"}
           </h3>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-white">
+        <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-on-success">
           <ShieldCheck className="text-base" />
           UF / UBL
         </span>

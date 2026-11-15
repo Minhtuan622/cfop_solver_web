@@ -127,7 +127,7 @@ function LeaderboardTable({
                 <td className="text-center">{player.wins}</td>
                 <td className="text-center">{player.rooms}</td>
                 <td className="text-right">
-                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-primary text-white px-4">
+                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-primary text-on-primary px-4">
                     {player.points}
                   </span>
                 </td>

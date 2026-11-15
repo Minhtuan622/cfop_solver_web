@@ -280,7 +280,7 @@ export function StatTile({
         <span
           className={cn(
             "shrink-0 text-xl",
-            dark ? "text-surface/70" : "text-muted/80"
+            dark ? "text-surface/70" : "text-muted"
           )}
         >
           {icon}

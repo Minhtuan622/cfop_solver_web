@@ -100,7 +100,7 @@ export function StudyCasePanel({
         <span
           className={
             mastered
-              ? "inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-white"
+              ? "inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-on-success"
               : "inline-flex items-center rounded-full bg-surface-3 px-2.5 py-1 text-[11px] font-semibold text-ink"
           }
         >
@@ -286,7 +286,7 @@ function GradeButton({
     tone === "red"
       ? "inline-flex items-center justify-center rounded-full bg-transparent px-4 py-2 text-sm font-semibold text-danger transition hover:bg-danger-soft"
       : tone === "mint"
-        ? "inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover"
+        ? "inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary transition hover:bg-primary-hover"
         : "inline-flex items-center justify-center rounded-full bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2";
   return (
     <button type="button" onClick={onClick} className={`${className} w-full`}>

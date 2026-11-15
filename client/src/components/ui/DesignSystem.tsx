@@ -185,7 +185,7 @@ export function PillGroup<T extends string>({
           aria-pressed={value === option.value}
           aria-label={option.ariaLabel}
           className={cn(
-            "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-muted transition hover:bg-surface-2 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20 aria-pressed:bg-primary aria-pressed:text-white aria-pressed:hover:bg-primary",
+            "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-muted transition hover:bg-surface-2 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20 aria-pressed:bg-primary aria-pressed:text-on-primary aria-pressed:hover:bg-primary",
             size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm",
             fill && "flex-1"
           )}
@@ -239,7 +239,7 @@ export function RoundButton({
         "text-ink disabled:pointer-events-none",
         tone === "soft" && "bg-surface-2 hover:bg-surface-3",
         tone === "primary" &&
-          "bg-primary text-white hover:bg-primary-hover",
+          "bg-primary text-on-primary hover:bg-primary-hover",
         tone === "plain" &&
           "bg-transparent text-muted hover:bg-surface-2 hover:text-ink",
         size === "sm" && "h-9 w-9 text-base",
@@ -261,7 +261,7 @@ export const PillInput = forwardRef<
     <input
       ref={ref}
       className={cn(
-        "h-11 w-full rounded-full bg-surface-2 px-5 font-mono text-sm text-ink transition placeholder:text-muted/60 focus:bg-surface focus:ring-4 focus:ring-primary/15",
+        "h-11 w-full rounded-full bg-surface-2 px-5 font-mono text-sm text-ink transition placeholder:text-placeholder focus:bg-surface focus:ring-4 focus:ring-primary/15",
         className
       )}
       {...rest}
@@ -280,7 +280,7 @@ export function Chip({
     <button
       type="button"
       className={cn(
-        "inline-flex min-w-9 items-center justify-center rounded-lg bg-surface-2 px-2.5 py-1.5 font-mono text-sm font-semibold text-ink transition hover:bg-surface-3 aria-pressed:bg-primary aria-pressed:text-white",
+        "inline-flex min-w-9 items-center justify-center rounded-lg bg-surface-2 px-2.5 py-1.5 font-mono text-sm font-semibold text-ink transition hover:bg-surface-3 aria-pressed:bg-primary aria-pressed:text-on-primary",
         className
       )}
       aria-pressed={active}
