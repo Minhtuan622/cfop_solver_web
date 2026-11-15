@@ -166,6 +166,11 @@ function highlightedIndexes(
   return highlight;
 }
 
+const _geoSticker3 = new RoundedBoxGeometry(CELL_3 * 0.88, CELL_3 * 0.88, 0.052, 4, 0.075);
+const _geoBody3 = new RoundedBoxGeometry(CELL_3 * 0.94, CELL_3 * 0.94, CELL_3 * 0.94, 4, 0.09);
+const _geoSticker2 = new RoundedBoxGeometry(CELL_2 * 0.88, CELL_2 * 0.88, 0.052, 4, 0.075);
+const _geoBody2 = new RoundedBoxGeometry(CELL_2 * 0.94, CELL_2 * 0.94, CELL_2 * 0.94, 4, 0.09);
+
 type Cubie = {
   unit: { x: number; y: number; z: number };
   group: THREE.Group;
@@ -203,14 +208,14 @@ export function CubeGuide3D({
   const cubiesRef = useRef<Cubie[]>([]);
   const animFrameRef = useRef<number | null>(null);
   const pivotRef = useRef<THREE.Group | null>(null);
-  const orbitRef = useRef({ yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 4.1 : 4.6 });
+  const orbitRef = useRef({ yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 5.3 : 6.0 });
   const [status, setStatus] = useState<"loading" | "ready" | "fallback" | "error">("loading");
 
   const disposeObject = (object: THREE.Object3D) => {
     object.traverse(node => {
       const mesh = node as THREE.Mesh;
       if (mesh.isMesh) {
-        mesh.geometry?.dispose();
+        // Geometry được chia sẻ toàn cục (xem _geoSticker2/_geoBody2 …) — KHÔNG dispose.
         const material = mesh.material;
         if (Array.isArray(material)) material.forEach(m => m.dispose());
         else material?.dispose();
@@ -262,8 +267,8 @@ export function CubeGuide3D({
     const cell = dimension === 2 ? CELL_2 : CELL_3;
     const coords = dimension === 2 ? [-1, 1] : [-1, 0, 1];
 
-    const stickerGeometry = new RoundedBoxGeometry(cell * 0.88, cell * 0.88, 0.052, 4, 0.075);
-    const bodyGeometry = new RoundedBoxGeometry(cell * 0.94, cell * 0.94, cell * 0.94, 4, 0.09);
+    const stickerGeometry = dimension === 2 ? _geoSticker2 : _geoSticker3;
+    const bodyGeometry = dimension === 2 ? _geoBody2 : _geoBody3;
 
     for (const x of coords) {
       for (const y of coords) {
@@ -331,8 +336,6 @@ export function CubeGuide3D({
         }
       }
     }
-    stickerGeometry.dispose();
-    bodyGeometry.dispose();
     bundle.resize();
   };
 
@@ -502,7 +505,7 @@ export function CubeGuide3D({
   const wheel = (event: WheelEvent<HTMLDivElement>) => {
     event.preventDefault();
     const orbit = orbitRef.current;
-    const min = dimension === 2 ? 3.0 : 3.4;
+    const min = dimension === 2 ? 4.2 : 4.8;
     const max = dimension === 2 ? 7 : 8;
     orbit.distance = Math.max(min, Math.min(max, orbit.distance + (event.deltaY > 0 ? 0.5 : -0.5)));
     renderNow();
@@ -581,7 +584,7 @@ export function CubeGuide3D({
         label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"}
         icon={<Rotate3D className="text-base" />}
         onClick={() => {
-          orbitRef.current = { yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 4.1 : 4.6 };
+          orbitRef.current = { yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 5.3 : 6.0 };
           renderNow();
         }}
         className="absolute bottom-2 right-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
