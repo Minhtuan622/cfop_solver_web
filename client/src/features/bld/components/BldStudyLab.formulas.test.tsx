@@ -25,9 +25,11 @@ describe("BLD formula learning stage", () => {
       expect(
         screen.getAllByText("L2 U L2 S' L2 S U' L2").length
       ).toBeGreaterThan(0);
-      expect(
-        screen.getAllByLabelText(/Mô hình Rubik 3D/i).length
-      ).toBeGreaterThan(0);
+      await waitFor(() =>
+        expect(
+          screen.getAllByLabelText(/Mô hình Rubik 3D/i).length
+        ).toBeGreaterThan(0)
+      );
       expect(screen.getByText("Target scramble")).toBeTruthy();
       expect(
         screen.getByText("Năm nhịp luyện 3-Style dễ áp dụng")

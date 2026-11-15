@@ -491,3 +491,13 @@
 .interactive-cube-stage .cube3d-stage__muted {
   color: var(--cube-stage-muted);
 }
+
+/* Fallback 2D grid for devices without WebGL. */
+.cube3d-face-fallback {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.cube3d-sticker-fallback {
+  border-radius: 2px;
+}

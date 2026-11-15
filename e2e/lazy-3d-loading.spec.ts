@@ -12,14 +12,15 @@ test("chỉ tải Cubing khi mở Timer và Three.js khi event cần canvas 3D",
 
   await page.goto("/");
   await page.waitForTimeout(500);
+  // Trang chủ hiển thị mô hình 3D WebGL nên cần Three.js (lazy), nhưng
+  // không cần thư viện cubing.js (chỉ Timer mới nạp).
+  await expect.poll(() => threeRequests.length, { timeout: 45_000 }).toBeGreaterThan(0);
   expect(cubingRequests).toEqual([]);
-  expect(threeRequests).toEqual([]);
 
   await page.goto("/timer");
   const eventPicker = page.getByLabel("Loại khối");
   await expect(eventPicker).toHaveText(/3×3×3/);
   await expect.poll(() => cubingRequests.length, { timeout: 45_000 }).toBeGreaterThan(0);
-  expect(threeRequests).toEqual([]);
 
   // Dropdown tự vẽ: bấm để mở danh sách rồi chọn mục 4×4×4.
   await eventPicker.click();
