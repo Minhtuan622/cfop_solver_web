@@ -39,7 +39,10 @@ export type DropdownProps = {
   variant?: "button" | "nav";
   className?: string;
   buttonClassName?: string;
-  /** Ghi đè nền/bo góc/đệm của khung menu. */
+  /**
+   * Ghi đè bo góc/đệm của khung menu. Nền của menu luôn là `var(--surface-2)`
+   * (đặt qua inline style nên không bao giờ bị mất do CSS cache cũ).
+   */
   menuClassName?: string;
   children: ReactNode;
 };
@@ -185,9 +188,15 @@ export function Dropdown({
                 ref={menuRef}
                 className={cn(
                   "absolute z-50 min-w-52 list-none rounded-2xl",
-                  menuClassName ?? "bg-surface p-1.5",
+                  menuClassName ?? "p-1.5",
                 )}
-                style={floating.style}
+                // Nền đặc của menu phải không phụ thuộc vào việc Tailwind
+                // có sinh ra class nền hay không: inline style luôn thắng,
+                // kể cả khi trình duyệt giữ CSS cache cũ.
+                style={{
+                  ...floating.style,
+                  backgroundColor: "var(--surface-2)",
+                }}
                 data-placement={floating.placement}
                 role="menu"
                 id={id}
