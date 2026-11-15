@@ -40,36 +40,60 @@ export function WcaWorldRecords({
   const [open, setOpen] = useState(false);
 
   const threeByThree = records?.find(record => record.eventId === "333");
-  const preview = threeByThree
-    ? `3×3 ${formatWcaRecordValue("333", "single", threeByThree.single)} · ${formatWcaRecordValue("333", "average", threeByThree.average)}`
-    : null;
 
   return (
     <section
-      className="mt-8 rounded-card bg-surface p-4 sm:p-5"
+      className="mt-6 rounded-3xl bg-warning-soft p-4 sm:p-5"
       aria-labelledby="wca-world-records-title"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+        <span
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-warning text-on-warning"
+          aria-hidden="true"
+        >
+          <Trophy className="text-xl" />
+        </span>
+        <div className="min-w-0 flex-1 basis-56">
           <h2
             id="wca-world-records-title"
-            className="flex items-center gap-2 text-base font-semibold tracking-tight text-ink"
+            className="text-sm font-semibold tracking-tight text-ink"
           >
-            <Trophy className="text-warning" aria-hidden="true" />
             {t("wca.records.title")}
           </h2>
-          <p className="mt-1 text-sm text-muted">
-            {isLoading
-              ? t("wca.records.loading")
-              : (preview ?? t("wca.records.hint"))}
-          </p>
+          {isLoading ? (
+            <p className="mt-0.5 text-sm text-muted">
+              {t("wca.records.loading")}
+            </p>
+          ) : threeByThree ? (
+            <p className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-ink">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
+                3×3
+              </span>
+              <span className="text-xl font-bold tabular-nums tracking-tight">
+                {formatWcaRecordValue("333", "single", threeByThree.single)}
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+                {t("wca.records.single")}
+              </span>
+              <span aria-hidden="true" className="text-muted">
+                ·
+              </span>
+              <span className="text-xl font-bold tabular-nums tracking-tight">
+                {formatWcaRecordValue("333", "average", threeByThree.average)}
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+                {t("wca.records.average")}
+              </span>
+            </p>
+          ) : (
+            <p className="mt-0.5 text-sm text-muted">{t("wca.records.hint")}</p>
+          )}
         </div>
         <Button
-          variant="secondary"
+          variant="soft"
           size="plain"
-          className="px-3 py-1.5 text-xs"
+          className="shrink-0 px-3 py-1.5 text-xs"
           type="button"
-
           aria-expanded={open}
           aria-controls="wca-world-records-panel"
           onClick={() => setOpen(value => !value)}
@@ -86,7 +110,7 @@ export function WcaWorldRecords({
       {open ? (
         <div
           id="wca-world-records-panel"
-          className="mt-4"
+          className="mt-3"
         >
           {isError ? (
             <StatusFeedback tone="danger" title={t("wca.records.loadFailed")}>
@@ -103,7 +127,7 @@ export function WcaWorldRecords({
               <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                 {records.map(record => (
                   <li
-                    className="rounded-panel bg-surface p-3"
+                    className="rounded-2xl bg-surface p-3"
                     key={record.eventId}
                   >
                     <h3 className="mb-2 text-xs font-semibold tracking-tight text-ink">
@@ -150,7 +174,7 @@ export function WcaWorldRecords({
             >
               {Array.from({ length: 8 }, (_, index) => (
                 <div
-                  className="rounded-panel bg-surface p-3"
+                  className="rounded-2xl bg-surface p-3"
                   key={index}
                 >
                   <span className="mb-2 block h-3 w-5/12 rounded-full bg-surface-3" />

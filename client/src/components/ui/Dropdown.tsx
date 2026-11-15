@@ -36,7 +36,7 @@ export type DropdownProps = {
   /** Which side of the toggle the menu opens on. */
   align?: "start" | "end";
   /** `nav` styles the toggle like the other links of a navbar. */
-  variant?: "button" | "nav";
+  variant?: "button" | "nav" | "soft";
   className?: string;
   buttonClassName?: string;
   /**
@@ -160,7 +160,9 @@ export function Dropdown({
           "inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20",
           variant === "nav"
             ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink"
-            : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2",
+            : variant === "soft"
+              ? "rounded-full bg-surface-2 px-3.5 py-2 text-ink hover:bg-surface-3"
+              : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2",
           buttonClassName
         )}
         onClick={() => {

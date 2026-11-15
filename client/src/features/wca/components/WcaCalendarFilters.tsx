@@ -1,7 +1,8 @@
-import { Search } from "@/components/ui/Icon";
+import { Calendar3, Search } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { WcaCountry } from "../lib/wcaCalendar";
 import { Button } from "@/components/ui/Button";
+import { Dropdown } from "@/components/ui/Dropdown";
 import { Select } from "@/components/ui/Select";
 
 export type WcaCalendarFiltersProps = {
@@ -62,7 +63,7 @@ export function WcaCalendarFilters({
       className="mt-4 rounded-card bg-surface p-3"
       aria-label={t("wca.filters")}
     >
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1">
         <div className="flex h-9 min-w-40 flex-1 basis-48 items-stretch">
           <span className="inline-flex items-center rounded-l-full bg-surface-2 px-2.5 text-muted">
             <Search className="text-sm" />
@@ -127,43 +128,56 @@ export function WcaCalendarFilters({
           ))}
         </Select>
 
-        <div
-          className="inline-flex items-center gap-1"
-          role="group"
-          aria-label={t("wca.quickPeriods")}
+        <Dropdown
+          id="wca-quick-periods"
+          align="start"
+          variant="soft"
+          label={t("wca.quickPeriods")}
+          title={t("wca.quickPeriods")}
+          menuLabel={t("wca.quickPeriods")}
+          buttonClassName="h-9 px-3 py-0 text-xs font-semibold"
+          button={
+            <>
+              <Calendar3 className="text-sm" />
+              <span>{t("wca.quickPeriods")}</span>
+            </>
+          }
         >
-          <Button
-            type="button"
-            variant="secondary"
-            size="plain"
-            className="px-2.5 py-1.5 text-[11px]"
-            onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
-          >
-            {t("wca.thisMonth")}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="plain"
-            className="px-2.5 py-1.5 text-[11px]"
-            onClick={() => {
-              const next = new Date();
-              next.setMonth(next.getMonth() + 1);
-              jumpTo(next.getFullYear(), next.getMonth() + 1);
-            }}
-          >
-            {t("wca.nextMonth")}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="plain"
-            className="px-2.5 py-1.5 text-[11px]"
-            onClick={() => jumpTo(currentYear, 0)}
-          >
-            {t("wca.thisYear")}
-          </Button>
-        </div>
+          <li>
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3"
+              onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
+            >
+              {t("wca.thisMonth")}
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3"
+              onClick={() => {
+                const next = new Date();
+                next.setMonth(next.getMonth() + 1);
+                jumpTo(next.getFullYear(), next.getMonth() + 1);
+              }}
+            >
+              {t("wca.nextMonth")}
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3"
+              onClick={() => jumpTo(currentYear, 0)}
+            >
+              {t("wca.thisYear")}
+            </button>
+          </li>
+        </Dropdown>
 
         {onReset ? (
           <Button

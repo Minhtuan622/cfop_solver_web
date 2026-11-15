@@ -281,7 +281,7 @@ function PlayerHistory({ accountId }: { accountId: number }) {
                 </div>
                 <div className="grid grid-cols-12 gap-6">
                   <div className="col-span-12 xl:col-span-7">
-                    <h3 className="text-sm font-semibold tracking-tight">
+                    <h3 className="mb-2 text-sm font-semibold tracking-tight">
                       {t("competition.player.roundTitle")}
                     </h3>
                     {mine.length ? (
@@ -338,7 +338,7 @@ function PlayerHistory({ accountId }: { accountId: number }) {
                     )}
                   </div>
                   <div className="col-span-12 xl:col-span-5">
-                    <h3 className="text-sm font-semibold tracking-tight">
+                    <h3 className="mb-2 text-sm font-semibold tracking-tight">
                       {t("competition.player.roomStandings")}
                     </h3>
                     <ol className="overflow-hidden rounded-panel bg-surface list-decimal pl-6">
@@ -489,7 +489,7 @@ function LeaderboardHome() {
               </StatusFeedback>
             )}
           </SectionCard>
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-muted mb-0">
               {leaderboardQuery.data
                 ? t("competition.period", {
@@ -506,7 +506,7 @@ function LeaderboardHome() {
             </Link>
           </div>
         </div>
-        <div className="col-span-12 xl:col-span-4">
+        <div className="col-span-12 flex flex-col gap-6 xl:col-span-4">
           <SectionCard
             title={t("competition.myHistory.title")}
             description={t("competition.myHistory.description")}

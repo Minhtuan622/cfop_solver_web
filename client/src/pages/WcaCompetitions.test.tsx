@@ -121,8 +121,8 @@ describe("the WCA competition calendar", () => {
     expect(screen.getByRole("heading", { name: "Kỷ lục thế giới hiện tại" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Xem \d+ kỷ lục/ }));
 
-    expect(screen.getByText("2.51")).toBeInTheDocument();
-    expect(screen.getByText("3.51")).toBeInTheDocument();
+    expect(screen.getAllByText("2.51").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("3.51").length).toBeGreaterThan(0);
     expect(screen.getByText("16")).toBeInTheDocument();
     expect(screen.getByText("19.00")).toBeInTheDocument();
     expect(screen.getByText("63/65 58:23")).toBeInTheDocument();

@@ -66,7 +66,7 @@ export function NavUtilityMenu() {
         title={t("nav.utilities")}
         menuLabel={t("nav.utilities")}
         buttonClassName="bg-transparent px-2 hover:bg-surface-3"
-        menuClassName="rounded-2xl p-2"
+        menuClassName="flex flex-col gap-1 rounded-2xl p-2"
         button={
           session.account ? (
             session.account.avatarUrl ? (
