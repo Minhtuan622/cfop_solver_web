@@ -15,6 +15,7 @@ import {
   exportCFOPJson,
   phaseLessonUrl,
   phaseStudyNote,
+  phaseCaseLabel,
 } from "@/lib/solverPresentation";
 import type { SolverResult } from "@/lib/solverRuntime";
 import { Button } from "@/components/ui/Button";
@@ -152,6 +153,11 @@ function CfopPhaseRow({
         >
           <strong className="block text-base font-semibold">
             {compactName}
+            {phaseCaseLabel(phase.name, phase.case_id) ? (
+              <span className="ml-2 text-xs font-semibold text-muted">
+                {phaseCaseLabel(phase.name, phase.case_id)}
+              </span>
+            ) : null}
           </strong>
           <small className="text-muted">
             {phase.moves.length} {t("home.turnsUnit")}

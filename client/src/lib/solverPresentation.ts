@@ -43,6 +43,27 @@ export function lastLayerModeLabel(mode: string, language: "vi" | "en") {
   return LAST_LAYER_OPTIONS.find((option) => option.value === mode)?.[language] ?? achieved[mode]?.[language] ?? mode.toUpperCase();
 }
 
+/**
+ * Nhãn case last-layer ngắn gọn để hiển thị cùng nhãn chế độ.
+ * - OLL + PLL: case_id dạng "27/Ua" → "OLL 27 · PLL Ua"
+ * - ZBLL: case id, ví dụ "ZBLLAS-004"
+ * - 1LLL: case id, ví dụ "1LLL-01-001"
+ */
+export function lastLayerCaseLabel(caseId: string | null | undefined) {
+  if (!caseId) return null;
+  if (caseId.includes("/")) {
+    const [oll, pll] = caseId.split("/");
+    if (oll && pll) return `OLL ${oll} · PLL ${pll}`;
+  }
+  return caseId;
+}
+
+/** Nhãn case ngắn gọn cho từng phase last-layer (OLL, PLL, ZBLL, 1LLL). */
+export function phaseCaseLabel(name: string, caseId: string | null | undefined) {
+  if (!caseId) return null;
+  return caseId;
+}
+
 export function exportCFOPJson(result: SolverResult) {
   downloadFile("cfop-solution-report.json", "application/json", JSON.stringify({ format: "cfop-solver-studio/report@1", exportedAt: new Date().toISOString(), totalMoves: result.trace.length, algorithm: result.algorithm, opening: result.opening, last_layer: result.last_layer, phases: result.phases, trace: result.trace }, null, 2));
 }

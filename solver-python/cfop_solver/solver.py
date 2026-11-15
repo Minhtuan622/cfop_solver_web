@@ -202,7 +202,7 @@ class CFOPSolution:
             "requested": requested,
             "achieved": achieved,
             "attempts": list(attempts),
-            "case_id": self.last_layer_case_id if achieved in ("zbll", "1lll") else None,
+            "case_id": self.last_layer_case_id,
             "fallback_count": 1 if did_fallback else 0,
             "did_fallback": did_fallback,
         }
@@ -433,6 +433,7 @@ def solve(
             pll_case, pll_moves = solve_pll_full(current)
             current = _commit(current, "pll", pll_moves, cube_solved, result, pll_case)
             result.last_layer_achieved = "oll_pll"
+            result.last_layer_case_id = f"{oll_case}/{pll_case}"
         elif last_layer == "2look":
             result.last_layer_attempts.append("2look")
             current = _commit(current, "oll", solve_oll_2look(current, macro_depth), oll_solved, result)
@@ -463,6 +464,7 @@ def solve(
                 pll_case, pll_moves = solve_pll_full(current)
                 current = _commit(current, "pll", pll_moves, cube_solved, result, pll_case)
                 result.last_layer_achieved = "oll_pll"
+                result.last_layer_case_id = f"{oll_case}/{pll_case}"
                 check_budget()
         else:
             raise CFOPError("invalid_mode", f"Unknown last_layer mode: {last_layer}")
