@@ -3,11 +3,9 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CfopAccountControl } from "@/features/profile/components/CfopAccountControl";
 import type { AccountNavItem } from "@/features/profile/lib/accountNavItems";
 import { BoxSeam, X } from "@/components/ui/Icon";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { NavUtilityMenu } from "@/components/NavUtilityMenu";
 import { NavOverflowMenu } from "@/components/NavOverflowMenu";
 import { cn } from "@/lib/utils";
 
@@ -153,9 +151,7 @@ export function AppNav() {
             />
           </nav>
           <div className="mt-4 flex items-center gap-1 xl:mt-0 xl:ml-2">
-            <LanguageSwitcher compact />
-            <ThemeSwitcher compact />
-            <CfopAccountControl />
+            <NavUtilityMenu />
           </div>
         </div>
       </div>

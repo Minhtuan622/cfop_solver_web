@@ -62,70 +62,68 @@ export function WcaCalendarFilters({
 
   return (
     <section
-      className="mt-8 rounded-card bg-surface p-5 sm:p-6"
+      className="mt-6 rounded-card bg-surface p-4 sm:p-5"
       aria-label={t("wca.filters")}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
-        <h2 className="text-base font-semibold tracking-tight text-ink">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h2 className="text-sm font-semibold tracking-tight text-ink mr-auto">
           {t("wca.filters")}
         </h2>
-        <div className="flex flex-wrap items-center gap-2">
-          <div
-            className="inline-flex flex-wrap items-center gap-1 text-xs"
-            role="group"
-            aria-label={t("wca.quickPeriods")}
+        <div
+          className="inline-flex flex-wrap items-center gap-1 text-xs"
+          role="group"
+          aria-label={t("wca.quickPeriods")}
+        >
+          <Button
+            type="button"
+            variant="secondary"
+            size="plain"
+            className="px-3 py-1.5 text-xs"
+            onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
           >
-            <Button
-              type="button"
-              variant="secondary"
-              size="plain"
-              className="px-4 py-2 text-sm"
-              onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
-            >
-              {t("wca.thisMonth")}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="plain"
-              className="px-4 py-2 text-sm"
-              onClick={() => {
-                const next = new Date();
-                next.setMonth(next.getMonth() + 1);
-                jumpTo(next.getFullYear(), next.getMonth() + 1);
-              }}
-            >
-              {t("wca.nextMonth")}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="plain"
-              className="px-4 py-2 text-sm"
-              onClick={() => jumpTo(currentYear, 0)}
-            >
-              {t("wca.thisYear")}
-            </Button>
-          </div>
-          {onReset ? (
-            <Button
-              type="button"
-              variant="link"
-              size="plain"
-              className="px-3 py-1.5 text-xs"
-              onClick={onReset}
-            >
-              {t("wca.resetFilters")}
-            </Button>
-          ) : null}
+            {t("wca.thisMonth")}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="plain"
+            className="px-3 py-1.5 text-xs"
+            onClick={() => {
+              const next = new Date();
+              next.setMonth(next.getMonth() + 1);
+              jumpTo(next.getFullYear(), next.getMonth() + 1);
+            }}
+          >
+            {t("wca.nextMonth")}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="plain"
+            className="px-3 py-1.5 text-xs"
+            onClick={() => jumpTo(currentYear, 0)}
+          >
+            {t("wca.thisYear")}
+          </Button>
         </div>
+        {onReset ? (
+          <Button
+            type="button"
+            variant="link"
+            size="plain"
+            className="px-2 py-1 text-xs"
+            onClick={onReset}
+          >
+            {t("wca.resetFilters")}
+          </Button>
+        ) : null}
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Field id="wca-year" label={t("wca.year")}>
+      <div className="mt-3 grid grid-cols-12 items-end gap-2">
+        <Field id="wca-year" label={t("wca.year")} className="col-span-4 lg:col-span-2">
           <Select
             id="wca-year"
-            className="h-11 rounded-full px-4 py-2.5"
+            className="h-10 rounded-full px-3 py-2 text-sm"
             value={String(year)}
             onChange={event => onYearChange(Number(event.target.value))}
           >
@@ -137,10 +135,10 @@ export function WcaCalendarFilters({
           </Select>
         </Field>
 
-        <Field id="wca-month" label={t("wca.month")}>
+        <Field id="wca-month" label={t("wca.month")} className="col-span-8 lg:col-span-2">
           <Select
             id="wca-month"
-            className="h-11 rounded-full px-4 py-2.5"
+            className="h-10 rounded-full px-3 py-2 text-sm"
             value={String(month)}
             onChange={event => onMonthChange(Number(event.target.value))}
           >
@@ -153,10 +151,14 @@ export function WcaCalendarFilters({
           </Select>
         </Field>
 
-        <Field id="wca-country" label={t("wca.country")}>
+        <Field
+          id="wca-country"
+          label={t("wca.country")}
+          className="col-span-12 lg:col-span-3"
+        >
           <Select
             id="wca-country"
-            className="h-11 rounded-full px-4 py-2.5"
+            className="h-10 rounded-full px-3 py-2 text-sm"
             value={countryIso2}
             onChange={event => onCountryChange(event.target.value)}
             disabled={countriesLoading}
@@ -177,7 +179,7 @@ export function WcaCalendarFilters({
         <Field
           id="wca-search"
           label={t("wca.search")}
-          className="md:col-span-2"
+          className="col-span-12 lg:col-span-5"
         >
           <div className="flex h-full w-full items-stretch">
             <span className="inline-flex items-center rounded-l-full bg-surface-2 px-3 text-sm text-muted">
@@ -186,7 +188,7 @@ export function WcaCalendarFilters({
             <input
               id="wca-search"
               type="search"
-              className="h-full w-full rounded-r-full bg-surface px-4 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-full w-full rounded-r-full bg-surface px-3 py-2 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
               value={query}
               placeholder={t("wca.searchPlaceholder")}
               onChange={event => onQueryChange(event.target.value)}
@@ -195,7 +197,7 @@ export function WcaCalendarFilters({
         </Field>
       </div>
 
-      <p className="mt-4 text-sm text-muted" role="status" aria-live="polite">
+      <p className="mt-3 text-xs text-muted" role="status" aria-live="polite">
         {shownCount < totalCount
           ? t("wca.resultsFiltered", { shown: shownCount, total: totalCount })
           : t("wca.resultsCount", { count: shownCount })}

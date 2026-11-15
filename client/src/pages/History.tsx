@@ -381,14 +381,14 @@ export default function History() {
                     />
                   </div>
                 </div>
-                <div className="p-5 sm:p-6">
+                <div className="p-4 sm:p-5">
                   {importError ? (
-                    <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink">
+                    <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mb-3">
                       {importError}
                     </div>
                   ) : null}
-                  <div className="grid grid-cols-12 gap-3">
-                    <div className="col-span-12 md:col-span-6">
+                  <div className="grid grid-cols-12 items-center gap-2">
+                    <div className="col-span-12 lg:col-span-5">
                       <label className="sr-only" htmlFor="history-search">
                         {t("history.searchLabel")}
                       </label>
@@ -398,20 +398,18 @@ export default function History() {
                         </span>
                         <Input
                           id="history-search"
-
                           value={query}
                           onChange={event => setQuery(event.target.value)}
                           placeholder={t("history.searchLabel")}
                         />
                       </div>
                     </div>
-                    <div className="col-span-12">
+                    <div className="col-span-6 lg:col-span-3">
                       <label className="sr-only" htmlFor="history-event-filter">
                         {t("history.eventFilterLabel")}
                       </label>
                       <Select
                         id="history-event-filter"
-
                         value={eventFilter}
                         onChange={event =>
                           setEventFilter(
@@ -427,13 +425,12 @@ export default function History() {
                         ))}
                       </Select>
                     </div>
-                    <div className="col-span-12">
+                    <div className="col-span-6 lg:col-span-3">
                       <label className="sr-only" htmlFor="history-tag-filter">
                         {t("history.tagFilterLabel")}
                       </label>
                       <Select
                         id="history-tag-filter"
-
                         value={tag}
                         onChange={event => setTag(event.target.value)}
                       >
@@ -445,23 +442,25 @@ export default function History() {
                         ))}
                       </Select>
                     </div>
-                  </div>
-                  {filtered.length ? (
-                    <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink flex flex-wrap justify-between items-center gap-2 mt-4 mb-0">
-                      <Checkbox
-                        checked={allSelected}
-                        onChange={toggleVisible}
-                        label={t("history.selectFiltered")}
-                      />
-                      <IconButton
-                        label={t("history.deleteSelected")}
-                        icon={<Trash2 className="text-base" />}
-                        disabled={!selectedIds.size}
-                        onClick={() => setBulkDeleteOpen(true)}
-                        className={`${buttonClass("secondary", "sm")}`}
-                      />
+                    <div className="col-span-12 lg:col-span-1">
+                      {filtered.length ? (
+                        <div className="flex items-center justify-between gap-2">
+                          <Checkbox
+                            checked={allSelected}
+                            onChange={toggleVisible}
+                            ariaLabel={t("history.selectFiltered")}
+                          />
+                          <IconButton
+                            label={t("history.deleteSelected")}
+                            icon={<Trash2 className="text-base" />}
+                            disabled={!selectedIds.size}
+                            onClick={() => setBulkDeleteOpen(true)}
+                            className={`${buttonClass("secondary", "sm")}`}
+                          />
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                  </div>
                 </div>
                 <div className="bg-transparent">
                   {filtered.length ? (
@@ -699,40 +698,47 @@ function SolveRow({
     language
   );
   return (
-    <article className="rounded-card bg-surface p-4 mb-3">
-      <div className="grid grid-cols-12 gap-2 items-center">
-        <div className="col-span-1">
-          <Checkbox
-            checked={selected}
-            onChange={() => onSelect()}
-            ariaLabel={t("history.selectSolve")}
-          />
-        </div>
-        <div className="col-span-12">
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-primary text-white mb-2">
-            {eventLabel}
-          </span>
-          {bundle?.length ? (
-            <details>
-              <summary className="font-mono break-words">
-                {t("history.multiBlindBundle", { count: bundle.length })}
-              </summary>
-              <ol className="font-mono text-sm mb-2 mt-2 pl-6">
-                {bundle.map((scramble, index) => (
-                  <li key={`${index}-${scramble}`} className="break-words">
-                    {scramble}
-                  </li>
-                ))}
-              </ol>
-            </details>
-          ) : (
-            <p className="font-mono break-words mb-1">
-              {item.inputKind === "scramble"
-                ? item.input
-                : t("history.sixFaceState")}
-            </p>
-          )}
-          <p className="text-sm text-muted mb-0">
+    <article className="rounded-card bg-surface px-4 py-3 mb-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <Checkbox
+          checked={selected}
+          onChange={() => onSelect()}
+          ariaLabel={t("history.selectSolve")}
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-primary text-white">
+              {eventLabel}
+            </span>
+            {bundle?.length ? (
+              <details className="min-w-0 flex-1">
+                <summary className="font-mono text-sm break-words cursor-pointer">
+                  {t("history.multiBlindBundle", { count: bundle.length })}
+                </summary>
+                <ol className="font-mono text-sm mb-1 mt-1 pl-6">
+                  {bundle.map((scramble, index) => (
+                    <li key={`${index}-${scramble}`} className="break-words">
+                      {scramble}
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            ) : (
+              <p
+                className="font-mono text-sm min-w-0 flex-1 truncate"
+                title={
+                  item.inputKind === "scramble"
+                    ? item.input
+                    : t("history.sixFaceState")
+                }
+              >
+                {item.inputKind === "scramble"
+                  ? item.input
+                  : t("history.sixFaceState")}
+              </p>
+            )}
+          </div>
+          <p className="text-xs text-muted mt-1 mb-0">
             {new Date(item.createdAt).toLocaleString(
               language === "vi" ? "vi-VN" : "en-US"
             )}{" "}
@@ -740,11 +746,11 @@ function SolveRow({
             {item.note ? ` · ${item.note}` : ""}
           </p>
           {item.tags.length ? (
-            <div className="flex flex-wrap gap-1 mt-2">
+            <div className="flex flex-wrap gap-1 mt-1">
               {item.tags.map(tag => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-3 text-ink"
+                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold leading-none tracking-wide bg-surface-3 text-ink"
                 >
                   {tag}
                 </span>
@@ -752,25 +758,23 @@ function SolveRow({
             </div>
           ) : null}
         </div>
-        <div className="col-span-12 flex flex-wrap items-center gap-1">
-          <div className="inline-flex flex-wrap items-center gap-1 text-xs">
-            <Button
-              variant={item.penalty === "+2" ? "warning" : "secondary"}
-              size="md"
-              type="button"
-              onClick={() => onPenalty(item, "+2")}
-            >
-              +2
-            </Button>
-            <Button
-              variant={item.penalty === "DNF" ? "dangerSolid" : "secondary"}
-              size="md"
-              type="button"
-              onClick={() => onPenalty(item, "DNF")}
-            >
-              DNF
-            </Button>
-          </div>
+        <div className="flex items-center gap-1">
+          <Button
+            variant={item.penalty === "+2" ? "warning" : "secondary"}
+            size="sm"
+            type="button"
+            onClick={() => onPenalty(item, "+2")}
+          >
+            +2
+          </Button>
+          <Button
+            variant={item.penalty === "DNF" ? "dangerSolid" : "secondary"}
+            size="sm"
+            type="button"
+            onClick={() => onPenalty(item, "DNF")}
+          >
+            DNF
+          </Button>
           <IconButton
             label={t("history.editSolve")}
             icon={<Pencil className="text-base" />}
@@ -784,8 +788,14 @@ function SolveRow({
             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-danger hover:bg-danger-soft px-3 py-1.5 text-xs"
           />
         </div>
-        <div className="col-span-12 text-right">
-          <strong className={item.penalty === "DNF" ? "text-danger" : ""}>
+        <div className="text-right ml-auto">
+          <strong
+            className={
+              item.penalty === "DNF"
+                ? "text-danger text-base tabular-nums"
+                : "text-base tabular-nums"
+            }
+          >
             {formatSolveResult(item)}
           </strong>
           {item.inspectionMs ? (

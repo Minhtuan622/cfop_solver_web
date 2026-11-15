@@ -30,6 +30,9 @@ export const shellWords: Dictionary = {
   "theme.dark": ["Tối", "Dark"],
   "theme.system": ["Hệ thống", "System"],
 
+  "nav.utilities": ["Tài khoản và tuỳ chọn", "Account and preferences"],
+
+  "account.group": ["Tài khoản", "Account"],
   "account.signIn": ["Đăng nhập", "Sign in"],
   "account.register": ["Đăng ký", "Create account"],
   "account.profile": ["Hồ sơ", "Profile"],

@@ -208,7 +208,7 @@ export function StudyCasePanel({
           </div>
 
           <div className="col-span-12 lg:col-span-5">
-            <div className="h-full rounded-card bg-surface">
+            <div className="h-full rounded-card bg-surface-2">
               <div className="p-5 sm:p-6">
                 <p className="mb-1 text-sm font-semibold tracking-wide text-muted uppercase">
                   {t("study.recallTitle")}
