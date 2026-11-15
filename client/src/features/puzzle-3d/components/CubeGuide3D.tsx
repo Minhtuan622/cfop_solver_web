@@ -204,8 +204,6 @@ export function CubeGuide3D({
   const animFrameRef = useRef<number | null>(null);
   const pivotRef = useRef<THREE.Group | null>(null);
   const orbitRef = useRef({ yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 4.1 : 4.6 });
-  const flashUntilRef = useRef(0);
-  const flashMaterialsRef = useRef<THREE.MeshStandardMaterial[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "fallback" | "error">("loading");
 
   const disposeObject = (object: THREE.Object3D) => {
@@ -235,7 +233,6 @@ export function CubeGuide3D({
   const buildFromState = (
     bundle: TrackedScene,
     nextState: string,
-    prevState: string | undefined,
     opts: {
       inspectCross?: boolean;
       crossColor?: string;
@@ -264,7 +261,6 @@ export function CubeGuide3D({
     );
     const cell = dimension === 2 ? CELL_2 : CELL_3;
     const coords = dimension === 2 ? [-1, 1] : [-1, 0, 1];
-    const flashMaterials: THREE.MeshStandardMaterial[] = [];
 
     const stickerGeometry = new RoundedBoxGeometry(cell * 0.88, cell * 0.88, 0.052, 4, 0.075);
     const bodyGeometry = new RoundedBoxGeometry(cell * 0.94, cell * 0.94, cell * 0.94, 4, 0.09);
@@ -300,13 +296,6 @@ export function CubeGuide3D({
               emissive: highlightInfo ? new THREE.Color(highlightInfo.color) : new THREE.Color("#000000"),
               emissiveIntensity: highlightInfo?.intensity ?? 0,
             });
-            const changed =
-              prevState && prevState.length === nextState.length && prevState[faceletIndex] !== nextState[faceletIndex];
-            if (changed) {
-              material.emissive.set("#ffffff");
-              material.emissiveIntensity = 0.9;
-              flashMaterials.push(material);
-            }
             const sticker = new THREE.Mesh(stickerGeometry, material);
             const offset = BODY / 2 + 0.026;
             switch (face) {
@@ -344,8 +333,6 @@ export function CubeGuide3D({
     }
     stickerGeometry.dispose();
     bodyGeometry.dispose();
-    flashMaterialsRef.current = flashMaterials;
-    flashUntilRef.current = flashMaterials.length ? performance.now() + 750 : 0;
     bundle.resize();
   };
 
@@ -353,7 +340,6 @@ export function CubeGuide3D({
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    let raf = 0;
     let renderer: THREE.WebGLRenderer | null = null;
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -397,7 +383,7 @@ export function CubeGuide3D({
     const observer = new ResizeObserver(resize);
     observer.observe(host);
     sceneRef.current = { renderer: activeRenderer, scene, camera, root, host, resize };
-    buildFromState(sceneRef.current, state, previousState, {
+    buildFromState(sceneRef.current, state, {
       inspectCross,
       crossColor,
       xcrossSlots,
@@ -405,31 +391,8 @@ export function CubeGuide3D({
       specialStickers,
     });
 
-    const decay = () => {
-      raf = window.requestAnimationFrame(decay);
-      const remaining = flashUntilRef.current - performance.now();
-      const intensity =
-        remaining > 0 ? Math.min(0.9, Math.max(0, (remaining / 750) * 0.9)) : 0;
-      const flashVisible = flashMaterialsRef.current.length > 0 && remaining > 0;
-      if (flashVisible) {
-        for (const material of flashMaterialsRef.current) {
-          material.emissiveIntensity = intensity;
-        }
-      } else if (remaining <= 0 && flashMaterialsRef.current.length) {
-        for (const material of flashMaterialsRef.current) material.emissiveIntensity = 0;
-        flashMaterialsRef.current = [];
-      }
-      // Only re-render when the orbit, a layer turn or a sticker flash could
-      // have changed the frame — otherwise the cube would render 60fps forever.
-      if (animFrameRef.current !== null || flashVisible || pivotRef.current !== null) {
-        resize();
-      }
-    };
-    raf = window.requestAnimationFrame(decay);
-
     setStatus("ready");
     return () => {
-      window.cancelAnimationFrame(raf);
       cancelAnimation();
       observer.disconnect();
       for (const cubie of cubiesRef.current) disposeObject(cubie.group);
@@ -448,7 +411,7 @@ export function CubeGuide3D({
     const isMove = transition === "move" && move && previousState && previousState !== state;
 
     const rebuild = () =>
-      buildFromState(bundle, state, previousState, {
+      buildFromState(bundle, state, {
         inspectCross,
         crossColor,
         xcrossSlots,
