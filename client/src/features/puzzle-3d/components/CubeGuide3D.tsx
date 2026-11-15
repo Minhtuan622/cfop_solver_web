@@ -15,7 +15,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export type CubeGuide3DProps = {
   state: string;
   previousState?: string;
-  /** Small NxN variants: 2 means 2×2×2, default 3. */
+  /** Lệnh vừa chạy, dùng để phát hoạt hình xoay tầng. */
+  move?: string;
+  transition?: "idle" | "move" | "seek" | "phase" | "reset";
+  /** Thời lượng một nước, mặc định 340ms. */
+  turnDurationMs?: number;
   dimension?: 2 | 3;
   inspectCross?: boolean;
   crossColor?: string;
@@ -45,6 +49,31 @@ const FACE_OFFSET: Record<string, number> = {
   L: 36,
   B: 45,
 };
+const SLICE_MOVES: Record<string, { axis: "x" | "y" | "z"; layers: number[]; sign: 1 | -1 }> = {
+  R: { axis: "x", layers: [1], sign: -1 },
+  L: { axis: "x", layers: [-1], sign: 1 },
+  r: { axis: "x", layers: [0, 1], sign: -1 },
+  l: { axis: "x", layers: [-1, 0], sign: 1 },
+  M: { axis: "x", layers: [0], sign: 1 },
+  U: { axis: "y", layers: [1], sign: -1 },
+  D: { axis: "y", layers: [-1], sign: 1 },
+  u: { axis: "y", layers: [0, 1], sign: -1 },
+  d: { axis: "y", layers: [-1, 0], sign: 1 },
+  E: { axis: "y", layers: [0], sign: -1 },
+  F: { axis: "z", layers: [1], sign: -1 },
+  B: { axis: "z", layers: [-1], sign: 1 },
+  f: { axis: "z", layers: [0, 1], sign: -1 },
+  b: { axis: "z", layers: [-1, 0], sign: 1 },
+  S: { axis: "z", layers: [0], sign: -1 },
+  x: { axis: "x", layers: [-1, 0, 1], sign: -1 },
+  y: { axis: "y", layers: [-1, 0, 1], sign: -1 },
+  z: { axis: "z", layers: [-1, 0, 1], sign: -1 },
+};
+const ORBIT_LIMIT = 1.1;
+const HALF = 1.05;
+const BODY = 0.66;
+const CELL_3 = 0.7;
+const CELL_2 = 0.95;
 const XROSS_STICKERS: Record<string, Partial<Record<string, number[]>>> = {
   FR: { D: [2], F: [5, 8], R: [3, 6] },
   FL: { D: [0], F: [3, 6], L: [5, 8] },
@@ -52,46 +81,45 @@ const XROSS_STICKERS: Record<string, Partial<Record<string, number[]>>> = {
   BR: { D: [8], B: [3, 6], R: [5, 8] },
 };
 const CROSS_EDGES = [1, 3, 5, 7];
-const HALF = 1.05;
-const CELL_3 = 0.7;
-const CELL_2 = 0.9;
-const ORBIT_LIMIT = 1.1;
 
-function faceletTransform(face: string, index: number, cell: number) {
-  const row = Math.floor(index / 3);
-  const col = index % 3;
+function indexFor(face: string, x: number, y: number, z: number) {
   switch (face) {
     case "U":
-      return {
-        position: new THREE.Vector3((col - 1) * cell, HALF + 0.026, (row - 1) * cell),
-        rotation: new THREE.Euler(-Math.PI / 2, 0, 0),
-      };
-    case "F":
-      return {
-        position: new THREE.Vector3((col - 1) * cell, (1 - row) * cell, HALF + 0.026),
-        rotation: new THREE.Euler(0, 0, 0),
-      };
+      return FACE_OFFSET.U + (z + 1) * 3 + (x + 1);
     case "D":
-      return {
-        position: new THREE.Vector3((col - 1) * cell, -HALF - 0.026, (1 - row) * cell),
-        rotation: new THREE.Euler(Math.PI / 2, 0, 0),
-      };
+      return FACE_OFFSET.D + (1 - z) * 3 + (x + 1);
+    case "F":
+      return FACE_OFFSET.F + (1 - y) * 3 + (x + 1);
+    case "B":
+      return FACE_OFFSET.B + (1 - y) * 3 + (1 - x);
     case "R":
-      return {
-        position: new THREE.Vector3(HALF + 0.026, (1 - row) * cell, (1 - col) * cell),
-        rotation: new THREE.Euler(0, Math.PI / 2, 0),
-      };
-    case "L":
-      return {
-        position: new THREE.Vector3(-HALF - 0.026, (1 - row) * cell, (col - 1) * cell),
-        rotation: new THREE.Euler(0, -Math.PI / 2, 0),
-      };
-    default:
-      return {
-        position: new THREE.Vector3((1 - col) * cell, (1 - row) * cell, -HALF - 0.026),
-        rotation: new THREE.Euler(0, Math.PI, 0),
-      };
+      return FACE_OFFSET.R + (1 - y) * 3 + (1 - z);
+    default: // L
+      return FACE_OFFSET.L + (1 - y) * 3 + (z + 1);
   }
+}
+
+function parseMove(move: string) {
+  const match = /^([a-zA-Z])(['2]?)$/.exec(move.trim());
+  if (!match) return null;
+  const base = match[1];
+  const suffix = match[2];
+  const spec = SLICE_MOVES[base];
+  if (!spec) return null;
+  if (match[1].toLowerCase() === "x" || match[1].toLowerCase() === "y" || match[1].toLowerCase() === "z") {
+    const lower = match[1].toLowerCase();
+    if (base === lower) {
+      // x / y / z — whole-cube rotation, follow the sign table.
+      const axis = lower as "x" | "y" | "z";
+      const sign = match[1] === lower ? -1 : 1; // lowercase = inverse of uppercase in this scheme
+      const angle = (suffix === "2" ? Math.PI : (Math.PI / 2) * sign * (suffix === "'" ? -1 : 1)) as number;
+      return { axis, layers: [-1, 0, 1], angle };
+    }
+  }
+  let angle = (Math.PI / 2) * spec.sign;
+  if (suffix === "'") angle = -angle;
+  if (suffix === "2") angle *= 2;
+  return { axis: spec.axis, layers: spec.layers, angle };
 }
 
 function highlightedIndexes(
@@ -138,6 +166,12 @@ function highlightedIndexes(
   return highlight;
 }
 
+type Cubie = {
+  unit: { x: number; y: number; z: number };
+  group: THREE.Group;
+  stickerMaterials: THREE.MeshStandardMaterial[];
+};
+
 type TrackedScene = {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
@@ -150,6 +184,9 @@ type TrackedScene = {
 export function CubeGuide3D({
   state,
   previousState,
+  move,
+  transition = "idle",
+  turnDurationMs = 340,
   dimension = 3,
   inspectCross = false,
   crossColor = "U",
@@ -163,14 +200,40 @@ export function CubeGuide3D({
   const { language } = useLanguage();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef<TrackedScene | null>(null);
+  const cubiesRef = useRef<Cubie[]>([]);
+  const animFrameRef = useRef<number | null>(null);
+  const pivotRef = useRef<THREE.Group | null>(null);
   const orbitRef = useRef({ yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 4.1 : 4.6 });
   const flashUntilRef = useRef(0);
   const flashMaterialsRef = useRef<THREE.MeshStandardMaterial[]>([]);
-  const stickerMaterialsRef = useRef<THREE.MeshStandardMaterial[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "fallback" | "error">("loading");
 
-  const rebuildStickers = (
-    scene: TrackedScene,
+  const disposeObject = (object: THREE.Object3D) => {
+    object.traverse(node => {
+      const mesh = node as THREE.Mesh;
+      if (mesh.isMesh) {
+        mesh.geometry?.dispose();
+        const material = mesh.material;
+        if (Array.isArray(material)) material.forEach(m => m.dispose());
+        else material?.dispose();
+      }
+    });
+  };
+
+  const cancelAnimation = () => {
+    if (animFrameRef.current !== null) {
+      window.cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (pivotRef.current && sceneRef.current) {
+      disposeObject(pivotRef.current);
+      sceneRef.current.root.remove(pivotRef.current);
+      pivotRef.current = null;
+    }
+  };
+
+  const buildFromState = (
+    bundle: TrackedScene,
     nextState: string,
     prevState: string | undefined,
     opts: {
@@ -181,21 +244,16 @@ export function CubeGuide3D({
       specialStickers?: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>>;
     }
   ) => {
-    const { root } = scene;
-    for (const material of stickerMaterialsRef.current) material.dispose();
-    stickerMaterialsRef.current = [];
-    for (const child of root.children.slice()) {
+    cancelAnimation();
+    const { root } = bundle;
+    for (const cubie of cubiesRef.current) disposeObject(cubie.group);
+    while (root.children.length) {
+      const child = root.children[0];
       root.remove(child);
-      if ((child as THREE.Mesh).isMesh) {
-        (child as THREE.Mesh).geometry?.dispose();
-      }
+      disposeObject(child);
     }
-    const cell = dimension === 2 ? CELL_2 : CELL_3;
-    const body = new THREE.Mesh(
-      new RoundedBoxGeometry(HALF * 2, HALF * 2, HALF * 2, 5, 0.16),
-      new THREE.MeshStandardMaterial({ color: "#141414", roughness: 0.45, metalness: 0.15 })
-    );
-    root.add(body);
+    cubiesRef.current = [];
+
     const highlight = highlightedIndexes(
       nextState,
       opts.inspectCross ?? false,
@@ -204,57 +262,97 @@ export function CubeGuide3D({
       opts.lastLayerCase,
       opts.specialStickers
     );
+    const cell = dimension === 2 ? CELL_2 : CELL_3;
+    const coords = dimension === 2 ? [-1, 1] : [-1, 0, 1];
     const flashMaterials: THREE.MeshStandardMaterial[] = [];
-    const changed = new Set<string>();
-    if (prevState && prevState.length === nextState.length) {
-      for (let index = 0; index < nextState.length; index += 1) {
-        if (prevState[index] !== nextState[index]) {
+
+    const stickerGeometry = new RoundedBoxGeometry(cell * 0.88, cell * 0.88, 0.052, 4, 0.075);
+    const bodyGeometry = new RoundedBoxGeometry(cell * 0.94, cell * 0.94, cell * 0.94, 4, 0.09);
+
+    for (const x of coords) {
+      for (const y of coords) {
+        for (const z of coords) {
+          if (dimension === 3 && x === 0 && y === 0 && z === 0) continue;
+          const group = new THREE.Group();
+          group.position.set(x * cell, y * cell, z * cell);
+          const bodyMaterial = new THREE.MeshStandardMaterial({ color: "#141414", roughness: 0.5, metalness: 0.15 });
+          const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+          group.add(body);
+          const cubie: Cubie = { unit: { x, y, z }, group, stickerMaterials: [] };
           for (const face of FACE_ORDER) {
-            const base = FACE_OFFSET[face];
-            if (index >= base && index < base + 9) changed.add(`${face}:${index - base}`);
+            const exposed =
+              (face === "U" && y === 1) ||
+              (face === "D" && y === -1) ||
+              (face === "F" && z === 1) ||
+              (face === "B" && z === -1) ||
+              (face === "R" && x === 1) ||
+              (face === "L" && x === -1);
+            if (!exposed) continue;
+            const faceletIndex = indexFor(face, x, y, z);
+            const faceIndex = faceletIndex % 9;
+            const letter = nextState[faceletIndex] ?? "?";
+            const color = CUBE_COLORS[letter] ?? CUBE_FALLBACK_COLOR;
+            const highlightInfo = highlight.get(`${face}:${faceIndex}`);
+            const material = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.35,
+              metalness: 0.05,
+              emissive: highlightInfo ? new THREE.Color(highlightInfo.color) : new THREE.Color("#000000"),
+              emissiveIntensity: highlightInfo?.intensity ?? 0,
+            });
+            const changed =
+              prevState && prevState.length === nextState.length && prevState[faceletIndex] !== nextState[faceletIndex];
+            if (changed) {
+              material.emissive.set("#ffffff");
+              material.emissiveIntensity = 0.9;
+              flashMaterials.push(material);
+            }
+            const sticker = new THREE.Mesh(stickerGeometry, material);
+            const offset = BODY / 2 + 0.026;
+            switch (face) {
+              case "U":
+                sticker.position.set(0, offset, 0);
+                sticker.rotation.set(-Math.PI / 2, 0, 0);
+                break;
+              case "D":
+                sticker.position.set(0, -offset, 0);
+                sticker.rotation.set(Math.PI / 2, 0, 0);
+                break;
+              case "F":
+                sticker.position.set(0, 0, offset);
+                break;
+              case "B":
+                sticker.position.set(0, 0, -offset);
+                sticker.rotation.set(0, Math.PI, 0);
+                break;
+              case "R":
+                sticker.position.set(offset, 0, 0);
+                sticker.rotation.set(0, Math.PI / 2, 0);
+                break;
+              default: // L
+                sticker.position.set(-offset, 0, 0);
+                sticker.rotation.set(0, -Math.PI / 2, 0);
+                break;
+            }
+            group.add(sticker);
+            cubie.stickerMaterials.push(material);
           }
+          root.add(group);
+          cubiesRef.current.push(cubie);
         }
       }
     }
-    for (const face of FACE_ORDER) {
-      for (let index = 0; index < 9; index += 1) {
-        const key = `${face}:${index}`;
-        const letter = nextState[FACE_OFFSET[face] + index] ?? "?";
-        const color = CUBE_COLORS[letter] ?? CUBE_FALLBACK_COLOR;
-        const highlightInfo = highlight.get(key);
-        const spec = faceletTransform(face, index, cell);
-        const material = new THREE.MeshStandardMaterial({
-          color,
-          roughness: 0.35,
-          metalness: 0.05,
-          emissive: highlightInfo ? new THREE.Color(highlightInfo.color) : new THREE.Color("#000000"),
-          emissiveIntensity: highlightInfo?.intensity ?? 0,
-        });
-        if (changed.has(key)) {
-          material.emissive.set("#ffffff");
-          material.emissiveIntensity = 0.9;
-          flashMaterials.push(material);
-        }
-        const sticker = new THREE.Mesh(
-          new RoundedBoxGeometry(cell, cell, 0.052, 4, 0.075),
-          material
-        );
-        sticker.position.copy(spec.position);
-        sticker.rotation.copy(spec.rotation);
-        root.add(sticker);
-        stickerMaterialsRef.current.push(material);
-      }
-    }
+    stickerGeometry.dispose();
+    bodyGeometry.dispose();
     flashMaterialsRef.current = flashMaterials;
     flashUntilRef.current = flashMaterials.length ? performance.now() + 750 : 0;
-    scene.resize();
+    bundle.resize();
   };
 
   // Mount-time: create renderer + scene once.
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    let disposed = false;
     let raf = 0;
     let renderer: THREE.WebGLRenderer | null = null;
     try {
@@ -299,18 +397,32 @@ export function CubeGuide3D({
     const observer = new ResizeObserver(resize);
     observer.observe(host);
     sceneRef.current = { renderer: activeRenderer, scene, camera, root, host, resize };
-    resize();
+    buildFromState(sceneRef.current, state, previousState, {
+      inspectCross,
+      crossColor,
+      xcrossSlots,
+      lastLayerCase,
+      specialStickers,
+    });
 
     const decay = () => {
       raf = window.requestAnimationFrame(decay);
       const remaining = flashUntilRef.current - performance.now();
-      const intensity = remaining > 0 ? Math.min(0.9, Math.max(0, (remaining / 750) * 0.9)) : 0;
-      for (const material of flashMaterialsRef.current) {
-        material.emissiveIntensity = intensity;
-      }
-      if (remaining <= 0 && flashMaterialsRef.current.length) {
+      const intensity =
+        remaining > 0 ? Math.min(0.9, Math.max(0, (remaining / 750) * 0.9)) : 0;
+      const flashVisible = flashMaterialsRef.current.length > 0 && remaining > 0;
+      if (flashVisible) {
+        for (const material of flashMaterialsRef.current) {
+          material.emissiveIntensity = intensity;
+        }
+      } else if (remaining <= 0 && flashMaterialsRef.current.length) {
         for (const material of flashMaterialsRef.current) material.emissiveIntensity = 0;
         flashMaterialsRef.current = [];
+      }
+      // Only re-render when the orbit, a layer turn or a sticker flash could
+      // have changed the frame — otherwise the cube would render 60fps forever.
+      if (animFrameRef.current !== null || flashVisible || pivotRef.current !== null) {
+        resize();
       }
     };
     raf = window.requestAnimationFrame(decay);
@@ -318,9 +430,10 @@ export function CubeGuide3D({
     setStatus("ready");
     return () => {
       window.cancelAnimationFrame(raf);
+      cancelAnimation();
       observer.disconnect();
-      for (const material of stickerMaterialsRef.current) material.dispose();
-      stickerMaterialsRef.current = [];
+      for (const cubie of cubiesRef.current) disposeObject(cubie.group);
+      cubiesRef.current = [];
       activeRenderer.dispose();
       sceneRef.current = null;
       host.replaceChildren();
@@ -328,19 +441,74 @@ export function CubeGuide3D({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dimension, surface]);
 
-  // State-dependent: rebuild stickers + flash on change.
+  // State-dependent: rebuild or animate on change.
   useEffect(() => {
     const bundle = sceneRef.current;
     if (!bundle) return;
-    rebuildStickers(bundle, state, previousState, {
-      inspectCross,
-      crossColor,
-      xcrossSlots,
-      lastLayerCase,
-      specialStickers,
-    });
+    const isMove = transition === "move" && move && previousState && previousState !== state;
+
+    const rebuild = () =>
+      buildFromState(bundle, state, previousState, {
+        inspectCross,
+        crossColor,
+        xcrossSlots,
+        lastLayerCase,
+        specialStickers,
+      });
+
+    if (!isMove) {
+      rebuild();
+      return;
+    }
+
+    const parsed = parseMove(move);
+    if (!parsed) {
+      rebuild();
+      return;
+    }
+    cancelAnimation();
+    const cell = dimension === 2 ? CELL_2 : CELL_3;
+    const { axis, layers, angle } = parsed;
+    const pivot = new THREE.Group();
+    pivot.position.set(
+      axis === "x" ? layers[0] * cell : 0,
+      axis === "y" ? layers[0] * cell : 0,
+      axis === "z" ? layers[0] * cell : 0
+    );
+    pivotRef.current = pivot;
+    const moved = cubiesRef.current.filter(cubie =>
+      layers.includes(Math.round(cubie.unit[axis]))
+    );
+    for (const cubie of moved) {
+      bundle.root.remove(cubie.group);
+      cubie.group.position.set(
+        cubie.unit.x * cell - (axis === "x" ? layers[0] * cell : 0),
+        cubie.unit.y * cell - (axis === "y" ? layers[0] * cell : 0),
+        cubie.unit.z * cell - (axis === "z" ? layers[0] * cell : 0)
+      );
+      pivot.add(cubie.group);
+    }
+    bundle.root.add(pivot);
+    const start = performance.now();
+    const duration = Math.max(120, turnDurationMs);
+    const ease = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+
+    const tick = () => {
+      const t = Math.min(1, (performance.now() - start) / duration);
+      pivot.rotation[axis as "x" | "y" | "z"] = angle * ease(t);
+      bundle.resize();
+      if (t < 1) {
+        animFrameRef.current = window.requestAnimationFrame(tick);
+      } else {
+        // Snap back everything with the canonical rebuild; identical geometry, no visible jump.
+        animFrameRef.current = null;
+        rebuild();
+      }
+    };
+    animFrameRef.current = window.requestAnimationFrame(tick);
+    return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, previousState, inspectCross, crossColor, xcrossSlots, lastLayerCase, specialStickers]);
+  }, [state, move, transition]);
 
   const renderNow = () => {
     sceneRef.current?.resize();

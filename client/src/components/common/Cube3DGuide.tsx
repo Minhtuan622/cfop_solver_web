@@ -71,6 +71,7 @@ function displayState(state: string, crossColor: string, alignCross: boolean) {
 export function Cube3DGuide({
   state,
   previousState,
+  move,
   dimension = 3,
   crossColor = "U",
   inspection = false,
@@ -84,6 +85,7 @@ export function Cube3DGuide({
   initialOrbit = 0.55,
   initialPitch = 0.3,
   surface = "dark",
+  turnDurationMs = 340,
 }: {
   state: string;
   previousState?: string;
@@ -134,6 +136,9 @@ export function Cube3DGuide({
             <CubeGuide3D
               state={renderedState}
               previousState={renderedPrevious}
+              move={move}
+              transition={transition}
+              turnDurationMs={turnDurationMs}
               dimension={dimension}
               inspectCross={activeInspection}
               crossColor="U"
