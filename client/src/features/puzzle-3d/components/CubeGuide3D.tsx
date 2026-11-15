@@ -228,9 +228,24 @@ export function CubeGuide3D({
       window.cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
     }
-    if (pivotRef.current && sceneRef.current) {
-      disposeObject(pivotRef.current);
-      sceneRef.current.root.remove(pivotRef.current);
+    // Trả các cubie đang bị xoay về root ở vị trí tuyệt đối — KHÔNG dispose
+    // vật liệu/geometry (chúng vẫn được cubiesRef giữ lại, sẽ bị dispose riêng
+    // khi buildFromState() rebuild lại từ state mới).
+    const pivot = pivotRef.current;
+    if (pivot && sceneRef.current) {
+      const cell = dimension === 2 ? CELL_2 : CELL_3;
+      for (const cubie of cubiesRef.current) {
+        if (cubie.group.parent === pivot) {
+          pivot.remove(cubie.group);
+          cubie.group.position.set(
+            cubie.unit.x * cell,
+            cubie.unit.y * cell,
+            cubie.unit.z * cell
+          );
+          sceneRef.current.root.add(cubie.group);
+        }
+      }
+      sceneRef.current.root.remove(pivot);
       pivotRef.current = null;
     }
   };
