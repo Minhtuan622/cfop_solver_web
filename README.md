@@ -81,10 +81,39 @@ pnpm audit --prod --audit-level=high
 
 `pnpm test:e2e` dùng Chromium do Playwright quản lý (tự động tải về). Không cần cài Chromium hệ thống.
 
+`pnpm build` **đã chạy `tsc --noEmit` ở đầu chuỗi**, nên build fail ở local cũng là lỗi type chứ không chỉ lỗi bundling. `pnpm check` vẫn đáng chạy riêng vì báo lỗi sớm hơn, trước bước tải Pyodide ~14 MB.
+
+## Cổng chất lượng tự động
+
+Ngoài unit test và e2e, repo còn có các cổng kiểm tra riêng — tất cả đều chạy trong CI và đều **đỏ** khi vi phạm:
+
+| Cổng kiểm tra | Lệnh | Chặn cái gì |
+|---|---|---|
+| Tương phản token | `pnpm test --run server/contrast.test.ts` | Cặp màu chính rơi dưới WCAG AA (4.5:1 cho chữ, 3:1 cho vòng focus và biểu tượng trạng thái) ở **cả hai** chế độ sáng và tối. |
+| Tương phản trên trang thật | `pnpm exec playwright test e2e/contrast-a11y.spec.ts` | Vi phạm axe mới trên 6 trang chính × 2 chế độ, và danh sách vi phạm đã biết (`e2e/contrast-a11y.baseline.json`) bị lỗi thời. |
+| Hiệu năng bộ giải | `node scripts/bench-solver.mjs --check` | Bộ giải giải sai, một đề chậm hơn `PER_SCRAMBLE_LIMIT_SEC` (mặc định 20s) hoặc tổng vượt `TOTAL_LIMIT_SEC` (mặc định 80s). |
+| Ghim phiên bản Pyodide | `pnpm test --run server/pyodideAssets.test.ts` | Lệch phiên bản Pyodide giữa loader, script tải và gói npm — đồng nghĩa là bộ đo đo sai runtime. |
+| Bundle solver tất định | `pnpm test --run server/embedSolver.test.ts` | Bundle `embeddedSolver.ts` lệch với source Python, hoặc sinh khác nhau giữa Windows và Linux vì line ending. |
+
+Báo cáo tương phản đầy đủ (bảng số đo, các cặp chưa đạt và giới hạn của phép đo) nằm ở [docs/validation/contrast-report.md](docs/validation/contrast-report.md).
+
+## CI
+
+Workflow `CI` chạy **3 job** song song:
+
+| Job | Nội dung |
+|---|---|
+| `check-test-build` | typecheck → unit test → kiểm tra bundle solver không drift → e2e → production build → audit dependency |
+| `Solver tests (pytest)` | bộ test Python của `solver-python` |
+| `Solver benchmark (Pyodide)` | đo hiệu năng bộ giải ở chế độ kiểm tra, xuất JSON làm artifact để theo dõi xu hướng |
+
+Ba job đều là **check bắt buộc** khi merge vào `main` — xem [docs/REPO-OWNER-CHECKLIST.md](docs/REPO-OWNER-CHECKLIST.md).
+
 ## Tài liệu
 
 - [Mục lục tài liệu](docs/README.md)
 - [Hướng dẫn phát triển chi tiết](docs/development/project-guide.md)
+- [Báo cáo tương phản màu](docs/validation/contrast-report.md)
 - [Danh sách việc còn mở](TODO.md)
 - [Đóng góp cho dự án](CONTRIBUTING.md)
 - [Quy tắc cộng đồng](CODE_OF_CONDUCT.md)
@@ -98,6 +127,8 @@ pnpm audit --prod --audit-level=high
 - Vitest/Testing Library cho unit tests và Playwright cho browser E2E.
 
 Source Python của solver nằm tại [`solver-python/cfop_solver`](solver-python/cfop_solver). Sau khi chỉnh sửa source, chạy `pnpm run embed-solver` để tái tạo bundle Pyodide được dùng trong trình duyệt; không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`.
+
+Bundle phải **commit kèm** cùng thay đổi: CI kiểm tra bằng `pnpm run embed-solver && git diff --exit-code client/src/lib/embeddedSolver.ts` nên quên commit sẽ bị đỏ. Script nhúng đã chuẩn hoá line ending (`.gitattributes` cũng ép file `.py` luôn dùng LF) để bundle **giống hệt nhau trên mọi OS** — nếu không, bước kiểm tra này sẽ đỏ trên Linux mỗi khi bundle được sinh trên Windows.
 
 ## Đóng góp
 
