@@ -29,6 +29,7 @@ import {
   puzzlePreviewSetupAlgorithm,
 } from "../lib/puzzleFraming";
 import type { SideEvent3DAnimation } from "../lib/sideEventAnimation";
+import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/StudioUI";
 import { BoxSeam, RotateCcw } from "@/components/ui/Icon";
 
@@ -66,6 +67,20 @@ function startMountedTwistyPlayer(player: HTMLElement) {
     }
     target = Object.getPrototypeOf(target);
   }
+}
+
+/** Cờ sessionStorage đánh dấu trang đã được nạp lại một lần để cứu lỗi 3D. */
+const PREVIEW_RELOAD_FLAG = "cfop-3d-preview-reload";
+
+/**
+ * Lỗi tải module (import động hỏng). Module map của trình duyệt cache luôn cả
+ * thất bại, nên thử lại `import()` trong cùng document sẽ fail ngay mà không
+ * có request mạng nào nữa — chỉ nạp lại trang (document mới) mới xoá được cache.
+ */
+function isModuleLoadFailure(error: unknown): boolean {
+  return /dynamically imported module|importing a module/i.test(
+    String((error as { message?: string } | null | undefined)?.message ?? error)
+  );
 }
 
 export function Puzzle3DCanvas({
@@ -110,6 +125,13 @@ export function Puzzle3DCanvas({
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading"
   );
+  // Lần thử lại cho cùng một preview; đổi puzzle/scramble thì đếm lại từ 0.
+  const [retryTick, setRetryTick] = useState(0);
+  const attemptRef = useRef({ key: "", attempt: 0 });
+  // Lần dựng gần nhất có lỗi tải module (import động) hay không — lỗi này để
+  // lại cache hỏng trong module map của document, thử lại trong cùng document
+  // vô ích; chỉ nạp lại trang mới xoá được.
+  const moduleFailureRef = useRef(false);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -120,7 +142,17 @@ export function Puzzle3DCanvas({
     let player: PuzzlePlayer | null = null;
     let renderer: WebGLRenderer | null = null;
     let sideEventAnimation: SideEvent3DAnimation | null = null;
+    const buildKey = `${puzzle}|${scramble}|${animationRunId}|${focusFtoWhiteFace}|${focusFtoFace ?? ""}`;
+    if (attemptRef.current.key !== buildKey)
+      attemptRef.current = { key: buildKey, attempt: 0 };
+    moduleFailureRef.current = false;
     setStatus("loading");
+    // Lỗi tải module phát sinh bên trong cubing.js không lan tới catch ở dưới
+    // (chỉ thành unhandled rejection), nên nghe ở window để nhận diện.
+    const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (isModuleLoadFailure(event.reason)) moduleFailureRef.current = true;
+    };
+    window.addEventListener("unhandledrejection", onUnhandledRejection);
 
     void (async () => {
       let THREE: typeof import("three");
@@ -181,6 +213,13 @@ export function Puzzle3DCanvas({
         player?.remove();
         staging?.remove();
         return;
+      }
+      // Module đã tải xong và player đã trả về đối tượng 3D: xoá cờ "đã nạp
+      // lại trang" để lần hỏng sau (nếu có) vẫn được phép nạp lại trang.
+      try {
+        window.sessionStorage.removeItem(PREVIEW_RELOAD_FLAG);
+      } catch {
+        /* sessionStorage có thể bị chặn — bỏ qua. */
       }
       const activeRenderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -277,16 +316,39 @@ export function Puzzle3DCanvas({
         player?.remove();
         staging?.remove();
       };
-    })().catch(() => {
+    })().catch(error => {
       player?.remove();
       staging?.remove();
       renderer?.dispose();
       renderer?.forceContextLoss();
-      if (!disposed) setStatus("error");
+      if (disposed) return;
+      moduleFailureRef.current =
+        moduleFailureRef.current || isModuleLoadFailure(error);
+      // Thất bại thường chỉ là tạm thời (chunk/wasm tải chậm hoặc chập chờn
+      // đúng một lần), nên thử lại tự động trước khi báo lỗi cho người dùng.
+      // Riêng lỗi tải module thì thử lại trong document vô ích (module map
+      // cache luôn cả thất bại) — báo lỗi ngay để nút "Thử lại" nạp lại trang.
+      if (!moduleFailureRef.current && attemptRef.current.attempt < 2) {
+        attemptRef.current = {
+          key: buildKey,
+          attempt: attemptRef.current.attempt + 1,
+        };
+        window.setTimeout(
+          () => {
+            if (!disposed) setRetryTick(value => value + 1);
+          },
+          attemptRef.current.attempt === 1 ? 400 : 1600
+        );
+        return;
+      }
+      if (import.meta.env.DEV)
+        console.error("[3D preview] không dựng được mô hình", error);
+      setStatus("error");
     });
 
     return () => {
       disposed = true;
+      window.removeEventListener("unhandledrejection", onUnhandledRejection);
       cleanup();
       host.replaceChildren();
     };
@@ -297,6 +359,7 @@ export function Puzzle3DCanvas({
     animationRunId,
     focusFtoWhiteFace,
     focusFtoFace,
+    retryTick,
   ]);
 
   const smoothZoom = () => {
@@ -456,11 +519,36 @@ export function Puzzle3DCanvas({
       <div className="rounded-card bg-surface p-5 sm:p-6 h-full flex flex-col items-center justify-center text-center">
         <BoxSeam className="text-4xl text-muted mb-4" />
         <p className="font-semibold mb-1">{label}</p>
-        <p className="text-sm text-muted mb-0">
+        <p className="text-sm text-muted mb-3">
           {language === "vi"
             ? "Không thể tạo mô hình 3D cho scramble này."
             : "The 3D model could not be created for this scramble."}
         </p>
+        <Button
+          variant="outline"
+          size="xs"
+          onClick={() => {
+            // Lỗi thường để lại cache hỏng trong module map của document hiện
+            // tại, nên nạp lại trang một lần là cách phục hồi đáng tin nhất.
+            // Cờ sessionStorage chặn vòng lặp nạp lại; các lần bấm sau (và
+            // trường hợp sessionStorage bị chặn) dựng lại trong trang.
+            try {
+              if (!window.sessionStorage.getItem(PREVIEW_RELOAD_FLAG)) {
+                window.sessionStorage.setItem(PREVIEW_RELOAD_FLAG, "1");
+                window.location.reload();
+                return;
+              }
+            } catch {
+              /* sessionStorage có thể bị chặn — dựng lại trong trang. */
+            }
+            attemptRef.current = { key: attemptRef.current.key, attempt: 0 };
+            moduleFailureRef.current = false;
+            setStatus("loading");
+            setRetryTick(value => value + 1);
+          }}
+        >
+          {language === "vi" ? "Thử lại" : "Try again"}
+        </Button>
       </div>
     );
 
