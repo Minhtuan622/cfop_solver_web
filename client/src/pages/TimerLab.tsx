@@ -383,8 +383,6 @@ export default function TimerLab() {
     const stored = readStoredValue("cfop-scramble-size");
     return stored === "sm" || stored === "lg" ? stored : "md";
   });
-  const [phaseTargets, setPhaseTargets] =
-    useState<Record<SplitPhase, number>>(readPhaseTargets);
   const [multiBlindAttempted, setMultiBlindAttempted] = useState(2);
   const [multiBlindSolved, setMultiBlindSolved] = useState(0);
   const [multiBlindScrambles, setMultiBlindScrambles] = useState<string[]>([]);
