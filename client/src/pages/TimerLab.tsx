@@ -10,9 +10,7 @@ import {
   Eye,
   EyeOff,
   ImageDown,
-  Pause,
   Play,
-  RotateCcw,
   Timer,
 } from "@/components/ui/Icon";
 import { Link, useLocation } from "wouter";
@@ -27,7 +25,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Cube3DGuide } from "@/components/common/Cube3DGuide";
 import { CubeNet } from "@/components/common/CubeNet";
 import {
   CUBE_COLORS,
@@ -47,7 +44,6 @@ import {
 import {
   SOLVED_FAST_STATE,
   stateFromScramble,
-  traceFastMoves,
   validateRecordedSolution,
 } from "@/lib/fastCube";
 import {
@@ -122,7 +118,6 @@ import { buttonClass } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
 
-const FACES = ["U", "R", "F", "D", "L", "B"] as const;
 const AVERAGES = TIMER_AVERAGE_SIZES;
 const SPEED_PHASES: SplitPhase[] = ["Cross", "F2L", "OLL", "PLL"];
 type TimerWcaRecord = {
@@ -364,15 +359,6 @@ export default function TimerLab() {
   );
   const [expandedMetricCube, setExpandedMetricCube] =
     useState<SolveHistoryEntry | null>(null);
-  const [inspectionColor] = useState<(typeof FACES)[number]>(() => {
-    const saved = readStoredValue("cfop-inspection-color");
-    return FACES.includes(saved as (typeof FACES)[number])
-      ? (saved as (typeof FACES)[number])
-      : "U";
-  });
-  const [crossHighlight] = useState(
-    () => readStoredValue("cfop-cross-highlight") !== "off"
-  );
   const [inspectionSound] = useState(
     () => readStoredValue("cfop-inspection-sound") !== "off"
   );
@@ -400,9 +386,7 @@ export default function TimerLab() {
   const [tagFilter, setTagFilter] = useState("all");
   const [noteQuery, setNoteQuery] = useState("");
   const [replay, setReplay] = useState<SolveHistoryEntry | null>(null);
-  const [replayStep, setReplayStep] = useState(0);
-  const [replayPlaying, setReplayPlaying] = useState(false);
-  const [replaySpeed, setReplaySpeed] = useState(1);
+  const [replayRunId, setReplayRunId] = useState(0);
   const [location] = useLocation();
   const labTab: "timer" | "study" =
     location.split("?")[0] === "/study" ? "study" : "timer";
@@ -415,14 +399,6 @@ export default function TimerLab() {
     multiBlindScrambles.length === multiBlindAttempted &&
     multiBlindScrambles.length > 0;
   const eventLabel = timerEventLabel(eventId, language);
-  const state = useMemo(() => {
-    if (!isThreeByThree) return SOLVED_FAST_STATE;
-    try {
-      return stateFromScramble(scramble);
-    } catch {
-      return SOLVED_FAST_STATE;
-    }
-  }, [isThreeByThree, scramble]);
   const eventEntries = useMemo(
     () => filterTimerEventEntries(entries, eventId),
     [entries, eventId]
@@ -478,25 +454,10 @@ export default function TimerLab() {
     () => (latestSolution ? solutionEfficiency(latestSolution) : null),
     [latestSolution]
   );
-  const replayBaseState = replay ? initialStateFor(replay) : SOLVED_FAST_STATE;
   const replayText = replay?.solution ?? "";
-  const replayTrace = useMemo(() => {
-    if (!replayText.trim()) return [];
-    try {
-      return traceFastMoves(replayBaseState, replayText);
-    } catch {
-      return [];
-    }
-  }, [replayBaseState, replayText]);
-  const replayCurrent =
-    replayStep === 0
-      ? replayBaseState
-      : (replayTrace[replayStep - 1]?.state ?? SOLVED_FAST_STATE);
-  const replayPrevious =
-    replayStep > 0 ? replayTrace[replayStep - 1]?.previousState : undefined;
   const replayTps =
     replay && replay.elapsedMs > 0
-      ? replayTrace.length / (replay.elapsedMs / 1000)
+      ? replay.moves / (replay.elapsedMs / 1000)
       : 0;
   const phaseTps = useMemo(
     () => (replay ? phaseTpsFromSolution(replay.solution) : []),
@@ -524,17 +485,6 @@ export default function TimerLab() {
     [eventEntries, eventId, eventWcaRecord]
   );
 
-  useEffect(() => {
-    if (!replayPlaying || replayStep >= replayTrace.length) return;
-    const id = window.setTimeout(
-      () => setReplayStep(value => value + 1),
-      Math.max(140, 560 / replaySpeed)
-    );
-    return () => window.clearTimeout(id);
-  }, [replayPlaying, replayStep, replayTrace.length, replaySpeed]);
-  useEffect(() => {
-    if (replayStep >= replayTrace.length) setReplayPlaying(false);
-  }, [replayStep, replayTrace.length]);
   // Timer quick controls are session-only overrides; long-lived defaults are owned by Settings.
   useEffect(() => {
     writeStoredValue("cfop-metric-cubenets", showMetricCubeNets ? "on" : "off");
@@ -770,9 +720,7 @@ export default function TimerLab() {
     );
     if (!validation.valid || !validation.moves.length) return;
     setReplay({ ...entry, solution: validation.normalized });
-    setReplayStep(0);
-    setReplayPlaying(false);
-    setReplaySpeed(1);
+    setReplayRunId(0);
   };
 
   return (
@@ -996,17 +944,8 @@ export default function TimerLab() {
                           )}
                       </div>
                       <div className="col-span-12 lg:col-span-5">
-                        {isThreeByThree && !isMultiBlind ? (
-                          <Cube3DGuide
-                            state={state}
-                            step={0}
-                            crossColor={inspectionColor}
-                            inspection
-                            alignCross
-                            highlightCross={crossHighlight}
-                            surface="light"
-                          />
-                        ) : timerPreviewPuzzleId(eventId) &&
+                        {!isMultiBlind &&
+                          timerPreviewPuzzleId(eventId) &&
                           scramble &&
                           !scrambleLoading ? (
                           <div
@@ -1596,8 +1535,6 @@ export default function TimerLab() {
               onOpenChange={open => {
                 if (!open) {
                   setReplay(null);
-                  setReplayPlaying(false);
-                  setReplayStep(0);
                 }
               }}
             >
@@ -1613,51 +1550,40 @@ export default function TimerLab() {
                   </div>
                 </DialogHeader>
                 <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-                  {replayTrace.length ? (
+                  {replayText.trim() ? (
                     <div className="grid grid-cols-12 gap-4">
                       <div className="col-span-12 lg:col-span-7">
-                        <Cube3DGuide
-                          state={replayCurrent}
-                          previousState={replayPrevious}
-                          move={
-                            replayStep
-                              ? replayTrace[replayStep - 1]?.move
-                              : undefined
-                          }
-                          step={replayStep}
-                          crossColor={inspectionColor}
-                          alignCross
-                        />
+                        {replay?.inputKind === "scramble" ? (
+                          <div className="min-h-[16rem] h-full rounded-card overflow-hidden">
+                            <PuzzleScramblePreview
+                              eventId={normalizeTimerEventId(replay?.eventId)}
+                              scramble={replay?.input ?? ""}
+                              language={language}
+                              animationAlg={replayText}
+                              animationRunId={replayRunId}
+                            />
+                          </div>
+                        ) : (
+                          <div className="rounded-card bg-surface h-full flex flex-col items-center justify-center text-center p-5 sm:p-6">
+                            <Timer className="text-4xl text-muted mb-4" />
+                            <p className="text-sm text-muted mb-0">
+                              {t("timer.replayStateSolve")}
+                            </p>
+                          </div>
+                        )}
                       </div>
                       <div className="col-span-12 lg:col-span-5">
                         <div className="rounded-card bg-surface h-full">
                           <div className="p-5 sm:p-6">
                             <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
-                              {t("timer.move")}
+                              {t("timer.moves")}
                             </p>
                             <p className="text-3xl font-bold tracking-tight sm:text-4xl font-mono">
-                              {replayStep
-                                ? replayTrace[replayStep - 1]?.move
-                                : "—"}
+                              {replay?.moves ?? 0}
                             </p>
                             <p className="text-sm text-muted">
-                              {replayStep} / {replayTrace.length} ·{" "}
                               {t("timer.tps")} {replayTps.toFixed(2)}
                             </p>
-                            <label className="mb-1.5 block text-sm font-medium text-ink mt-4">
-                              {t("timer.speed")} {replaySpeed.toFixed(2)}×
-                            </label>
-                            <input
-                              type="range"
-                              min="0.5"
-                              max="2"
-                              step="0.25"
-                              value={replaySpeed}
-                              onChange={event =>
-                                setReplaySpeed(Number(event.target.value))
-                              }
-                              className="h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-3 accent-primary"
-                            />
                             {replay?.phaseSplits.length ? (
                               <div className="mt-4">
                                 <p className="text-sm font-semibold mb-1">
@@ -1723,64 +1649,15 @@ export default function TimerLab() {
                                 {t("timer.tpsEmpty")}
                               </div>
                             )}
-                            <div
-                              className="inline-flex flex-wrap items-center gap-1 w-full mt-4"
-                              role="group"
-                            >
-                              <Button
-                                variant="secondary"
-                                size="md"
-                                type="button"
-                                onClick={() =>
-                                  setReplayStep(value => Math.max(0, value - 1))
-                                }
-
-                                aria-label={t("timer.previousMove")}
-                              >
-                                ←
-                              </Button>
-                              <Button
-                                variant="primary"
-                                size="md"
-                                type="button"
-                                onClick={() =>
-                                  setReplayPlaying(value => !value)
-                                }
-                              >
-                                {replayPlaying ? (
-                                  <Pause className="text-base mr-1" />
-                                ) : (
-                                  <Play className="text-base mr-1" />
-                                )}
-                                {replayPlaying ? "Pause" : "Play"}
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="md"
-                                type="button"
-                                onClick={() =>
-                                  setReplayStep(value =>
-                                    Math.min(replayTrace.length, value + 1)
-                                  )
-                                }
-
-                                aria-label={t("timer.nextMove")}
-                              >
-                                →
-                              </Button>
-                            </div>
                             <Button
-                              variant="secondary"
+                              variant="primary"
                               size="md"
-                              className="w-full mt-2 gap-1"
+                              className="w-full mt-4 gap-1"
                               type="button"
-                              onClick={() => {
-                                setReplayStep(0);
-                                setReplayPlaying(false);
-                              }}
+                              onClick={() => setReplayRunId(value => value + 1)}
                             >
-                              <RotateCcw className="text-base" />
-                              {t("timer.restart")}
+                              <Play className="text-base mr-1" />
+                              {t("timer.playSolution")}
                             </Button>
                           </div>
                         </div>
