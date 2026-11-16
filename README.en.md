@@ -23,7 +23,7 @@ Regenerate them with `node scripts/capture-screenshots.mjs` while the dev server
 
 ## Features
 
-- CFOP/BLD solver: enter a scramble or the six-face state, per-phase report, CubeNet/3D, the "Auto" opening (tries XXXXCross → XXXCross → XXCross → XCross within the 8-move limit) and Last Layer case recognition (OLL/PLL, ZBLL, 1LLL) on the banner and in the phase list.
+- CFOP/BLD solver: enter a scramble or the six-face state, per-phase report, CubeNet/3D, the "Auto" opening (tries XXXXCross → XXXCross → XXCross → XCross; search depth is configurable in Settings — 8 moves by default) and Last Layer case recognition (OLL/PLL, ZBLL, 1LLL) on the banner and in the phase list.
 - Multi-event timer with inspection, +2/DNF, splits, replay, history, statistics and an adjustable scramble font size.
 - Study: Last Layer and 3-Style BLD.
 - Account, cloud sync, WCA, competition rooms and leaderboard.
