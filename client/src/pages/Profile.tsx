@@ -652,7 +652,7 @@ export default function Profile() {
               {t("profile.goalReachedSuffix")}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-white text-base">
+          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-on-success text-base">
             {t("profile.goalReachedBadge")}
           </span>
         </section>

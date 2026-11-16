@@ -1,55 +1,24 @@
 {
   "version": 3,
-  "generated": "2026-11-14T15:15:07.624Z",
+  "generated": "2026-11-15T06:26:46.221Z",
   "note": "Khoa (key) nhan dien vi pham axe hien co tren 6 trang x 2 che do, giu nguyen so lan xuat hien. Vi pham moi (khong co trong danh sach nay) se lam test that bai. Muc dich bao cao, khong tu sua mau.",
   "keys": [
     "/|light|aria-prohibited-attr|<div class=\"interactive-cube-stage grid min-h-84 place-items-center \" aria-label=\"Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to\">|Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute.",
     "/|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/|light|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/timer|light|aria-prohibited-attr|<div class=\"interactive-cube-stage grid min-h-84 place-items-center \" aria-label=\"Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to\">|Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute.",
     "/timer|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/timer|light|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/history|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/history|light|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/rooms|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/rooms|light|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/profile|light|color-contrast|<span class=\"text-success\">Đã kết nối cloud</span>|Fix any of the following:\n  Element has insufficient color contrast of 3.38 (foreground color: #0f9f6e, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
     "/profile|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/profile|light|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/settings|light|color-contrast|<span class=\"text-sm text-muted inline-flex items-center gap-1\" role=\"status\" aria-live=\"polite\">Tự động lưu</span>|Fix any of the following:\n  Element has insufficient color contrast of 4.47 (foreground color: #5f6884, background color: #e5e6f7, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/settings|light|color-contrast|<button type=\"button\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 4.4 (foreground color: #5b5bd6, background color: #dcebf4, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
     "/settings|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/settings|light|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/|dark|aria-prohibited-attr|<div class=\"interactive-cube-stage grid min-h-84 place-items-center \" aria-label=\"Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to\">|Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute.",
-    "/|dark|color-contrast|<a aria-current=\"page\" href=\"/\" class=\"flex items-center rounded-full px-4 py-2.5 text-sm font-medium transition xl:py-2 bg-primary text-white\">Giải</a>|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/|dark|color-contrast|<button type=\"button\" aria-pressed=\"true\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/|dark|color-contrast|<button type=\"button\" aria-pressed=\"true\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/|dark|color-contrast|<button type=\"button\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/|dark|color-contrast|<button type=\"button\" aria-pressed=\"true\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/|dark|color-contrast|<button type=\"button\" aria-pressed=\"true\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
     "/|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/|dark|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/timer|dark|aria-prohibited-attr|<div class=\"interactive-cube-stage grid min-h-84 place-items-center \" aria-label=\"Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to\">|Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute.",
-    "/timer|dark|color-contrast|<a aria-current=\"page\" href=\"/timer\" class=\"flex items-center rounded-full px-4 py-2.5 text-sm font-medium transition xl:py-2 bg-primary text-white\">Bấm giờ</a>|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/timer|dark|color-contrast|<button type=\"button\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
     "/timer|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/timer|dark|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/history|dark|color-contrast|<a aria-current=\"page\" href=\"/history\" class=\"flex items-center rounded-full px-4 py-2.5 text-sm font-medium transition xl:py-2 bg-primary text-white\">Kết quả</a>|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
     "/history|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/history|dark|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/rooms|dark|color-contrast|<button class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/rooms|dark|color-contrast|<button type=\"button\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
     "/rooms|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/rooms|dark|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/profile|dark|color-contrast|<a href=\"/timer\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/profile|dark|color-contrast|<button type=\"button\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/profile|dark|color-contrast|<button type=\"button\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/profile|dark|color-contrast|<button type=\"button\" class=\"inline-flex items-ce...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
     "/profile|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/profile|dark|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/settings|dark|color-contrast|<button type=\"button\" role=\"tab\" id=\"settings-tab-solver\" aria-selected=\"true\" aria-controls=\"settings-panel-solve...\" tabindex=\"0\" class=\"shrink-0 rounded-ful...\">|Fix any of the following:\n  Element has insufficient color contrast of 3.14 (foreground color: #ffffff, background color: #8585f6, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
-    "/settings|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/settings|dark|label-content-name-mismatch|<button type=\"button\" class=\"inline-flex items-ce...\" aria-expanded=\"false\" aria-haspopup=\"menu\" aria-controls=\"cfop-account-menu\" aria-label=\"Axe Audit\">|Fix any of the following:\n  Text inside the element is not included in the accessible name"
+    "/settings|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name"
   ],
   "findings": [
     {
@@ -65,12 +34,6 @@
       "target": ".gap-2\\.5"
     },
     {
-      "page": "/",
-      "theme": "light",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
-    },
-    {
       "page": "/timer",
       "theme": "light",
       "rule": "aria-prohibited-attr",
@@ -83,22 +46,10 @@
       "target": ".group"
     },
     {
-      "page": "/timer",
-      "theme": "light",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
-    },
-    {
       "page": "/history",
       "theme": "light",
       "rule": "label-content-name-mismatch",
       "target": ".group"
-    },
-    {
-      "page": "/history",
-      "theme": "light",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
     },
     {
       "page": "/rooms",
@@ -107,82 +58,22 @@
       "target": ".group"
     },
     {
-      "page": "/rooms",
-      "theme": "light",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
-    },
-    {
-      "page": "/profile",
-      "theme": "light",
-      "rule": "color-contrast",
-      "target": ".mb-4.mt-4 > .text-success"
-    },
-    {
       "page": "/profile",
       "theme": "light",
       "rule": "label-content-name-mismatch",
       "target": ".group"
     },
     {
-      "page": "/profile",
-      "theme": "light",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
-    },
-    {
-      "page": "/settings",
-      "theme": "light",
-      "rule": "color-contrast",
-      "target": "span[role=\"status\"]"
-    },
-    {
-      "page": "/settings",
-      "theme": "light",
-      "rule": "color-contrast",
-      "target": ".hover\\:underline"
-    },
-    {
       "page": "/settings",
       "theme": "light",
       "rule": "label-content-name-mismatch",
       "target": ".group"
-    },
-    {
-      "page": "/settings",
-      "theme": "light",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
     },
     {
       "page": "/",
       "theme": "dark",
       "rule": "aria-prohibited-attr",
       "target": ".interactive-cube-stage"
-    },
-    {
-      "page": "/",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": "a[aria-current=\"page\"]"
-    },
-    {
-      "page": "/",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": ".flex-1.aria-pressed\\:bg-primary.aria-pressed\\:text-white:nth-child(1)"
-    },
-    {
-      "page": "/",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": ".py-4"
-    },
-    {
-      "page": "/",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": ".py-1\\.5.px-3.aria-pressed\\:bg-primary:nth-child(1)"
     },
     {
       "page": "/",
@@ -191,12 +82,6 @@
       "target": ".gap-2\\.5"
     },
     {
-      "page": "/",
-      "theme": "dark",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
-    },
-    {
       "page": "/timer",
       "theme": "dark",
       "rule": "aria-prohibited-attr",
@@ -205,36 +90,6 @@
     {
       "page": "/timer",
       "theme": "dark",
-      "rule": "color-contrast",
-      "target": "a[aria-current=\"page\"]"
-    },
-    {
-      "page": "/timer",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": ".hover\\:bg-primary-hover"
-    },
-    {
-      "page": "/timer",
-      "theme": "dark",
-      "rule": "label-content-name-mismatch",
-      "target": ".group"
-    },
-    {
-      "page": "/timer",
-      "theme": "dark",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
-    },
-    {
-      "page": "/history",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": "a[aria-current=\"page\"]"
-    },
-    {
-      "page": "/history",
-      "theme": "dark",
       "rule": "label-content-name-mismatch",
       "target": ".group"
     },
@@ -242,19 +97,7 @@
       "page": "/history",
       "theme": "dark",
       "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
-    },
-    {
-      "page": "/rooms",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": "form > .bg-primary.hover\\:bg-primary-hover.text-white"
-    },
-    {
-      "page": "/rooms",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": "div[role=\"group\"] > .bg-primary.hover\\:bg-primary-hover.text-white"
+      "target": ".group"
     },
     {
       "page": "/rooms",
@@ -263,49 +106,7 @@
       "target": ".group"
     },
     {
-      "page": "/rooms",
-      "theme": "dark",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
-    },
-    {
       "page": "/profile",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": ".bg-primary.hover\\:bg-primary-hover[href$=\"timer\"]"
-    },
-    {
-      "page": "/profile",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": "div[role=\"group\"] > .bg-primary.hover\\:bg-primary-hover.text-white"
-    },
-    {
-      "page": "/profile",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": "form > .bg-primary.hover\\:bg-primary-hover.text-white"
-    },
-    {
-      "page": "/profile",
-      "theme": "dark",
-      "rule": "label-content-name-mismatch",
-      "target": ".group"
-    },
-    {
-      "page": "/profile",
-      "theme": "dark",
-      "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
-    },
-    {
-      "page": "/settings",
-      "theme": "dark",
-      "rule": "color-contrast",
-      "target": "#settings-tab-solver"
-    },
-    {
-      "page": "/settings",
       "theme": "dark",
       "rule": "label-content-name-mismatch",
       "target": ".group"
@@ -314,7 +115,7 @@
       "page": "/settings",
       "theme": "dark",
       "rule": "label-content-name-mismatch",
-      "target": "button[aria-controls=\"cfop-account-menu\"]"
+      "target": ".group"
     }
   ]
 }

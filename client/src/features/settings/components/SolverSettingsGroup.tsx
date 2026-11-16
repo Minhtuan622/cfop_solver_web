@@ -40,6 +40,7 @@ export function SolverSettingsGroup({
     [
       { value: "cross", label: t("settings.opening.cross") },
       { value: "auto", label: t("settings.opening.auto") },
+      { value: "xcross", label: t("settings.opening.xcross") },
       { value: "xxcross", label: t("settings.opening.xxcross") },
       { value: "xxxcross", label: t("settings.opening.xxxcross") },
       { value: "xxxxcross", label: t("settings.opening.xxxxcross") },

@@ -312,7 +312,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
             </div>
           ) : null}
 
-          <div className="grid grid-cols-12 gap-6 mt-0">
+          <div className="grid grid-cols-12 gap-6 mt-6">
             <div className="col-span-12 xl:col-span-8">
               <StudyCasePanel
                 activeCase={activeCase}
@@ -355,6 +355,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                 setActiveCase(null);
               }}
               onSelect={selectCase}
+              onMasteredChange={setMasteredKeys}
             />
           </div>
         </>

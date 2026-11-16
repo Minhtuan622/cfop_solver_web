@@ -1,8 +1,8 @@
-import { Field } from "@/components/ui/StudioUI";
-import { Search } from "@/components/ui/Icon";
+import { Calendar3, Search } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { WcaCountry } from "../lib/wcaCalendar";
 import { Button } from "@/components/ui/Button";
+import { Dropdown } from "@/components/ui/Dropdown";
 import { Select } from "@/components/ui/Select";
 
 export type WcaCalendarFiltersProps = {
@@ -12,8 +12,6 @@ export type WcaCalendarFiltersProps = {
   countries: WcaCountry[];
   countriesLoading: boolean;
   query: string;
-  shownCount: number;
-  totalCount: number;
   onYearChange: (value: number) => void;
   onMonthChange: (value: number) => void;
   onCountryChange: (value: string) => void;
@@ -22,8 +20,10 @@ export type WcaCalendarFiltersProps = {
 };
 
 /**
- * The filter toolbar. The period is chosen by year and month instead of a raw
- * date range, which is how a competition calendar is actually browsed.
+ * The filter toolbar: a single line of controls, nothing else. The period is
+ * chosen by year and month instead of a raw date range, which is how a
+ * competition calendar is actually browsed. Every control carries an
+ * accessible name, but no visible labels — the row stays compact.
  */
 export function WcaCalendarFilters({
   year,
@@ -32,8 +32,6 @@ export function WcaCalendarFilters({
   countries,
   countriesLoading,
   query,
-  shownCount,
-  totalCount,
   onYearChange,
   onMonthChange,
   onCountryChange,
@@ -62,33 +60,104 @@ export function WcaCalendarFilters({
 
   return (
     <section
-      className="mt-8 rounded-card bg-surface p-5 sm:p-6"
+      className="mt-4 rounded-card bg-surface p-3"
       aria-label={t("wca.filters")}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
-        <h2 className="text-base font-semibold tracking-tight text-ink">
-          {t("wca.filters")}
-        </h2>
-        <div className="flex flex-wrap items-center gap-2">
-          <div
-            className="inline-flex flex-wrap items-center gap-1 text-xs"
-            role="group"
-            aria-label={t("wca.quickPeriods")}
-          >
-            <Button
+      <div className="flex flex-wrap items-center gap-1">
+        <div className="flex h-9 min-w-40 flex-1 basis-48 items-stretch">
+          <span className="inline-flex items-center rounded-l-full bg-surface-2 px-2.5 text-muted">
+            <Search className="text-sm" />
+          </span>
+          <input
+            id="wca-search"
+            type="search"
+            aria-label={t("wca.search")}
+            className="h-full w-full min-w-0 rounded-r-full bg-surface px-3 text-sm text-ink transition placeholder:text-placeholder focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+            value={query}
+            placeholder={t("wca.searchPlaceholder")}
+            onChange={event => onQueryChange(event.target.value)}
+          />
+        </div>
+
+        <Select
+          id="wca-year"
+          aria-label={t("wca.year")}
+          className="h-9 rounded-full px-3 text-sm"
+          value={String(year)}
+          onChange={event => onYearChange(Number(event.target.value))}
+        >
+          {years.map(value => (
+            <option key={value} value={String(value)}>
+              {value}
+            </option>
+          ))}
+        </Select>
+
+        <Select
+          id="wca-month"
+          aria-label={t("wca.month")}
+          className="h-9 rounded-full px-3 text-sm"
+          value={String(month)}
+          onChange={event => onMonthChange(Number(event.target.value))}
+        >
+          <option value={0}>{t("wca.allMonths")}</option>
+          {monthNames.map((name, index) => (
+            <option key={index + 1} value={String(index + 1)}>
+              {name}
+            </option>
+          ))}
+        </Select>
+
+        <Select
+          id="wca-country"
+          aria-label={t("wca.country")}
+          className="h-9 rounded-full px-3 text-sm"
+          value={countryIso2}
+          onChange={event => onCountryChange(event.target.value)}
+          disabled={countriesLoading}
+        >
+          <option value="">
+            {countriesLoading
+              ? t("wca.countriesLoading")
+              : t("wca.allCountries")}
+          </option>
+          {countries.map(country => (
+            <option key={country.iso2} value={country.iso2}>
+              {country.name}
+            </option>
+          ))}
+        </Select>
+
+        <Dropdown
+          id="wca-quick-periods"
+          align="start"
+          variant="soft"
+          label={t("wca.quickPeriods")}
+          title={t("wca.quickPeriods")}
+          menuLabel={t("wca.quickPeriods")}
+          buttonClassName="h-9 px-3 py-0 text-xs font-semibold"
+          button={
+            <>
+              <Calendar3 className="text-sm" />
+              <span>{t("wca.quickPeriods")}</span>
+            </>
+          }
+        >
+          <li>
+            <button
               type="button"
-              variant="secondary"
-              size="plain"
-              className="px-4 py-2 text-sm"
+              role="menuitem"
+              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3"
               onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
             >
               {t("wca.thisMonth")}
-            </Button>
-            <Button
+            </button>
+          </li>
+          <li>
+            <button
               type="button"
-              variant="secondary"
-              size="plain"
-              className="px-4 py-2 text-sm"
+              role="menuitem"
+              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3"
               onClick={() => {
                 const next = new Date();
                 next.setMonth(next.getMonth() + 1);
@@ -96,110 +165,32 @@ export function WcaCalendarFilters({
               }}
             >
               {t("wca.nextMonth")}
-            </Button>
-            <Button
+            </button>
+          </li>
+          <li>
+            <button
               type="button"
-              variant="secondary"
-              size="plain"
-              className="px-4 py-2 text-sm"
+              role="menuitem"
+              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3"
               onClick={() => jumpTo(currentYear, 0)}
             >
               {t("wca.thisYear")}
-            </Button>
-          </div>
-          {onReset ? (
-            <Button
-              type="button"
-              variant="link"
-              size="plain"
-              className="px-3 py-1.5 text-xs"
-              onClick={onReset}
-            >
-              {t("wca.resetFilters")}
-            </Button>
-          ) : null}
-        </div>
+            </button>
+          </li>
+        </Dropdown>
+
+        {onReset ? (
+          <Button
+            type="button"
+            variant="link"
+            size="plain"
+            className="px-1.5 py-1.5 text-[11px]"
+            onClick={onReset}
+          >
+            {t("wca.resetFilters")}
+          </Button>
+        ) : null}
       </div>
-
-      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Field id="wca-year" label={t("wca.year")}>
-          <Select
-            id="wca-year"
-            className="h-11 rounded-full px-4 py-2.5"
-            value={String(year)}
-            onChange={event => onYearChange(Number(event.target.value))}
-          >
-            {years.map(value => (
-              <option key={value} value={String(value)}>
-                {value}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <Field id="wca-month" label={t("wca.month")}>
-          <Select
-            id="wca-month"
-            className="h-11 rounded-full px-4 py-2.5"
-            value={String(month)}
-            onChange={event => onMonthChange(Number(event.target.value))}
-          >
-            <option value={0}>{t("wca.allMonths")}</option>
-            {monthNames.map((name, index) => (
-              <option key={index + 1} value={String(index + 1)}>
-                {name}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <Field id="wca-country" label={t("wca.country")}>
-          <Select
-            id="wca-country"
-            className="h-11 rounded-full px-4 py-2.5"
-            value={countryIso2}
-            onChange={event => onCountryChange(event.target.value)}
-            disabled={countriesLoading}
-          >
-            <option value="">
-              {countriesLoading
-                ? t("wca.countriesLoading")
-                : t("wca.allCountries")}
-            </option>
-            {countries.map(country => (
-              <option key={country.iso2} value={country.iso2}>
-                {country.name}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        <Field
-          id="wca-search"
-          label={t("wca.search")}
-          className="md:col-span-2"
-        >
-          <div className="flex h-full w-full items-stretch">
-            <span className="inline-flex items-center rounded-l-full bg-surface-2 px-3 text-sm text-muted">
-              <Search />
-            </span>
-            <input
-              id="wca-search"
-              type="search"
-              className="h-full w-full rounded-r-full bg-surface px-4 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
-              value={query}
-              placeholder={t("wca.searchPlaceholder")}
-              onChange={event => onQueryChange(event.target.value)}
-            />
-          </div>
-        </Field>
-      </div>
-
-      <p className="mt-4 text-sm text-muted" role="status" aria-live="polite">
-        {shownCount < totalCount
-          ? t("wca.resultsFiltered", { shown: shownCount, total: totalCount })
-          : t("wca.resultsCount", { count: shownCount })}
-      </p>
     </section>
   );
 }

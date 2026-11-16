@@ -137,7 +137,7 @@ export default function WcaCompetitions() {
               href={WCA_CALENDAR_URL}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary transition hover:bg-primary-hover focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {t("wca.openCalendar")}
               <ExternalLink className="ml-1" />
@@ -160,8 +160,6 @@ export default function WcaCompetitions() {
         countries={countriesQuery.data ?? []}
         countriesLoading={countriesQuery.isLoading}
         query={query}
-        shownCount={visible.length}
-        totalCount={competitions?.length ?? 0}
         onYearChange={setYear}
         onMonthChange={setMonth}
         onCountryChange={setCountryIso2}
@@ -169,23 +167,28 @@ export default function WcaCompetitions() {
         onReset={resetFilters}
       />
 
-      <section className="mt-8" aria-labelledby="wca-agenda-title">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2
-              id="wca-agenda-title"
-              className="text-base font-semibold tracking-tight text-ink"
-            >
-              {t("wca.agendaTitle")}
-            </h2>
-            <p className="mt-0.5 text-sm text-muted">
-              {t("wca.agendaSubtitle", { count: visible.length })}
-            </p>
-          </div>
-          {competitionsQuery.isFetching ? (
-            <RefreshIndicator label={t("wca.refreshing")} />
-          ) : null}
+      <section className="mt-6" aria-labelledby="wca-agenda-title">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-3">
+          <h2
+            id="wca-agenda-title"
+            className="text-sm font-semibold tracking-tight text-ink"
+          >
+            {t("wca.agendaTitle")}
+          </h2>
+          <p
+            className="text-[11px] tabular-nums text-muted"
+            role="status"
+            aria-live="polite"
+          >
+            {t("wca.agendaSubtitle", { count: visible.length })}
+          </p>
         </div>
+
+        {competitionsQuery.isFetching ? (
+          <div className="mt-1 px-3">
+            <RefreshIndicator label={t("wca.refreshing")} />
+          </div>
+        ) : null}
 
         {competitionsQuery.isLoading ? (
           <SkeletonList rows={6} label={t("wca.loading")} />

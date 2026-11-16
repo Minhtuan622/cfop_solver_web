@@ -21,6 +21,10 @@ AUF_SEQUENCES: tuple[tuple[str, ...], ...] = (
     (), ("U",), ("U2",), ("U'",)
 )
 
+Y_ROTATIONS: tuple[tuple[str, ...], ...] = (
+    (), ("y",), ("y2",), ("y'",),
+)
+
 
 @dataclass(frozen=True)
 class LastLayerCase:
@@ -80,15 +84,20 @@ PLL_INDEX = _index_cases(PLL_CASES, _pll_fingerprint)
 
 
 def _index_direct_one_look(rows: tuple[tuple[str, str, str], ...]):
-    """Index inverse fixtures plus AUF variants for an offline direct-case table."""
+    """Index inverse fixtures plus AUF and whole-cube y-rotation variants
+    of each shipped direct case for the offline direct-case table."""
     index: dict[str, list[tuple[str, tuple[str, ...]]]] = {}
     for case_id, text, fixture_state in rows:
         moves = tuple(parse_moves(text))
         fixture = Cube(fixture_state)
-        for auf in AUF_SEQUENCES:
-            state = fixture.apply_many(auf)
-            prefix = tuple(inverse_moves(list(auf)))
-            index.setdefault(state.stickers, []).append((case_id, prefix + moves))
+        for y in Y_ROTATIONS:
+            y_moves = list(y)
+            rotated = fixture.apply_many(y_moves)
+            for auf in AUF_SEQUENCES:
+                state = rotated.apply_many(auf)
+                full = y_moves + list(auf)
+                prefix = tuple(inverse_moves(full)) if full else ()
+                index.setdefault(state.stickers, []).append((case_id, prefix + moves))
     return index
 
 

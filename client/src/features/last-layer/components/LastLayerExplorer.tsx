@@ -20,6 +20,7 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 import { Button } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/FormControls";
@@ -33,6 +34,8 @@ type Props = {
   masteredKeys: Set<string>;
   onFamily: (family: Family) => void;
   onSelect: (catalogCase: LastLayerCatalogCase) => void;
+  /** Nhận tập hợp case đã thuộc mới sau một thao tác hàng loạt. */
+  onMasteredChange?: (keys: Set<string>) => void;
 };
 
 const keyOf = (catalogCase: LastLayerCatalogCase) =>
@@ -50,6 +53,7 @@ export function LastLayerExplorer({
   masteredKeys,
   onFamily,
   onSelect,
+  onMasteredChange,
 }: Props) {
   const { t } = useLanguage();
   const [group, setGroup] = useState("");
@@ -58,6 +62,8 @@ export function LastLayerExplorer({
   const [previewCase, setPreviewCase] = useState<LastLayerCatalogCase | null>(
     null
   );
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
   const families = useMemo(() => {
     const inFamily = catalog.filter(
@@ -128,6 +134,40 @@ export function LastLayerExplorer({
   const switchFamily = (next: Family) => {
     onFamily(next);
     setGroup("");
+    setSelectedKeys(new Set());
+    setSelectionMode(false);
+  };
+
+  const openGroupName = (name: string) => {
+    setGroup(name);
+    setSelectedKeys(new Set());
+    setSelectionMode(false);
+  };
+
+  const toggleSelected = (catalogCase: LastLayerCatalogCase) => {
+    const key = keyOf(catalogCase);
+    setSelectedKeys(current => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const selectAllVisible = () =>
+    setSelectedKeys(new Set(openGroupCases.map(keyOf)));
+  const clearSelection = () => setSelectedKeys(new Set());
+
+  const markSelected = (mastered: boolean) => {
+    if (!onMasteredChange || selectedKeys.size === 0) return;
+    const next = new Set(masteredKeys);
+    for (const key of selectedKeys) {
+      if (mastered) next.add(key);
+      else next.delete(key);
+    }
+    onMasteredChange(next);
+    setSelectedKeys(new Set());
+    setSelectionMode(false);
   };
 
   const selectCase = (catalogCase: LastLayerCatalogCase) => {
@@ -215,17 +255,74 @@ export function LastLayerExplorer({
 
         {openGroup ? (
           <div className="mt-4">
-            <div className="mb-4 flex items-center gap-2">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
               <IconButton
                 label={t("study.allGroups")}
                 icon={<ChevronLeftIcon className="text-base" />}
-                onClick={() => setGroup("")}
+                onClick={() => openGroupName("")}
                 className="inline-flex items-center justify-center rounded-full bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-2"
               />
               <strong className="text-sm">
                 {openGroup.name} · {openGroup.mastered}/{openGroup.total}
               </strong>
+              {onMasteredChange ? (
+                <Button
+                  type="button"
+                  variant={selectionMode ? "primary" : "secondary"}
+                  size="sm"
+                  aria-pressed={selectionMode}
+                  className="ml-auto"
+                  onClick={() => {
+                    setSelectionMode(value => !value);
+                    setSelectedKeys(new Set());
+                  }}
+                >
+                  {selectionMode ? t("study.bulkDone") : t("study.bulkSelect")}
+                </Button>
+              ) : null}
             </div>
+            {selectionMode ? (
+              <div className="sticky bottom-3 z-10 mb-3 flex flex-wrap items-center gap-2 rounded-full bg-ink px-4 py-2 text-canvas">
+                <span className="text-xs font-semibold tabular-nums">
+                  {t("study.bulkSelected", {
+                    count: selectedKeys.size,
+                    total: openGroupCases.length,
+                  })}
+                </span>
+                <button
+                  type="button"
+                  className="rounded-full px-2 py-1 text-xs font-semibold text-canvas/80 transition hover:bg-white/10 hover:text-canvas"
+                  onClick={selectAllVisible}
+                >
+                  {t("study.bulkSelectAll")}
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full px-2 py-1 text-xs font-semibold text-canvas/80 transition hover:bg-white/10 hover:text-canvas"
+                  onClick={clearSelection}
+                >
+                  {t("study.bulkClear")}
+                </button>
+                <span className="ml-auto flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="rounded-full bg-warning px-3 py-1.5 text-xs font-semibold text-on-warning transition disabled:opacity-40"
+                    disabled={selectedKeys.size === 0}
+                    onClick={() => markSelected(true)}
+                  >
+                    {t("study.bulkMark", { count: selectedKeys.size })}
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-full px-3 py-1.5 text-xs font-semibold text-canvas/90 transition hover:bg-white/10 disabled:opacity-40"
+                    disabled={selectedKeys.size === 0}
+                    onClick={() => markSelected(false)}
+                  >
+                    {t("study.bulkUnmark", { count: selectedKeys.size })}
+                  </button>
+                </span>
+              </div>
+            ) : null}
             {openGroupCases.length ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {openGroupCases.map(catalogCase => {
@@ -233,13 +330,24 @@ export function LastLayerExplorer({
                   const active =
                     selectedCase?.id === catalogCase.id &&
                     selectedCase?.family === catalogCase.family;
+                  const selected = selectedKeys.has(keyOf(catalogCase));
                   return (
                     <div key={`${catalogCase.family}:${catalogCase.id}`}>
                       <div
                         className={cn(
                           "h-full rounded-card bg-surface",
-                          active && ""
+                          selectionMode && "cursor-pointer"
                         )}
+                        onClick={event => {
+                          if (!selectionMode) return;
+                          if (
+                            (event.target as HTMLElement).closest(
+                              "button, a, input, label, select, textarea"
+                            )
+                          )
+                            return;
+                          toggleSelected(catalogCase);
+                        }}
                       >
                         <div className="p-5 sm:p-6">
                           <div className="flex items-start justify-between gap-2">
@@ -249,17 +357,26 @@ export function LastLayerExplorer({
                               compact
                               onClick={() => setPreviewCase(catalogCase)}
                             />
-                            {mastered ? (
+                            <div className="flex shrink-0 items-center gap-2">
+                              {selectionMode ? (
+                                <Checkbox
+                                  checked={selected}
+                                  onChange={() => toggleSelected(catalogCase)}
+                                  ariaLabel={`${t("study.bulkSelect")} ${catalogCase.id}`}
+                                />
+                              ) : null}
+                              {mastered ? (
                               <span
                                 className={
                                   active
-                                    ? "inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold text-white"
-                                    : "inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-white"
+                                    ? "inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold text-on-primary"
+                                    : "inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-on-success"
                                 }
                               >
                                 ✓
                               </span>
                             ) : null}
+                            </div>
                           </div>
                           <strong className="mt-4 block">
                             {catalogCase.id}
@@ -274,15 +391,17 @@ export function LastLayerExplorer({
                           >
                             {catalogCase.algorithm}
                           </code>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="plain"
-                            className="mt-4 px-3 py-1.5 text-xs"
-                            onClick={() => selectCase(catalogCase)}
-                          >
-                            {t("study.studyThisCase")}
-                          </Button>
+                          {selectionMode ? null : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="plain"
+                              className="mt-4 px-3 py-1.5 text-xs"
+                              onClick={() => selectCase(catalogCase)}
+                            >
+                              {t("study.studyThisCase")}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -305,7 +424,7 @@ export function LastLayerExplorer({
                 <div key={entry.name}>
                   <button
                     type="button"
-                    onClick={() => setGroup(entry.name)}
+                    onClick={() => openGroupName(entry.name)}
                     className="h-full w-full rounded-card bg-surface-2 px-5 py-4 text-left transition"
                   >
                     <div className="flex items-center gap-2">

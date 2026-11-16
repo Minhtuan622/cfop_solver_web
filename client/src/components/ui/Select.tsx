@@ -283,7 +283,7 @@ export function Select({
         }}
         onKeyDown={onTriggerKeyDown}
         className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-field bg-surface-3 px-3.5 py-2.5 text-left text-sm text-ink transition focus-visible:bg-surface focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60",
+          "flex w-full items-center justify-between gap-1.5 rounded-field bg-surface-3 px-3 py-2.5 text-left text-sm text-ink transition focus-visible:bg-surface focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60",
           !disabled && "hover:bg-surface-2",
           buttonClassName
         )}

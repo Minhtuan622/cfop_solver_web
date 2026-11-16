@@ -155,8 +155,8 @@ describe("computeFloatingGeometry — chọn hướng mở và ghim chiều cao"
       triggerBottom: 442,
     });
     expect(geometry.placement).toBe("bottom");
-    // Dưới còn 900 - 8 - (442 + 8) = 442px ≥ 288 → đầy chiều cao mong muốn.
-    expect(geometry.maxHeight).toBe(288);
+    // Dưới còn 900 - 8 - (442 + 8) = 442px < 448 → kẹp theo chỗ còn lại.
+    expect(geometry.maxHeight).toBe(442);
     expect(geometry.left).toBe(100);
     expect(geometry.width).toBe(240);
     // Mép trên của danh sách cách đáy nút 8px.
@@ -171,8 +171,8 @@ describe("computeFloatingGeometry — chọn hướng mở và ghim chiều cao"
       triggerBottom: 742,
     });
     expect(geometry.placement).toBe("top");
-    // Trên còn 700 - 16 = 684px ≥ 288 → vẫn đủ chiều cao mong muốn.
-    expect(geometry.maxHeight).toBe(288);
+    // Trên còn 700 - 16 = 684px ≥ 448 → vẫn đủ chiều cao mong muốn.
+    expect(geometry.maxHeight).toBe(448);
     // Mép dưới của danh sách cách đỉnh nút 8px.
     expect(geometry.anchor).toBe(692);
   });
@@ -197,7 +197,7 @@ describe("computeFloatingGeometry — chọn hướng mở và ghim chiều cao"
       triggerBottom: 498,
     });
     expect(geometry.placement).toBe("top");
-    expect(geometry.maxHeight).toBe(288);
+    expect(geometry.maxHeight).toBe(448);
   });
 
   it("kẹp trái danh sách để không tràn mép phải khung nhìn", () => {
@@ -334,7 +334,7 @@ describe("danh sách nổi qua portal", () => {
     expect(listbox).toHaveAttribute("data-placement", "top");
     expect(listbox.style.top).toBe("692px"); // 700 - 8
     expect(listbox.style.transform).toBe("translateY(-100%)");
-    expect(listbox.style.maxHeight).toBe("288px");
+    expect(listbox.style.maxHeight).toBe("448px");
     expect(listbox.style.left).toBe("100px");
     expect(listbox.style.width).toBe("240px");
   });

@@ -22,7 +22,7 @@ self.onmessage = async (
     kind?: string;
     value: string;
     crossColor?: string;
-    opening?: "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross";
+    opening?: "cross" | "auto" | "xcross" | "xxcross" | "xxxcross" | "xxxxcross";
     lastLayer?: "oll_pll" | "zbll" | "1lll" | "auto";
     openingDepth?: number;
     openingFindResult?: boolean;

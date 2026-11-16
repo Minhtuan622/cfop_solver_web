@@ -13,20 +13,16 @@ async function cubeOverflow(page: Page) {
   return page.evaluate(() => {
     const stage = document.querySelector<HTMLElement>(".interactive-cube-stage");
     if (!stage) return null;
+    const canvas = stage.querySelector("canvas");
+    if (!canvas) return null;
     const stageBox = stage.getBoundingClientRect();
-    const faces = [...stage.querySelectorAll<HTMLElement>(".cube3d-face")].map(
-      face => face.getBoundingClientRect()
-    );
+    const canvasBox = canvas.getBoundingClientRect();
     return {
       stageHeight: Math.round(stageBox.height),
-      top: Math.round(stageBox.top - Math.min(...faces.map(rect => rect.top))),
-      bottom: Math.round(
-        Math.max(...faces.map(rect => rect.bottom)) - stageBox.bottom
-      ),
-      left: Math.round(stageBox.left - Math.min(...faces.map(rect => rect.left))),
-      right: Math.round(
-        Math.max(...faces.map(rect => rect.right)) - stageBox.right
-      ),
+      top: Math.round(stageBox.top - canvasBox.top),
+      bottom: Math.round(canvasBox.bottom - stageBox.bottom),
+      left: Math.round(stageBox.left - canvasBox.left),
+      right: Math.round(canvasBox.right - stageBox.right),
     };
   });
 }

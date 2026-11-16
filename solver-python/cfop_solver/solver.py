@@ -176,9 +176,10 @@ class CFOPSolution:
     @property
     def opening_summary(self) -> dict[str, object]:
         """Describe the requested opening and the exact bounded-search outcome."""
-        target = "xcross" if self.opening_requested == "auto" else self.opening_requested
+        target = "xxxxcross" if self.opening_requested == "auto" else self.opening_requested
         achieved = self.opening_achieved or "cross"
         attempts = self.opening_attempts or [achieved]
+        did_fallback = (achieved == "cross") if self.opening_requested == "auto" else achieved != target
         return {
             "requested": self.opening_requested,
             "target": target,
@@ -186,7 +187,7 @@ class CFOPSolution:
             "attempts": list(attempts),
             "method": self.opening_method,
             "fallback_count": max(0, len(attempts) - 1),
-            "did_fallback": achieved != target,
+            "did_fallback": did_fallback,
             "direct_search": {"node_budget": self.direct_node_budget, "attempts": list(self.direct_attempts)},
         }
 
@@ -201,7 +202,7 @@ class CFOPSolution:
             "requested": requested,
             "achieved": achieved,
             "attempts": list(attempts),
-            "case_id": self.last_layer_case_id if achieved in ("zbll", "1lll") else None,
+            "case_id": self.last_layer_case_id,
             "fallback_count": 1 if did_fallback else 0,
             "did_fallback": did_fallback,
         }
@@ -312,7 +313,7 @@ def solve(
 
     try:
         solved_slots: list[str] = []
-        if opening == "xxxxcross":
+        if opening in ("xxxxcross", "auto"):
             result.opening_attempts.append("xxxxcross")
             try:
                 moves = _retry_opening_search(
@@ -326,7 +327,7 @@ def solve(
             except SearchLimit:
                 pass
 
-        if not solved_slots and opening in ("xxxcross", "xxxxcross"):
+        if not solved_slots and opening in ("xxxcross", "xxxxcross", "auto"):
             result.opening_attempts.append("xxxcross")
             try:
                 xxxcross_slots, moves = _retry_opening_search(
@@ -340,7 +341,7 @@ def solve(
             except SearchLimit:
                 pass
 
-        if not solved_slots and opening in ("xxcross", "xxxcross", "xxxxcross"):
+        if not solved_slots and opening in ("xxcross", "xxxcross", "xxxxcross", "auto"):
             result.opening_attempts.append("xxcross")
             try:
                 xxcross_slots, moves = _retry_opening_search(
@@ -432,6 +433,7 @@ def solve(
             pll_case, pll_moves = solve_pll_full(current)
             current = _commit(current, "pll", pll_moves, cube_solved, result, pll_case)
             result.last_layer_achieved = "oll_pll"
+            result.last_layer_case_id = f"{oll_case}/{pll_case}"
         elif last_layer == "2look":
             result.last_layer_attempts.append("2look")
             current = _commit(current, "oll", solve_oll_2look(current, macro_depth), oll_solved, result)
@@ -462,6 +464,7 @@ def solve(
                 pll_case, pll_moves = solve_pll_full(current)
                 current = _commit(current, "pll", pll_moves, cube_solved, result, pll_case)
                 result.last_layer_achieved = "oll_pll"
+                result.last_layer_case_id = f"{oll_case}/{pll_case}"
                 check_budget()
         else:
             raise CFOPError("invalid_mode", f"Unknown last_layer mode: {last_layer}")

@@ -62,7 +62,7 @@ export type SolverResult = {
 };
 export type CrossColor = "U" | "R" | "F" | "D" | "L" | "B";
 export type OpeningMode =
-  "cross" | "auto" | "xxcross" | "xxxcross" | "xxxxcross";
+  "cross" | "auto" | "xcross" | "xxcross" | "xxxcross" | "xxxxcross";
 export type F2LSlot = "FR" | "FL" | "BL" | "BR";
 export type XCrossOptions = {
   preferredSlot?: F2LSlot;

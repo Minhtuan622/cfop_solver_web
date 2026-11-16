@@ -87,15 +87,13 @@ test("đăng ký, đồng bộ và hoàn tất lượt thi trong phòng bằng d
   const state = await mockAccountSyncAndCompetition(page);
 
   await page.goto("/");
-  await page.getByRole("button", { name: "Đăng nhập" }).click();
+  await page.getByRole("button", { name: "Tài khoản và tuỳ chọn" }).click();
   await page.getByRole("menuitem", { name: "Đăng ký", exact: true }).click();
   await page.getByLabel("Tên hiển thị").fill(account.displayName);
   await page.getByLabel("Email").fill(account.email);
   await page.getByLabel("Mật khẩu").fill("E2E-password-2026");
   await page.getByRole("button", { name: "Tạo tài khoản" }).click();
-  await expect(page.getByRole("button", { name: account.displayName })).toBeVisible();
-
-  await page.getByRole("button", { name: account.displayName }).click();
+  await page.getByRole("button", { name: "Tài khoản và tuỳ chọn" }).click();
   await page.getByRole("menuitem", { name: "Hồ sơ" }).click();
   await expect(page.getByRole("heading", { name: account.displayName, exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Đồng bộ ngay" }).click();

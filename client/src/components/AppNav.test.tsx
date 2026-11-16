@@ -92,14 +92,28 @@ describe("AppNav", () => {
     ).toBeNull();
   });
 
-  it("thu gọn nút ngôn ngữ và giao diện còn đúng một biểu tượng", () => {
+  it("gộp ngôn ngữ, giao diện và tài khoản vào một menu", () => {
     renderNav();
 
+    // Một nút duy nhất thay cho ba nút cũ.
     expect(
-      screen.getByRole("button", { name: "Đổi ngôn ngữ" }).textContent
-    ).toBe("");
+      screen.getByRole("button", { name: "Tài khoản và tuỳ chọn" })
+    ).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Đổi ngôn ngữ" })).toBeNull();
     expect(
-      screen.getByRole("button", { name: /Đổi giao diện/ }).textContent
-    ).toBe("");
+      screen.queryByRole("button", { name: /Đổi giao diện/ })
+    ).toBeNull();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Tài khoản và tuỳ chọn" })
+    );
+
+    expect(screen.getByRole("menuitem", { name: "Đăng nhập" })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "Đăng ký" })).toBeTruthy();
+    expect(screen.getByRole("menuitemradio", { name: "Tiếng Việt" })).toBeTruthy();
+    expect(screen.getByRole("menuitemradio", { name: "English" })).toBeTruthy();
+    expect(screen.getByRole("menuitemradio", { name: "Sáng" })).toBeTruthy();
+    expect(screen.getByRole("menuitemradio", { name: "Tối" })).toBeTruthy();
+    expect(screen.getByRole("menuitemradio", { name: "Hệ thống" })).toBeTruthy();
   });
 });

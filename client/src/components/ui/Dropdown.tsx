@@ -36,9 +36,14 @@ export type DropdownProps = {
   /** Which side of the toggle the menu opens on. */
   align?: "start" | "end";
   /** `nav` styles the toggle like the other links of a navbar. */
-  variant?: "button" | "nav";
+  variant?: "button" | "nav" | "soft";
   className?: string;
   buttonClassName?: string;
+  /**
+   * Ghi đè bo góc/đệm của khung menu. Nền của menu luôn là `var(--surface-2)`
+   * (đặt qua inline style nên không bao giờ bị mất do CSS cache cũ).
+   */
+  menuClassName?: string;
   children: ReactNode;
 };
 
@@ -60,6 +65,7 @@ export function Dropdown({
   variant = "button",
   className,
   buttonClassName,
+  menuClassName,
   children,
 }: DropdownProps) {
   const [open, setOpen] = useState(false);
@@ -154,7 +160,9 @@ export function Dropdown({
           "inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20",
           variant === "nav"
             ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink"
-            : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2",
+            : variant === "soft"
+              ? "rounded-full bg-surface-2 px-3.5 py-2 text-ink hover:bg-surface-3"
+              : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2",
           buttonClassName
         )}
         onClick={() => {
@@ -181,9 +189,18 @@ export function Dropdown({
               <ul
                 ref={menuRef}
                 className={cn(
-                  "absolute z-50 min-w-52 list-none rounded-2xl bg-surface p-1.5",
+                  "absolute z-50 min-w-52 list-none overflow-y-auto rounded-2xl",
+                  menuClassName ?? "p-1.5",
                 )}
-                style={floating.style}
+                // Nền đặc của menu phải không phụ thuộc vào việc Tailwind
+                // có sinh ra class nền hay không: inline style luôn thắng.
+                // Fallback kép qua `light-dark()` để vẫn đặc kể cả khi
+                // token `--surface` không resolve được — không bao giờ trong suốt.
+                style={{
+                  ...floating.style,
+                  backgroundColor:
+                    "var(--surface, light-dark(#ffffff, #141a2c))",
+                }}
                 data-placement={floating.placement}
                 role="menu"
                 id={id}

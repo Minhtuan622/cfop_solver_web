@@ -38,7 +38,7 @@ import {
 import { stateFromScramble } from "@/lib/fastCube";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
-import { lastLayerModeLabel, openingModeLabel } from "@/lib/solverPresentation";
+import { lastLayerModeLabel, lastLayerCaseLabel, openingModeLabel } from "@/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
 import {
@@ -711,6 +711,12 @@ export default function Home() {
               >
                 <strong>{t("home.finalPart")}</strong>{" "}
                 {lastLayerModeLabel(lastLayerTelemetry.achieved, language)}
+                {lastLayerCaseLabel(lastLayerTelemetry.case_id) ? (
+                  <span className="font-semibold tabular-nums text-muted">
+                    {" "}
+                    · {lastLayerCaseLabel(lastLayerTelemetry.case_id)}
+                  </span>
+                ) : null}
               </Banner>
             ) : null}
           </div>

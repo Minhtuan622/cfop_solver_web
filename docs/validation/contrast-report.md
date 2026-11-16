@@ -2,203 +2,149 @@
 
 Bài kiểm tra tự động: `server/contrast.test.ts` (Vitest, môi trường Node).
 
-## Giới hạn của bài kiểm tra
+## Kết quả: mọi cặp đều đạt WCAG AA
 
-Bài này **chỉ kiểm tra token màu** khai báo trong `client/src/index.css`
-(`:root, [data-theme="light"]` và `[data-theme="dark"]`) và các tổ hợp class
-thật sự dùng trong `client/src/components/ui/`. Những điều sau **chưa** được
-tính:
+Palette đã được **làm lại** (2026-11, chủ sản phẩm yêu cầu "căn chỉnh lại độ
+tương phản của mọi thứ trong trang web"). Sau khi đo từng cặp trong cả hai chế
+độ sáng và tối, mọi cặp trong bảng đều đạt ngưỡng **4.5:1** cho chữ và **3:1**
+cho vòng focus / biểu tượng trạng thái.
 
-- **Độ trong suốt**: phép đo chuẩn **bỏ qua alpha** (theo yêu cầu C5):
-  `muted/60` được coi như `muted`. Hệ quả là bài kiểm tra **không phát hiện
-  được** lỗi chữ gợi ý trong ô nhập; 4 mục placeholder vẫn được giữ trong
-  `KNOWN_FAILURES` bằng phép đo **có** alpha để không mất thông tin — xem mục
-  "Độ trong suốt" bên dưới. Các lớp chồng nhiều lớp, `color-mix`,
-  `backdrop-filter`, gradient và ảnh nền vẫn chưa được mô phỏng.
-- **Gradient, ảnh nền, hình ảnh và video** làm nền: không tính.
-- **Font thực tế**: tỉ lệ tính theo màu, không theo độ đậm của chữ, độ mờ của
-  chữ mờ (phép đo chuẩn bỏ qua alpha; xem mục "Độ trong suốt") hay khoảng
-  cách chữ.
-- **Trạng thái hover/focus/disabled** chỉ được đo ở trạng thái nền.
-- **Chưa phải thay thế cho kiểm tra bằng công cụ trên trình duyệt thật**
-  (ví dụ `@axe-core/playwright`): bài này không biết phần tử nào thực sự đứng
-  trên nền nào, có lớp phủ nào hay nằm trong vùng cuộn.
+### Bảng token — trước → sau
 
-## Cách đo
+| Token | Sáng (trước) | Sáng (sau) | Tối (trước) | Tối (sau) |
+|---|---|---|---|---|
+| `--primary` | `#5b5bd6` | `#504fd3` | `#8585f6` | `#8585f6` |
+| `--primary-hover` | `#4a4ac2` | `#3f3e9f` | `#9d9dff` | `#9d9dff` |
+| `--muted` | `#5f6884` | `#59617f` | `#9aa5c2` | `#9aa5c2` |
+| `--success` | `#0f9f6e` | `#0c7e57` | `#34d399` | `#34d399` |
+| `--danger` | `#e11d48` | `#ce1b42` | `#fb7185` | `#fb7185` |
+| `--warning` | `#d97706` | `#cd7006` | `#fbbf24` | `#fbbf24` |
+| `--accent` | `#0891b2` | `#077894` | `#22d3ee` | `#22d3ee` |
+| **token mới:** `--on-primary` | — | `#ffffff` | — | `#0b1020` |
+| **token mới:** `--on-success` | — | `#ffffff` | — | `#0b1020` |
+| **token mới:** `--on-danger` | — | `#ffffff` | — | `#0b1020` |
+| **token mới:** `--on-warning` | — | `#10142a` | — | `#0b1020` |
+| **token mới:** `--placeholder` | — | `#59617f` | — | `#9aa5c2` |
 
-- Công thức tỉ lệ tương phản của WCAG 2.x:
-  `(L1 + 0.05) / (L2 + 0.05)`, với `L` là độ chói tương đối
-  (`0.2126 R + 0.7152 G + 0.0722 B`, kênh đã linearize theo sRGB).
-- Ngưỡng: **4.5:1** cho chữ (WCAG 1.4.3), **3:1** cho vòng focus và biểu tượng
-  trạng thái (WCAG 1.4.11).
-- Màu được đọc trực tiếp từ file CSS, quy đổi về sRGB bằng bộ quy đổi tự
-  viết trong bài kiểm tra — **không thêm dependency mới**.
-- Chạy lại bảng này bằng:
-  ```bash
-  pnpm exec vitest run server/contrast.test.ts --reporter=verbose --disable-console-intercept
-  ```
+### Vì sao đổi
 
-## Độ trong suốt (C5)
+- **Chế độ tối dùng chữ sáng trên nền tím sáng** (`--primary` = `#8585f6`):
+  chữ trắng trên nền đó chỉ đạt **3.14:1** — đây chính là nhóm lỗi
+  `color-contrast` mà `@axe-core/playwright` báo 11 lần trên trang thật (nút
+  chính, nhãn, tab). Chế độ tối giờ dùng **chữ tối** (`--on-primary` =
+  `#0b1020`) trên nền tím sáng — đạt **6.03:1**.
+- **Nút success / danger ở chế độ tối**: nền sáng (`#34d399`, `#fb7185`) với
+  chữ trắng chỉ đạt **1.92:1** và **2.69:1**. Dùng chữ tối thay cho chữ trắng:
+  **9.85:1** và **7.03:1**.
+- **Chữ gợi ý trong ô nhập** (`placeholder:text-muted/60`): chỉ đạt **2.34:1**
+  (sáng) / **3.02:1** (tối). Giờ dùng token `--placeholder` đậm hơn:
+  **5.37:1** / **5.69:1** cho `surface-3`, **5.75:1** / **6.48:1** cho
+  `surface-2`.
+- **Chữ phụ ở chế độ sáng** (`--muted`): vệt sáng trang trí `bg-primary/10` /
+  `bg-accent/10` trên nền trang làm nền nhạt đi (`#e5e6f7`, `#dce9f1`) khiến
+  chữ phụ tụt xuống **4.47:1** và **4.33:1** — chỉ vài đơn vị màu nữa là
+  trượt ngưỡng. `--muted` được đậm lên một nấc (`#5f6884` → `#59617f`):
+  **6.10:1** trên thẻ, **5.61:1** trên nền trang, **5.75:1** trên surface-2,
+  **5.37:1** trên surface-3, **4.86:1** trên vệt accent/10.
+- **Nút / nhãn tím ở chế độ sáng**: `--primary` tối lại một nấc (`#5b5bd6` →
+  `#504fd3`) để chữ tím trên vệt sáng trang trí đạt **4.99:1** thay vì
+  **4.33:1**.
 
-Phép đo chuẩn của bài kiểm tra **bỏ qua alpha**: `muted/60` được tính như
-`muted`. Vì vậy phép đo chuẩn **không phát hiện được** 4 lỗi chữ gợi ý
-(`FormControls.tsx` và `DesignSystem.tsx`): nếu bỏ alpha, cặp này báo đạt
-4.86:1 (sáng) / 5.69:1 (tối) — và 5.21:1 / 6.48:1 cho `PillInput` — thay vì
-2.34–3.24:1.
-
-Để không mất 4 lỗi thật, `KNOWN_FAILURES` vẫn giữ 4 mục placeholder với số đo
-**có alpha**:
-
-| Cặp | Sáng | Tối | Nguồn |
-|---|---:|---:|---|
-| `muted/60` trên `surface-3` | 2.34 | 3.02 | `FormControls.tsx` |
-| `muted/60` trên `surface-2` | 2.41 | 3.24 | `DesignSystem.tsx` `PillInput` |
-
-Đây là **thông tin lưu trữ**, không phải kết quả của phép đo chuẩn; bài kiểm
-tra chỉ dùng phép đo có alpha cho các mục này khi kiểm tra danh sách
-`KNOWN_FAILURES`. Muốn chặn lỗi placeholder trong CI phải dùng phép đo có
-alpha hoặc công cụ trên trình duyệt thật (`@axe-core/playwright`).
+Token mới được nối vào `@theme inline` (`--color-on-primary` …) nên các class
+`text-on-primary`, `text-on-success`, `text-on-danger`, `text-on-warning`,
+`text-placeholder` hoạt động như mọi màu khác của Tailwind.
 
 ## Bảng số đo
 
-> Các dòng 27 và 29 dùng số đo **có alpha** cho phần chữ gợi ý; các dòng còn
-> lại là phép đo chuẩn (bỏ qua alpha).
+Mọi cặp đều **đạt** (ngưỡng: 4.5:1 cho chữ, 3:1 cho vòng focus / biểu tượng).
 
-| # | Cặp màu | Nguồn trong mã nguồn | Chế độ sáng | Chế độ tối | Ngưỡng | Sáng | Tối |
-|---|---|---|---:|---:|---:|---|---|
-| 1 | `ink` trên `canvas` | body (`text-ink` trên `bg-canvas`) | 16.70 | 16.34 | 4.5 | đạt | đạt |
-| 2 | `ink` trên `surface` | `Card.tsx` (`bg-surface`) | 18.17 | 14.78 | 4.5 | đạt | đạt |
-| 3 | `ink` trên `surface-2` | `Button.tsx` variant `soft` | 17.14 | 13.63 | 4.5 | đạt | đạt |
-| 4 | `muted` trên `canvas` | `text-muted` trên `bg-canvas` | 5.08 | 7.77 | 4.5 | đạt | đạt |
-| 5 | `muted` trên `surface` | `Button.tsx` variant `ghost` | 5.53 | 7.03 | 4.5 | đạt | đạt |
-| 6 | `muted` trên `surface-2` | `DesignSystem.tsx` `PillGroup` | 5.21 | 6.48 | 4.5 | đạt | đạt |
-| 7 | trắng trên `primary` (nút chính) | `Button.tsx` variant `primary` | 5.37 | **3.14** | 4.5 | đạt | **KHÔNG ĐẠT** |
-| 8 | `ink` trên `surface` (nút phụ) | `Button.tsx` variant `secondary` | 18.17 | 14.78 | 4.5 | đạt | đạt |
-| 9 | `ink` trên `surface-2` (nút soft) | `Button.tsx` variant `soft` | 17.14 | 13.63 | 4.5 | đạt | đạt |
-| 10 | `primary` trên `surface` (nút outline) | `Button.tsx` variant `outline` | 5.37 | 5.51 | 4.5 | đạt | đạt |
-| 11 | `primary` trên `canvas` (nút outline) | `Button.tsx` variant `outline` trên nền trang | 4.93 | 6.08 | 4.5 | đạt | đạt |
-| 12 | `muted` trên `surface` (nút ghost) | `Button.tsx` variant `ghost` | 5.53 | 7.03 | 4.5 | đạt | đạt |
-| 13 | `muted` trên `canvas` (nút ghost) | `Button.tsx` variant `ghost` trên nền trang | 5.08 | 7.77 | 4.5 | đạt | đạt |
-| 14 | `danger` trên `surface` (nút danger) | `Button.tsx` variant `danger` | 4.70 | 6.43 | 4.5 | đạt | đạt |
-| 15 | `danger` trên `canvas` (nút danger) | `Button.tsx` variant `danger` trên nền trang | **4.32** | 7.10 | 4.5 | **KHÔNG ĐẠT** | đạt |
-| 16 | trắng trên `danger` (nút dangerSolid) | `Button.tsx` variant `dangerSolid` | 4.70 | **2.69** | 4.5 | đạt | **KHÔNG ĐẠT** |
-| 17 | `success` trên `surface` (nút success) | `Button.tsx` variant `success` | **3.38** | 9.00 | 4.5 | **KHÔNG ĐẠT** | đạt |
-| 18 | `success` trên `canvas` (nút success) | `Button.tsx` variant `success` trên nền trang | **3.11** | 9.95 | 4.5 | **KHÔNG ĐẠT** | đạt |
-| 19 | trắng trên `success` (nút xanh đặc) | `bg-success text-white` (`Rooms.tsx`, `TimerLab.tsx`, `Profile.tsx`) | **3.38** | **1.92** | 4.5 | **KHÔNG ĐẠT** | **KHÔNG ĐẠT** |
-| 20 | `ink` trên `warning` (nút warning) | `Button.tsx` variant `warning` | 5.70 | **1.43** | 4.5 | đạt | **KHÔNG ĐẠT** |
-| 21 | `surface` trên `ink` (nút inverse) | `Button.tsx` variant `inverse` | 18.17 | 14.78 | 4.5 | đạt | đạt |
-| 22 | `primary` trên `surface` (nút link) | `Button.tsx` variant `link` | 5.37 | 5.51 | 4.5 | đạt | đạt |
-| 23 | `primary` trên `canvas` (nút link) | `Button.tsx` variant `link` trên nền trang | 4.93 | 6.08 | 4.5 | đạt | đạt |
-| 24 | `primary` trên `primary-soft` | `DesignSystem.tsx` `IconBox` / `EyebrowPill` | 4.65 | 4.67 | 4.5 | đạt | đạt |
-| 25 | `accent` trên `accent-soft` | token `--accent` / `--accent-soft` (chưa dùng cho chữ nào) | **3.37** | 7.80 | 4.5 | **KHÔNG ĐẠT** | đạt |
-| 26 | `ink` trên `surface-3` (chữ trong ô nhập) | `FormControls.tsx` `controlBase` | 15.99 | 11.97 | 4.5 | đạt | đạt |
-| 27 | `muted` 60% trên `surface-3` (chữ gợi ý) | `FormControls.tsx` `placeholder:text-muted/60` | **2.34** | **3.02** | 4.5 | **KHÔNG ĐẠT** | **KHÔNG ĐẠT** |
-| 28 | `ink` trên `surface-2` (chữ trong PillInput) | `DesignSystem.tsx` `PillInput` | 17.14 | 13.63 | 4.5 | đạt | đạt |
-| 29 | `muted` 60% trên `surface-2` (chữ gợi ý) | `DesignSystem.tsx` `PillInput` | **2.41** | **3.24** | 4.5 | **KHÔNG ĐẠT** | **KHÔNG ĐẠT** |
-| 30 | `primary` trên `canvas` (vòng focus) | `index.css` — `:focus-visible { outline: 2px solid var(--primary) }` | 4.93 | 6.08 | 3 | đạt | đạt |
-| 31 | `primary` trên `surface` (vòng focus) | như trên | 5.37 | 5.51 | 3 | đạt | đạt |
-| 32 | `primary` trên `surface-2` (vòng focus) | như trên | 5.06 | 5.08 | 3 | đạt | đạt |
-| 33 | `primary` trên `surface-3` (vòng focus) | như trên | 4.72 | 4.46 | 3 | đạt | đạt |
-| 34 | `success` trên `success-soft` (biểu tượng) | `DesignSystem.tsx` `Banner` (`[&>svg]:text-success`) | 3.08 | 7.51 | 3 | đạt | đạt |
-| 35 | `warning` trên `warning-soft` (biểu tượng) | `DesignSystem.tsx` `Banner` (`[&>svg]:text-warning`) | **2.97** | 8.68 | 3 | **KHÔNG ĐẠT** | đạt |
+| # | Cặp màu | Nguồn trong mã nguồn | Sáng | Tối | Ngưỡng |
+|---|---|---|---:|---:|---:|
+| 1 | `ink` trên `canvas` | body | 16.70 | 16.34 | 4.5 |
+| 2 | `ink` trên `surface` | Card.tsx | 18.17 | 14.78 | 4.5 |
+| 3 | `ink` trên `surface-2` | Button `soft` | 17.14 | 13.63 | 4.5 |
+| 4 | `muted` trên `canvas` | `text-muted` trên `bg-canvas` | 5.61 | 7.77 | 4.5 |
+| 5 | `muted` trên `surface` | Button `ghost` | 6.10 | 7.03 | 4.5 |
+| 6 | `muted` trên `surface-2` | `PillGroup` | 5.75 | 6.48 | 4.5 |
+| 7 | `on-primary` trên `primary` (nút chính) | Button `primary` | 6.18 | 6.03 | 4.5 |
+| 8 | `ink` trên `surface` (nút phụ) | Button `secondary` | 18.17 | 14.78 | 4.5 |
+| 9 | `ink` trên `surface-2` (nút soft) | Button `soft` | 17.14 | 13.63 | 4.5 |
+| 10 | `primary` trên `surface` (nút outline) | Button `outline` | 6.18 | 5.51 | 4.5 |
+| 11 | `primary` trên `canvas` (nút outline) | Button `outline` trên nền trang | 5.68 | 6.08 | 4.5 |
+| 12 | `muted` trên `surface` (nút ghost) | Button `ghost` | 6.10 | 7.03 | 4.5 |
+| 13 | `muted` trên `canvas` (nút ghost) | Button `ghost` trên nền trang | 5.61 | 7.77 | 4.5 |
+| 14 | `danger` trên `surface` (nút danger) | Button `danger` | 5.44 | 6.43 | 4.5 |
+| 15 | `danger` trên `canvas` (nút danger) | Button `danger` trên nền trang | 5.00 | 7.10 | 4.5 |
+| 16 | `on-danger` trên `danger` (nút dangerSolid) | Button `dangerSolid` | 5.44 | 7.03 | 4.5 |
+| 17 | `success` trên `surface` (nút success) | Button `success` | 5.08 | 9.00 | 4.5 |
+| 18 | `success` trên `canvas` (nút success) | Button `success` trên nền trang | 4.66 | 9.95 | 4.5 |
+| 19 | `on-success` trên `success` (nút xanh đặc) | `bg-success text-on-success` | 5.08 | 9.85 | 4.5 |
+| 20 | `on-warning` trên `warning` (nút warning) | Button `warning` | 5.12 | 11.34 | 4.5 |
+| 21 | `surface` trên `ink` (nút inverse) | Button `inverse` | 18.17 | 14.78 | 4.5 |
+| 22 | `primary` trên `surface` (nút link) | Button `link` | 6.18 | 5.51 | 4.5 |
+| 23 | `primary` trên `canvas` (nút link) | Button `link` trên nền trang | 5.68 | 6.08 | 4.5 |
+| 24 | `primary` trên `primary-soft` | IconBox / EyebrowPill | 5.35 | 4.67 | 4.5 |
+| 25 | `accent` trên `accent-soft` | IconBox / EyebrowPill | 4.66 | 7.80 | 4.5 |
+| 26 | `ink` trên `surface-3` (chữ trong ô nhập) | FormControls | 15.99 | 11.97 | 4.5 |
+| 27 | `placeholder` trên `surface-3` (chữ gợi ý) | FormControls | 5.37 | 5.69 | 4.5 |
+| 28 | `ink` trên `surface-2` (PillInput) | DesignSystem | 17.14 | 13.63 | 4.5 |
+| 29 | `placeholder` trên `surface-2` (chữ gợi ý) | DesignSystem | 5.75 | 6.48 | 4.5 |
+| 30 | `primary` trên `canvas` (vòng focus) | `:focus-visible` | 5.68 | 6.08 | 3 |
+| 31 | `primary` trên `surface` (vòng focus) | như trên | 6.18 | 5.51 | 3 |
+| 32 | `primary` trên `surface-2` (vòng focus) | như trên | 5.82 | 5.08 | 3 |
+| 33 | `primary` trên `surface-3` (vòng focus) | như trên | 5.44 | 4.46 | 3 |
+| 34 | `success` trên `success-soft` (biểu tượng) | Banner | 4.61 | 7.51 | 3 |
+| 35 | `warning` trên `warning-soft` (biểu tượng) | Banner | 3.31 | 8.68 | 3 |
 
-## Cặp KHÔNG đạt — danh sách cho chủ sản phẩm quyết định
+## Giới hạn của bài kiểm tra
 
-Bài kiểm tra **không đổi màu**. Các cặp dưới đây nằm trong `KNOWN_FAILURES`
-của `server/contrast.test.ts` kèm lý do và số đo hiện tại, nên **CI vẫn xanh**.
-Khi palette được sửa, phải cập nhật lại danh sách đó (và bài kiểm tra sẽ FAIL
-nếu một cặp đã đạt mà chưa được gỡ).
-
-| # | Cặp | Chế độ | Tỉ lệ | Ngưỡng | Thiếu | Nơi xuất hiện |
-|---|---|---|---:|---:|---:|---|
-| 1 | `ink` trên `warning` (nút warning) | tối | 1.43 | 4.5 | −3.07 | `Button.tsx` variant `warning` (`bg-warning text-ink`) |
-| 2 | trắng trên `success` (nút xanh đặc) | tối | 1.92 | 4.5 | −2.58 | `bg-success text-white` trong `Rooms.tsx`, `TimerLab.tsx`, `Profile.tsx` |
-| 3 | trắng trên `danger` (nút dangerSolid) | tối | 2.69 | 4.5 | −1.81 | `Button.tsx` variant `dangerSolid` |
-| 4 | trắng trên `primary` (nút chính) | tối | 3.14 | 4.5 | −1.36 | `Button.tsx` variant `primary` |
-| 5 | `muted` 60% trên `surface-3` (chữ gợi ý) | sáng | 2.34 | 4.5 | −2.16 | `FormControls.tsx` `placeholder:text-muted/60` |
-| 6 | `muted` 60% trên `surface-3` (chữ gợi ý) | tối | 3.02 | 4.5 | −1.48 | như trên |
-| 7 | `muted` 60% trên `surface-2` (chữ gợi ý) | sáng | 2.41 | 4.5 | −2.09 | `DesignSystem.tsx` `PillInput` |
-| 8 | `muted` 60% trên `surface-2` (chữ gợi ý) | tối | 3.24 | 4.5 | −1.26 | như trên |
-| 9 | `success` trên `surface` (nút success) | sáng | 3.38 | 4.5 | −1.12 | `Button.tsx` variant `success` |
-| 10 | `success` trên `canvas` (nút success) | sáng | 3.11 | 4.5 | −1.39 | như trên |
-| 11 | trắng trên `success` (nút xanh đặc) | sáng | 3.38 | 4.5 | −1.12 | `bg-success text-white` |
-| 12 | `accent` trên `accent-soft` | sáng | 3.37 | 4.5 | −1.13 | token chưa dùng cho chữ nào — theo dõi trước khi dùng |
-| 13 | `danger` trên `canvas` (nút danger) | sáng | 4.32 | 4.5 | −0.18 | `Button.tsx` variant `danger` trên nền trang |
-| 14 | `warning` trên `warning-soft` (biểu tượng) | sáng | 2.97 | 3 | −0.03 | `DesignSystem.tsx` `Banner` |
-
-### Nhận xét cho chủ sản phẩm
-
-- **"Chữ trên nền tím"** — lỗi từng được sửa ở chế độ **sáng** (5.37:1) nhưng
-  chế độ **tối** vẫn chỉ đạt **3.14:1**: `--primary` tối là `#8585f6` (màu tím
-  nhạt) nên chữ trắng trên đó không đủ tương phản. Đổi `--primary` tối sang
-  tím đậm hơn sẽ sửa cả nút chính lẫn các nhãn tím khác — nhưng cũng làm
-  nhãn tím trên nền tối tối đi, nên cần cân.
-- **Nút trạng thái ở chế độ tối** (`success` đặc, `danger` đặc, `warning`) là
-  nhóm lỗi nặng nhất: 1.43:1 – 2.69:1. Nguyên nhân chung là các token trạng
-  thái ở chế độ tối được chọn làm **màu chữ trên nền tối** (chúng đủ tương
-  phản với nền tối) nhưng lại được dùng làm **nền nút** với chữ trắng.
-  Trong chế độ tối, các nền nút đặc này nên dùng màu đậm hơn hoặc chuyển sang
-  nền mềm + chữ màu.
-- **Chữ gợi ý** (`placeholder:text-muted/60`) là lỗi duy nhất ở **cả hai** chế
-  độ: 2.34:1 (sáng) và 3.02:1 (tối). Bỏ hết độ trong suốt (`muted` thay cho
-  `muted/60`) sẽ đưa cặp này lên 5.53:1 / 7.03:1 — đây là cách sửa ít ảnh
-  hưởng giao diện nhất.
-- **Biểu tượng hổ phách** trên nền `warning-soft` thiếu 0.03:1 so với ngưỡng
-  3:1 — gần như đạt.
-
-## Cặp chỉ để tham khảo (không làm test fail)
-
-Giao diện phẳng đã bỏ đường viền, nên ranh giới giữa các khối chỉ còn nhờ
-nền. Các tỉ lệ rất thấp ở đây là **hệ quả của thiết kế phẳng**, không phải
-lỗi — nhưng chủ sản phẩm cần số liệu này để quyết định.
-
-| Cặp | Chế độ sáng | Chế độ tối | Ghi chú |
-|---|---:|---:|---|
-| nền ô nhập (`surface-3`) so với nền thẻ chứa nó (`surface`) | 1.14 | 1.24 | Ô nhập chỉ nổi lên nhờ nền, không có viền. |
-| nền `surface-2` so với nền trang (`canvas`) | 1.03 | 1.20 | Khối trên nền trang gần như không khác nền. |
-| hào focus mờ (`primary` 20%) trên nền trang | 1.31 | 1.32 | Xem ghi chú bên dưới. |
-| hào focus mờ (`primary` 20%) trên nền thẻ | 1.32 | 1.35 | |
-| hào focus mờ (`primary` 20%) trên nền `surface-2` | 1.31 | 1.36 | |
-| hào focus mờ (`primary` 20%) trên nền `surface-3` | 1.30 | 1.35 | |
-
-### Ghi chú về vòng focus
-
-Bài kiểm tra đo vòng focus **đặc** (`--primary`), vì đó là chỉ dẫn tiếp cận
-được khai báo trong `client/src/index.css`:
-`:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }`.
-Bốn cặp `focus/*` đạt 4.46–6.08:1, trên ngưỡng 3:1.
-
-Trước đây phần lớn nút và ô nhập thêm class `outline-none` (Tailwind) — lớp
-`utilities` đứng sau lớp `base` nên `outline-style: none` **thắng** — và chỉ
-còn `focus-visible:ring-4 focus-visible:ring-primary/20`, tức **hào mờ 20%**
-với tỉ lệ ~1.3:1. Chủ sản phẩm đã duyệt **hướng A**: bỏ toàn bộ **47** chỗ
-`outline-none` / `focus-visible:outline-none`, giữ nguyên ring. Outline toàn
-cục hiện lại, nên chỉ dẫn focus đạt ngưỡng.
-
-Bằng chứng trên Chromium thật (Playwright, `/timer`, focus bằng Tab vào link
-thương hiệu):
-
-| | `outline-style` | `outline-width` | `outline-color` | ring |
-|---|---|---:|---|---|
-| Trước | `none` | 2px | `rgb(91, 91, 214)` (bị xoá) | 20% alpha |
-| Sau | `solid` | 2px | `rgb(91, 91, 214)` | 20% alpha |
-
-`server/flatUi.test.ts` chặn `outline-none` tái xuất và khẳng định khối
-`:focus-visible` toàn cục vẫn còn. Đây là thay đổi **cấp phần tử**, không phải
-đổi token màu; bảng số đo token ở trên không đổi.
+- **Độ trong suốt**: phép đo chuẩn **bỏ qua alpha** (yêu cầu C5 của đề bài
+  vòng 7): `muted/60` được tính như `muted`. Mọi màu chữ trong app giờ đều là
+  màu đặc, nên giới hạn này không còn che giấu lỗi nào — phép đo có alpha
+  (`measureWithAlpha`) vẫn được giữ lại để kiểm tra các lớp phủ trong tương
+  lai. Kiểm tra trên trình duyệt thật (`e2e/contrast-a11y.spec.ts`,
+  `@axe-core/playwright`) là lớp kiểm tra độc lập, đo trực tiếp trên DOM sau
+  khi render.
+- **Gradient, ảnh nền, hình ảnh**: không tính.
+- **Font thực tế** không được mô phỏng (độ đậm, khoảng cách chữ).
+- **Trạng thái hover/focus/disabled** chỉ đo ở trạng thái nền.
+- **Kiểm tra trên trình duyệt thật** (`e2e/contrast-a11y.spec.ts`,
+  `@axe-core/playwright`) phát hiện thêm các vi phạm không phải token
+  (ví dụ lỗi gán tên truy cập) mà bài này không thấy. Hiện tại: **0** vi phạm
+  tương phản; còn lại 16 lỗi không liên quan màu (`label-content-name-mismatch`,
+  `aria-prohibited-attr`) được liệt kê trong
+  `e2e/contrast-a11y.baseline.json`, không tự sửa.
 
 ## Cách bài kiểm tra bảo vệ palette
 
-`server/contrast.test.ts` (8 test):
+`server/contrast.test.ts` (9 test):
 
 1. đọc được token của cả hai chế độ;
-2. **mọi cặp đang đạt phải tiếp tục đạt** — đổi màu làm tụt một cặp thì test đỏ,
-   và thông báo lỗi nêu đúng cặp, chế độ, tỉ lệ và ngưỡng;
-3. **mọi cặp trong `KNOWN_FAILURES` vẫn phải chưa đạt** — nếu một cặp đã đạt mà
-   chưa được gỡ khỏi danh sách thì test đỏ, để danh sách luôn trung thực;
-4. số đo ghi trong `KNOWN_FAILURES` phải khớp palette hiện tại (sai số 0.05);
-5. mọi mục trong `KNOWN_FAILURES` phải tồn tại và có lý do;
-6. **phép đo chuẩn bỏ qua alpha** — khẳng định phép đo chuẩn báo đạt còn phép
-   đo có alpha báo không đạt cho placeholder, và 4 mục placeholder vẫn được giữ;
-7. in bảng tương phản đầy đủ;
-8. in các cặp chỉ để tham khảo.
+2. **mọi cặp trong bảng phải đạt ngưỡng** — đổi màu làm tụt một cặp thì test
+   đỏ, và thông báo nêu đúng cặp, chế độ, tỉ lệ và ngưỡng;
+3–5. cơ chế `KNOWN_FAILURES` để ghi nhận cặp chưa đạt (hiện đang **rỗng**);
+6. **chữ gợi ý đạt chuẩn ở cả hai chế độ** (regression cho lỗi placeholder);
+7–9. in bảng tương phản đầy đủ và các cặp tham khảo.
+
+## Palette trước → sau (chế độ sáng)
+
+- `--primary` `#5b5bd6` → `#504fd3` — chữ tím trên vệt sáng trang trí
+  `#dce9f1` đạt 4.33 → **4.99:1**;
+- `--primary-hover` `#4a4ac2` → `#3f3e9f`;
+- `--muted` `#5f6884` → `#59617f` — chữ phụ trên vệt sáng trang trí đạt
+  4.47 → **4.93:1**;
+- `--success` `#0f9f6e` → `#0c7e57` — nút xanh đặc 3.38 → **5.08:1**;
+- `--danger` `#e11d48` → `#ce1b42` — nút danger trên nền trang 4.32 → **5.00:1**;
+- `--warning` `#d97706` → `#cd7006` — biểu tượng hổ phách 2.97 → **3.31:1**;
+- `--accent` `#0891b2` → `#077894` — nhãn accent 3.37 → **4.66:1**;
+- `placeholder:text-muted/60` → token `--placeholder` `#59617f` đặc:
+  2.34 → **5.37:1**;
+- nút / nhãn đặc ở chế độ tối đổi sang token `--on-primary` / `--on-success`
+  / `--on-danger` / `--on-warning` (chữ tối trên nền sáng):
+  3.14 → **6.03:1**, 1.92 → **9.85:1**, 2.69 → **7.03:1**, 1.43 → **11.34:1**.
+
+`e2e/contrast-a11y.baseline.json` sau khi cập nhật chỉ còn **16** phát hiện
+thuộc nhóm không liên quan màu (`label-content-name-mismatch` × 12,
+`aria-prohibited-attr` × 4) — **không còn vi phạm tương phản nào**; mọi vi
+phạm tương phản trước đây (nút chính, nhãn, placeholder, ô nhập…) đã được sửa
+tận gốc bằng palette.

@@ -67,6 +67,19 @@ def test_scrambles_are_solved_within_budget(scramble):
     print(f"\n  {elapsed:6.2f}s  {scramble}")
 
 
+def test_opening_auto_tries_highest_tier_within_8_moves():
+    # "Auto" tries XXXXCross -> XXXCross -> XXCross -> XCross (in that order)
+    # and keeps the first tier that is solvable within the node budget.
+    cube = Cube().apply_many(parse_moves(RANDOM_SCRAMBLES[0]))
+    solution = solve(cube, last_layer="oll_pll", cross_color="U", opening="auto", direct_node_budget=5_000)
+    summary = solution.opening_summary
+    assert summary["requested"] == "auto"
+    assert summary["target"] == "xxxxcross"
+    assert summary["attempts"][0] == "xxxxcross"
+    assert summary["achieved"] in ("xcross", "xxcross", "xxxcross", "xxxxcross")
+    assert summary["did_fallback"] is False
+
+
 def test_time_budget_param_is_accepted():
     # The time_budget_sec parameter is forwarded through solve without
     # altering results for a solvable case.

@@ -117,4 +117,12 @@ export const studyWords: Dictionary = {
   ],
   "study.closePreview": ["Đóng preview", "Close preview"],
   "study.close": ["Đóng", "Close"],
+
+  "study.bulkSelect": ["Chọn nhiều", "Select multiple"],
+  "study.bulkSelected": ["Đã chọn {count}/{total}", "{count} of {total} selected"],
+  "study.bulkSelectAll": ["Chọn tất cả", "Select all"],
+  "study.bulkClear": ["Bỏ chọn", "Clear selection"],
+  "study.bulkMark": ["Đánh dấu đã thuộc ({count})", "Mark as learned ({count})"],
+  "study.bulkUnmark": ["Bỏ đánh dấu ({count})", "Unmark ({count})"],
+  "study.bulkDone": ["Xong", "Done"],
 };

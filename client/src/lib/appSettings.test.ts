@@ -10,6 +10,11 @@ describe("solver settings opening find-result mode", () => {
     expect(readSolverSettings()).toMatchObject({ opening: "xxcross", openingFindResult: false, directNodeBudget: 5000 });
   });
 
+  it("accepts the xcross opening option", () => {
+    writeSolverSettings({ ...DEFAULT_SOLVER_SETTINGS, opening: "xcross" });
+    expect(readSolverSettings()).toMatchObject({ opening: "xcross" });
+  });
+
   it("persists the direct-result retry preference", () => {
     writeSolverSettings({ ...DEFAULT_SOLVER_SETTINGS, opening: "xxxxcross", openingFindResult: true });
     expect(readSolverSettings()).toMatchObject({ opening: "xxxxcross", openingFindResult: true });

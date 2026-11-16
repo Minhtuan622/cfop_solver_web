@@ -3,7 +3,8 @@ import { downloadFile } from "./browserDownload";
 
 export const F2L_SLOTS: F2LSlot[] = ["FR", "FL", "BL", "BR"];
 export const OPENING_OPTIONS: { value: OpeningMode; vi: string; en: string; compact: string }[] = [
-  { value: "cross", vi: "Cross chuẩn", en: "Standard Cross", compact: "CROSS" }, { value: "auto", vi: "XCross · Cross + 1 F2L", en: "XCross · Cross + 1 F2L", compact: "XCROSS" },
+  { value: "cross", vi: "Cross chuẩn", en: "Standard Cross", compact: "CROSS" }, { value: "auto", vi: "Tự động · tầng cao nhất trong 8 nước", en: "Auto · highest tier within 8 moves", compact: "AUTO" },
+  { value: "xcross", vi: "XCross · Cross + 1 F2L", en: "XCross · Cross + 1 F2L", compact: "XCROSS" },
   { value: "xxcross", vi: "XXCross · Cross + 2 F2L", en: "XXCross · Cross + 2 F2L", compact: "XXCROSS" }, { value: "xxxcross", vi: "XXXCross · Cross + 3 F2L", en: "XXXCross · Cross + 3 F2L", compact: "XXXCROSS" },
   { value: "xxxxcross", vi: "XXXXCross · Full F2L", en: "XXXXCross · Full F2L", compact: "XXXXCROSS" },
 ];
@@ -40,6 +41,27 @@ export function openingModeLabel(mode: string, language: "vi" | "en") {
 export function lastLayerModeLabel(mode: string, language: "vi" | "en") {
   const achieved: Record<string, { vi: string; en: string }> = { oll_pll: { vi: "OLL + PLL", en: "OLL + PLL" }, zbll: { vi: "ZBLL", en: "ZBLL" }, "1lll": { vi: "1LLL", en: "1LLL" } };
   return LAST_LAYER_OPTIONS.find((option) => option.value === mode)?.[language] ?? achieved[mode]?.[language] ?? mode.toUpperCase();
+}
+
+/**
+ * Nhãn case last-layer ngắn gọn để hiển thị cùng nhãn chế độ.
+ * - OLL + PLL: case_id dạng "27/Ua" → "OLL 27 · PLL Ua"
+ * - ZBLL: case id, ví dụ "ZBLLAS-004"
+ * - 1LLL: case id, ví dụ "1LLL-01-001"
+ */
+export function lastLayerCaseLabel(caseId: string | null | undefined) {
+  if (!caseId) return null;
+  if (caseId.includes("/")) {
+    const [oll, pll] = caseId.split("/");
+    if (oll && pll) return `OLL ${oll} · PLL ${pll}`;
+  }
+  return caseId;
+}
+
+/** Nhãn case ngắn gọn cho từng phase last-layer (OLL, PLL, ZBLL, 1LLL). */
+export function phaseCaseLabel(name: string, caseId: string | null | undefined) {
+  if (!caseId) return null;
+  return caseId;
 }
 
 export function exportCFOPJson(result: SolverResult) {

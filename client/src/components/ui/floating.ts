@@ -3,8 +3,8 @@ import type { CSSProperties } from "react";
 /** Khoảng hở giữa khối nổi với nút bấm và với mép khung nhìn (px). */
 export const GAP = 8;
 export const VIEWPORT_MARGIN = 8;
-/** Chiều cao khối nổi mong muốn (tương đương `max-h-72`). */
-export const PREFERRED_HEIGHT = 288;
+/** Chiều cao khối nổi mong muốn (tương đương `max-h-112`). */
+export const PREFERRED_HEIGHT = 448;
 /** Bề rộng tối thiểu của khối nổi (tương đương `min-w-48`). */
 export const MIN_WIDTH = 192;
 

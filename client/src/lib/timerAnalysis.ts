@@ -1,4 +1,4 @@
-import { effectiveTime, type SolveHistoryEntry, type SplitPhase } from "./solveHistory";
+import { effectiveTime, type SolveHistoryEntry } from "./solveHistory";
 import { rollingAverage } from "./timerRecords";
 
 export const TIMER_AVERAGE_SIZES = [5, 12, 50, 100] as const;
@@ -16,28 +16,6 @@ export function progressSeries(entries: SolveHistoryEntry[]) {
 
 export function splitSummary(entry: SolveHistoryEntry) {
   return entry.phaseSplits.map((split) => `${split.phase} ${(split.elapsedMs / 1000).toFixed(2)}s`).join(" · ");
-}
-
-export function phaseProgressSeries(entries: SolveHistoryEntry[]) {
-  return [...entries].reverse().map((entry, index) => {
-    const point: Record<string, number | undefined> = { solve: index + 1 };
-    entry.phaseSplits.forEach((split) => { point[split.phase] = split.elapsedMs; });
-    return point;
-  });
-}
-
-function phaseAverage(values: number[], windowSize: 5 | 12) {
-  if (values.length < windowSize) return undefined;
-  const sample = values.slice(0, windowSize).sort((a, b) => a - b);
-  const core = sample.slice(1, -1);
-  return core.reduce((sum, value) => sum + value, 0) / core.length;
-}
-
-export function phaseStability(entries: SolveHistoryEntry[], phases: readonly SplitPhase[]) {
-  return Object.fromEntries(phases.map((phase) => {
-    const values = entries.flatMap((entry) => entry.phaseSplits.filter((split) => split.phase === phase).map((split) => split.elapsedMs));
-    return [phase, { count: values.length, ao5: phaseAverage(values, 5), ao12: phaseAverage(values, 12) }];
-  })) as Record<SplitPhase, { count: number; ao5: number | undefined; ao12: number | undefined }>;
 }
 
 const MOVE_TOKEN = /(?:[URFDLBMESxyz](?:w)?(?:2|')?)/g;

@@ -72,8 +72,6 @@ import {
   multiBlindTimeLimitMs,
 } from "@/lib/multiBlind";
 import {
-  phaseProgressSeries,
-  phaseStability,
   phaseTpsFromSolution,
   progressSeries,
   solutionEfficiency,
@@ -127,20 +125,6 @@ import { Select } from "@/components/ui/Select";
 const FACES = ["U", "R", "F", "D", "L", "B"] as const;
 const AVERAGES = TIMER_AVERAGE_SIZES;
 const SPEED_PHASES: SplitPhase[] = ["Cross", "F2L", "OLL", "PLL"];
-const DEFAULT_PHASE_TARGETS: Record<SplitPhase, number> = {
-  Cross: 4,
-  F2L: 12,
-  OLL: 4,
-  PLL: 5,
-};
-const TARGET_PRESETS: Record<
-  "Beginner" | "Intermediate" | "Advanced",
-  Record<SplitPhase, number>
-> = {
-  Beginner: { Cross: 8, F2L: 30, OLL: 10, PLL: 12 },
-  Intermediate: { Cross: 4, F2L: 12, OLL: 4, PLL: 5 },
-  Advanced: { Cross: 2, F2L: 7, OLL: 2, PLL: 3 },
-};
 type TimerWcaRecord = {
   eventId: string;
   singleCentiseconds: number | null;
@@ -347,21 +331,6 @@ function safeScrambleState(scramble: string) {
     return SOLVED_FAST_STATE;
   }
 }
-function readPhaseTargets(): Record<SplitPhase, number> {
-  const saved = readStoredJson<Partial<Record<SplitPhase, unknown>>>(
-    "cfop-phase-targets",
-    {}
-  );
-  return Object.fromEntries(
-    SPEED_PHASES.map(phase => [
-      phase,
-      typeof saved[phase] === "number" && saved[phase] > 0 && saved[phase] < 120
-        ? saved[phase]
-        : DEFAULT_PHASE_TARGETS[phase],
-    ])
-  ) as Record<SplitPhase, number>;
-}
-
 export default function TimerLab() {
   const { language, t } = useLanguage();
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, {
@@ -472,17 +441,6 @@ export default function TimerLab() {
   }, [eventEntries, noteQuery, tagFilter]);
   const progress = useMemo(
     () => progressSeries(visibleEntries),
-    [visibleEntries]
-  );
-  const phaseProgress = useMemo(
-    () =>
-      phaseProgressSeries(
-        visibleEntries.filter(entry => entry.phaseSplits.length > 0)
-      ),
-    [visibleEntries]
-  );
-  const phaseAo = useMemo(
-    () => phaseStability(visibleEntries, SPEED_PHASES),
     [visibleEntries]
   );
   const pb = useMemo(() => {
@@ -951,7 +909,7 @@ export default function TimerLab() {
                                       setMultiBlindScrambles([]);
                                       setScramble("");
                                     }}
-                                    className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
+                                    className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-placeholder focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
                                   />
                                 </label>
                                 <span className="text-sm text-muted">
@@ -1294,221 +1252,7 @@ export default function TimerLab() {
                     </div>
                   </section>
 
-                  <section className="grid grid-cols-12 gap-6 mt-4">
-                    <div className="col-span-12 lg:col-span-4">
-                      <div className="rounded-card bg-surface h-full">
-                        <div className="p-5 sm:p-6">
-                          <h3 className="text-sm font-semibold tracking-tight">
-                            {t("timer.targets")}
-                          </h3>
-                          {SPEED_PHASES.map(phase => (
-                            <label
-                              key={phase}
-                              className="mb-1.5 block text-sm font-medium text-ink flex items-center justify-between py-2 mb-0"
-                            >
-                              <span>{phase}</span>
-                              <div className="flex w-full items-stretch text-xs w-auto">
-                                <input
-                                  type="number"
-                                  min="0.1"
-                                  max="120"
-                                  step="0.1"
-                                  value={phaseTargets[phase]}
-                                  onChange={event => {
-                                    const next = Number(event.target.value);
-                                    if (Number.isFinite(next) && next > 0)
-                                      setPhaseTargets(current => ({
-                                        ...current,
-                                        [phase]: next,
-                                      }));
-                                  }}
-                                  className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 text-right"
-                                />
-                                <span className="inline-flex items-center bg-surface-2 px-3 text-sm text-muted first:rounded-l-field last:rounded-r-field">
-                                  s
-                                </span>
-                              </div>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-span-12 lg:col-span-8">
-                      <div className="rounded-card bg-surface h-full">
-                        <div className="p-5 sm:p-6">
-                          <div className="flex justify-between items-center">
-                            <h3 className="text-sm font-semibold tracking-tight mb-0">
-                              {t("timer.phaseProgress")}
-                            </h3>
-                            <span className="text-sm text-muted">
-                              {phaseProgress.length} {t("timer.matched")}
-                            </span>
-                          </div>
-                          {phaseProgress.length ? (
-                            <div className="h-72 mt-4">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={phaseProgress}>
-                                  <XAxis
-                                    dataKey="solve"
-                                    axisLine={false}
-                                    tickLine={false}
-                                  />
-                                  <YAxis
-                                    tickFormatter={value =>
-                                      `${Number(value).toFixed(0)}s`
-                                    }
-                                    axisLine={false}
-                                    tickLine={false}
-                                    width={56}
-                                  />
-                                  <Tooltip
-                                    formatter={value => [
-                                      `${(Number(value) / 1000).toFixed(2)}s`,
-                                      "",
-                                    ]}
-                                  />
-                                  <Line
-                                    type="monotone"
-                                    dataKey="Cross"
-                                    stroke="var(--chart-1)"
-                                    strokeWidth={3}
-                                    dot={{ r: 2 }}
-                                    connectNulls
-                                  />
-                                  <Line
-                                    type="monotone"
-                                    dataKey="F2L"
-                                    stroke="var(--chart-4)"
-                                    strokeWidth={2}
-                                    dot={{ r: 2 }}
-                                    connectNulls
-                                  />
-                                  <Line
-                                    type="monotone"
-                                    dataKey="OLL"
-                                    stroke="var(--chart-2)"
-                                    strokeWidth={2}
-                                    dot={{ r: 2 }}
-                                    connectNulls
-                                  />
-                                  <Line
-                                    type="monotone"
-                                    dataKey="PLL"
-                                    stroke="var(--chart-3)"
-                                    strokeWidth={2}
-                                    dot={{ r: 2 }}
-                                    connectNulls
-                                  />
-                                </LineChart>
-                              </ResponsiveContainer>
-                            </div>
-                          ) : (
-                            <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink text-center mt-4 mb-0">
-                              {t("timer.phaseEmpty")}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </section>
 
-                  <section className="grid grid-cols-12 gap-6 mt-4">
-                    <div className="col-span-12 lg:col-span-4">
-                      <div className="rounded-card bg-surface h-full">
-                        <div className="p-5 sm:p-6">
-                          <h3 className="text-sm font-semibold tracking-tight">
-                            {t("timer.presets")}
-                          </h3>
-                          <div className="grid gap-2 mt-4">
-                            {(
-                              Object.entries(TARGET_PRESETS) as [
-                                keyof typeof TARGET_PRESETS,
-                                Record<SplitPhase, number>,
-                              ][]
-                            ).map(([name, targets]) => {
-                              const active = SPEED_PHASES.every(
-                                phase => phaseTargets[phase] === targets[phase]
-                              );
-                              return (
-                                <Button
-                                  variant={active ? "primary" : "secondary"}
-                                  size="md"
-                                  key={name}
-                                  onClick={() =>
-                                    setPhaseTargets({ ...targets })
-                                  }
-                                >
-                                  {name} ·{" "}
-                                  {active
-                                    ? t("timer.applied")
-                                    : t("timer.apply")}
-                                </Button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-span-12 lg:col-span-8">
-                      <div className="rounded-card bg-surface h-full">
-                        <div className="p-5 sm:p-6">
-                          <div className="flex justify-between items-center">
-                            <h3 className="text-sm font-semibold tracking-tight mb-0">
-                              {t("timer.phaseAo")}
-                            </h3>
-                            <span className="text-sm text-muted">
-                              {visibleEntries.length} {t("timer.matched")}
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-12 gap-4 mt-1">
-                            {SPEED_PHASES.map(phase => (
-                              <div
-                                key={phase}
-                                className="col-span-12 md:col-span-6"
-                              >
-                                <div className="rounded-card bg-surface bg-surface-2 h-full">
-                                  <div className="p-5 sm:p-6">
-                                    <div className="flex justify-between">
-                                      <strong>{phase}</strong>
-                                      <span className="text-sm text-muted">
-                                        {phaseAo[phase].count}
-                                      </span>
-                                    </div>
-                                    <div className="grid grid-cols-12 mt-2">
-                                      <div className="col-span-6">
-                                        <small className="text-muted block">
-                                          AO5
-                                        </small>
-                                        <strong>
-                                          {phaseAo[phase].ao5 === undefined
-                                            ? "—"
-                                            : formatSolveTime(
-                                                phaseAo[phase].ao5
-                                              )}
-                                        </strong>
-                                      </div>
-                                      <div className="col-span-6">
-                                        <small className="text-muted block">
-                                          AO12
-                                        </small>
-                                        <strong>
-                                          {phaseAo[phase].ao12 === undefined
-                                            ? "—"
-                                            : formatSolveTime(
-                                                phaseAo[phase].ao12
-                                              )}
-                                        </strong>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
 
                   <section className="rounded-card bg-surface mt-6">
                     <div className="p-5 sm:p-6">
@@ -1666,10 +1410,10 @@ export default function TimerLab() {
                   </div>
                   {selectedMetric?.startsWith("ao") && (
                     <div className="flex flex-wrap gap-1 mt-4">
-                      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-white">
+                      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-on-success">
                         {t("timer.bestDiscarded")}
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-white">
+                      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-on-danger">
                         {t("timer.worstDiscarded")}
                       </span>
                     </div>
@@ -2397,8 +2141,8 @@ function MetricDetailCard({
                 <span
                   className={
                     entry.penalty === "DNF"
-                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-white"
-                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-warning text-ink"
+                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-on-danger"
+                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-warning text-on-warning"
                   }
                 >
                   {entry.penalty}
@@ -2408,8 +2152,8 @@ function MetricDetailCard({
                 <span
                   className={
                     exclusion === "best"
-                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-white"
-                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-white"
+                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-on-success"
+                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-on-danger"
                   }
                 >
                   {exclusion === "best"
@@ -2533,7 +2277,7 @@ function MultiBlindResultCard({
                   )
                 )
               }
-              className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-muted/60 focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1 w-auto"
+              className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-placeholder focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1 w-auto"
             />
           </label>
         </div>

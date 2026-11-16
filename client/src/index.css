@@ -13,23 +13,34 @@
   --surface-2: #f7f8fd;
   --surface-3: #eef0fa;
   --ink: #10142a;
-  --muted: #5f6884;
+  --muted: #59617f;
   --line: #e3e6f1;
 
-  --primary: #5b5bd6;
-  --primary-hover: #4a4ac2;
+  --primary: #504fd3;
+  --primary-hover: #3f3e9f;
   --primary-soft: #eeedff;
-  --accent: #0891b2;
+  --accent: #077894;
   --accent-soft: #e6f8fc;
 
-  --success: #0f9f6e;
+  --success: #0c7e57;
   --success-soft: #e7f8f0;
-  --warning: #d97706;
+  --warning: #cd7006;
   --warning-soft: #fff6e5;
-  --danger: #e11d48;
+  --danger: #ce1b42;
   --danger-soft: #ffe9ee;
   --info: #2563eb;
   --info-soft: #eaf1ff;
+
+  /* Màu chữ đặt trên nền màu đậm (nút, nhãn). Mỗi chế độ có một giá trị
+     riêng vì nền màu ở chế độ tối lại sáng hơn: chữ trắng trên nền tím
+     sáng chỉ đạt 3.14:1 nên phải đổi sang chữ tối. */
+  --on-primary: #ffffff;
+  --on-success: #ffffff;
+  --on-danger: #ffffff;
+  --on-warning: #10142a;
+
+  /* Chữ gợi ý trong ô nhập: đủ đậm để đạt 4.5:1 trên mọi nền ô nhập. */
+  --placeholder: #59617f;
 
   --cube-stage: #11162a;
   --cube-stage-ink: #f2f5ff;
@@ -83,6 +94,15 @@
   --info: #7aa2ff;
   --info-soft: #17264b;
 
+  /* Nền màu ở chế độ tối là màu sáng, nên chữ trên nền đó phải là chữ tối
+     để vẫn đạt WCAG AA (tím sáng #8585f6 với chữ trắng chỉ đạt 3.14:1). */
+  --on-primary: #0b1020;
+  --on-success: #0b1020;
+  --on-danger: #0b1020;
+  --on-warning: #0b1020;
+
+  --placeholder: #9aa5c2;
+
   --cube-stage: #070a15;
   --cube-stage-ink: #edf1ff;
   --cube-stage-muted: rgba(226, 232, 255, 0.58);
@@ -132,6 +152,12 @@
   --color-danger-soft: var(--danger-soft);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
+
+  --color-on-primary: var(--on-primary);
+  --color-on-success: var(--on-success);
+  --color-on-danger: var(--on-danger);
+  --color-on-warning: var(--on-warning);
+  --color-placeholder: var(--placeholder);
 
   --radius-card: 1.5rem;
   --radius-panel: 1.25rem;
@@ -199,6 +225,8 @@
   --normal-bg: var(--surface);
   --normal-text: var(--ink);
   --normal-bg-hover: var(--surface-2);
+
+
   /* Giao diện phẳng: toast không có đường viền, tách bằng nền và khoảng cách. */
   --normal-border: transparent;
   --normal-border-hover: transparent;
@@ -216,4 +244,41 @@
   --info-border: var(--info);
   --border-radius: 1rem;
   font-family: var(--font-sans);
+}
+
+/* Custom scrollbar — minimalist, soft, matches flat palette. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--primary) 28%, var(--muted)) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--primary) 22%, var(--muted));
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--primary) 48%, var(--muted));
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: var(--primary);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
