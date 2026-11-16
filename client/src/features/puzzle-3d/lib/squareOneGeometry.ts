@@ -2,8 +2,8 @@ import type { ThreeModule } from "./sideEventShared";
 import { TAU } from "./sideEventShared";
 import { CUBE_COLORS } from "./cubeColors";
 import {
+  squareOneLayerPieces,
   squareOnePieceFace,
-  squareOnePieceKind,
   squareOnePieceSide,
   squareOneSlotAngle,
   type SquareOneFace,
@@ -199,24 +199,9 @@ function squareOneLayer(
     ]);
   };
 
-  let position = 0;
-  while (position < 12) {
-    const slot = layerStart + position;
-    const kind = squareOnePieceKind(state.pieces[slot] ?? slot);
-    if (kind === "edge") {
-      addEdge(slot);
-      position += 1;
-    } else if (kind === "cornerSecond") {
-      // Leading the walk: the first half sits across the seam in the last slot.
-      addCorner(slot - 1, slot);
-      position += 1;
-    } else if (position === 11) {
-      // Corner first half at the seam was rendered with the leading second half.
-      position += 1;
-    } else {
-      addCorner(slot, slot + 1);
-      position += 2;
-    }
+  for (const piece of squareOneLayerPieces(state.pieces, layerStart)) {
+    if (piece.second === null) addEdge(piece.firstSlot);
+    else addCorner(piece.firstSlot, piece.secondSlot ?? piece.firstSlot);
   }
   return layer;
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { isSideEvent3DPuzzle } from "./puzzleIds";
 import { clockDialIndex } from "./clockGeometry";
 import {
+  squareOneLayerPieces,
   squareOnePieceFace,
   squareOnePieceKind,
   squareOnePieceSide,
@@ -128,6 +129,30 @@ describe("Square-1 KPuzzle wedge model", () => {
       bottom: -Math.PI / 3,
     });
     expect(squareTurnForAnimation("/")).toBeNull();
+  });
+
+  it("pairs corner halves greedily and across the layer seam", () => {
+    const solved = Array.from({ length: 24 }, (_, index) => index);
+    const top = squareOneLayerPieces(solved, 0);
+    expect(top).toHaveLength(8);
+    expect(top.filter(entry => entry.second === null)).toHaveLength(4);
+    expect(top[0]).toMatchObject({
+      first: 0,
+      second: 1,
+      firstSlot: 0,
+      secondSlot: 1,
+    });
+    const bottom = squareOneLayerPieces(solved, 12);
+    expect(bottom).toHaveLength(8);
+    expect(bottom[0]).toMatchObject({ first: 12, second: null });
+    // Solved cube rotated two slots: a corner strap pairs across slot 11 -> 0.
+    const shiftedTop = [10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const seamPieces = [...shiftedTop, ...solved.slice(12)];
+    const rendered = squareOneLayerPieces(seamPieces, 0);
+    const seam = rendered.find(entry => entry.firstSlot === 11);
+    expect(seam).toMatchObject({ first: 9, second: 10, secondSlot: 0 });
+    expect(rendered).toHaveLength(8);
+    expect(rendered.filter(entry => entry.second === null)).toHaveLength(4);
   });
 
   it("separates and counter-rotates Square-1 layers during a slash", () => {

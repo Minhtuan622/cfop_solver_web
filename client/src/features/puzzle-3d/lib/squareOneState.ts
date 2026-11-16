@@ -43,6 +43,61 @@ export function squareOnePieceSide(piece: number): string {
 
 export type SquareOneState = { pieces: number[]; middle: 0 | 1 };
 
+export type SquareOneLayerPiece = {
+  first: number;
+  second: number | null;
+  firstSlot: number;
+  secondSlot: number | null;
+};
+
+/**
+ * Walk a 12-slot ring the same way the renderer pairs halves: edges are
+ * single pieces, corner halves pair greedily, and a cornerSecond leading the
+ * walk pairs across the seam with the cornerFirst sitting in the last slot
+ * of the same layer.
+ */
+export function squareOneLayerPieces(
+  pieces: number[],
+  layerStart: 0 | 12
+): SquareOneLayerPiece[] {
+  const list: SquareOneLayerPiece[] = [];
+  let position = 0;
+  while (position < 12) {
+    const slot = layerStart + position;
+    const kind = squareOnePieceKind(pieces[slot] ?? slot);
+    if (kind === "edge") {
+      list.push({
+        first: pieces[slot] ?? slot,
+        second: null,
+        firstSlot: slot,
+        secondSlot: null,
+      });
+      position += 1;
+    } else if (kind === "cornerSecond") {
+      const firstSlot = layerStart + 11;
+      list.push({
+        first: pieces[firstSlot] ?? firstSlot,
+        second: pieces[slot] ?? slot,
+        firstSlot,
+        secondSlot: slot,
+      });
+      position += 1;
+    } else if (position === 11) {
+      // Corner first half at the seam was rendered with the leading second half.
+      position += 1;
+    } else {
+      list.push({
+        first: pieces[slot] ?? slot,
+        second: pieces[slot + 1] ?? slot + 1,
+        firstSlot: slot,
+        secondSlot: slot + 1,
+      });
+      position += 2;
+    }
+  }
+  return list;
+}
+
 /** Read the render state straight from the KPuzzle pattern (ground truth). */
 export function squareOneStateFromPattern(
   pattern: PatternData
