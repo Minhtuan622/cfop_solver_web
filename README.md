@@ -19,7 +19,7 @@ Thử ứng dụng trực tiếp: [cfop-solver.studio](https://cfop-solver.studi
 |---------|----------|---------|
 | ![Kết quả](docs/screenshots/results.png) | ![Học thêm](docs/screenshots/study.png) | ![Cài đặt](docs/screenshots/settings.png) |
 
-Ảnh được sinh lại bằng `node scripts/capture-screenshots.mjs` khi dev server đang chạy.
+Ảnh được sinh lại bằng `node scripts/capture-screenshots.mjs` khi dev server đang chạy. Trang Kết quả được chụp với dữ liệu demo (8 lượt giải 3×3 được nạp vào `localStorage`) để thể hiện chỉ số, biểu đồ xu hướng và danh sách lượt giải; các trang khác dùng trạng thái mặc định của ứng dụng.
 
 ## Tính năng chính
 

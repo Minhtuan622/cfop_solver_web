@@ -19,7 +19,7 @@ Try the live app: [cfop-solver.studio](https://cfop-solver.studio) (if available
 |---------|-------|----------|
 | ![Results](docs/screenshots/results.png) | ![Study](docs/screenshots/study.png) | ![Settings](docs/screenshots/settings.png) |
 
-Regenerate them with `node scripts/capture-screenshots.mjs` while the dev server is running.
+Regenerate them with `node scripts/capture-screenshots.mjs` while the dev server is running. The Results page is captured with demo data (eight 3×3 solves seeded into `localStorage`) so it shows metrics, the trend chart and the history list; other pages show the app's default states.
 
 ## Features
 
