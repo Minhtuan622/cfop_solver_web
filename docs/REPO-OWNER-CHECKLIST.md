@@ -29,26 +29,40 @@ trên nhánh `main`. Không phải mã nguồn — chỉ là quy định vận h
 
 Quy trình merge: PR → CI xanh toàn bộ check bắt buộc → merge.
 
-## 2.1. Thêm check "Solver benchmark (Pyodide)" vào branch protection
+## 2.1. Check "Solver benchmark (Pyodide)" trong branch protection
 
-**Việc này là của chủ kho, làm thủ công trong GitHub — không phải code.**
+**Đã bật.** Branch protection của `main` hiện yêu cầu đủ ba check:
+
+- `check-test-build` (typecheck + unit test + e2e + build + audit)
+- `Solver tests (pytest)` (pytest cho solver-python)
+- `Solver benchmark (Pyodide)` (bộ đo bộ giải ở chế độ kiểm tra ngưỡng thời
+  gian)
+
+Kiểm tra lại bằng:
+
+```bash
+gh api repos/Minhtuan622/cfop_solver_web/branches/main/protection
+```
 
 Job `Solver benchmark (Pyodide)` trong `.github/workflows/ci.yml` chạy bộ đo
 bộ giải ở chế độ kiểm tra: job đỏ khi bộ giải giải sai, khi một đề chậm hơn
 `PER_SCRAMBLE_LIMIT_SEC`, hoặc khi tổng thời gian vượt `TOTAL_LIMIT_SEC`. Job
 này **chạy song song** với `Solver tests (pytest)`.
 
-Muốn bộ giải chậm đi mà không ai chặn thì job này phải là check bắt buộc:
-
-1. Vào **Settings → Branches → Branch protection rules** (hoặc
-   **Settings → Branches → Add rule** nếu chưa có rule cho `main`).
-2. Trong mục **Require status checks to pass before merging**, chọn
-   `Solver benchmark (Pyodide)`.
-3. Lưu lại.
-
-Tên check phải khớp **chính xác** với `name:` trong
+Nếu sau này thêm hoặc đổi tên job, phải cập nhật lại danh sách check bắt
+buộc ở mục 1. Tên check phải khớp **chính xác** với `name:` trong
 `.github/workflows/ci.yml` — GitHub hiển thị tên job (`Solver benchmark
 (Pyodide)`), không phải tên key (`solver-benchmark`).
+
+### Bật `enforce_admins` (tùy chọn, việc của chủ kho)
+
+Branch protection đang để `enforce_admins` **tắt**, nên chủ kho vẫn push
+trực tiếp được khi cần (giữ nguyên thói quen làm việc). Hệ quả: khi CI đỏ,
+admin vẫn có thể merge nếu cố ý.
+
+Nếu muốn CI thật sự chặn được cả admin thì bật **Do not allow bypassing the
+above settings** trong Settings → Branches. Quyết định này thuộc về chủ kho —
+tài liệu này chỉ ghi nhận trạng thái hiện tại.
 
 ## 2. Dependabot automerge chỉ khi check xánh
 
