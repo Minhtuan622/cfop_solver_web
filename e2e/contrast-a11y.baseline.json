@@ -1,19 +1,15 @@
 {
-  "version": 3,
-  "generated": "2026-11-15T06:26:46.221Z",
-  "note": "Khoa (key) nhan dien vi pham axe hien co tren 6 trang x 2 che do, giu nguyen so lan xuat hien. Vi pham moi (khong co trong danh sach nay) se lam test that bai. Muc dich bao cao, khong tu sua mau.",
+  "version": 4,
+  "generated": "2026-11-16T03:04:07.803Z",
+  "note": "Khoa (key) nhan dien vi pham axe hien co tren 6 trang x 2 che do, giu nguyen so lan xuat hien. Bai kiem tra bao ve baseline theo hai chieu: vi pham MOI (khong co trong danh sach nay) lam test that bai, va vi pham DA BIET NHUNG KHONG CON xuat hien (da duoc sua) cung lam test that bai — danh sach phai luon trung thuc. Muc dich bao cao, khong tu sua mau.",
   "keys": [
-    "/|light|aria-prohibited-attr|<div class=\"interactive-cube-stage grid min-h-84 place-items-center \" aria-label=\"Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to\">|Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute.",
     "/|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/timer|light|aria-prohibited-attr|<div class=\"interactive-cube-stage grid min-h-84 place-items-center \" aria-label=\"Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to\">|Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute.",
     "/timer|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/history|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/rooms|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/profile|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/settings|light|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/|dark|aria-prohibited-attr|<div class=\"interactive-cube-stage grid min-h-84 place-items-center \" aria-label=\"Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to\">|Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute.",
     "/|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
-    "/timer|dark|aria-prohibited-attr|<div class=\"interactive-cube-stage grid min-h-84 place-items-center \" aria-label=\"Mô hình Rubik 3D, kéo ngang để xoay 360° và kéo dọc để xem mặt trên/dưới; pinch hoặc cuộn để phóng to\">|Fix all of the following:\n  aria-label attribute cannot be used on \"div\" elements with no valid role attribute.",
     "/timer|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/history|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
     "/rooms|dark|label-content-name-mismatch|<a aria-label=\"Giải Rubik — Trang chủ\" href=\"/\" class=\"group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20\">|Fix any of the following:\n  Text inside the element is not included in the accessible name",
@@ -24,20 +20,8 @@
     {
       "page": "/",
       "theme": "light",
-      "rule": "aria-prohibited-attr",
-      "target": ".interactive-cube-stage"
-    },
-    {
-      "page": "/",
-      "theme": "light",
       "rule": "label-content-name-mismatch",
       "target": ".gap-2\\.5"
-    },
-    {
-      "page": "/timer",
-      "theme": "light",
-      "rule": "aria-prohibited-attr",
-      "target": ".interactive-cube-stage"
     },
     {
       "page": "/timer",
@@ -72,20 +56,8 @@
     {
       "page": "/",
       "theme": "dark",
-      "rule": "aria-prohibited-attr",
-      "target": ".interactive-cube-stage"
-    },
-    {
-      "page": "/",
-      "theme": "dark",
       "rule": "label-content-name-mismatch",
       "target": ".gap-2\\.5"
-    },
-    {
-      "page": "/timer",
-      "theme": "dark",
-      "rule": "aria-prohibited-attr",
-      "target": ".interactive-cube-stage"
     },
     {
       "page": "/timer",
