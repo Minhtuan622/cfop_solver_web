@@ -567,7 +567,13 @@ export function CubeGuide3D({
             </div>
           ))}
         </div>
-        <p className="pb-3 text-[11px] text-white/60">
+        <p
+          className={
+            surface === "light"
+              ? "pb-3 text-[11px] text-ink/60"
+              : "pb-3 text-[11px] text-white/60"
+          }
+        >
           {language === "vi"
             ? "Thiết bị không hỗ trợ WebGL — hiển thị 2D."
             : "Device does not support WebGL — 2D preview."}
