@@ -212,12 +212,12 @@ type TrackedScene = {
  * state — cubie quay sai lớp và sticker nhảy loạn ở cuối mỗi bước.
  */
 const ALIGN_ROTATIONS: Record<string, { axis: "x" | "z"; angle: number } | null> = {
-  U: { axis: "x", angle: Math.PI }, // x2 — khối 180° quanh x: U ↔ D, F ↔ B
+  U: { axis: "x", angle: Math.PI }, // x2 — khối 180° quanh x: U ↔ D
   D: null,
-  F: { axis: "x", angle: -Math.PI / 2 }, // x'
-  B: { axis: "x", angle: Math.PI / 2 }, // x
-  R: { axis: "z", angle: Math.PI / 2 }, // z
-  L: { axis: "z", angle: -Math.PI / 2 }, // z'
+  F: { axis: "x", angle: Math.PI / 2 }, // x — F → D
+  B: { axis: "x", angle: -Math.PI / 2 }, // x' — B → D
+  R: { axis: "z", angle: -Math.PI / 2 }, // z' — R → D
+  L: { axis: "z", angle: Math.PI / 2 }, // z — L → D
 };
 
 function alignQuaternionFor(crossColor: string) {
@@ -268,10 +268,10 @@ const WHOLE_CUBE_PERM: Record<string, number[]> = {
 const ALIGN_PERM_KEY: Record<string, keyof typeof WHOLE_CUBE_PERM | null> = {
   U: "x2",
   D: null,
-  F: "x'",
-  B: "x",
-  R: "z",
-  L: "z'",
+  F: "x",
+  B: "x'",
+  R: "z'",
+  L: "z",
 };
 function alignPermFor(crossColor: string) {
   const key = ALIGN_PERM_KEY[crossColor] ?? null;
