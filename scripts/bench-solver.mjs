@@ -15,13 +15,18 @@
  * `client/src/lib/pyodideLoader.ts`, rồi giải bộ đề cố định và in ra bảng:
  * đề, đúng/sai, số nước, thời gian.
  *
+ * Có **hai kịch bản**, mỗi kịch bản một bộ ngưỡng riêng:
+ * - `cross` — `opening: "cross"`, tức kịch bản mặc định của app;
+ * - `auto`  — `opening: "auto"`, bộ giải thử bậc cross cao nhất trước nên đắt
+ *   hơn nhiều (đo được chậm nhất ~21s cho một đề, tổng ~69s cho 11 đề).
+ *
  *   node scripts/bench-solver.mjs
  *   node scripts/bench-solver.mjs --json      # xuất JSON để so sánh tự động
  *   node scripts/bench-solver.mjs --check     # chế độ kiểm tra ngưỡng thời gian
  *
  * Chế độ `--check` thoát với mã khác 0 khi: có đề giải sai, có đề chậm hơn
- * `PER_SCRAMBLE_LIMIT_SEC` (đề vượt ngưỡng được chạy lại một lần để loại
- * nhiễu), hoặc tổng thời gian vượt `TOTAL_LIMIT_SEC`. Ngưỡng mặc định xem ở
+ * ngưỡng của kịch bản đó (đề vượt ngưỡng được chạy lại một lần để loại
+ * nhiễu), hoặc tổng thời gian vượt ngưỡng tổng. Ngưỡng mặc định xem ở
  * `scripts/bench-check.mjs`.
  *
  * Số liệu trên CPython để đối chiếu: `python3 solver-python/bench_solver.py`.
@@ -75,6 +80,20 @@ const SOLVE_OPTIONS = {
   node_budget: 400000,
 };
 
+/**
+ * Kịch bản được đo.
+ *
+ * - `cross`: kịch bản mặc định của app (`opening: "cross"`).
+ * - `auto`: `opening: "auto"` — bộ giải thử bậc cross cao nhất trước nên
+ *   đắt hơn nhiều. Đây là lựa chọn có sẵn trong phần cài đặt của app, nên
+ *   phải có ngân sách thời gian riêng, nếu không một chậm lệch nhỏ ở đây sẽ
+ *   không bao giờ bị bắt.
+ */
+const SCENARIOS = [
+  { name: "cross", opening: "cross" },
+  { name: "auto", opening: "auto" },
+];
+
 /** Mã Python giải một đề, in ra JSON kết quả. */
 const SOLVE_PYTHON = `
 import json, time
@@ -121,8 +140,8 @@ async function createRuntime() {
 }
 
 /** Giải một đề và trả về { moves, seconds, solved }. */
-async function solveScramble(runtime, scramble) {
-  const payload = JSON.stringify({ scramble, options: SOLVE_OPTIONS });
+async function solveScramble(runtime, scramble, options) {
+  const payload = JSON.stringify({ scramble, options });
   // `JSON.stringify` của payload cho ra một chuỗi JSON; nhúng nguyên chuỗi đó
   // vào mã Python (dùng hàm thay thế để `$` trong chuỗi không bị hiểu sai).
   const source = SOLVE_PYTHON.replace(
@@ -142,10 +161,10 @@ function printRow(row) {
 }
 
 /** In bảng kết luận của chế độ kiểm tra. */
-function printReport(report) {
+function printReport(report, scenarioName) {
   const { totals, limits } = report;
   const slowest = totals.slowest;
-  console.log("\n--- Kiểm tra ngưỡng thời gian ---");
+  console.log(`\n--- Kiểm tra ngưỡng thời gian [${scenarioName}] ---`);
   console.log(`  ngưỡng mỗi đề : ${limits.perScrambleLimitSec.toFixed(2)}s`);
   console.log(`  ngưỡng tổng    : ${limits.totalLimitSec.toFixed(2)}s`);
   console.log(`  giải đúng      : ${totals.solvedCount}/${totals.count}`);
@@ -170,7 +189,7 @@ function printReport(report) {
 
   if (report.ok) {
     console.log(
-      `\nKẾT LUẬN: PASS — ${totals.solvedCount}/${totals.count} đề giải đúng, ` +
+      `\nKẾT LUẬN [${scenarioName}]: PASS — ${totals.solvedCount}/${totals.count} đề giải đúng, ` +
         `chậm nhất ${slowest ? slowest.seconds.toFixed(2) : "0.00"}s, ` +
         `tổng ${totals.totalSeconds.toFixed(2)}s, ` +
         `wall-clock ${totals.wallClockSeconds.toFixed(2)}s ` +
@@ -179,10 +198,57 @@ function printReport(report) {
     return;
   }
 
-  console.log(`\nKẾT LUẬN: FAIL — ${report.failures.length} vi phạm:`);
+  console.log(`\nKẾT LUẬN [${scenarioName}]: FAIL — ${report.failures.length} vi phạm:`);
   for (const failure of report.failures) {
     console.log(`  - ${failure.message}`);
   }
+}
+
+/**
+ * Chạy một kịch bản: giải các đề, chạy lại đề quá ngưỡng rồi chấm điểm.
+ */
+async function runScenario(runtime, scenario, limits, groups, check) {
+  const options = { ...SOLVE_OPTIONS, opening: scenario.opening };
+  const results = [];
+  for (const [group, list] of Object.entries(groups)) {
+    for (const scramble of list) {
+      const row = await solveScramble(runtime, scramble, options);
+      results.push({ group, scramble, ...row });
+      printRow(results[results.length - 1]);
+    }
+  }
+
+  const solved = results.filter(row => row.solved).length;
+  const slowest = results.reduce(
+    (worst, row) => (row.seconds > worst.seconds ? row : worst),
+    results[0]
+  );
+  console.log(
+    `\n[${scenario.name}] ${solved}/${results.length} đúng · chậm nhất ${slowest.seconds.toFixed(2)}s (${slowest.scramble})`
+  );
+
+  if (!check) {
+    return { name: scenario.name, report: null, results, retries: [] };
+  }
+
+  // Chế độ kiểm tra: đề vượt ngưỡng thời gian được chạy lại đúng một lần để
+  // loại nhiễu đo. Đề giải sai không bao giờ được chạy lại.
+  const retries = [];
+  const slowResults = results.filter(
+    row => row.solved && row.seconds > limits.perScrambleLimitSec
+  );
+  for (const row of slowResults) {
+    console.log(
+      `\n→ [${scenario.name}] chạy lại đề quá ngưỡng ${limits.perScrambleLimitSec}s: ${row.scramble}`
+    );
+    const retry = await solveScramble(runtime, row.scramble, options);
+    retries.push({ scramble: row.scramble, ...retry });
+    printRow({ ...retry, scramble: row.scramble });
+  }
+
+  const report = evaluateRun({ results, retries, limits });
+  printReport(report, scenario.name);
+  return { name: scenario.name, report, results, retries };
 }
 
 async function main() {
@@ -202,57 +268,57 @@ async function main() {
   );
 
   const runtime = await createRuntime();
-
-  const results = [];
+  const limits = resolveLimits(process.env);
   const groups = smoke
     ? { random: [scrambles.random[0]] }
     : { specified: scrambles.specified, random: scrambles.random };
-  for (const [group, list] of Object.entries(groups)) {
-    for (const scramble of list) {
-      const row = await solveScramble(runtime, scramble);
-      results.push({ group, scramble, ...row });
-      printRow(results[results.length - 1]);
-    }
-  }
+  // `--smoke` vẫn chạy **cả hai** kịch bản nhưng mỗi kịch bản chỉ một đề,
+  // để bài kiểm tra tích hợp thấy được cả hai đường đi mà vẫn nhanh.
+  const scenarios = SCENARIOS;
 
-  const solved = results.filter(row => row.solved).length;
-  const slowest = results.reduce(
-    (worst, row) => (row.seconds > worst.seconds ? row : worst),
-    results[0]
-  );
-  console.log(
-    `\n${solved}/${results.length} đúng · chậm nhất ${slowest.seconds.toFixed(2)}s (${slowest.scramble})`
-  );
+  const runs = [];
+  for (const scenario of scenarios) {
+    console.log(`\n=== Kịch bản ${scenario.name} (opening=${scenario.opening}) ===`);
+    runs.push(
+      await runScenario(runtime, scenario, limits[scenario.name], groups, check)
+    );
+  }
 
   if (!check) {
     if (args.includes("--json")) {
-      console.log(JSON.stringify(results, null, 2));
+      console.log(JSON.stringify(runs[0].results, null, 2));
     }
     // `--smoke` dùng cho kiểm thử: phải giải đúng thì mới exit 0.
-    if (smoke && solved !== results.length) process.exitCode = 1;
+    const solved = runs[0].results.filter(row => row.solved).length;
+    if (smoke && solved !== runs[0].results.length) process.exitCode = 1;
     return;
   }
 
-  // Chế độ kiểm tra: đề vượt ngưỡng thời gian được chạy lại đúng một lần để
-  // loại nhiễu đo. Đề giải sai không bao giờ được chạy lại.
-  const limits = resolveLimits(process.env);
-  const retries = [];
-  const slowResults = results.filter(
-    row => row.solved && row.seconds > limits.perScrambleLimitSec
+  // Bất kỳ kịch bản nào vi phạm thì cả lần chạy đều fail.
+  const failures = runs.flatMap(run =>
+    run.report.failures.map(failure => ({ scenario: run.name, ...failure }))
   );
-  for (const row of slowResults) {
-    console.log(
-      `\n→ chạy lại đề quá ngưỡng ${limits.perScrambleLimitSec}s: ${row.scramble}`
-    );
-    const retry = await solveScramble(runtime, row.scramble);
-    retries.push({ scramble: row.scramble, ...retry });
-    printRow({ ...retry, scramble: row.scramble });
-  }
+  const exitCode = failures.length === 0 ? 0 : 1;
 
-  const report = evaluateRun({ results, retries, limits });
-  printReport(report);
-
-  const artifact = { ...runtimeInfo, ...report, results, retries };
+  // Artifact giữ nguyên các trường cấp cao nhất của kịch bản `cross` (như
+  // trước) để số liệu cũ vẫn đọc được, rồi thêm `scenarios` cho đủ hai.
+  const [cross, ...others] = runs;
+  const artifact = {
+    ...runtimeInfo,
+    ok: exitCode === 0,
+    exitCode,
+    ...cross.report,
+    results: cross.results,
+    retries: cross.retries,
+    failures,
+    scenarios: runs.map(run => ({
+      name: run.name,
+      ...run.report,
+      results: run.results,
+      retries: run.retries,
+    })),
+  };
+  void others;
 
   if (jsonFile) {
     writeFileSync(jsonFile, JSON.stringify(artifact, null, 2), "utf8");
@@ -261,7 +327,7 @@ async function main() {
     console.log(JSON.stringify(artifact, null, 2));
   }
 
-  process.exitCode = report.exitCode;
+  process.exitCode = exitCode;
 }
 
 main().catch(error => {

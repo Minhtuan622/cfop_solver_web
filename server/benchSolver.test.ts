@@ -107,7 +107,7 @@ describe("B1: bộ đo bộ giải", () => {
 
 describe("B2/B5: chế độ kiểm tra ngưỡng thời gian", () => {
   it("ngưỡng mặc định là 20s mỗi đề và 80s tổng, ghi đè được bằng biến môi trường", () => {
-    expect(resolveLimits({})).toEqual({
+    expect(resolveLimits({}).cross).toEqual({
       perScrambleLimitSec: 20,
       totalLimitSec: 80,
     });
@@ -115,14 +115,40 @@ describe("B2/B5: chế độ kiểm tra ngưỡng thời gian", () => {
       resolveLimits({
         PER_SCRAMBLE_LIMIT_SEC: "12.5",
         TOTAL_LIMIT_SEC: "40",
-      })
+      }).cross
     ).toEqual({ perScrambleLimitSec: 12.5, totalLimitSec: 40 });
+  });
+
+  it("kịch bản auto có ngưỡng riêng, lớn hơn kịch bản cross", () => {
+    const limits = resolveLimits({});
+    // Kịch bản auto thử bậc cross cao nhất nên đắt hơn nhiều: đo được
+    // chậm nhất ~21s cho một đề và tổng ~69s cho 11 đề. Dùng chung ngưỡng với
+    // kịch bản cross thì auto sẽ đỏ ngay.
+    expect(limits.auto.perScrambleLimitSec).toBeGreaterThan(
+      limits.cross.perScrambleLimitSec
+    );
+    expect(limits.auto.totalLimitSec).toBeGreaterThan(limits.cross.totalLimitSec);
+    expect(limits.auto).toEqual({
+      perScrambleLimitSec: 60,
+      totalLimitSec: 200,
+    });
+  });
+
+  it("ngưỡng của kịch bản auto ghi đè được bằng biến môi trường", () => {
+    expect(
+      resolveLimits({
+        AUTO_PER_SCRAMBLE_LIMIT_SEC: "90",
+        AUTO_TOTAL_LIMIT_SEC: "300",
+      }).auto
+    ).toEqual({ perScrambleLimitSec: 90, totalLimitSec: 300 });
   });
 
   it("biến môi trường sai bị từ chối thay vì lặng lẽ tắt ngưỡng", () => {
     expect(() => resolveLimits({ PER_SCRAMBLE_LIMIT_SEC: "abc" })).toThrow();
     expect(() => resolveLimits({ TOTAL_LIMIT_SEC: "0" })).toThrow();
     expect(() => resolveLimits({ TOTAL_LIMIT_SEC: "-5" })).toThrow();
+    expect(() => resolveLimits({ AUTO_PER_SCRAMBLE_LIMIT_SEC: "abc" })).toThrow();
+    expect(() => resolveLimits({ AUTO_TOTAL_LIMIT_SEC: "0" })).toThrow();
   });
 
   it("mọi đề đúng và nhanh thì thoát 0", () => {
@@ -240,7 +266,9 @@ describe("B1: chế độ --check chạy thật", () => {
       { cwd: root, encoding: "utf8", timeout: 180_000 }
     );
     expect(run.status).toBe(0);
-    expect(run.stdout).toContain("KẾT LUẬN: PASS");
+    // Cả hai kịch bản đều phải chạy và đều phải xanh.
+    expect(run.stdout).toContain("KẾT LUẬN [cross]: PASS");
+    expect(run.stdout).toContain("KẾT LUẬN [auto]: PASS");
 
     const report = JSON.parse(readFileSync(jsonFile, "utf8"));
     expect(report.ok).toBe(true);
@@ -265,6 +293,21 @@ describe("B1: chế độ --check chạy thật", () => {
     expect(report.results[0].solved).toBe(true);
     // Số đo wall-clock phải có trong artifact; smoke không chạy lại nên bằng tổng.
     expect(report.totals.wallClockSeconds).toBe(report.totals.totalSeconds);
+
+    // Artifact phải chứa **cả hai** kịch bản, mỗi kịch bản có ngưỡng riêng.
+    expect(report.scenarios.map((s: { name: string }) => s.name)).toEqual([
+      "cross",
+      "auto",
+    ]);
+    const auto = report.scenarios.find(
+      (s: { name: string }) => s.name === "auto"
+    );
+    expect(auto.limits).toEqual({
+      perScrambleLimitSec: 60,
+      totalLimitSec: 200,
+    });
+    expect(auto.results).toHaveLength(1);
+    expect(auto.results[0].solved).toBe(true);
   }, 200_000);
 
   it("tổng thời gian vượt ngưỡng thì bộ đo thoát khác 0 và nêu rõ lý do", () => {
@@ -275,7 +318,22 @@ describe("B1: chế độ --check chạy thật", () => {
       env: { ...process.env, TOTAL_LIMIT_SEC: "0.001" },
     });
     expect(run.status).not.toBe(0);
-    expect(run.stdout).toContain("KẾT LUẬN: FAIL");
+    expect(run.stdout).toContain("KẾT LUẬN [cross]: FAIL");
     expect(run.stdout).toContain("tổng thời gian vượt ngưỡng");
+  }, 200_000);
+
+  it("ngưỡng riêng của kịch bản auto cũng làm bộ đo đỏ", () => {
+    // Kịch bản auto dùng ngưỡng riêng: siết `AUTO_TOTAL_LIMIT_SEC` thì kịch
+    // bản auto đỏ còn kịch bản cross vẫn xanh — chứng minh hai kịch bản
+    // được chấm điểm độc lập.
+    const run = spawnSync("node", [benchScript, "--smoke", "--check"], {
+      cwd: root,
+      encoding: "utf8",
+      timeout: 180_000,
+      env: { ...process.env, AUTO_TOTAL_LIMIT_SEC: "0.001" },
+    });
+    expect(run.status).not.toBe(0);
+    expect(run.stdout).toContain("KẾT LUẬN [auto]: FAIL");
+    expect(run.stdout).toContain("KẾT LUẬN [cross]: PASS");
   }, 200_000);
 });

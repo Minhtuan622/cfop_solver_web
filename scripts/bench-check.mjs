@@ -11,16 +11,28 @@
  *     chỉ tính là lỗi khi lần chạy lại vẫn vượt ngưỡng (đo nhiễu);
  * (c) tổng thời gian vượt `TOTAL_LIMIT_SEC` — chỉ tính **lần chạy chính**.
  *
+ * Ngưỡng truyền vào `evaluateRun` là **ngưỡng của một kịch bản**; bộ đo chạy
+ * hai kịch bản (`cross` và `auto`) với hai bộ ngưỡng khác nhau.
+ *
  * Ngoài chỉ số kiểm tra, báo cáo còn có `totals.wallClockSeconds`: tổng lần
  * chạy chính **cộng** thời gian các lần chạy lại. Số này chỉ để đối chiếu
  * ngân sách thời gian của job, không tham gia quyết định PASS/FAIL.
  */
 
-/** Ngưỡng mặc định cho từng đề (giây). */
-export const DEFAULT_PER_SCRAMBLE_LIMIT_SEC = 20;
-
-/** Ngưỡng mặc định cho tổng thời gian (giây). */
-export const DEFAULT_TOTAL_LIMIT_SEC = 80;
+/**
+ * Ngưỡng mặc định cho từng kịch bản.
+ *
+ * - `cross`: kịch bản mặc định của app (`opening: "cross"`), tức chỉ tìm
+ *   cross. Rẻ nhất.
+ * - `auto`: kịch bản `opening: "auto"` — bộ giải thử **bậc cao nhất trước**
+ *   (XXXXCross → XXXCross → XXCross → XCross) nên đắt hơn nhiều: đo được
+ *   chậm nhất ~21s cho một đề, tổng ~69s cho 11 đề. Ngưỡng riêng vì cùng một
+ *   bộ ngưỡng sẽ đỏ ngay với kịch bản này.
+ */
+export const DEFAULT_LIMITS = {
+  cross: { perScrambleLimitSec: 20, totalLimitSec: 80 },
+  auto: { perScrambleLimitSec: 60, totalLimitSec: 200 },
+};
 
 /**
  * Đọc một ngưỡng từ biến môi trường.
@@ -42,22 +54,38 @@ function readLimit(raw, fallback, name) {
 }
 
 /**
- * Ngưỡng dùng cho lần chạy hiện tại.
+ * Ngưỡng dùng cho lần chạy hiện tại, theo từng kịch bản.
  *
- * Ghi đè bằng biến môi trường `PER_SCRAMBLE_LIMIT_SEC` và `TOTAL_LIMIT_SEC`.
+ * Ghi đè bằng biến môi trường:
+ * - `PER_SCRAMBLE_LIMIT_SEC`, `TOTAL_LIMIT_SEC` — kịch bản `cross`;
+ * - `AUTO_PER_SCRAMBLE_LIMIT_SEC`, `AUTO_TOTAL_LIMIT_SEC` — kịch bản `auto`.
  */
 export function resolveLimits(env = {}) {
   return {
-    perScrambleLimitSec: readLimit(
-      env.PER_SCRAMBLE_LIMIT_SEC,
-      DEFAULT_PER_SCRAMBLE_LIMIT_SEC,
-      "PER_SCRAMBLE_LIMIT_SEC",
-    ),
-    totalLimitSec: readLimit(
-      env.TOTAL_LIMIT_SEC,
-      DEFAULT_TOTAL_LIMIT_SEC,
-      "TOTAL_LIMIT_SEC",
-    ),
+    cross: {
+      perScrambleLimitSec: readLimit(
+        env.PER_SCRAMBLE_LIMIT_SEC,
+        DEFAULT_LIMITS.cross.perScrambleLimitSec,
+        "PER_SCRAMBLE_LIMIT_SEC",
+      ),
+      totalLimitSec: readLimit(
+        env.TOTAL_LIMIT_SEC,
+        DEFAULT_LIMITS.cross.totalLimitSec,
+        "TOTAL_LIMIT_SEC",
+      ),
+    },
+    auto: {
+      perScrambleLimitSec: readLimit(
+        env.AUTO_PER_SCRAMBLE_LIMIT_SEC,
+        DEFAULT_LIMITS.auto.perScrambleLimitSec,
+        "AUTO_PER_SCRAMBLE_LIMIT_SEC",
+      ),
+      totalLimitSec: readLimit(
+        env.AUTO_TOTAL_LIMIT_SEC,
+        DEFAULT_LIMITS.auto.totalLimitSec,
+        "AUTO_TOTAL_LIMIT_SEC",
+      ),
+    },
   };
 }
 

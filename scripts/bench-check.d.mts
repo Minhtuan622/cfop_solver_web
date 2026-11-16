@@ -6,15 +6,22 @@
  * liệu giả lập — file khai báo này giúp TypeScript biết kiểu của hàm.
  */
 
-/** Ngưỡng mặc định cho từng đề (giây). */
-export declare const DEFAULT_PER_SCRAMBLE_LIMIT_SEC: number;
-
-/** Ngưỡng mặc định cho tổng thời gian (giây). */
-export declare const DEFAULT_TOTAL_LIMIT_SEC: number;
-
+/** Ngưỡng của một kịch bản đo. */
 export declare type BenchLimits = {
   perScrambleLimitSec: number;
   totalLimitSec: number;
+};
+
+/** Ngưỡng mặc định của mọi kịch bản đo. */
+export declare const DEFAULT_LIMITS: {
+  cross: BenchLimits;
+  auto: BenchLimits;
+};
+
+/** Ngưỡng theo kịch bản: `cross` (mặc định của app) và `auto`. */
+export declare type BenchScenarioLimits = {
+  cross: BenchLimits;
+  auto: BenchLimits;
 };
 
 export declare type BenchRow = {
@@ -46,6 +53,7 @@ export declare type BenchReport = {
     count: number;
     solvedCount: number;
     totalSeconds: number;
+    wallClockSeconds: number;
     slowest: BenchRow | null;
   };
   failures: BenchFailure[];
@@ -54,7 +62,7 @@ export declare type BenchReport = {
 
 export declare function resolveLimits(
   env?: Record<string, string | undefined>
-): BenchLimits;
+): BenchScenarioLimits;
 
 export declare function evaluateRun(input: {
   results: BenchRow[];
