@@ -469,6 +469,7 @@ export function Puzzle3DCanvas({
       <div className="p-5 sm:p-6 p-2 relative">
         <div
           ref={hostRef}
+          role="img"
           className="w-full"
           style={{
             minHeight: cameraConfig.height,
