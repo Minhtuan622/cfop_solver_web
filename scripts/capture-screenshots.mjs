@@ -60,36 +60,42 @@ const PAGES = [
 mkdirSync(OUT, { recursive: true });
 
 const browser = await chromium.launch();
+
+/** Tài khoản giả để các trang cần đăng nhập vẫn render được. */
+function mockAccount(target) {
+  return target.route("**/api/trpc/cfopAccount.me**", route =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify([
+        {
+          result: {
+            data: {
+              json: {
+                id: 1,
+                email: "demo@example.test",
+                displayName: "Nguyễn Minh Tuấn",
+                bio: "CFOP speedcuber",
+                avatarUrl: "",
+                goalMs: null,
+                wcaId: null,
+                createdAt: "2026-01-01T00:00:00.000Z",
+                lastSignedIn: "2026-01-01T00:00:00.000Z",
+              },
+            },
+          },
+        },
+      ]),
+    }),
+  );
+}
+
 const page = await browser.newPage({
   viewport: { width: 1440, height: 900 },
   deviceScaleFactor: 2,
 });
 
 // Tài khoản giả để các trang cần đăng nhập vẫn render được.
-await page.route("**/api/trpc/cfopAccount.me**", route =>
-  route.fulfill({
-    contentType: "application/json",
-    body: JSON.stringify([
-      {
-        result: {
-          data: {
-            json: {
-              id: 1,
-              email: "demo@example.test",
-              displayName: "Nguyễn Minh Tuấn",
-              bio: "CFOP speedcuber",
-              avatarUrl: "",
-              goalMs: null,
-              wcaId: null,
-              createdAt: "2026-01-01T00:00:00.000Z",
-              lastSignedIn: "2026-01-01T00:00:00.000Z",
-            },
-          },
-        },
-      },
-    ]),
-  }),
-);
+await mockAccount(page);
 
 for (const item of PAGES) {
   if (item.seed) {
@@ -126,5 +132,49 @@ await page.getByText(/^\d+ nước · \d+ bước$/).first().waitFor({
 await page.waitForTimeout(1_000);
 await page.screenshot({ path: `${OUT}/solver-solution.png`, fullPage: false });
 console.log(`✓ ${OUT}/solver-solution.png`);
+
+/* ---- Chế độ tối (desktop): data-theme="dark" từ localStorage cfop-theme ---- */
+const darkContext = await browser.newContext({
+  viewport: { width: 1440, height: 900 },
+  deviceScaleFactor: 2,
+  colorScheme: "dark",
+});
+await darkContext.addInitScript(() => {
+  window.localStorage.setItem("cfop-theme", "dark");
+});
+for (const item of [
+  { file: "home-dark.png", path: "/" },
+  { file: "timer-dark.png", path: "/timer" },
+]) {
+  const darkPage = await darkContext.newPage();
+  await mockAccount(darkPage);
+  await darkPage.goto(`${BASE}${item.path}`, { waitUntil: "domcontentloaded" });
+  await darkPage.waitForTimeout(2_500);
+  await darkPage.screenshot({ path: `${OUT}/${item.file}`, fullPage: false });
+  console.log(`✓ ${OUT}/${item.file}`);
+  await darkPage.close();
+}
+await darkContext.close();
+
+/* ---- Giao diện mobile (390px) ---- */
+const mobileContext = await browser.newContext({
+  viewport: { width: 390, height: 844 },
+  deviceScaleFactor: 2,
+  isMobile: true,
+  hasTouch: true,
+});
+for (const item of [
+  { file: "home-mobile.png", path: "/" },
+  { file: "timer-mobile.png", path: "/timer" },
+]) {
+  const mobilePage = await mobileContext.newPage();
+  await mockAccount(mobilePage);
+  await mobilePage.goto(`${BASE}${item.path}`, { waitUntil: "domcontentloaded" });
+  await mobilePage.waitForTimeout(2_500);
+  await mobilePage.screenshot({ path: `${OUT}/${item.file}`, fullPage: false });
+  console.log(`✓ ${OUT}/${item.file}`);
+  await mobilePage.close();
+}
+await mobileContext.close();
 
 await browser.close();

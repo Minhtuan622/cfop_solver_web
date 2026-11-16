@@ -21,6 +21,22 @@ Thử ứng dụng trực tiếp: [cfop-solver.studio](https://cfop-solver.studi
 
 Ảnh được sinh lại bằng `node scripts/capture-screenshots.mjs` khi dev server đang chạy. Trang Kết quả được chụp với dữ liệu demo (8 lượt giải 3×3 được nạp vào `localStorage`) để thể hiện chỉ số, biểu đồ xu hướng và danh sách lượt giải; các trang khác dùng trạng thái mặc định của ứng dụng.
 
+### Chế độ tối (dark mode)
+
+Ứng dụng có chế độ tối áp dụng cho mọi trang, kể cả bộ giải solver và khối 3D. Chuyển đổi **Sáng/Tối/Theo hệ thống** trong menu góc phải thanh điều hướng (nút chữ cái tên tài khoản → mục **Giao diện**) hoặc tại **Cài đặt → Giao diện**; lựa chọn được lưu trong `localStorage` và không nhấp nháy khi tải lại trang nhờ script pre-paint trong `index.html`.
+
+| Trang chủ | Bấm giờ |
+|-----------|---------|
+| ![Trang chủ ở chế độ tối](docs/screenshots/home-dark.png) | ![Bấm giờ ở chế độ tối](docs/screenshots/timer-dark.png) |
+
+### Giao diện mobile
+
+Toàn bộ ứng dụng responsive trên màn hình nhỏ (ảnh dưới đây chụp ở khung 390×844px, tương đương iPhone): điều hướng chuyển sang menu hamburger, các lưới nội dung gom thành một cột, Timer và bộ giải vẫn dùng được đầy đủ trên điện thoại.
+
+| Trang chủ | Bấm giờ |
+|-----------|---------|
+| ![Trang chủ trên mobile](docs/screenshots/home-mobile.png) | ![Bấm giờ trên mobile](docs/screenshots/timer-mobile.png) |
+
 ## Tính năng chính
 
 - Solver CFOP/BLD: nhập scramble hoặc trạng thái sáu mặt, báo cáo theo phase, CubeNet/3D, opening "Tự động" (thử XXXXCross → XXXCross → XXCross → XCross; độ sâu tìm kiếm chỉnh được trong Cài đặt — mặc định 8 nước) và hiển thị case Last Layer (OLL/PLL, ZBLL, 1LLL) trên banner và trong danh sách phase.
