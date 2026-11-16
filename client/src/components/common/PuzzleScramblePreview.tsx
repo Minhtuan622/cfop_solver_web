@@ -1,6 +1,4 @@
 import { lazy, Suspense, useMemo } from "react";
-import { Cube3DGuide } from "@/components/common/Cube3DGuide";
-import { SOLVED_FAST_STATE, stateFromScramble } from "@/lib/fastCube";
 import { timerPreviewPuzzleId, type TimerEventId } from "@/lib/timerEvents";
 
 const Puzzle3DCanvas = lazy(async () => ({
@@ -27,10 +25,9 @@ export function puzzleScramblePreviewConfig(
     : null;
 }
 
-/** Standard 2×2/3×3 previews are CSS-based; only these events open the external Cubing/Three canvas chunk. */
+/** Every preview opens the external Cubing/Three canvas chunk. */
 export function previewNeedsExternal3DModule(eventId: TimerEventId) {
-  const puzzle = timerPreviewPuzzleId(eventId);
-  return Boolean(puzzle && puzzle !== "2x2x2");
+  return Boolean(timerPreviewPuzzleId(eventId));
 }
 
 export function PuzzleScramblePreview({
@@ -54,18 +51,9 @@ export function PuzzleScramblePreview({
     () => puzzleScramblePreviewConfig(eventId, scramble),
     [eventId, scramble]
   );
-  const twoByTwoState = useMemo(() => {
-    if (eventId !== "222") return SOLVED_FAST_STATE;
-    try {
-      return stateFromScramble(scramble);
-    } catch {
-      return SOLVED_FAST_STATE;
-    }
-  }, [eventId, scramble]);
 
-  if (eventId === "222")
-    return <Cube3DGuide state={twoByTwoState} dimension={2} step={0} />;
-  return config && config.puzzle !== "2x2x2" ? (
+  if (!config) return null;
+  return (
     <Suspense
       fallback={
         <div className="rounded-card bg-surface h-full">
@@ -86,5 +74,5 @@ export function PuzzleScramblePreview({
         focusFtoFace={focusFtoFace}
       />
     </Suspense>
-  ) : null;
+  );
 }

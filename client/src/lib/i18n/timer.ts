@@ -48,6 +48,10 @@ export const timerWords: Dictionary = {
   "timer.close": ["Đóng", "Close"],
   "timer.move": ["NƯỚC", "MOVE"],
   "timer.restart": ["Phát lại từ đầu", "Restart playback"],
+  "timer.replayStateSolve": [
+    "Lần solve này được lưu dưới dạng trạng thái, không thể dựng lại khối 3D.",
+    "This solve was saved as a state, so the 3D cube cannot be rebuilt.",
+  ],
   "timer.speed": ["TỐC ĐỘ", "SPEED"],
   "timer.tps": ["TPS", "TPS"],
   "timer.tpsByPhase": ["TPS THEO PHA", "TPS BY PHASE"],

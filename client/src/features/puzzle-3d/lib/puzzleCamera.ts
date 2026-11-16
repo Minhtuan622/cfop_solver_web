@@ -64,6 +64,8 @@ export function defaultPuzzleCamera(puzzle: PuzzleId) {
   if (puzzle === "clock") return { fov: 31, distance: 7.45, height: "12rem" };
   if (puzzle === "square1") return { fov: 32, distance: 7.15, height: "13rem" };
   if (puzzle === "7x7x7") return { fov: 31, distance: 6.8, height: "15rem" };
+  if (puzzle === "3x3x3") return { fov: 34, distance: 5.4, height: "14rem" };
+  if (puzzle === "2x2x2") return { fov: 34, distance: 4.6, height: "13rem" };
   if (puzzle === "6x6x6") return { fov: 32, distance: 6.5, height: "15rem" };
   if (puzzle === "5x5x5") return { fov: 33, distance: 6.1, height: "14rem" };
   if (puzzle === "4x4x4") return { fov: 34, distance: 5.8, height: "14rem" };

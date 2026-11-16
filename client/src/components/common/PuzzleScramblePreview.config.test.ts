@@ -12,13 +12,18 @@ describe("puzzleScramblePreviewConfig", () => {
     expect(puzzleScramblePreviewConfig("clock", "UR3+ DR2+ y2")).toMatchObject({ puzzle: "clock", experimentalSetupAlg: "UR3+ DR2+ y2", visualization: "3D" });
     expect(puzzleScramblePreviewConfig("444", "Rw U2")).toMatchObject({ puzzle: "4x4x4", experimentalSetupAlg: "Rw U2", visualization: "3D" });
     expect(puzzleScramblePreviewConfig("777", "3Rw U2")).toMatchObject({ puzzle: "7x7x7", experimentalSetupAlg: "3Rw U2", visualization: "3D" });
+    expect(puzzleScramblePreviewConfig("333", "R U")).toMatchObject({ puzzle: "3x3x3", experimentalSetupAlg: "R U", alg: "", visualization: "3D", controlPanel: "none" });
+    expect(puzzleScramblePreviewConfig("333oh", "R U")).toMatchObject({ puzzle: "3x3x3", experimentalSetupAlg: "R U" });
+    expect(puzzleScramblePreviewConfig("333bf", "R U")).toMatchObject({ puzzle: "3x3x3", experimentalSetupAlg: "R U" });
+    expect(puzzleScramblePreviewConfig("333fm", "R U")).toMatchObject({ puzzle: "3x3x3", experimentalSetupAlg: "R U" });
+    expect(puzzleScramblePreviewConfig("333mbf", "R U")).toMatchObject({ puzzle: "3x3x3", experimentalSetupAlg: "R U" });
   });
 
-  it("leaves CSS previews out of the external Cubing/Three chunk", () => {
-    expect(puzzleScramblePreviewConfig("333", "R U")).toBeNull();
-    expect(previewNeedsExternal3DModule("333")).toBe(false);
-    expect(previewNeedsExternal3DModule("222")).toBe(false);
+  it("routes every preview through the external Cubing/Three chunk", () => {
+    expect(previewNeedsExternal3DModule("333")).toBe(true);
+    expect(previewNeedsExternal3DModule("222")).toBe(true);
     expect(previewNeedsExternal3DModule("444")).toBe(true);
     expect(previewNeedsExternal3DModule("sq1")).toBe(true);
+    expect(previewNeedsExternal3DModule("clock")).toBe(true);
   });
 });

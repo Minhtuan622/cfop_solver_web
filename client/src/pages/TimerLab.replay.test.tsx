@@ -1,12 +1,11 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render } from "@testing-library/react";
-import { fireEvent, screen, waitFor } from "@testing-library/dom";
+import { fireEvent, screen, waitFor, within } from "@testing-library/dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import type { SolveHistoryEntry } from "@/lib/solveHistory";
 
-vi.mock("@/components/common/Cube3DGuide", () => ({ Cube3DGuide: ({ move, step }: { move?: string; step: number }) => <div data-testid="cube-guide">{move ?? "ready"} · {step}</div> }));
 vi.mock("@/components/common/CubeNet", () => ({ CubeNet: () => <div data-testid="cube-net" />, CUBE_COLOR: { U: "#fff", R: "#f00", F: "#0a0", D: "#ff0", L: "#f80", B: "#00f" } }));
 vi.mock("@/components/common/PuzzleScramblePreview", () => ({ PuzzleScramblePreview: ({ eventId }: { eventId: string }) => <div data-testid="puzzle-preview">{eventId} preview</div> }));
 vi.mock("@/components/common/SolveTimer", async () => {
@@ -49,7 +48,7 @@ describe("Timer replay với solution đã lưu", () => {
     expect(screen.getByText("Đã lưu lượt vào nhật ký.")).toBeInTheDocument();
   });
 
-  it("mở dialog, tạo trace hợp lệ và tiến từng move từ fixture cô lập", async () => {
+  it("mở dialog phát lại solution: khối Cubing.js tự chạy cả chuỗi", async () => {
     localStorage.setItem("cfop-language", "vi");
     localStorage.setItem("cfop-solve-history-v1", JSON.stringify([replayFixture]));
 
@@ -61,12 +60,21 @@ describe("Timer replay với solution đã lưu", () => {
 
     expect(await screen.findByText("PHÁT LẠI SOLUTION THỰC TẾ")).toBeInTheDocument();
     expect(screen.getByText("U' R'")).toBeInTheDocument();
-    expect(screen.getByText(/0 \/ 2 · TPS/)).toBeInTheDocument();
-    expect(screen.getAllByTestId("cube-guide").at(-1)).toHaveTextContent("ready · 0");
+    // Không còn step-by-step: chỉ còn MOVES và TPS.
+    const replayDialog = screen.getByRole("dialog", { name: "PHÁT LẠI SOLUTION THỰC TẾ" });
+    expect(within(replayDialog).getByText("MOVES")).toBeInTheDocument();
+    expect(within(replayDialog).getByText(/TPS 0\.50/)).toBeInTheDocument();
+    expect(screen.queryByText(/0 \/ 2/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Nước trước" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Nước sau" })).not.toBeInTheDocument();
+    // Khối 3D dùng chung PuzzleScramblePreview (ở đây là mock).
+    expect(screen.getAllByTestId("puzzle-preview").at(-1)).toHaveTextContent("333 preview");
 
-    fireEvent.click(screen.getByRole("button", { name: "Nước sau" }));
-    await waitFor(() => expect(screen.getByText(/1 \/ 2 · TPS/)).toBeInTheDocument());
-    expect(screen.getAllByTestId("cube-guide").at(-1)).toHaveTextContent("U' · 1");
+    // Nút Phát solution trong dialog chạy lại toàn bộ chuỗi.
+    const dialogPlayButtons = screen.getAllByRole("button", { name: "Phát solution" });
+    expect(dialogPlayButtons.length).toBeGreaterThanOrEqual(2);
+    fireEvent.click(dialogPlayButtons.at(-1)!);
+    expect(screen.getByText("PHÁT LẠI SOLUTION THỰC TẾ")).toBeInTheDocument();
   });
 
   it("tách event Timer, tạo scramble mới và tắt công cụ CFOP khi chọn puzzle khác 3×3", async () => {
@@ -94,7 +102,7 @@ describe("Timer replay với solution đã lưu", () => {
     fireEvent.click(eventSelect);
     fireEvent.click(screen.getByRole("option", { name: "3×3 BLD" }));
     expect(await screen.findByText("333bf scramble")).toBeInTheDocument();
-    expect(screen.getAllByTestId("cube-guide").at(-1)).toHaveTextContent("ready · 0");
+    expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("333bf preview");
     expect(screen.getByText("Chưa có solve 3×3 BLD.")).toBeInTheDocument();
   });
 
@@ -104,7 +112,7 @@ describe("Timer replay với solution đã lưu", () => {
     fireEvent.click(screen.getByLabelText("Loại khối"));
     fireEvent.click(screen.getByRole("option", { name: "3×3 MBLD" }));
     expect(await screen.findByText("2 SCRAMBLE RIÊNG · MỖI KHỐI MỘT SCRAMBLE")).toBeInTheDocument();
-    expect(screen.queryByTestId("cube-guide")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("puzzle-preview")).not.toBeInTheDocument();
     expect(screen.getByText("Multi-Blind tập trung vào bộ scramble riêng cho từng khối.")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Số khối thử Multi-Blind"), { target: { value: "4" } });
     expect(screen.getByText("Hãy tạo đủ một scramble riêng cho mỗi khối trước khi bắt đầu Multi-Blind.")).toBeInTheDocument();
