@@ -31,6 +31,8 @@ export type CubeGuide3DProps = {
   surface?: "dark" | "light";
   initialYaw?: number;
   initialPitch?: number;
+  /** Xoay scene để mặt Cross nằm trên D, không hoán vị facelet trong state. */
+  alignCross?: boolean;
 };
 
 const FACE_ORDER: Array<"U" | "R" | "F" | "D" | "L" | "B"> = [
@@ -129,12 +131,25 @@ function highlightedIndexes(
   xcrossSlots: string[] | undefined,
   lastLayerCase: { family: string; id: string } | null | undefined,
   specialStickers: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>> | undefined,
+  alignPerm: number[] | null = null
 ) {
   const highlight = new Map<string, { color: string; intensity: number }>();
+  const inverse = alignPerm ? invertPermutation(alignPerm) : null;
+  /** aligned-frame face/index → raw face/index used by the raw scene. */
+  const rawKey = (face: string, faceIndex: number) => {
+    if (!inverse) return `${face}:${faceIndex}`;
+    const rawPos = inverse[FACE_OFFSET[face] + faceIndex];
+    return `${faceOfPos(rawPos)}:${rawPos % 9}`;
+  };
+  /** Letter shown at an aligned-frame face/index, read from the raw state. */
+  const alignedLetter = (face: string, faceIndex: number) => {
+    const pos = FACE_OFFSET[face] + faceIndex;
+    return inverse ? state[inverse[pos]] : state[pos];
+  };
   if (inspectCross) {
     for (const index of CROSS_EDGES) {
-      if (state[FACE_OFFSET.D + index] === crossColor) {
-        highlight.set(`D:${index}`, { color: "#ffffff", intensity: 0.6 });
+      if (alignedLetter("D", index) === crossColor) {
+        highlight.set(rawKey("D", index), { color: "#ffffff", intensity: 0.6 });
       }
     }
   }
@@ -144,7 +159,7 @@ function highlightedIndexes(
       if (!slotMap) continue;
       for (const face of Object.keys(slotMap) as Array<"D" | "F" | "R" | "L" | "B">) {
         for (const index of slotMap[face] ?? []) {
-          highlight.set(`${face}:${index}`, { color: "#7c6cf0", intensity: 0.75 });
+          highlight.set(rawKey(face, index), { color: "#7c6cf0", intensity: 0.75 });
         }
       }
     }
@@ -152,14 +167,14 @@ function highlightedIndexes(
   if (lastLayerCase) {
     for (const face of FACE_ORDER) {
       for (let index = 0; index < 9; index += 1) {
-        highlight.set(`${face}:${index}`, { color: "#fbbf24", intensity: 0.65 });
+        highlight.set(rawKey(face, index), { color: "#fbbf24", intensity: 0.65 });
       }
     }
   }
   if (specialStickers) {
     for (const face of Object.keys(specialStickers) as Array<"U" | "R" | "F" | "D" | "L" | "B">) {
       for (const index of specialStickers[face] ?? []) {
-        highlight.set(`${face}:${index}`, { color: "#fb7185", intensity: 0.7 });
+        highlight.set(rawKey(face, index), { color: "#fb7185", intensity: 0.7 });
       }
     }
   }
@@ -182,9 +197,99 @@ type TrackedScene = {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   root: THREE.Group;
+  /** Xoay whole-cube alignment (Cross → D) một lần cho toàn bộ scene con. */
+  alignGroup: THREE.Group;
   host: HTMLDivElement;
   resize: () => void;
 };
+
+/**
+ * Căn mặt Cross xuống D bằng một phép xoay cố định của TOÀN BỘ scene (alignGroup),
+ * KHÔNG hoán vị facelet trong state.
+ *
+ * Trước đây state được hoán vị (x2/x'/z…) còn `move` giữ nguyên ký hiệu gốc,
+ * nên layer mà animation xoay không trùng với layer thực sự bị xoay trong
+ * state — cubie quay sai lớp và sticker nhảy loạn ở cuối mỗi bước.
+ */
+const ALIGN_ROTATIONS: Record<string, { axis: "x" | "z"; angle: number } | null> = {
+  U: { axis: "x", angle: Math.PI }, // x2 — khối 180° quanh x: U ↔ D, F ↔ B
+  D: null,
+  F: { axis: "x", angle: -Math.PI / 2 }, // x'
+  B: { axis: "x", angle: Math.PI / 2 }, // x
+  R: { axis: "z", angle: Math.PI / 2 }, // z
+  L: { axis: "z", angle: -Math.PI / 2 }, // z'
+};
+
+function alignQuaternionFor(crossColor: string) {
+  const spec = ALIGN_ROTATIONS[crossColor] ?? null;
+  const quaternion = new THREE.Quaternion();
+  if (spec) {
+    quaternion.setFromAxisAngle(
+      spec.axis === "x" ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1),
+      spec.angle
+    );
+  }
+  return quaternion;
+}
+
+/**
+ * Whole-cube permutations that put the Cross on D — identical to the ones the
+ * wrapper used to bake into the state before the 2026-11 animation fix. Kept
+ * inside the renderer to translate highlight targets from the aligned frame to
+ * the raw frame the scene is built from.
+ */
+const WHOLE_CUBE_PERM: Record<string, number[]> = {
+  x: [
+    53, 52, 51, 50, 49, 48, 47, 46, 45, 11, 14, 17, 10, 13, 16, 9, 12, 15, 0, 1,
+    2, 3, 4, 5, 6, 7, 8, 18, 19, 20, 21, 22, 23, 24, 25, 26, 42, 39, 36, 43, 40,
+    37, 44, 41, 38, 35, 34, 33, 32, 31, 30, 29, 28, 27,
+  ],
+  "x'": [
+    18, 19, 20, 21, 22, 23, 24, 25, 26, 15, 12, 9, 16, 13, 10, 17, 14, 11, 27,
+    28, 29, 30, 31, 32, 33, 34, 35, 53, 52, 51, 50, 49, 48, 47, 46, 45, 38, 41,
+    44, 37, 40, 43, 36, 39, 42, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+  ],
+  x2: [
+    27, 28, 29, 30, 31, 32, 33, 34, 35, 17, 16, 15, 14, 13, 12, 11, 10, 9, 53,
+    52, 51, 50, 49, 48, 47, 46, 45, 0, 1, 2, 3, 4, 5, 6, 7, 8, 44, 43, 42, 41,
+    40, 39, 38, 37, 36, 26, 25, 24, 23, 22, 21, 20, 19, 18,
+  ],
+  z: [
+    11, 14, 17, 10, 13, 16, 9, 12, 15, 29, 32, 35, 28, 31, 34, 27, 30, 33, 20,
+    23, 26, 19, 22, 25, 18, 21, 24, 38, 41, 44, 37, 40, 43, 36, 39, 42, 2, 5, 8,
+    1, 4, 7, 0, 3, 6, 51, 48, 45, 52, 49, 46, 53, 50, 47,
+  ],
+  "z'": [
+    42, 39, 36, 43, 40, 37, 44, 41, 38, 6, 3, 0, 7, 4, 1, 8, 5, 2, 24, 21, 18,
+    25, 22, 19, 26, 23, 20, 15, 12, 9, 16, 13, 10, 17, 14, 11, 33, 30, 27, 34,
+    31, 28, 35, 32, 29, 47, 50, 53, 46, 49, 52, 45, 48, 51,
+  ],
+};
+const ALIGN_PERM_KEY: Record<string, keyof typeof WHOLE_CUBE_PERM | null> = {
+  U: "x2",
+  D: null,
+  F: "x'",
+  B: "x",
+  R: "z",
+  L: "z'",
+};
+function alignPermFor(crossColor: string) {
+  const key = ALIGN_PERM_KEY[crossColor] ?? null;
+  return key ? WHOLE_CUBE_PERM[key] : null;
+}
+function invertPermutation(perm: number[]) {
+  const inverse = new Array<number>(perm.length);
+  perm.forEach((target, source) => {
+    inverse[target] = source;
+  });
+  return inverse;
+}
+function faceOfPos(pos: number) {
+  return (
+    FACE_ORDER.find(face => pos >= FACE_OFFSET[face] && pos < FACE_OFFSET[face] + 9) ??
+    "D"
+  );
+}
 
 export function CubeGuide3D({
   state,
@@ -195,6 +300,7 @@ export function CubeGuide3D({
   dimension = 3,
   inspectCross = false,
   crossColor = "U",
+  alignCross = false,
   xcrossSlots,
   lastLayerCase = null,
   specialStickers,
@@ -206,6 +312,8 @@ export function CubeGuide3D({
   const hostRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef<TrackedScene | null>(null);
   const cubiesRef = useRef<Cubie[]>([]);
+  /** State string the scene is currently built from — used to skip redundant rebuilds. */
+  const builtStateRef = useRef<string>(state);
   const animFrameRef = useRef<number | null>(null);
   const pivotRef = useRef<THREE.Group | null>(null);
   const orbitRef = useRef({ yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 5.3 : 6.0 });
@@ -256,6 +364,7 @@ export function CubeGuide3D({
     opts: {
       inspectCross?: boolean;
       crossColor?: string;
+      alignCross?: boolean;
       xcrossSlots?: string[];
       lastLayerCase?: { family: string; id: string } | null;
       specialStickers?: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>>;
@@ -277,7 +386,8 @@ export function CubeGuide3D({
       opts.crossColor ?? "U",
       opts.xcrossSlots,
       opts.lastLayerCase,
-      opts.specialStickers
+      opts.specialStickers,
+      alignPermFor(opts.alignCross ? (opts.crossColor ?? "U") : "D")
     );
     const cell = dimension === 2 ? CELL_2 : CELL_3;
     const coords = dimension === 2 ? [-1, 1] : [-1, 0, 1];
@@ -351,6 +461,7 @@ export function CubeGuide3D({
         }
       }
     }
+    builtStateRef.current = nextState;
     bundle.resize();
   };
 
@@ -374,8 +485,11 @@ export function CubeGuide3D({
     activeRenderer.setClearColor(0x000000, 0);
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 50);
+    const alignGroup = new THREE.Group();
+    alignGroup.quaternion.copy(alignQuaternionFor(alignCross ? crossColor : "D"));
+    scene.add(alignGroup);
     const root = new THREE.Group();
-    scene.add(root);
+    alignGroup.add(root);
     scene.add(new THREE.HemisphereLight(0xffffff, surface === "light" ? 0x7a7a7a : 0x1a2230, 2.4));
     const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
     keyLight.position.set(3.5, 6, 8);
@@ -400,10 +514,12 @@ export function CubeGuide3D({
     };
     const observer = new ResizeObserver(resize);
     observer.observe(host);
-    sceneRef.current = { renderer: activeRenderer, scene, camera, root, host, resize };
+    sceneRef.current = { renderer: activeRenderer, scene, camera, root, alignGroup, host, resize };
+    builtStateRef.current = state;
     buildFromState(sceneRef.current, state, {
       inspectCross,
       crossColor,
+      alignCross,
       xcrossSlots,
       lastLayerCase,
       specialStickers,
@@ -422,6 +538,17 @@ export function CubeGuide3D({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dimension, surface]);
 
+  // Alignment (Cross → D) follows the current props without rebuilding the cube.
+  useEffect(() => {
+    const bundle = sceneRef.current;
+    if (!bundle) return;
+    bundle.alignGroup.quaternion.copy(
+      alignQuaternionFor(alignCross ? crossColor : "D")
+    );
+    bundle.resize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [alignCross, crossColor]);
+
   // State-dependent: rebuild or animate on change.
   useEffect(() => {
     const bundle = sceneRef.current;
@@ -432,6 +559,7 @@ export function CubeGuide3D({
       buildFromState(bundle, state, {
         inspectCross,
         crossColor,
+        alignCross,
         xcrossSlots,
         lastLayerCase,
         specialStickers,
@@ -448,6 +576,18 @@ export function CubeGuide3D({
       return;
     }
     cancelAnimation();
+    // Guarantee the scene starts exactly at previousState; an interrupted
+    // animation may have left it behind. Cheap when already up to date.
+    if (builtStateRef.current !== previousState) {
+      buildFromState(bundle, previousState, {
+        inspectCross,
+        crossColor,
+        alignCross,
+        xcrossSlots,
+        lastLayerCase,
+        specialStickers,
+      });
+    }
     const cell = dimension === 2 ? CELL_2 : CELL_3;
     const { axis, layers, angle } = parsed;
     const pivot = new THREE.Group();
