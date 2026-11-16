@@ -82,10 +82,39 @@ pnpm audit --prod --audit-level=high
 
 `pnpm test:e2e` uses Playwright-managed Chromium (downloaded automatically). No system Chromium path required.
 
+`pnpm build` **runs `tsc --noEmit` first**, so a build failure locally is a type error and not just a bundling error. Running `pnpm check` separately is still useful: it reports errors earlier, before the ~14 MB Pyodide download.
+
+## Automated quality gates
+
+Beyond unit tests and e2e, the repo has a few dedicated gates — all of them run in CI and all of them go **red** on a violation:
+
+| Gate | Command | What it blocks |
+|---|---|---|
+| Token contrast | `pnpm test --run server/contrast.test.ts` | A main colour pair falling below WCAG AA (4.5:1 for text, 3:1 for the focus ring and status icons) in **both** light and dark mode. |
+| Contrast on real pages | `pnpm exec playwright test e2e/contrast-a11y.spec.ts` | New axe violations on the 6 main pages × 2 modes, and a stale known-violations list (`e2e/contrast-a11y.baseline.json`). |
+| Solver performance | `node scripts/bench-solver.mjs --check` | The solver returning a wrong answer, one scramble slower than `PER_SCRAMBLE_LIMIT_SEC` (20s by default), or a total above `TOTAL_LIMIT_SEC` (80s by default). |
+| Pyodide version pinning | `pnpm test --run server/pyodideAssets.test.ts` | The Pyodide version drifting between the loader, the fetch script and the npm package — which means the benchmark measures the wrong runtime. |
+| Deterministic solver bundle | `pnpm test --run server/embedSolver.test.ts` | `embeddedSolver.ts` drifting from the Python source, or being generated differently on Windows and Linux because of line endings. |
+
+The full contrast report (measurement table, pairs still below target, and the limits of the measurement) lives in [docs/validation/contrast-report.md](docs/validation/contrast-report.md).
+
+## CI
+
+The `CI` workflow runs **3 jobs** in parallel:
+
+| Job | What it does |
+|---|---|
+| `check-test-build` | typecheck → unit tests → verify the solver bundle has not drifted → e2e → production build → dependency audit |
+| `Solver tests (pytest)` | the Python test suite in `solver-python` |
+| `Solver benchmark (Pyodide)` | measures solver performance in check mode and uploads a JSON artifact to track the trend |
+
+All three are **required status checks** for merging into `main` — see [docs/REPO-OWNER-CHECKLIST.md](docs/REPO-OWNER-CHECKLIST.md).
+
 ## Documentation
 
 - [Documentation index](docs/README.md)
 - [Detailed development guide](docs/development/project-guide.md)
+- [Colour contrast report](docs/validation/contrast-report.md)
 - [Open work items](TODO.md)
 - [Contributing](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
@@ -99,6 +128,8 @@ pnpm audit --prod --audit-level=high
 - Vitest/Testing Library for unit tests; Playwright for browser E2E.
 
 Python solver source lives in [`solver-python/cfop_solver`](solver-python/cfop_solver). After editing the Python source, run `pnpm run embed-solver` to regenerate the Pyodide bundle used in the browser; do not edit `client/src/lib/embeddedSolver.ts` by hand.
+
+The bundle must be **committed together with the change**: CI checks with `pnpm run embed-solver && git diff --exit-code client/src/lib/embeddedSolver.ts`, so forgetting to commit it turns the job red. The script normalises line endings when embedding (and `.gitattributes` forces `.py` files to LF) so the bundle is **identical on every OS** — otherwise this check goes red on Linux whenever the bundle was generated on Windows.
 
 ## Contributing
 
