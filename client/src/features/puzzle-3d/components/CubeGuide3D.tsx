@@ -582,7 +582,16 @@ export function CubeGuide3D({
         ref={hostRef}
         role="img"
         className="interactive-cube-stage h-full w-full"
-        style={{ minHeight: 288, touchAction: "none", cursor: "grab" }}
+        style={{
+          minHeight: 288,
+          touchAction: "none",
+          cursor: "grab",
+          // `.interactive-cube-stage` trong cube.css đặt nền đặc
+          // `var(--cube-stage)` (gần-đen) — che mất nền trắng/light do wrapper
+          // bên ngoài vẽ. Khi dùng surface="light" thì xóa nền để wrapper
+          // hiện ra.
+          background: surface === "light" ? "transparent" : undefined,
+        }}
         aria-label={language === "vi" ? "Mô hình Rubik 3D của bạn" : "3D Rubik model"}
         onPointerDown={pointerDown}
         onPointerMove={pointerMove}
@@ -602,7 +611,11 @@ export function CubeGuide3D({
           orbitRef.current = { yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 5.3 : 6.0 };
           renderNow();
         }}
-        className="absolute bottom-2 right-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+        className={
+          surface === "light"
+            ? "absolute bottom-2 right-2 inline-flex items-center justify-center gap-2 rounded-full bg-ink/10 px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/15 focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+            : "absolute bottom-2 right-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+        }
         title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}
       />
     </div>

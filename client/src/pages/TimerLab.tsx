@@ -1004,6 +1004,7 @@ export default function TimerLab() {
                             inspection
                             alignCross
                             highlightCross={crossHighlight}
+                            surface="light"
                           />
                         ) : timerPreviewPuzzleId(eventId) &&
                           scramble &&
