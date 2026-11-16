@@ -25,10 +25,15 @@ describe("BLD formula learning stage", () => {
       expect(
         screen.getAllByText("L2 U L2 S' L2 S U' L2").length
       ).toBeGreaterThan(0);
-      await waitFor(() =>
-        expect(
-          screen.getAllByLabelText(/Mô hình Rubik 3D/i).length
-        ).toBeGreaterThan(0)
+      // Cube 3D dựng mô hình bằng Three.js nên mount bất đồng bộ. Timeout mặc
+      // định của `waitFor` là 1000ms — quá ngắn khi máy bận, khiến test đỏ
+      // một cách ngẫu nhiên. 5000ms vẫn nhanh, nhưng đủ cho máy CI tải.
+      await waitFor(
+        () =>
+          expect(
+            screen.getAllByLabelText(/Mô hình Rubik 3D/i).length
+          ).toBeGreaterThan(0),
+        { timeout: 5000 }
       );
       expect(screen.getByText("Target scramble")).toBeTruthy();
       expect(
