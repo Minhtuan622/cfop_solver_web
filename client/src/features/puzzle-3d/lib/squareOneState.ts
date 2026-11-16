@@ -1,60 +1,94 @@
-import { TAU } from "./sideEventShared";
+import { TAU, type PatternData } from "./sideEventShared";
 
-export const SQUARE_EDGE_SIDE = "R-B-L-F-F-L-B-R-";
-export const SQUARE_CORNER_SIDE = "RBBLLFFRRFFLLBBR";
-export const SQUARE1_SOLVED_WEDGES = [0, 1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 9, 9, 8, 11, 11, 10, 13, 13, 12, 12, 15, 14];
+/**
+ * Square-1 wedge model, keyed by the Cubing.js KPuzzle piece indices.
+ *
+ * The WEDGES orbit holds 24 wedge halves over 12 slots per layer. Solved,
+ * piece p sits in slot p: the top ring (slots 0-11) starts with a corner,
+ * the bottom ring (12-23) starts with an edge — the phase offset that makes
+ * the puzzle shape-shift. A corner is two adjacent wedge halves and they
+ * only ever separate across the slice cut, which legal scrambles never do,
+ * so rendering can walk each layer and pair halves greedily.
+ */
 
-export type SquareOneState = { wedges: number[]; middle: 0 | 1 };
-export type SquareOneVisualSlot = { position: number; piece: number; units: 1 | 2; kind: "edge" | "corner"; face: "U" | "D" };
+export type SquareOnePieceKind = "edge" | "cornerFirst" | "cornerSecond";
+export type SquareOneFace = "U" | "D";
 
-export function squareOneWedgeUnits(piece: number) { return piece % 2 === 1 ? 2 : 1; }
-export function squareOnePieceKind(piece: number) { return piece % 2 === 1 ? "corner" : "edge"; }
-
-export function squareOneVisualSlots(pieces: number[], startIndex: number): SquareOneVisualSlot[] {
-  const slots: SquareOneVisualSlot[] = [];
-  for (let position = 0; position < 12; position += 1) {
-    const piece = pieces[startIndex + position] ?? startIndex + position;
-    const units = squareOneWedgeUnits(piece) as 1 | 2;
-    slots.push({ position, piece, units, kind: squareOnePieceKind(piece), face: piece >= 8 ? "D" : "U" });
-    if (units === 2) position += 1;
-  }
-  return slots;
+export function squareOnePieceKind(piece: number): SquareOnePieceKind {
+  if (piece < 12)
+    return piece % 3 === 2
+      ? "edge"
+      : piece % 3 === 0
+        ? "cornerFirst"
+        : "cornerSecond";
+  return piece % 3 === 0
+    ? "edge"
+    : piece % 3 === 1
+      ? "cornerFirst"
+      : "cornerSecond";
 }
 
-function rotateSquareLayer(wedges: number[], start: number, amount: number) {
-  const source = wedges.slice(start, start + 12);
-  const offset = ((amount % 12) + 12) % 12;
-  for (let index = 0; index < 12; index += 1) wedges[start + index] = source[(index + offset) % 12] ?? source[index]!;
+export function squareOnePieceFace(piece: number): SquareOneFace {
+  return piece < 12 ? "U" : "D";
 }
 
-export function squareOneStateFromScramble(scramble: string): SquareOneState {
-  const state: SquareOneState = { wedges: [...SQUARE1_SOLVED_WEDGES], middle: 0 };
-  const tokens = scramble.match(/\(\s*-?\d+\s*,\s*-?\d+\s*\)|\//g) ?? [];
-  for (const token of tokens) {
-    if (token === "/") {
-      const upperRight = state.wedges.slice(6, 12);
-      state.wedges.splice(6, 6, ...state.wedges.slice(12, 18));
-      state.wedges.splice(12, 6, ...upperRight);
-      state.middle = state.middle === 0 ? 1 : 0;
-      continue;
-    }
-    const match = token.match(/\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/);
-    if (!match) continue;
-    rotateSquareLayer(state.wedges, 0, Number(match[1]));
-    rotateSquareLayer(state.wedges, 12, Number(match[2]));
-  }
-  return state;
+/** Side-sticker face letter of one wedge half, read off the solved cube. */
+export function squareOnePieceSide(piece: number): string {
+  const cycle = piece < 12 ? ["R", "B", "L", "F"] : ["R", "F", "L", "B"];
+  const step = piece < 12 ? Math.floor(piece / 3) : Math.floor(piece / 3) - 4;
+  const offset =
+    piece < 12 ? (piece % 3 === 0 ? 0 : 1) : piece % 3 === 2 ? 1 : 0;
+  return cycle[(step + offset) % 4]!;
 }
 
-export function squareTurnForAnimation(move: string) {
-  const match = move.match(/^(U|D)_SQ_(\d*)('?)/);
-  if (!match) return null;
-  const amount = (match[2] ? Number(match[2]) : 1) * (match[3] ? -1 : 1);
-  return { layer: match[1] === "U" ? "top" : "bottom", angle: amount * (TAU / 12) } as const;
+export type SquareOneState = { pieces: number[]; middle: 0 | 1 };
+
+/** Read the render state straight from the KPuzzle pattern (ground truth). */
+export function squareOneStateFromPattern(
+  pattern: PatternData
+): SquareOneState {
+  const wedges = pattern.WEDGES;
+  if (!wedges) throw new Error("Square-1 pattern is unavailable");
+  const equator = pattern.EQUATOR;
+  const middle = equator
+    ? ((Math.round((equator.orientation[0] ?? 0) / 3) % 2) + 2) % 2
+    : 0;
+  return { pieces: [...wedges.pieces], middle: middle as 0 | 1 };
+}
+
+/**
+ * World angle of a wedge slot, measured from +z (front) toward +x (right).
+ * The two rings run in opposite directions: top slot 8 and bottom slot 15
+ * are the front-face edge wedges of the solved cube.
+ */
+export function squareOneSlotAngle(slot: number): number {
+  return (slot < 12 ? slot - 8 : 15 - slot) * (TAU / 12);
+}
+
+export type SquareTurnStep = { top: number; bottom: number };
+
+/** Layer rotation (radians) one animation step performs, for either notation. */
+export function squareTurnForAnimation(move: string): SquareTurnStep | null {
+  const unit = TAU / 12;
+  const pair = move.match(/\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/);
+  if (pair)
+    return { top: Number(pair[1]) * unit, bottom: Number(pair[2]) * unit };
+  const turn = move.match(/^(U|D)_SQ_(\d*)('?)$/);
+  if (!turn) return null;
+  const angle = (turn[2] ? Number(turn[2]) : 1) * (turn[3] ? -1 : 1) * unit;
+  return turn[1] === "U"
+    ? { top: angle, bottom: 0 }
+    : { top: 0, bottom: angle };
 }
 
 export function squareSlashPose(progress: number) {
   const phase = Math.max(0, Math.min(1, progress));
   const lift = Math.sin(Math.PI * phase) * 0.34;
-  return { topY: lift, bottomY: lift === 0 ? 0 : -lift, topAngle: Math.PI * phase, bottomAngle: phase === 0 ? 0 : -Math.PI * phase, beltScaleY: 1 + lift * 1.6 };
+  return {
+    topY: lift,
+    bottomY: lift === 0 ? 0 : -lift,
+    topAngle: Math.PI * phase,
+    bottomAngle: phase === 0 ? 0 : -Math.PI * phase,
+    beltScaleY: 1 + lift * 1.6,
+  };
 }
