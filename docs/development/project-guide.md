@@ -573,6 +573,25 @@ hữu ích vì nó báo lỗi sớm hơn (trước bước tải Pyodide ~14 MB)
 
 Playwright dùng `playwright.config.ts`, tự khởi động hoặc tái sử dụng `pnpm dev`, chạy Chromium headless và mặc định truy cập `http://127.0.0.1:3000`. E2E account/Room dùng fixture tRPC trong bộ nhớ, không ghi account, cloud state hoặc phòng thật. E2E lazy-load kiểm tra Studio không tải Cubing/Three.js ban đầu, Timer tải Cubing khi cần scramble và event 3D tải Three.js khi mở canvas.
 
+**Tương phản trên trang thật.** `e2e/contrast-a11y.spec.ts` quét 6 trang chính
+(`/`, `/timer`, `/history`, `/rooms`, `/profile`, `/settings`) ở **cả hai** chế độ
+sáng và tối bằng axe-core. Danh sách vi phạm **đã biết** nằm trong
+`e2e/contrast-a11y.baseline.json`; bài kiểm tra bảo vệ danh sách đó theo **hai
+chiều**:
+
+- vi phạm **mới** (không có trong baseline) → test đỏ, để không lọt lỗi vào sản phẩm;
+- vi phạm **đã biết nhưng không còn xuất hiện** (tức đã được sửa mà baseline chưa
+  cập nhật) → test đỏ, để danh sách không lỗi thời âm thầm.
+
+Cùng tinh thần với cơ chế `KNOWN_FAILURES` của `server/contrast.test.ts`. Sau khi
+sửa một lỗi a11y, cập nhật baseline:
+
+```bash
+AXE_UPDATE_BASELINE=1 pnpm exec playwright test e2e/contrast-a11y.spec.ts
+```
+
+Xem toàn bộ kết quả mà không fail: `AXE_REPORT_ONLY=1 pnpm exec playwright test e2e/contrast-a11y.spec.ts`.
+
 Khi thay đổi schema, router hoặc Room state, cần bổ sung regression tương ứng trước khi chạy full suite. Khi thay đổi localStorage, phải giữ nguyên key/schema hiện hữu hoặc viết migration có test; không dùng `localStorage.clear()`.
 
 ## 11. Persistence và dữ liệu người dùng
