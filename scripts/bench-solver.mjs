@@ -302,12 +302,15 @@ async function main() {
 
   // Artifact giữ nguyên các trường cấp cao nhất của kịch bản `cross` (như
   // trước) để số liệu cũ vẫn đọc được, rồi thêm `scenarios` cho đủ hai.
+  // `ok`/`exitCode` ở cấp cao nhất là **kết quả tổng hợp**: bất kỳ kịch bản
+  // nào vi phạm thì nó là false/1 — các trường đó phải đặt **sau** spread của
+  // kịch bản cross để không bị ghi đè.
   const [cross, ...others] = runs;
   const artifact = {
     ...runtimeInfo,
+    ...cross.report,
     ok: exitCode === 0,
     exitCode,
-    ...cross.report,
     results: cross.results,
     retries: cross.retries,
     failures,

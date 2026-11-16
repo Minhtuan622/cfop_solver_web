@@ -326,14 +326,38 @@ describe("B1: chế độ --check chạy thật", () => {
     // Kịch bản auto dùng ngưỡng riêng: siết `AUTO_TOTAL_LIMIT_SEC` thì kịch
     // bản auto đỏ còn kịch bản cross vẫn xanh — chứng minh hai kịch bản
     // được chấm điểm độc lập.
-    const run = spawnSync("node", [benchScript, "--smoke", "--check"], {
-      cwd: root,
-      encoding: "utf8",
-      timeout: 180_000,
-      env: { ...process.env, AUTO_TOTAL_LIMIT_SEC: "0.001" },
-    });
+    const dir = mkdtempSync(path.join(os.tmpdir(), "cfop-bench-"));
+    const jsonFile = path.join(dir, "bench.json");
+    const run = spawnSync(
+      "node",
+      [benchScript, "--smoke", "--check", "--json-file", jsonFile],
+      {
+        cwd: root,
+        encoding: "utf8",
+        timeout: 180_000,
+        env: { ...process.env, AUTO_TOTAL_LIMIT_SEC: "0.001" },
+      }
+    );
     expect(run.status).not.toBe(0);
     expect(run.stdout).toContain("KẾT LUẬN [auto]: FAIL");
     expect(run.stdout).toContain("KẾT LUẬN [cross]: PASS");
+
+    // Artifact phải phản ánh kết quả tổng hợp: cross xanh nhưng auto đỏ thì
+    // `ok` phải là false và `exitCode` phải là 1 — không được lấy verdict
+    // của kịch bản cross.
+    const report = JSON.parse(readFileSync(jsonFile, "utf8"));
+    expect(report.ok).toBe(false);
+    expect(report.exitCode).toBe(1);
+    const scenarios = Object.fromEntries(
+      report.scenarios.map((s: { name: string; ok: boolean }) => [s.name, s])
+    ) as Record<string, { ok: boolean }>;
+    expect(scenarios.cross.ok).toBe(true);
+    expect(scenarios.auto.ok).toBe(false);
+    // Các failure được ghi kèm tên kịch bản.
+    expect(
+      report.failures.some(
+        (f: { scenario?: string }) => f.scenario === "auto"
+      )
+    ).toBe(true);
   }, 200_000);
 });
