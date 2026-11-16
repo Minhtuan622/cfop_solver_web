@@ -8,13 +8,22 @@ import { fileURLToPath } from "node:url";
  * Quét tương phản trên trang thật bằng axe-core.
  *
  * Mục tiêu của bài này là **báo cáo**, không tự sửa màu. Mọi vi phạm đã biết
- * được liệt kê trong `KNOWN_FINDINGS`; vi phạm mới làm test FAIL để không lọt
- * lỗi tương phản vào sản phẩm, nhưng PR này không sửa chúng.
+ * được liệt kê trong `e2e/contrast-a11y.baseline.json`; bài kiểm tra bảo vệ
+ * baseline theo **hai chiều**:
+ *
+ * - vi phạm **mới** (không có trong baseline) → FAIL, để không lọt lỗi
+ *   tương phản vào sản phẩm;
+ * - vi phạm **đã biết nhưng không còn xuất hiện** (tức đã được sửa mà
+ *   baseline chưa cập nhật) → FAIL, để danh sách không lỗi thời âm thầm.
+ *
+ * Cùng tinh thần với cơ chế `KNOWN_FAILURES` của `server/contrast.test.ts`.
  *
  * Chạy riêng:
  *   pnpm exec playwright test e2e/contrast-a11y.spec.ts
- * In toàn bộ kết quả (kể cả mục đã biết):
+ * In toàn bộ kết quả (kể cả mục đã biết), không fail:
  *   AXE_REPORT_ONLY=1 pnpm exec playwright test e2e/contrast-a11y.spec.ts
+ * Sinh lại baseline sau khi một vi phạm đã được sửa:
+ *   AXE_UPDATE_BASELINE=1 pnpm exec playwright test e2e/contrast-a11y.spec.ts
  */
 
 type Theme = "light" | "dark";
@@ -95,6 +104,11 @@ function findingKey(finding: Finding): string {
     normalizeHtml(finding.html),
     finding.failureSummary,
   ].join("|");
+}
+
+/** Nhãn ngắn của một khoá baseline: trang | chế độ | rule (bỏ phần html). */
+function shortKey(key: string): string {
+  return key.split("|").slice(0, 3).join(" | ");
 }
 
 function trpcBatch(dataFor: (path: string) => unknown) {
@@ -221,12 +235,26 @@ for (const theme of THEMES) {
           seenCounts.set(key, seen + 1);
         }
 
+        // Vi phạm đã biết nhưng KHÔNG còn xuất hiện nữa.
+        //
+        // Đây là chiều ngược lại của kiểm tra "vi phạm mới": nếu ai đó sửa
+        // được một lỗi a11y mà không cập nhật baseline, danh sách sẽ giữ
+        // lại một mục chết và âm thầm lỗi thời. Cùng tinh thần với cơ chế
+        // `KNOWN_FAILURES` của `server/contrast.test.ts`: danh sách phải luôn
+        // trung thực với hiện trạng.
+        const missing: string[] = [];
+        for (const [key, count] of KNOWN_COUNTS) {
+          if (!key.startsWith(`${appPage.path}|${theme}|`)) continue;
+          if ((seenCounts.get(key) ?? 0) < count) missing.push(key);
+        }
+
         for (const finding of findings) {
           printFinding(finding, known.includes(finding));
         }
         console.log(
           `[axe] tổng kết ${appPage.path} (${theme}): ` +
-            `${findings.length} vi phạm, ${known.length} đã biết, ${fresh.length} mới`
+            `${findings.length} vi phạm, ${known.length} đã biết, ${fresh.length} mới, ` +
+            `${missing.length} đã biết nhưng không còn xuất hiện`
         );
 
         await testInfo.attach(`axe-${theme}-${appPage.path.replace(/\W+/g, "_")}.json`, {
@@ -241,10 +269,16 @@ for (const theme of THEMES) {
         if (process.env.AXE_REPORT_ONLY !== "1" && process.env.AXE_UPDATE_BASELINE !== "1") {
           expect(
             fresh,
-            `Phát hiện axe MỚI (chưa có trong KNOWN_FINDINGS):\n` +
+            `Phát hiện axe MỚI (chưa có trong baseline):\n` +
               fresh
                 .map(item => `${item.rule} ${item.target} — ${item.failureSummary}`)
                 .join("\n")
+          ).toEqual([]);
+          expect(
+            missing.map(shortKey),
+            `Phát hiện axe đã được SỬA nhưng chưa gỡ khỏi baseline:\n` +
+              `Sửa xong thì chạy lại:\n` +
+              `  AXE_UPDATE_BASELINE=1 pnpm exec playwright test e2e/contrast-a11y.spec.ts`
           ).toEqual([]);
         }
       });
@@ -257,12 +291,15 @@ test.afterAll(() => {
   // Giữ nguyên số lần xuất hiện (không khử trùng) để bài kiểm tra phân biệt
   // được phần tử thứ hai giống hệt phần tử đã biết.
   const payload = {
-    version: 3,
+    version: 4,
     generated: new Date().toISOString(),
     note:
       "Khoa (key) nhan dien vi pham axe hien co tren 6 trang x 2 che do, " +
-      "giu nguyen so lan xuat hien. Vi pham moi (khong co trong danh sach " +
-      "nay) se lam test that bai. Muc dich bao cao, khong tu sua mau.",
+      "giu nguyen so lan xuat hien. Bai kiem tra bao ve baseline theo hai " +
+      "chieu: vi pham MOI (khong co trong danh sach nay) lam test that bai, " +
+      "va vi pham DA BIET NHUNG KHONG CON xuat hien (da duoc sua) cung lam " +
+      "test that bai — danh sach phai luon trung thuc. Muc dich bao cao, " +
+      "khong tu sua mau.",
     keys: COLLECTED.map(findingKey),
     findings: Array.from(
       new Map(COLLECTED.map(f => [findingKey(f), f])).values()
