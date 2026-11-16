@@ -92,7 +92,7 @@ Beyond unit tests and e2e, the repo has a few dedicated gates — all of them ru
 |---|---|---|
 | Token contrast | `pnpm test --run server/contrast.test.ts` | A main colour pair falling below WCAG AA (4.5:1 for text, 3:1 for the focus ring and status icons) in **both** light and dark mode. |
 | Contrast on real pages | `pnpm exec playwright test e2e/contrast-a11y.spec.ts` | New axe violations on the 6 main pages × 2 modes, and a stale known-violations list (`e2e/contrast-a11y.baseline.json`). |
-| Solver performance | `node scripts/bench-solver.mjs --check` | The solver returning a wrong answer, one scramble slower than `PER_SCRAMBLE_LIMIT_SEC` (20s by default), or a total above `TOTAL_LIMIT_SEC` (80s by default). |
+| Solver performance | `node scripts/bench-solver.mjs --check` | The solver returning a wrong answer, or either scenario exceeding its budget: `cross` (20s/scramble, 80s total) or `auto` (60s/scramble, 200s total). |
 | Pyodide version pinning | `pnpm test --run server/pyodideAssets.test.ts` | The Pyodide version drifting between the loader, the fetch script and the npm package — which means the benchmark measures the wrong runtime. |
 | Deterministic solver bundle | `pnpm test --run server/embedSolver.test.ts` | `embeddedSolver.ts` drifting from the Python source, or being generated differently on Windows and Linux because of line endings. |
 
