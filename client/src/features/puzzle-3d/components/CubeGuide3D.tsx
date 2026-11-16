@@ -189,7 +189,7 @@ const _geoBody2 = new RoundedBoxGeometry(CELL_2 * 0.94, CELL_2 * 0.94, CELL_2 * 
 type Cubie = {
   unit: { x: number; y: number; z: number };
   group: THREE.Group;
-  stickerMaterials: THREE.MeshStandardMaterial[];
+  stickerMaterials: THREE.MeshLambertMaterial[];
 };
 
 type TrackedScene = {
@@ -401,7 +401,7 @@ export function CubeGuide3D({
           if (dimension === 3 && x === 0 && y === 0 && z === 0) continue;
           const group = new THREE.Group();
           group.position.set(x * cell, y * cell, z * cell);
-          const bodyMaterial = new THREE.MeshStandardMaterial({ color: "#141414", roughness: 0.5, metalness: 0.15 });
+          const bodyMaterial = new THREE.MeshLambertMaterial({ color: "#141414" });
           const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
           group.add(body);
           const cubie: Cubie = { unit: { x, y, z }, group, stickerMaterials: [] };
@@ -419,10 +419,8 @@ export function CubeGuide3D({
             const letter = nextState[faceletIndex] ?? "?";
             const color = CUBE_COLORS[letter] ?? CUBE_FALLBACK_COLOR;
             const highlightInfo = highlight.get(`${face}:${faceIndex}`);
-            const material = new THREE.MeshStandardMaterial({
+            const material = new THREE.MeshLambertMaterial({
               color,
-              roughness: 0.35,
-              metalness: 0.05,
               emissive: highlightInfo ? new THREE.Color(highlightInfo.color) : new THREE.Color("#000000"),
               emissiveIntensity: highlightInfo?.intensity ?? 0,
             });

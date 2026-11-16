@@ -106,10 +106,8 @@ function squareOneVerticalPanel(
   geometry.computeVertexNormals();
   return new THREE.Mesh(
     geometry,
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
       color,
-      roughness: 0.5,
-      metalness: 0.02,
       side: THREE.DoubleSide,
     })
   );
@@ -127,10 +125,8 @@ function squareOneLayer(
   const lowerY = isTopLayer ? verticalBase : verticalBase - thickness;
   const upperY = isTopLayer ? verticalBase + thickness : verticalBase;
   const stickerY = isTopLayer ? upperY + 0.004 : lowerY - 0.004;
-  const plastic = new THREE.MeshStandardMaterial({
+  const plastic = new THREE.MeshLambertMaterial({
     color: SQUARE1_PLASTIC,
-    roughness: 0.55,
-    metalness: 0.04,
   });
   /** Extrude shapes live in XY; the top layer flips Y onto world -Z. */
   const shapeFromWorld = (points: SquarePoint[]) =>
@@ -152,10 +148,8 @@ function squareOneLayer(
     body.position.y = verticalBase;
     const sticker = new THREE.Mesh(
       new THREE.ShapeGeometry(shape),
-      new THREE.MeshStandardMaterial({
+      new THREE.MeshLambertMaterial({
         color: CUBE_COLORS[face] ?? CUBE_COLORS.F,
-        roughness: 0.48,
-        metalness: 0.01,
       })
     );
     sticker.rotation.x = bodyRotation;
@@ -220,10 +214,8 @@ export function squareOneObject(THREE: ThreeModule, state: SquareOneState) {
       SQUARE1_BELT_THICKNESS,
       SQUARE1_CHORD * 2
     ),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
       color: SQUARE1_PLASTIC,
-      roughness: 0.55,
-      metalness: 0.04,
     })
   );
   belt.add(beltCore);

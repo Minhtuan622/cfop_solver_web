@@ -27,19 +27,15 @@ function dial(
   const dialGroup = new THREE.Group();
   const bezel = new THREE.Mesh(
     new THREE.CylinderGeometry(0.49, 0.49, 0.085, 40),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
       color: "#090b0e",
-      roughness: 0.5,
-      metalness: 0.3,
     })
   );
   bezel.rotation.x = Math.PI / 2;
   const plate = new THREE.Mesh(
     new THREE.CylinderGeometry(0.465, 0.465, 0.095, 40),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
       color: faceColor,
-      roughness: 0.42,
-      metalness: 0,
     })
   );
   plate.rotation.x = Math.PI / 2;
@@ -67,10 +63,8 @@ function dial(
   handShape.closePath();
   const hand = new THREE.Mesh(
     new THREE.ShapeGeometry(handShape),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
       color: "#13171c",
-      roughness: 0.36,
-      metalness: 0.24,
       side: THREE.DoubleSide,
     })
   );
@@ -81,10 +75,8 @@ function dial(
   dialGroup.add(pivot);
   const hub = new THREE.Mesh(
     new THREE.SphereGeometry(0.09, 18, 12),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
       color: "#171a1f",
-      roughness: 0.35,
-      metalness: 0.3,
     })
   );
   hub.position.z = back ? -0.12 : 0.12;
@@ -128,10 +120,8 @@ function clockFace(
   ] as const) {
     const pin = new THREE.Mesh(
       new THREE.CylinderGeometry(0.14, 0.14, 0.1, 24),
-      new THREE.MeshStandardMaterial({
+      new THREE.MeshLambertMaterial({
         color: "#2a2f36",
-        roughness: 0.4,
-        metalness: 0.3,
       })
     );
     pin.rotation.x = Math.PI / 2;
@@ -146,10 +136,8 @@ function clockBolt(THREE: ThreeModule, angle: number, back = false) {
   const radius = 2.05;
   const screw = new THREE.Mesh(
     new THREE.CylinderGeometry(0.095, 0.095, 0.08, 18),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
       color: "#aeb5bc",
-      roughness: 0.18,
-      metalness: 0.9,
     })
   );
   screw.rotation.x = Math.PI / 2;
@@ -177,20 +165,16 @@ export function clockObject(THREE: ThreeModule, pattern: PatternData) {
   const yellow = CUBE_COLORS.D;
   const frame = new THREE.Mesh(
     new THREE.CylinderGeometry(2.46, 2.46, 0.38, 64),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
       color: yellow,
-      roughness: 0.5,
-      metalness: 0.04,
     })
   );
   frame.rotation.x = Math.PI / 2;
   root.add(frame);
   const board = new THREE.Mesh(
     new THREE.CylinderGeometry(2.27, 2.27, 0.12, 64),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
       color: yellow,
-      roughness: 0.55,
-      metalness: 0.02,
     })
   );
   board.rotation.x = Math.PI / 2;
