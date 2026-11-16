@@ -2,6 +2,8 @@
 
 ## Preview scramble
 
+> Cập nhật 2026-11: 2×2×2 và toàn bộ các event 3×3 (333, 333oh, 333bf, 333fm, 333mbf) cũng render bằng Cubing.js như các event khác; khối preview trong Timer và dialog Phát lại đều dùng `Puzzle3DCanvas` (`experimentalCurrentThreeJSPuzzleObject`). Cube Three.js nội bộ (`CubeGuide3D`) chỉ còn ở trang Giải/Study/BLD. Dialog Phát lại bỏ chế độ từng nước (`Nước trước/Nước sau`); Cubing.js tự chạy cả chuỗi solution (`alg` + `play()`), nút Phát solution chạy lại từ đầu.
+
 - `cubing/twisty` cung cấp `TwistyPlayer` cho nhiều puzzle và nhận `puzzle`, `alg`, `experimental-setup-alg`, `background` cùng kích thước CSS.
 - Để hiển thị **trạng thái scramble**, dùng `experimental-setup-alg=<scramble>` và không phát một lời giải. `puzzle` dự kiến: `2x2x2`, `pyraminx`, `megaminx`.
 - Không ép chế độ 2D vì tài liệu nêu chỉ một số puzzle hỗ trợ 2D. Dùng player 3D tĩnh, không control panel, background trong suốt để tránh preview sai với Pyraminx/Megaminx.
