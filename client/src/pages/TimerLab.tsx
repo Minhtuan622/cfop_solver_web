@@ -379,6 +379,12 @@ export default function TimerLab() {
   const [spaceSplits] = useState(
     () => readStoredValue("cfop-space-splits") !== "off"
   );
+  const [scrambleSize] = useState<"sm" | "md" | "lg">(() => {
+    const stored = readStoredValue("cfop-scramble-size");
+    return stored === "sm" || stored === "lg" ? stored : "md";
+  });
+  const [phaseTargets, setPhaseTargets] =
+    useState<Record<SplitPhase, number>>(readPhaseTargets);
   const [multiBlindAttempted, setMultiBlindAttempted] = useState(2);
   const [multiBlindSolved, setMultiBlindSolved] = useState(0);
   const [multiBlindScrambles, setMultiBlindScrambles] = useState<string[]>([]);
@@ -854,7 +860,16 @@ export default function TimerLab() {
                         loading={scrambleLoading}
                       />
                     ) : (
-                      <p className="break-words mb-4" aria-live="polite">
+                      <p
+                        className={
+                          scrambleSize === "sm"
+                            ? "break-words mb-4 text-sm"
+                            : scrambleSize === "lg"
+                              ? "break-words mb-4 text-2xl sm:text-3xl"
+                              : "break-words mb-4 text-lg sm:text-xl"
+                        }
+                        aria-live="polite"
+                      >
                         {scrambleLoading
                           ? t("timer.generating", { event: eventLabel })
                           : scramble}
@@ -995,11 +1010,21 @@ export default function TimerLab() {
                         ) : timerPreviewPuzzleId(eventId) &&
                           scramble &&
                           !scrambleLoading ? (
-                          <PuzzleScramblePreview
-                            eventId={eventId}
-                            scramble={scramble}
-                            language={language}
-                          />
+                          <div
+                            className={
+                              scrambleSize === "sm"
+                                ? "min-h-[12rem]"
+                                : scrambleSize === "lg"
+                                  ? "min-h-[24rem]"
+                                  : "min-h-[18rem]"
+                            }
+                          >
+                            <PuzzleScramblePreview
+                              eventId={eventId}
+                              scramble={scramble}
+                              language={language}
+                            />
+                          </div>
                         ) : (
                           <div className="rounded-card bg-surface p-5 sm:p-6 h-full flex justify-center text-center">
                             <Timer className="text-4xl text-muted mb-4" />

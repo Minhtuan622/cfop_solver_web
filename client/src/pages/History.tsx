@@ -55,6 +55,7 @@ import {
   type TimerEventId,
 } from "@/lib/timerEvents";
 import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";
+import { readStoredValue } from "@/lib/browserStorage";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
@@ -692,53 +693,54 @@ function SolveRow({
   onDelete: () => void;
 }) {
   const { t } = useLanguage();
+  const scrambleSizeClass =
+    readStoredValue("cfop-scramble-size") === "sm"
+      ? "text-sm"
+      : readStoredValue("cfop-scramble-size") === "lg"
+        ? "text-2xl"
+        : "text-lg";
   const bundle = item.multiBlindScrambles;
   const eventLabel = timerEventLabel(
     normalizeTimerEventId(item.eventId),
     language
   );
   return (
-    <article className="rounded-card bg-surface px-4 py-3 mb-2">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <Checkbox
-          checked={selected}
-          onChange={() => onSelect()}
-          ariaLabel={t("history.selectSolve")}
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-primary text-on-primary">
-              {eventLabel}
-            </span>
-            {bundle?.length ? (
-              <details className="min-w-0 flex-1">
-                <summary className="font-mono text-sm break-words cursor-pointer">
-                  {t("history.multiBlindBundle", { count: bundle.length })}
-                </summary>
-                <ol className="font-mono text-sm mb-1 mt-1 pl-6">
-                  {bundle.map((scramble, index) => (
-                    <li key={`${index}-${scramble}`} className="break-words">
-                      {scramble}
-                    </li>
-                  ))}
-                </ol>
-              </details>
-            ) : (
-              <p
-                className="font-mono text-sm min-w-0 flex-1 truncate"
-                title={
-                  item.inputKind === "scramble"
-                    ? item.input
-                    : t("history.sixFaceState")
-                }
-              >
-                {item.inputKind === "scramble"
-                  ? item.input
-                  : t("history.sixFaceState")}
-              </p>
-            )}
-          </div>
-          <p className="text-xs text-muted mt-1 mb-0">
+    <article className="block px-4 py-3 text-sm py-4">
+      <div className="grid grid-cols-12 gap-2 items-center">
+        <div className="col-span-1">
+          <input
+            type="checkbox"
+            className="h-4 w-4 rounded accent-primary"
+            checked={selected}
+            onChange={onSelect}
+            aria-label={t("history.selectSolve")}
+          />
+        </div>
+        <div className="col-span-12">
+          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-primary text-white mb-2">
+            {eventLabel}
+          </span>
+          {bundle?.length ? (
+            <details>
+              <summary className="font-mono break-words">
+                {t("history.multiBlindBundle", { count: bundle.length })}
+              </summary>
+              <ol className={`font-mono mb-2 mt-2 pl-6 ${scrambleSizeClass}`}>
+                {bundle.map((scramble, index) => (
+                  <li key={`${index}-${scramble}`} className="break-words">
+                    {scramble}
+                  </li>
+                ))}
+              </ol>
+            </details>
+          ) : (
+            <p className={`font-mono break-words mb-1 ${scrambleSizeClass}`}>
+              {item.inputKind === "scramble"
+                ? item.input
+                : t("history.sixFaceState")}
+            </p>
+          )}
+          <p className="text-sm text-muted mb-0">
             {new Date(item.createdAt).toLocaleString(
               language === "vi" ? "vi-VN" : "en-US"
             )}{" "}

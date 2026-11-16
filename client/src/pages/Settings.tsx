@@ -88,9 +88,11 @@ export default function Settings() {
                   sound={state.sound}
                   splits={state.splits}
                   highlight={state.highlight}
+                  scrambleSize={state.scrambleSize}
                   onSoundChange={state.setSound}
                   onSplitsChange={state.setSplits}
                   onHighlightChange={state.setHighlight}
+                  onScrambleSizeChange={state.setScrambleSize}
                 />
               ) : null}
               {group.id === "study" ? (

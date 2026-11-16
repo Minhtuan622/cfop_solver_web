@@ -6,18 +6,22 @@ export function TimerSettingsGroup({
   sound,
   splits,
   highlight,
+  scrambleSize,
   onSoundChange,
   onSplitsChange,
   onHighlightChange,
+  onScrambleSizeChange,
 }: {
   sound: boolean;
   splits: boolean;
   highlight: boolean;
+  scrambleSize: "sm" | "md" | "lg";
   onSoundChange: (next: boolean) => void;
   onSplitsChange: (next: boolean) => void;
   onHighlightChange: (next: boolean) => void;
+  onScrambleSizeChange: (next: "sm" | "md" | "lg") => void;
 }) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   return (
     <SectionCard
@@ -46,6 +50,22 @@ export function TimerSettingsGroup({
           label={t("settings.splits")}
           help={t("settings.splitsHelp")}
         />
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-ink">
+            {language === "vi" ? "Cỡ scramble" : "Scramble size"}
+          </span>
+          <select
+            value={scrambleSize}
+            onChange={event =>
+              onScrambleSizeChange(event.target.value as "sm" | "md" | "lg")
+            }
+            className="rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink"
+          >
+            <option value="sm">{language === "vi" ? "Nhỏ" : "Small"}</option>
+            <option value="md">{language === "vi" ? "Vừa" : "Medium"}</option>
+            <option value="lg">{language === "vi" ? "Lớn" : "Large"}</option>
+          </select>
+        </label>
       </div>
     </SectionCard>
   );
