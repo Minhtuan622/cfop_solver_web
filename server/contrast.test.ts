@@ -566,8 +566,9 @@ function resolveColor(tokens: Record<string, string>, ref: ColorRef): Rgb {
  * Đo chuẩn theo yêu cầu C5: **bỏ qua alpha**, coi `muted/60` như `muted`.
  *
  * Hệ quả đã biết: phép đo này không phát hiện được lỗi chữ gợi ý trong ô
- * nhập (xem test "phép đo chuẩn bỏ qua alpha…"). Bốn mục placeholder vẫn
- * được giữ trong `KNOWN_FAILURES` bằng phép đo có alpha bên dưới.
+ * nhập (xem test "phép đo chuẩn bỏ qua alpha…"). Lỗi đó đã được xử lý ở
+ * nguồn: chữ gợi ý dùng token `--placeholder` đủ đậm, không phủ alpha nên
+ * phép đo chuẩn bắt được và cả hai chế độ đều đạt.
  */
 function measure(mode: Mode, pair: Pair): number {
   const tokens = mode === "light" ? LIGHT : DARK;
@@ -730,8 +731,8 @@ describe("tương phản màu của giao diện phẳng", () => {
     const mismatches: string[] = [];
     for (const pair of PAIRS) {
       // Mục KNOWN_FAILURES phải in bằng phép đo khớp với trạng thái: nếu in
-      // phép đo chuẩn (bỏ qua alpha) thì placeholder sẽ hiện 4.86:1 nhưng vẫn
-      // bị đánh KHONG-DAT — bảng tự mâu thuẫn.
+      // phép đo chuẩn (bỏ qua alpha) thì một mục có alpha sẽ hiện số đo khác
+      // với số đo thật của nó — bảng tự mâu thuẫn.
       const light = measureForStatus("light", pair);
       const dark = measureForStatus("dark", pair);
       const mark = (ratio: number) => (ratio >= pair.min ? "dat" : "KHONG-DAT");
