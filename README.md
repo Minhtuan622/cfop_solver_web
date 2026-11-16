@@ -91,7 +91,7 @@ Ngoài unit test và e2e, repo còn có các cổng kiểm tra riêng — tất 
 |---|---|---|
 | Tương phản token | `pnpm test --run server/contrast.test.ts` | Cặp màu chính rơi dưới WCAG AA (4.5:1 cho chữ, 3:1 cho vòng focus và biểu tượng trạng thái) ở **cả hai** chế độ sáng và tối. |
 | Tương phản trên trang thật | `pnpm exec playwright test e2e/contrast-a11y.spec.ts` | Vi phạm axe mới trên 6 trang chính × 2 chế độ, và danh sách vi phạm đã biết (`e2e/contrast-a11y.baseline.json`) bị lỗi thời. |
-| Hiệu năng bộ giải | `node scripts/bench-solver.mjs --check` | Bộ giải giải sai, một đề chậm hơn `PER_SCRAMBLE_LIMIT_SEC` (mặc định 20s) hoặc tổng vượt `TOTAL_LIMIT_SEC` (mặc định 80s). |
+| Hiệu năng bộ giải | `node scripts/bench-solver.mjs --check` | Bộ giải giải sai, hoặc một kịch bản vượt ngân sách: `cross` (mặc định 20s/đề, 80s tổng) hoặc `auto` (60s/đề, 200s tổng). |
 | Ghim phiên bản Pyodide | `pnpm test --run server/pyodideAssets.test.ts` | Lệch phiên bản Pyodide giữa loader, script tải và gói npm — đồng nghĩa là bộ đo đo sai runtime. |
 | Bundle solver tất định | `pnpm test --run server/embedSolver.test.ts` | Bundle `embeddedSolver.ts` lệch với source Python, hoặc sinh khác nhau giữa Windows và Linux vì line ending. |
 

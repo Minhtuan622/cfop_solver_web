@@ -428,22 +428,38 @@ Job đỏ (thoát mã khác 0) khi:
 | Có đề chậm hơn ngưỡng mỗi đề | `PER_SCRAMBLE_LIMIT_SEC` (mặc định 20s) | Đề vượt ngưỡng được **chạy lại đúng một lần**; chỉ tính là lỗi khi lần chạy lại vẫn vượt ngưỡng (loại nhiễu đo). |
 | Tổng thời gian vượt ngưỡng | `TOTAL_LIMIT_SEC` (mặc định 80s) | Tổng tính trên **lần chạy chính**. |
 
-Hai ngưỡng ghi đè được bằng biến môi trường `PER_SCRAMBLE_LIMIT_SEC` và
-`TOTAL_LIMIT_SEC`. Logic chấm điểm nằm trong `scripts/bench-check.mjs` (hàm
-thuần, không cần Pyodide) và được kiểm thử bằng dữ liệu giả lập trong
+### Hai kịch bản đo
+
+Bộ đo chạy **hai kịch bản**, mỗi kịch bản một bộ ngưỡng riêng:
+
+| Kịch bản | `opening` | Ngưỡng mỗi đề | Ngưỡng tổng | Vì sao tách riêng |
+|---|---|---|---|---|
+| `cross` | `cross` | `PER_SCRAMBLE_LIMIT_SEC` (20s) | `TOTAL_LIMIT_SEC` (80s) | Kịch bản mặc định của app. |
+| `auto` | `auto` | `AUTO_PER_SCRAMBLE_LIMIT_SEC` (60s) | `AUTO_TOTAL_LIMIT_SEC` (200s) | Bộ giải thử bậc cross **cao nhất trước** (XXXXCross → XXXCross → XXCross → XCross) nên đắt hơn nhiều: đo được chậm nhất ~21s cho một đề, tổng ~69s cho 11 đề. |
+
+`opening: "auto"` là lựa chọn có sẵn trong phần cài đặt của app, nên nó phải
+có ngân sách thời gian riêng — dùng chung ngưỡng với kịch bản `cross` thì kịch
+bản `auto` đỏ ngay, còn nếu nới ngưỡng chung thì kịch bản `cross` mất tác dụng
+bảo vệ.
+
+Logic chấm điểm nằm trong `scripts/bench-check.mjs` (hàm thuần, không cần
+Pyodide) và được kiểm thử bằng dữ liệu giả lập trong
 `server/benchSolver.test.ts`.
 
 Báo cáo còn in thêm **`totals.wallClockSeconds`** = tổng lần chạy chính +
 tổng thời gian các lần chạy lại, và ghi trường này vào JSON artifact. Ngưỡng
-tổng `TOTAL_LIMIT_SEC` **chỉ áp dụng cho lần chạy chính**; `wallClockSeconds`
-là số đo bổ sung để đối chiếu ngân sách thời gian của job (ví dụ khi nhiều đề
-phải chạy lại), **không** tham gia quyết định PASS/FAIL. Artifact cũ không có
-trường này vẫn đọc được — chỉ là thiếu số đo bổ sung.
+tổng **chỉ áp dụng cho lần chạy chính**; `wallClockSeconds` là số đo bổ sung để
+đối chiếu ngân sách thời gian của job (ví dụ khi nhiều đề phải chạy lại),
+**không** tham gia quyết định PASS/FAIL. Artifact cũ không có trường này vẫn đọc
+được — chỉ là thiếu số đo bổ sung.
 JSON artifact (`--json-file`) có thêm các trường cấp cao nhất
 `pyodideVersion`, `nodeVersion`, `platform`, `arch`. `pyodideVersion` được đọc
 từ `package.json` của gói `pyodide` thật trong `node_modules` (qua
 `import.meta.resolve("pyodide")`), không đọc hằng số trong source hay
 `package.json` của repo — nhờ vậy mỗi artifact tự mô tả runtime đã đo.
+Artifact còn có mảng `scenarios` chứa đầy đủ cả hai kịch bản; các trường ở
+cấp cao nhất vẫn mô tả kịch bản `cross` như trước nên artifact cũ vẫn đọc
+được.
 
 ### Lưu ý quan trọng về `pnpm build`
 
