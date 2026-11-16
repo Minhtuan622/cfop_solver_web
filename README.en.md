@@ -23,8 +23,8 @@ Regenerate them with `node scripts/capture-screenshots.mjs` while the dev server
 
 ## Features
 
-- CFOP/BLD solver: enter scramble or cube state, per-phase report, CubeNet/3D view.
-- Multi-event timer with inspection, +2/DNF, splits, replay, history and statistics.
+- CFOP/BLD solver: enter a scramble or the six-face state, per-phase report, CubeNet/3D, the "Auto" opening (tries XXXXCross → XXXCross → XXCross → XCross; search depth is configurable in Settings — 8 moves by default) and Last Layer case recognition (OLL/PLL, ZBLL, 1LLL) on the banner and in the phase list.
+- Multi-event timer with inspection, +2/DNF, splits, replay, history, statistics and an adjustable scramble font size.
 - Study: Last Layer and 3-Style BLD.
 - Account, cloud sync, WCA, competition rooms and leaderboard.
 - The solver works offline: Pyodide and the BLD algorithm catalog are both

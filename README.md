@@ -23,8 +23,8 @@ Thử ứng dụng trực tiếp: [cfop-solver.studio](https://cfop-solver.studi
 
 ## Tính năng chính
 
-- Solver CFOP/BLD với nhập scramble, trạng thái sáu mặt, báo cáo theo phase và CubeNet/3D.
-- Timer đa event với inspection, +2/DNF, split, replay, history và thống kê.
+- Solver CFOP/BLD: nhập scramble hoặc trạng thái sáu mặt, báo cáo theo phase, CubeNet/3D, opening "Tự động" (thử XXXXCross → XXXCross → XXCross → XCross; độ sâu tìm kiếm chỉnh được trong Cài đặt — mặc định 8 nước) và hiển thị case Last Layer (OLL/PLL, ZBLL, 1LLL) trên banner và trong danh sách phase.
+- Timer đa event với inspection, +2/DNF, split, replay, history, thống kê và cỡ chữ scramble tuỳ chọn.
 - Study cho Last Layer và 3-Style BLD.
 - Tài khoản, đồng bộ dữ liệu, WCA, phòng thi đấu và bảng xếp hạng.
 - Bộ giải chạy offline: Pyodide và catalog thuật toán BLD đều được tải về
