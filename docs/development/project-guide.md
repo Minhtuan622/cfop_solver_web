@@ -447,6 +447,10 @@ từ `package.json` của gói `pyodide` thật trong `node_modules` (qua
 
 ### Lưu ý quan trọng về `pnpm build`
 
+`pnpm build` **có chạy `tsc --noEmit` ở đầu chuỗi**, trước bước đóng gói. Lý do: Vite và esbuild chỉ *transpile*, **không type-check** — nên một lỗi TypeScript vẫn tạo ra bundle chạy được. Cả hai đường deploy đều gọi `pnpm build` (`railway.json` dùng `buildCommand: pnpm build`, `Dockerfile` dùng `RUN pnpm build`), tức là không có cổng type-check nào ở phía deploy. Chạy type-check trong `pnpm build` đóng lại lỗ hổng đó: lỗi TS làm **build fail**, nên bundle hỏng không bao giờ lên production.
+
+`server/build.config.test.ts` chặn việc gỡ bước `tsc --noEmit` khỏi script build (và chặn mất các bước build bắt buộc khác).
+
 `pnpm build` **không gọi** `embed-solver` để giữ build production nhanh và deterministic. Source Python solver hiện nằm công khai tại `solver-python/cfop_solver`; file `client/src/lib/embeddedSolver.ts` là bundle đã được theo dõi trong repository và được dùng trực tiếp khi build.
 
 Khi thực sự sửa Python solver, cần có workspace đúng cấu trúc:
@@ -562,6 +566,10 @@ pnpm test:e2e
 pnpm build
 git diff --check
 ```
+
+`pnpm build` **đã chạy `tsc --noEmit` ở đầu chuỗi**, nên build fail ở local
+cũng là lỗi type — không phải chỉ lỗi bundling. Chạy `pnpm check` riêng vẫn
+hữu ích vì nó báo lỗi sớm hơn (trước bước tải Pyodide ~14 MB).
 
 Playwright dùng `playwright.config.ts`, tự khởi động hoặc tái sử dụng `pnpm dev`, chạy Chromium headless và mặc định truy cập `http://127.0.0.1:3000`. E2E account/Room dùng fixture tRPC trong bộ nhớ, không ghi account, cloud state hoặc phòng thật. E2E lazy-load kiểm tra Studio không tải Cubing/Three.js ban đầu, Timer tải Cubing khi cần scramble và event 3D tải Three.js khi mở canvas.
 

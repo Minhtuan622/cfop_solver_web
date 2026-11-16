@@ -1,0 +1,10 @@
+# File Python luôn dùng LF.
+#
+# Bundle solver được nhúng vào client phải giống hệt nhau trên mọi OS. Nếu
+# file .py trong checkout mang CRLF (Windows + core.autocrlf) thì bundle sinh ra
+# khác bản sinh trên Linux, và bước "Embed solver and verify no drift" trong CI
+# đỏ với lý do "drift" giả.
+#
+# `scripts/embed-solver.mjs` cũng chuẩn hoá CRLF -> LF khi đọc nguồn, nên
+# quy tắc này là lớp phòng thủ thứ hai cho trường hợp ai đó gỡ bước đó.
+*.py text eol=lf
