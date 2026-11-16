@@ -24,7 +24,14 @@ const files = [
 ];
 
 const payload = Object.fromEntries(
-  files.map((name) => [name, readFileSync(join(solverRoot, name), "utf8")]),
+  files.map((name) => [
+    name,
+    // Chuẩn hoá CRLF -> LF trước khi nhúng. File .py trong checkout Windows có
+    // CRLF (core.autocrlf) còn trên Linux là LF; nhúng thô sẽ khiến bundle
+    // khác nhau giữa các OS và bước "Embed solver and verify no drift" trong CI
+    // luôn đỏ khi bundle được sinh trên Windows.
+    readFileSync(join(solverRoot, name), "utf8").replace(/\r\n/g, "\n"),
+  ]),
 );
 
 mkdirSync(dirname(target), { recursive: true });
