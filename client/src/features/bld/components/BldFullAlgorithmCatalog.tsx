@@ -108,11 +108,11 @@ export function BldFullAlgorithmCatalog({
     () =>
       cases.filter(
         entry =>
-          (entry.group === group &&
-            entry.key.toLowerCase().includes(query.trim().toLowerCase())) ||
-          entry.algorithms.some(algorithm =>
-            algorithm.toLowerCase().includes(query.trim().toLowerCase())
-          )
+          entry.group === group &&
+          (entry.key.toLowerCase().includes(query.trim().toLowerCase()) ||
+            entry.algorithms.some(algorithm =>
+              algorithm.toLowerCase().includes(query.trim().toLowerCase())
+            ))
       ),
     [cases, group, query]
   );
