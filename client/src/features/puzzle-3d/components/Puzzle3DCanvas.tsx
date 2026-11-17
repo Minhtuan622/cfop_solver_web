@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { BufferAttribute, Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
 import {
-  isSideEvent3DPuzzle,
+  isSideEvent2DPuzzle,
   type FtoTeachingFace,
   type PuzzleId,
 } from "../lib/puzzleIds";
@@ -23,7 +23,6 @@ import {
   puzzlePreviewDistance,
   puzzlePreviewSetupAlgorithm,
 } from "../lib/puzzleFraming";
-import type { SideEvent3DAnimation } from "../lib/sideEventAnimation";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/StudioUI";
 import { BoxSeam, RotateCcw } from "@/components/ui/Icon";
@@ -35,7 +34,7 @@ type PuzzlePlayer = HTMLElement & {
     currentPattern: { get: () => Promise<{ patternData: unknown }> };
   };
   alg: string;
-  visualization: "3D";
+  visualization: "2D" | "3D";
   hintFacelets: "none";
   controlPanel: "none";
   backView: "none";
@@ -97,6 +96,7 @@ export function Puzzle3DCanvas({
   focusFtoWhiteFace?: boolean;
   focusFtoFace?: FtoTeachingFace;
 }) {
+  const isTwoD = isSideEvent2DPuzzle(puzzle);
   const hostRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{
     x: number;
@@ -137,7 +137,6 @@ export function Puzzle3DCanvas({
     let staging: HTMLDivElement | null = null;
     let player: PuzzlePlayer | null = null;
     let renderer: WebGLRenderer | null = null;
-    let sideEventAnimation: SideEvent3DAnimation | null = null;
     const buildKey = `${puzzle}|${scramble}|${animationRunId}|${focusFtoWhiteFace}|${focusFtoFace ?? ""}`;
     if (attemptRef.current.key !== buildKey)
       attemptRef.current = { key: buildKey, attempt: 0 };
@@ -151,61 +150,79 @@ export function Puzzle3DCanvas({
     window.addEventListener("unhandledrejection", onUnhandledRejection);
 
     void (async () => {
-      let THREE: typeof import("three");
       if (disposed) return;
-      let puzzleObject: Object3D;
-      if (isSideEvent3DPuzzle(puzzle)) {
-        const [three, { sideEvent3DAnimation }] = await Promise.all([
-          import("three"),
-          import("../lib/sideEventAnimation"),
-        ]);
-        THREE = three;
-        sideEventAnimation = await sideEvent3DAnimation(
-          THREE,
-          puzzle,
-          scramble
-        );
-        puzzleObject = sideEventAnimation.object;
-      } else {
-        const [three] = await Promise.all([
-          import("three"),
-          import("cubing/twisty"),
-        ]);
-        THREE = three;
-        staging = document.createElement("div");
-        staging.style.cssText =
-          "position:fixed;left:-10000px;top:-10000px;width:2px;height:2px;overflow:hidden;pointer-events:none";
+      if (isTwoD) {
+        // Cubing.js chỉ có KPuzzle + SVG cho Square-1/Clock, không có model
+        // 3D. Dùng đúng trình xem 2D của thư viện thay vì tự dựng hình học.
+        await import("cubing/twisty");
+        if (disposed) return;
         player = document.createElement("twisty-player") as PuzzlePlayer;
         player.puzzle = puzzle;
-        player.experimentalSetupAlg = puzzlePreviewSetupAlgorithm(
-          puzzle,
-          scramble,
-          focusFtoWhiteFace
-        );
+        player.experimentalSetupAlg = scramble;
         player.alg = animationAlg;
-        player.visualization = "3D";
+        player.visualization = "2D";
         player.hintFacelets = "none";
         player.controlPanel = "none";
         player.backView = "none";
         player.background = "none";
-        staging.appendChild(player);
-        document.body.appendChild(staging);
-        await new Promise<void>(resolve => window.setTimeout(resolve, 80));
+        // Cubing.js lays the 2D view out with `display: grid` + `contain: size`;
+        // overriding display collapses the chain to 0 px, so only set the size.
+        player.style.width = "100%";
+        player.style.height = "100%";
+        host.replaceChildren(player);
+        // The player waits for an IntersectionObserver before rendering; start
+        // it explicitly so the 2D SVG appears even inside a short preview card.
         startMountedTwistyPlayer(player);
-        puzzleObject = (await Promise.race([
-          player.experimentalCurrentThreeJSPuzzleObject(() =>
-            renderRef.current?.()
-          ),
-          new Promise<never>((_, reject) =>
-            window.setTimeout(
-              () => reject(new Error("3D puzzle timeout")),
-              7_000
-            )
-          ),
-        ])) as unknown as Object3D;
+        try {
+          window.sessionStorage.removeItem(PREVIEW_RELOAD_FLAG);
+        } catch {
+          /* sessionStorage có thể bị chặn — bỏ qua. */
+        }
+        setStatus("ready");
+        if (animationAlg.trim()) {
+          window.setTimeout(() => {
+            if (!disposed) player?.play?.();
+          }, 120);
+        }
+        cleanup = () => {
+          player?.remove();
+        };
+        return;
       }
+      const [three] = await Promise.all([
+        import("three"),
+        import("cubing/twisty"),
+      ]);
+      const THREE = three;
+      staging = document.createElement("div");
+      staging.style.cssText =
+        "position:fixed;left:-10000px;top:-10000px;width:2px;height:2px;overflow:hidden;pointer-events:none";
+      player = document.createElement("twisty-player") as PuzzlePlayer;
+      player.puzzle = puzzle;
+      player.experimentalSetupAlg = puzzlePreviewSetupAlgorithm(
+        puzzle,
+        scramble,
+        focusFtoWhiteFace
+      );
+      player.alg = animationAlg;
+      player.visualization = "3D";
+      player.hintFacelets = "none";
+      player.controlPanel = "none";
+      player.backView = "none";
+      player.background = "none";
+      staging.appendChild(player);
+      document.body.appendChild(staging);
+      await new Promise<void>(resolve => window.setTimeout(resolve, 80));
+      startMountedTwistyPlayer(player);
+      const puzzleObject = (await Promise.race([
+        player.experimentalCurrentThreeJSPuzzleObject(() =>
+          renderRef.current?.()
+        ),
+        new Promise<never>((_, reject) =>
+          window.setTimeout(() => reject(new Error("3D puzzle timeout")), 7_000)
+        ),
+      ])) as unknown as Object3D;
       if (disposed) {
-        sideEventAnimation?.dispose();
         player?.remove();
         staging?.remove();
         return;
@@ -370,7 +387,6 @@ export function Puzzle3DCanvas({
         targetDistanceRef.current = orbit.distance;
         resizeAndRender();
       };
-      if (sideEventAnimation) sideEventAnimation.finish();
       const observer = new ResizeObserver(fitAndRender);
       observer.observe(host);
       fitAndRender();
@@ -386,7 +402,6 @@ export function Puzzle3DCanvas({
         inertiaFrameRef.current = null;
         pointersRef.current.clear();
         pinchRef.current = null;
-        sideEventAnimation?.dispose();
         renderRef.current = null;
         resetRef.current = null;
         scene.remove(root);
@@ -584,6 +599,7 @@ export function Puzzle3DCanvas({
     if (!remaining && wasDragged) startInertia();
   };
   const label = timerEventLabel(eventId, language);
+  const modelLabel = isTwoD ? "2D" : "3D";
   if (status === "error")
     return (
       <div className="rounded-card bg-surface p-5 sm:p-6 h-full flex flex-col items-center justify-center text-center">
@@ -591,8 +607,8 @@ export function Puzzle3DCanvas({
         <p className="font-semibold mb-1">{label}</p>
         <p className="text-sm text-muted mb-3">
           {language === "vi"
-            ? "Không thể tạo mô hình 3D cho scramble này."
-            : "The 3D model could not be created for this scramble."}
+            ? `Không thể tạo mô hình ${modelLabel} cho scramble này.`
+            : `The ${modelLabel} model could not be created for this scramble.`}
         </p>
         <Button
           variant="outline"
@@ -629,35 +645,45 @@ export function Puzzle3DCanvas({
           ref={hostRef}
           role="img"
           className="h-full w-full"
-          style={{
-            touchAction: "none",
-            cursor: "grab",
-          }}
-          aria-label={
-            language === "vi" ? `Mô hình ${label} 3D` : `${label} 3D model`
+          style={
+            isTwoD
+              ? undefined
+              : {
+                  touchAction: "none",
+                  cursor: "grab",
+                }
           }
-          onPointerDown={pointerDown}
-          onPointerMove={pointerMove}
-          onPointerUp={pointerUp}
-          onPointerCancel={pointerUp}
+          aria-label={
+            language === "vi"
+              ? `Mô hình ${label} ${modelLabel}`
+              : `${label} ${modelLabel} model`
+          }
+          onPointerDown={isTwoD ? undefined : pointerDown}
+          onPointerMove={isTwoD ? undefined : pointerMove}
+          onPointerUp={isTwoD ? undefined : pointerUp}
+          onPointerCancel={isTwoD ? undefined : pointerUp}
         />
         {status === "loading" ? (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm text-muted">
-            {language === "vi" ? "Đang tạo mô hình 3D…" : "Building 3D model…"}
+            {language === "vi"
+              ? `Đang tải mô hình ${modelLabel}…`
+              : `Loading ${modelLabel} model…`}
           </div>
         ) : null}
-        <IconButton
-          label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"}
-          icon={<RotateCcw className="text-base" aria-hidden="true" />}
-          className="absolute bottom-0 right-0 m-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
-          onClick={() => {
-            cancelInertia();
-            userZoomedRef.current = false;
-            resetRef.current?.();
-            targetDistanceRef.current = orbitRef.current.distance;
-          }}
-          title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}
-        />
+        {isTwoD ? null : (
+          <IconButton
+            label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"}
+            icon={<RotateCcw className="text-base" aria-hidden="true" />}
+            className="absolute bottom-0 right-0 m-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => {
+              cancelInertia();
+              userZoomedRef.current = false;
+              resetRef.current?.();
+              targetDistanceRef.current = orbitRef.current.distance;
+            }}
+            title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}
+          />
+        )}
       </div>
     </div>
   );
