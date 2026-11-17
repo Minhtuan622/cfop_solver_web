@@ -11,7 +11,7 @@ import { ONE_LLL_DIRECT_CASES, ZBLL_DIRECT_CASES } from "./directCaseCatalogData
 
 export type LastLayerCatalogCase = {
   id: string;
-  family: "zbll" | "1lll" | "f2l" | "oll" | "pll" | "cll" | "pbl" | "edge" | "corner" | "special" | "eg1" | "eg2";
+  family: "zbll" | "1lll" | "f2l" | "oll" | "pll" | "cll" | "pbl" | "edge" | "corner" | "special" | "eg1" | "eg2" | "coll" | "ollcp";
   group: string;
   algorithm: string;
   state: string;

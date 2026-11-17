@@ -17,8 +17,8 @@ export const studyWords: Dictionary = {
     "Practise 2×2 CLL, PBL, EG-1 and EG-2 with SRS: time each case and let the queue pick what is weakest.",
   ],
   "study.description.cfop": [
-    "Luyện F2L, OLL và PLL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
-    "Practise F2L, OLL and PLL with SRS: time each case and let the queue pick what is weakest.",
+    "Luyện F2L, OLL, PLL, COLL và OLLCP theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
+    "Practise F2L, OLL, PLL, COLL and OLLCP with SRS: time each case and let the queue pick what is weakest.",
   ],
 
   "study.laneLabel": ["Loại luyện tập", "Practice type"],
@@ -28,8 +28,8 @@ export const studyWords: Dictionary = {
   "study.laneTwoByTwo": ["2×2", "2×2"],
 
   "cfop.laneSummary": [
-    "F2L {f2l} (41 × 4 hướng) · OLL {oll} · PLL {pll} case",
-    "F2L {f2l} (41 × 4-way) · OLL {oll} · PLL {pll} cases",
+    "F2L {f2l} (41 × 4 hướng) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} case",
+    "F2L {f2l} (41 × 4-way) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} cases",
   ],
   "cfop.catalogTitle": ["Danh mục CFOP 3×3", "CFOP 3×3 catalog"],
   "cfop.catalogHint": [

@@ -13,6 +13,8 @@ import {
   F2L_4WAY_CASES,
   OLL_CASES,
   PLL_CASES,
+  COLL_CASES,
+  OLLCP_CASES,
   type CfopFamily,
 } from "./cfopCatalogData";
 
@@ -82,12 +84,18 @@ export function cfopCaseCount(family: CfopFamily): number {
     ? F2L_4WAY_CASES.length
     : family === "oll"
       ? OLL_CASES.length
-      : PLL_CASES.length;
+      : family === "pll"
+        ? PLL_CASES.length
+        : family === "coll"
+          ? COLL_CASES.length
+          : OLLCP_CASES.length;
 }
 
 export const CFOP_COUNTS = {
   f2l: F2L_4WAY_CASES.length,
   oll: OLL_CASES.length,
   pll: PLL_CASES.length,
+  coll: COLL_CASES.length,
+  ollcp: OLLCP_CASES.length,
   all: CFOP_CASES.length,
 } as const;

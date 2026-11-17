@@ -16,7 +16,7 @@ import { spacedRepetitionInterval } from "@/lib/spacedRepetition";
 export type CfopGrade = "again" | "hard" | "good" | "easy";
 export type CfopRecord = {
   key: string;
-  family: "f2l" | "oll" | "pll";
+  family: "f2l" | "oll" | "pll" | "coll" | "ollcp";
   group: string;
   id: string;
   attempts: number;
@@ -52,7 +52,7 @@ const plainBoundedDailyGoal = (value: unknown) =>
 const studyGradeSchema = z.enum(["again", "hard", "good", "easy"]);
 const cfopRecordSchema = z.object({
   key: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 120) : "")),
-  family: z.enum(["f2l", "oll", "pll"]),
+  family: z.enum(["f2l", "oll", "pll", "coll", "ollcp"]),
   group: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 60) : "")),
   id: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 100) : "")),
   attempts: boundedInt(0, 0, 10_000),

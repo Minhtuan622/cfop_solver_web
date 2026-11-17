@@ -165,7 +165,7 @@ export type CubieView = {
   edgeOri: number[];
 };
 
-function validateFacelets(stickers: string) {
+function faceletInventory(stickers: string) {
   if (stickers.length !== 54)
     throw new Error("Cube state must have 54 stickers");
   const allowed = new Set<string>(FACE_ORDER);
@@ -177,9 +177,14 @@ function validateFacelets(stickers: string) {
         .map(c => `'${c}'`)
         .join(", ")}]`
     );
-  for (const face of FACE_ORDER) {
+  for (const face of FACE_ORDER)
     if (stickers.split("").filter(c => c === face).length !== 9)
       throw new Error(`Color ${face} must appear exactly 9 times`);
+}
+
+function validateFacelets(stickers: string) {
+  faceletInventory(stickers);
+  for (const face of FACE_ORDER) {
     const center = stickers[FACE_ORDER.indexOf(face) * 9 + 4];
     if (center !== face)
       throw new Error(
@@ -236,6 +241,25 @@ function permutationParity(values: readonly number[]): 0 | 1 {
     for (let j = i + 1; j < values.length; j += 1)
       if (values[i]! > values[j]!) inversions += 1;
   return (inversions % 2) as 0 | 1;
+}
+
+/**
+ * Like `assertValidCubeState`, but accepts whole-cube-rotated frames —
+ * the kind produced by deriving a case state with `invertAlgorithm()` when
+ * the algorithm itself contains `x/y/z` rotations. Same cubie-level checks
+ * (unique pieces, orientation sums), no fixed-center or parity requirement:
+ * the full move set (rotations, slices) flips edge parity alone, so corner
+ * and edge parity need not match in derived states.
+ */
+export function assertValidScrambleState(stickers: string): void {
+  faceletInventory(stickers);
+  const view = viewOf(stickers);
+  if (new Set(view.cornerPerm).size !== 8 || new Set(view.edgePerm).size !== 12)
+    throw new Error("Duplicate or missing cubie");
+  if (view.cornerOri.reduce((sum, ori) => sum + ori, 0) % 3)
+    throw new Error("Corner orientation sum is not divisible by 3");
+  if (view.edgeOri.reduce((sum, ori) => sum + ori, 0) % 2)
+    throw new Error("Edge orientation sum is not even");
 }
 
 /** Throws `Error` with the same wording as the Python validator when the state is illegal. */

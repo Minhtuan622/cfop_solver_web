@@ -192,6 +192,8 @@ export function CfopStudyLab({
             f2l: CFOP_COUNTS.f2l,
             oll: CFOP_COUNTS.oll,
             pll: CFOP_COUNTS.pll,
+            coll: CFOP_COUNTS.coll,
+            ollcp: CFOP_COUNTS.ollcp,
           })}
         </div>
         <div className="flex flex-wrap items-center gap-2">

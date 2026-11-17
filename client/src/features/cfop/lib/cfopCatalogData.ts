@@ -9,8 +9,10 @@
  * by tests: cubeValidation for every derived state + alg round-trip).
  */
 import { F2L_4ANGLES_ROWS } from "./f2l4AnglesData";
+import { COLL_CASES } from "./cfopCollData";
+import { OLLCP_CASES } from "./cfopOLLCPData";
 
-export type CfopFamily = "f2l" | "oll" | "pll";
+export type CfopFamily = "f2l" | "oll" | "pll" | "coll" | "ollcp";
 
 export type CfopCaseRow = {
   id: string;
@@ -23,6 +25,7 @@ export type CfopCaseRow = {
 
 export const F2L_CASES: readonly CfopCaseRow[] = F2L_4ANGLES_ROWS;
 export const F2L_4WAY_CASES: readonly CfopCaseRow[] = F2L_4ANGLES_ROWS;
+export { COLL_CASES, OLLCP_CASES };
 
 export const OLL_CASES: readonly CfopCaseRow[] = [
   { id: "OLL-01", family: "oll", group: "oll", name: "OLL 1", algorithm: "R U2 R2 F R F' U2 R' F R F'" },
@@ -107,9 +110,11 @@ export const PLL_CASES: readonly CfopCaseRow[] = [
   { id: "PLL-Z", family: "pll", group: "pll", name: "Z perm", algorithm: "M' U M2 U M2 U M' U2 M2" },
 ];
 
-/** The full CFOP catalog in practice order: F2L (4 directions) → OLL → PLL. */
+/** The full CFOP catalog in practice order: F2L (4 directions) → OLL → PLL → COLL → OLLCP. */
 export const CFOP_CASES: readonly CfopCaseRow[] = [
   ...F2L_4WAY_CASES,
   ...OLL_CASES,
   ...PLL_CASES,
+  ...COLL_CASES,
+  ...OLLCP_CASES,
 ];

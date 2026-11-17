@@ -43,17 +43,19 @@ function CfopNetPreview({
     >
       <CubeNet
         state={state}
-        lastLayerOnly={family === "oll" || family === "pll"}
+        lastLayerOnly={family === "oll" || family === "pll" || family === "coll" || family === "ollcp"}
       />
     </div>
   );
 }
 
 const FAMILY_OPTIONS = [
-  { value: "all", label: "ALL · F2L + OLL + PLL" },
+  { value: "all", label: "ALL · F2L + OLL + PLL + COLL + OLLCP" },
   { value: "f2l", label: "F2L" },
   { value: "oll", label: "OLL" },
   { value: "pll", label: "PLL" },
+  { value: "coll", label: "COLL" },
+  { value: "ollcp", label: "OLLCP" },
 ] as const;
 
 export function CfopCatalogPanel({
