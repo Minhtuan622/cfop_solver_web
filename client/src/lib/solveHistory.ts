@@ -131,12 +131,37 @@ const solveHistoryEntrySchema = z.object({
 });
 
 function normalize(item: Imported): SolveHistoryEntry {
-  return solveHistoryEntrySchema.parse(item);
+  const fallback: SolveHistoryEntry = {
+    id: crypto.randomUUID(),
+    createdAt: Date.now(),
+    elapsedMs: 0,
+    inspectionMs: 0,
+    input: "",
+    inputKind: "scramble",
+    moves: 0,
+    penalty: "none",
+    solution: "",
+    note: "",
+    tags: [],
+    phaseSplits: [],
+  };
+  try {
+    return solveHistoryEntrySchema.parse(item);
+  } catch {
+    // A malformed entry degrades to a blank placeholder instead of taking
+    // down the whole history read.
+    return fallback;
+  }
 }
 function write(entries: SolveHistoryEntry[]) { writeStoredValue(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); notifyCfopCloudStateChanged(); }
 
 export function readSolveHistory(): SolveHistoryEntry[] {
-  return readStoredJson<Imported[]>(KEY, []).filter((item) => item && typeof item === "object").map(normalize).filter((entry) => !entry.deletedAt);
+  return readStoredJson<Imported[]>(KEY, [])
+    .filter((item): item is Imported =>
+      Boolean(item) && typeof item === "object" && !Array.isArray(item),
+    )
+    .map(normalize)
+    .filter((entry) => !entry.deletedAt);
 }
 export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags" | "phaseSplits"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry {
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readSolveHistory()]); return item;
@@ -161,7 +186,7 @@ export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
   const raw = Array.isArray(payload) ? payload : payload && typeof payload === "object" && Array.isArray((payload as { entries?: unknown }).entries) ? (payload as { entries: unknown[] }).entries : null;
   if (!raw) throw new Error("Invalid backup");
   const seen = new Set<string>();
-  const entries = raw.filter((item): item is Imported => Boolean(item) && typeof item === "object").map(normalize).filter((item) => { if (seen.has(item.id)) return false; seen.add(item.id); return true; }).sort((a, b) => b.createdAt - a.createdAt).slice(0, MAX_ENTRIES);
+  const entries = raw.filter((item): item is Imported => Boolean(item) && typeof item === "object" && !Array.isArray(item)).map(normalize).filter((item) => { if (seen.has(item.id)) return false; seen.add(item.id); return true; }).sort((a, b) => b.createdAt - a.createdAt).slice(0, MAX_ENTRIES);
   write(entries); return entries;
 }
 export function exportSolveHistory() { return { schema: "cfop-solver-timer-history", version: 2, exportedAt: new Date().toISOString(), entries: readSolveHistory() }; }

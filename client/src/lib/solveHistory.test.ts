@@ -34,7 +34,7 @@ describe("solveHistory: normalization on read", () => {
   it("keeps garbage entries as valid fallback entries instead of crashing", () => {
     window.localStorage.setItem(
       KEY,
-      JSON.stringify(["nope", 42, null, {}, { elapsedMs: "5" }]),
+      JSON.stringify(["nope", 42, null, [], {}, { elapsedMs: "5" }]),
     );
     const entries = readSolveHistory();
     expect(entries).toHaveLength(2);
@@ -44,6 +44,16 @@ describe("solveHistory: normalization on read", () => {
       expect(entry.elapsedMs).toBe(0);
       expect(entry.penalty).toBe("none");
     }
+  });
+
+  it("an array-valued entry is skipped instead of throwing", () => {
+    window.localStorage.setItem(
+      KEY,
+      JSON.stringify([validEntry(), [1, 2, 3]]),
+    );
+    const entries = readSolveHistory();
+    expect(entries).toHaveLength(1);
+    expect(entries[0].id).toBe("entry-1");
   });
 
   it("keeps a valid id and replaces an empty one", () => {
