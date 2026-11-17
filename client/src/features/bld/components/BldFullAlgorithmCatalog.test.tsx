@@ -41,7 +41,6 @@ describe("full 3-Style catalog", () => {
     const onChoose = vi.fn();
     render(<BldFullAlgorithmCatalog language="vi" onChoose={onChoose} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Mở thư viện đầy đủ" }));
     expect(await screen.findByText("ACE")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Xem biến thể" }));
     fireEvent.click(
