@@ -9,7 +9,6 @@ import { StatusFeedback } from "@/components/ui/StudioUI";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import type { TimerCompletion } from "@/components/common/SolveTimer";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { readSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { Button } from "@/components/ui/Button";
 import { StudyCasePanel } from "@/features/last-layer/components/StudyCasePanel";
 import { StudySchedulePanel } from "@/features/last-layer/components/StudySchedulePanel";
@@ -72,20 +71,8 @@ export function BldStudyLab({
   const [caseView, setCaseView] = useState<"2d" | "3d">("2d");
   const [celebrated, setCelebrated] = useState(false);
   const [importError, setImportError] = useState("");
-  const [solverSettings, setSolverSettings] = useState<SolverSettings>(() =>
-    readSolverSettings()
-  );
   const backupRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const refresh = () => setSolverSettings(readSolverSettings());
-    window.addEventListener("focus", refresh);
-    document.addEventListener("visibilitychange", refresh);
-    return () => {
-      window.removeEventListener("focus", refresh);
-      document.removeEventListener("visibilitychange", refresh);
-    };
-  }, []);
   useEffect(() => {
     let live = true;
     loadBldCatalog()
@@ -289,7 +276,6 @@ export function BldStudyLab({
               setLastElapsed(completion.elapsedMs)
             }
             timerVersion={timerVersion}
-            crossColor={solverSettings.crossColor}
             onGrade={grade}
             onChooseNext={() => chooseNext()}
             canChooseNext={Boolean(queue.length || ranked.length)}

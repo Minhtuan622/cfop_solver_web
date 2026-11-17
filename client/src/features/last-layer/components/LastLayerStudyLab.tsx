@@ -13,7 +13,6 @@ import {
   listLastLayerCasesInBrowser,
   type LastLayerCatalogCase,
 } from "@/lib/solverRuntime";
-import { readSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import {
   caseKey,
   dueAndWeakCases,
@@ -92,9 +91,6 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     masteredCount: 0,
     catalogCount: 0,
   });
-  const [solverSettings, setSolverSettings] = useState<SolverSettings>(() =>
-    readSolverSettings()
-  );
   const backupRef = useRef<HTMLInputElement>(null);
 
   const requestedCase = useMemo(() => {
@@ -115,15 +111,6 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     [location]
   );
 
-  useEffect(() => {
-    const refresh = () => setSolverSettings(readSolverSettings());
-    window.addEventListener("focus", refresh);
-    document.addEventListener("visibilitychange", refresh);
-    return () => {
-      window.removeEventListener("focus", refresh);
-      document.removeEventListener("visibilitychange", refresh);
-    };
-  }, []);
   useEffect(() => {
     let live = true;
     listLastLayerCasesInBrowser({ family: "all", limit: 2000 })
@@ -412,8 +399,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                 lastElapsed={lastElapsed}
                 onTimerComplete={completeTimer}
                 timerVersion={timerVersion}
-                crossColor={solverSettings.crossColor}
-                onGrade={grade}
+                    onGrade={grade}
                 onChooseNext={() => chooseNext()}
                 canChooseNext={Boolean(queue.length || ranked.length)}
               />

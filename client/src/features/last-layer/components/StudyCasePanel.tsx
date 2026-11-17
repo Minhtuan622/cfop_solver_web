@@ -1,5 +1,5 @@
 import { Check, Dices, Sparkles } from "@/components/ui/Icon";
-import { Cube3DGuide } from "@/components/common/Cube3DGuide";
+import { lazy, Suspense } from "react";
 import { CubeNet } from "@/components/common/CubeNet";
 import {
   SolveTimer,
@@ -8,7 +8,13 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatTimerReadout } from "@/lib/solveHistory";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
+import { invertAlgorithm } from "@/lib/fastCube";
 import { Button } from "@/components/ui/Button";
+
+const Puzzle3DCanvas = lazy(async () => ({
+  default: (await import("@/features/puzzle-3d/components/Puzzle3DCanvas"))
+    .Puzzle3DCanvas,
+}));
 
 export type StudyCasePanelProps = {
   /** A catalog case; CFOP cases also carry a short `name` for the header. */
@@ -25,7 +31,6 @@ export type StudyCasePanelProps = {
   onTimerComplete: (completion: TimerCompletion) => void;
   /** Bumped to restart the timer after every grade. */
   timerVersion: number;
-  crossColor: string;
   onGrade: (grade: "again" | "hard" | "good" | "easy") => void;
   /** Pull the next case out of the priority queue. */
   onChooseNext: () => void;
@@ -49,12 +54,11 @@ export function StudyCasePanel({
   lastElapsed,
   onTimerComplete,
   timerVersion,
-  crossColor,
   onGrade,
   onChooseNext,
   canChooseNext,
 }: StudyCasePanelProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   if (!activeCase) {
     return (
@@ -169,17 +173,22 @@ export function StudyCasePanel({
                 />
               </div>
             ) : (
-              <Cube3DGuide
-                state={activeCase.state}
-                step={0}
-                crossColor={crossColor}
-                alignCross
-                lastLayerCase={
-                  activeCase.family === "f2l"
-                    ? undefined
-                    : { family: activeCase.family, id: activeCase.id }
-                }
-              />
+              <div className="relative h-64 w-full overflow-hidden rounded-xl bg-surface-2">
+                <Suspense
+                  fallback={
+                    <div className="flex h-64 items-center justify-center text-sm text-muted">
+                      {t("twoByTwo.loading3d")}
+                    </div>
+                  }
+                >
+                  <Puzzle3DCanvas
+                    eventId="333"
+                    puzzle="3x3x3"
+                    scramble={invertAlgorithm(activeCase.algorithm)}
+                    language={language}
+                  />
+                </Suspense>
+              </div>
             )}
 
             <div className="mt-4 flex flex-wrap gap-2">
