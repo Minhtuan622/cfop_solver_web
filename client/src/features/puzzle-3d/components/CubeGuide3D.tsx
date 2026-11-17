@@ -488,7 +488,7 @@ export function CubeGuide3D({
     scene.add(alignGroup);
     const root = new THREE.Group();
     alignGroup.add(root);
-    scene.add(new THREE.HemisphereLight(0xffffff, surface === "light" ? 0x7a7a7a : 0x1a2230, 2.4));
+    scene.add(new THREE.HemisphereLight(0xffffff, surface === "light" ? 0x7a7a7a : 0x55606e, 2.4));
     const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
     keyLight.position.set(3.5, 6, 8);
     scene.add(keyLight);
