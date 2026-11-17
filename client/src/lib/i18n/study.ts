@@ -13,8 +13,8 @@ export const studyWords: Dictionary = {
     "Drill every 3-Style algorithm — edge, corner and special cases — with SRS.",
   ],
   "study.description.twoByTwo": [
-    "Luyện 2×2 CLL và PBL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
-    "Practise 2×2 CLL and PBL with SRS: time each case and let the queue pick what is weakest.",
+    "Luyện 2×2 CLL, PBL, EG-1 và EG-2 theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
+    "Practise 2×2 CLL, PBL, EG-1 and EG-2 with SRS: time each case and let the queue pick what is weakest.",
   ],
   "study.description.cfop": [
     "Luyện F2L, OLL và PLL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
@@ -48,9 +48,19 @@ export const studyWords: Dictionary = {
   "twoByTwo.setLabel": ["Bộ thuật toán 2×2", "2×2 algorithm set"],
   "twoByTwo.setCll": ["CLL · {count}", "CLL · {count}"],
   "twoByTwo.setPbl": ["PBL · {count}", "PBL · {count}"],
+  "twoByTwo.setEg1": ["EG-1 · {count}", "EG-1 · {count}"],
+  "twoByTwo.setEg2": ["EG-2 · {count}", "EG-2 · {count}"],
   "twoByTwo.laneSummaryCll": [
     "{count} CLL case (Antisune · H · L · Pi · Sune · T · U)",
     "{count} CLL cases (Antisune · H · L · Pi · Sune · T · U)",
+  ],
+  "twoByTwo.laneSummaryEg1": [
+    "{count} EG-1 case (Antisune · H · L · Pi · Sune · T · U)",
+    "{count} EG-1 cases (Antisune · H · L · Pi · Sune · T · U)",
+  ],
+  "twoByTwo.laneSummaryEg2": [
+    "{count} EG-2 case (Antisune · H · L · Pi · Sune · T · U)",
+    "{count} EG-2 cases (Antisune · H · L · Pi · Sune · T · U)",
   ],
   "twoByTwo.laneSummaryPbl": [
     "{count} PBL case (Adj · Diag)",

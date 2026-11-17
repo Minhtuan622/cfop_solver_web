@@ -8,8 +8,9 @@
 import { applyTwoByTwoMoves, TWO_BY_TWO_SOLVED } from "./twoByTwoCube";
 import { invertAlgorithm } from "@/lib/fastCube";
 import { CLL_CASES, PBL_CASES, type TwoByTwoCaseRow } from "./twoByTwoCatalogData";
+import { EG1_CASES, EG2_CASES } from "./twoByTwoEgData";
 
-export type TwoByTwoFamily = "cll" | "pbl";
+export type TwoByTwoFamily = "cll" | "pbl" | "eg1" | "eg2";
 export type TwoByTwoCatalogCase = TwoByTwoCaseRow & { state: string };
 
 export type ListTwoByTwoCasesFilter = {
@@ -42,15 +43,25 @@ const PBL_CATALOG: readonly TwoByTwoCatalogCase[] = PBL_CASES.map(
   row => ({ ...row, state: twoByTwoCaseStateOf(row) }),
 );
 
-export const TWO_BY_TWO_SETS = ["cll", "pbl"] as const;
+const EG1_CATALOG: readonly TwoByTwoCatalogCase[] = EG1_CASES.map(
+  row => ({ ...row, state: twoByTwoCaseStateOf(row) }),
+);
+const EG2_CATALOG: readonly TwoByTwoCatalogCase[] = EG2_CASES.map(
+  row => ({ ...row, state: twoByTwoCaseStateOf(row) }),
+);
+export const TWO_BY_TWO_SETS = ["cll", "pbl", "eg1", "eg2"] as const;
 export const TWO_BY_TWO_CATALOGS: Record<TwoByTwoFamily, readonly TwoByTwoCatalogCase[]> = {
   cll: CLL_CATALOG,
   pbl: PBL_CATALOG,
+  eg1: EG1_CATALOG,
+  eg2: EG2_CATALOG,
 };
-/** The union of both sets, in CLL-then-PBL order. */
+/** The union of every set: CLL, then PBL, then EG-1, then EG-2. */
 export const TWO_BY_TWO_CATALOG: readonly TwoByTwoCatalogCase[] = [
   ...CLL_CATALOG,
   ...PBL_CATALOG,
+  ...EG1_CATALOG,
+  ...EG2_CATALOG,
 ];
 
 export function twoByTwoCatalogOf(family: TwoByTwoFamily): readonly TwoByTwoCatalogCase[] {
@@ -66,7 +77,7 @@ export function listTwoByTwoCases(
   const rows: TwoByTwoCatalogCase[] = [];
   const source =
     family === "all"
-      ? [...CLL_CATALOG, ...PBL_CATALOG]
+      ? [...CLL_CATALOG, ...PBL_CATALOG, ...EG1_CATALOG, ...EG2_CATALOG]
       : TWO_BY_TWO_CATALOGS[family];
   for (const row of source) {
     if (needle) {
@@ -83,7 +94,13 @@ export function listTwoByTwoCases(
 export const TWO_BY_TWO_COUNTS = {
   cll: CLL_CATALOG.length,
   pbl: PBL_CATALOG.length,
-  all: CLL_CATALOG.length + PBL_CATALOG.length,
+  eg1: EG1_CATALOG.length,
+  eg2: EG2_CATALOG.length,
+  all:
+    CLL_CATALOG.length +
+    PBL_CATALOG.length +
+    EG1_CATALOG.length +
+    EG2_CATALOG.length,
 } as const;
 
 export const CLL_GROUPS = [
@@ -96,9 +113,11 @@ export const CLL_GROUPS = [
   "U",
 ] as const;
 export const PBL_GROUPS = ["Adj", "Diag"] as const;
-/** Groups browse-able per set; "all" browses the union. */
+/** Groups browse-able per set; "all" browses the union. EG sets reuse the CLL subset codes. */
 export const TWO_BY_TWO_GROUPS_BY_SET: Record<TwoByTwoFamily | "all", readonly string[]> = {
   cll: CLL_GROUPS,
   pbl: PBL_GROUPS,
+  eg1: CLL_GROUPS,
+  eg2: CLL_GROUPS,
   all: [...CLL_GROUPS, ...PBL_GROUPS],
 };

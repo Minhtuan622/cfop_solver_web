@@ -202,7 +202,7 @@ export function TwoByTwoStudyLab({
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t("twoByTwo.setLabel")}>
-          {(["cll", "pbl"] as const).map(value => (
+          {(["cll", "pbl", "eg1", "eg2"] as const).map(value => (
             <button
               key={value}
               type="button"
@@ -222,7 +222,11 @@ export function TwoByTwoStudyLab({
             >
               {value === "cll"
                 ? t("twoByTwo.setCll", { count: TWO_BY_TWO_COUNTS.cll })
-                : t("twoByTwo.setPbl", { count: TWO_BY_TWO_COUNTS.pbl })}
+                : value === "pbl"
+                  ? t("twoByTwo.setPbl", { count: TWO_BY_TWO_COUNTS.pbl })
+                  : value === "eg1"
+                    ? t("twoByTwo.setEg1", { count: TWO_BY_TWO_COUNTS.eg1 })
+                    : t("twoByTwo.setEg2", { count: TWO_BY_TWO_COUNTS.eg2 })}
             </button>
           ))}
         </div>
@@ -231,7 +235,11 @@ export function TwoByTwoStudyLab({
         <div className="text-sm text-muted">
           {family === "cll"
             ? t("twoByTwo.laneSummaryCll", { count: TWO_BY_TWO_COUNTS.cll })
-            : t("twoByTwo.laneSummaryPbl", { count: TWO_BY_TWO_COUNTS.pbl })}
+            : family === "pbl"
+              ? t("twoByTwo.laneSummaryPbl", { count: TWO_BY_TWO_COUNTS.pbl })
+              : family === "eg1"
+                ? t("twoByTwo.laneSummaryEg1", { count: TWO_BY_TWO_COUNTS.eg1 })
+                : t("twoByTwo.laneSummaryEg2", { count: TWO_BY_TWO_COUNTS.eg2 })}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <input

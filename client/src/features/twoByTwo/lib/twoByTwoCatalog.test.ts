@@ -15,15 +15,18 @@ import {
   twoByTwoCatalogOf,
 } from "./twoByTwoCatalog";
 import { CLL_CASES, PBL_CASES } from "./twoByTwoCatalogData";
+import { EG1_CASES, EG2_CASES } from "./twoByTwoEgData";
 
 describe("twoByTwo CLL catalog data", () => {
   it("ships the full 40-case set: 6 AS + 4 H + 6 L + 6 Pi + 6 Sune + 6 T + 6 U", () => {
     expect(CLL_CASES).toHaveLength(40);
-    expect(TWO_BY_TWO_COUNTS).toEqual({ cll: 40, pbl: 6, all: 46 });
+    expect(TWO_BY_TWO_COUNTS).toEqual({ cll: 40, pbl: 6, eg1: 40, eg2: 40, all: 126 });
     expect(CLL_GROUPS).toEqual(["AS", "H", "L", "Pi", "Sune", "T", "U"]);
     expect(PBL_GROUPS).toEqual(["Adj", "Diag"]);
     expect(TWO_BY_TWO_GROUPS_BY_SET.cll).toBe(CLL_GROUPS);
     expect(TWO_BY_TWO_GROUPS_BY_SET.pbl).toBe(PBL_GROUPS);
+    expect(TWO_BY_TWO_GROUPS_BY_SET.eg1).toBe(CLL_GROUPS);
+    expect(TWO_BY_TWO_GROUPS_BY_SET.eg2).toBe(CLL_GROUPS);
     expect(TWO_BY_TWO_GROUPS_BY_SET.all).toEqual([...CLL_GROUPS, ...PBL_GROUPS]);
     for (const group of CLL_GROUPS)
       expect(
@@ -38,6 +41,19 @@ describe("twoByTwo CLL catalog data", () => {
     expect(PBL_CASES.filter(row => row.group === "Diag")).toHaveLength(3);
   });
 
+  it("ships the full EG-1 and EG-2 sets: 40 cases each in the same 7 subsets", () => {
+    expect(EG1_CASES).toHaveLength(40);
+    expect(EG2_CASES).toHaveLength(40);
+    expect(EG1_CASES.every(row => row.family === "eg1")).toBe(true);
+    expect(EG2_CASES.every(row => row.family === "eg2")).toBe(true);
+    for (const rows of [EG1_CASES, EG2_CASES])
+      for (const group of CLL_GROUPS)
+        expect(
+          rows.filter(row => row.group === group),
+          group,
+        ).toHaveLength(group === "H" ? 4 : 6);
+  });
+
   it("PBL case ids are unique and derived states are unique", () => {
     const ids = PBL_CASES.map(row => row.id);
     expect(new Set(ids).size).toBe(ids.length);
@@ -48,11 +64,15 @@ describe("twoByTwo CLL catalog data", () => {
   it("catalog of each family holds only its own cases", () => {
     expect(twoByTwoCatalogOf("cll")).toHaveLength(40);
     expect(twoByTwoCatalogOf("pbl")).toHaveLength(6);
+    expect(twoByTwoCatalogOf("eg1")).toHaveLength(40);
+    expect(twoByTwoCatalogOf("eg2")).toHaveLength(40);
     expect(twoByTwoCatalogOf("cll").every(row => row.family === "cll")).toBe(true);
     expect(twoByTwoCatalogOf("pbl").every(row => row.family === "pbl")).toBe(true);
+    expect(twoByTwoCatalogOf("eg1").every(row => row.family === "eg1")).toBe(true);
+    expect(twoByTwoCatalogOf("eg2").every(row => row.family === "eg2")).toBe(true);
   });
 
-  it("has unique ids and unique derived case states across both sets", () => {
+  it("has unique ids and unique derived case states across all four sets", () => {
     const ids = TWO_BY_TWO_CATALOG.map(row => row.id);
     expect(new Set(ids).size).toBe(ids.length);
     const states = TWO_BY_TWO_CATALOG.map(row => twoByTwoCaseStateOf(row));
@@ -77,7 +97,7 @@ describe("twoByTwo CLL catalog data", () => {
 
 describe("listTwoByTwoCases", () => {
   it("defaults to all cases (CLL then PBL) and clamps the limit", () => {
-    expect(listTwoByTwoCases({ limit: 1000 })).toHaveLength(46);
+    expect(listTwoByTwoCases({ limit: 1000 })).toHaveLength(126);
     expect(listTwoByTwoCases({ limit: 3 })).toHaveLength(3);
     expect(listTwoByTwoCases({ limit: 0 })).toHaveLength(1);
   });

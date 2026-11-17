@@ -15,7 +15,7 @@ import { spacedRepetitionInterval } from "@/lib/spacedRepetition";
 export type TwoByTwoGrade = "again" | "hard" | "good" | "easy";
 export type TwoByTwoRecord = {
   key: string;
-  family: "cll" | "pbl";
+  family: "cll" | "pbl" | "eg1" | "eg2";
   group: string;
   id: string;
   attempts: number;
@@ -49,7 +49,7 @@ const plainBoundedDailyGoal = (value: unknown) =>
 const studyGradeSchema = z.enum(["again", "hard", "good", "easy"]);
 const twoByTwoRecordSchema = z.object({
   key: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 120) : "")),
-  family: z.enum(["cll", "pbl"]),
+  family: z.enum(["cll", "pbl", "eg1", "eg2"]),
   group: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 60) : "")),
   id: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 100) : "")),
   attempts: boundedInt(0, 0, 10_000),

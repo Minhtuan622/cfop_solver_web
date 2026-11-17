@@ -13,7 +13,7 @@
  */
 export type TwoByTwoCaseRow = {
   id: string;
-  family: "cll" | "pbl";
+  family: "cll" | "pbl" | "eg1" | "eg2";
   group: string;
   name: string;
   algorithm: string;
