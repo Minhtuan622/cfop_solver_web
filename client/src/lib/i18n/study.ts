@@ -13,8 +13,8 @@ export const studyWords: Dictionary = {
     "Move from your first algorithm to a clear 3-Style routine, one stage at a time.",
   ],
   "study.description.twoByTwo": [
-    "Luyện 2×2 CLL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
-    "Practise 2×2 CLL with SRS: time each case and let the queue pick what is weakest.",
+    "Luyện 2×2 CLL và PBL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
+    "Practise 2×2 CLL and PBL with SRS: time each case and let the queue pick what is weakest.",
   ],
   "study.description.cfop": [
     "Luyện F2L, OLL và PLL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
@@ -45,16 +45,23 @@ export const studyWords: Dictionary = {
 
   "twoByTwo.caseLabel": ["Case 2×2 đang học", "Active 2×2 case"],
   "twoByTwo.loading3d": ["Đang tải 3D…", "Loading 3D…"],
-  "twoByTwo.laneSummary": [
+  "twoByTwo.setLabel": ["Bộ thuật toán 2×2", "2×2 algorithm set"],
+  "twoByTwo.setCll": ["CLL · {count}", "CLL · {count}"],
+  "twoByTwo.setPbl": ["PBL · {count}", "PBL · {count}"],
+  "twoByTwo.laneSummaryCll": [
     "{count} CLL case (Antisune · H · L · Pi · Sune · T · U)",
     "{count} CLL cases (Antisune · H · L · Pi · Sune · T · U)",
   ],
-  "twoByTwo.catalogTitle": ["Danh mục 2×2 CLL", "2×2 CLL catalog"],
+  "twoByTwo.laneSummaryPbl": [
+    "{count} PBL case (Adj · Diag)",
+    "{count} PBL cases (Adj · Diag)",
+  ],
+  "twoByTwo.catalogTitle": ["Danh mục 2×2", "2×2 catalog"],
   "twoByTwo.catalogHint": [
     "{count} case hiển thị · bấm vào case để luyện",
     "{count} cases shown · click a case to practise",
   ],
-  "twoByTwo.catalogLabel": ["Danh mục công thức 2×2 CLL", "2×2 CLL algorithm catalog"],
+  "twoByTwo.catalogLabel": ["Danh mục công thức 2×2", "2×2 algorithm catalog"],
   "twoByTwo.searchPlaceholder": ["Tìm case hoặc alg…", "Search case or alg…"],
   "twoByTwo.filterLabel": ["Lọc theo nhóm", "Filter by subset"],
   "twoByTwo.emptyCases": ["Không tìm thấy case nào.", "No cases found."],

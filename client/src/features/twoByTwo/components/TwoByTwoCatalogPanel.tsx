@@ -1,35 +1,44 @@
 /**
- * Browsable 2×2 CLL catalog: searchable grid of all 40 cases with the 2×2
- * net preview. Clicking a case pulls it into the practice card.
+ * Browsable 2×2 catalog: searchable grid of cases with the 2×2 net preview.
+ * Clicking a case pulls it into the practice card.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Search } from "@/components/ui/Icon";
 import { CubeNet2x2 } from "@/components/common/CubeNet2x2";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { TWO_BY_TWO_GROUPS, type TwoByTwoCatalogCase } from "../lib/twoByTwoCatalog";
+import type { TwoByTwoCatalogCase } from "../lib/twoByTwoCatalog";
 import { cn } from "@/lib/utils";
 
-type TwoByTwoFilter = "all" | (typeof TWO_BY_TWO_GROUPS)[number];
+const ALL = "all";
 
 export function TwoByTwoCatalogPanel({
   cases,
+  groups,
   masteredKeys,
   activeCase,
   onSelect,
 }: {
   cases: readonly TwoByTwoCatalogCase[];
+  groups: readonly string[];
   masteredKeys: Set<string>;
   activeCase: TwoByTwoCatalogCase | null;
   onSelect: (item: TwoByTwoCatalogCase) => void;
 }) {
   const { t } = useLanguage();
-  const [filter, setFilter] = useState<TwoByTwoFilter>("all");
+  const [filter, setFilter] = useState<string>(ALL);
   const [query, setQuery] = useState("");
+
+  // Reset the subset filter when the set (groups) changes — e.g. switching
+  // from CLL (Sune …) to PBL (Adj / Diag) would otherwise filter everything
+  // out.
+  useEffect(() => {
+    setFilter(ALL);
+  }, [groups]);
 
   const visible = useMemo(() => {
     const needle = query.trim().toUpperCase();
     return cases.filter(item => {
-      if (filter !== "all" && item.group !== filter) return false;
+      if (filter !== ALL && item.group !== filter) return false;
       if (!needle) return true;
       return `${item.id} ${item.name} ${item.algorithm}`.toUpperCase().includes(needle);
     });
@@ -66,7 +75,7 @@ export function TwoByTwoCatalogPanel({
         role="group"
         aria-label={t("twoByTwo.filterLabel")}
       >
-        {(["all", ...TWO_BY_TWO_GROUPS] as const).map(value => (
+        {[ALL, ...groups].map(value => (
           <button
             key={value}
             type="button"
@@ -79,13 +88,13 @@ export function TwoByTwoCatalogPanel({
                 : "bg-surface-2 text-ink hover:bg-surface-3",
             )}
           >
-            {value === "all" ? t("cfop.filterAll") : value}
+            {value === ALL ? t("cfop.filterAll") : value}
           </button>
         ))}
       </div>
       <div className="grid grid-cols-2 gap-3 p-5 sm:grid-cols-4 sm:p-6 lg:grid-cols-6">
         {visible.map(item => {
-          const mastered = masteredKeys.has(`cll:${item.id}`);
+          const mastered = masteredKeys.has(`${item.family}:${item.id}`);
           const selected = activeCase?.id === item.id;
           return (
             <button

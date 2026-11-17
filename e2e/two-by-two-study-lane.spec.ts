@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
  * E2E: tab "Học thêm" có lane 2×2 CLL.
  * Kiểm tra lane mở được, lọc nhóm subset, tìm kiếm và chọn case.
  */
-test("lane 2×2 trong tab Học thêm: mở, lọc, chọn case", async ({ page }) => {
+test("lane 2×2 trong tab Học thêm: mở, lọc, chọn case (CLL + PBL)", async ({ page }) => {
   await page.goto("/study?lane=2x2");
 
   await expect(page.getByRole("button", { name: "2×2", exact: true })).toHaveAttribute("aria-pressed", "true");
@@ -28,4 +28,21 @@ test("lane 2×2 trong tab Học thêm: mở, lọc, chọn case", async ({ page 
 
   // Toggle 2D/3D không crash
   await page.getByRole("button", { name: /3D/, exact: true }).click();
+
+  // Chọn một subset rồi chuyển bộ — filter phải reset về tất cả (không lọc ra 0 case)
+  await page.getByRole("button", { name: /CLL · 40/, exact: true }).click();
+  await page.getByRole("button", { name: "Sune", exact: true }).click();
+  await expect(page.getByText(/6 case|6 cases/)).toBeVisible();
+  await page.getByRole("button", { name: /PBL · 6/, exact: true }).click();
+  await expect(page.getByText(/6 case hiển thị|6 cases shown/)).toBeVisible();
+
+  // Chuyển sang PBL: 6 case, chip Adj/Diag
+  await expect(page.getByRole("button", { name: "Adj", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Diag", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Diag", exact: true }).click();
+  await expect(page.getByText(/3 case hiển thị|3 cases shown/)).toBeVisible();
+  await page.getByRole("button", { name: /PBL Diag 2/ }).first().click();
+  await expect(
+    page.getByRole("heading", { name: "PBL Diag 2" }),
+  ).toBeVisible();
 });

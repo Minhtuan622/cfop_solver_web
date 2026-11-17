@@ -1,5 +1,5 @@
 /**
- * SRS study state for the 2×2 CLL lane (Corners of the Last Layer).
+ * SRS study state for the 2×2 lane (both CLL and PBL).
  *
  * Mirrors the CFOP study engine (same spaced-repetition ladder from
  * `lib/spacedRepetition.ts`) with its own storage keys, so 2×2 progress never
@@ -15,7 +15,7 @@ import { spacedRepetitionInterval } from "@/lib/spacedRepetition";
 export type TwoByTwoGrade = "again" | "hard" | "good" | "easy";
 export type TwoByTwoRecord = {
   key: string;
-  family: "cll";
+  family: "cll" | "pbl";
   group: string;
   id: string;
   attempts: number;
@@ -49,7 +49,7 @@ const plainBoundedDailyGoal = (value: unknown) =>
 const studyGradeSchema = z.enum(["again", "hard", "good", "easy"]);
 const twoByTwoRecordSchema = z.object({
   key: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 120) : "")),
-  family: z.literal("cll"),
+  family: z.enum(["cll", "pbl"]),
   group: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 60) : "")),
   id: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 100) : "")),
   attempts: boundedInt(0, 0, 10_000),
@@ -119,7 +119,7 @@ export function gradeTwoByTwoCase(item: LastLayerCatalogCase, existing: TwoByTwo
   const averageMs = previousAverage > 0 ? Math.round(previousAverage * 0.72 + elapsedMs * 0.28) : elapsedMs;
   return {
     key: twoByTwoCaseKey(item),
-    family: "cll",
+    family: item.family as TwoByTwoRecord["family"],
     group: item.group,
     id: item.id,
     attempts,

@@ -13,14 +13,13 @@
  */
 export type TwoByTwoCaseRow = {
   id: string;
-  family: "cll";
+  family: "cll" | "pbl";
   group: string;
   name: string;
   algorithm: string;
 };
 
-export const CLL_CASES: readonly TwoByTwoCaseRow[] = [
-  // Antisune
+export const CLL_CASES: readonly TwoByTwoCaseRow[] = [  // Antisune
   { id: "CLL-AS-1", family: "cll", group: "AS", name: "CLL Antisune 1", algorithm: "U R U2 R' U' R U' R'" },
   { id: "CLL-AS-2", family: "cll", group: "AS", name: "CLL Antisune 2", algorithm: "R U2 R' F R' F' R U' R U' R'" },
   { id: "CLL-AS-3", family: "cll", group: "AS", name: "CLL Antisune 3", algorithm: "U2 F' L F L' U2 L' U2 L" },
@@ -67,4 +66,24 @@ export const CLL_CASES: readonly TwoByTwoCaseRow[] = [
   { id: "CLL-U-4", family: "cll", group: "U", name: "CLL U 4", algorithm: "U' F R' F' R U' R U' R' U2 R U' R'" },
   { id: "CLL-U-5", family: "cll", group: "U", name: "CLL U 5", algorithm: "R U' R2 F R F' R U R' U' R U R'" },
   { id: "CLL-U-6", family: "cll", group: "U", name: "CLL U 6", algorithm: "R' U R' F R F' R U2 R' U R" },
+];
+
+/**
+ * 2×2 PBL (Permutation of the Both/Last Layer) — 6 algorithms in 2 subsets:
+ * Adj (adjacent-corner swap) · Diag (diagonal-corner swap).
+ * Source: https://cubingapp.com/algorithms/2x2-PBL
+ *
+ * PBL is the second step of the Ortega 2-look method (solve a face → OLL → PBL).
+ * Case states are derived via `twoByTwoCaseState(alg)`; the derived position
+ * has all corners oriented and shows the permutation the alg resolves.
+ */
+export const PBL_CASES: readonly TwoByTwoCaseRow[] = [
+  // Adj — hoán đổi 2 góc kề
+  { id: "PBL-ADJ-1", family: "pbl", group: "Adj", name: "PBL Adj 1", algorithm: "R U R' F' R U R' U' R' F R2 U' R' U'" },
+  { id: "PBL-ADJ-2", family: "pbl", group: "Adj", name: "PBL Adj 2", algorithm: "R2 U' R2 U2 F2 U' R2" },
+  { id: "PBL-ADJ-3", family: "pbl", group: "Adj", name: "PBL Adj 3", algorithm: "U2 R' U R' F2 R F' R" },
+  // Diag — hoán đổi 2 góc đối
+  { id: "PBL-DIAG-1", family: "pbl", group: "Diag", name: "PBL Diag 1", algorithm: "R U' R' U' F2 U' R U R' U F2" },
+  { id: "PBL-DIAG-2", family: "pbl", group: "Diag", name: "PBL Diag 2", algorithm: "R2 F2 R2" },
+  { id: "PBL-DIAG-3", family: "pbl", group: "Diag", name: "PBL Diag 3", algorithm: "R2 U R2 U' R2 U R2 U' R2" },
 ];
