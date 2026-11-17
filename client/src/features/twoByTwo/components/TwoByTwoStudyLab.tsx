@@ -13,7 +13,6 @@ import { StudySchedulePanel } from "@/features/last-layer/components/StudySchedu
 import { TwoByTwoCasePanel } from "./TwoByTwoCasePanel";
 import { TwoByTwoCatalogPanel } from "./TwoByTwoCatalogPanel";
 import {
-  TWO_BY_TWO_GROUPS_BY_SET,
   TWO_BY_TWO_COUNTS,
   twoByTwoCatalogOf,
   type TwoByTwoCatalogCase,
@@ -313,10 +312,10 @@ export function TwoByTwoStudyLab({
       <div className="mt-6">
         <TwoByTwoCatalogPanel
           cases={catalog}
-          groups={TWO_BY_TWO_GROUPS_BY_SET[family]}
           masteredKeys={masteredKeys}
           activeCase={activeCase}
           onSelect={selectCase}
+          onMasteredChange={setMasteredKeys}
         />
       </div>
     </div>

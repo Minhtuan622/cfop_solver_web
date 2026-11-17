@@ -76,7 +76,10 @@ export const studyWords: Dictionary = {
 
   "study.importProgress": ["Nhập tiến độ", "Import progress"],
   "study.exportBackup": ["Xuất backup", "Export backup"],
-  "study.importErrorTitle": ["Không thể nhập tiến độ", "Could not import progress"],
+  "study.importErrorTitle": [
+    "Không thể nhập tiến độ",
+    "Could not import progress",
+  ],
   "study.importError": [
     "Không thể đọc backup tiến độ này.",
     "This study backup could not be read.",
@@ -103,7 +106,10 @@ export const studyWords: Dictionary = {
   "study.dismiss": ["Đóng thông báo", "Dismiss notification"],
 
   "study.viewLabel": ["Chế độ xem cube", "Cube view"],
-  "study.viewRecallTime": ["Xem, nhớ, rồi bấm giờ", "View, recall, then time it"],
+  "study.viewRecallTime": [
+    "Xem, nhớ, rồi bấm giờ",
+    "View, recall, then time it",
+  ],
   "study.showAlgorithm": ["Xem công thức", "Show algorithm"],
   "study.hideAlgorithm": ["Ẩn công thức", "Hide algorithm"],
   "study.markMastered": ["Đánh dấu đã thuộc", "Mark mastered"],
@@ -117,7 +123,10 @@ export const studyWords: Dictionary = {
     "Dừng timer rồi tự chấm mức nhớ để SRS lên lịch lần gặp lại.",
     "Stop the timer, then grade your recall so SRS can schedule the next review.",
   ],
-  "study.stopToGrade": ["Dừng timer để tự đánh giá", "Stop timer to self-grade"],
+  "study.stopToGrade": [
+    "Dừng timer để tự đánh giá",
+    "Stop timer to self-grade",
+  ],
   "study.result": ["Kết quả", "Result"],
   "study.gradeAgain": ["Quên", "Again"],
   "study.gradeHard": ["Khó", "Hard"],
@@ -144,7 +153,10 @@ export const studyWords: Dictionary = {
   "study.groupSelect": ["Nhóm case", "Case group"],
   "study.allGroups": ["Tất cả nhóm", "All groups"],
   "study.searchCases": ["Tìm case", "Search cases"],
-  "study.searchPlaceholder": ["Tìm ID, nhóm, công thức", "Search ID, group, algorithm"],
+  "study.searchPlaceholder": [
+    "Tìm ID, nhóm, công thức",
+    "Search ID, group, algorithm",
+  ],
   "study.allCases": ["Tất cả case", "All cases"],
   "study.unmasteredOnly": ["Chỉ chưa thuộc", "Unmastered"],
   "study.unmasteredCount": ["chưa thuộc", "unmastered"],
@@ -158,20 +170,33 @@ export const studyWords: Dictionary = {
   ],
   "study.previewTitle": ["Xem trước", "Preview"],
   "study.previewOf": ["Xem trước {label}", "Preview {label}"],
-  "study.enlargePreview": ["Phóng to preview {label}", "Enlarge preview {label}"],
+  "study.enlargePreview": [
+    "Phóng to preview {label}",
+    "Enlarge preview {label}",
+  ],
   "study.previewFace": ["{label}: mặt U 3×3", "{label}: 3×3 U face"],
   "study.previewHint": [
     "Đây là mặt U đại diện của case.",
     "This shows the representative U face of the case.",
   ],
+  "study.previewHint2x2": [
+    "Đây là lưới net đại diện của case 2×2.",
+    "This shows the representative net of the 2×2 case.",
+  ],
   "study.closePreview": ["Đóng preview", "Close preview"],
   "study.close": ["Đóng", "Close"],
 
   "study.bulkSelect": ["Chọn nhiều", "Select multiple"],
-  "study.bulkSelected": ["Đã chọn {count}/{total}", "{count} of {total} selected"],
+  "study.bulkSelected": [
+    "Đã chọn {count}/{total}",
+    "{count} of {total} selected",
+  ],
   "study.bulkSelectAll": ["Chọn tất cả", "Select all"],
   "study.bulkClear": ["Bỏ chọn", "Clear selection"],
-  "study.bulkMark": ["Đánh dấu đã thuộc ({count})", "Mark as learned ({count})"],
+  "study.bulkMark": [
+    "Đánh dấu đã thuộc ({count})",
+    "Mark as learned ({count})",
+  ],
   "study.bulkUnmark": ["Bỏ đánh dấu ({count})", "Unmark ({count})"],
   "study.bulkDone": ["Xong", "Done"],
 };
