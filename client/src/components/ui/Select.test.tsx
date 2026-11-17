@@ -112,6 +112,37 @@ describe("Select (Radix)", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it("accepts an <option value=\"\"> (e.g. 'All countries')", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <Select aria-label="Quốc gia" value="" onChange={onChange}>
+        <option value="">Tất cả</option>
+        <option value="vn">Việt Nam</option>
+      </Select>,
+    );
+    const trigger = screen.getByRole("combobox", { name: "Quốc gia" });
+    expect(trigger).toHaveTextContent("Tất cả");
+    await user.click(trigger);
+    await user.click(screen.getByRole("option", { name: "Việt Nam" }));
+    expect(onChange).toHaveBeenCalledWith({ target: { value: "vn" } });
+  });
+
+  it("maps the sentinel back to an empty string on change", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <Select aria-label="Tháng" value="2" onChange={onChange}>
+        <option value="">Tất cả</option>
+        <option value="1">Tháng 1</option>
+        <option value="2">Tháng 2</option>
+      </Select>,
+    );
+    await user.click(screen.getByRole("combobox", { name: "Tháng" }));
+    await user.click(screen.getByRole("option", { name: "Tất cả" }));
+    expect(onChange).toHaveBeenCalledWith({ target: { value: "" } });
+  });
+
   it("accepts numeric option values (value={0})", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();

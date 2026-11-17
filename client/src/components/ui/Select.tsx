@@ -26,6 +26,13 @@ type OptionSpec = {
   disabled: boolean;
 };
 
+/** Radix rejects empty item values; keep a sentinel internally instead. */
+const EMPTY_OPTION = "__cfop_empty_option__";
+const toItemValue = (value: string) =>
+  value === "" ? EMPTY_OPTION : value;
+const fromItemValue = (value: string) =>
+  value === EMPTY_OPTION ? "" : value;
+
 /** Đọc các `<option>` con thành danh sách lựa chọn. */
 function readOptions(children: ReactNode): OptionSpec[] {
   const options: OptionSpec[] = [];
@@ -80,8 +87,8 @@ export function Select({
   return (
     <div className={cn("relative", className)}>
       <SelectPrimitive.Root
-        value={value}
-        onValueChange={next => onChange({ target: { value: next } })}
+        value={toItemValue(value)}
+        onValueChange={next => onChange({ target: { value: fromItemValue(next) } })}
         disabled={disabled}
         name={name}
       >
@@ -118,7 +125,7 @@ export function Select({
             {options.map(option => (
               <SelectPrimitive.Item
                 key={option.value}
-                value={option.value}
+                value={toItemValue(option.value)}
                 disabled={option.disabled}
                 className={cn(
                   "relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-muted transition",
