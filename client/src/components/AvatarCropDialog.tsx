@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import Cropper, { type Area } from "react-easy-crop";
+import "react-easy-crop/react-easy-crop.css";
 import {
   Dialog,
   DialogContent,
@@ -9,22 +11,12 @@ import {
 } from "@/components/ui/StudioDialog";
 import {
   AVATAR_CROP_FRAME,
-  AvatarCropPlacement,
-  centeredAvatarCrop,
-  clampAvatarCrop,
-  renderAvatarCrop,
-  zoomAvatarCrop,
+  renderCroppedAvatar,
 } from "@/lib/avatarCrop";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 
 type ImageType = "image/jpeg" | "image/png" | "image/webp";
-type DragStart = {
-  pointerId: number;
-  x: number;
-  y: number;
-  placement: AvatarCropPlacement;
-} | null;
 
 export function AvatarCropDialog({
   file,
@@ -37,70 +29,41 @@ export function AvatarCropDialog({
 }) {
   const { t } = useLanguage();
   const [previewUrl, setPreviewUrl] = useState("");
-  const [dimensions, setDimensions] = useState<{
-    width: number;
-    height: number;
-  } | null>(null);
-  const [placement, setPlacement] = useState<AvatarCropPlacement>({
-    zoom: 1,
-    x: 0,
-    y: 0,
-  });
+  const [ready, setReady] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedArea, setCroppedArea] = useState<Area | null>(null);
   const [rendering, setRendering] = useState(false);
   const [error, setError] = useState("");
-  const imageRef = useRef<HTMLImageElement>(null);
-  const drag = useRef<DragStart>(null);
 
   useEffect(() => {
     if (!file) {
       setPreviewUrl("");
-      setDimensions(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setReady(false);
+      setCroppedArea(null);
       setError("");
       return;
     }
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
-    setDimensions(null);
-    setPlacement({ zoom: 1, x: 0, y: 0 });
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setReady(false);
+    setCroppedArea(null);
     setError("");
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
-  const move = (next: AvatarCropPlacement) => {
-    if (dimensions)
-      setPlacement(clampAvatarCrop(next, dimensions.width, dimensions.height));
-  };
-  const imageLoaded = () => {
-    const image = imageRef.current;
-    if (!image) return;
-    const next = { width: image.naturalWidth, height: image.naturalHeight };
-    setDimensions(next);
-    setPlacement(centeredAvatarCrop(next.width, next.height));
-  };
-  const pointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    const start = drag.current;
-    if (!start || !dimensions || start.pointerId !== event.pointerId) return;
-    move({
-      ...start.placement,
-      x: start.placement.x + event.clientX - start.x,
-      y: start.placement.y + event.clientY - start.y,
-    });
-  };
-  const pointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (drag.current?.pointerId === event.pointerId) {
-      drag.current = null;
-      event.currentTarget.releasePointerCapture?.(event.pointerId);
-    }
-  };
   const confirm = async () => {
-    const image = imageRef.current;
-    if (!file || !image || !dimensions) return;
+    if (!file || !croppedArea) return;
     setRendering(true);
     setError("");
     try {
-      const blob = await renderAvatarCrop(
-        image,
-        placement,
+      const blob = await renderCroppedAvatar(
+        file,
+        croppedArea,
         file.type as ImageType
       );
       if (blob.size > 2 * 1024 * 1024)
@@ -128,82 +91,49 @@ export function AvatarCropDialog({
           <div className="flex justify-center">
             <div
               className="relative overflow-hidden rounded-xl bg-surface-2"
-              style={{
-                width: AVATAR_CROP_FRAME,
-                height: AVATAR_CROP_FRAME,
-                touchAction: "none",
-                cursor: dimensions ? "grab" : "wait",
-              }}
-              onPointerDown={event => {
-                if (!dimensions) return;
-                drag.current = {
-                  pointerId: event.pointerId,
-                  x: event.clientX,
-                  y: event.clientY,
-                  placement,
-                };
-                event.currentTarget.setPointerCapture(event.pointerId);
-              }}
-              onPointerMove={pointerMove}
-              onPointerUp={pointerEnd}
-              onPointerCancel={pointerEnd}
-              aria-label={t("profile.crop.dragLabel")}
+              style={{ width: AVATAR_CROP_FRAME, height: AVATAR_CROP_FRAME }}
             >
               {previewUrl ? (
-                <img
-                  ref={imageRef}
-                  src={previewUrl}
-                  alt={t("profile.crop.previewAlt")}
-                  draggable={false}
-                  onLoad={imageLoaded}
-                  className="absolute select-none"
-                  style={
-                    dimensions
-                      ? {
-                          width:
-                            dimensions.width *
-                            (AVATAR_CROP_FRAME /
-                              Math.min(dimensions.width, dimensions.height)) *
-                            placement.zoom,
-                          height:
-                            dimensions.height *
-                            (AVATAR_CROP_FRAME /
-                              Math.min(dimensions.width, dimensions.height)) *
-                            placement.zoom,
-                          left: placement.x,
-                          top: placement.y,
-                          maxWidth: "none",
-                          pointerEvents: "none",
-                        }
-                      : { visibility: "hidden" }
+                <Cropper
+                  image={previewUrl}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  cropShape="round"
+                  showGrid={false}
+                  minZoom={1}
+                  maxZoom={3}
+                  zoomSpeed={0.2}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={(_area, areaPixels) =>
+                    setCroppedArea(areaPixels)
                   }
+                  onMediaLoaded={() => setReady(true)}
+                  cropperProps={{
+                    "aria-label": t("profile.crop.dragLabel"),
+                  }}
+                  style={{
+                    containerStyle: {
+                      borderRadius: "inherit",
+                    },
+                  }}
                 />
               ) : null}
             </div>
           </div>
-          {dimensions ? (
+          {ready ? (
             <label className="mb-1.5 block text-sm font-medium text-ink w-full mt-6 mb-0">
               {t("profile.crop.zoom")}{" "}
-              <span className="text-muted">
-                {Math.round(placement.zoom * 100)}%
-              </span>
+              <span className="text-muted">{Math.round(zoom * 100)}%</span>
               <input
                 type="range"
                 className="h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-3 accent-primary mt-2"
                 min="1"
                 max="3"
                 step="0.01"
-                value={placement.zoom}
-                onChange={event =>
-                  setPlacement(
-                    zoomAvatarCrop(
-                      placement,
-                      Number(event.target.value),
-                      dimensions.width,
-                      dimensions.height
-                    )
-                  )
-                }
+                value={zoom}
+                onChange={event => setZoom(Number(event.target.value))}
               />
             </label>
           ) : (
@@ -225,7 +155,6 @@ export function AvatarCropDialog({
             variant="secondary"
             size="md"
             type="button"
-
             onClick={onClose}
             disabled={rendering}
           >
@@ -235,9 +164,8 @@ export function AvatarCropDialog({
             variant="primary"
             size="md"
             type="button"
-
             onClick={confirm}
-            disabled={!dimensions || rendering}
+            disabled={!croppedArea || rendering}
           >
             {rendering ? t("profile.crop.pending") : t("profile.crop.confirm")}
           </Button>

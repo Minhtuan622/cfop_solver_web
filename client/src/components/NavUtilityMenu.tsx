@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "wouter";
-import { Dropdown } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem, DropdownRadioGroup, DropdownRadioItem } from "@/components/ui/Dropdown";
 import {
   BoxArrowRight,
   CircleHalf,
@@ -54,9 +54,10 @@ export function NavUtilityMenu() {
 
   const itemClass =
     "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition";
-  const baseChipClass = "bg-surface-2 hover:bg-surface-3";
-  const activeItemClass =
-    "bg-primary-soft font-semibold text-primary hover:bg-primary-soft";
+  const baseChipClass = "bg-surface-2";
+  const highlight = "data-[highlighted]:bg-surface-3";
+  const checkedClass =
+    "data-[state=checked]:bg-primary-soft data-[state=checked]:font-semibold data-[state=checked]:text-primary data-[state=checked]:data-[highlighted]:bg-primary-soft";
 
   return (
     <>
@@ -94,106 +95,90 @@ export function NavUtilityMenu() {
           )
         }
       >
-        <li>
-          <p className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
-            {t("account.group")}
-          </p>
-        </li>
+        <p className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+          {t("account.group")}
+        </p>
         {session.account ? (
           <>
-            <li>
-              <Link
-                href="/profile"
-                role="menuitem"
-                className={cn(itemClass, baseChipClass)}
-              >
+            <DropdownItem asChild>
+              <Link href="/profile" className={cn(itemClass, baseChipClass, highlight)}>
                 <PersonCircle className="text-base" />
                 {t("account.profile")}
               </Link>
-            </li>
-            <li>
+            </DropdownItem>
+            <DropdownItem asChild disabled={session.logoutPending}>
               <button
                 type="button"
-                role="menuitem"
-                className={cn(itemClass, baseChipClass, "disabled:opacity-50")}
+                className={cn(itemClass, baseChipClass, highlight, "disabled:opacity-50")}
                 onClick={() => session.logout.mutate()}
-                disabled={session.logoutPending}
               >
                 <BoxArrowRight className="text-base" />
                 {t("account.logout")}
               </button>
-            </li>
+            </DropdownItem>
           </>
         ) : (
           <>
-            <li>
+            <DropdownItem asChild>
               <button
                 type="button"
-                role="menuitem"
-                className={cn(itemClass, baseChipClass)}
+                className={cn(itemClass, baseChipClass, highlight)}
                 onClick={() => session.show("login")}
               >
                 <PersonCircle className="text-base" />
                 {t("account.signIn")}
               </button>
-            </li>
-            <li>
+            </DropdownItem>
+            <DropdownItem asChild>
               <button
                 type="button"
-                role="menuitem"
-                className={cn(itemClass, baseChipClass)}
+                className={cn(itemClass, baseChipClass, highlight)}
                 onClick={() => session.show("register")}
               >
                 {t("account.register")}
               </button>
-            </li>
+            </DropdownItem>
           </>
         )}
-        <li>
-          <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
-            {t("language.label")}
-          </p>
-        </li>
-        {LANGUAGES.map(option => {
-          const active = option.value === language;
-          return (
-            <li key={option.value}>
-              <button
-                type="button"
-                role="menuitemradio"
-                aria-checked={active}
-                className={cn(itemClass, active ? activeItemClass : baseChipClass)}
-                onClick={() => setLanguage(option.value)}
-              >
-                <Translate className="text-base" />
-                {option.label}
-              </button>
-            </li>
-          );
-        })}
-        <li>
-          <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
-            {t("theme.label")}
-          </p>
-        </li>
-        {THEMES.map(option => {
-          const OptionIcon = option.icon;
-          const active = option.value === theme;
-          return (
-            <li key={option.value}>
-              <button
-                type="button"
-                role="menuitemradio"
-                aria-checked={active}
-                className={cn(itemClass, active ? activeItemClass : baseChipClass)}
-                onClick={() => setTheme(option.value)}
+        <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+          {t("language.label")}
+        </p>
+        <DropdownRadioGroup
+          value={language}
+          onValueChange={value => setLanguage(value as typeof language)}
+        >
+          {LANGUAGES.map(option => (
+            <DropdownRadioItem
+              key={option.value}
+              value={option.value}
+              className={cn(itemClass, baseChipClass, highlight, checkedClass)}
+            >
+              <Translate className="text-base" />
+              {option.label}
+            </DropdownRadioItem>
+          ))}
+        </DropdownRadioGroup>
+        <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+          {t("theme.label")}
+        </p>
+        <DropdownRadioGroup
+          value={theme}
+          onValueChange={value => setTheme(value as Theme)}
+        >
+          {THEMES.map(option => {
+            const OptionIcon = option.icon;
+            return (
+              <DropdownRadioItem
+                key={option.value}
+                value={option.value}
+                className={cn(itemClass, baseChipClass, highlight, checkedClass)}
               >
                 <OptionIcon className="text-base" />
                 {themeLabels[option.value]}
-              </button>
-            </li>
-          );
-        })}
+              </DropdownRadioItem>
+            );
+          })}
+        </DropdownRadioGroup>
       </Dropdown>
       <CfopAuthDialog
         open={session.open}

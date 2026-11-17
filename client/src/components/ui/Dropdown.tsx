@@ -1,22 +1,7 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
-import { createPortal } from "react-dom";
+import { type ReactNode } from "react";
+import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { ChevronDown } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
-import {
-  computeFloatingGeometry,
-  floatingStyle,
-  sameFloatingStyle,
-} from "@/components/ui/floating";
-
-/** Bề rộng tối thiểu của menu (tương đương `min-w-52`). */
-const MENU_MIN_WIDTH = 208;
 
 export type DropdownProps = {
   /** The visible content of the toggle. */
@@ -39,21 +24,24 @@ export type DropdownProps = {
   variant?: "button" | "nav" | "soft";
   className?: string;
   buttonClassName?: string;
-  /**
-   * Ghi đè bo góc/đệm của khung menu. Nền của menu luôn là `var(--surface-2)`
-   * (đặt qua inline style nên không bao giờ bị mất do CSS cache cũ).
-   */
   menuClassName?: string;
   children: ReactNode;
 };
 
 /**
- * A dropdown that opens on click, closes on Escape or on a click outside and
- * looks the same wherever the app needs a menu.
- *
- * Menu gắn vào `document.body` qua portal và định vị tuyệt đối theo toạ độ
- * tài liệu của nút (xem `floating.ts`), nên không bị cắt bởi
- * `overflow-hidden` của card chứa nó, và lật lên khi sát đáy khung nhìn.
+ * Menu components dùng chung cho các Dropdown của app, re-export nguyên Radix.
+ * Mỗi mục menu phải là `DropdownItem` (hoặc `DropdownRadioItem`) để dùng được
+ * điều hướng bàn phím và lựa chọn bằng phím Enter/Space.
+ */
+export const DropdownItem = DropdownMenuPrimitive.Item;
+export const DropdownRadioGroup = DropdownMenuPrimitive.RadioGroup;
+export const DropdownRadioItem = DropdownMenuPrimitive.RadioItem;
+
+/**
+ * A dropdown that opens on click (or Enter/Space), closes on Escape, on a
+ * click outside or after a menu item is picked. Built on Radix DropdownMenu:
+ * portal, collision flipping, arrow-key navigation and focus management all
+ * come from the library.
  */
 export function Dropdown({
   button,
@@ -68,155 +56,47 @@ export function Dropdown({
   menuClassName,
   children,
 }: DropdownProps) {
-  const [open, setOpen] = useState(false);
-  const [floating, setFloating] = useState<{
-    placement: "bottom" | "top";
-    style: CSSProperties;
-  } | null>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLUListElement>(null);
-
-  /** Đo chỗ trống quanh nút để quyết định hướng mở và chiều cao menu. */
-  const measure = useCallback(() => {
-    const node = buttonRef.current;
-    if (!node) return;
-    const rect = node.getBoundingClientRect();
-    const scrollX = window.pageXOffset;
-    const scrollY = window.pageYOffset;
-    const geometry = computeFloatingGeometry({
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight,
-      scrollX,
-      scrollY,
-      triggerTop: rect.top,
-      triggerBottom: rect.bottom,
-      triggerLeft: rect.left,
-      triggerWidth: rect.width,
-      minWidth: MENU_MIN_WIDTH,
-    });
-    const next = {
-      placement: geometry.placement,
-      style: floatingStyle(geometry, {
-        align,
-        rightDoc: rect.right + scrollX,
-        viewportWidth: window.innerWidth,
-      }),
-    };
-    setFloating(prev =>
-      prev &&
-      prev.placement === next.placement &&
-      sameFloatingStyle(prev.style, next.style)
-        ? prev
-        : next,
-    );
-  }, [align]);
-
-  const openMenu = useCallback(() => {
-    measure();
-    setOpen(true);
-  }, [measure]);
-
-  useEffect(() => {
-    if (!open) return;
-    const closeOnOutsidePointer = (event: PointerEvent) => {
-      const node = event.target as Node;
-      if (rootRef.current?.contains(node)) return;
-      // Menu nổi qua portal nằm ngoài root, phải giữ riêng nếu không lần
-      // pointerdown đầu trên menu sẽ đóng luôn.
-      if (menuRef.current?.contains(node)) return;
-      setOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("pointerdown", closeOnOutsidePointer);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeOnOutsidePointer);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [open]);
-
-  // Trong lúc menu mở, đo lại khi cuộn hoặc đổi cỡ khung nhìn để menu bám
-  // theo nút. `capture: true` bắt cả scroll của các vùng cuộn bên trong trang.
-  useEffect(() => {
-    if (!open) return;
-    measure();
-    window.addEventListener("scroll", measure, true);
-    window.addEventListener("resize", measure);
-    return () => {
-      window.removeEventListener("scroll", measure, true);
-      window.removeEventListener("resize", measure);
-    };
-  }, [open, measure]);
-
   return (
-    <div ref={rootRef} className={cn("relative", className)}>
-      <button
-        ref={buttonRef}
-        type="button"
-        className={cn(
-          "inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20",
-          variant === "nav"
-            ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink"
-            : variant === "soft"
-              ? "rounded-full bg-surface-2 px-3.5 py-2 text-ink hover:bg-surface-3"
-              : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2",
-          buttonClassName
-        )}
-        onClick={() => {
-          if (open) setOpen(false);
-          else openMenu();
-        }}
-        aria-expanded={open}
-        aria-haspopup="menu"
-        aria-controls={id}
-        aria-label={label}
-        title={title}
-      >
-        {button}
-        <ChevronDown
-          className={cn(
-            "text-sm transition-transform duration-200",
-            open && "rotate-180"
-          )}
-        />
-      </button>
-      {open && floating
-        ? createPortal(
-            <div className="absolute inset-x-0 top-0 h-0">
-              <ul
-                ref={menuRef}
-                className={cn(
-                  "absolute z-50 min-w-52 list-none overflow-y-auto rounded-2xl",
-                  menuClassName ?? "p-1.5",
-                )}
-                // Nền đặc của menu phải không phụ thuộc vào việc Tailwind
-                // có sinh ra class nền hay không: inline style luôn thắng.
-                // Fallback kép qua `light-dark()` để vẫn đặc kể cả khi
-                // token `--surface` không resolve được — không bao giờ trong suốt.
-                style={{
-                  ...floating.style,
-                  backgroundColor:
-                    "var(--surface, light-dark(#ffffff, #141a2c))",
-                }}
-                data-placement={floating.placement}
-                role="menu"
-                id={id}
-                aria-label={menuLabel ?? label}
-                onClick={event => {
-                  // Picking an item ends the visit to the menu.
-                  if ((event.target as HTMLElement).closest("button, a"))
-                    setOpen(false);
-                }}
-              >
-                {children}
-              </ul>
-            </div>,
-            document.body
-          )
-        : null}
+    <div className={cn("relative", className)}>
+      <DropdownMenuPrimitive.Root modal={false}>
+        <DropdownMenuPrimitive.Trigger asChild>
+          <button
+            type="button"
+            className={cn(
+              "group inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20",
+              variant === "nav"
+                ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink"
+                : variant === "soft"
+                  ? "rounded-full bg-surface-2 px-3.5 py-2 text-ink hover:bg-surface-3"
+                  : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2",
+              buttonClassName
+            )}
+            aria-label={label}
+            title={title}
+          >
+            {button}
+            <ChevronDown
+              className="text-sm transition-transform duration-200 group-aria-expanded:rotate-180"
+              aria-hidden="true"
+            />
+          </button>
+        </DropdownMenuPrimitive.Trigger>
+        <DropdownMenuPrimitive.Portal>
+          <DropdownMenuPrimitive.Content
+            id={id}
+            align={align}
+            sideOffset={6}
+            collisionPadding={8}
+            aria-label={menuLabel ?? label}
+            className={cn(
+              "z-50 min-w-52 overflow-y-auto rounded-2xl bg-surface p-1.5",
+              menuClassName
+            )}
+          >
+            {children}
+          </DropdownMenuPrimitive.Content>
+        </DropdownMenuPrimitive.Portal>
+      </DropdownMenuPrimitive.Root>
     </div>
   );
 }

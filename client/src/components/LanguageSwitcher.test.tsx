@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
@@ -20,10 +21,11 @@ describe("LanguageSwitcher", () => {
     document.documentElement.removeAttribute("lang");
   });
 
-  it("offers the two languages of the interface", () => {
+  it("offers the two languages of the interface", async () => {
+    const user = userEvent.setup();
     renderSwitcher();
 
-    fireEvent.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
+    await user.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
 
     expect(
       screen.getByRole("menuitemradio", { name: "Tiếng Việt" })
@@ -33,10 +35,11 @@ describe("LanguageSwitcher", () => {
     ).toBeTruthy();
   });
 
-  it("marks the language of the moment", () => {
+  it("marks the language of the moment", async () => {
+    const user = userEvent.setup();
     renderSwitcher();
 
-    fireEvent.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
+    await user.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
 
     expect(
       screen
@@ -50,11 +53,12 @@ describe("LanguageSwitcher", () => {
     ).toBe("false");
   });
 
-  it("applies and remembers the chosen language", () => {
+  it("applies and remembers the chosen language", async () => {
+    const user = userEvent.setup();
     renderSwitcher();
 
-    fireEvent.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
-    fireEvent.click(screen.getByRole("menuitemradio", { name: "Tiếng Anh" }));
+    await user.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
+    await user.click(screen.getByRole("menuitemradio", { name: "Tiếng Anh" }));
 
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe("en");
     expect(document.documentElement.lang).toBe("en");
@@ -63,13 +67,14 @@ describe("LanguageSwitcher", () => {
     ).toBeTruthy();
   });
 
-  it("closes the menu on Escape", () => {
+  it("closes the menu on Escape", async () => {
+    const user = userEvent.setup();
     renderSwitcher();
 
-    fireEvent.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
+    await user.click(screen.getByRole("button", { name: /Đổi ngôn ngữ/i }));
     expect(screen.getByRole("menu")).toBeTruthy();
 
-    fireEvent.keyDown(document, { key: "Escape" });
+    await user.keyboard("{Escape}");
     expect(screen.queryByRole("menu")).toBeNull();
   });
 });

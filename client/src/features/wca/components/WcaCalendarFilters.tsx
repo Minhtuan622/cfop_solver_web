@@ -2,7 +2,7 @@ import { Calendar3, Search } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { WcaCountry } from "../lib/wcaCalendar";
 import { Button } from "@/components/ui/Button";
-import { Dropdown } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { Select } from "@/components/ui/Select";
 
 export type WcaCalendarFiltersProps = {
@@ -143,21 +143,19 @@ export function WcaCalendarFilters({
             </>
           }
         >
-          <li>
+          <DropdownItem asChild>
             <button
               type="button"
-              role="menuitem"
-              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3"
+              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition data-[highlighted]:bg-surface-3"
               onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
             >
               {t("wca.thisMonth")}
             </button>
-          </li>
-          <li>
+          </DropdownItem>
+          <DropdownItem asChild>
             <button
               type="button"
-              role="menuitem"
-              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3"
+              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition data-[highlighted]:bg-surface-3"
               onClick={() => {
                 const next = new Date();
                 next.setMonth(next.getMonth() + 1);
@@ -166,17 +164,16 @@ export function WcaCalendarFilters({
             >
               {t("wca.nextMonth")}
             </button>
-          </li>
-          <li>
+          </DropdownItem>
+          <DropdownItem asChild>
             <button
               type="button"
-              role="menuitem"
-              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-3"
+              className="flex w-full items-center gap-2.5 rounded-xl bg-surface-2 px-3 py-2 text-left text-sm text-ink transition data-[highlighted]:bg-surface-3"
               onClick={() => jumpTo(currentYear, 0)}
             >
               {t("wca.thisYear")}
             </button>
-          </li>
+          </DropdownItem>
         </Dropdown>
 
         {onReset ? (

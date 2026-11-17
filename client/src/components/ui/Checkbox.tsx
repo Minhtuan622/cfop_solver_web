@@ -1,5 +1,6 @@
+import { useId, type ReactNode } from "react";
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import { cn } from "@/lib/utils";
-import type { ReactNode } from "react";
 
 export function Checkbox({
   checked,
@@ -16,41 +17,44 @@ export function Checkbox({
   disabled?: boolean;
   className?: string;
 }) {
+  const id = useId();
+
   return (
-    <label
+    <span
       className={cn(
         "inline-flex items-center gap-2",
         disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
         className
       )}
     >
-      <span className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center">
-        <input
-          type="checkbox"
-          className="peer sr-only"
-          checked={checked}
-          disabled={disabled}
-          aria-label={ariaLabel}
-          onChange={event => onChange(event.target.checked)}
-        />
-        <span
-          className="absolute inset-0 rounded-lg bg-surface-3 transition peer-checked:bg-primary peer-focus-visible:ring-4 peer-focus-visible:ring-primary/20"
-          aria-hidden="true"
-        />
-        <svg
-          className="relative h-4 w-4 text-on-primary opacity-0 transition peer-checked:opacity-100"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      </span>
-      {label ? <span className="text-sm text-ink">{label}</span> : null}
-    </label>
+      <CheckboxPrimitive.Root
+        id={id}
+        checked={checked}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        onCheckedChange={value => onChange(value === true)}
+        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-surface-3 transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60 data-[state=checked]:bg-primary"
+      >
+        <CheckboxPrimitive.Indicator asChild>
+          <svg
+            className="h-4 w-4 text-on-primary"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </CheckboxPrimitive.Indicator>
+      </CheckboxPrimitive.Root>
+      {label ? (
+        <label htmlFor={id} className="text-sm text-ink">
+          {label}
+        </label>
+      ) : null}
+    </span>
   );
 }

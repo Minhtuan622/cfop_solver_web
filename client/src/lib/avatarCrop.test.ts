@@ -1,18 +1,46 @@
-import { describe, expect, it } from "vitest";
-import { centeredAvatarCrop, clampAvatarCrop, zoomAvatarCrop } from "./avatarCrop";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { AVATAR_CROP_FRAME, renderCroppedAvatar } from "./avatarCrop";
+
+const area = { x: 10, y: 20, width: 100, height: 100 };
 
 describe("avatar crop", () => {
-  it("căn giữa ảnh ngang theo cover, không để lộ nền trong khung vuông", () => {
-    expect(centeredAvatarCrop(560, 280)).toEqual({ zoom: 1, x: -140, y: 0 });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
-  it("giới hạn kéo ảnh trong vùng phủ kín khung", () => {
-    expect(clampAvatarCrop({ zoom: 1, x: 40, y: 80 }, 560, 280)).toEqual({ zoom: 1, x: 0, y: 0 });
-    expect(clampAvatarCrop({ zoom: 1, x: -999, y: -999 }, 560, 280)).toEqual({ zoom: 1, x: -280, y: 0 });
+  it("giữ nguyên kích thước khung cắt 280 px", () => {
+    expect(AVATAR_CROP_FRAME).toBe(280);
   });
 
-  it("giữ vùng giữa khi thay đổi mức phóng to", () => {
-    const centered = centeredAvatarCrop(560, 280);
-    expect(zoomAvatarCrop(centered, 2, 560, 280)).toEqual({ zoom: 2, x: -420, y: -140 });
+  it("trả lỗi rõ ràng khi trình duyệt không cấp được canvas 2d", async () => {
+    vi.stubGlobal(
+      "Image",
+      class MockImage {
+        onload: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+        set src(_value: string) {
+          queueMicrotask(() => this.onload?.());
+        }
+      }
+    );
+    vi.stubGlobal(
+      "HTMLCanvasElement",
+      class MockCanvas {
+        width = 0;
+        height = 0;
+        getContext() {
+          return null;
+        }
+      }
+    );
+    vi.stubGlobal("URL", {
+      createObjectURL: () => "blob:mock",
+      revokeObjectURL: () => {},
+    });
+
+    await expect(
+      renderCroppedAvatar(new Blob(["x"]), area, "image/png")
+    ).rejects.toThrow("Không thể chuẩn bị ảnh đại diện.");
   });
 });
