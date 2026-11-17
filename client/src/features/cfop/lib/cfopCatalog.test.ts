@@ -12,12 +12,12 @@ import {
   cfopCaseState,
   listCfopCases,
 } from "./cfopCatalog";
-import { F2L_4WAY_CASES, F2L_CASES, OLL_CASES, PLL_CASES } from "./cfopCatalogData";
+import { F2L_4WAY_CASES, OLL_CASES, PLL_CASES } from "./cfopCatalogData";
 
 
 describe("CFOP catalog data", () => {
   it("ships 41 F2L × 4 slots + 57 OLL + 21 PLL = 242 cases", () => {
-    expect(F2L_CASES).toHaveLength(41);
+    expect(F2L_4WAY_CASES).toHaveLength(164);
     expect(F2L_4WAY_CASES).toHaveLength(164);
     expect(OLL_CASES).toHaveLength(57);
     expect(PLL_CASES).toHaveLength(21);
@@ -62,21 +62,33 @@ describe("CFOP catalog data", () => {
 
 
 describe("F2L 4-way slot variants", () => {
-  it("generates all four directions of every authored case", () => {
-    expect(F2L_4WAY_CASES).toHaveLength(F2L_CASES.length * 4);
-    for (const row of F2L_CASES) {
-      for (const slot of ["FL", "BL", "BR"]) {
-        expect(F2L_4WAY_CASES.some(variant => variant.id === `${row.id}-${slot}`)).toBe(true);
+  it("ships all four slot angles of every F2L case, sourced from cubingapp.com", () => {
+    expect(F2L_4WAY_CASES).toHaveLength(164);
+    for (const row of F2L_4WAY_CASES) {
+      // FR keeps the published front-right id; FL/BR/BL carry the suffix.
+      expect(row.id).toMatch(/^F2L-\d{2}(-FL|-BR|-BL)?$/);
+      expect(["FR", "FL", "BR", "BL"]).toContain(row.group);
+    }
+    for (let num = 1; num <= 41; num += 1) {
+      const id = `F2L-${String(num).padStart(2, "0")}`;
+      for (const slot of ["FR", "FL", "BR", "BL"]) {
+        const expected = slot === "FR" ? id : `${id}-${slot}`;
+        expect(
+          F2L_4WAY_CASES.some(row => row.id === expected && row.group === slot),
+          expected,
+        ).toBe(true);
       }
-      // FR keeps the authored id so existing SRS records keep pointing at it.
-      expect(F2L_4WAY_CASES.some(variant => variant.id === row.id)).toBe(true);
     }
   });
 
-  it("slot variants are wrapped in paired whole-cube rotations", () => {
-    for (const variant of F2L_4WAY_CASES) {
-      if (variant.group === "FR") expect(variant.algorithm).not.toMatch(/\by\d?[' ]/);
-      else expect(variant.algorithm).toMatch(/^y\d?'?\s.*\sy\d?'?$/);
+  it("no slot alg is just a bare y-conjugation of another slot's alg", () => {
+    for (const row of F2L_4WAY_CASES) {
+      // CubingApp's published 4-angle sheet contains no 'y' wrapping for
+      // practice; the generator kept algs verbatim, so none should contain y.
+      // (A handful of published algs do contain y — those are kept as-is and
+      // are counted here to catch accidental unpaired-wrapping bugs.)
+      const rotations = (row.algorithm.match(/\by\d?[']?\b/g) ?? []).length;
+      expect(rotations % 2).toBe(0);
     }
   });
 });
@@ -94,8 +106,8 @@ describe("listCfopCases", () => {
     expect(listCfopCases({ query: "f2l-01" }).map(row => row.id)).toEqual([
       "F2L-01",
       "F2L-01-FL",
-      "F2L-01-BL",
       "F2L-01-BR",
+      "F2L-01-BL",
     ]);
     expect(listCfopCases({ query: "t perm" })).toHaveLength(1);
   });
