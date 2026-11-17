@@ -2,7 +2,7 @@
  * Browsable 2×2 catalog: searchable grid of cases with the 2×2 net preview.
  * Clicking a case pulls it into the practice card.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Search } from "@/components/ui/Icon";
 import { CubeNet2x2 } from "@/components/common/CubeNet2x2";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -27,6 +27,13 @@ export function TwoByTwoCatalogPanel({
   const { t } = useLanguage();
   const [filter, setFilter] = useState<string>(ALL);
   const [query, setQuery] = useState("");
+
+  // Reset the subset filter when the set (groups) changes — e.g. switching
+  // from CLL (Sune …) to PBL (Adj / Diag) would otherwise filter everything
+  // out.
+  useEffect(() => {
+    setFilter(ALL);
+  }, [groups]);
 
   const visible = useMemo(() => {
     const needle = query.trim().toUpperCase();
