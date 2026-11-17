@@ -1,4 +1,5 @@
 export type BldGrade = "again" | "hard" | "good" | "easy";
+import { z } from "zod";
 import { readStoredJson, writeStoredValue } from "@/lib/browserStorage";
 import { notifyCfopCloudStateChanged } from "@/lib/cloudSyncSignal";
 import { spacedRepetitionInterval } from "@/lib/spacedRepetition";
@@ -15,25 +16,92 @@ const STORE = "cfop-bld-profile-v1";
 const MAX_ITEMS = 800;
 const MAX_DRILL_ATTEMPTS = 600;
 const MAX_REVIEW_DAYS = 1600;
-const grades: BldGrade[] = ["again", "hard", "good", "easy"];
-const bounded = (value: unknown, fallback: number, min: number, max: number) => typeof value === "number" && Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
+
+/** A finite number clamped to [min, max]; invalid input falls back. */
+const bounded = (fallback: number, min: number, max: number) =>
+  z.number().finite().transform(value => Math.min(max, Math.max(min, value))).prefault(fallback).catch(fallback);
+const boundedInt = (fallback: number, min: number, max: number) =>
+  z.number().finite().transform(value => Math.round(Math.min(max, Math.max(min, value)))).prefault(fallback).catch(fallback);
+const boundedDailyGoal = (value: unknown) =>
+  typeof value === "number" && Number.isFinite(value) ? Math.min(200, Math.max(1, Math.round(value))) : 12;
+
 const cleanAlgorithm = (value: unknown) => typeof value === "string" ? value.trim().slice(0, 600) : "";
 const cleanKeyword = (value: unknown) => typeof value === "string" ? value.trim().slice(0, 72) : "";
 const cleanImageUrl = (value: unknown) => { if (typeof value !== "string" || !value.trim()) return ""; try { const url = new URL(value.trim()); return url.protocol === "https:" ? url.toString().slice(0, 1000) : ""; } catch { return ""; } };
 
-function normalizePreferred(raw: unknown): BldPreferredAlgorithm | null { if (!raw || typeof raw !== "object") return null; const item = raw as Partial<BldPreferredAlgorithm>; const algorithm = cleanAlgorithm(item.algorithm); return algorithm ? { algorithm, updatedAt: bounded(item.updatedAt, Date.now(), 0, Number.MAX_SAFE_INTEGER) } : null; }
-function normalizeRecord(raw: unknown): BldMemoRecord | null { if (!raw || typeof raw !== "object") return null; const item = raw as Partial<BldMemoRecord>; const key = typeof item.key === "string" ? item.key.slice(0, 180) : ""; const memo = typeof item.memo === "string" ? item.memo.slice(0, 80) : ""; const kind: BldMemoKind = item.kind === "edge" || item.kind === "corner" || item.kind === "mixed" || item.kind === "parity" || item.kind === "flip" || item.kind === "twist" || item.kind === "formula" ? item.kind : "mixed"; if (!key || !memo) return null; const lastGrade = grades.includes(item.lastGrade as BldGrade) ? item.lastGrade as BldGrade : "again"; return { key, memo, kind, attempts: Math.round(bounded(item.attempts, 0, 0, 10_000)), lapses: Math.round(bounded(item.lapses, 0, 0, 10_000)), intervalDays: bounded(item.intervalDays, 0, 0, 3650), dueAt: bounded(item.dueAt, 0, 0, Number.MAX_SAFE_INTEGER), lastReviewedAt: bounded(item.lastReviewedAt, 0, 0, Number.MAX_SAFE_INTEGER), lastGrade }; }
-function normalizePairCard(raw: unknown): BldPairCard | null { if (!raw || typeof raw !== "object") return null; const item = raw as Partial<BldPairCard>; const keyword = cleanKeyword(item.keyword); const imageUrl = cleanImageUrl(item.imageUrl); return keyword || imageUrl ? { keyword, imageUrl, updatedAt: bounded(item.updatedAt, Date.now(), 0, Number.MAX_SAFE_INTEGER) } : null; }
-function normalizeDrillAttempt(raw: unknown): BldDrillAttempt | null { if (!raw || typeof raw !== "object") return null; const item = raw as Partial<BldDrillAttempt>; const id = typeof item.id === "string" ? item.id.slice(0, 96) : ""; const key = typeof item.key === "string" ? item.key.slice(0, 180) : ""; const kind: BldDrillKind | null = item.kind === "parity" || item.kind === "flip" || item.kind === "twist" ? item.kind : null; const grade = grades.includes(item.grade as BldGrade) ? item.grade as BldGrade : null; if (!id || !key || !kind || !grade) return null; return { id, key, kind, grade, durationMs: Math.round(bounded(item.durationMs, 0, 0, 3_600_000)), createdAt: bounded(item.createdAt, 0, 0, Number.MAX_SAFE_INTEGER) }; }
+const memoKindSchema = z.enum(["edge", "corner", "mixed", "parity", "flip", "twist", "formula"]);
+const drillKindSchema = z.enum(["parity", "flip", "twist"]);
+const bldGradeSchema = z.enum(["again", "hard", "good", "easy"]);
+
+const preferredAlgorithmSchema = z.object({
+  algorithm: z.unknown().transform(cleanAlgorithm),
+  updatedAt: bounded(Date.now(), 0, Number.MAX_SAFE_INTEGER),
+}).refine(value => value.algorithm.length > 0);
+
+const memoRecordSchema = z.object({
+  key: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 180) : "")),
+  memo: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 80) : "")),
+  kind: memoKindSchema.prefault("mixed").catch("mixed"),
+  attempts: boundedInt(0, 0, 10_000),
+  lapses: boundedInt(0, 0, 10_000),
+  intervalDays: bounded(0, 0, 3_650),
+  dueAt: bounded(0, 0, Number.MAX_SAFE_INTEGER),
+  lastReviewedAt: bounded(0, 0, Number.MAX_SAFE_INTEGER),
+  lastGrade: bldGradeSchema.prefault("again").catch("again"),
+}).refine(value => value.key.length > 0 && value.memo.length > 0);
+
+const pairCardSchema = z.object({
+  keyword: z.unknown().transform(cleanKeyword),
+  imageUrl: z.unknown().transform(cleanImageUrl),
+  updatedAt: bounded(Date.now(), 0, Number.MAX_SAFE_INTEGER),
+}).refine(value => value.keyword.length > 0 || value.imageUrl.length > 0);
+
+const drillAttemptSchema = z.object({
+  id: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 96) : "")),
+  key: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 180) : "")),
+  kind: drillKindSchema,
+  grade: bldGradeSchema,
+  durationMs: boundedInt(0, 0, 3_600_000),
+  createdAt: bounded(0, 0, Number.MAX_SAFE_INTEGER),
+}).refine(value => value.id.length > 0 && value.key.length > 0);
+
+function normalizePreferred(raw: unknown): BldPreferredAlgorithm | null {
+  const parsed = preferredAlgorithmSchema.safeParse(raw);
+  return parsed.success ? parsed.data : null;
+}
+function normalizeRecord(raw: unknown): BldMemoRecord | null {
+  const parsed = memoRecordSchema.safeParse(raw);
+  return parsed.success ? parsed.data : null;
+}
+function normalizePairCard(raw: unknown): BldPairCard | null {
+  const parsed = pairCardSchema.safeParse(raw);
+  return parsed.success ? parsed.data : null;
+}
+function normalizeDrillAttempt(raw: unknown): BldDrillAttempt | null {
+  const parsed = drillAttemptSchema.safeParse(raw);
+  return parsed.success ? parsed.data : null;
+}
+
 function reviewDay(timestamp: number) { const date = new Date(timestamp); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`; }
-function normalizeReviewDays(raw: unknown) { return Array.from(new Set((Array.isArray(raw) ? raw : []).filter((value): value is string => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)).sort())).slice(-MAX_REVIEW_DAYS); }
+const reviewDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+function normalizeReviewDays(raw: unknown) { return Array.from(new Set((Array.isArray(raw) ? raw : []).filter(value => reviewDateSchema.safeParse(value).success).sort())).slice(-MAX_REVIEW_DAYS); }
 function legacyReviewDays(records: Record<string, BldMemoRecord>) { return Array.from(new Set(Object.values(records).filter((record) => record.lastReviewedAt > 0).map((record) => reviewDay(record.lastReviewedAt)))).sort().slice(-MAX_REVIEW_DAYS); }
 
+/** Build the profile from its loose storage/backup shape; both read paths use it. */
+function assembleProfile(raw: Partial<BldProfile> & Record<string, unknown>): BldProfile {
+  const preferredAlgorithms = Object.fromEntries(Object.entries(raw.preferredAlgorithms ?? {}).map(([key, value]) => [key.slice(0, 180), normalizePreferred(value)]).filter((entry): entry is [string, BldPreferredAlgorithm] => Boolean(entry[1])).slice(0, MAX_ITEMS));
+  const memoRecords = Object.fromEntries(Object.values(raw.memoRecords ?? {}).map(normalizeRecord).filter((item): item is BldMemoRecord => Boolean(item)).slice(0, MAX_ITEMS).map((item) => [item.key, item]));
+  const pairCards = Object.fromEntries(Object.entries(raw.pairCards ?? {}).map(([key, value]) => [key.toUpperCase().replaceAll(/[^A-Z]/g, "").slice(0, 8), normalizePairCard(value)]).filter((entry): entry is [string, BldPairCard] => Boolean(entry[0] && entry[1])).slice(0, MAX_ITEMS));
+  const drillAttempts = (Array.isArray(raw.drillAttempts) ? raw.drillAttempts : []).map(normalizeDrillAttempt).filter((item): item is BldDrillAttempt => Boolean(item)).sort((left, right) => right.createdAt - left.createdAt).slice(0, MAX_DRILL_ATTEMPTS);
+  const reviewDays = Array.isArray(raw.reviewDays) ? normalizeReviewDays(raw.reviewDays) : legacyReviewDays(memoRecords);
+  return { preferredAlgorithms, memoRecords, pairCards, drillAttempts, reviewDays, audioEnabled: Boolean(raw.audioEnabled), dailyGoal: boundedDailyGoal(raw.dailyGoal) };
+}
+
 export function emptyBldProfile(): BldProfile { return { preferredAlgorithms: {}, memoRecords: {}, pairCards: {}, drillAttempts: [], reviewDays: [], audioEnabled: false, dailyGoal: 12 }; }
-export function readBldProfile(): BldProfile { try { const raw = readStoredJson<Partial<BldProfile>>(STORE, {}); const preferredAlgorithms = Object.fromEntries(Object.entries(raw.preferredAlgorithms ?? {}).map(([key, value]) => [key.slice(0, 180), normalizePreferred(value)]).filter((entry): entry is [string, BldPreferredAlgorithm] => Boolean(entry[1])).slice(0, MAX_ITEMS)); const memoRecords = Object.fromEntries(Object.values(raw.memoRecords ?? {}).map(normalizeRecord).filter((item): item is BldMemoRecord => Boolean(item)).slice(0, MAX_ITEMS).map((item) => [item.key, item])); const pairCards = Object.fromEntries(Object.entries(raw.pairCards ?? {}).map(([key, value]) => [key.toUpperCase().replaceAll(/[^A-Z]/g, "").slice(0, 8), normalizePairCard(value)]).filter((entry): entry is [string, BldPairCard] => Boolean(entry[0] && entry[1])).slice(0, MAX_ITEMS)); const drillAttempts = (Array.isArray(raw.drillAttempts) ? raw.drillAttempts : []).map(normalizeDrillAttempt).filter((item): item is BldDrillAttempt => Boolean(item)).sort((left, right) => right.createdAt - left.createdAt).slice(0, MAX_DRILL_ATTEMPTS); const reviewDays = Array.isArray(raw.reviewDays) ? normalizeReviewDays(raw.reviewDays) : legacyReviewDays(memoRecords); return { preferredAlgorithms, memoRecords, pairCards, drillAttempts, reviewDays, audioEnabled: Boolean(raw.audioEnabled), dailyGoal: Math.round(bounded(raw.dailyGoal, 12, 1, 200)) }; } catch { return emptyBldProfile(); } }
+export function readBldProfile(): BldProfile { try { const raw = readStoredJson<Partial<BldProfile>>(STORE, {}); return assembleProfile(raw); } catch { return emptyBldProfile(); } }
 export function writeBldProfile(profile: BldProfile) { writeStoredValue(STORE, JSON.stringify({ schema: "cfop-bld-profile", version: 3, ...profile, preferredAlgorithms: Object.fromEntries(Object.entries(profile.preferredAlgorithms).slice(0, MAX_ITEMS)), memoRecords: Object.fromEntries(Object.entries(profile.memoRecords).slice(0, MAX_ITEMS)), pairCards: Object.fromEntries(Object.entries(profile.pairCards).slice(0, MAX_ITEMS)), drillAttempts: profile.drillAttempts.slice(0, MAX_DRILL_ATTEMPTS), reviewDays: normalizeReviewDays(profile.reviewDays) })); notifyCfopCloudStateChanged(); }
 export function profileExport(profile: BldProfile) { return { schema: "cfop-bld-profile", version: 3, exportedAt: new Date().toISOString(), profile }; }
-export function importBldProfile(raw: unknown): BldProfile { if (!raw || typeof raw !== "object") throw new Error("Invalid BLD profile"); const root = raw as { schema?: unknown; profile?: unknown }; if (root.schema !== "cfop-bld-profile" || !root.profile || typeof root.profile !== "object") throw new Error("Invalid BLD profile"); const profile = root.profile as Partial<BldProfile>; const preferredAlgorithms = Object.fromEntries(Object.entries(profile.preferredAlgorithms ?? {}).map(([key, value]) => [key.slice(0, 180), normalizePreferred(value)]).filter((entry): entry is [string, BldPreferredAlgorithm] => Boolean(entry[1])).slice(0, MAX_ITEMS)); const memoRecords = Object.fromEntries(Object.values(profile.memoRecords ?? {}).map(normalizeRecord).filter((item): item is BldMemoRecord => Boolean(item)).slice(0, MAX_ITEMS).map((item) => [item.key, item])); const pairCards = Object.fromEntries(Object.entries(profile.pairCards ?? {}).map(([key, value]) => [key.toUpperCase().replaceAll(/[^A-Z]/g, "").slice(0, 8), normalizePairCard(value)]).filter((entry): entry is [string, BldPairCard] => Boolean(entry[0] && entry[1])).slice(0, MAX_ITEMS)); const drillAttempts = (Array.isArray(profile.drillAttempts) ? profile.drillAttempts : []).map(normalizeDrillAttempt).filter((item): item is BldDrillAttempt => Boolean(item)).sort((left, right) => right.createdAt - left.createdAt).slice(0, MAX_DRILL_ATTEMPTS); const reviewDays = Array.isArray(profile.reviewDays) ? normalizeReviewDays(profile.reviewDays) : legacyReviewDays(memoRecords); return { preferredAlgorithms, memoRecords, pairCards, drillAttempts, reviewDays, audioEnabled: Boolean(profile.audioEnabled), dailyGoal: Math.round(bounded(profile.dailyGoal, 12, 1, 200)) }; }
+export function importBldProfile(raw: unknown): BldProfile { if (!raw || typeof raw !== "object") throw new Error("Invalid BLD profile"); const root = raw as { schema?: unknown; profile?: unknown }; if (root.schema !== "cfop-bld-profile" || !root.profile || typeof root.profile !== "object") throw new Error("Invalid BLD profile"); return assembleProfile(root.profile as Partial<BldProfile>); }
 export function preferenceKey(kind: "edge" | "corner" | "parity" | "flip" | "twist", key: string) { return `${kind}:${key}`; }
 export function setPreferredAlgorithm(profile: BldProfile, key: string, algorithm: string): BldProfile { const cleaned = cleanAlgorithm(algorithm); const preferredAlgorithms = { ...profile.preferredAlgorithms }; if (cleaned) preferredAlgorithms[key] = { algorithm: cleaned, updatedAt: Date.now() }; else delete preferredAlgorithms[key]; return { ...profile, preferredAlgorithms }; }
 export function gradeMemo(profile: BldProfile, item: Pick<BldMemoRecord, "key" | "memo" | "kind">, grade: BldGrade, now = Date.now()): BldProfile { const previous = profile.memoRecords[item.key]; const prior = previous?.intervalDays ?? 0; const intervalDays = spacedRepetitionInterval(prior, grade); const record: BldMemoRecord = { key: item.key, memo: item.memo, kind: item.kind, attempts: (previous?.attempts ?? 0) + 1, lapses: (previous?.lapses ?? 0) + (grade === "again" ? 1 : 0), intervalDays, dueAt: now + intervalDays * 86_400_000, lastReviewedAt: now, lastGrade: grade }; const reviewDays = Array.from(new Set([...profile.reviewDays, reviewDay(now)])).sort().slice(-MAX_REVIEW_DAYS); return { ...profile, memoRecords: { ...profile.memoRecords, [record.key]: record }, reviewDays }; }
