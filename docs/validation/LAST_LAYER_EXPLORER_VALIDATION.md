@@ -1,6 +1,6 @@
 # Last Layer Explorer — UI validation
 
-- Studio tải catalog ZBLL từ worker Pyodide offline và hiển thị 519 case trong family ZBLL.
+- Studio duyệt catalog ZBLL từ dữ liệu direct-case nhúng sẵn (`features/last-layer/lib/directCaseCatalog.ts`) — không cần runtime Pyodide — và hiển thị 519 case trong family ZBLL.
 - Tìm kiếm `ZBLLAS-001` thu hẹp chính xác danh sách còn một case.
 - Chọn `ZBLLAS-001` chuyển Studio sang Màu 6 mặt, nạp state 54 sticker hợp lệ, chọn Last Layer ZBLL và tự căn Cross vàng xuống dưới.
 - Cube 3D hiển thị caption case đang chọn, đồng thời đánh dấu toàn bộ sticker lớp cuối bằng vòng vàng để phân biệt với Cross/F2L highlight.
