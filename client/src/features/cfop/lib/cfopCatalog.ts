@@ -10,7 +10,7 @@ import { applyFastMoves, invertAlgorithm, SOLVED_FAST_STATE } from "@/lib/fastCu
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 import {
   CFOP_CASES,
-  F2L_CASES,
+  F2L_4WAY_CASES,
   OLL_CASES,
   PLL_CASES,
   type CfopFamily,
@@ -79,14 +79,14 @@ export function listCfopCases(
 
 export function cfopCaseCount(family: CfopFamily): number {
   return family === "f2l"
-    ? F2L_CASES.length
+    ? F2L_4WAY_CASES.length
     : family === "oll"
       ? OLL_CASES.length
       : PLL_CASES.length;
 }
 
 export const CFOP_COUNTS = {
-  f2l: F2L_CASES.length,
+  f2l: F2L_4WAY_CASES.length,
   oll: OLL_CASES.length,
   pll: PLL_CASES.length,
   all: CFOP_CASES.length,

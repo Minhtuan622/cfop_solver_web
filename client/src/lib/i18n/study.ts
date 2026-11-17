@@ -23,8 +23,8 @@ export const studyWords: Dictionary = {
   "study.laneCfop": ["CFOP", "CFOP"],
 
   "cfop.laneSummary": [
-    "{f2l} F2L · {oll} OLL · {pll} PLL case",
-    "{f2l} F2L · {oll} OLL · {pll} PLL cases",
+    "F2L {f2l} (41 × 4 hướng) · OLL {oll} · PLL {pll} case",
+    "F2L {f2l} (41 × 4-way) · OLL {oll} · PLL {pll} cases",
   ],
   "cfop.catalogTitle": ["Danh mục CFOP 3×3", "CFOP 3×3 catalog"],
   "cfop.catalogHint": [
