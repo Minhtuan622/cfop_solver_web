@@ -1,97 +1,28 @@
 /**
  * CFOP 3×3 algorithm catalog for the /study CFOP lane.
  *
- * Contents: 41 F2L cases (FR slot), 57 OLL cases, 21 PLL cases — the standard
- * speedsolving set, written in the conventional Singmaster notation used by
- * common sheets (J Perm / speedcubing wiki style). Where several accepted
- * variants exist, one common variant is included; a few algs that use D or
- * wide moves are kept as-is (fastCube supports them).
- *
- * Case states are NOT embedded: `cfopCaseState` computes the pre-image with
- * `applyFastMoves(SOLVED_FAST_STATE, invertAlgorithm(algorithm))`, so every
- * shown case is guaranteed to be solved by its own algorithm (this is pinned
- * by a unit test that applies the alg to the derived state and expects the
- * solved cube back, plus cubeValidation for every derived state).
+ * Contents: full F2L 4 slot angles (164 cases from cubingapp.com's published
+ * set — see `f2l4AnglesData.ts`), plus 57 OLL and 21 PLL cases — the standard
+ * speedsolving set. Case states are NOT embedded: `cfopCaseState` derives
+ * them from the algorithms via `applyFastMoves(SOLVED_FAST_STATE, invertAlgorithm(alg))`,
+ * so every shown case is guaranteed to be solved by its own algorithm (pinned
+ * by tests: cubeValidation for every derived state + alg round-trip).
  */
+import { F2L_4ANGLES_ROWS } from "./f2l4AnglesData";
 
 export type CfopFamily = "f2l" | "oll" | "pll";
 
 export type CfopCaseRow = {
   id: string;
   family: CfopFamily;
-  /** FR = the F2L pair slot this catalog demonstrates; "oll"/"pll" for the rest. */
+  /** FR/FL/BR/BL for F2L, "oll"/"pll" for the rest. */
   group: string;
   name: string;
   algorithm: string;
 };
 
-export const F2L_CASES: readonly CfopCaseRow[] = [
-  { id: "F2L-01", family: "f2l", group: "FR", name: "Pair ready (U R U' R')", algorithm: "U R U' R'" },
-  { id: "F2L-02", family: "f2l", group: "FR", name: "Pair ready (R U' R' U)", algorithm: "R U' R' U" },
-  { id: "F2L-03", family: "f2l", group: "FR", name: "Corner twist in U", algorithm: "R U2 R' U R U' R'" },
-  { id: "F2L-04", family: "f2l", group: "FR", name: "Flat case (corner down)", algorithm: "R' F R F' U' R U' R'" },
-  { id: "F2L-05", family: "f2l", group: "FR", name: "Edge in slot, corner on U", algorithm: "F' U F U' F' U' F" },
-  { id: "F2L-06", family: "f2l", group: "FR", name: "Edge in slot, corner on U (2)", algorithm: "R U R' U2 R U R'" },
-  { id: "F2L-07", family: "f2l", group: "FR", name: "Corner twisted down (U2)", algorithm: "R' U' R U' R' U2 R" },
-  { id: "F2L-08", family: "f2l", group: "FR", name: "Edge flip in slot", algorithm: "U R' U' R U R' U'" },
-  { id: "F2L-09", family: "f2l", group: "FR", name: "Insert from F", algorithm: "F U' R U R' U' F'" },
-  { id: "F2L-10", family: "f2l", group: "FR", name: "Insert from F (mirror)", algorithm: "F' U R U' R' U F" },
-  { id: "F2L-11", family: "f2l", group: "FR", name: "F2L 11", algorithm: "U F R U R' U' F'" },
-  { id: "F2L-12", family: "f2l", group: "FR", name: "Partner crack", algorithm: "F' U2 F U2 R U' R'" },
-  { id: "F2L-13", family: "f2l", group: "FR", name: "Front insert (F U R)", algorithm: "F U R U' R' F'" },
-  { id: "F2L-14", family: "f2l", group: "FR", name: "Edge on U", algorithm: "U' R U R' U2 F R F'" },
-  { id: "F2L-15", family: "f2l", group: "FR", name: "Edge on U (mirror r)", algorithm: "r' U2 R U2 R' U r" },
-  { id: "F2L-16", family: "f2l", group: "FR", name: "Corner on U", algorithm: "r U2 R' U2 R U' r'" },
-  { id: "F2L-17", family: "f2l", group: "FR", name: "Pair on F (up)", algorithm: "F R U' R' U' R U R' F'" },
-  { id: "F2L-18", family: "f2l", group: "FR", name: "Pair on F (mirror)", algorithm: "F' U' R U R' U' R U R' F" },
-  { id: "F2L-19", family: "f2l", group: "FR", name: "Corner in wrong slot", algorithm: "R U R' F R' F' U R'" },
-  { id: "F2L-20", family: "f2l", group: "FR", name: "Sune-like corner", algorithm: "U' R' U2 R U' R' U' R U' R'" },
-  { id: "F2L-21", family: "f2l", group: "FR", name: "Edge oriented, corner twisted (F)", algorithm: "F R U R' U' F'" },
-  { id: "F2L-22", family: "f2l", group: "FR", name: "Edge oriented, corner twisted (F')", algorithm: "F' R U' R' U F" },
-  { id: "F2L-23", family: "f2l", group: "FR", name: "Pair attached to cross (F)", algorithm: "U' F U' R U R' U2 F'" },
-  { id: "F2L-24", family: "f2l", group: "FR", name: "Pair attached to cross (F R U2)", algorithm: "F R U2 R' U' F'" },
-  { id: "F2L-25", family: "f2l", group: "FR", name: "Edge in U (F')", algorithm: "F' U R U2 R' U' F" },
-  { id: "F2L-26", family: "f2l", group: "FR", name: "Corner twisted down 2", algorithm: "R U2 R' U2 R U R' U'" },
-  { id: "F2L-27", family: "f2l", group: "FR", name: "Double trigger", algorithm: "R2 U2 R' U R U2 R'" },
-  { id: "F2L-28", family: "f2l", group: "FR", name: "F2L 28", algorithm: "F R2 U2 R' U2 R U2 R2 F'" },
-  { id: "F2L-29", family: "f2l", group: "FR", name: "Wide r + M", algorithm: "r' U2 R U' M' U' R2" },
-  { id: "F2L-30", family: "f2l", group: "FR", name: "Keyhole insert", algorithm: "r U R' U2 M U2 R' U' R U' R'" },
-  { id: "F2L-31", family: "f2l", group: "FR", name: "Wide trigger", algorithm: "r' U' r U R' U2 R" },
-  { id: "F2L-32", family: "f2l", group: "FR", name: "FR slot cross pair", algorithm: "F U' R U2 R' U' F'" },
-  { id: "F2L-33", family: "f2l", group: "FR", name: "FR slot cross pair (mirror)", algorithm: "F' U' R U2 R' U F" },
-  { id: "F2L-34", family: "f2l", group: "FR", name: "Edge under bar (F R U)", algorithm: "F R U' R' U F'" },
-  { id: "F2L-35", family: "f2l", group: "FR", name: "Back-and-forth trigger", algorithm: "U R U' R' F R U R' U' F'" },
-  { id: "F2L-36", family: "f2l", group: "FR", name: "Wide r trigger (U2)", algorithm: "R U2 F R' F' R U2 R'" },
-  { id: "F2L-37", family: "f2l", group: "FR", name: "Edge under (F' U R)", algorithm: "F' U R U' R' F" },
-  { id: "F2L-38", family: "f2l", group: "FR", name: "Wide r back-slot", algorithm: "U' F' r U r' U2 R U' R'" },
-  { id: "F2L-39", family: "f2l", group: "FR", name: "Back trigger", algorithm: "F R' F' R U2 R U' R'" },
-  { id: "F2L-40", family: "f2l", group: "FR", name: "Double sexy move", algorithm: "R U R' U' R U2 R'" },
-  { id: "F2L-41", family: "f2l", group: "FR", name: "Slot 41 (wide trigger)", algorithm: "R2 U' R' U' R U R U2 R'" },
-];
-
-/**
- * Slot variants of the 41 FR-slot cases, generated by whole-cube conjugation:
- * FL = y' A y, BL = y2 A y2, BR = y A y' (the way speedcubers rotate the cube
- * to get the working slot back to the front). Whole-cube rotations cancel in
- * inverse pairs, so the derived states stay center-fixed legal cubes.
- */
-export const F2L_SLOT_VARIANTS = [
-  // FR keeps the original ids so existing SRS records (`f2l:F2L-01`) stay valid.
-  { slot: "FR", idSuffix: "", nameSuffix: "", wrap: (alg: string) => alg },
-  { slot: "FL", idSuffix: "-FL", nameSuffix: " · FL", wrap: (alg: string) => `y' ${alg} y` },
-  { slot: "BL", idSuffix: "-BL", nameSuffix: " · BL", wrap: (alg: string) => `y2 ${alg} y2` },
-  { slot: "BR", idSuffix: "-BR", nameSuffix: " · BR", wrap: (alg: string) => `y ${alg} y'` },
-] as const;
-
-export const F2L_4WAY_CASES: readonly CfopCaseRow[] = F2L_CASES.flatMap(row =>
-  F2L_SLOT_VARIANTS.map(({ slot, idSuffix, nameSuffix, wrap }) => ({
-    id: `${row.id}${idSuffix}`,
-    family: "f2l" as const,
-    group: slot,
-    name: `${row.name}${nameSuffix}`,
-    algorithm: wrap(row.algorithm),
-  })),
-);
+export const F2L_CASES: readonly CfopCaseRow[] = F2L_4ANGLES_ROWS;
+export const F2L_4WAY_CASES: readonly CfopCaseRow[] = F2L_4ANGLES_ROWS;
 
 export const OLL_CASES: readonly CfopCaseRow[] = [
   { id: "OLL-01", family: "oll", group: "oll", name: "OLL 1", algorithm: "R U2 R2 F R F' U2 R' F R F'" },
