@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Dropdown } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { AccountNavItem } from "@/features/profile/lib/accountNavItems";
 import { cn } from "@/lib/utils";
@@ -35,22 +35,19 @@ export function NavOverflowMenu({
       {items.map(item => {
         const active = item.active(path);
         return (
-          <li key={item.href}>
+          <DropdownItem asChild key={item.href}>
             <Link
               href={item.href}
-              role="menuitem"
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center rounded-xl px-3 py-2 text-sm transition hover:bg-surface-2",
-                active
-                  ? "bg-primary-soft font-semibold text-primary"
-                  : "text-ink"
+                "flex items-center rounded-xl px-3 py-2 text-sm transition data-[highlighted]:bg-surface-2",
+                active ? "bg-primary-soft font-semibold text-primary" : "text-ink"
               )}
               onClick={onNavigate}
             >
               {t(item.labelKey)}
             </Link>
-          </li>
+          </DropdownItem>
         );
       })}
     </Dropdown>

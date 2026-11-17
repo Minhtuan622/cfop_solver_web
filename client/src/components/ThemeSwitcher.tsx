@@ -1,5 +1,5 @@
 import { CircleHalf, MoonStars, SunFill } from "@/components/ui/Icon";
-import { Dropdown } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownRadioGroup, DropdownRadioItem } from "@/components/ui/Dropdown";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Theme } from "@/lib/theme";
@@ -51,24 +51,24 @@ export function ThemeSwitcher({ compact = false }: { compact?: boolean }) {
         </>
       }
     >
-      {OPTIONS.map(option => {
-        const OptionIcon = option.icon;
-        const active = option.value === theme;
-        return (
-          <li key={option.value}>
-            <button
-              type="button"
-              role="menuitemradio"
-              aria-checked={active}
-              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-surface-2 aria-checked:bg-primary-soft aria-checked:font-semibold aria-checked:text-primary"
-              onClick={() => setTheme(option.value)}
+      <DropdownRadioGroup
+        value={theme}
+        onValueChange={value => setTheme(value as Theme)}
+      >
+        {OPTIONS.map(option => {
+          const OptionIcon = option.icon;
+          return (
+            <DropdownRadioItem
+              key={option.value}
+              value={option.value}
+              className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition data-[highlighted]:bg-surface-2 data-[state=checked]:bg-primary-soft data-[state=checked]:font-semibold data-[state=checked]:text-primary"
             >
               <OptionIcon className="text-base" />
               {labels[option.value]}
-            </button>
-          </li>
-        );
-      })}
+            </DropdownRadioItem>
+          );
+        })}
+      </DropdownRadioGroup>
     </Dropdown>
   );
 }

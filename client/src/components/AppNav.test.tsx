@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/trpc", () => ({
@@ -46,11 +47,12 @@ describe("AppNav", () => {
     }
   });
 
-  it("gói các trang còn lại vào một menu Thêm, nhưng vẫn tới được", () => {
+  it("gói các trang còn lại vào một menu Thêm, nhưng vẫn tới được", async () => {
+    const user = userEvent.setup();
     renderNav();
 
     expect(screen.queryByRole("menuitem", { name: "Cài đặt" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Thêm" }));
+    await user.click(screen.getByRole("button", { name: "Thêm" }));
 
     const routes = [
       { name: "Thi đấu", href: "/rooms" },
@@ -92,7 +94,8 @@ describe("AppNav", () => {
     ).toBeNull();
   });
 
-  it("gộp ngôn ngữ, giao diện và tài khoản vào một menu", () => {
+  it("gộp ngôn ngữ, giao diện và tài khoản vào một menu", async () => {
+    const user = userEvent.setup();
     renderNav();
 
     // Một nút duy nhất thay cho ba nút cũ.
@@ -104,7 +107,7 @@ describe("AppNav", () => {
       screen.queryByRole("button", { name: /Đổi giao diện/ })
     ).toBeNull();
 
-    fireEvent.click(
+    await user.click(
       screen.getByRole("button", { name: "Tài khoản và tuỳ chọn" })
     );
 
