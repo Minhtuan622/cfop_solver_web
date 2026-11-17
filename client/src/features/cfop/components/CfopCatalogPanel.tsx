@@ -1,19 +1,22 @@
 /**
- * CFOP catalog drawer: the shared CatalogExplorer wired to the F2L/OLL/PLL
- * data and the cube-net preview (OLL/PLL dim everything outside the last
- * layer) — same learning tools as the last layer tab: group progress,
+ * CFOP catalog drawer: the shared CatalogExplorer wired to the F2L/OLL/PLL/
+ * COLL/OLLCP data — OLL-family cases show the big U-face diagram, F2L shows
+ * the full net — same learning tools as the last layer tab: group progress,
  * unmastered filter, random practice, bulk mark-as-learned, preview dialog.
  */
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCallback, useState, type KeyboardEvent } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { CubeNet } from "@/components/common/CubeNet";
+import { PracticeGroupPreview } from "@/features/last-layer/components/PracticeGroupPreview";
 import {
   CatalogExplorer,
   type CatalogExplorerPreviewProps,
 } from "@/features/last-layer/components/CatalogExplorer";
 import type { CfopCatalogCase } from "../lib/cfopCatalog";
 
-function CfopNetPreview({
+const U_FACE_FAMILIES = new Set(["oll", "pll", "coll", "ollcp"]);
+
+function CfopPreview({
   state,
   label,
   compact = false,
@@ -22,14 +25,22 @@ function CfopNetPreview({
 }: CatalogExplorerPreviewProps) {
   const { t } = useLanguage();
   const interactive = Boolean(onClick);
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      if (!onClick || (event.key !== "Enter" && event.key !== " ")) return;
-      event.preventDefault();
-      onClick();
-    },
-    [onClick]
-  );
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    onClick();
+  };
+  if (family && U_FACE_FAMILIES.has(family)) {
+    // Big U-face diagram — the only honest face for orientation/permutation cases.
+    return (
+      <PracticeGroupPreview
+        state={state}
+        label={label}
+        compact={compact}
+        onClick={onClick}
+      />
+    );
+  }
   return (
     <div
       aria-label={t("study.previewOf", { label })}
@@ -39,12 +50,9 @@ function CfopNetPreview({
       onKeyDown={handleKeyDown}
       title={interactive ? t("study.enlargePreview", { label }) : undefined}
       className={interactive ? "w-full cursor-pointer" : "w-full"}
-      style={{ width: "100%", maxWidth: compact ? "6.5rem" : "24rem" }}
+      style={{ width: "100%", maxWidth: compact ? "10rem" : "min(22rem, 100%)" }}
     >
-      <CubeNet
-        state={state}
-        lastLayerOnly={family === "oll" || family === "pll" || family === "coll" || family === "ollcp"}
-      />
+      <CubeNet state={state} compact={compact} />
     </div>
   );
 }
@@ -83,7 +91,7 @@ export function CfopCatalogPanel({
       onFamily={setFamily}
       onSelect={item => onSelect(item as CfopCatalogCase)}
       onMasteredChange={onMasteredChange}
-      renderPreview={CfopNetPreview}
+      renderPreview={CfopPreview}
       catalogTitle={t("cfop.catalogTitle")}
       previewHint={t("study.previewHintCase")}
     />

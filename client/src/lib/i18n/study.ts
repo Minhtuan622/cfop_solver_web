@@ -309,8 +309,8 @@ export const studyWords: Dictionary = {
     "This is the puzzle-shaped mark; see the real 3D case in the practice card.",
   ],
   "study.previewHintCase": [
-    "Đây là net đại diện của case.",
-    "This shows the representative net of the case.",
+    "Đây là hình đại diện của case.",
+    "This shows the representative diagram of the case.",
   ],
   "study.bldCatalogTitle": ["Danh mục 3-Style", "3-Style library"],
   "study.bldLaneSummary": [

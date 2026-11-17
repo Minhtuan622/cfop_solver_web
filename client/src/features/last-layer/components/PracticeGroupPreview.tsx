@@ -1,3 +1,9 @@
+/**
+ * Flat 3×3 U-face preview — the representative face for every
+ * last-layer-family case (LL, OLL/PLL/COLL/OLLCP). Shares the same visual
+ * language as the rest of the study previews: deep ink card, nine flat
+ * stickers, no borders or shadows.
+ */
 import { CUBE_COLOR } from "@/components/common/CubeNet";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { KeyboardEvent } from "react";
@@ -34,28 +40,28 @@ export function PracticeGroupPreview({
       onClick={onClick}
       onKeyDown={handleKeyDown}
       title={interactive ? t("study.enlargePreview", { label }) : undefined}
-      className={`flex items-center justify-center rounded-lg bg-ink p-2 ${
+      className={`flex items-center justify-center rounded-2xl bg-ink p-1.5 ${
         interactive ? "cursor-pointer" : ""
       }`}
       style={{
-        width: compact ? "5.25rem" : "min(22rem, 100%)",
+        width: "100%",
+        maxWidth: compact ? "7rem" : "min(22rem, 100%)",
         aspectRatio: "1",
       }}
     >
       <div
-        className="aspect-square w-full"
+        className="grid h-full w-full grid-cols-3 m-0"
+        style={{ gap: compact ? "3px" : "6px" }}
         role="img"
         aria-label={t("study.previewFace", { label })}
       >
-        <div className="grid h-full grid-cols-3 gap-1 m-0">
-          {stickers.map((sticker, index) => (
-            <span
-              key={`${sticker}-${index}`}
-              className="rounded-md p-0"
-              style={{ backgroundColor: CUBE_COLOR[sticker] ?? "#6c757d" }}
-            />
-          ))}
-        </div>
+        {stickers.map((sticker, index) => (
+          <span
+            key={`${sticker}-${index}`}
+            className={compact ? "rounded-md p-0" : "rounded-lg p-0"}
+            style={{ backgroundColor: CUBE_COLOR[sticker] ?? "#6c757d" }}
+          />
+        ))}
       </div>
     </div>
   );
