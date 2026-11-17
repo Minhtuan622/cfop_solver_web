@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
 
@@ -32,17 +32,21 @@ export function Dialog({
   dialogClassName,
 }: DialogShellProps) {
   // Call sites open the dialog with a plain button (not Dialog.Trigger), so
-  // Radix cannot know what to restore focus to. Remember the element that
-  // had focus when the dialog opened.
+  // Radix cannot know what to restore focus to. Capture the element that had
+  // focus BEFORE Radix moves it into the content — this runs at render time,
+  // ahead of any effect.
   const restoreFocusRef = useRef<HTMLElement | null>(null);
-  useEffect(() => {
-    if (!open) return;
-    const previous = document.activeElement;
-    restoreFocusRef.current =
-      previous instanceof HTMLElement && previous !== document.body
-        ? previous
-        : null;
-  }, [open]);
+  const wasOpenRef = useRef(open);
+  if (open !== wasOpenRef.current) {
+    if (open) {
+      const previous = document.activeElement;
+      restoreFocusRef.current =
+        previous instanceof HTMLElement && previous !== document.body
+          ? previous
+          : null;
+    }
+    wasOpenRef.current = open;
+  }
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
