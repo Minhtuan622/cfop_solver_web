@@ -2,6 +2,7 @@ import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 
 import { readStoredJson, writeStoredValue } from "@/lib/browserStorage";
 import { notifyCfopCloudStateChanged } from "@/lib/cloudSyncSignal";
+import { spacedRepetitionInterval } from "@/lib/spacedRepetition";
 
 export type StudyGrade = "again" | "hard" | "good" | "easy";
 export type StudyRecord = {
@@ -63,7 +64,7 @@ export function writeMasteredCaseKeys(keys: Set<string>) { writeStoredValue(MAST
 
 export function gradeCase(item: LastLayerCatalogCase, existing: StudyRecord | undefined, elapsedMs: number, grade: StudyGrade, now = Date.now()): StudyRecord {
   const prior = existing?.intervalDays ?? 0;
-  const intervalDays = grade === "again" ? 0 : grade === "hard" ? Math.max(1, Math.round(Math.max(1, prior) * 1.3)) : grade === "good" ? (prior < 1 ? 1 : Math.round(prior * 2.5)) : (prior < 1 ? 3 : Math.round(prior * 3.5));
+  const intervalDays = spacedRepetitionInterval(prior, grade);
   const attempts = (existing?.attempts ?? 0) + 1;
   const lapses = (existing?.lapses ?? 0) + (grade === "again" ? 1 : 0);
   const previousAverage = existing?.averageMs ?? 0;

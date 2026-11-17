@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "@/components/ui/Icon";
 import { Link } from "wouter";
+import Papa from "papaparse";
 import {
   Line,
   LineChart,
@@ -54,7 +55,7 @@ import {
   timerEventLabel,
   type TimerEventId,
 } from "@/lib/timerEvents";
-import { csvCell, downloadFile as saveFile } from "@/lib/browserDownload";
+import { downloadFile as saveFile } from "@/lib/browserDownload";
 import { readStoredValue } from "@/lib/browserStorage";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/Button";
@@ -199,41 +200,41 @@ export default function History() {
       else filtered.forEach(entry => next.add(entry.id));
       return next;
     });
-  const exportCsv = () =>
+  const exportCsv = () => {
+    const rows: (string | number | null | undefined)[][] = [
+      [
+        "timestamp",
+        "event",
+        "base_time_ms",
+        "inspection_ms",
+        "penalty",
+        "result",
+        "scramble",
+        "mbl_scrambles",
+        "solution",
+        "note",
+        "tags",
+      ],
+      ...entries.map(item => [
+        new Date(item.createdAt).toISOString(),
+        normalizeTimerEventId(item.eventId),
+        item.elapsedMs,
+        item.inspectionMs,
+        item.penalty,
+        formatSolveResult(item),
+        item.input,
+        item.multiBlindScrambles?.join("\n") ?? "",
+        item.solution,
+        item.note,
+        item.tags.join("|"),
+      ]),
+    ];
     saveFile(
       "cfop-solve-history.csv",
       "text/csv;charset=utf-8",
-      [
-        [
-          "timestamp",
-          "event",
-          "base_time_ms",
-          "inspection_ms",
-          "penalty",
-          "result",
-          "scramble",
-          "mbl_scrambles",
-          "solution",
-          "note",
-          "tags",
-        ],
-        ...entries.map(item => [
-          new Date(item.createdAt).toISOString(),
-          normalizeTimerEventId(item.eventId),
-          item.elapsedMs,
-          item.inspectionMs,
-          item.penalty,
-          formatSolveResult(item),
-          item.input,
-          item.multiBlindScrambles?.join("\n") ?? "",
-          item.solution,
-          item.note,
-          item.tags.join("|"),
-        ]),
-      ]
-        .map(row => row.map(csvCell).join(","))
-        .join("\n")
+      Papa.unparse(rows, { quotes: true, newline: "\n" }),
     );
+  };
   const onImport = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;

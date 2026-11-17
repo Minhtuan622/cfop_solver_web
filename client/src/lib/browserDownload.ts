@@ -7,7 +7,3 @@ export function downloadFile(name: string, type: string, value: BlobPart) {
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
-
-export function csvCell(value: string | number) {
-  return `"${String(value).replaceAll('"', '""')}"`;
-}
