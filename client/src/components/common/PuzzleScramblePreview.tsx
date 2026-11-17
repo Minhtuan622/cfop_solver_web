@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo } from "react";
+import { isSideEvent2DPuzzle } from "@/features/puzzle-3d/lib/puzzleIds";
 import { timerPreviewPuzzleId, type TimerEventId } from "@/lib/timerEvents";
 
 const Puzzle3DCanvas = lazy(async () => ({
@@ -16,7 +17,9 @@ export function puzzleScramblePreviewConfig(
         puzzle,
         experimentalSetupAlg: scramble,
         alg: "",
-        visualization: "3D" as const,
+        visualization: isSideEvent2DPuzzle(puzzle)
+          ? ("2D" as const)
+          : ("3D" as const),
         hintFacelets: "none" as const,
         controlPanel: "none" as const,
         backView: "none" as const,
@@ -53,12 +56,15 @@ export function PuzzleScramblePreview({
   );
 
   if (!config) return null;
+  const modelLabel = isSideEvent2DPuzzle(config.puzzle) ? "2D" : "3D";
   return (
     <Suspense
       fallback={
         <div className="rounded-card bg-surface h-full">
           <div className="p-5 sm:p-6 flex items-center justify-center text-sm text-muted">
-            {language === "vi" ? "Đang tải mô hình 3D…" : "Loading 3D model…"}
+            {language === "vi"
+              ? `Đang tải mô hình ${modelLabel}…`
+              : `Loading ${modelLabel} model…`}
           </div>
         </div>
       }

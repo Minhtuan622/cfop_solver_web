@@ -1,6 +1,6 @@
 import type { BufferAttribute, Object3D } from "three";
 import type { FtoTeachingFace, PuzzleId } from "./puzzleIds";
-import type { ThreeModule } from "./sideEventShared";
+import type { ThreeModule } from "./threeTypes";
 
 /** The cubing FTO default has its white U face above the viewer; positive roll moves it to the viewer's left. */
 export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? Math.PI / 2 : 0; }
