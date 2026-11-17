@@ -1,85 +1,40 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import { createPortal } from "react-dom";
+import { type ReactNode, useEffect, useRef } from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
 
-const FOCUSABLE_SELECTOR = [
-  "a[href]",
-  "button:not([disabled])",
-  "input:not([disabled]):not([type='hidden'])",
-  "select:not([disabled])",
-  "textarea:not([disabled])",
-  "[tabindex]:not([tabindex='-1'])",
-].join(", ");
-
-type DialogContextValue = {
-  titleId: string;
-  descriptionId: string;
-  registerTitle: () => void;
-  registerDescription: () => void;
-};
-
-const DialogContext = createContext<DialogContextValue | null>(null);
-
-function useDialogContext(component: string) {
-  const context = useContext(DialogContext);
-  if (!context) {
-    throw new Error(`${component} must be rendered inside a <Dialog>.`);
-  }
-  return context;
-}
-
-function focusableWithin(container: HTMLElement) {
-  return Array.from(
-    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
-  ).filter(
-    element =>
-      !element.hasAttribute("hidden") &&
-      element.getAttribute("aria-hidden") !== "true"
-  );
-}
-
-type ModalShellProps = {
+/**
+ * Hộp thoại modal dựa trên Radix Dialog.
+ *
+ * Component cũ tự dựng toàn bộ (portal, focus trap, khóa cuộn nền, Escape,
+ * trả focus). Giờ do Radix đảm nhiệm; component này chỉ giữ lại phần trình
+ * bày (tấm nền, vị trí, khung bề rộng) và API dùng chung của app:
+ *
+ * - `Dialog` + `DialogTitle`/`DialogDescription`: Radix tự nối `aria-labelledby`
+ *   và `aria-describedby`
+ * - focus chuyển vào hộp thoại khi mở và quay lại phần tử đã mở
+ * - Escape hoặc bấm nền để đóng
+ *
+ * Tấm nền là `Dialog.Overlay`; `Dialog.Content` chính là tấm panel (nhỏ hơn
+ * màn hình), nên bấm vào phần bên ngoài panel được Radix nhận là "ô outside"
+ * và tự đóng hộp thoại.
+ */
+type DialogShellProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
   dialogClassName?: string;
 };
 
-function ModalShell({
+export function Dialog({
   open,
   onOpenChange,
   children,
   dialogClassName,
-}: ModalShellProps) {
-  const idSuffix = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  const titleId = `cfop-dialog-title-${idSuffix}`;
-  const descriptionId = `cfop-dialog-description-${idSuffix}`;
-  const [hasTitle, setHasTitle] = useState(false);
-  const [hasDescription, setHasDescription] = useState(false);
-  const dialogRef = useRef<HTMLDivElement | null>(null);
+}: DialogShellProps) {
+  // Call sites open the dialog with a plain button (not Dialog.Trigger), so
+  // Radix cannot know what to restore focus to. Remember the element that
+  // had focus when the dialog opened.
   const restoreFocusRef = useRef<HTMLElement | null>(null);
-
-  const context = useMemo<DialogContextValue>(
-    () => ({
-      titleId,
-      descriptionId,
-      registerTitle: () => setHasTitle(true),
-      registerDescription: () => setHasDescription(true),
-    }),
-    [descriptionId, titleId]
-  );
-
-  // WAI-ARIA dialog pattern: move focus into the dialog when it opens and hand
-  // it back to whatever opened it once it closes.
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement;
@@ -87,123 +42,34 @@ function ModalShell({
       previous instanceof HTMLElement && previous !== document.body
         ? previous
         : null;
-    const node = dialogRef.current;
-    if (node && !node.contains(document.activeElement)) {
-      const [first] = focusableWithin(node);
-      (first ?? node).focus();
-    }
-    return () => {
-      const target = restoreFocusRef.current;
-      restoreFocusRef.current = null;
-      if (target && document.contains(target)) target.focus();
-    };
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        onOpenChange(false);
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const node = dialogRef.current;
-      if (!node) return;
-      const items = focusableWithin(node);
-      if (items.length === 0) {
-        event.preventDefault();
-        node.focus();
-        return;
-      }
-      const first = items[0];
-      const last = items[items.length - 1];
-      const active = document.activeElement;
-      const inside =
-        active instanceof HTMLElement &&
-        active !== node &&
-        node.contains(active);
-      if (!inside) {
-        event.preventDefault();
-        (event.shiftKey ? last : first).focus();
-        return;
-      }
-      if (event.shiftKey && active === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && active === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onOpenChange, open]);
-
-  if (!open) return null;
-
-  return createPortal(
-    <DialogContext.Provider value={context}>
-      <div className="fixed inset-0 z-50 overflow-y-auto" role="presentation">
-        <div
-          className="fixed inset-0 bg-ink/45 backdrop-blur-[2px]"
+  return (
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay
+          className="fixed inset-0 z-50 bg-ink/45 backdrop-blur-[2px]"
           data-testid="dialog-backdrop"
-          aria-hidden="true"
-          onMouseDown={() => onOpenChange(false)}
         />
-        <div
-          className="relative flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6"
-          onMouseDown={event => {
-            if (event.target === event.currentTarget) onOpenChange(false);
+        <DialogPrimitive.Content
+          className={cn(
+            "fixed inset-x-3 top-3 z-50 flex max-h-[calc(100dvh-1.5rem)] flex-col overflow-hidden rounded-[1.6rem] bg-surface sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:max-h-[min(88vh,56rem)] sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2",
+            dialogClassName
+          )}
+          onCloseAutoFocus={event => {
+            event.preventDefault();
+            const target = restoreFocusRef.current;
+            if (target && document.contains(target))
+              target.focus({ preventScroll: true });
           }}
         >
-          <div
-            ref={dialogRef}
-            className={cn(
-              "relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-[1.6rem] bg-surface sm:max-h-[min(88vh,56rem)] sm:max-w-2xl",
-              dialogClassName
-            )}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={hasTitle ? titleId : undefined}
-            aria-describedby={hasDescription ? descriptionId : undefined}
-            tabIndex={-1}
-          >
-            {children}
-          </div>
-        </div>
-      </div>
-    </DialogContext.Provider>,
-    document.body
+          {children}
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
 
-export function Dialog({
-  open,
-  onOpenChange,
-  children,
-  dialogClassName,
-}: ModalShellProps) {
-  return (
-    <ModalShell
-      open={open}
-      onOpenChange={onOpenChange}
-      dialogClassName={dialogClassName}
-    >
-      {children}
-    </ModalShell>
-  );
-}
 export function DialogContent({
   children,
   className,
@@ -219,6 +85,7 @@ export function DialogContent({
     </div>
   );
 }
+
 export function DialogHeader({
   children,
   className,
@@ -227,16 +94,12 @@ export function DialogHeader({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-1 px-6 py-5",
-        className
-      )}
-    >
+    <div className={cn("flex flex-col gap-1 px-6 py-5", className)}>
       {children}
     </div>
   );
 }
+
 export function DialogTitle({
   children,
   className,
@@ -244,19 +107,18 @@ export function DialogTitle({
   children: ReactNode;
   className?: string;
 }) {
-  const { titleId, registerTitle } = useDialogContext("DialogTitle");
-  useEffect(() => {
-    registerTitle();
-  }, [registerTitle]);
   return (
-    <h2
-      id={titleId}
-      className={cn("text-lg font-semibold tracking-tight text-ink", className)}
+    <DialogPrimitive.Title
+      className={cn(
+        "text-lg font-semibold tracking-tight text-ink",
+        className
+      )}
     >
       {children}
-    </h2>
+    </DialogPrimitive.Title>
   );
 }
+
 export function DialogDescription({
   children,
   className,
@@ -264,20 +126,15 @@ export function DialogDescription({
   children: ReactNode;
   className?: string;
 }) {
-  const { descriptionId, registerDescription } =
-    useDialogContext("DialogDescription");
-  useEffect(() => {
-    registerDescription();
-  }, [registerDescription]);
   return (
-    <p
-      id={descriptionId}
+    <DialogPrimitive.Description
       className={cn("text-sm leading-relaxed text-muted", className)}
     >
       {children}
-    </p>
+    </DialogPrimitive.Description>
   );
 }
+
 export function DialogFooter({
   children,
   className,
