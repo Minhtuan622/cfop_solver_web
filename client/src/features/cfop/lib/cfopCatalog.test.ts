@@ -12,18 +12,19 @@ import {
   cfopCaseState,
   listCfopCases,
 } from "./cfopCatalog";
-import { F2L_4WAY_CASES, OLL_CASES, PLL_CASES } from "./cfopCatalogData";
+import { F2L_4WAY_CASES, OLL_CASES, PLL_CASES, COLL_CASES, OLLCP_CASES } from "./cfopCatalogData";
 
 
 describe("CFOP catalog data", () => {
-  it("ships 41 F2L × 4 slots + 57 OLL + 21 PLL = 242 cases", () => {
-    expect(F2L_4WAY_CASES).toHaveLength(164);
+  it("ships 41 F2L × 4 slots + 57 OLL + 21 PLL + 40 COLL + 342 OLLCP = 624 cases", () => {
     expect(F2L_4WAY_CASES).toHaveLength(164);
     expect(OLL_CASES).toHaveLength(57);
     expect(PLL_CASES).toHaveLength(21);
-    expect(CFOP_CASES).toHaveLength(242);
-    expect(CFOP_COUNTS).toEqual({ f2l: 164, oll: 57, pll: 21, all: 242 });
-    expect(CFOP_CATALOG).toHaveLength(242);
+    expect(COLL_CASES).toHaveLength(40);
+    expect(OLLCP_CASES).toHaveLength(342);
+    expect(CFOP_CASES).toHaveLength(624);
+    expect(CFOP_COUNTS).toEqual({ f2l: 164, oll: 57, pll: 21, coll: 40, ollcp: 342, all: 624 });
+    expect(CFOP_CATALOG).toHaveLength(624);
   });
 
   it("has unique ids", () => {
@@ -98,7 +99,7 @@ describe("F2L 4-way slot variants", () => {
 
 describe("listCfopCases", () => {
   it("lists everything by default and respects the family filter", () => {
-    expect(listCfopCases({ family: "all", limit: 1000 })).toHaveLength(242);
+    expect(listCfopCases({ family: "all", limit: 1000 })).toHaveLength(624);
     expect(listCfopCases({ family: "f2l", limit: 1000 })).toHaveLength(164);
     expect(listCfopCases({ family: "oll", limit: 1000 })).toHaveLength(57);
     expect(listCfopCases({ family: "pll", limit: 1000 })).toHaveLength(21);
@@ -118,6 +119,6 @@ describe("listCfopCases", () => {
   it("clamps the limit to [1, 1000]", () => {
     expect(listCfopCases({ limit: 0 })).toHaveLength(1);
     expect(listCfopCases({ limit: 5 })).toHaveLength(5);
-    expect(listCfopCases({ limit: 5000 })).toHaveLength(242);
+    expect(listCfopCases({ limit: 5000 })).toHaveLength(624);
   });
 });
