@@ -7,6 +7,8 @@ import { useLocation } from "wouter";
 import { BldStudyLab } from "@/features/bld";
 import { CfopStudyLab } from "@/features/cfop";
 import { TwoByTwoStudyLab } from "@/features/twoByTwo";
+import { PyraminxStudyLab } from "@/features/pyraminx";
+import { SkewbStudyLab } from "@/features/skewb";
 import { LastLayerExplorer } from "@/features/last-layer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -45,7 +47,17 @@ function download(name: string, value: unknown) {
   URL.revokeObjectURL(url);
 }
 export const studyLaneForQuery = (lane: string | null): StudyLane =>
-  lane === "bld" ? "bld" : lane === "cfop" ? "cfop" : lane === "2x2" || lane === "twobytwo" ? "twoByTwo" : "lastLayer";
+  lane === "bld"
+    ? "bld"
+    : lane === "cfop"
+      ? "cfop"
+      : lane === "2x2" || lane === "twobytwo"
+        ? "twoByTwo"
+        : lane === "pyraminx" || lane === "pyram"
+          ? "pyraminx"
+          : lane === "skewb"
+            ? "skewb"
+            : "lastLayer";
 
 export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const { t } = useLanguage();
@@ -86,6 +98,22 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const [bldStats, setBldStats] = useState({
     reviewedToday: 0,
     dailyGoal: 12,
+    goalPercent: 0,
+    queueCount: 0,
+    masteredCount: 0,
+    catalogCount: 0,
+  });
+  const [pyraminxStats, setPyraminxStats] = useState({
+    reviewedToday: 0,
+    dailyGoal: 10,
+    goalPercent: 0,
+    queueCount: 0,
+    masteredCount: 0,
+    catalogCount: 0,
+  });
+  const [skewbStats, setSkewbStats] = useState({
+    reviewedToday: 0,
+    dailyGoal: 10,
     goalPercent: 0,
     queueCount: 0,
     masteredCount: 0,
@@ -189,6 +217,16 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const activeMastered = activeCase
     ? masteredKeys.has(caseKey(activeCase))
     : false;
+  // Non-LL lanes keep their own SRS stats; the toolbar shows whichever lane is active.
+  const laneStats = {
+    cfop: cfopStats,
+    twoByTwo: twoByTwoStats,
+    bld: bldStats,
+    pyraminx: pyraminxStats,
+    skewb: skewbStats,
+  } as const;
+  const activeLaneStats =
+    studyLane === "lastLayer" ? null : laneStats[studyLane];
 
   const selectCase = (candidate: LastLayerCatalogCase) => {
     setActiveCase(candidate);
@@ -267,7 +305,11 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
               ? t("study.description.bld")
               : studyLane === "twoByTwo"
                 ? t("study.description.twoByTwo")
-                : t("study.description.cfop")
+                : studyLane === "pyraminx"
+                  ? t("study.description.pyraminx")
+                  : studyLane === "skewb"
+                    ? t("study.description.skewb")
+                    : t("study.description.cfop")
         }
         actions={
           studyLane === "lastLayer" ? (
@@ -310,69 +352,15 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
       <StudyToolbar
         lane={studyLane}
         onLaneChange={setStudyLane}
-        reviewedToday={
-          studyLane === "cfop"
-            ? cfopStats.reviewedToday
-            : studyLane === "twoByTwo"
-              ? twoByTwoStats.reviewedToday
-              : studyLane === "bld"
-                ? bldStats.reviewedToday
-                : reviewedToday
-        }
-        dailyGoal={
-          studyLane === "cfop"
-            ? cfopStats.dailyGoal
-            : studyLane === "twoByTwo"
-              ? twoByTwoStats.dailyGoal
-              : studyLane === "bld"
-                ? bldStats.dailyGoal
-                : study.dailyGoal
-        }
-        goalPercent={
-          studyLane === "cfop"
-            ? cfopStats.goalPercent
-            : studyLane === "twoByTwo"
-              ? twoByTwoStats.goalPercent
-              : studyLane === "bld"
-                ? bldStats.goalPercent
-                : dailyPercent
-        }
-        hint={
-          studyLane === "cfop"
-            ? t("study.goalHint", { count: cfopStats.queueCount })
-            : studyLane === "twoByTwo"
-              ? t("study.goalHint", { count: twoByTwoStats.queueCount })
-              : studyLane === "bld"
-                ? t("study.goalHint", { count: bldStats.queueCount })
-                : t("study.goalHint", { count: queue.length })
-        }
-        queueCount={
-          studyLane === "cfop"
-            ? cfopStats.queueCount
-            : studyLane === "twoByTwo"
-              ? twoByTwoStats.queueCount
-              : studyLane === "bld"
-                ? bldStats.queueCount
-                : queue.length
-        }
-        masteredCount={
-          studyLane === "cfop"
-            ? cfopStats.masteredCount
-            : studyLane === "twoByTwo"
-              ? twoByTwoStats.masteredCount
-              : studyLane === "bld"
-                ? bldStats.masteredCount
-                : masteredKeys.size
-        }
-        catalogCount={
-          studyLane === "cfop"
-            ? cfopStats.catalogCount
-            : studyLane === "twoByTwo"
-              ? twoByTwoStats.catalogCount
-              : studyLane === "bld"
-                ? bldStats.catalogCount
-                : catalog.length
-        }
+        reviewedToday={activeLaneStats?.reviewedToday ?? reviewedToday}
+        dailyGoal={activeLaneStats?.dailyGoal ?? study.dailyGoal}
+        goalPercent={activeLaneStats?.goalPercent ?? dailyPercent}
+        hint={t("study.goalHint", {
+          count: activeLaneStats?.queueCount ?? queue.length,
+        })}
+        queueCount={activeLaneStats?.queueCount ?? queue.length}
+        masteredCount={activeLaneStats?.masteredCount ?? masteredKeys.size}
+        catalogCount={activeLaneStats?.catalogCount ?? catalog.length}
       />
 
       {studyLane === "lastLayer" ? (
@@ -438,6 +426,14 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
       ) : studyLane === "twoByTwo" ? (
         <div className="mt-6">
           <TwoByTwoStudyLab language={language} onStatsChange={setTwoByTwoStats} />
+        </div>
+      ) : studyLane === "pyraminx" ? (
+        <div className="mt-6">
+          <PyraminxStudyLab language={language} onStatsChange={setPyraminxStats} />
+        </div>
+      ) : studyLane === "skewb" ? (
+        <div className="mt-6">
+          <SkewbStudyLab language={language} onStatsChange={setSkewbStats} />
         </div>
       ) : (
         <div className="mt-6">

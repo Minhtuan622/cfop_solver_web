@@ -2,6 +2,8 @@ import { type BldProfile, readBldProfile, writeBldProfile } from "@/features/bld
 import { readBldLearningPath, writeBldLearningPath, type BldLearningPathProgress } from "@/features/bld/lib";
 import { readLastLayerStudy, readMasteredCaseKeys, type StudyState, writeLastLayerStudy, writeMasteredCaseKeys } from "@/features/last-layer/lib";
 import { readTwoByTwoStudy, readMasteredTwoByTwoCaseKeys, type TwoByTwoStudyState, writeTwoByTwoStudy, writeMasteredTwoByTwoCaseKeys } from "@/features/twoByTwo/lib/twoByTwoStudy";
+import { readPyraminxStudy, readMasteredPyraminxCaseKeys, type PyraminxStudyState, writePyraminxStudy, writeMasteredPyraminxCaseKeys } from "@/features/pyraminx/lib/pyraminxStudy";
+import { readSkewbStudy, readMasteredSkewbCaseKeys, type SkewbStudyState, writeSkewbStudy, writeMasteredSkewbCaseKeys } from "@/features/skewb/lib/skewbStudy";
 import { readSolveHistory, SolveHistoryEntry, importSolveHistory } from "./solveHistory";
 import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 
@@ -20,6 +22,10 @@ export type CfopCloudState = {
   bldLearningPath: BldLearningPathProgress;
   /** Present for clients that run the 2×2 CLL lane; absent on old payloads. */
   twoByTwo?: { study: TwoByTwoStudyState; masteredCaseKeys: string[] };
+  /** Present for clients that run the Pyraminx lane; absent on old payloads. */
+  pyraminx?: { study: PyraminxStudyState; masteredCaseKeys: string[] };
+  /** Present for clients that run the Skewb lane; absent on old payloads. */
+  skewb?: { study: SkewbStudyState; masteredCaseKeys: string[] };
 };
 
 /** Giới hạn số lượng solve lưu trong lịch sử cloud state (dùng chung client/server). */
@@ -40,6 +46,14 @@ export function createCfopCloudState(now = Date.now()): CfopCloudState {
     twoByTwo: {
       study: readTwoByTwoStudy(),
       masteredCaseKeys: Array.from(readMasteredTwoByTwoCaseKeys()),
+    },
+    pyraminx: {
+      study: readPyraminxStudy(),
+      masteredCaseKeys: Array.from(readMasteredPyraminxCaseKeys()),
+    },
+    skewb: {
+      study: readSkewbStudy(),
+      masteredCaseKeys: Array.from(readMasteredSkewbCaseKeys()),
     },
   };
 }
@@ -100,8 +114,12 @@ function mergeLastLayer(local: CfopCloudState["lastLayer"], remote: CfopCloudSta
   };
 }
 
-/** Optional merge for the 2×2 lane; absent on old payloads, kept untouched. */
-function mergeTwoByTwo(local: CfopCloudState["twoByTwo"], remote: CfopCloudState["twoByTwo"], preferLocal: boolean) {
+/** Optional merge for a lane's SRS state; absent on old payloads, kept untouched. */
+function mergeLaneProgress<Study extends { records: Record<string, { lastReviewedAt: number }>; dailyGoal: number }>(
+  local: { study: Study; masteredCaseKeys: string[] } | undefined,
+  remote: { study: Study; masteredCaseKeys: string[] } | undefined,
+  preferLocal: boolean,
+): { study: Study; masteredCaseKeys: string[] } | undefined {
   if (!local) return remote;
   if (!remote) return local;
   const records = { ...remote.study.records };
@@ -109,8 +127,10 @@ function mergeTwoByTwo(local: CfopCloudState["twoByTwo"], remote: CfopCloudState
     const existing = records[key];
     records[key] = !existing || record.lastReviewedAt > existing.lastReviewedAt || (record.lastReviewedAt === existing.lastReviewedAt && preferLocal) ? record : existing;
   }
+  // The three lane study states are structurally identical ({ records, dailyGoal }).
+  const study = { records, dailyGoal: preferLocal ? local.study.dailyGoal : remote.study.dailyGoal } as Study;
   return {
-    study: { records, dailyGoal: preferLocal ? local.study.dailyGoal : remote.study.dailyGoal },
+    study,
     masteredCaseKeys: Array.from(new Set([...remote.masteredCaseKeys, ...local.masteredCaseKeys])).slice(-1800),
   };
 }
@@ -163,7 +183,9 @@ export function mergeCfopCloudStates(local: CfopCloudState, remote: CfopCloudSta
       reviewDone: local.bldLearningPath.reviewDone || remote.bldLearningPath.reviewDone,
       lastStage: Math.max(local.bldLearningPath.lastStage, remote.bldLearningPath.lastStage),
     },
-    twoByTwo: mergeTwoByTwo(local.twoByTwo, remote.twoByTwo, preferLocal),
+    twoByTwo: mergeLaneProgress(local.twoByTwo, remote.twoByTwo, preferLocal),
+    pyraminx: mergeLaneProgress(local.pyraminx, remote.pyraminx, preferLocal),
+    skewb: mergeLaneProgress(local.skewb, remote.skewb, preferLocal),
   };
 }
 
@@ -176,5 +198,13 @@ export function applyCfopCloudState(state: CfopCloudState) {
   if (state.twoByTwo) {
     writeTwoByTwoStudy(state.twoByTwo.study);
     writeMasteredTwoByTwoCaseKeys(new Set(state.twoByTwo.masteredCaseKeys));
+  }
+  if (state.pyraminx) {
+    writePyraminxStudy(state.pyraminx.study);
+    writeMasteredPyraminxCaseKeys(new Set(state.pyraminx.masteredCaseKeys));
+  }
+  if (state.skewb) {
+    writeSkewbStudy(state.skewb.study);
+    writeMasteredSkewbCaseKeys(new Set(state.skewb.masteredCaseKeys));
   }
 }

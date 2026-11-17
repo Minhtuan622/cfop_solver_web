@@ -20,12 +20,22 @@ export const studyWords: Dictionary = {
     "Luyện F2L, OLL, PLL, COLL và OLLCP theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
     "Practise F2L, OLL, PLL, COLL and OLLCP with SRS: time each case and let the queue pick what is weakest.",
   ],
+  "study.description.pyraminx": [
+    "Luyện Pyraminx Last Layer và L4E theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
+    "Practise Pyraminx Last Layer and L4E with SRS: time each case and let the queue pick what is weakest.",
+  ],
+  "study.description.skewb": [
+    "Luyện Skewb bằng phương pháp Sarah (Intermediate và Advanced) theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
+    "Practise Skewb with the Sarah method (Intermediate and Advanced) with SRS: time each case and let the queue pick what is weakest.",
+  ],
 
   "study.laneLabel": ["Loại luyện tập", "Practice type"],
   "study.laneLastLayer": ["Last Layer", "Last Layer"],
   "study.laneBld": ["3-Style BLD", "3-Style BLD"],
   "study.laneCfop": ["CFOP", "CFOP"],
   "study.laneTwoByTwo": ["2×2", "2×2"],
+  "study.lanePyraminx": ["Pyraminx", "Pyraminx"],
+  "study.laneSkewb": ["Skewb", "Skewb"],
 
   "cfop.laneSummary": [
     "F2L {f2l} (41 × 4 hướng) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} case",
@@ -75,6 +85,42 @@ export const studyWords: Dictionary = {
   "twoByTwo.searchPlaceholder": ["Tìm case hoặc alg…", "Search case or alg…"],
   "twoByTwo.filterLabel": ["Lọc theo nhóm", "Filter by subset"],
   "twoByTwo.emptyCases": ["Không tìm thấy case nào.", "No cases found."],
+
+  "pyraminx.caseLabel": ["Case Pyraminx đang học", "Active Pyraminx case"],
+  "pyraminx.loading3d": ["Đang tải 3D…", "Loading 3D…"],
+  "pyraminx.setLabel": ["Bộ thuật toán Pyraminx", "Pyraminx algorithm set"],
+  "pyraminx.setLl": ["Last Layer · {count}", "Last Layer · {count}"],
+  "pyraminx.setL4e": ["L4E · {count}", "L4E · {count}"],
+  "pyraminx.laneSummaryLl": [
+    "{count} Last Layer case (down edge solved)",
+    "{count} Last Layer cases (down edge solved)",
+  ],
+  "pyraminx.laneSummaryL4e": [
+    "{count} L4E case (DES · DEF · UES · UEF · NP)",
+    "{count} L4E cases (DES · DEF · UES · UEF · NP)",
+  ],
+  "pyraminx.catalogTitle": ["Danh mục Pyraminx", "Pyraminx catalog"],
+
+  "skewb.caseLabel": ["Case Skewb đang học", "Active Skewb case"],
+  "skewb.loading3d": ["Đang tải 3D…", "Loading 3D…"],
+  "skewb.setLabel": ["Bộ thuật toán Skewb", "Skewb algorithm set"],
+  "skewb.setSarahIntermediate": [
+    "Sarah Int · {count}",
+    "Sarah Int · {count}",
+  ],
+  "skewb.setSarahAdvanced": [
+    "Sarah Adv · {count}",
+    "Sarah Adv · {count}",
+  ],
+  "skewb.laneSummarySarahIntermediate": [
+    "{count} Sarah Intermediate trigger (1T · 2T · 3T)",
+    "{count} Sarah Intermediate triggers (1T · 2T · 3T)",
+  ],
+  "skewb.laneSummarySarahAdvanced": [
+    "{count} Sarah Advanced case (16 nhóm)",
+    "{count} Sarah Advanced cases (16 subsets)",
+  ],
+  "skewb.catalogTitle": ["Danh mục Skewb", "Skewb catalog"],
 
   "study.goalLabel": ["Mục tiêu hôm nay", "Today's goal"],
   "study.goalProgress": ["Tiến độ mục tiêu hôm nay", "Today's goal progress"],
@@ -192,6 +238,14 @@ export const studyWords: Dictionary = {
   "study.previewHint2x2": [
     "Đây là lưới net đại diện của case 2×2.",
     "This shows the representative net of the 2×2 case.",
+  ],
+  "study.previewHintPyraminx": [
+    "Pyraminx không có net 2D — đây là biểu tượng puzzle; xem case thật ở thẻ luyện tập.",
+    "The Pyraminx has no 2D net — this is the puzzle-shaped mark; see the real case in the practice card.",
+  ],
+  "study.previewHintSkewb": [
+    "Skewb không có net 2D — đây là biểu tượng puzzle; xem case thật ở thẻ luyện tập.",
+    "The Skewb has no 2D net — this is the puzzle-shaped mark; see the real case in the practice card.",
   ],
   "study.previewHintCase": [
     "Đây là net đại diện của case.",

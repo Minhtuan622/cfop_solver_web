@@ -1,7 +1,13 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-export type StudyLane = "lastLayer" | "bld" | "cfop" | "twoByTwo";
+export type StudyLane =
+  | "lastLayer"
+  | "bld"
+  | "cfop"
+  | "twoByTwo"
+  | "pyraminx"
+  | "skewb";
 
 export type StudyToolbarProps = {
   lane: StudyLane;
@@ -83,6 +89,22 @@ export function StudyToolbar({
             className={laneButtonClass("twoByTwo")}
           >
             {t("study.laneTwoByTwo")}
+          </button>
+          <button
+            type="button"
+            aria-pressed={lane === "pyraminx"}
+            onClick={() => onLaneChange("pyraminx")}
+            className={laneButtonClass("pyraminx")}
+          >
+            {t("study.lanePyraminx")}
+          </button>
+          <button
+            type="button"
+            aria-pressed={lane === "skewb"}
+            onClick={() => onLaneChange("skewb")}
+            className={laneButtonClass("skewb")}
+          >
+            {t("study.laneSkewb")}
           </button>
         </div>
 

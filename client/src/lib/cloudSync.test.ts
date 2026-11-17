@@ -53,6 +53,8 @@ describe("B3: cloud sync tombstones and merge", () => {
     const state = createCfopCloudState();
     expect(state.schemaVersion).toBe(2);
     expect(state.twoByTwo).toBeDefined();
+    expect(state.pyraminx).toBeDefined();
+    expect(state.skewb).toBeDefined();
   });
 
   it("parseCfopCloudState đọc được payload có twoByTwo và merge giữ 2×2 records", () => {
@@ -88,6 +90,51 @@ describe("B3: cloud sync tombstones and merge", () => {
 
     const parsed = parseCfopCloudState(JSON.parse(JSON.stringify(merged)));
     expect(parsed?.twoByTwo?.study.records["cll:CLL-AS-1"]?.intervalDays).toBe(4);
+  });
+
+  it("merge giữ pyraminx/skewb records và masteredCaseKeys", () => {
+    const recordFor = <F extends string>(family: F, id: string, intervalDays: number) => ({
+      key: `${family}:${id}`,
+      family,
+      group: "X",
+      id,
+      attempts: 3,
+      lapses: 0,
+      averageMs: 9_000,
+      lastMs: 8_000,
+      intervalDays,
+      dueAt: Date.now() + 200_000,
+      lastReviewedAt: Date.now() - 1_000,
+      lastGrade: "good" as const,
+    });
+    const local = createCfopCloudState();
+    local.pyraminx = {
+      study: {
+        records: { "l4e:L4E-DES-1": recordFor("l4e", "L4E-DES-1", 3) },
+        dailyGoal: 10,
+      },
+      masteredCaseKeys: ["l4e:L4E-DES-1"],
+    };
+    local.skewb = {
+      study: {
+        records: { "sarah-intermediate:SI-Sledgehammer": recordFor("sarah-intermediate", "SI-Sledgehammer", 2) },
+        dailyGoal: 10,
+      },
+      masteredCaseKeys: ["sarah-intermediate:SI-Sledgehammer"],
+    };
+    const remote = createCfopCloudState();
+    remote.pyraminx = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
+    remote.skewb = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
+
+    const merged = mergeCfopCloudStates(local, remote);
+    expect(merged.pyraminx?.study.records["l4e:L4E-DES-1"]?.attempts).toBe(3);
+    expect(merged.pyraminx?.masteredCaseKeys).toContain("l4e:L4E-DES-1");
+    expect(merged.skewb?.study.records["sarah-intermediate:SI-Sledgehammer"]?.attempts).toBe(3);
+    expect(merged.skewb?.masteredCaseKeys).toContain("sarah-intermediate:SI-Sledgehammer");
+
+    const parsed = parseCfopCloudState(JSON.parse(JSON.stringify(merged)));
+    expect(parsed?.pyraminx?.study.records["l4e:L4E-DES-1"]?.intervalDays).toBe(3);
+    expect(parsed?.skewb?.study.records["sarah-intermediate:SI-Sledgehammer"]?.intervalDays).toBe(2);
   });
 
   it("payload cũ không có twoByTwo vẫn hợp lệ và merge giữ nguyên", () => {

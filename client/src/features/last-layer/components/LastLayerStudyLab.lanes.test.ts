@@ -5,6 +5,10 @@ describe("Study lanes", () => {
   it("keeps Last Layer and 3-Style BLD available while retired FTO links safely open Last Layer", () => {
     expect(studyLaneForQuery(null)).toBe("lastLayer");
     expect(studyLaneForQuery("bld")).toBe("bld");
+    expect(studyLaneForQuery("cfop")).toBe("cfop");
+    expect(studyLaneForQuery("twobytwo")).toBe("twoByTwo");
+    expect(studyLaneForQuery("pyraminx")).toBe("pyraminx");
+    expect(studyLaneForQuery("skewb")).toBe("skewb");
     expect(studyLaneForQuery("fto")).toBe("lastLayer");
   });
 });
