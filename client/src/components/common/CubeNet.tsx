@@ -28,6 +28,21 @@ export const FACE_OFFSET: Record<(typeof FACE_ORDER)[number], number> = {
 
 type Face = (typeof FACE_ORDER)[number];
 
+/**
+ * The last-layer stickers of each face, in per-face sticker order.
+ * `lastLayerOnly` dims everything outside the last layer, like a classic
+ * OLL/PLL diagram — useful for case displays derived from arbitrary algs.
+ */
+const LAST_LAYER_STICKERS: Record<Face, number[]> = {
+  U: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  R: [0, 1, 2],
+  F: [0, 1, 2],
+  D: [],
+  L: [0, 1, 2],
+  B: [0, 1, 2],
+};
+const DIMMED_STICKER = "#3f4653";
+
 export function CubeNet({
   state,
   compact = false,
@@ -37,6 +52,7 @@ export function CubeNet({
   selectedColor = "U",
   onStateChange,
   disabled = false,
+  lastLayerOnly = false,
 }: {
   state: string;
   compact?: boolean;
@@ -46,6 +62,7 @@ export function CubeNet({
   selectedColor?: Face;
   onStateChange?: (state: string) => void;
   disabled?: boolean;
+  lastLayerOnly?: boolean;
 }) {
   const safeState = state.length === 54 ? state : SOLVED_STATE;
   const paint = (face: Face, stickerIndex: number) => {
@@ -97,27 +114,33 @@ export function CubeNet({
                 inspectCross &&
                 [1, 3, 5, 7].includes(index) &&
                 sticker === crossColor;
+              const dimmed =
+                lastLayerOnly && !LAST_LAYER_STICKERS[face].includes(index);
               const stickerClass = cn(
                 "cube-sticker",
                 highlighted && "cube-sticker--highlight",
+                dimmed && "cube-sticker--dimmed",
                 editable && index !== 4 && "cube-sticker--editable",
                 editable && index === 4 && "cube-sticker--center"
               );
+              const style = dimmed
+                ? { background: DIMMED_STICKER }
+                : { background: CUBE_COLOR[sticker] ?? "#888" };
               return editable ? (
                 <button
                   type="button"
                   key={index}
-                  disabled={disabled || index === 4}
+                  disabled={disabled || index === 4 || dimmed}
                   onClick={() => paint(face, index)}
                   aria-label={`${face} sticker ${index + 1}: ${sticker}${index === 4 ? ", tâm khóa" : ""}`}
                   className={stickerClass}
-                  style={{ background: CUBE_COLOR[sticker] ?? "#888" }}
+                  style={style}
                 />
               ) : (
                 <span
                   key={index}
                   className={stickerClass}
-                  style={{ background: CUBE_COLOR[sticker] ?? "#888" }}
+                  style={style}
                 />
               );
             })}

@@ -88,7 +88,7 @@ export function gradeCase(item: LastLayerCatalogCase, existing: StudyRecord | un
   const lapses = (existing?.lapses ?? 0) + (grade === "again" ? 1 : 0);
   const previousAverage = existing?.averageMs ?? 0;
   const averageMs = previousAverage > 0 ? Math.round(previousAverage * 0.72 + elapsedMs * 0.28) : elapsedMs;
-  return { key: caseKey(item), family: item.family, group: item.group, id: item.id, attempts, lapses, averageMs, lastMs: elapsedMs, intervalDays, dueAt: now + intervalDays * 86_400_000, lastReviewedAt: now, lastGrade: grade };
+  return { key: caseKey(item), family: item.family as StudyRecord["family"], group: item.group, id: item.id, attempts, lapses, averageMs, lastMs: elapsedMs, intervalDays, dueAt: now + intervalDays * 86_400_000, lastReviewedAt: now, lastGrade: grade };
 }
 
 export function queueScore(item: LastLayerCatalogCase, record: StudyRecord | undefined, mastered: boolean, now = Date.now()) {
@@ -99,9 +99,9 @@ export function queueScore(item: LastLayerCatalogCase, record: StudyRecord | und
   return -overdue * 200 - weakness;
 }
 
-export function prioritizeStudyQueue(cases: LastLayerCatalogCase[], records: Record<string, StudyRecord>, masteredKeys: Set<string>) { return [...cases].sort((left, right) => queueScore(left, records[caseKey(left)], masteredKeys.has(caseKey(left))) - queueScore(right, records[caseKey(right)], masteredKeys.has(caseKey(right)))); }
+export function prioritizeStudyQueue<T extends LastLayerCatalogCase>(cases: T[], records: Record<string, StudyRecord>, masteredKeys: Set<string>): T[] { return [...cases].sort((left, right) => queueScore(left, records[caseKey(left)], masteredKeys.has(caseKey(left))) - queueScore(right, records[caseKey(right)], masteredKeys.has(caseKey(right)))); }
 
-export function dueAndWeakCases(cases: LastLayerCatalogCase[], records: Record<string, StudyRecord>, masteredKeys: Set<string>, now = Date.now()) { return prioritizeStudyQueue(cases, records, masteredKeys).filter((item) => { const record = records[caseKey(item)]; return !masteredKeys.has(caseKey(item)) || !record || record.dueAt <= now || record.lastGrade === "again" || record.lapses > 0; }); }
+export function dueAndWeakCases<T extends LastLayerCatalogCase>(cases: T[], records: Record<string, StudyRecord>, masteredKeys: Set<string>, now = Date.now()): T[] { return prioritizeStudyQueue(cases, records, masteredKeys).filter((item) => { const record = records[caseKey(item)]; return !masteredKeys.has(caseKey(item)) || !record || record.dueAt <= now || record.lastGrade === "again" || record.lapses > 0; }); }
 
 export function todayReviewCount(records: Record<string, StudyRecord>, now = new Date()) { const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); return Object.values(records).filter((record) => record.lastReviewedAt >= start).length; }
 

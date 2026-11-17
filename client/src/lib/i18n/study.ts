@@ -12,10 +12,31 @@ export const studyWords: Dictionary = {
     "Đi từng bước từ công thức đầu tiên đến một routine 3-Style rõ ràng.",
     "Move from your first algorithm to a clear 3-Style routine, one stage at a time.",
   ],
+  "study.description.cfop": [
+    "Luyện F2L, OLL và PLL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
+    "Practise F2L, OLL and PLL with SRS: time each case and let the queue pick what is weakest.",
+  ],
 
   "study.laneLabel": ["Loại luyện tập", "Practice type"],
   "study.laneLastLayer": ["Last Layer", "Last Layer"],
   "study.laneBld": ["3-Style BLD", "3-Style BLD"],
+  "study.laneCfop": ["CFOP", "CFOP"],
+
+  "cfop.laneSummary": [
+    "{f2l} F2L · {oll} OLL · {pll} PLL case",
+    "{f2l} F2L · {oll} OLL · {pll} PLL cases",
+  ],
+  "cfop.catalogTitle": ["Danh mục CFOP 3×3", "CFOP 3×3 catalog"],
+  "cfop.catalogHint": [
+    "{count} case hiển thị · bấm vào case để luyện",
+    "{count} cases shown · click a case to practise",
+  ],
+  "cfop.catalogLabel": ["Danh mục công thức CFOP", "CFOP algorithm catalog"],
+  "cfop.searchPlaceholder": ["Tìm case hoặc alg…", "Search case or alg…"],
+  "cfop.filterLabel": ["Lọc theo nhóm", "Filter by group"],
+  "cfop.filterAll": ["Tất cả", "All"],
+  "cfop.showMore": ["Hiển thị thêm {count} case", "Show {count} more cases"],
+  "cfop.emptyCases": ["Không tìm thấy case nào.", "No cases found."],
 
   "study.goalLabel": ["Mục tiêu hôm nay", "Today's goal"],
   "study.goalProgress": ["Tiến độ mục tiêu hôm nay", "Today's goal progress"],
