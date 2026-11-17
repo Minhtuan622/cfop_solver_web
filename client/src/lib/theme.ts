@@ -2,14 +2,17 @@
  * The theme the app offers: a fixed light palette, a fixed dark palette, or
  * whatever the operating system asks for.
  */
-export type Theme = "light" | "dark" | "system";
+import { z } from "zod";
+
+const themeSchema = z.enum(["light", "dark", "system"]);
+export type Theme = z.infer<typeof themeSchema>;
 export type ResolvedTheme = "light" | "dark";
 
 export const THEME_STORAGE_KEY = "cfop-theme";
 export const DARK_SCHEME_QUERY = "(prefers-color-scheme: dark)";
 
 export function isTheme(value: unknown): value is Theme {
-  return value === "light" || value === "dark" || value === "system";
+  return themeSchema.safeParse(value).success;
 }
 
 /** The theme the visitor picked last, or "system" when they never picked one. */

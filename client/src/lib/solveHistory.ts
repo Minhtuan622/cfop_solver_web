@@ -1,4 +1,5 @@
 export type SolvePenalty = "none" | "+2" | "DNF";
+import { z } from "zod";
 import { readStoredJson, writeStoredValue } from "./browserStorage";
 import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
 import { formatMultiBlindTime, multiBlindResult, type MultiBlindAttempt } from "./multiBlind";
@@ -36,62 +37,131 @@ const KEY = "cfop-solve-history-v1";
 const MAX_ENTRIES = 500;
 type Imported = Partial<SolveHistoryEntry> & Record<string, unknown>;
 
-function safePenalty(value: unknown): SolvePenalty { return value === "+2" || value === "DNF" ? value : "none"; }
-function safeTags(value: unknown): string[] { return Array.isArray(value) ? Array.from(new Set(value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean))).slice(0, 12) : []; }
-function safeMultiBlind(value: unknown): MultiBlindAttempt | undefined {
-  if (!value || typeof value !== "object") return undefined;
-  const candidate = value as Partial<MultiBlindAttempt>;
-  const attempted = candidate.attempted;
-  const solved = candidate.solved;
-  if (typeof attempted !== "number" || typeof solved !== "number" || !Number.isInteger(attempted) || !Number.isInteger(solved) || attempted < 2 || solved < 0 || solved > attempted) return undefined;
-  return { attempted, solved };
-}
-function safeMultiBlindScrambles(value: unknown): string[] | undefined {
-  if (!Array.isArray(value)) return undefined;
-  const scrambles = value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean).slice(0, 99);
-  return scrambles.length ? scrambles : undefined;
-}
-function safePhaseSplits(value: unknown): SolvePhaseSplit[] {
-  if (!Array.isArray(value)) return [];
-  const seen = new Set<SplitPhase>();
-  const splits: SolvePhaseSplit[] = [];
-  for (const item of value) {
-    if (!item || typeof item !== "object") continue;
-    const split = item as Partial<SolvePhaseSplit>;
-    if (!SPLIT_PHASES.includes(split.phase as SplitPhase) || seen.has(split.phase as SplitPhase)) continue;
-    if (typeof split.markedAtMs !== "number" || !Number.isFinite(split.markedAtMs) || split.markedAtMs < 0) continue;
-    if (typeof split.elapsedMs !== "number" || !Number.isFinite(split.elapsedMs) || split.elapsedMs < 0) continue;
-    const previous = splits.at(-1)?.markedAtMs ?? 0;
-    if (split.markedAtMs < previous) continue;
-    seen.add(split.phase as SplitPhase);
-    splits.push({ phase: split.phase as SplitPhase, markedAtMs: Math.round(split.markedAtMs), elapsedMs: Math.round(split.elapsedMs) });
-  }
-  return splits.slice(0, SPLIT_PHASES.length);
-}
+const finiteNumber = () => z.number().finite();
+const nonNegativeNumber = () => z.number().finite().min(0);
+const tagsSchema = z
+  .array(z.unknown())
+  .transform(value => {
+    const seen = new Set<string>();
+    const tags: string[] = [];
+    for (const item of value) {
+      if (typeof item !== "string") continue;
+      const tag = item.trim();
+      if (!tag || seen.has(tag)) continue;
+      seen.add(tag);
+      tags.push(tag);
+      if (tags.length >= 12) break;
+    }
+    return tags;
+  })
+  .catch(() => [] as string[]);
+
+const phaseSplitSchema = z.object({
+  phase: z.enum(SPLIT_PHASES),
+  markedAtMs: nonNegativeNumber(),
+  elapsedMs: nonNegativeNumber(),
+});
+const phaseSplitsSchema = z
+  .array(z.unknown())
+  .transform(items => {
+    const seen = new Set<SplitPhase>();
+    const splits: SolvePhaseSplit[] = [];
+    for (const raw of items) {
+      const parsed = phaseSplitSchema.safeParse(raw);
+      if (!parsed.success) continue;
+      const { phase, markedAtMs, elapsedMs } = parsed.data;
+      if (seen.has(phase)) continue;
+      const previous = splits.at(-1)?.markedAtMs ?? 0;
+      if (markedAtMs < previous) continue;
+      seen.add(phase);
+      splits.push({
+        phase,
+        markedAtMs: Math.round(markedAtMs),
+        elapsedMs: Math.round(elapsedMs),
+      });
+      if (splits.length >= SPLIT_PHASES.length) break;
+    }
+    return splits;
+  })
+  .catch(() => [] as SolvePhaseSplit[]);
+
+const multiBlindSchema = z
+  .object({
+    attempted: finiteNumber().int().min(2),
+    solved: finiteNumber().int().min(0),
+  })
+  .refine(value => value.solved <= value.attempted)
+  .transform(value => ({ attempted: value.attempted, solved: value.solved }))
+  .optional()
+  .catch(() => undefined);
+
+const multiBlindScramblesSchema = z
+  .array(z.unknown())
+  .transform(items =>
+    items
+      .filter((item): item is string => typeof item === "string")
+      .map(item => item.trim())
+      .filter(item => item.length > 0)
+      .slice(0, 99),
+  )
+  .refine(scrambles => scrambles.length > 0)
+  .optional()
+  .catch(() => undefined);
+
+const solveHistoryEntrySchema = z.object({
+  id: z.string().min(1).catch(() => crypto.randomUUID()),
+  createdAt: finiteNumber().catch(() => Date.now()),
+  elapsedMs: nonNegativeNumber().transform(value => Math.round(value)).catch(0),
+  inspectionMs: nonNegativeNumber().transform(value => Math.round(value)).catch(0),
+  input: z.string().catch(""),
+  inputKind: z.enum(["scramble", "state"]).catch("scramble"),
+  moves: nonNegativeNumber().transform(value => Math.round(value)).catch(0),
+  penalty: z.enum(["none", "+2", "DNF"]).catch("none"),
+  solution: z.string().catch(""),
+  note: z.string().transform(value => value.slice(0, 500)).catch(""),
+  tags: tagsSchema,
+  phaseSplits: phaseSplitsSchema,
+  eventId: z
+    .unknown()
+    .optional()
+    .transform(value => normalizeTimerEventId(value)),
+  multiBlind: multiBlindSchema,
+  multiBlindScrambles: multiBlindScramblesSchema,
+  deletedAt: finiteNumber().min(0).optional().catch(undefined),
+});
+
 function normalize(item: Imported): SolveHistoryEntry {
-  return {
-    id: typeof item.id === "string" && item.id ? item.id : crypto.randomUUID(),
-    createdAt: typeof item.createdAt === "number" && Number.isFinite(item.createdAt) ? item.createdAt : Date.now(),
-    elapsedMs: typeof item.elapsedMs === "number" && Number.isFinite(item.elapsedMs) && item.elapsedMs >= 0 ? Math.round(item.elapsedMs) : 0,
-    inspectionMs: typeof item.inspectionMs === "number" && Number.isFinite(item.inspectionMs) && item.inspectionMs >= 0 ? Math.round(item.inspectionMs) : 0,
-    input: typeof item.input === "string" ? item.input : "",
-    inputKind: item.inputKind === "state" ? "state" : "scramble",
-    moves: typeof item.moves === "number" && Number.isFinite(item.moves) ? Math.max(0, Math.round(item.moves)) : 0,
-    penalty: safePenalty(item.penalty),
-    solution: typeof item.solution === "string" ? item.solution : "",
-    note: typeof item.note === "string" ? item.note.slice(0, 500) : "",
-    tags: safeTags(item.tags),
-    phaseSplits: safePhaseSplits(item.phaseSplits),
-    eventId: normalizeTimerEventId(item.eventId),
-    multiBlind: safeMultiBlind(item.multiBlind),
-    multiBlindScrambles: safeMultiBlindScrambles(item.multiBlindScrambles),
-    deletedAt: typeof item.deletedAt === "number" && Number.isFinite(item.deletedAt) && item.deletedAt >= 0 ? item.deletedAt : undefined,
+  const fallback: SolveHistoryEntry = {
+    id: crypto.randomUUID(),
+    createdAt: Date.now(),
+    elapsedMs: 0,
+    inspectionMs: 0,
+    input: "",
+    inputKind: "scramble",
+    moves: 0,
+    penalty: "none",
+    solution: "",
+    note: "",
+    tags: [],
+    phaseSplits: [],
   };
+  try {
+    return solveHistoryEntrySchema.parse(item);
+  } catch {
+    // A malformed entry degrades to a blank placeholder instead of taking
+    // down the whole history read.
+    return fallback;
+  }
 }
 function write(entries: SolveHistoryEntry[]) { writeStoredValue(KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES))); notifyCfopCloudStateChanged(); }
 
 export function readSolveHistory(): SolveHistoryEntry[] {
-  return readStoredJson<Imported[]>(KEY, []).filter((item) => item && typeof item === "object").map(normalize).filter((entry) => !entry.deletedAt);
+  return readStoredJson<Imported[]>(KEY, [])
+    .filter((item): item is Imported =>
+      Boolean(item) && typeof item === "object" && !Array.isArray(item),
+    )
+    .map(normalize)
+    .filter((entry) => !entry.deletedAt);
 }
 export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags" | "phaseSplits"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry {
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readSolveHistory()]); return item;
@@ -116,7 +186,7 @@ export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
   const raw = Array.isArray(payload) ? payload : payload && typeof payload === "object" && Array.isArray((payload as { entries?: unknown }).entries) ? (payload as { entries: unknown[] }).entries : null;
   if (!raw) throw new Error("Invalid backup");
   const seen = new Set<string>();
-  const entries = raw.filter((item): item is Imported => Boolean(item) && typeof item === "object").map(normalize).filter((item) => { if (seen.has(item.id)) return false; seen.add(item.id); return true; }).sort((a, b) => b.createdAt - a.createdAt).slice(0, MAX_ENTRIES);
+  const entries = raw.filter((item): item is Imported => Boolean(item) && typeof item === "object" && !Array.isArray(item)).map(normalize).filter((item) => { if (seen.has(item.id)) return false; seen.add(item.id); return true; }).sort((a, b) => b.createdAt - a.createdAt).slice(0, MAX_ENTRIES);
   write(entries); return entries;
 }
 export function exportSolveHistory() { return { schema: "cfop-solver-timer-history", version: 2, exportedAt: new Date().toISOString(), entries: readSolveHistory() }; }

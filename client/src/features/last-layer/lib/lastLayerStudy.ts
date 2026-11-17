@@ -1,5 +1,6 @@
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 
+import { z } from "zod";
 import { readStoredJson, writeStoredValue } from "@/lib/browserStorage";
 import { notifyCfopCloudStateChanged } from "@/lib/cloudSyncSignal";
 import { spacedRepetitionInterval } from "@/lib/spacedRepetition";
@@ -28,20 +29,38 @@ const MASTERED_STORE = "cfop-studio-mastered-last-layer-v1";
 const MAX_RECORDS = 2000;
 
 function caseKey(item: Pick<LastLayerCatalogCase, "family" | "id">) { return `${item.family}:${item.id}`; }
-function boundedNumber(value: unknown, fallback: number, min: number, max: number) { return typeof value === "number" && Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback; }
+
+/** A finite number clamped to [min, max]; invalid input falls back. */
+const boundedNumber = (fallback: number, min: number, max: number) =>
+  z.number().finite().transform(value => Math.min(max, Math.max(min, value))).prefault(fallback).catch(fallback);
+const boundedInt = (fallback: number, min: number, max: number) =>
+  z.number().finite().transform(value => Math.round(Math.min(max, Math.max(min, value)))).prefault(fallback).catch(fallback);
+/** Plain-number daily goal normalizer (not a schema factory). */
+const plainBoundedDailyGoal = (value: unknown) =>
+  typeof value === "number" && Number.isFinite(value) ? Math.min(200, Math.max(1, Math.round(value))) : 12;
+
+const studyGradeSchema = z.enum(["again", "hard", "good", "easy"]);
+const studyRecordSchema = z.object({
+  key: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 120) : "")),
+  family: z.enum(["zbll", "1lll"]),
+  group: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 60) : "")),
+  id: z.unknown().transform(value => (typeof value === "string" ? value.slice(0, 100) : "")),
+  attempts: boundedInt(0, 0, 10_000),
+  lapses: boundedInt(0, 0, 10_000),
+  averageMs: boundedInt(0, 0, 3_600_000),
+  lastMs: boundedInt(0, 0, 3_600_000),
+  intervalDays: boundedNumber(0, 0, 3_650),
+  dueAt: boundedNumber(0, 0, Number.MAX_SAFE_INTEGER),
+  lastReviewedAt: boundedNumber(0, 0, Number.MAX_SAFE_INTEGER),
+  lastGrade: studyGradeSchema.prefault("again").catch("again"),
+});
 
 function normalizeRecord(raw: unknown): StudyRecord | null {
-  if (!raw || typeof raw !== "object") return null;
-  const item = raw as Partial<StudyRecord>;
-  if (typeof item.key !== "string" || !item.key || (item.family !== "zbll" && item.family !== "1lll") || typeof item.group !== "string" || typeof item.id !== "string") return null;
-  const lastGrade: StudyGrade = item.lastGrade === "again" || item.lastGrade === "hard" || item.lastGrade === "good" || item.lastGrade === "easy" ? item.lastGrade : "again";
-  return {
-    key: item.key.slice(0, 120), family: item.family, group: item.group.slice(0, 60), id: item.id.slice(0, 100),
-    attempts: Math.round(boundedNumber(item.attempts, 0, 0, 10_000)), lapses: Math.round(boundedNumber(item.lapses, 0, 0, 10_000)),
-    averageMs: Math.round(boundedNumber(item.averageMs, 0, 0, 3_600_000)), lastMs: Math.round(boundedNumber(item.lastMs, 0, 0, 3_600_000)),
-    intervalDays: boundedNumber(item.intervalDays, 0, 0, 3650), dueAt: boundedNumber(item.dueAt, 0, 0, Number.MAX_SAFE_INTEGER),
-    lastReviewedAt: boundedNumber(item.lastReviewedAt, 0, 0, Number.MAX_SAFE_INTEGER), lastGrade,
-  };
+  const parsed = studyRecordSchema.safeParse(raw);
+  if (!parsed.success) return null;
+  const record = parsed.data;
+  if (!record.key || !record.group || !record.id) return null;
+  return record;
 }
 
 export function readLastLayerStudy(): StudyState {
@@ -49,11 +68,11 @@ export function readLastLayerStudy(): StudyState {
     const raw = readStoredJson<{ records?: unknown; dailyGoal?: unknown }>(STORE, {});
     const values = raw.records && typeof raw.records === "object" ? Object.values(raw.records) : [];
     const records = Object.fromEntries(values.map(normalizeRecord).filter((record): record is StudyRecord => Boolean(record)).slice(0, MAX_RECORDS).map((record) => [record.key, record]));
-    return { records, dailyGoal: Math.round(boundedNumber(raw.dailyGoal, 12, 1, 200)) };
+    return { records, dailyGoal: plainBoundedDailyGoal(raw.dailyGoal) };
   } catch { return { records: {}, dailyGoal: 12 }; }
 }
 
-export function writeLastLayerStudy(state: StudyState) { writeStoredValue(STORE, JSON.stringify({ schema: "cfop-last-layer-study", version: 1, records: Object.fromEntries(Object.entries(state.records).slice(0, MAX_RECORDS)), dailyGoal: Math.round(boundedNumber(state.dailyGoal, 12, 1, 200)) })); notifyCfopCloudStateChanged(); }
+export function writeLastLayerStudy(state: StudyState) { writeStoredValue(STORE, JSON.stringify({ schema: "cfop-last-layer-study", version: 1, records: Object.fromEntries(Object.entries(state.records).slice(0, MAX_RECORDS)), dailyGoal: plainBoundedDailyGoal(state.dailyGoal) })); notifyCfopCloudStateChanged(); }
 
 export function readMasteredCaseKeys() {
   const raw = readStoredJson<unknown[]>(MASTERED_STORE, []);
@@ -108,7 +127,7 @@ export function importLastLayerStudy(payload: unknown): { state: StudyState; mas
   const study = root.study as { records?: unknown; dailyGoal?: unknown };
   const records = study.records && typeof study.records === "object" ? Object.fromEntries(Object.values(study.records).map(normalizeRecord).filter((record): record is StudyRecord => Boolean(record)).slice(0, MAX_RECORDS).map((record) => [record.key, record])) : {};
   const masteredKeys = new Set(Array.isArray(root.masteredCaseKeys) ? root.masteredCaseKeys.filter((item): item is string => typeof item === "string").slice(-1800) : []);
-  return { state: { records, dailyGoal: Math.round(boundedNumber(study.dailyGoal, 12, 1, 200)) }, masteredKeys };
+  return { state: { records, dailyGoal: plainBoundedDailyGoal(study.dailyGoal) }, masteredKeys };
 }
 
 export { caseKey };
