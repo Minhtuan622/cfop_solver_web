@@ -183,6 +183,10 @@ export const studyWords: Dictionary = {
     "Đây là lưới net đại diện của case 2×2.",
     "This shows the representative net of the 2×2 case.",
   ],
+  "study.previewHintCase": [
+    "Đây là net đại diện của case.",
+    "This shows the representative net of the case.",
+  ],
   "study.closePreview": ["Đóng preview", "Close preview"],
   "study.close": ["Đóng", "Close"],
 

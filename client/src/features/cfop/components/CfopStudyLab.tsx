@@ -290,6 +290,7 @@ export function CfopStudyLab({
           masteredKeys={masteredKeys}
           activeCase={activeCase}
           onSelect={selectCase}
+          onMasteredChange={setMasteredKeys}
         />
       </div>
 

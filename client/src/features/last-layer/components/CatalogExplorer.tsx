@@ -45,6 +45,8 @@ export type CatalogExplorerPreviewProps = {
   label: string;
   compact?: boolean;
   onClick?: () => void;
+  /** The owning case family (f2l/oll/pll/cll/pbl/zbll/1lll) — previews may vary per family. */
+  family?: string;
 };
 
 type Family = string;
@@ -114,6 +116,7 @@ export function CatalogExplorer({
         mastered,
         total: items.length,
         previewState: items[0]?.state ?? "",
+        family: items[0]?.family,
         items,
       };
     });
@@ -122,7 +125,9 @@ export function CatalogExplorer({
   const needle = query.trim().toLowerCase();
   const matchesQuery = (item: CatalogExplorerCase) =>
     !needle ||
-    `${item.id} ${item.group} ${item.algorithm}`.toLowerCase().includes(needle);
+    `${item.id} ${item.name ?? ""} ${item.group} ${item.algorithm}`
+      .toLowerCase()
+      .includes(needle);
   const isUnmastered = (item: CatalogExplorerCase) =>
     !masteredKeys.has(keyOf(item));
 
@@ -397,6 +402,7 @@ export function CatalogExplorer({
                               state={catalogCase.state}
                               label={catalogCase.id}
                               compact
+                              family={catalogCase.family}
                               onClick={() => setPreviewCase(catalogCase)}
                             />
                             <div className="flex shrink-0 items-center gap-2">
@@ -474,6 +480,7 @@ export function CatalogExplorer({
                         state={entry.previewState}
                         label={entry.name}
                         compact
+                        family={entry.family}
                       />
                       <span className="grow">
                         <strong className="block truncate">{entry.name}</strong>
@@ -512,8 +519,8 @@ export function CatalogExplorer({
             <div>
               <DialogTitle>
                 {previewCase
-                  ? previewCase.name ??
-                    `${previewCase.family.toUpperCase()} · ${previewCase.id}`
+                  ? (previewCase.name ??
+                    `${previewCase.family.toUpperCase()} · ${previewCase.id}`)
                   : t("study.previewTitle")}
               </DialogTitle>
               <DialogDescription>{previewHint}</DialogDescription>
@@ -527,7 +534,11 @@ export function CatalogExplorer({
           </DialogHeader>
           {previewCase ? (
             <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 flex flex-col items-center gap-4 p-4 sm:p-6 overflow-auto">
-              <Preview state={previewCase.state} label={previewCase.id} />
+              <Preview
+                state={previewCase.state}
+                label={previewCase.id}
+                family={previewCase.family}
+              />
               <div className="text-center w-full">
                 <strong>{previewCase.group}</strong>
                 <code className="block text-sm text-muted mt-2 break-words">
