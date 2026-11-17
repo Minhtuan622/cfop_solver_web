@@ -70,10 +70,12 @@ describe("Timer replay với solution đã lưu", () => {
     // Khối 3D dùng chung PuzzleScramblePreview (ở đây là mock).
     expect(screen.getAllByTestId("puzzle-preview").at(-1)).toHaveTextContent("333 preview");
 
-    // Nút Phát solution trong dialog chạy lại toàn bộ chuỗi.
-    const dialogPlayButtons = screen.getAllByRole("button", { name: "Phát solution" });
-    expect(dialogPlayButtons.length).toBeGreaterThanOrEqual(2);
-    fireEvent.click(dialogPlayButtons.at(-1)!);
+    // Nút Phát solution trong dialog chạy lại toàn bộ chuỗi. Radix ẩn nội
+    // dung ngoài hộp thoại khỏi accessibility tree, nên truy vấn trong dialog.
+    const replayPlay = within(replayDialog).getByRole("button", {
+      name: "Phát solution",
+    });
+    fireEvent.click(replayPlay);
     expect(screen.getByText("PHÁT LẠI SOLUTION THỰC TẾ")).toBeInTheDocument();
   });
 

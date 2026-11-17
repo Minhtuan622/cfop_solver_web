@@ -1,19 +1,30 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
+import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "./StudioDialog";
 
+// jsdom lacks the pointer-capture and scrollIntoView APIs that Radix uses.
+beforeAll(() => {
+  Element.prototype.scrollIntoView = () => {};
+  Element.prototype.hasPointerCapture = () => false;
+  Element.prototype.setPointerCapture = () => {};
+  Element.prototype.releasePointerCapture = () => {};
+});
+
 afterEach(cleanup);
 
 describe("StudioDialog", () => {
-  it("closes when Escape is pressed", () => {
+  it("closes when Escape is pressed", async () => {
+    const user = userEvent.setup();
     const onOpenChange = vi.fn();
     render(
       <Dialog open onOpenChange={onOpenChange}>
@@ -21,12 +32,13 @@ describe("StudioDialog", () => {
       </Dialog>,
     );
 
-    fireEvent.keyDown(window, { key: "Escape" });
+    await user.keyboard("{Escape}");
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
-  it("closes when the dimmed backdrop is pressed", () => {
+  it("closes when the dimmed backdrop is pressed", async () => {
+    const user = userEvent.setup();
     const onOpenChange = vi.fn();
     render(
       <Dialog open onOpenChange={onOpenChange}>
@@ -34,7 +46,7 @@ describe("StudioDialog", () => {
       </Dialog>,
     );
 
-    fireEvent.mouseDown(screen.getByTestId("dialog-backdrop"));
+    await user.click(screen.getByTestId("dialog-backdrop"));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
@@ -60,7 +72,8 @@ describe("StudioDialog", () => {
     expect(dialog.getAttribute("aria-describedby")).toBe(description.id);
   });
 
-  it("moves focus into the dialog and returns it to the trigger", () => {
+  it("moves focus into the dialog and returns it to the trigger", async () => {
+    const user = userEvent.setup();
     function Harness() {
       const [open, setOpen] = useState(false);
       return (
@@ -84,18 +97,20 @@ describe("StudioDialog", () => {
     const trigger = screen.getByRole("button", { name: "Mở hộp thoại" });
     trigger.focus();
 
-    fireEvent.click(trigger);
+    await user.click(trigger);
 
     expect(document.activeElement).toBe(
       screen.getByRole("button", { name: "Nút trong hộp thoại" }),
     );
 
-    fireEvent.keyDown(window, { key: "Escape" });
+    await user.keyboard("{Escape}");
 
-    expect(document.activeElement).toBe(trigger);
+    // Radix restores focus to the trigger after the dialog unmounts.
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
   });
 
-  it("keeps Tab cycling inside the dialog", () => {
+  it("keeps Tab cycling inside the dialog", async () => {
+    const user = userEvent.setup();
     render(
       <Dialog open onOpenChange={() => {}}>
         <DialogContent>
@@ -112,10 +127,10 @@ describe("StudioDialog", () => {
     const last = screen.getByRole("button", { name: "Nút cuối" });
 
     last.focus();
-    fireEvent.keyDown(window, { key: "Tab" });
+    await user.keyboard("{Tab}");
     expect(document.activeElement).toBe(first);
 
-    fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
+    await user.keyboard("{Shift>}{Tab}{/Shift}");
     expect(document.activeElement).toBe(last);
   });
 
@@ -133,5 +148,22 @@ describe("StudioDialog", () => {
 
     expect(screen.getAllByRole("dialog")).toHaveLength(1);
     expect(screen.getByText("Nội dung")).toBeInTheDocument();
+  });
+
+  it("renders the footer actions inside the dialog", () => {
+    render(
+      <Dialog open onOpenChange={() => {}}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tiêu đề hộp thoại</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <button type="button">Hành động</button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>,
+    );
+
+    expect(screen.getByRole("button", { name: "Hành động" })).toBeInTheDocument();
   });
 });
