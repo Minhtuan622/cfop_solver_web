@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { distanceFromPinch, inertiaStep, inertiaStepForPuzzle, orbitFromDrag, orbitFromPuzzleDrag } from "./puzzleCamera";
+import { distanceFromPinch, fitDistanceForPoints, inertiaStep, inertiaStepForPuzzle, orbitFromDrag, orbitFromPuzzleDrag } from "./puzzleCamera";
 
 describe("Puzzle3DCanvas controls", () => {
   it("moves the vertical camera axis in the same direction as the pointer", () => {
@@ -10,8 +10,20 @@ describe("Puzzle3DCanvas controls", () => {
   });
 
   it("zooms in when a pinch expands and clamps distances safely", () => {
-    expect(distanceFromPinch(6, 100, 200)).toBe(3.6);
+    expect(distanceFromPinch(6, 100, 200)).toBe(3);
+    expect(distanceFromPinch(4, 100, 500)).toBe(2.8);
     expect(distanceFromPinch(6, 100, 40)).toBe(13);
+  });
+
+  it("fits the camera to the projected puzzle bounds with a small margin", () => {
+    expect(fitDistanceForPoints([{ x: 3, y: 0, z: 0 }], 90, 1)).toBeCloseTo(3.333, 3);
+    expect(fitDistanceForPoints([{ x: 2, y: 0, z: 1 }], 90, 1)).toBeCloseTo(3.222, 3);
+    expect(fitDistanceForPoints([{ x: 8, y: 1, z: 0 }], 90, 2)).toBeCloseTo(4.444, 3);
+    expect(fitDistanceForPoints([], 34, 1)).toBe(13);
+  });
+
+  it("keeps the camera outside the puzzle even for tiny stages", () => {
+    expect(fitDistanceForPoints([{ x: 0, y: 0, z: 0 }], 34, 1)).toBe(2.8);
   });
 
   it("keeps a light, decaying velocity after the user releases the model", () => {

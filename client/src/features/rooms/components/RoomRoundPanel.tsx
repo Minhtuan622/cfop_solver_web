@@ -96,11 +96,13 @@ export function RoomRoundPanel({
           <p className="text-xl font-bold break-words">
             {activeRound.scramble}
           </p>
-          <PuzzleScramblePreview
-            eventId={eventId}
-            scramble={activeRound.scramble}
-            language={language}
-          />
+          <div className="h-[18rem]">
+            <PuzzleScramblePreview
+              eventId={eventId}
+              scramble={activeRound.scramble}
+              language={language}
+            />
+          </div>
         </>
       )}
     </>

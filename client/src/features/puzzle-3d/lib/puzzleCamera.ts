@@ -2,14 +2,43 @@ import type { PuzzleId } from "./puzzleIds";
 
 export type PuzzleOrbit = { yaw: number; pitch: number; distance: number };
 export type PointerPoint = { x: number; y: number };
+export type ProjectedPoint = { x: number; y: number; z: number };
 
-export const CAMERA_LIMITS = { min: 3.6, max: 13, pitch: 1.1 };
+export const CAMERA_LIMITS = { min: 2.8, max: 13, pitch: 1.1 };
+/** Leave a small margin around the puzzle instead of touching the stage edge. */
+export const CAMERA_FILL = 0.9;
 const FTO_HORIZONTAL_YAW_LIMIT = 1.35;
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 export function clampDistance(distance: number) {
   return clamp(distance, CAMERA_LIMITS.min, CAMERA_LIMITS.max);
+}
+
+/**
+ * Pull the camera as close as possible while keeping every puzzle vertex on
+ * screen. Points are in camera space (the orbit rotation already applied), so
+ * the depth-aware term stops near corners from crossing the frame edge.
+ */
+export function fitDistanceForPoints(
+  points: readonly ProjectedPoint[],
+  fov: number,
+  aspect: number,
+  fill = CAMERA_FILL
+) {
+  if (!points.length) return CAMERA_LIMITS.max;
+  const tanVertical = Math.tan((fov * Math.PI) / 360);
+  const tanHorizontal = tanVertical * Math.max(0.01, aspect);
+  const screenFill = clamp(fill, 0.1, 1);
+  let distance = 0;
+  for (const point of points) {
+    distance = Math.max(
+      distance,
+      point.z + Math.abs(point.x) / (screenFill * tanHorizontal),
+      point.z + Math.abs(point.y) / (screenFill * tanVertical)
+    );
+  }
+  return clampDistance(distance);
 }
 
 export function orbitFromDrag(start: PuzzleOrbit, deltaX: number, deltaY: number): PuzzleOrbit {
@@ -57,17 +86,17 @@ export function inertiaStepForPuzzle(puzzle: PuzzleId, orbit: PuzzleOrbit, veloc
 export function gapBetween([first, second]: PointerPoint[]) { return Math.hypot(first.x - second.x, first.y - second.y); }
 
 export function defaultPuzzleCamera(puzzle: PuzzleId) {
-  if (puzzle === "megaminx") return { fov: 29, distance: 6.1, height: "18rem" };
-  if (puzzle === "fto") return { fov: 28, distance: 5.95, height: "17rem" };
-  if (puzzle === "pyraminx") return { fov: 32, distance: 4.45, height: "16rem" };
-  if (puzzle === "skewb") return { fov: 33, distance: 4.65, height: "16rem" };
-  if (puzzle === "clock") return { fov: 31, distance: 7.45, height: "12rem" };
-  if (puzzle === "square1") return { fov: 32, distance: 7.15, height: "13rem" };
-  if (puzzle === "7x7x7") return { fov: 31, distance: 6.8, height: "15rem" };
-  if (puzzle === "3x3x3") return { fov: 34, distance: 5.4, height: "14rem" };
-  if (puzzle === "2x2x2") return { fov: 34, distance: 4.6, height: "13rem" };
-  if (puzzle === "6x6x6") return { fov: 32, distance: 6.5, height: "15rem" };
-  if (puzzle === "5x5x5") return { fov: 33, distance: 6.1, height: "14rem" };
-  if (puzzle === "4x4x4") return { fov: 34, distance: 5.8, height: "14rem" };
-  return { fov: 34, distance: 5.4, height: "14rem" };
+  if (puzzle === "megaminx") return { fov: 29, distance: 6.1 };
+  if (puzzle === "fto") return { fov: 28, distance: 5.95 };
+  if (puzzle === "pyraminx") return { fov: 32, distance: 4.45 };
+  if (puzzle === "skewb") return { fov: 33, distance: 4.65 };
+  if (puzzle === "clock") return { fov: 31, distance: 7.45 };
+  if (puzzle === "square1") return { fov: 32, distance: 7.15 };
+  if (puzzle === "7x7x7") return { fov: 31, distance: 6.8 };
+  if (puzzle === "3x3x3") return { fov: 34, distance: 5.4 };
+  if (puzzle === "2x2x2") return { fov: 34, distance: 4.6 };
+  if (puzzle === "6x6x6") return { fov: 32, distance: 6.5 };
+  if (puzzle === "5x5x5") return { fov: 33, distance: 6.1 };
+  if (puzzle === "4x4x4") return { fov: 34, distance: 5.8 };
+  return { fov: 34, distance: 5.4 };
 }

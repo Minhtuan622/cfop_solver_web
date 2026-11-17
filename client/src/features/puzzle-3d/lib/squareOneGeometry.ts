@@ -219,6 +219,46 @@ export function squareOneObject(THREE: ThreeModule, state: SquareOneState) {
     })
   );
   belt.add(beltCore);
+  // The solved Square-1 carries one side colour per face around the belt.
+  const beltStickers: Array<{
+    color: string;
+    position: [number, number, number];
+    rotationY: number;
+  }> = [
+    { color: CUBE_COLORS.F!, position: [0, 0, SQUARE1_CHORD], rotationY: 0 },
+    {
+      color: CUBE_COLORS.R!,
+      position: [SQUARE1_CHORD, 0, 0],
+      rotationY: Math.PI / 2,
+    },
+    {
+      color: CUBE_COLORS.B!,
+      position: [0, 0, -SQUARE1_CHORD],
+      rotationY: Math.PI,
+    },
+    {
+      color: CUBE_COLORS.L!,
+      position: [-SQUARE1_CHORD, 0, 0],
+      rotationY: -Math.PI / 2,
+    },
+  ];
+  const beltStickerGeometry = new THREE.PlaneGeometry(
+    SQUARE1_CHORD * 2,
+    SQUARE1_BELT_THICKNESS
+  );
+  for (const { color, position, rotationY } of beltStickers) {
+    const sticker = new THREE.Mesh(
+      beltStickerGeometry,
+      new THREE.MeshLambertMaterial({ color })
+    );
+    sticker.position.set(
+      position[0] * (1 + 0.008 / SQUARE1_CHORD),
+      position[1],
+      position[2] * (1 + 0.008 / SQUARE1_CHORD)
+    );
+    sticker.rotation.y = rotationY;
+    belt.add(sticker);
+  }
   belt.scale.set(SQUARE1_FOOTPRINT_SCALE, 1, SQUARE1_FOOTPRINT_SCALE);
   belt.rotation.y = state.middle * Math.PI;
   root.add(top, bottom, belt);
