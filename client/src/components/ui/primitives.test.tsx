@@ -4,7 +4,6 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, cardClass } from "@/components/ui/Card";
 import { Input, Textarea } from "@/components/ui/FormControls";
-import { Select } from "@/components/ui/Select";
 
 // Dự án không bật `globals` cho Vitest nên Testing Library không tự dọn DOM
 // giữa các test; dọn ở đây để mỗi test chỉ thấy phần tử của mình.
