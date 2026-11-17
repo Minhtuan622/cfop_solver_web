@@ -51,7 +51,10 @@ const FACE_OFFSET: Record<string, number> = {
   L: 36,
   B: 45,
 };
-const SLICE_MOVES: Record<string, { axis: "x" | "y" | "z"; layers: number[]; sign: 1 | -1 }> = {
+const SLICE_MOVES: Record<
+  string,
+  { axis: "x" | "y" | "z"; layers: number[]; sign: 1 | -1 }
+> = {
   R: { axis: "x", layers: [1], sign: -1 },
   L: { axis: "x", layers: [-1], sign: 1 },
   r: { axis: "x", layers: [0, 1], sign: -1 },
@@ -108,13 +111,21 @@ function parseMove(move: string) {
   const suffix = match[2];
   const spec = SLICE_MOVES[base];
   if (!spec) return null;
-  if (match[1].toLowerCase() === "x" || match[1].toLowerCase() === "y" || match[1].toLowerCase() === "z") {
+  if (
+    match[1].toLowerCase() === "x" ||
+    match[1].toLowerCase() === "y" ||
+    match[1].toLowerCase() === "z"
+  ) {
     const lower = match[1].toLowerCase();
     if (base === lower) {
       // x / y / z — whole-cube rotation, follow the sign table.
       const axis = lower as "x" | "y" | "z";
       const sign = match[1] === lower ? -1 : 1; // lowercase = inverse of uppercase in this scheme
-      const angle = (suffix === "2" ? Math.PI : (Math.PI / 2) * sign * (suffix === "'" ? -1 : 1)) as number;
+      const angle = (
+        suffix === "2"
+          ? Math.PI
+          : (Math.PI / 2) * sign * (suffix === "'" ? -1 : 1)
+      ) as number;
       return { axis, layers: [-1, 0, 1], angle };
     }
   }
@@ -130,7 +141,8 @@ function highlightedIndexes(
   crossColor: string,
   xcrossSlots: string[] | undefined,
   lastLayerCase: { family: string; id: string } | null | undefined,
-  specialStickers: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>> | undefined,
+  specialStickers:
+    Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>> | undefined,
   alignPerm: number[] | null = null
 ) {
   const highlight = new Map<string, { color: string; intensity: number }>();
@@ -157,9 +169,14 @@ function highlightedIndexes(
     for (const slot of xcrossSlots) {
       const slotMap = XROSS_STICKERS[slot];
       if (!slotMap) continue;
-      for (const face of Object.keys(slotMap) as Array<"D" | "F" | "R" | "L" | "B">) {
+      for (const face of Object.keys(slotMap) as Array<
+        "D" | "F" | "R" | "L" | "B"
+      >) {
         for (const index of slotMap[face] ?? []) {
-          highlight.set(rawKey(face, index), { color: "#7c6cf0", intensity: 0.75 });
+          highlight.set(rawKey(face, index), {
+            color: "#7c6cf0",
+            intensity: 0.75,
+          });
         }
       }
     }
@@ -167,24 +184,56 @@ function highlightedIndexes(
   if (lastLayerCase) {
     for (const face of FACE_ORDER) {
       for (let index = 0; index < 9; index += 1) {
-        highlight.set(rawKey(face, index), { color: "#fbbf24", intensity: 0.65 });
+        highlight.set(rawKey(face, index), {
+          color: "#fbbf24",
+          intensity: 0.65,
+        });
       }
     }
   }
   if (specialStickers) {
-    for (const face of Object.keys(specialStickers) as Array<"U" | "R" | "F" | "D" | "L" | "B">) {
+    for (const face of Object.keys(specialStickers) as Array<
+      "U" | "R" | "F" | "D" | "L" | "B"
+    >) {
       for (const index of specialStickers[face] ?? []) {
-        highlight.set(rawKey(face, index), { color: "#fb7185", intensity: 0.7 });
+        highlight.set(rawKey(face, index), {
+          color: "#fb7185",
+          intensity: 0.7,
+        });
       }
     }
   }
   return highlight;
 }
 
-const _geoSticker3 = new RoundedBoxGeometry(CELL_3 * 0.88, CELL_3 * 0.88, 0.052, 4, 0.075);
-const _geoBody3 = new RoundedBoxGeometry(CELL_3 * 0.94, CELL_3 * 0.94, CELL_3 * 0.94, 4, 0.09);
-const _geoSticker2 = new RoundedBoxGeometry(CELL_2 * 0.88, CELL_2 * 0.88, 0.052, 4, 0.075);
-const _geoBody2 = new RoundedBoxGeometry(CELL_2 * 0.94, CELL_2 * 0.94, CELL_2 * 0.94, 4, 0.09);
+const _geoSticker3 = new RoundedBoxGeometry(
+  CELL_3 * 0.88,
+  CELL_3 * 0.88,
+  0.052,
+  4,
+  0.075
+);
+const _geoBody3 = new RoundedBoxGeometry(
+  CELL_3 * 0.94,
+  CELL_3 * 0.94,
+  CELL_3 * 0.94,
+  4,
+  0.09
+);
+const _geoSticker2 = new RoundedBoxGeometry(
+  CELL_2 * 0.88,
+  CELL_2 * 0.88,
+  0.052,
+  4,
+  0.075
+);
+const _geoBody2 = new RoundedBoxGeometry(
+  CELL_2 * 0.94,
+  CELL_2 * 0.94,
+  CELL_2 * 0.94,
+  4,
+  0.09
+);
 
 type Cubie = {
   unit: { x: number; y: number; z: number };
@@ -211,7 +260,10 @@ type TrackedScene = {
  * nên layer mà animation xoay không trùng với layer thực sự bị xoay trong
  * state — cubie quay sai lớp và sticker nhảy loạn ở cuối mỗi bước.
  */
-const ALIGN_ROTATIONS: Record<string, { axis: "x" | "z"; angle: number } | null> = {
+const ALIGN_ROTATIONS: Record<
+  string,
+  { axis: "x" | "z"; angle: number } | null
+> = {
   U: { axis: "x", angle: Math.PI }, // x2 — khối 180° quanh x: U ↔ D
   D: null,
   F: { axis: "x", angle: Math.PI / 2 }, // x — F → D
@@ -225,7 +277,9 @@ function alignQuaternionFor(crossColor: string) {
   const quaternion = new THREE.Quaternion();
   if (spec) {
     quaternion.setFromAxisAngle(
-      spec.axis === "x" ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1),
+      spec.axis === "x"
+        ? new THREE.Vector3(1, 0, 0)
+        : new THREE.Vector3(0, 0, 1),
       spec.angle
     );
   }
@@ -286,8 +340,9 @@ function invertPermutation(perm: number[]) {
 }
 function faceOfPos(pos: number) {
   return (
-    FACE_ORDER.find(face => pos >= FACE_OFFSET[face] && pos < FACE_OFFSET[face] + 9) ??
-    "D"
+    FACE_ORDER.find(
+      face => pos >= FACE_OFFSET[face] && pos < FACE_OFFSET[face] + 9
+    ) ?? "D"
   );
 }
 
@@ -316,8 +371,14 @@ export function CubeGuide3D({
   const builtStateRef = useRef<string>(state);
   const animFrameRef = useRef<number | null>(null);
   const pivotRef = useRef<THREE.Group | null>(null);
-  const orbitRef = useRef({ yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 5.3 : 6.0 });
-  const [status, setStatus] = useState<"loading" | "ready" | "fallback" | "error">("loading");
+  const orbitRef = useRef({
+    yaw: initialYaw,
+    pitch: initialPitch,
+    distance: dimension === 2 ? 5.3 : 6.0,
+  });
+  const [status, setStatus] = useState<
+    "loading" | "ready" | "fallback" | "error"
+  >("loading");
 
   const disposeObject = (object: THREE.Object3D) => {
     object.traverse(node => {
@@ -367,7 +428,9 @@ export function CubeGuide3D({
       alignCross?: boolean;
       xcrossSlots?: string[];
       lastLayerCase?: { family: string; id: string } | null;
-      specialStickers?: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>>;
+      specialStickers?: Partial<
+        Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>
+      >;
     }
   ) => {
     cancelAnimation();
@@ -401,10 +464,16 @@ export function CubeGuide3D({
           if (dimension === 3 && x === 0 && y === 0 && z === 0) continue;
           const group = new THREE.Group();
           group.position.set(x * cell, y * cell, z * cell);
-          const bodyMaterial = new THREE.MeshLambertMaterial({ color: "#141414" });
+          const bodyMaterial = new THREE.MeshLambertMaterial({
+            color: "#141414",
+          });
           const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
           group.add(body);
-          const cubie: Cubie = { unit: { x, y, z }, group, stickerMaterials: [] };
+          const cubie: Cubie = {
+            unit: { x, y, z },
+            group,
+            stickerMaterials: [],
+          };
           for (const face of FACE_ORDER) {
             const exposed =
               (face === "U" && y === 1) ||
@@ -421,7 +490,9 @@ export function CubeGuide3D({
             const highlightInfo = highlight.get(`${face}:${faceIndex}`);
             const material = new THREE.MeshLambertMaterial({
               color,
-              emissive: highlightInfo ? new THREE.Color(highlightInfo.color) : new THREE.Color("#000000"),
+              emissive: highlightInfo
+                ? new THREE.Color(highlightInfo.color)
+                : new THREE.Color("#000000"),
               emissiveIntensity: highlightInfo?.intensity ?? 0,
             });
             const sticker = new THREE.Mesh(stickerGeometry, material);
@@ -484,23 +555,23 @@ export function CubeGuide3D({
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 50);
     const alignGroup = new THREE.Group();
-    alignGroup.quaternion.copy(alignQuaternionFor(alignCross ? crossColor : "D"));
+    alignGroup.quaternion.copy(
+      alignQuaternionFor(alignCross ? crossColor : "D")
+    );
     scene.add(alignGroup);
     const root = new THREE.Group();
     alignGroup.add(root);
-    scene.add(new THREE.HemisphereLight(0xffffff, surface === "light" ? 0x7a7a7a : 0x55606e, 2.4));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.6);
-    keyLight.position.set(3.5, 6, 8);
-    scene.add(keyLight);
-    const fill = new THREE.DirectionalLight(0xbfd3ff, 0.9);
-    fill.position.set(-6, -2, -4);
-    scene.add(fill);
+    // Flat lighting only: no direction, every face gets the same light.
+    scene.add(new THREE.AmbientLight(0xffffff, 2.2));
     host.replaceChildren(activeRenderer.domElement);
     activeRenderer.domElement.className = "block h-full w-full";
 
     const resize = () => {
       const width = Math.max(200, host.clientWidth);
-      const height = Math.max(220, host.clientHeight || (dimension === 2 ? 260 : 320));
+      const height = Math.max(
+        220,
+        host.clientHeight || (dimension === 2 ? 260 : 320)
+      );
       activeRenderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -512,7 +583,15 @@ export function CubeGuide3D({
     };
     const observer = new ResizeObserver(resize);
     observer.observe(host);
-    sceneRef.current = { renderer: activeRenderer, scene, camera, root, alignGroup, host, resize };
+    sceneRef.current = {
+      renderer: activeRenderer,
+      scene,
+      camera,
+      root,
+      alignGroup,
+      host,
+      resize,
+    };
     builtStateRef.current = state;
     buildFromState(sceneRef.current, state, {
       inspectCross,
@@ -551,7 +630,8 @@ export function CubeGuide3D({
   useEffect(() => {
     const bundle = sceneRef.current;
     if (!bundle) return;
-    const isMove = transition === "move" && move && previousState && previousState !== state;
+    const isMove =
+      transition === "move" && move && previousState && previousState !== state;
 
     const rebuild = () =>
       buildFromState(bundle, state, {
@@ -635,7 +715,11 @@ export function CubeGuide3D({
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    (hostRef.current as unknown as { __drag?: { x: number; y: number; yaw: number; pitch: number } }).__drag = {
+    (
+      hostRef.current as unknown as {
+        __drag?: { x: number; y: number; yaw: number; pitch: number };
+      }
+    ).__drag = {
       x: event.clientX,
       y: event.clientY,
       yaw: orbitRef.current.yaw,
@@ -643,11 +727,18 @@ export function CubeGuide3D({
     };
   };
   const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    const drag = (hostRef.current as unknown as { __drag?: { x: number; y: number; yaw: number; pitch: number } }).__drag;
+    const drag = (
+      hostRef.current as unknown as {
+        __drag?: { x: number; y: number; yaw: number; pitch: number };
+      }
+    ).__drag;
     if (!drag) return;
     const orbit = orbitRef.current;
     orbit.yaw = drag.yaw + (event.clientX - drag.x) * 0.012;
-    orbit.pitch = Math.max(-ORBIT_LIMIT, Math.min(ORBIT_LIMIT, drag.pitch + (event.clientY - drag.y) * 0.012));
+    orbit.pitch = Math.max(
+      -ORBIT_LIMIT,
+      Math.min(ORBIT_LIMIT, drag.pitch + (event.clientY - drag.y) * 0.012)
+    );
     renderNow();
   };
   const pointerUp = (event: PointerEvent<HTMLDivElement>) => {
@@ -660,7 +751,10 @@ export function CubeGuide3D({
     const orbit = orbitRef.current;
     const min = dimension === 2 ? 4.2 : 4.8;
     const max = dimension === 2 ? 7 : 8;
-    orbit.distance = Math.max(min, Math.min(max, orbit.distance + (event.deltaY > 0 ? 0.5 : -0.5)));
+    orbit.distance = Math.max(
+      min,
+      Math.min(max, orbit.distance + (event.deltaY > 0 ? 0.5 : -0.5))
+    );
     renderNow();
   };
 
@@ -672,17 +766,22 @@ export function CubeGuide3D({
   if (status === "error")
     return (
       <div className="grid min-h-84 place-items-center text-sm text-muted">
-        {language === "vi" ? "Không thể dựng mô hình 3D." : "Could not build the 3D model."}
+        {language === "vi"
+          ? "Không thể dựng mô hình 3D."
+          : "Could not build the 3D model."}
       </div>
     );
 
   if (status === "fallback") {
-    const stickerIndexes = dimension === 2 ? [0, 2, 6, 8] : [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    const stickerIndexes =
+      dimension === 2 ? [0, 2, 6, 8] : [0, 1, 2, 3, 4, 5, 6, 7, 8];
     return (
       <div
         className="grid min-h-84 w-full place-items-center rounded-card"
         style={{ background: stageBackground }}
-        aria-label={language === "vi" ? "Mô hình Rubik 3D của bạn" : "3D Rubik model"}
+        aria-label={
+          language === "vi" ? "Mô hình Rubik 3D của bạn" : "3D Rubik model"
+        }
       >
         <div className="grid grid-cols-4 gap-2" data-testid="cube-3d-fallback">
           {FACE_ORDER.map(face => (
@@ -698,7 +797,9 @@ export function CubeGuide3D({
                   <span
                     key={index}
                     className="cube3d-sticker-fallback h-5 w-5 rounded-sm"
-                    style={{ background: CUBE_COLORS[letter] ?? CUBE_FALLBACK_COLOR }}
+                    style={{
+                      background: CUBE_COLORS[letter] ?? CUBE_FALLBACK_COLOR,
+                    }}
                   />
                 );
               })}
@@ -721,7 +822,10 @@ export function CubeGuide3D({
   }
 
   return (
-    <div className="relative grid min-h-84 w-full place-items-center overflow-hidden rounded-card" style={{ background: stageBackground }}>
+    <div
+      className="relative grid min-h-84 w-full place-items-center overflow-hidden rounded-card"
+      style={{ background: stageBackground }}
+    >
       <div
         ref={hostRef}
         role="img"
@@ -736,7 +840,9 @@ export function CubeGuide3D({
           // hiện ra.
           background: surface === "light" ? "transparent" : undefined,
         }}
-        aria-label={language === "vi" ? "Mô hình Rubik 3D của bạn" : "3D Rubik model"}
+        aria-label={
+          language === "vi" ? "Mô hình Rubik 3D của bạn" : "3D Rubik model"
+        }
         onPointerDown={pointerDown}
         onPointerMove={pointerMove}
         onPointerUp={pointerUp}
@@ -752,7 +858,11 @@ export function CubeGuide3D({
         label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"}
         icon={<Rotate3D className="text-base" />}
         onClick={() => {
-          orbitRef.current = { yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 5.3 : 6.0 };
+          orbitRef.current = {
+            yaw: initialYaw,
+            pitch: initialPitch,
+            distance: dimension === 2 ? 5.3 : 6.0,
+          };
           renderNow();
         }}
         className={

@@ -261,14 +261,8 @@ export function Puzzle3DCanvas({
         focusActualFtoFace(THREE, puzzleObject, puzzleBase, teachingFace);
       root.add(puzzleBase);
       scene.add(root);
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x55606e, 2.4));
-      const key = new THREE.DirectionalLight(0xffffff, 2.8);
-      key.position.set(4, 6, 8);
-      scene.add(key);
-      // Fill from below so undersides are lit too (the key light only faces down).
-      const fill = new THREE.DirectionalLight(0xffffff, 1.1);
-      fill.position.set(-2, -6, 3);
-      scene.add(fill);
+      // Flat lighting only: no direction, every face gets the same light.
+      scene.add(new THREE.AmbientLight(0xffffff, 2.2));
 
       const resizeAndRender = () => {
         const width = Math.max(220, host.clientWidth);
