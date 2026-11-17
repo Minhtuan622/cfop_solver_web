@@ -84,6 +84,14 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     masteredCount: 0,
     catalogCount: 0,
   });
+  const [bldStats, setBldStats] = useState({
+    reviewedToday: 0,
+    dailyGoal: 12,
+    goalPercent: 0,
+    queueCount: 0,
+    masteredCount: 0,
+    catalogCount: 0,
+  });
   const [solverSettings, setSolverSettings] = useState<SolverSettings>(() =>
     readSolverSettings()
   );
@@ -320,49 +328,63 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
             ? cfopStats.reviewedToday
             : studyLane === "twoByTwo"
               ? twoByTwoStats.reviewedToday
-              : reviewedToday
+              : studyLane === "bld"
+                ? bldStats.reviewedToday
+                : reviewedToday
         }
         dailyGoal={
           studyLane === "cfop"
             ? cfopStats.dailyGoal
             : studyLane === "twoByTwo"
               ? twoByTwoStats.dailyGoal
-              : study.dailyGoal
+              : studyLane === "bld"
+                ? bldStats.dailyGoal
+                : study.dailyGoal
         }
         goalPercent={
           studyLane === "cfop"
             ? cfopStats.goalPercent
             : studyLane === "twoByTwo"
               ? twoByTwoStats.goalPercent
-              : dailyPercent
+              : studyLane === "bld"
+                ? bldStats.goalPercent
+                : dailyPercent
         }
         hint={
           studyLane === "cfop"
             ? t("study.goalHint", { count: cfopStats.queueCount })
             : studyLane === "twoByTwo"
               ? t("study.goalHint", { count: twoByTwoStats.queueCount })
-              : t("study.goalHint", { count: queue.length })
+              : studyLane === "bld"
+                ? t("study.goalHint", { count: bldStats.queueCount })
+                : t("study.goalHint", { count: queue.length })
         }
         queueCount={
           studyLane === "cfop"
             ? cfopStats.queueCount
             : studyLane === "twoByTwo"
               ? twoByTwoStats.queueCount
-              : queue.length
+              : studyLane === "bld"
+                ? bldStats.queueCount
+                : queue.length
         }
         masteredCount={
           studyLane === "cfop"
             ? cfopStats.masteredCount
             : studyLane === "twoByTwo"
               ? twoByTwoStats.masteredCount
-              : masteredKeys.size
+              : studyLane === "bld"
+                ? bldStats.masteredCount
+                : masteredKeys.size
         }
         catalogCount={
           studyLane === "cfop"
             ? cfopStats.catalogCount
             : studyLane === "twoByTwo"
               ? twoByTwoStats.catalogCount
-              : catalog.length
+              : studyLane === "bld"
+                ? bldStats.catalogCount
+                : catalog.length
         }
       />
 
@@ -433,7 +455,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
         </div>
       ) : (
         <div className="mt-6">
-          <BldStudyLab language={language} />
+          <BldStudyLab language={language} onStatsChange={setBldStats} />
         </div>
       )}
     </div>

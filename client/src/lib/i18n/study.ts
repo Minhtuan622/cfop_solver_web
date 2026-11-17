@@ -9,8 +9,8 @@ export const studyWords: Dictionary = {
     "Review Last Layer case by case, keep an SRS rhythm, and practise what is weakest.",
   ],
   "study.description.bld": [
-    "Đi từng bước từ công thức đầu tiên đến một routine 3-Style rõ ràng.",
-    "Move from your first algorithm to a clear 3-Style routine, one stage at a time.",
+    "Luyện toàn bộ công thức 3-Style (cạnh, góc, đặc biệt) theo SRS.",
+    "Drill every 3-Style algorithm — edge, corner and special cases — with SRS.",
   ],
   "study.description.twoByTwo": [
     "Luyện 2×2 CLL và PBL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
@@ -187,6 +187,15 @@ export const studyWords: Dictionary = {
     "Đây là net đại diện của case.",
     "This shows the representative net of the case.",
   ],
+  "study.bldCatalogTitle": ["Danh mục 3-Style", "3-Style library"],
+  "study.bldLaneSummary": [
+    "{edge} cạnh · {corner} góc · {special} case đặc biệt",
+    "{edge} edge · {corner} corner · {special} special cases",
+  ],
+  "study.bldFilterAll": ["Tất cả · Cạnh + Góc + Đặc biệt", "All · Edge + Corner + Special"],
+  "study.bldFilterEdge": ["Cạnh", "Edges"],
+  "study.bldFilterCorner": ["Góc", "Corners"],
+  "study.bldFilterSpecial": ["Đặc biệt", "Special"],
   "study.closePreview": ["Đóng preview", "Close preview"],
   "study.close": ["Đóng", "Close"],
 
