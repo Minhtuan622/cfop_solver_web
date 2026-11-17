@@ -12,6 +12,10 @@ export const studyWords: Dictionary = {
     "Đi từng bước từ công thức đầu tiên đến một routine 3-Style rõ ràng.",
     "Move from your first algorithm to a clear 3-Style routine, one stage at a time.",
   ],
+  "study.description.twoByTwo": [
+    "Luyện 2×2 CLL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
+    "Practise 2×2 CLL with SRS: time each case and let the queue pick what is weakest.",
+  ],
   "study.description.cfop": [
     "Luyện F2L, OLL và PLL theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
     "Practise F2L, OLL and PLL with SRS: time each case and let the queue pick what is weakest.",
@@ -21,6 +25,7 @@ export const studyWords: Dictionary = {
   "study.laneLastLayer": ["Last Layer", "Last Layer"],
   "study.laneBld": ["3-Style BLD", "3-Style BLD"],
   "study.laneCfop": ["CFOP", "CFOP"],
+  "study.laneTwoByTwo": ["2×2", "2×2"],
 
   "cfop.laneSummary": [
     "F2L {f2l} (41 × 4 hướng) · OLL {oll} · PLL {pll} case",
@@ -37,6 +42,22 @@ export const studyWords: Dictionary = {
   "cfop.filterAll": ["Tất cả", "All"],
   "cfop.showMore": ["Hiển thị thêm {count} case", "Show {count} more cases"],
   "cfop.emptyCases": ["Không tìm thấy case nào.", "No cases found."],
+
+  "twoByTwo.caseLabel": ["Case 2×2 đang học", "Active 2×2 case"],
+  "twoByTwo.loading3d": ["Đang tải 3D…", "Loading 3D…"],
+  "twoByTwo.laneSummary": [
+    "{count} CLL case (Antisune · H · L · Pi · Sune · T · U)",
+    "{count} CLL cases (Antisune · H · L · Pi · Sune · T · U)",
+  ],
+  "twoByTwo.catalogTitle": ["Danh mục 2×2 CLL", "2×2 CLL catalog"],
+  "twoByTwo.catalogHint": [
+    "{count} case hiển thị · bấm vào case để luyện",
+    "{count} cases shown · click a case to practise",
+  ],
+  "twoByTwo.catalogLabel": ["Danh mục công thức 2×2 CLL", "2×2 CLL algorithm catalog"],
+  "twoByTwo.searchPlaceholder": ["Tìm case hoặc alg…", "Search case or alg…"],
+  "twoByTwo.filterLabel": ["Lọc theo nhóm", "Filter by subset"],
+  "twoByTwo.emptyCases": ["Không tìm thấy case nào.", "No cases found."],
 
   "study.goalLabel": ["Mục tiêu hôm nay", "Today's goal"],
   "study.goalProgress": ["Tiến độ mục tiêu hôm nay", "Today's goal progress"],

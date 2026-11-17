@@ -1,7 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-export type StudyLane = "lastLayer" | "bld" | "cfop";
+export type StudyLane = "lastLayer" | "bld" | "cfop" | "twoByTwo";
 
 export type StudyToolbarProps = {
   lane: StudyLane;
@@ -75,6 +75,14 @@ export function StudyToolbar({
             className={laneButtonClass("cfop")}
           >
             {t("study.laneCfop")}
+          </button>
+          <button
+            type="button"
+            aria-pressed={lane === "twoByTwo"}
+            onClick={() => onLaneChange("twoByTwo")}
+            className={laneButtonClass("twoByTwo")}
+          >
+            {t("study.laneTwoByTwo")}
           </button>
         </div>
 

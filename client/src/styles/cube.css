@@ -108,6 +108,62 @@
   opacity: 0.32;
 }
 
+/* ---- Cube net 2×2×2 (2D) ---- */
+.cube-net-2x2 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0.375rem;
+  border-radius: 1.125rem;
+  background: var(--cube-stage);
+  padding: 0.75rem;
+}
+
+.cube-net-2x2--compact {
+  width: 12rem;
+}
+
+.cube-net-2x2:not(.cube-net-2x2--compact) {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.cube-net-2x2-face {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.cube-net-2x2-face-u { grid-column: 2; grid-row: 1; }
+.cube-net-2x2-face-l { grid-column: 1; grid-row: 2; }
+.cube-net-2x2-face-f { grid-column: 2; grid-row: 2; }
+.cube-net-2x2-face-r { grid-column: 3; grid-row: 2; }
+.cube-net-2x2-face-b { grid-column: 4; grid-row: 2; }
+.cube-net-2x2-face-d { grid-column: 2; grid-row: 3; }
+
+.cube-net-2x2-label {
+  position: absolute;
+  left: -0.125rem;
+  top: -1rem;
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(244, 240, 232, 0.55);
+  padding: 0;
+}
+
+.cube-net-2x2-stickers {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 2px;
+  height: 100%;
+  border-radius: 0.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px;
+}
+
 .cube-sticker--highlight {
   z-index: 10;
   outline: 2px solid #fff;
