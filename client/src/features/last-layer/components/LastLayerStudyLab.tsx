@@ -9,6 +9,8 @@ import { CfopStudyLab } from "@/features/cfop";
 import { TwoByTwoStudyLab } from "@/features/twoByTwo";
 import { PyraminxStudyLab } from "@/features/pyraminx";
 import { SkewbStudyLab } from "@/features/skewb";
+import { SquareOneStudyLab } from "@/features/squareOne";
+import { FourByFourParityStudyLab } from "@/features/fourByFourParity";
 import { LastLayerExplorer } from "@/features/last-layer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -57,7 +59,11 @@ export const studyLaneForQuery = (lane: string | null): StudyLane =>
           ? "pyraminx"
           : lane === "skewb"
             ? "skewb"
-            : "lastLayer";
+            : lane === "sq1" || lane === "square1" || lane === "square-1"
+              ? "sq1"
+              : lane === "4x4" || lane === "444" || lane === "parity"
+                ? "parity"
+                : "lastLayer";
 
 export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const { t } = useLanguage();
@@ -112,6 +118,22 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     catalogCount: 0,
   });
   const [skewbStats, setSkewbStats] = useState({
+    reviewedToday: 0,
+    dailyGoal: 10,
+    goalPercent: 0,
+    queueCount: 0,
+    masteredCount: 0,
+    catalogCount: 0,
+  });
+  const [sq1Stats, setSq1Stats] = useState({
+    reviewedToday: 0,
+    dailyGoal: 10,
+    goalPercent: 0,
+    queueCount: 0,
+    masteredCount: 0,
+    catalogCount: 0,
+  });
+  const [parityStats, setParityStats] = useState({
     reviewedToday: 0,
     dailyGoal: 10,
     goalPercent: 0,
@@ -224,6 +246,8 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     bld: bldStats,
     pyraminx: pyraminxStats,
     skewb: skewbStats,
+    sq1: sq1Stats,
+    parity: parityStats,
   } as const;
   const activeLaneStats =
     studyLane === "lastLayer" ? null : laneStats[studyLane];
@@ -309,7 +333,11 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                   ? t("study.description.pyraminx")
                   : studyLane === "skewb"
                     ? t("study.description.skewb")
-                    : t("study.description.cfop")
+                    : studyLane === "sq1"
+                      ? t("study.description.sq1")
+                      : studyLane === "parity"
+                        ? t("study.description.parity")
+                        : t("study.description.cfop")
         }
         actions={
           studyLane === "lastLayer" ? (
@@ -434,6 +462,14 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
       ) : studyLane === "skewb" ? (
         <div className="mt-6">
           <SkewbStudyLab language={language} onStatsChange={setSkewbStats} />
+        </div>
+      ) : studyLane === "sq1" ? (
+        <div className="mt-6">
+          <SquareOneStudyLab language={language} onStatsChange={setSq1Stats} />
+        </div>
+      ) : studyLane === "parity" ? (
+        <div className="mt-6">
+          <FourByFourParityStudyLab language={language} onStatsChange={setParityStats} />
         </div>
       ) : (
         <div className="mt-6">

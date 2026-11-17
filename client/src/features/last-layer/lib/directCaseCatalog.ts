@@ -29,7 +29,14 @@ export type LastLayerCatalogCase = {
     | "ll"
     | "l4e"
     | "sarah-intermediate"
-    | "sarah-advanced";
+    | "sarah-advanced"
+    | "cp"
+    | "cs"
+    | "csp"
+    | "eo"
+    | "ep"
+    | "obl"
+    | "pll-parity";
   group: string;
   algorithm: string;
   state: string;

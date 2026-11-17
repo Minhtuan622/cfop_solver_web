@@ -7,7 +7,9 @@ export type StudyLane =
   | "cfop"
   | "twoByTwo"
   | "pyraminx"
-  | "skewb";
+  | "skewb"
+  | "sq1"
+  | "parity";
 
 export type StudyToolbarProps = {
   lane: StudyLane;
@@ -105,6 +107,22 @@ export function StudyToolbar({
             className={laneButtonClass("skewb")}
           >
             {t("study.laneSkewb")}
+          </button>
+          <button
+            type="button"
+            aria-pressed={lane === "sq1"}
+            onClick={() => onLaneChange("sq1")}
+            className={laneButtonClass("sq1")}
+          >
+            {t("study.laneSq1")}
+          </button>
+          <button
+            type="button"
+            aria-pressed={lane === "parity"}
+            onClick={() => onLaneChange("parity")}
+            className={laneButtonClass("parity")}
+          >
+            {t("study.laneParity")}
           </button>
         </div>
 

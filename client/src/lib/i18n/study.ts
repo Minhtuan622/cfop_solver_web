@@ -28,6 +28,14 @@ export const studyWords: Dictionary = {
     "Luyện Skewb bằng phương pháp Sarah (Intermediate và Advanced) theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
     "Practise Skewb with the Sarah method (Intermediate and Advanced) with SRS: time each case and let the queue pick what is weakest.",
   ],
+  "study.description.sq1": [
+    "Luyện Square-1 (CP, CS, CSP, EO, EP, OBL) theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
+    "Practise Square-1 (CP, CS, CSP, EO, EP, OBL) with SRS: time each case and let the queue pick what is weakest.",
+  ],
+  "study.description.parity": [
+    "Luyện 4×4 PLL Parity theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
+    "Practise 4×4 PLL parity with SRS: time each case and let the queue pick what is weakest.",
+  ],
 
   "study.laneLabel": ["Loại luyện tập", "Practice type"],
   "study.laneLastLayer": ["Last Layer", "Last Layer"],
@@ -36,6 +44,8 @@ export const studyWords: Dictionary = {
   "study.laneTwoByTwo": ["2×2", "2×2"],
   "study.lanePyraminx": ["Pyraminx", "Pyraminx"],
   "study.laneSkewb": ["Skewb", "Skewb"],
+  "study.laneSq1": ["Square-1", "Square-1"],
+  "study.laneParity": ["4×4 Parity", "4×4 Parity"],
 
   "cfop.laneSummary": [
     "F2L {f2l} (41 × 4 hướng) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} case",
@@ -121,6 +131,49 @@ export const studyWords: Dictionary = {
     "{count} Sarah Advanced cases (16 subsets)",
   ],
   "skewb.catalogTitle": ["Danh mục Skewb", "Skewb catalog"],
+
+  "sq1.caseLabel": ["Case Square-1 đang học", "Active Square-1 case"],
+  "sq1.loading2d": ["Đang tải 2D…", "Loading 2D…"],
+  "sq1.setLabel": ["Bộ thuật toán Square-1", "Square-1 algorithm set"],
+  "sq1.setCp": ["CP · {count}", "CP · {count}"],
+  "sq1.setCs": ["CS · {count}", "CS · {count}"],
+  "sq1.setCsp": ["CSP · {count}", "CSP · {count}"],
+  "sq1.setEo": ["EO · {count}", "EO · {count}"],
+  "sq1.setEp": ["EP · {count}", "EP · {count}"],
+  "sq1.setObl": ["OBL · {count}", "OBL · {count}"],
+  "sq1.laneSummaryCp": [
+    "{count} CP case (Top Adj · Top Opp · Top Solved)",
+    "{count} CP cases (Top Adj · Top Opp · Top Solved)",
+  ],
+  "sq1.laneSummaryCs": [
+    "{count} Cube Shape case (1–7 Slashes)",
+    "{count} Cube Shape cases (1–7 Slashes)",
+  ],
+  "sq1.laneSummaryCsp": [
+    "{count} CSP case (1–7 Slashes)",
+    "{count} CSP cases (1–7 Slashes)",
+  ],
+  "sq1.laneSummaryEo": [
+    "{count} EO case (edge orientation)",
+    "{count} EO cases (edge orientation)",
+  ],
+  "sq1.laneSummaryEp": [
+    "{count} EP case (edge permutation)",
+    "{count} EP cases (edge permutation)",
+  ],
+  "sq1.laneSummaryObl": [
+    "{count} OBL case (1–6 Slashes)",
+    "{count} OBL cases (1–6 Slashes)",
+  ],
+  "sq1.catalogTitle": ["Danh mục Square-1", "Square-1 catalog"],
+
+  "parity.caseLabel": ["Case 4×4 PLL Parity đang học", "Active 4×4 PLL parity case"],
+  "parity.loading3d": ["Đang tải 3D…", "Loading 3D…"],
+  "parity.laneSummary": [
+    "{count} PLL Parity case (2 cạnh tầng cuối cần hoán đổi)",
+    "{count} PLL parity cases (the two last-layer edges to swap)",
+  ],
+  "parity.catalogTitle": ["Danh mục 4×4 Parity", "4×4 parity catalog"],
 
   "study.goalLabel": ["Mục tiêu hôm nay", "Today's goal"],
   "study.goalProgress": ["Tiến độ mục tiêu hôm nay", "Today's goal progress"],
@@ -246,6 +299,14 @@ export const studyWords: Dictionary = {
   "study.previewHintSkewb": [
     "Skewb không có net 2D — đây là biểu tượng puzzle; xem case thật ở thẻ luyện tập.",
     "The Skewb has no 2D net — this is the puzzle-shaped mark; see the real case in the practice card.",
+  ],
+  "study.previewHintSq1": [
+    "Square-1 không có net 2D — đây là biểu tượng puzzle; case thật xem trong thẻ luyện tập (twisty 2D).",
+    "The Square-1 has no 2D net — this is the puzzle-shaped mark; see the real case in the practice card (twisty 2D).",
+  ],
+  "study.previewHintParity": [
+    "Đây là biểu tượng puzzle; case thật xem trong thẻ luyện tập (3D).",
+    "This is the puzzle-shaped mark; see the real 3D case in the practice card.",
   ],
   "study.previewHintCase": [
     "Đây là net đại diện của case.",

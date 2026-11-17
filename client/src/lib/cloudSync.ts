@@ -4,6 +4,8 @@ import { readLastLayerStudy, readMasteredCaseKeys, type StudyState, writeLastLay
 import { readTwoByTwoStudy, readMasteredTwoByTwoCaseKeys, type TwoByTwoStudyState, writeTwoByTwoStudy, writeMasteredTwoByTwoCaseKeys } from "@/features/twoByTwo/lib/twoByTwoStudy";
 import { readPyraminxStudy, readMasteredPyraminxCaseKeys, type PyraminxStudyState, writePyraminxStudy, writeMasteredPyraminxCaseKeys } from "@/features/pyraminx/lib/pyraminxStudy";
 import { readSkewbStudy, readMasteredSkewbCaseKeys, type SkewbStudyState, writeSkewbStudy, writeMasteredSkewbCaseKeys } from "@/features/skewb/lib/skewbStudy";
+import { readSquareOneStudy, readMasteredSquareOneCaseKeys, type SquareOneStudyState, writeSquareOneStudy, writeMasteredSquareOneCaseKeys } from "@/features/squareOne/lib/squareOneStudy";
+import { readFourByFourParityStudy, readMasteredFourByFourParityCaseKeys, type FourByFourParityStudyState, writeFourByFourParityStudy, writeMasteredFourByFourParityCaseKeys } from "@/features/fourByFourParity/lib/fourByFourParityStudy";
 import { readSolveHistory, SolveHistoryEntry, importSolveHistory } from "./solveHistory";
 import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 
@@ -26,6 +28,10 @@ export type CfopCloudState = {
   pyraminx?: { study: PyraminxStudyState; masteredCaseKeys: string[] };
   /** Present for clients that run the Skewb lane; absent on old payloads. */
   skewb?: { study: SkewbStudyState; masteredCaseKeys: string[] };
+  /** Present for clients that run the Square-1 lane; absent on old payloads. */
+  sq1?: { study: SquareOneStudyState; masteredCaseKeys: string[] };
+  /** Present for clients that run the 4×4 PLL parity lane; absent on old payloads. */
+  parity?: { study: FourByFourParityStudyState; masteredCaseKeys: string[] };
 };
 
 /** Giới hạn số lượng solve lưu trong lịch sử cloud state (dùng chung client/server). */
@@ -54,6 +60,14 @@ export function createCfopCloudState(now = Date.now()): CfopCloudState {
     skewb: {
       study: readSkewbStudy(),
       masteredCaseKeys: Array.from(readMasteredSkewbCaseKeys()),
+    },
+    sq1: {
+      study: readSquareOneStudy(),
+      masteredCaseKeys: Array.from(readMasteredSquareOneCaseKeys()),
+    },
+    parity: {
+      study: readFourByFourParityStudy(),
+      masteredCaseKeys: Array.from(readMasteredFourByFourParityCaseKeys()),
     },
   };
 }
@@ -186,6 +200,8 @@ export function mergeCfopCloudStates(local: CfopCloudState, remote: CfopCloudSta
     twoByTwo: mergeLaneProgress(local.twoByTwo, remote.twoByTwo, preferLocal),
     pyraminx: mergeLaneProgress(local.pyraminx, remote.pyraminx, preferLocal),
     skewb: mergeLaneProgress(local.skewb, remote.skewb, preferLocal),
+    sq1: mergeLaneProgress(local.sq1, remote.sq1, preferLocal),
+    parity: mergeLaneProgress(local.parity, remote.parity, preferLocal),
   };
 }
 
@@ -206,5 +222,13 @@ export function applyCfopCloudState(state: CfopCloudState) {
   if (state.skewb) {
     writeSkewbStudy(state.skewb.study);
     writeMasteredSkewbCaseKeys(new Set(state.skewb.masteredCaseKeys));
+  }
+  if (state.sq1) {
+    writeSquareOneStudy(state.sq1.study);
+    writeMasteredSquareOneCaseKeys(new Set(state.sq1.masteredCaseKeys));
+  }
+  if (state.parity) {
+    writeFourByFourParityStudy(state.parity.study);
+    writeMasteredFourByFourParityCaseKeys(new Set(state.parity.masteredCaseKeys));
   }
 }

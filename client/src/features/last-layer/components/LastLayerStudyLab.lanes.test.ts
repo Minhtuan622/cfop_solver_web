@@ -9,6 +9,9 @@ describe("Study lanes", () => {
     expect(studyLaneForQuery("twobytwo")).toBe("twoByTwo");
     expect(studyLaneForQuery("pyraminx")).toBe("pyraminx");
     expect(studyLaneForQuery("skewb")).toBe("skewb");
+    expect(studyLaneForQuery("sq1")).toBe("sq1");
+    expect(studyLaneForQuery("4x4")).toBe("parity");
+    expect(studyLaneForQuery("parity")).toBe("parity");
     expect(studyLaneForQuery("fto")).toBe("lastLayer");
   });
 });

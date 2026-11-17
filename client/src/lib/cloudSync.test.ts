@@ -55,6 +55,8 @@ describe("B3: cloud sync tombstones and merge", () => {
     expect(state.twoByTwo).toBeDefined();
     expect(state.pyraminx).toBeDefined();
     expect(state.skewb).toBeDefined();
+    expect(state.sq1).toBeDefined();
+    expect(state.parity).toBeDefined();
   });
 
   it("parseCfopCloudState đọc được payload có twoByTwo và merge giữ 2×2 records", () => {
@@ -135,6 +137,51 @@ describe("B3: cloud sync tombstones and merge", () => {
     const parsed = parseCfopCloudState(JSON.parse(JSON.stringify(merged)));
     expect(parsed?.pyraminx?.study.records["l4e:L4E-DES-1"]?.intervalDays).toBe(3);
     expect(parsed?.skewb?.study.records["sarah-intermediate:SI-Sledgehammer"]?.intervalDays).toBe(2);
+  });
+
+  it("merge giữ sq1/parity records và masteredCaseKeys", () => {
+    const recordFor = <F extends string>(family: F, id: string, intervalDays: number) => ({
+      key: `${family}:${id}`,
+      family,
+      group: "PLL",
+      id,
+      attempts: 4,
+      lapses: 0,
+      averageMs: 15_000,
+      lastMs: 14_000,
+      intervalDays,
+      dueAt: Date.now() + 200_000,
+      lastReviewedAt: Date.now() - 1_000,
+      lastGrade: "good" as const,
+    });
+    const local = createCfopCloudState();
+    local.sq1 = {
+      study: {
+        records: { "cs:Kite-Kite": recordFor("cs", "Kite-Kite", 5) },
+        dailyGoal: 10,
+      },
+      masteredCaseKeys: ["cs:Kite-Kite"],
+    };
+    local.parity = {
+      study: {
+        records: { "pll-parity:OPP-Parity": recordFor("pll-parity", "OPP-Parity", 6) },
+        dailyGoal: 10,
+      },
+      masteredCaseKeys: ["pll-parity:OPP-Parity"],
+    };
+    const remote = createCfopCloudState();
+    remote.sq1 = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
+    remote.parity = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
+
+    const merged = mergeCfopCloudStates(local, remote);
+    expect(merged.sq1?.study.records["cs:Kite-Kite"]?.attempts).toBe(4);
+    expect(merged.sq1?.masteredCaseKeys).toContain("cs:Kite-Kite");
+    expect(merged.parity?.study.records["pll-parity:OPP-Parity"]?.attempts).toBe(4);
+    expect(merged.parity?.masteredCaseKeys).toContain("pll-parity:OPP-Parity");
+
+    const parsed = parseCfopCloudState(JSON.parse(JSON.stringify(merged)));
+    expect(parsed?.sq1?.study.records["cs:Kite-Kite"]?.intervalDays).toBe(5);
+    expect(parsed?.parity?.study.records["pll-parity:OPP-Parity"]?.intervalDays).toBe(6);
   });
 
   it("payload cũ không có twoByTwo vẫn hợp lệ và merge giữ nguyên", () => {
