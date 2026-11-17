@@ -283,10 +283,10 @@ export const studyWords: Dictionary = {
     "Phóng to preview {label}",
     "Enlarge preview {label}",
   ],
-  "study.previewFace": ["{label}: mặt U 3×3", "{label}: 3×3 U face"],
+  "study.previewFace": ["{label}: tầng 3 đầy đủ", "{label}: full last layer"],
   "study.previewHint": [
-    "Đây là mặt U đại diện của case.",
-    "This shows the representative U face of the case.",
+    "Đây là toàn bộ tầng 3 của case (mặt U + 4 hàng cạnh).",
+    "This shows the full last layer of the case (U face and the four side rows).",
   ],
   "study.previewHint2x2": [
     "Đây là lưới net đại diện của case 2×2.",
@@ -309,8 +309,8 @@ export const studyWords: Dictionary = {
     "This is the puzzle-shaped mark; see the real 3D case in the practice card.",
   ],
   "study.previewHintCase": [
-    "Đây là hình đại diện của case.",
-    "This shows the representative diagram of the case.",
+    "Đây là net đại diện của case.",
+    "This shows the representative net of the case.",
   ],
   "study.bldCatalogTitle": ["Danh mục 3-Style", "3-Style library"],
   "study.bldLaneSummary": [

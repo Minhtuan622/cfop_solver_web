@@ -12,7 +12,7 @@ import {
 } from "@/features/last-layer/components/CatalogExplorer";
 import type { PyraminxCatalogCase } from "../lib/pyraminxCatalog";
 
-/** Flat three-face pyraminx mark on the shared ink stage. */
+/** Flat three-face pyraminx mark (yellow top · green left · red right). */
 export function PyraminxMark({ className }: { className?: string }) {
   return (
     <svg
@@ -21,11 +21,17 @@ export function PyraminxMark({ className }: { className?: string }) {
       role="img"
       aria-hidden="true"
     >
-      <rect width="96" height="84" rx="14" fill="var(--cube-stage)" />
-      <polygon points="48,12 27.5,45 68.5,45" fill="#ffd500" />
-      <polygon points="6.5,76 29.2,42 48,76" fill="#009b48" />
-      <polygon points="89.5,76 66.8,42 48,76" fill="#b71234" />
-      <polygon points="27.5,45 68.5,45 48,76" fill="var(--cube-stage)" />
+      <polygon points="48,4 26,42 70,42" fill="#f2c144" />
+      <polygon points="4,80 26,42 48,80" fill="#3aa655" />
+      <polygon points="92,80 70,42 48,80" fill="#e0463a" />
+      <polygon points="26,42 70,42 48,80" fill="#2b2b2b" />
+      <polygon
+        points="48,4 92,80 4,80"
+        fill="none"
+        stroke="#1f2937"
+        strokeWidth="5"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -54,7 +60,7 @@ function PyraminxSilhouettePreview({
       onKeyDown={handleKeyDown}
       title={interactive ? t("study.enlargePreview", { label }) : undefined}
       className={interactive ? "w-full cursor-pointer" : "w-full"}
-      style={{ width: "100%", maxWidth: compact ? "6rem" : "min(12rem, 100%)" }}
+      style={{ width: "100%", maxWidth: compact ? "4rem" : "10rem" }}
     >
       <PyraminxMark className="w-full max-w-none" />
     </div>

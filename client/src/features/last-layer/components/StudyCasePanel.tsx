@@ -1,7 +1,6 @@
 import { Check, Dices, Sparkles } from "@/components/ui/Icon";
 import { lazy, Suspense } from "react";
 import { CubeNet } from "@/components/common/CubeNet";
-import { PracticeGroupPreview } from "./PracticeGroupPreview";
 import {
   SolveTimer,
   type TimerCompletion,
@@ -16,17 +15,6 @@ const Puzzle3DCanvas = lazy(async () => ({
   default: (await import("@/features/puzzle-3d/components/Puzzle3DCanvas"))
     .Puzzle3DCanvas,
 }));
-
-/** Every case where the U face is the honest whole story (LL and LL-family
- * cases) — shown as the big flat U-face diagram instead of the full net. */
-const U_FACE_FAMILIES = new Set([
-  "zbll",
-  "1lll",
-  "oll",
-  "pll",
-  "coll",
-  "ollcp",
-]);
 
 export type StudyCasePanelProps = {
   /** A catalog case; CFOP cases also carry a short `name` for the header. */
@@ -177,16 +165,12 @@ export function StudyCasePanel({
 
             {view === "2d" ? (
               <div className="rounded-xl bg-surface-2 p-4 text-center">
-                {U_FACE_FAMILIES.has(activeCase.family) ? (
-                  <div className="mx-auto" style={{ maxWidth: "min(22rem, 100%)" }}>
-                    <PracticeGroupPreview
-                      state={activeCase.state}
-                      label={activeCase.id}
-                    />
-                  </div>
-                ) : (
-                  <CubeNet state={activeCase.state} />
-                )}
+                <CubeNet
+                  state={activeCase.state}
+                  lastLayerOnly={
+                    activeCase.family === "oll" || activeCase.family === "pll"
+                  }
+                />
               </div>
             ) : (
               <div className="relative h-64 w-full overflow-hidden rounded-xl bg-surface-2">

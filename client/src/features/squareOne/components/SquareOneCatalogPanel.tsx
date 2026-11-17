@@ -14,7 +14,7 @@ import {
 } from "@/features/last-layer/components/CatalogExplorer";
 import type { SquareOneCatalogCase, SquareOneFamily } from "../lib/squareOneCatalog";
 
-/** Flat Square-1 mark on the shared ink stage (white above · yellow below · grey belt). */
+/** Flat Square-1 mark (white top / yellow bottom / grey equator belt). */
 export function SquareOneMark({ className }: { className?: string }) {
   return (
     <svg
@@ -23,10 +23,10 @@ export function SquareOneMark({ className }: { className?: string }) {
       role="img"
       aria-hidden="true"
     >
-      <rect width="96" height="96" rx="16" fill="var(--cube-stage)" />
-      <circle cx="48" cy="48" r="31" fill="#ffd500" />
-      <path d="M 17 48 A 31 31 0 0 1 79 48 Z" fill="#f2f2f2" />
-      <rect x="13" y="41.5" width="70" height="13" rx="2" fill="#8a8f9e" />
+      <circle cx="48" cy="48" r="38" fill="#f2c144" />
+      <path d="M 10 48 A 38 38 0 0 1 86 48 Z" fill="#f5f5f0" />
+      <rect x="8" y="42.5" width="80" height="11" fill="#8a8f9e" stroke="#1f2937" strokeWidth="3" />
+      <circle cx="48" cy="48" r="38" fill="none" stroke="#1f2937" strokeWidth="5" />
     </svg>
   );
 }
@@ -55,7 +55,7 @@ function SquareOneSilhouettePreview({
       onKeyDown={handleKeyDown}
       title={interactive ? t("study.enlargePreview", { label }) : undefined}
       className={interactive ? "w-full cursor-pointer" : "w-full"}
-      style={{ width: "100%", maxWidth: compact ? "6rem" : "min(12rem, 100%)" }}
+      style={{ width: "100%", maxWidth: compact ? "4rem" : "10rem" }}
     >
       <SquareOneMark className="w-full max-w-none" />
     </div>

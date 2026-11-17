@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PracticeGroupPreview } from "./PracticeGroupPreview";
 
 describe("PracticeGroupPreview", () => {
-  it("renders a labeled 3x3 preview from the catalog state", () => {
+  it("renders a labeled last-layer preview from the catalog state", () => {
     render(
       <PracticeGroupPreview
         state="UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB"
@@ -12,17 +12,17 @@ describe("PracticeGroupPreview", () => {
       />
     );
 
-    expect(screen.getByRole("img", { name: "Sune: mặt U 3×3" })).toBeTruthy();
+    expect(screen.getByRole("img", { name: "Sune: tầng 3 đầy đủ" })).toBeTruthy();
     expect(
       screen.getByLabelText("Xem trước Sune").querySelectorAll("span")
-    ).toHaveLength(9);
+    ).toHaveLength(25);
   });
 
   it("falls back to a solved-looking top face for an invalid state", () => {
     render(<PracticeGroupPreview state="invalid" label="Fallback" />);
 
     expect(
-      screen.getByRole("img", { name: "Fallback: mặt U 3×3" })
+      screen.getByRole("img", { name: "Fallback: tầng 3 đầy đủ" })
     ).toBeTruthy();
   });
 
