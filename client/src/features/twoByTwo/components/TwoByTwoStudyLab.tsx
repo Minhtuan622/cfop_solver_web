@@ -13,9 +13,11 @@ import { StudySchedulePanel } from "@/features/last-layer/components/StudySchedu
 import { TwoByTwoCasePanel } from "./TwoByTwoCasePanel";
 import { TwoByTwoCatalogPanel } from "./TwoByTwoCatalogPanel";
 import {
-  TWO_BY_TWO_CATALOG,
+  TWO_BY_TWO_GROUPS_BY_SET,
   TWO_BY_TWO_COUNTS,
+  twoByTwoCatalogOf,
   type TwoByTwoCatalogCase,
+  type TwoByTwoFamily,
 } from "../lib/twoByTwoCatalog";
 import {
   dueAndWeakCases,
@@ -33,8 +35,6 @@ import {
   type TwoByTwoGrade,
   type TwoByTwoStudyState,
 } from "../lib/twoByTwoStudy";
-
-const CATALOG: TwoByTwoCatalogCase[] = [...TWO_BY_TWO_CATALOG];
 
 function download(name: string, value: unknown) {
   const url = URL.createObjectURL(
@@ -63,6 +63,7 @@ export function TwoByTwoStudyLab({
   }) => void;
 }) {
   const { t } = useLanguage();
+  const [family, setFamily] = useState<TwoByTwoFamily>("cll");
   const [study, setStudy] = useState<TwoByTwoStudyState>(() => readTwoByTwoStudy());
   const [masteredKeys, setMasteredKeys] = useState<Set<string>>(() =>
     readMasteredTwoByTwoCaseKeys()
@@ -76,6 +77,11 @@ export function TwoByTwoStudyLab({
   const [importError, setImportError] = useState("");
   const backupRef = useRef<HTMLInputElement>(null);
 
+  const catalog = useMemo(
+    () => [...twoByTwoCatalogOf(family)],
+    [family]
+  );
+
   useEffect(() => {
     writeTwoByTwoStudy(study);
   }, [study]);
@@ -84,12 +90,12 @@ export function TwoByTwoStudyLab({
   }, [masteredKeys]);
 
   const queue = useMemo(
-    () => dueAndWeakCases(CATALOG, study.records, masteredKeys),
-    [study.records, masteredKeys]
+    () => dueAndWeakCases(catalog, study.records, masteredKeys),
+    [catalog, study.records, masteredKeys]
   );
   const ranked = useMemo(
-    () => prioritizeStudyQueue(CATALOG, study.records, masteredKeys),
-    [study.records, masteredKeys]
+    () => prioritizeStudyQueue(catalog, study.records, masteredKeys),
+    [catalog, study.records, masteredKeys]
   );
   const reviewedToday = todayReviewCount(study.records);
   const weeklySchedule = useMemo(
@@ -107,6 +113,11 @@ export function TwoByTwoStudyLab({
         (study.records[twoByTwoCaseKey(item)]?.attempts ?? 0) > 0
     )
     .slice(0, 5);
+  const familyMasteredCount = useMemo(
+    () =>
+      Array.from(masteredKeys).filter(key => key.startsWith(`${family}:`)).length,
+    [masteredKeys, family]
+  );
   const activeMastered = activeCase
     ? masteredKeys.has(twoByTwoCaseKey(activeCase))
     : false;
@@ -126,7 +137,7 @@ export function TwoByTwoStudyLab({
     if (!activeCase) chooseNext();
     // chooseNext intentionally omitted; it is stable enough for this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCase, ranked]);
+  }, [activeCase, ranked, family]);
   const toggleMastered = () => {
     if (!activeCase) return;
     const key = twoByTwoCaseKey(activeCase);
@@ -167,10 +178,10 @@ export function TwoByTwoStudyLab({
       dailyGoal: study.dailyGoal,
       goalPercent: Math.min(100, Math.round((reviewedToday / study.dailyGoal) * 100)),
       queueCount: queue.length,
-      masteredCount: masteredKeys.size,
-      catalogCount: TWO_BY_TWO_COUNTS.all,
+      masteredCount: familyMasteredCount,
+      catalogCount: catalog.length,
     });
-  }, [reviewedToday, study.dailyGoal, queue.length, masteredKeys.size, onStatsChange]);
+  }, [reviewedToday, study.dailyGoal, queue.length, familyMasteredCount, catalog.length, onStatsChange]);
 
   const onImport = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -191,8 +202,37 @@ export function TwoByTwoStudyLab({
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t("twoByTwo.setLabel")}>
+          {(["cll", "pbl"] as const).map(value => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={family === value}
+              onClick={() => {
+                setFamily(value);
+                setActiveCase(null);
+                setLastElapsed(null);
+                setShowAlgorithm(false);
+                setTimerVersion(version => version + 1);
+              }}
+              className={`rounded-full px-4 py-1.5 text-xs font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20 ${
+                family === value
+                  ? "bg-primary text-on-primary hover:bg-primary-hover"
+                  : "bg-surface-2 text-ink hover:bg-surface-3"
+              }`}
+            >
+              {value === "cll"
+                ? t("twoByTwo.setCll", { count: TWO_BY_TWO_COUNTS.cll })
+                : t("twoByTwo.setPbl", { count: TWO_BY_TWO_COUNTS.pbl })}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <div className="text-sm text-muted">
-          {t("twoByTwo.laneSummary", { count: TWO_BY_TWO_COUNTS.all })}
+          {family === "cll"
+            ? t("twoByTwo.laneSummaryCll", { count: TWO_BY_TWO_COUNTS.cll })
+            : t("twoByTwo.laneSummaryPbl", { count: TWO_BY_TWO_COUNTS.pbl })}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <input
@@ -272,7 +312,8 @@ export function TwoByTwoStudyLab({
 
       <div className="mt-6">
         <TwoByTwoCatalogPanel
-          cases={CATALOG}
+          cases={catalog}
+          groups={TWO_BY_TWO_GROUPS_BY_SET[family]}
           masteredKeys={masteredKeys}
           activeCase={activeCase}
           onSelect={selectCase}

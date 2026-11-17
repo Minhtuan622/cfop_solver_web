@@ -7,11 +7,14 @@
  */
 import { applyTwoByTwoMoves, TWO_BY_TWO_SOLVED } from "./twoByTwoCube";
 import { invertAlgorithm } from "@/lib/fastCube";
-import { CLL_CASES, type TwoByTwoCaseRow } from "./twoByTwoCatalogData";
+import { CLL_CASES, PBL_CASES, type TwoByTwoCaseRow } from "./twoByTwoCatalogData";
 
+export type TwoByTwoFamily = "cll" | "pbl";
 export type TwoByTwoCatalogCase = TwoByTwoCaseRow & { state: string };
 
 export type ListTwoByTwoCasesFilter = {
+  /** "all" (default), "cll" or "pbl". */
+  family?: "all" | TwoByTwoFamily;
   /** Substring match (case-insensitive) against id, name, group and algorithm. */
   query?: string;
   /** Maximum rows; clamped to [1, 1000]. */
@@ -32,17 +35,40 @@ export function twoByTwoCaseStateOf(row: { algorithm: string }): string {
   return state;
 }
 
-export const TWO_BY_TWO_CATALOG: readonly TwoByTwoCatalogCase[] = CLL_CASES.map(
+const CLL_CATALOG: readonly TwoByTwoCatalogCase[] = CLL_CASES.map(
   row => ({ ...row, state: twoByTwoCaseStateOf(row) }),
 );
+const PBL_CATALOG: readonly TwoByTwoCatalogCase[] = PBL_CASES.map(
+  row => ({ ...row, state: twoByTwoCaseStateOf(row) }),
+);
+
+export const TWO_BY_TWO_SETS = ["cll", "pbl"] as const;
+export const TWO_BY_TWO_CATALOGS: Record<TwoByTwoFamily, readonly TwoByTwoCatalogCase[]> = {
+  cll: CLL_CATALOG,
+  pbl: PBL_CATALOG,
+};
+/** The union of both sets, in CLL-then-PBL order. */
+export const TWO_BY_TWO_CATALOG: readonly TwoByTwoCatalogCase[] = [
+  ...CLL_CATALOG,
+  ...PBL_CATALOG,
+];
+
+export function twoByTwoCatalogOf(family: TwoByTwoFamily): readonly TwoByTwoCatalogCase[] {
+  return TWO_BY_TWO_CATALOGS[family];
+}
 
 export function listTwoByTwoCases(
   filters: ListTwoByTwoCasesFilter = {},
 ): TwoByTwoCatalogCase[] {
+  const family = filters.family ?? "all";
   const needle = (filters.query ?? "").toUpperCase().trim();
   const limit = Math.max(1, Math.min(filters.limit ?? 120, 1000));
   const rows: TwoByTwoCatalogCase[] = [];
-  for (const row of TWO_BY_TWO_CATALOG) {
+  const source =
+    family === "all"
+      ? [...CLL_CATALOG, ...PBL_CATALOG]
+      : TWO_BY_TWO_CATALOGS[family];
+  for (const row of source) {
     if (needle) {
       const searchable =
         `${row.id} ${row.name} ${row.group} ${row.algorithm}`.toUpperCase();
@@ -55,11 +81,12 @@ export function listTwoByTwoCases(
 }
 
 export const TWO_BY_TWO_COUNTS = {
-  cll: CLL_CASES.length,
-  all: TWO_BY_TWO_CATALOG.length,
+  cll: CLL_CATALOG.length,
+  pbl: PBL_CATALOG.length,
+  all: CLL_CATALOG.length + PBL_CATALOG.length,
 } as const;
 
-export const TWO_BY_TWO_GROUPS = [
+export const CLL_GROUPS = [
   "AS",
   "H",
   "L",
@@ -68,3 +95,10 @@ export const TWO_BY_TWO_GROUPS = [
   "T",
   "U",
 ] as const;
+export const PBL_GROUPS = ["Adj", "Diag"] as const;
+/** Groups browse-able per set; "all" browses the union. */
+export const TWO_BY_TWO_GROUPS_BY_SET: Record<TwoByTwoFamily | "all", readonly string[]> = {
+  cll: CLL_GROUPS,
+  pbl: PBL_GROUPS,
+  all: [...CLL_GROUPS, ...PBL_GROUPS],
+};
