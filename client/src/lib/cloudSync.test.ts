@@ -52,6 +52,59 @@ describe("B3: cloud sync tombstones and merge", () => {
   it("createCfopCloudState tạo bản schemaVersion 2", () => {
     const state = createCfopCloudState();
     expect(state.schemaVersion).toBe(2);
+    expect(state.twoByTwo).toBeDefined();
+  });
+
+  it("parseCfopCloudState đọc được payload có twoByTwo và merge giữ 2×2 records", () => {
+    const local = createCfopCloudState();
+    local.twoByTwo = {
+      study: {
+        records: {
+          "cll:CLL-AS-1": {
+            key: "cll:CLL-AS-1",
+            family: "cll",
+            group: "AS",
+            id: "CLL-AS-1",
+            attempts: 5,
+            lapses: 1,
+            averageMs: 12_000,
+            lastMs: 10_000,
+            intervalDays: 4,
+            dueAt: Date.now() + 200_000,
+            lastReviewedAt: Date.now() - 1000,
+            lastGrade: "good",
+          },
+        },
+        dailyGoal: 10,
+      },
+      masteredCaseKeys: ["cll:CLL-AS-1"],
+    };
+    const remote = createCfopCloudState();
+    remote.twoByTwo = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
+
+    const merged = mergeCfopCloudStates(local, remote);
+    expect(merged.twoByTwo?.study.records["cll:CLL-AS-1"]?.attempts).toBe(5);
+    expect(merged.twoByTwo?.masteredCaseKeys).toContain("cll:CLL-AS-1");
+
+    const parsed = parseCfopCloudState(JSON.parse(JSON.stringify(merged)));
+    expect(parsed?.twoByTwo?.study.records["cll:CLL-AS-1"]?.intervalDays).toBe(4);
+  });
+
+  it("payload cũ không có twoByTwo vẫn hợp lệ và merge giữ nguyên", () => {
+    const local = createCfopCloudState();
+    const parsed = parseCfopCloudState({
+      schema: "cfop-account-cloud-state",
+      version: 2,
+      capturedAt: Date.now(),
+      schemaVersion: 2,
+      timer: [],
+      lastLayer: { study: { records: {}, dailyGoal: 0 }, masteredCaseKeys: [] },
+      bldProfile: { preferredAlgorithms: {}, memoRecords: {}, pairCards: {}, drillAttempts: [], reviewDays: [], audioEnabled: true, dailyGoal: 0 },
+      bldLearningPath: { orientationDone: false, formulaDone: false, memoDone: false, sightedDone: false, selfCheckDone: false, reviewDone: false, lastStage: 0 },
+    });
+    expect(parsed).not.toBeNull();
+    expect(parsed?.twoByTwo).toBeUndefined();
+    expect(local.twoByTwo).toBeDefined();
   });
 
   it("xóa cục bộ rồi gộp với bản từ xa cũ giữ kết quả đã xóa (tombstone)", () => {
