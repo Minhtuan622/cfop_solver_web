@@ -1,6 +1,7 @@
 import { type BldProfile, readBldProfile, writeBldProfile } from "@/features/bld/lib";
 import { readBldLearningPath, writeBldLearningPath, type BldLearningPathProgress } from "@/features/bld/lib";
 import { readLastLayerStudy, readMasteredCaseKeys, type StudyState, writeLastLayerStudy, writeMasteredCaseKeys } from "@/features/last-layer/lib";
+import { readTwoByTwoStudy, readMasteredTwoByTwoCaseKeys, type TwoByTwoStudyState, writeTwoByTwoStudy, writeMasteredTwoByTwoCaseKeys } from "@/features/twoByTwo/lib/twoByTwoStudy";
 import { readSolveHistory, SolveHistoryEntry, importSolveHistory } from "./solveHistory";
 import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 
@@ -17,6 +18,8 @@ export type CfopCloudState = {
   lastLayer: { study: StudyState; masteredCaseKeys: string[] };
   bldProfile: BldProfile;
   bldLearningPath: BldLearningPathProgress;
+  /** Present for clients that run the 2×2 CLL lane; absent on old payloads. */
+  twoByTwo?: { study: TwoByTwoStudyState; masteredCaseKeys: string[] };
 };
 
 /** Giới hạn số lượng solve lưu trong lịch sử cloud state (dùng chung client/server). */
@@ -34,6 +37,10 @@ export function createCfopCloudState(now = Date.now()): CfopCloudState {
     lastLayer: { study: readLastLayerStudy(), masteredCaseKeys: Array.from(readMasteredCaseKeys()) },
     bldProfile: readBldProfile(),
     bldLearningPath: readBldLearningPath(),
+    twoByTwo: {
+      study: readTwoByTwoStudy(),
+      masteredCaseKeys: Array.from(readMasteredTwoByTwoCaseKeys()),
+    },
   };
 }
 
@@ -93,6 +100,21 @@ function mergeLastLayer(local: CfopCloudState["lastLayer"], remote: CfopCloudSta
   };
 }
 
+/** Optional merge for the 2×2 lane; absent on old payloads, kept untouched. */
+function mergeTwoByTwo(local: CfopCloudState["twoByTwo"], remote: CfopCloudState["twoByTwo"], preferLocal: boolean) {
+  if (!local) return remote;
+  if (!remote) return local;
+  const records = { ...remote.study.records };
+  for (const [key, record] of Object.entries(local.study.records)) {
+    const existing = records[key];
+    records[key] = !existing || record.lastReviewedAt > existing.lastReviewedAt || (record.lastReviewedAt === existing.lastReviewedAt && preferLocal) ? record : existing;
+  }
+  return {
+    study: { records, dailyGoal: preferLocal ? local.study.dailyGoal : remote.study.dailyGoal },
+    masteredCaseKeys: Array.from(new Set([...remote.masteredCaseKeys, ...local.masteredCaseKeys])).slice(-1800),
+  };
+}
+
 function mergeBldProfile(local: BldProfile, remote: BldProfile, preferLocal: boolean): BldProfile {
   const preferredAlgorithms = { ...remote.preferredAlgorithms };
   for (const [key, value] of Object.entries(local.preferredAlgorithms)) {
@@ -141,6 +163,7 @@ export function mergeCfopCloudStates(local: CfopCloudState, remote: CfopCloudSta
       reviewDone: local.bldLearningPath.reviewDone || remote.bldLearningPath.reviewDone,
       lastStage: Math.max(local.bldLearningPath.lastStage, remote.bldLearningPath.lastStage),
     },
+    twoByTwo: mergeTwoByTwo(local.twoByTwo, remote.twoByTwo, preferLocal),
   };
 }
 
@@ -150,4 +173,8 @@ export function applyCfopCloudState(state: CfopCloudState) {
   writeMasteredCaseKeys(new Set(state.lastLayer.masteredCaseKeys));
   writeBldProfile(state.bldProfile);
   writeBldLearningPath(state.bldLearningPath);
+  if (state.twoByTwo) {
+    writeTwoByTwoStudy(state.twoByTwo.study);
+    writeMasteredTwoByTwoCaseKeys(new Set(state.twoByTwo.masteredCaseKeys));
+  }
 }
