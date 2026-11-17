@@ -1,13 +1,17 @@
-/** Xưởng Cơ Khí Tốc Độ — typed bridge to non-blocking CFOP Web Workers.
+/** Xưởng Cơ Khí Tốc Độ — typed bridge to the non-blocking CFOP solver worker.
  *
- * Hai tác vụ được tách thành hai worker riêng:
- * - worker NẰNG (`solverWorker.ts`): solve, bld, warmup (dùng Pyodide, tốn CPU).
- * - worker NHẸ (`solverLiteWorker.ts`): validate, catalog (dùng Pyodide riêng).
- *
- * Mỗi worker có bản cache Pyodide riêng, nên việc tải/hủy Pyodide của một
- * bên không làm hủy tác vụ đang chạy của bên kia (ví dụ: hủy giải không làm
- * gián đoạn kiểm tra trạng thái, và ngược lại).
+ * Một worker Pyodide duy nhất (`solverWorker.ts`) đảm nhiệm solve, bld và
+ * warmup (tốn CPU). Việc kiểm tra hợp lệ trạng thái (`validateStateInBrowser`)
+ * chạy thuần JavaScript trong trang (`lib/cubeValidation.ts`), còn duyệt danh
+ * mục case 1LLL/ZBLL (`listLastLayerCasesInBrowser`) đọc từ dữ liệu đã được
+ * nhúng sẵn (`features/last-layer/lib/directCaseCatalog.ts`) — không cần
+ * runtime Python.
  */
+import { validateCubeState } from "./cubeValidation";
+import type { CubeValidation } from "./cubeValidation";
+import type { LastLayerCatalogCase } from "@/features/last-layer/lib/directCaseCatalog";
+export type { CubeValidation, LastLayerCatalogCase };
+
 export type TraceStep = {
   index: number;
   phase: string;
@@ -68,14 +72,6 @@ export type XCrossOptions = {
   preferredSlot?: F2LSlot;
   excludedSlots?: F2LSlot[];
 };
-export type CubeValidation = { valid: boolean; message: string };
-export type LastLayerCatalogCase = {
-  id: string;
-  family: "zbll" | "1lll";
-  group: string;
-  algorithm: string;
-  state: string;
-};
 export type BldCycle = {
   buffer: string;
   targets: string[];
@@ -107,7 +103,6 @@ export type BldAnalysis = {
 };
 
 export const SOLVER_TIMEOUT_MS = 45000;
-export const VALIDATE_TIMEOUT_MS = 15000;
 
 export class SolverCancelledError extends Error {
   constructor() {
@@ -151,10 +146,8 @@ type PendingTask = {
 };
 
 let heavyWorker: Worker | null = null;
-let lightWorker: Worker | null = null;
 let nextId = 1;
 const heavyPending = new Map<number, PendingTask>();
-const lightPending = new Map<number, PendingTask>();
 
 function rejectPending(tasks: Map<number, PendingTask>, reason: Error) {
   tasks.forEach(task => {
@@ -170,10 +163,8 @@ function resetHeavyWorker(reason: Error) {
   rejectPending(heavyPending, reason);
 }
 
-function resetLightWorker(reason: Error) {
-  lightWorker?.terminate();
-  lightWorker = null;
-  rejectPending(lightPending, reason);
+export function cancelSolverInBrowser() {
+  resetHeavyWorker(new SolverCancelledError());
 }
 
 function getHeavyWorker() {
@@ -215,46 +206,6 @@ function getHeavyWorker() {
   return heavyWorker;
 }
 
-function getLightWorker() {
-  if (!lightWorker) {
-    lightWorker = new Worker(
-      new URL("./solverLiteWorker.ts", import.meta.url),
-      { type: "module" }
-    );
-    lightWorker.onmessage = (event: MessageEvent<WorkerMessage>) => {
-      const task = lightPending.get(event.data.id);
-      if (!task) return;
-      lightPending.delete(event.data.id);
-      window.clearTimeout(task.timer);
-      if (event.data.ok && event.data.output) {
-        try {
-          task.resolve(JSON.parse(event.data.output));
-        } catch (error) {
-          task.reject(
-            error instanceof Error
-              ? error
-              : new Error("Solver worker returned invalid JSON.")
-          );
-        }
-      } else {
-        task.reject(
-          event.data.code === "search_limit"
-            ? new SolverLimitError(event.data.error)
-            : new Error(
-                event.data.error ?? "Solver worker returned an empty response."
-              )
-        );
-      }
-    };
-    lightWorker.onerror = () => {
-      resetLightWorker(
-        new Error("Solver light worker failed to start or crashed.")
-      );
-    };
-  }
-  return lightWorker;
-}
-
 function postTask<T>(
   tasks: Map<number, PendingTask>,
   getWorker: () => Worker,
@@ -280,10 +231,6 @@ function postTask<T>(
       reject(error instanceof Error ? error : new Error(String(error)));
     }
   });
-}
-
-export function cancelSolverInBrowser() {
-  resetHeavyWorker(new SolverCancelledError());
 }
 
 export function solveInBrowser(
@@ -338,16 +285,14 @@ export function analyzeBldInBrowser(
   );
 }
 
-export function validateStateInBrowser(value: string): Promise<CubeValidation> {
-  return postTask<CubeValidation>(
-    lightPending,
-    getLightWorker,
-    { command: "validate", value },
-    VALIDATE_TIMEOUT_MS
-  );
+export async function validateStateInBrowser(
+  value: string
+): Promise<CubeValidation> {
+  // Thuần JavaScript trong trang (lib/cubeValidation.ts) — không cần worker.
+  return validateCubeState(value);
 }
 
-export function listLastLayerCasesInBrowser(
+export async function listLastLayerCasesInBrowser(
   filters: {
     family?: "all" | "zbll" | "1lll";
     group?: string;
@@ -355,17 +300,9 @@ export function listLastLayerCasesInBrowser(
     limit?: number;
   } = {}
 ): Promise<LastLayerCatalogCase[]> {
-  return postTask<{ cases: LastLayerCatalogCase[] }>(
-    lightPending,
-    getLightWorker,
-    {
-      command: "catalog",
-      value: "",
-      family: filters.family ?? "all",
-      group: filters.group ?? "all",
-      query: filters.query ?? "",
-      limit: filters.limit ?? 120,
-    },
-    30000
-  ).then(result => result.cases);
+  // Tải lười để ~230 KB dữ liệu catalog chỉ được tải khi mở Last Layer Study.
+  const { listLastLayerDirectCases } = await import(
+    "@/features/last-layer/lib/directCaseCatalog"
+  );
+  return listLastLayerDirectCases(filters);
 }
