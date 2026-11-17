@@ -65,9 +65,11 @@ describe("F2L 4-way slot variants", () => {
   it("generates all four directions of every authored case", () => {
     expect(F2L_4WAY_CASES).toHaveLength(F2L_CASES.length * 4);
     for (const row of F2L_CASES) {
-      for (const slot of ["FR", "FL", "BL", "BR"]) {
+      for (const slot of ["FL", "BL", "BR"]) {
         expect(F2L_4WAY_CASES.some(variant => variant.id === `${row.id}-${slot}`)).toBe(true);
       }
+      // FR keeps the authored id so existing SRS records keep pointing at it.
+      expect(F2L_4WAY_CASES.some(variant => variant.id === row.id)).toBe(true);
     }
   });
 
@@ -90,7 +92,7 @@ describe("listCfopCases", () => {
   it("matches case-insensitively against id, name and algorithm", () => {
     expect(listCfopCases({ query: "sune" }).map(row => row.id)).toContain("OLL-26");
     expect(listCfopCases({ query: "f2l-01" }).map(row => row.id)).toEqual([
-      "F2L-01-FR",
+      "F2L-01",
       "F2L-01-FL",
       "F2L-01-BL",
       "F2L-01-BR",

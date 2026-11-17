@@ -76,18 +76,19 @@ export const F2L_CASES: readonly CfopCaseRow[] = [
  * inverse pairs, so the derived states stay center-fixed legal cubes.
  */
 export const F2L_SLOT_VARIANTS = [
-  { slot: "FR", wrap: (alg: string) => alg },
-  { slot: "FL", wrap: (alg: string) => `y' ${alg} y` },
-  { slot: "BL", wrap: (alg: string) => `y2 ${alg} y2` },
-  { slot: "BR", wrap: (alg: string) => `y ${alg} y'` },
+  // FR keeps the original ids so existing SRS records (`f2l:F2L-01`) stay valid.
+  { slot: "FR", idSuffix: "", nameSuffix: "", wrap: (alg: string) => alg },
+  { slot: "FL", idSuffix: "-FL", nameSuffix: " · FL", wrap: (alg: string) => `y' ${alg} y` },
+  { slot: "BL", idSuffix: "-BL", nameSuffix: " · BL", wrap: (alg: string) => `y2 ${alg} y2` },
+  { slot: "BR", idSuffix: "-BR", nameSuffix: " · BR", wrap: (alg: string) => `y ${alg} y'` },
 ] as const;
 
 export const F2L_4WAY_CASES: readonly CfopCaseRow[] = F2L_CASES.flatMap(row =>
-  F2L_SLOT_VARIANTS.map(({ slot, wrap }) => ({
-    id: `${row.id}-${slot}`,
+  F2L_SLOT_VARIANTS.map(({ slot, idSuffix, nameSuffix, wrap }) => ({
+    id: `${row.id}${idSuffix}`,
     family: "f2l" as const,
     group: slot,
-    name: `${row.name} · ${slot}`,
+    name: `${row.name}${nameSuffix}`,
     algorithm: wrap(row.algorithm),
   })),
 );
