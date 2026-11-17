@@ -951,10 +951,10 @@ export default function TimerLab() {
                           <div
                             className={
                               scrambleSize === "sm"
-                                ? "min-h-[12rem]"
+                                ? "h-full min-h-[12rem]"
                                 : scrambleSize === "lg"
-                                  ? "min-h-[24rem]"
-                                  : "min-h-[18rem]"
+                                  ? "h-full min-h-[24rem]"
+                                  : "h-full min-h-[18rem]"
                             }
                           >
                             <PuzzleScramblePreview

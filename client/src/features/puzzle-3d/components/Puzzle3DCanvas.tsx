@@ -1,11 +1,5 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type PointerEvent,
-  type WheelEvent,
-} from "react";
-import type { Object3D, WebGLRenderer } from "three";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
+import type { BufferAttribute, Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
 import {
   isSideEvent3DPuzzle,
@@ -13,13 +7,14 @@ import {
   type PuzzleId,
 } from "../lib/puzzleIds";
 import {
-  clampDistance,
   defaultPuzzleCamera,
   distanceFromPinch,
+  fitDistanceForPoints,
   gapBetween,
   inertiaStepForPuzzle,
   orbitFromPuzzleDrag,
   type PointerPoint,
+  type ProjectedPoint,
 } from "../lib/puzzleCamera";
 import {
   focusActualFtoFace,
@@ -117,6 +112,7 @@ export function Puzzle3DCanvas({
   const targetDistanceRef = useRef(5.4);
   const pointersRef = useRef(new Map<number, PointerPoint>());
   const pinchRef = useRef<{ gap: number; distance: number } | null>(null);
+  const userZoomedRef = useRef(false);
   const zoomFrameRef = useRef<number | null>(null);
   const inertiaFrameRef = useRef<number | null>(null);
   const inertiaVelocityRef = useRef({ yaw: 0, pitch: 0 });
@@ -264,37 +260,122 @@ export function Puzzle3DCanvas({
       // Flat lighting only: no direction, every face gets the same light.
       scene.add(new THREE.AmbientLight(0xffffff, 2.2));
 
-      const resizeAndRender = () => {
-        const width = Math.max(220, host.clientWidth);
-        const height = Math.max(
-          puzzle === "megaminx" ? 270 : puzzle === "clock" ? 205 : 220,
-          host.clientHeight
-        );
+      const fitEnabled = !(puzzle === "fto" && isFtoTeachingPreview);
+      userZoomedRef.current = false;
+
+      const sizeRenderer = () => {
+        const width = Math.max(1, Math.round(host.clientWidth));
+        const height = Math.max(1, Math.round(host.clientHeight));
         activeRenderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
+      };
+      const resizeAndRender = () => {
+        sizeRenderer();
         root.rotation.set(orbit.pitch, orbit.yaw, 0);
         camera.position.set(0, 0, orbit.distance);
         camera.lookAt(0, 0, 0);
         activeRenderer.render(scene, camera);
+      };
+      /**
+       * cubing.js hides hint facelets behind invisible materials and meshes.
+       * Both extend past the puzzle, so only sample groups the renderer shows.
+       */
+      const isShownMaterial = (
+        material: { visible?: boolean; opacity?: number } | undefined
+      ) => {
+        if (!material) return false;
+        return material.visible !== false && (material.opacity ?? 1) > 0.02;
+      };
+      const isShown = (object: Object3D) => {
+        let node: Object3D | null = object;
+        while (node) {
+          if (!node.visible) return false;
+          node = node.parent;
+        }
+        return true;
+      };
+      type FitMesh = Object3D & {
+        isMesh?: boolean;
+        geometry?: {
+          attributes?: { position?: BufferAttribute };
+          groups?: ReadonlyArray<{
+            start: number;
+            count: number;
+            materialIndex?: number;
+          }>;
+          index?: BufferAttribute | null;
+        };
+        material?:
+          | { visible?: boolean; opacity?: number }
+          | Array<{ visible?: boolean; opacity?: number }>;
+      };
+      const fitDistance = () => {
+        if (!fitEnabled) return previewDistance;
+        root.rotation.set(orbit.pitch, orbit.yaw, 0);
+        puzzleObject.updateWorldMatrix(true, true);
+        const points: ProjectedPoint[] = [];
+        const vertex = new THREE.Vector3();
+        puzzleObject.traverse(child => {
+          const mesh = child as FitMesh;
+          const geometry = mesh.geometry;
+          const position = geometry?.attributes?.position;
+          if (!mesh.isMesh || !position || !isShown(mesh)) return;
+          const materials = Array.isArray(mesh.material)
+            ? mesh.material
+            : [mesh.material];
+          const materialShown = (materialIndex: number) =>
+            isShownMaterial(materials[materialIndex] ?? materials[0]);
+          const push = (index: number) => {
+            vertex.fromBufferAttribute(position, index);
+            vertex.applyMatrix4(mesh.matrixWorld);
+            points.push({ x: vertex.x, y: vertex.y, z: vertex.z });
+          };
+          const groups = geometry?.groups ?? [];
+          if (!groups.length) {
+            if (!materialShown(0)) return;
+            for (let index = 0; index < position.count; index += 1) push(index);
+            return;
+          }
+          const triangles = geometry?.index;
+          for (const group of groups) {
+            if (group.count <= 0 || !materialShown(group.materialIndex ?? 0))
+              continue;
+            const end = Math.min(
+              group.start + group.count,
+              triangles ? triangles.count : position.count
+            );
+            for (let index = group.start; index < end; index += 1)
+              push(triangles ? triangles.getX(index) : index);
+          }
+        });
+        if (!points.length) return previewDistance;
+        return fitDistanceForPoints(points, camera.fov, camera.aspect);
+      };
+      const fitAndRender = () => {
+        sizeRenderer();
+        if (fitEnabled && !userZoomedRef.current) {
+          orbit.distance = fitDistance();
+          targetDistanceRef.current = orbit.distance;
+        }
+        resizeAndRender();
       };
       renderRef.current = resizeAndRender;
       resetRef.current = () => {
         const nextOrbit = puzzleInitialOrbit(puzzle, isFtoTeachingPreview);
         orbit.yaw = nextOrbit.yaw;
         orbit.pitch = nextOrbit.pitch;
-        orbit.distance = previewDistance;
+        userZoomedRef.current = false;
+        orbit.distance = fitDistance();
+        targetDistanceRef.current = orbit.distance;
         resizeAndRender();
       };
-      const observer = new ResizeObserver(resizeAndRender);
+      if (sideEventAnimation) sideEventAnimation.finish();
+      const observer = new ResizeObserver(fitAndRender);
       observer.observe(host);
-      resizeAndRender();
+      fitAndRender();
       setStatus("ready");
       if (animationAlg.trim()) player?.play?.();
-      if (sideEventAnimation) {
-        sideEventAnimation.finish();
-        resizeAndRender();
-      }
       cleanup = () => {
         observer.disconnect();
         if (zoomFrameRef.current !== null)
@@ -450,6 +531,7 @@ export function Puzzle3DCanvas({
       y: event.clientY,
     });
     if (pointersRef.current.size >= 2 && pinchRef.current) {
+      userZoomedRef.current = true;
       targetDistanceRef.current = distanceFromPinch(
         pinchRef.current.distance,
         pinchRef.current.gap,
@@ -501,16 +583,6 @@ export function Puzzle3DCanvas({
       : null;
     if (!remaining && wasDragged) startInertia();
   };
-  const wheel = (event: WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    if (!renderRef.current) return;
-    targetDistanceRef.current = clampDistance(
-      targetDistanceRef.current + (event.deltaY > 0 ? 0.48 : -0.48)
-    );
-    smoothZoom();
-  };
-
-  const cameraConfig = defaultPuzzleCamera(puzzle);
   const label = timerEventLabel(eventId, language);
   if (status === "error")
     return (
@@ -551,14 +623,13 @@ export function Puzzle3DCanvas({
     );
 
   return (
-    <div className="rounded-card bg-surface h-full">
-      <div className="p-5 sm:p-6 p-2 relative">
+    <div className="rounded-card bg-surface h-full flex flex-col">
+      <div className="p-2 relative flex-1 min-h-0">
         <div
           ref={hostRef}
           role="img"
-          className="w-full"
+          className="h-full w-full"
           style={{
-            minHeight: cameraConfig.height,
             touchAction: "none",
             cursor: "grab",
           }}
@@ -569,7 +640,6 @@ export function Puzzle3DCanvas({
           onPointerMove={pointerMove}
           onPointerUp={pointerUp}
           onPointerCancel={pointerUp}
-          onWheel={wheel}
         />
         {status === "loading" ? (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm text-muted">
@@ -582,6 +652,7 @@ export function Puzzle3DCanvas({
           className="absolute bottom-0 right-0 m-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
           onClick={() => {
             cancelInertia();
+            userZoomedRef.current = false;
             resetRef.current?.();
             targetDistanceRef.current = orbitRef.current.distance;
           }}
