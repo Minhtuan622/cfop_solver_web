@@ -1,8 +1,9 @@
 /**
  * BLD case catalog for the 3-Style lane: the full BLDDB (edge, corner,
  * parity, flip, twist) mapped into the study-catalog shape with memoized
- * derived states, grouped for the catalog drawer by the first two letters
- * of each key (flips share one group).
+ * derived states. Groups are named by the first two letters of each key
+ * (flips share one group); special cases carry their kind in `meta` so the
+ * compact tile labels stay short.
  */
 import { applyFastMoves, SOLVED_FAST_STATE } from "@/lib/fastCube";
 import { loadFullBldCatalog } from "./bldFullCatalog";
@@ -13,6 +14,8 @@ export type BldStudyCase = LastLayerCatalogCase & {
   family: "edge" | "corner" | "special";
   name: string;
   kind: BldStudyKind;
+  /** Shown on the group tile's counter line (parity / flip / twist). */
+  meta?: string;
 };
 
 const stateCache = new Map<string, string>();
@@ -28,8 +31,7 @@ export function bldCaseStateOf(algorithm: string): string {
 
 function groupOf(kind: BldStudyKind, key: string) {
   if (kind === "flip") return "flip";
-  if (kind === "edge" || kind === "corner") return key.slice(0, 2);
-  return `${kind}·${key.slice(0, 2)}`;
+  return key.slice(0, 2);
 }
 
 function toCase(entry: { kind: string; key: string; algorithms: string[] }): BldStudyCase {
@@ -41,6 +43,7 @@ function toCase(entry: { kind: string; key: string; algorithms: string[] }): Bld
     family,
     kind,
     group: groupOf(kind, entry.key),
+    meta: family === "special" ? kind : undefined,
     algorithm,
     state: bldCaseStateOf(algorithm),
     name: entry.key,

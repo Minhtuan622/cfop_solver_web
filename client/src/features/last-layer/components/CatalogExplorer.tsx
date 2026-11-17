@@ -38,6 +38,8 @@ export type CatalogExplorerCase = {
   state: string;
   /** Display name for humans; falls back to the id. */
   name?: string;
+  /** Optional qualifier for the group tile's counter line (e.g. the case kind). */
+  meta?: string;
 };
 
 export type CatalogExplorerPreviewProps = {
@@ -117,6 +119,7 @@ export function CatalogExplorer({
         total: items.length,
         previewState: items[0]?.state ?? "",
         family: items[0]?.family,
+        meta: items[0]?.meta,
         items,
       };
     });
@@ -482,9 +485,10 @@ export function CatalogExplorer({
                         compact
                         family={entry.family}
                       />
-                      <span className="grow">
+                      <span className="grow min-w-0">
                         <strong className="block truncate">{entry.name}</strong>
                         <small className="text-muted">
+                          {entry.meta ? `${entry.meta} · ` : ""}
                           {entry.mastered}/{entry.total}
                         </small>
                       </span>

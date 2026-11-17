@@ -35,9 +35,9 @@ function BldNetPreview({
       onKeyDown={handleKeyDown}
       title={interactive ? t("study.enlargePreview", { label }) : undefined}
       className={interactive ? "w-full cursor-pointer" : "w-full"}
-      style={{ width: "100%", maxWidth: compact ? "14rem" : "24rem" }}
+      style={{ width: "100%", maxWidth: compact ? "6.5rem" : "24rem" }}
     >
-      <CubeNet state={state} compact={compact} />
+      <CubeNet state={state} />
     </div>
   );
 }
