@@ -104,6 +104,10 @@
   outline: 1px solid rgba(255, 255, 255, 0.85);
 }
 
+.cube-sticker--dimmed {
+  opacity: 0.32;
+}
+
 .cube-sticker--highlight {
   z-index: 10;
   outline: 2px solid #fff;

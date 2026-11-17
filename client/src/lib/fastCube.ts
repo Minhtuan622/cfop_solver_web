@@ -11,6 +11,22 @@ export function parseFastMoves(text: string): string[] {
   });
 }
 
+/**
+ * Returns the inverse algorithm: moves reversed, quarter turns flipped,
+ * half turns unchanged. Used to derive the pre-image (case) state of an
+ * algorithm by applying it to the solved cube.
+ */
+export function invertAlgorithm(text: string): string {
+  return parseFastMoves(text)
+    .reverse()
+    .map(move => {
+      if (move.endsWith("'")) return move.slice(0, -1);
+      if (move.endsWith("2")) return move;
+      return move + "'";
+    })
+    .join(" ");
+}
+
 export function stateFromScramble(text: string): string {
   return applyFastMoves(SOLVED_FAST_STATE, text);
 }

@@ -11,6 +11,7 @@ import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 import { Button } from "@/components/ui/Button";
 
 export type StudyCasePanelProps = {
+  /** A catalog case; CFOP cases also carry a short `name` for the header. */
   activeCase: LastLayerCatalogCase | null;
   loading: boolean;
   mastered: boolean;
@@ -93,8 +94,9 @@ export function StudyCasePanel({
             {t("study.caseLabel")}
           </p>
           <h2 className="text-base font-semibold tracking-tight text-ink">
-            {activeCase.family.toUpperCase()} · {activeCase.group} ·{" "}
-            {activeCase.id}
+            {"name" in activeCase && typeof activeCase.name === "string"
+              ? activeCase.name
+              : `${activeCase.family.toUpperCase()} · ${activeCase.group} · ${activeCase.id}`}
           </h2>
         </div>
         <span
@@ -159,7 +161,12 @@ export function StudyCasePanel({
 
             {view === "2d" ? (
               <div className="rounded-xl bg-surface-2 p-4 text-center">
-                <CubeNet state={activeCase.state} />
+                <CubeNet
+                  state={activeCase.state}
+                  lastLayerOnly={
+                    activeCase.family === "oll" || activeCase.family === "pll"
+                  }
+                />
               </div>
             ) : (
               <Cube3DGuide
@@ -167,7 +174,11 @@ export function StudyCasePanel({
                 step={0}
                 crossColor={crossColor}
                 alignCross
-                lastLayerCase={{ family: activeCase.family, id: activeCase.id }}
+                lastLayerCase={
+                  activeCase.family === "f2l"
+                    ? undefined
+                    : { family: activeCase.family, id: activeCase.id }
+                }
               />
             )}
 

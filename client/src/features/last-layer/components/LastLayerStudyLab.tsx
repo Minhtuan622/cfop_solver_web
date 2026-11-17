@@ -5,6 +5,7 @@ import type { TimerCompletion } from "@/components/common/SolveTimer";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useLocation } from "wouter";
 import { BldStudyLab } from "@/features/bld";
+import { CfopStudyLab } from "@/features/cfop";
 import { LastLayerExplorer } from "@/features/last-layer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -44,7 +45,7 @@ function download(name: string, value: unknown) {
   URL.revokeObjectURL(url);
 }
 export const studyLaneForQuery = (lane: string | null): StudyLane =>
-  lane === "bld" ? "bld" : "lastLayer";
+  lane === "bld" ? "bld" : lane === "cfop" ? "cfop" : "lastLayer";
 
 export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const { t } = useLanguage();
@@ -66,6 +67,14 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const [celebrated, setCelebrated] = useState(false);
   const [importError, setImportError] = useState("");
   const [studyLane, setStudyLane] = useState<StudyLane>("lastLayer");
+  const [cfopStats, setCfopStats] = useState({
+    reviewedToday: 0,
+    dailyGoal: 12,
+    goalPercent: 0,
+    queueCount: 0,
+    masteredCount: 0,
+    catalogCount: 0,
+  });
   const [solverSettings, setSolverSettings] = useState<SolverSettings>(() =>
     readSolverSettings()
   );
@@ -250,7 +259,9 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
         description={
           studyLane === "lastLayer"
             ? t("study.description.lastLayer")
-            : t("study.description.bld")
+            : studyLane === "bld"
+              ? t("study.description.bld")
+              : t("study.description.cfop")
         }
         actions={
           studyLane === "lastLayer" ? (
@@ -293,13 +304,23 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
       <StudyToolbar
         lane={studyLane}
         onLaneChange={setStudyLane}
-        reviewedToday={reviewedToday}
-        dailyGoal={study.dailyGoal}
-        goalPercent={dailyPercent}
-        hint={t("study.goalHint", { count: queue.length })}
-        queueCount={queue.length}
-        masteredCount={masteredKeys.size}
-        catalogCount={catalog.length}
+        reviewedToday={
+          studyLane === "cfop" ? cfopStats.reviewedToday : reviewedToday
+        }
+        dailyGoal={studyLane === "cfop" ? cfopStats.dailyGoal : study.dailyGoal}
+        goalPercent={studyLane === "cfop" ? cfopStats.goalPercent : dailyPercent}
+        hint={
+          studyLane === "cfop"
+            ? t("study.goalHint", { count: cfopStats.queueCount })
+            : t("study.goalHint", { count: queue.length })
+        }
+        queueCount={studyLane === "cfop" ? cfopStats.queueCount : queue.length}
+        masteredCount={
+          studyLane === "cfop" ? cfopStats.masteredCount : masteredKeys.size
+        }
+        catalogCount={
+          studyLane === "cfop" ? cfopStats.catalogCount : catalog.length
+        }
       />
 
       {studyLane === "lastLayer" ? (
@@ -359,6 +380,10 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
             />
           </div>
         </>
+      ) : studyLane === "cfop" ? (
+        <div className="mt-6">
+          <CfopStudyLab language={language} onStatsChange={setCfopStats} />
+        </div>
       ) : (
         <div className="mt-6">
           <BldStudyLab language={language} />
