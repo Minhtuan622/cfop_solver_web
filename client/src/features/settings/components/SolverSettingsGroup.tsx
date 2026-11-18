@@ -14,12 +14,12 @@ const COLORS: {
   hex: string;
   labelKey: string;
 }[] = [
-  { value: "U", hex: CUBE_COLORS.U, labelKey: "settings.color.white" },
-  { value: "D", hex: CUBE_COLORS.D, labelKey: "settings.color.yellow" },
+  { value: "U", hex: CUBE_COLORS.U, labelKey: "settings.color.yellow" },
+  { value: "D", hex: CUBE_COLORS.D, labelKey: "settings.color.white" },
   { value: "F", hex: CUBE_COLORS.F, labelKey: "settings.color.green" },
   { value: "B", hex: CUBE_COLORS.B, labelKey: "settings.color.blue" },
-  { value: "R", hex: CUBE_COLORS.R, labelKey: "settings.color.red" },
-  { value: "L", hex: CUBE_COLORS.L, labelKey: "settings.color.orange" },
+  { value: "R", hex: CUBE_COLORS.R, labelKey: "settings.color.orange" },
+  { value: "L", hex: CUBE_COLORS.L, labelKey: "settings.color.red" },
 ];
 
 const SLOTS: F2LSlot[] = ["FR", "FL", "BL", "BR"];
