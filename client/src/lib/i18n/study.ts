@@ -288,6 +288,11 @@ export const studyWords: Dictionary = {
   "study.collapseCases": ["Thu gọn danh sách case", "Collapse case cards"],
   "study.openCases": ["Mở để xem từng case", "Open to view each case"],
   "study.studyThisCase": ["Học case này", "Study this case"],
+  "study.previewHintReplay": [
+    "Mô phỏng 3D cách giải case theo công thức bên dưới (bấm Xem lại để chạy lại).",
+    "3D replay of the case solution following the algorithm below (press Replay to run it again).",
+  ],
+  "study.replayAlgorithm": ["Xem lại", "Replay"],
   "study.noCasesMatch": [
     "Không có case phù hợp bộ lọc.",
     "No cases match this filter.",

@@ -49,6 +49,10 @@ export type CatalogExplorerPreviewProps = {
   onClick?: () => void;
   /** The owning case family (f2l/oll/pll/cll/pbl/zbll/1lll) — previews may vary per family. */
   family?: string;
+  /** The case algorithm — dialog previews use it to replay the solution in 3D. */
+  algorithm?: string;
+  /** Bumped by the dialog's "Xem lại" button to restart the replay. */
+  replayToken?: number;
 };
 
 type Family = string;
@@ -73,6 +77,13 @@ type Props = {
   catalogTitle: string;
   previewHint: string;
   renderPreview: ComponentType<CatalogExplorerPreviewProps>;
+  /**
+   * When provided, the preview dialog renders this instead of `renderPreview`
+   * (used to show the 3D replay of the case algorithm on the cube lanes).
+   */
+  dialogPreview?: ComponentType<CatalogExplorerPreviewProps>;
+  /** When set (and `dialogPreview` is provided), the dialog footer shows a replay button. */
+  dialogReplayLabel?: string;
 };
 
 const keyOf = (catalogCase: CatalogExplorerCase) =>
@@ -90,6 +101,8 @@ export function CatalogExplorer({
   catalogTitle,
   previewHint,
   renderPreview: Preview,
+  dialogPreview,
+  dialogReplayLabel,
 }: Props) {
   const { t } = useLanguage();
   const [group, setGroup] = useState("");
@@ -101,6 +114,8 @@ export function CatalogExplorer({
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
+  const [replayToken, setReplayToken] = useState(0);
+  const DialogPreview = dialogPreview ?? Preview;
   const families = useMemo(() => {
     const inFamily = catalog.filter(
       item => family === "all" || item.family === family
@@ -406,6 +421,8 @@ export function CatalogExplorer({
                               label={catalogCase.id}
                               compact
                               family={catalogCase.family}
+                              algorithm={catalogCase.algorithm}
+                              replayToken={replayToken}
                               onClick={() => setPreviewCase(catalogCase)}
                             />
                             <div className="flex shrink-0 items-center gap-2">
@@ -538,10 +555,12 @@ export function CatalogExplorer({
           </DialogHeader>
           {previewCase ? (
             <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 flex flex-col items-center gap-4 p-4 sm:p-6 overflow-auto">
-              <Preview
+              <DialogPreview
                 state={previewCase.state}
                 label={previewCase.id}
                 family={previewCase.family}
+                algorithm={previewCase.algorithm}
+                replayToken={replayToken}
               />
               <div className="text-center w-full">
                 <strong>{previewCase.group}</strong>
@@ -562,6 +581,18 @@ export function CatalogExplorer({
             >
               {t("study.close")}
             </Button>
+            {dialogPreview && dialogReplayLabel ? (
+              <Button
+                variant="secondary"
+                size="md"
+                className="w-full sm:grow-0"
+                type="button"
+                onClick={() => setReplayToken(token => token + 1)}
+                aria-label={dialogReplayLabel}
+              >
+                {dialogReplayLabel}
+              </Button>
+            ) : null}
             {previewCase ? (
               <Button
                 variant="primary"

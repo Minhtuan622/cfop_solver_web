@@ -11,6 +11,8 @@ import { useCallback, useState, type KeyboardEvent } from "react";
 import { CubeNet } from "@/components/common/CubeNet";
 import { PracticeGroupPreview } from "@/features/last-layer/components/PracticeGroupPreview";
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
+import { CubeAlgorithmReplay } from "@/components/common/CubeAlgorithmReplay";
+import { invertAlgorithm } from "@/lib/fastCube";
 import {
   CatalogExplorer,
   type CatalogExplorerPreviewProps,
@@ -78,6 +80,26 @@ function CfopNetPreview(props: CatalogExplorerPreviewProps) {
   );
 }
 
+function CfopReplayPreview({
+  algorithm,
+  replayToken,
+}: CatalogExplorerPreviewProps) {
+  const { language } = useLanguage();
+  const setup = algorithm ? invertAlgorithm(algorithm) : "";
+  return (
+    <div className="h-72 w-full overflow-hidden rounded-xl bg-surface">
+      <CubeAlgorithmReplay
+        eventId="333"
+        puzzle="3x3x3"
+        scramble={setup}
+        algorithm={algorithm ?? ""}
+        language={language}
+        replayToken={replayToken}
+      />
+    </div>
+  );
+}
+
 const FAMILY_OPTIONS = [
   { value: "all", label: "ALL · F2L + OLL + PLL + COLL + OLLCP" },
   { value: "f2l", label: "F2L" },
@@ -113,8 +135,10 @@ export function CfopCatalogPanel({
       onSelect={item => onSelect(item as CfopCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={CfopNetPreview}
+      dialogPreview={CfopReplayPreview}
+      dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("cfop.catalogTitle")}
-      previewHint={t("study.previewHintCase")}
+      previewHint={t("study.previewHintReplay")}
     />
   );
 }

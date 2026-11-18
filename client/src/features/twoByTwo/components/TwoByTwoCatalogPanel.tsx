@@ -8,6 +8,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCallback, type KeyboardEvent } from "react";
 import { CubeNet2x2 } from "@/components/common/CubeNet2x2";
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
+import { CubeAlgorithmReplay } from "@/components/common/CubeAlgorithmReplay";
+import { invertAlgorithm } from "@/lib/fastCube";
 import {
   CatalogExplorer,
   type CatalogExplorerPreviewProps,
@@ -57,6 +59,26 @@ function TwoByTwoNetPreview(props: CatalogExplorerPreviewProps) {
   );
 }
 
+function TwoByTwoReplayPreview({
+  algorithm,
+  replayToken,
+}: CatalogExplorerPreviewProps) {
+  const { language } = useLanguage();
+  const setup = algorithm ? invertAlgorithm(algorithm) : "";
+  return (
+    <div className="h-72 w-full overflow-hidden rounded-xl bg-surface">
+      <CubeAlgorithmReplay
+        eventId="222"
+        puzzle="2x2x2"
+        scramble={setup}
+        algorithm={algorithm ?? ""}
+        language={language}
+        replayToken={replayToken}
+      />
+    </div>
+  );
+}
+
 export function TwoByTwoCatalogPanel({
   cases,
   masteredKeys,
@@ -82,8 +104,10 @@ export function TwoByTwoCatalogPanel({
       onSelect={item => onSelect(item as TwoByTwoCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={TwoByTwoNetPreview}
+      dialogPreview={TwoByTwoReplayPreview}
+      dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("twoByTwo.catalogTitle")}
-      previewHint={t("study.previewHint2x2")}
+      previewHint={t("study.previewHintReplay")}
     />
   );
 }
