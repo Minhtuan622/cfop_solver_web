@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" id='svg' viewBox='0 0 1000 1000' stroke='black' stroke-width='8' stroke-linejoin='round'>
+      <polygon fill="#0046ad" points="500,250 750,500 500,750 250,500" />
+      <polygon fill="#808080" points="250,250 500,250 250,500" />
+      <polygon fill="#808080" points="750,250 500,250 750,500" />
+      <polygon fill="#808080" points="750,500 500,750 750,750" />
+      <polygon fill="#808080" points="250,500 500,750 250,750" />
+      <polygon fill="#f2f2f2" points="250,750 500,750 250,995" />
+      <polygon fill="#f2f2f2" points="500,750 750,995 250,995" />
+      <polygon fill="#f2f2f2" points="750,750 500,750 750,995" />
+      <polygon fill="#808080" points="750,750 750,500 990,750" />
+      <polygon fill="#009b48" points="990,750 990,250 750,500" />
+      <polygon fill="#f2f2f2" points="750,250 750,500 990,250" />
+      <polygon fill="#808080" points="250,250 500,250 250,10" />
+      <polygon fill="#ff5800" points="500,250 250,10 750,10" />
+      <polygon fill="#808080" points="750,250 500,250 750,10" />
+      <polygon fill="#808080" points="250,750 250,500 10,750" />
+      <polygon fill="#b71234" points="10,750 10,250 250,500" />
+      <polygon fill="#f2f2f2" points="250,250 250,500 10,250" />
+    </svg>

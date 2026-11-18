@@ -1,18 +1,17 @@
 /**
  * 4×4 Parity catalog drawer: the shared CatalogExplorer wired to the PLL
- * parity algorithms and a puzzle-shaped silhouette preview — the tile shows
- * a flat 4×4 grid mark; the preview dialog carries the group, the algorithm
- * and the practice card shows the real 3D case.
+ * parity algorithms and the extracted cubingapp.com case diagrams. The
+ * practice card itself shows the live 3D case.
  */
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCallback, type KeyboardEvent } from "react";
 import {
   CatalogExplorer,
   type CatalogExplorerPreviewProps,
 } from "@/features/last-layer/components/CatalogExplorer";
+import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import type { FourByFourParityCatalogCase } from "../lib/fourByFourParityCatalog";
 
-/** Flat 4×4 grid mark (dark lines, white cells, yellow center pair). */
+/** Flat 4×4 grid mark (used when a case has no diagram). */
 export function FourByFourMark({ className }: { className?: string }) {
   const cells: Array<{ x: number; y: number; fill: string }> = [];
   for (let row = 0; row < 4; row += 1) {
@@ -48,34 +47,13 @@ export function FourByFourMark({ className }: { className?: string }) {
   );
 }
 
-function ParitySilhouettePreview({
-  label,
-  compact = false,
-  onClick,
-}: CatalogExplorerPreviewProps) {
-  const { t } = useLanguage();
-  const interactive = Boolean(onClick);
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      if (!onClick || (event.key !== "Enter" && event.key !== " ")) return;
-      event.preventDefault();
-      onClick();
-    },
-    [onClick]
-  );
+function ParityPreview(props: CatalogExplorerPreviewProps) {
   return (
-    <div
-      aria-label={t("study.previewOf", { label })}
-      role={interactive ? "button" : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      title={interactive ? t("study.enlargePreview", { label }) : undefined}
-      className={interactive ? "w-full cursor-pointer" : "w-full"}
-      style={{ width: "100%", maxWidth: compact ? "4rem" : "10rem" }}
-    >
-      <FourByFourMark className="w-full max-w-none" />
-    </div>
+    <CaseDiagramImage
+      lane="fourByFourParity"
+      {...props}
+      fallback={<FourByFourMark className="w-full max-w-none" />}
+    />
   );
 }
 
@@ -103,7 +81,7 @@ export function FourByFourParityCatalogPanel({
       onFamily={() => undefined}
       onSelect={item => onSelect(item as FourByFourParityCatalogCase)}
       onMasteredChange={onMasteredChange}
-      renderPreview={ParitySilhouettePreview}
+      renderPreview={ParityPreview}
       catalogTitle={t("parity.catalogTitle")}
       previewHint={t("study.previewHintParity")}
     />

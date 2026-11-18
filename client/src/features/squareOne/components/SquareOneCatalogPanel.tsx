@@ -1,20 +1,20 @@
 /**
  * Square-1 catalog drawer: the shared CatalogExplorer wired to the six
- * Square-1 sets and a puzzle-shaped silhouette preview — the tile shows a
- * flat Square-1 mark; the preview dialog carries the group, the algorithm
- * and the practice card shows the real 2D case. The parent already filters
- * by the active set (familyOptions=null); groups render one set at a time
- * because the subset names ("4 Slashes") repeat across sets.
+ * Square-1 sets and the extracted cubingapp.com case diagrams (two views of
+ * the case per diagram — top and bottom layer). The practice card shows the
+ * real 2D case. The parent already filters by the active set
+ * (familyOptions=null); groups render one set at a time because the subset
+ * names ("4 Slashes") repeat across sets.
  */
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCallback, type KeyboardEvent } from "react";
 import {
   CatalogExplorer,
   type CatalogExplorerPreviewProps,
 } from "@/features/last-layer/components/CatalogExplorer";
+import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import type { SquareOneCatalogCase, SquareOneFamily } from "../lib/squareOneCatalog";
 
-/** Flat Square-1 mark (white top / yellow bottom / grey equator belt). */
+/** Flat Square-1 mark (used when a case has no diagram). */
 export function SquareOneMark({ className }: { className?: string }) {
   return (
     <svg
@@ -31,34 +31,13 @@ export function SquareOneMark({ className }: { className?: string }) {
   );
 }
 
-function SquareOneSilhouettePreview({
-  label,
-  compact = false,
-  onClick,
-}: CatalogExplorerPreviewProps) {
-  const { t } = useLanguage();
-  const interactive = Boolean(onClick);
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      if (!onClick || (event.key !== "Enter" && event.key !== " ")) return;
-      event.preventDefault();
-      onClick();
-    },
-    [onClick]
-  );
+function SquareOnePreview(props: CatalogExplorerPreviewProps) {
   return (
-    <div
-      aria-label={t("study.previewOf", { label })}
-      role={interactive ? "button" : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      title={interactive ? t("study.enlargePreview", { label }) : undefined}
-      className={interactive ? "w-full cursor-pointer" : "w-full"}
-      style={{ width: "100%", maxWidth: compact ? "4rem" : "10rem" }}
-    >
-      <SquareOneMark className="w-full max-w-none" />
-    </div>
+    <CaseDiagramImage
+      lane="squareOne"
+      {...props}
+      fallback={<SquareOneMark className="w-full max-w-none" />}
+    />
   );
 }
 
@@ -88,7 +67,7 @@ export function SquareOneCatalogPanel({
       onFamily={() => undefined}
       onSelect={item => onSelect(item as SquareOneCatalogCase)}
       onMasteredChange={onMasteredChange}
-      renderPreview={SquareOneSilhouettePreview}
+      renderPreview={SquareOnePreview}
       catalogTitle={t("sq1.catalogTitle")}
       previewHint={t("study.previewHintSq1")}
     />

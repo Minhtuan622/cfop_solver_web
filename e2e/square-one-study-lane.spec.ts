@@ -18,7 +18,7 @@ test("lane Square-1 trong tab Học thêm: mở, nhóm, chọn case (CS + CP)", 
   await expect(page.getByRole("button", { name: "Học case này" }).first()).toBeVisible();
 
   // Xem preview rồi chọn case trong dialog
-  await page.getByRole("button", { name: "Xem trước Pair-4-2-Right" }).click();
+  await page.getByRole("button", { name: "Xem trước CS-Pair-4-2-Right" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("dialog").getByRole("button", { name: "Học case này" }).click();
   await expect(page.getByRole("heading", { name: "Pair / 4-2 Right" })).toBeVisible();

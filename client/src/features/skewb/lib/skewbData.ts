@@ -66,10 +66,10 @@ export const SARAH_ADVANCED_CASES_SOURCE: readonly SkewbCaseRow[] = [
   { id: "SA-PiCC-7", family: "sarah-advanced", group: "PiCC", name: "Sarah Adv · Hedge y' z' Sledge y2 Sledge z'", algorithm: "F R' F' R y' z' R' F R F' y2 R' F R F' z'" },
   { id: "SA-PiCC-8", family: "sarah-advanced", group: "PiCC", name: "Sarah Adv · Hedge y2 z' Sledge y2 Sledge z'", algorithm: "F R' F' R y2 z' R' F R F' y2 R' F R F' z'" },
   // Pi → Triple Sledge (4)
-  { id: "SA-PiT-1", family: "sarah-advanced", group: "PiT", name: "Sarah Adv · Sledge y Sledge Sledge Sledge", algorithm: "R' F R F' y R' F R F' R' F R F'" },
-  { id: "SA-PiT-2", family: "sarah-advanced", group: "PiT", name: "Sarah Adv · Sledge y' Sledge Sledge Sledge", algorithm: "R' F R F' y' R' F R F' R' F R F'" },
-  { id: "SA-PiT-3", family: "sarah-advanced", group: "PiT", name: "Sarah Adv · Hedge y' Sledge Sledge Sledge", algorithm: "F R' F' R y' R' F R F' R' F R F'" },
-  { id: "SA-PiT-4", family: "sarah-advanced", group: "PiT", name: "Sarah Adv · Hedge y Sledge Sledge Sledge", algorithm: "F R' F' R y R' F R F' R' F R F'" },
+  { id: "SA-PiT-1", family: "sarah-advanced", group: "PiT", name: "Sarah Adv · Sledge y Sledge Sledge Sledge", algorithm: "(R' F R F') y (R' F R F') (R' F R F') (R' F R F')" },
+  { id: "SA-PiT-2", family: "sarah-advanced", group: "PiT", name: "Sarah Adv · Sledge y' Sledge Sledge Sledge", algorithm: "(R' F R F') y' (R' F R F') (R' F R F') (R' F R F')" },
+  { id: "SA-PiT-3", family: "sarah-advanced", group: "PiT", name: "Sarah Adv · Hedge y' Sledge Sledge Sledge", algorithm: "(F R' F' R) y' (R' F R F') (R' F R F') (R' F R F')" },
+  { id: "SA-PiT-4", family: "sarah-advanced", group: "PiT", name: "Sarah Adv · Hedge y Sledge Sledge Sledge", algorithm: "(F R' F' R) y (R' F R F') (R' F R F') (R' F R F')" },
   // Pi + U Perm (4)
   { id: "SA-PiU-1", family: "sarah-advanced", group: "PiU", name: "Sarah Adv · Sledge y Sledge y Sledge", algorithm: "R' F R F' y R' F R F' y R' F R F'" },
   { id: "SA-PiU-2", family: "sarah-advanced", group: "PiU", name: "Sarah Adv · Sledge y' Sledge y' Sledge", algorithm: "R' F R F' y' R' F R F' y' R' F R F'" },
@@ -102,15 +102,15 @@ export const SARAH_ADVANCED_CASES_SOURCE: readonly SkewbCaseRow[] = [
   { id: "SA-PiPU-5", family: "sarah-advanced", group: "PiPU", name: "Sarah Adv · Sledge Sledge y Sledge y2 Sledge", algorithm: "R' F R F' R' F R F' y R' F R F' y2 R' F R F'" },
   { id: "SA-PiPU-6", family: "sarah-advanced", group: "PiPU", name: "Sarah Adv · Sledge Sledge y' Sledge y2 Sledge", algorithm: "R' F R F' R' F R F' y' R' F R F' y2 R' F R F'" },
   // Peanut (4)
-  { id: "SA-Peanut-1", family: "sarah-advanced", group: "Peanut", name: "Sarah Adv · Sledge y Sledge Sledge", algorithm: "R' F R F' y R' F R F'" },
-  { id: "SA-Peanut-2", family: "sarah-advanced", group: "Peanut", name: "Sarah Adv · Sledge y' Sledge Sledge", algorithm: "R' F R F' y' R' F R F'" },
-  { id: "SA-Peanut-3", family: "sarah-advanced", group: "Peanut", name: "Sarah Adv · Hedge y' Sledge Sledge", algorithm: "F R' F' R y' R' F R F'" },
-  { id: "SA-Peanut-4", family: "sarah-advanced", group: "Peanut", name: "Sarah Adv · Hedge y Sledge Sledge", algorithm: "F R' F' R y R' F R F'" },
+  { id: "SA-Peanut-1", family: "sarah-advanced", group: "Peanut", name: "Sarah Adv · Sledge y Sledge Sledge", algorithm: "(R' F R F') y (R' F R F') (R' F R F')" },
+  { id: "SA-Peanut-2", family: "sarah-advanced", group: "Peanut", name: "Sarah Adv · Sledge y' Sledge Sledge", algorithm: "(R' F R F') y' (R' F R F') (R' F R F')" },
+  { id: "SA-Peanut-3", family: "sarah-advanced", group: "Peanut", name: "Sarah Adv · Hedge y' Sledge Sledge", algorithm: "(F R' F' R) y' (R' F R F') (R' F R F')" },
+  { id: "SA-Peanut-4", family: "sarah-advanced", group: "Peanut", name: "Sarah Adv · Hedge y Sledge Sledge", algorithm: "(F R' F' R) y (R' F R F') (R' F R F')" },
   // Peanut to Pure Pi (4)
-  { id: "SA-PePi-1", family: "sarah-advanced", group: "PePi", name: "Sarah Adv · Sledge y2 Hedge y Sledge Sledge", algorithm: "R' F R F' y2 F R' F' R y R' F R F'" },
-  { id: "SA-PePi-2", family: "sarah-advanced", group: "PePi", name: "Sarah Adv · Sledge y2 Hedge y' Sledge Sledge", algorithm: "R' F R F' y2 F R' F' R y' R' F R F'" },
-  { id: "SA-PePi-3", family: "sarah-advanced", group: "PePi", name: "Sarah Adv · Hedge y2 Sledge y' Sledge Sledge", algorithm: "F R' F' R y2 R' F R F' y' R' F R F'" },
-  { id: "SA-PePi-4", family: "sarah-advanced", group: "PePi", name: "Sarah Adv · Hedge y2 Sledge y Sledge Sledge", algorithm: "F R' F' R y2 R' F R F' y R' F R F'" },
+  { id: "SA-PePi-1", family: "sarah-advanced", group: "PePi", name: "Sarah Adv · Sledge y2 Hedge y Sledge Sledge", algorithm: "(R' F R F') y2 (F R' F' R) y (R' F R F') (R' F R F')" },
+  { id: "SA-PePi-2", family: "sarah-advanced", group: "PePi", name: "Sarah Adv · Sledge y2 Hedge y' Sledge Sledge", algorithm: "(R' F R F') y2 (F R' F' R) y' (R' F R F') (R' F R F')" },
+  { id: "SA-PePi-3", family: "sarah-advanced", group: "PePi", name: "Sarah Adv · Hedge y2 Sledge y' Sledge Sledge", algorithm: "(F R' F' R) y2 (R' F R F') y' (R' F R F') (R' F R F')" },
+  { id: "SA-PePi-4", family: "sarah-advanced", group: "PePi", name: "Sarah Adv · Hedge y2 Sledge y Sledge Sledge", algorithm: "(F R' F' R) y2 (R' F R F') y (R' F R F') (R' F R F')" },
   // Peanut + U Perm (8)
   { id: "SA-PeU-1", family: "sarah-advanced", group: "PeU", name: "Sarah Adv · Sledge y Sledge y Hedge", algorithm: "R' F R F' y R' F R F' y F R' F' R" },
   { id: "SA-PeU-2", family: "sarah-advanced", group: "PeU", name: "Sarah Adv · Sledge y' Sledge y' Hedge", algorithm: "R' F R F' y' R' F R F' y' F R' F' R" },
@@ -148,7 +148,7 @@ export const SARAH_ADVANCED_CASES_SOURCE: readonly SkewbCaseRow[] = [
   { id: "SA-PeSw-7", family: "sarah-advanced", group: "PeSw", name: "Sarah Adv · Hedge y' Sledge y Hedge y' Sledge", algorithm: "F R' F' R y' R' F R F' y F R' F' R y' R' F R F'" },
   { id: "SA-PeSw-8", family: "sarah-advanced", group: "PeSw", name: "Sarah Adv · Hedge y Sledge y' Hedge y Sledge", algorithm: "F R' F' R y R' F R F' y' F R' F' R y R' F R F'" },
   // Miscellaneous (2)
-  { id: "SA-Misc-1", family: "sarah-advanced", group: "Misc", name: "Sarah Adv · Sledge Sledge y' Sledge Sledge", algorithm: "R' F R F' R' F R F' y' R' F R F'" },
+  { id: "SA-Misc-1", family: "sarah-advanced", group: "Misc", name: "Sarah Adv · Sledge Sledge y' Sledge Sledge", algorithm: "(R' F R F') (R' F R F') y' (R' F R F') (R' F R F')" },
   { id: "SA-Misc-2", family: "sarah-advanced", group: "Misc", name: "Sarah Adv · Sledge Sledge Sledge", algorithm: "R' F R F' R' F R F' R' F R F'" },
 ];
 

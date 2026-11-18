@@ -293,20 +293,20 @@ export const studyWords: Dictionary = {
     "This shows the representative net of the 2×2 case.",
   ],
   "study.previewHintPyraminx": [
-    "Pyraminx không có net 2D — đây là biểu tượng puzzle; xem case thật ở thẻ luyện tập.",
-    "The Pyraminx has no 2D net — this is the puzzle-shaped mark; see the real case in the practice card.",
+    "Đây là sơ đồ 2D của case (như cubingapp.com).",
+    "This is the 2D diagram of the case (as on cubingapp.com).",
   ],
   "study.previewHintSkewb": [
-    "Skewb không có net 2D — đây là biểu tượng puzzle; xem case thật ở thẻ luyện tập.",
-    "The Skewb has no 2D net — this is the puzzle-shaped mark; see the real case in the practice card.",
+    "Đây là sơ đồ 2D của case (như cubingapp.com).",
+    "This is the 2D diagram of the case (as on cubingapp.com).",
   ],
   "study.previewHintSq1": [
-    "Square-1 không có net 2D — đây là biểu tượng puzzle; case thật xem trong thẻ luyện tập (twisty 2D).",
-    "The Square-1 has no 2D net — this is the puzzle-shaped mark; see the real case in the practice card (twisty 2D).",
+    "Đây là sơ đồ 2D của case (như cubingapp.com).",
+    "This is the 2D diagram of the case (as on cubingapp.com).",
   ],
   "study.previewHintParity": [
-    "Đây là biểu tượng puzzle; case thật xem trong thẻ luyện tập (3D).",
-    "This is the puzzle-shaped mark; see the real 3D case in the practice card.",
+    "Đây là sơ đồ 2D của case (như cubingapp.com).",
+    "This is the 2D diagram of the case (as on cubingapp.com).",
   ],
   "study.previewHintCase": [
     "Đây là net đại diện của case.",

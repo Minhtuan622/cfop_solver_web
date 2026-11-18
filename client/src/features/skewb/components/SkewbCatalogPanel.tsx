@@ -1,19 +1,17 @@
 /**
  * Skewb catalog drawer: the shared CatalogExplorer wired to the Sarah
- * Intermediate/Advanced data and a puzzle-shaped silhouette preview — there
- * is no 2D net for the Skewb, so the tile shows a flat skewb mark and the
- * enlarged preview carries the algorithm. The practice card itself shows the
- * live 3D case.
+ * Intermediate/Advanced data and the extracted cubingapp.com case diagrams.
+ * The practice card itself shows the live 3D case.
  */
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCallback, type KeyboardEvent } from "react";
 import {
   CatalogExplorer,
   type CatalogExplorerPreviewProps,
 } from "@/features/last-layer/components/CatalogExplorer";
+import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import type { SkewbCatalogCase } from "../lib/skewbCatalog";
 
-/** Flat skewb mark (square split by both diagonals; top/bottom yellow). */
+/** Flat skewb mark (used when a case has no diagram). */
 export function SkewbMark({ className }: { className?: string }) {
   return (
     <svg
@@ -43,34 +41,13 @@ export function SkewbMark({ className }: { className?: string }) {
   );
 }
 
-function SkewbSilhouettePreview({
-  label,
-  compact = false,
-  onClick,
-}: CatalogExplorerPreviewProps) {
-  const { t } = useLanguage();
-  const interactive = Boolean(onClick);
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      if (!onClick || (event.key !== "Enter" && event.key !== " ")) return;
-      event.preventDefault();
-      onClick();
-    },
-    [onClick]
-  );
+function SkewbPreview(props: CatalogExplorerPreviewProps) {
   return (
-    <div
-      aria-label={t("study.previewOf", { label })}
-      role={interactive ? "button" : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      title={interactive ? t("study.enlargePreview", { label }) : undefined}
-      className={interactive ? "w-full cursor-pointer" : "w-full"}
-      style={{ width: "100%", maxWidth: compact ? "4rem" : "10rem" }}
-    >
-      <SkewbMark className="w-full max-w-none" />
-    </div>
+    <CaseDiagramImage
+      lane="skewb"
+      {...props}
+      fallback={<SkewbMark className="w-full max-w-none" />}
+    />
   );
 }
 
@@ -98,7 +75,7 @@ export function SkewbCatalogPanel({
       onFamily={() => undefined}
       onSelect={item => onSelect(item as SkewbCatalogCase)}
       onMasteredChange={onMasteredChange}
-      renderPreview={SkewbSilhouettePreview}
+      renderPreview={SkewbPreview}
       catalogTitle={t("skewb.catalogTitle")}
       previewHint={t("study.previewHintSkewb")}
     />
