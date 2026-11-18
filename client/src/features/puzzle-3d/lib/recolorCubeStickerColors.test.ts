@@ -64,4 +64,42 @@ describe("recolorCubeStickerColors", () => {
     expect(second).toBe(0);
     expect([attribute.getX(0), attribute.getY(0), attribute.getZ(0)]).toEqual([1, 1, 0]);
   });
+
+  it("lật cả bản backup trong cùng buffer (chống nhảy màu khi animation)", () => {
+    // PG3D keeps [live | backup] in one Uint8Array; flashes restore from backup.
+    const live = new Uint8Array([
+      255, 255, 255, // white
+      255, 255, 0, // yellow
+      255, 128, 0, // orange
+      255, 0, 0, // red
+    ]);
+    const buffer = new Uint8Array(live.length * 2);
+    buffer.set(live, 0);
+    buffer.set(live, live.length); // backup copy
+    const attribute = {
+      normalized: false,
+      count: 4,
+      needsUpdate: false,
+      array: buffer.subarray(0, live.length),
+      getX(index: number) { return buffer[index * 3]! / 255; },
+      getY(index: number) { return buffer[index * 3 + 1]! / 255; },
+      getZ(index: number) { return buffer[index * 3 + 2]! / 255; },
+      setXYZ(index: number, x: number, y: number, z: number) {
+        buffer[index * 3] = Math.round(x * 255);
+        buffer[index * 3 + 1] = Math.round(y * 255);
+        buffer[index * 3 + 2] = Math.round(z * 255);
+      },
+    };
+    const root: ColoredObject = {
+      geometry: { getAttribute: () => attribute },
+      traverse(callback) { callback(this); },
+    };
+    const swapped = recolorCubeStickerColors(root);
+    expect(swapped).toBe(4);
+    const backup = buffer.subarray(live.length);
+    expect([...backup.subarray(0, 3)]).toEqual([255, 255, 0]); // white → yellow
+    expect([...backup.subarray(3, 6)]).toEqual([255, 255, 255]); // yellow → white
+    expect([...backup.subarray(6, 9)]).toEqual([255, 0, 0]); // orange → red
+    expect([...backup.subarray(9, 12)]).toEqual([255, 128, 0]); // red → orange
+  });
 });
