@@ -37,6 +37,7 @@ export function Cube3DGuide({
   initialPitch = 0.3,
   surface = "dark",
   turnDurationMs = 340,
+  orbitKeys = false,
 }: {
   state: string;
   previousState?: string;
@@ -57,6 +58,7 @@ export function Cube3DGuide({
   transitionId?: number;
   phaseLabel?: string;
   turnDurationMs?: number;
+  orbitKeys?: boolean;
   initialOrbit?: number;
   initialPitch?: number;
   surface?: "dark" | "light";
@@ -94,6 +96,7 @@ export function Cube3DGuide({
               surface={surface}
               initialYaw={initialOrbit || 0.55}
               initialPitch={initialPitch || 0.3}
+              orbitKeys={orbitKeys}
             />
           </Suspense>
           {transition === "phase" && phaseLabel ? (

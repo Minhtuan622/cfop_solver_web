@@ -8,6 +8,7 @@
 import { competitionWords } from "./competition";
 import { commonWords } from "./common";
 import { historyWords } from "./history";
+import { playWords } from "./play";
 import { profileWords } from "./profile";
 import { roomsWords } from "./rooms";
 import { settingsWords } from "./settings";
@@ -37,6 +38,7 @@ export const words: Dictionary = {
   ...profileWords,
   ...competitionWords,
   ...wcaWords,
+  ...playWords,
 };
 
 /**
