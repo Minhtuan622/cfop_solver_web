@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
 import {
   SolveTimer,
@@ -6,6 +7,9 @@ import {
 import { useBluetoothTimer } from "@/features/timer/useBluetoothTimer";
 import { BluetoothTimerBar } from "@/features/timer/components/BluetoothTimerBar";
 import { BluetoothTimerHero } from "@/features/timer/components/BluetoothTimerHero";
+import { useSmartCube } from "@/features/timer/useSmartCube";
+import { SmartCubeBar } from "@/features/timer/components/SmartCubeBar";
+import { SmartCubeHero } from "@/features/timer/components/SmartCubeHero";
 import { PendingButton } from "@/components/ui/StudioUI";
 import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
 import type { TimerEventId } from "@/lib/timerEvents";
@@ -75,6 +79,67 @@ export function RoomRoundPanel({
       lostConnection={bluetooth.lostConnection}
       onConnect={() => void bluetooth.connect()}
       onDisconnect={bluetooth.disconnect}
+    />
+  ) : null;
+  const eventScramble = activeRound?.scramble ?? "";
+  const bleSolveRef = useRef<{ at: number; ms: number } | null>(null);
+  useEffect(() => {
+    const timer = bluetooth.timer;
+    if (!timer) return;
+    const onStop = (event: Event) => {
+      const ms = (event as CustomEvent<{ currentTime?: number }>).detail?.currentTime;
+      if (typeof ms === "number" && Number.isFinite(ms) && ms > 0) {
+        bleSolveRef.current = { at: Date.now(), ms };
+      }
+    };
+    timer.addEventListener("stop", onStop);
+    return () => timer.removeEventListener("stop", onStop);
+  }, [bluetooth.timer]);
+  const smartCube = useSmartCube({
+    enabled:
+      !isMultiBlind &&
+      eventId === "333" &&
+      eventScramble.length > 0 &&
+      !submitted,
+    targetScramble: eventScramble,
+    onSolveComplete: ({ elapsedMs }) => {
+      const stop = bleSolveRef.current;
+      const finalMs =
+        stop && Date.now() - stop.at < 5_000 ? stop.ms : elapsedMs;
+      onComplete({
+        elapsedMs: finalMs,
+        inspectionMs: 0,
+        automaticPenalty: "none",
+        phaseSplits: [],
+      });
+    },
+  });
+  const smartCubeActive =
+    !isMultiBlind &&
+    eventId === "333" &&
+    smartCube.status === "connected";
+  const smartCubeBar = !isMultiBlind ? (
+    <SmartCubeBar
+      status={smartCube.status}
+      cubeName={smartCube.cubeName}
+      batteryPercent={smartCube.batteryPercent}
+      errorKey={smartCube.errorKey}
+      onConnect={() => void smartCube.connect()}
+      onDisconnect={smartCube.disconnect}
+    />
+  ) : null;
+  const smartCubeHero = smartCubeActive ? (
+    <SmartCubeHero
+      smartCube={smartCube}
+      onDisconnect={smartCube.disconnect}
+      externalTimer={
+        bleTimer
+          ? {
+              deviceName: bluetooth.deviceName ?? "GAN Timer",
+              timer: bleTimer,
+            }
+          : undefined
+      }
     />
   ) : null;
   const bleHero = bleTimer ? (
@@ -239,14 +304,16 @@ export function RoomRoundPanel({
               </div>
             ) : (
               <>
+                {smartCubeBar}
                 {bleBar}
-                {bleHero ?? (
-                  <SolveTimer
-                    key={activeRound.id}
-                    onComplete={onComplete}
-                    soundEnabled
-                  />
-                )}
+                {smartCubeHero ??
+                  bleHero ?? (
+                    <SolveTimer
+                      key={activeRound.id}
+                      onComplete={onComplete}
+                      soundEnabled
+                    />
+                  )}
               </>
             )}
           </>

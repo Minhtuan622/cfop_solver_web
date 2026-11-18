@@ -42,8 +42,11 @@ import {
   type TimerCompletion,
 } from "@/components/common/SolveTimer";
 import { useBluetoothTimer } from "@/features/timer/useBluetoothTimer";
+import { useSmartCube } from "@/features/timer/useSmartCube";
 import { BluetoothTimerBar } from "@/features/timer/components/BluetoothTimerBar";
 import { BluetoothTimerHero } from "@/features/timer/components/BluetoothTimerHero";
+import { SmartCubeBar } from "@/features/timer/components/SmartCubeBar";
+import { SmartCubeHero } from "@/features/timer/components/SmartCubeHero";
 import {
   SOLVED_FAST_STATE,
   stateFromScramble,
@@ -620,6 +623,42 @@ export default function TimerLab() {
     : [];
   const bluetooth = useBluetoothTimer();
   const bleTimer = !isMultiBlind && bluetooth.status === "connected" ? bluetooth.timer : null;
+  // Tracks the GAN Timer's own solve recordings so a solve detected by the
+  // cube can be attributed to a matching mat measurement — never to a stale
+  // reading left over from earlier use.
+  const bleSolveRef = useRef<{ at: number; ms: number } | null>(null);
+  useEffect(() => {
+    const timer = bluetooth.timer;
+    if (!timer) return;
+    const onStop = (event: Event) => {
+      const ms = (event as CustomEvent<{ currentTime?: number }>).detail?.currentTime;
+      if (typeof ms === "number" && Number.isFinite(ms) && ms > 0) {
+        bleSolveRef.current = { at: Date.now(), ms };
+      }
+    };
+    timer.addEventListener("stop", onStop);
+    return () => timer.removeEventListener("stop", onStop);
+  }, [bluetooth.timer]);
+  const smartCube = useSmartCube({
+    enabled: isThreeByThree && !isMultiBlind,
+    targetScramble: scramble,
+    onSolveComplete: ({ elapsedMs }) => {
+      const stop = bleSolveRef.current;
+      const finalMs =
+        stop && Date.now() - stop.at < 5_000 ? stop.ms : elapsedMs;
+      recordSolve(
+        {
+          elapsedMs: finalMs,
+          inspectionMs: 0,
+          automaticPenalty: "none",
+          phaseSplits: [],
+        },
+        "smartcube",
+      );
+    },
+  });
+  const smartCubeActive =
+    isThreeByThree && !isMultiBlind && smartCube.status === "connected";
   const recordSolve = (completion: TimerCompletion, source: SolveSource = "manual") => {
     if (isMultiBlind) {
       setPendingMultiBlind(completion);
@@ -891,6 +930,16 @@ export default function TimerLab() {
                           </div>
                         )}
                         {!isMultiBlind && (
+                          <SmartCubeBar
+                            status={smartCube.status}
+                            cubeName={smartCube.cubeName}
+                            batteryPercent={smartCube.batteryPercent}
+                            errorKey={smartCube.errorKey}
+                            onConnect={() => void smartCube.connect()}
+                            onDisconnect={smartCube.disconnect}
+                          />
+                        )}
+                        {!isMultiBlind && (
                           <BluetoothTimerBar
                             status={bluetooth.status}
                             deviceName={bluetooth.deviceName}
@@ -909,6 +958,20 @@ export default function TimerLab() {
                           <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mb-0">
                             {t("timer.multiBlindMissing")}
                           </div>
+                        ) : smartCubeActive ? (
+                          <SmartCubeHero
+                            smartCube={smartCube}
+                            onDisconnect={smartCube.disconnect}
+                            externalTimer={
+                              bleTimer
+                                ? {
+                                    deviceName:
+                                      bluetooth.deviceName ?? "GAN Timer",
+                                    timer: bleTimer,
+                                  }
+                                : undefined
+                            }
+                          />
                         ) : bleTimer ? (
                           <BluetoothTimerHero
                             timer={bleTimer}
@@ -2061,6 +2124,11 @@ function MetricDetailCard({
               {entry.source === "bluetooth" && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-info-soft px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide text-ink">
                   BLE
+                </span>
+              )}
+              {entry.source === "smartcube" && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-info-soft px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide text-ink">
+                  CUBE
                 </span>
               )}
               {exclusion && (
