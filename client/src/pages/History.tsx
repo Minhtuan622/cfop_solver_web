@@ -27,9 +27,11 @@ import {
   deleteSolveHistoryMany,
   effectiveTime,
   exportSolveHistory,
+  exportCstimerSolveHistory,
   formatSolveResult,
   formatSolveTime,
   importSolveHistory,
+  importCstimerSolveHistory,
   initialStateFor,
   readSolveHistory,
   type SolveHistoryEntry,
@@ -92,7 +94,9 @@ export default function History() {
   );
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [importError, setImportError] = useState("");
+  const [cstimerMessage, setCstimerMessage] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const cstimerFileRef = useRef<HTMLInputElement>(null);
   const tags = useMemo(
     () =>
       Array.from(new Set(entries.flatMap(item => item.tags))).sort((a, b) =>
@@ -242,11 +246,42 @@ export default function History() {
       setEntries(importSolveHistory(JSON.parse(await file.text())));
       setSelectedIds(new Set());
       setImportError("");
+      setCstimerMessage("");
     } catch {
       setImportError(t("history.importFailed"));
     } finally {
       event.target.value = "";
     }
+  };
+  const onImportCstimer = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const payload = JSON.parse(await file.text());
+      const summary = importCstimerSolveHistory(payload);
+      setEntries(readSolveHistory());
+      setSelectedIds(new Set());
+      setImportError("");
+      setCstimerMessage(
+        t("history.cstimerImported", {
+          count: summary.imported,
+          sessions: summary.sessions,
+          dupes: summary.duplicates,
+        }),
+      );
+    } catch {
+      setImportError(t("history.cstimerFailed"));
+      setCstimerMessage("");
+    } finally {
+      event.target.value = "";
+    }
+  };
+  const onExportCstimer = () => {
+    saveFile(
+      "cfop-solve-history-cstimer.json",
+      "application/json",
+      JSON.stringify(exportCstimerSolveHistory(), null, 2),
+    );
   };
 
   const supportsReplay = editing
@@ -268,6 +303,34 @@ export default function History() {
           </Link>
         }
       />
+      <input
+        ref={fileRef}
+        onChange={onImport}
+        accept="application/json,.json"
+        type="file"
+        className="hidden"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+      <input
+        ref={cstimerFileRef}
+        onChange={onImportCstimer}
+        accept="application/json,.json,.txt,text/plain"
+        type="file"
+        className="hidden"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+      {importError ? (
+        <div className="rounded-card bg-danger-soft px-4 py-3 text-sm text-ink mb-3">
+          {importError}
+        </div>
+      ) : null}
+      {cstimerMessage ? (
+        <div className="rounded-card bg-success-soft px-4 py-3 text-sm text-ink mb-3">
+          {cstimerMessage}
+        </div>
+      ) : null}
       <section className="rounded-card bg-surface">
         <div className="p-5 sm:p-6">
           {entries.length ? (
@@ -350,17 +413,16 @@ export default function History() {
                     {t("history.manageTitle")}
                   </h2>
                   <div className="flex flex-wrap gap-2">
-                    <input
-                      ref={fileRef}
-                      onChange={onImport}
-                      accept="application/json,.json"
-                      type="file"
-                      className="hidden"
-                    />
                     <IconButton
                       label={t("history.importJson")}
                       icon={<FileUp className="text-base" />}
                       onClick={() => fileRef.current?.click()}
+                      className={`${buttonClass("secondary", "sm")}`}
+                    />
+                    <IconButton
+                      label={t("history.importCstimer")}
+                      icon={<FileUp className="text-base" />}
+                      onClick={() => cstimerFileRef.current?.click()}
                       className={`${buttonClass("secondary", "sm")}`}
                     />
                     <IconButton
@@ -376,6 +438,12 @@ export default function History() {
                       className={`${buttonClass("secondary", "sm")}`}
                     />
                     <IconButton
+                      label={t("history.exportCstimer")}
+                      icon={<FileDown className="text-base" />}
+                      onClick={onExportCstimer}
+                      className={`${buttonClass("secondary", "sm")}`}
+                    />
+                    <IconButton
                       label={t("history.exportCsv")}
                       icon={<Download className="text-base" />}
                       onClick={exportCsv}
@@ -384,11 +452,6 @@ export default function History() {
                   </div>
                 </div>
                 <div className="p-4 sm:p-5">
-                  {importError ? (
-                    <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mb-3">
-                      {importError}
-                    </div>
-                  ) : null}
                   <div className="grid grid-cols-12 items-center gap-2">
                     <div className="col-span-12 lg:col-span-5">
                       <label className="sr-only" htmlFor="history-search">
@@ -494,13 +557,31 @@ export default function History() {
               title={t("history.emptyTitle")}
               description={t("history.emptyDetail")}
               action={
-                <Link
-                  href="/timer"
-                  aria-label={t("history.openTimer")}
-                  className={`${buttonClass("primary", "sm")}`}
-                >
-                  <Play className="text-base" />
-                </Link>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Link
+                    href="/timer"
+                    aria-label={t("history.openTimer")}
+                    className={`${buttonClass("primary", "sm")}`}
+                  >
+                    <Play className="text-base" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => cstimerFileRef.current?.click()}
+                    className={`${buttonClass("secondary", "sm")}`}
+                  >
+                    <FileUp className="text-base" />
+                    {t("history.importCstimer")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className={`${buttonClass("secondary", "sm")}`}
+                  >
+                    <FileUp className="text-base" />
+                    {t("history.importJson")}
+                  </button>
+                </div>
               }
             />
           )}

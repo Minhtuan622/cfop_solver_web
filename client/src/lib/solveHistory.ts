@@ -3,6 +3,10 @@ export type SolveSource = "manual" | "bluetooth" | "smartcube";
 import { z } from "zod";
 import { readStoredJson, writeStoredValue } from "./browserStorage";
 import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
+import {
+  parseCstimerExport,
+  buildCstimerExport,
+} from "./cstimer";
 import { formatMultiBlindTime, multiBlindResult, type MultiBlindAttempt } from "./multiBlind";
 import { normalizeTimerEventId, type TimerEventId } from "./timerEvents";
 import { stateFromScramble } from "./fastCube";
@@ -192,6 +196,85 @@ export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
   const seen = new Set<string>();
   const entries = raw.filter((item): item is Imported => Boolean(item) && typeof item === "object" && !Array.isArray(item)).map(normalize).filter((item) => { if (seen.has(item.id)) return false; seen.add(item.id); return true; }).sort((a, b) => b.createdAt - a.createdAt).slice(0, MAX_ENTRIES);
   write(entries); return entries;
+}
+
+export type CstimerImportSummary = {
+  /** Sessions whose solves were imported. */
+  sessions: number;
+  /** Solves added to the history. */
+  imported: number;
+  /** Solves skipped because an identical one already exists. */
+  duplicates: number;
+  /** Sessions skipped because their scramble type is unknown. */
+  skippedSessions: number;
+  /** Malformed solves skipped. */
+  invalidSolves: number;
+};
+
+function cstimerEntryKey(entry: {
+  createdAt: number;
+  elapsedMs: number;
+  penalty: SolvePenalty;
+  input: string;
+  eventId?: string | undefined;
+}) {
+  return `${entry.createdAt}|${entry.elapsedMs}|${entry.penalty}|${entry.input}|${normalizeTimerEventId(entry.eventId)}`;
+}
+
+/**
+ * Merge a parsed csTimer export into the history. Solves identical to one
+ * already stored (same time, penalty, scramble, date and event) are skipped,
+ * so importing the same file twice never duplicates anything.
+ */
+export function importCstimerSolveHistory(
+  payload: unknown,
+): CstimerImportSummary {
+  const parsed = parseCstimerExport(payload);
+  const existing = readSolveHistory();
+  const seen = new Set(existing.map(cstimerEntryKey));
+
+  const merged: SolveHistoryEntry[] = [];
+  let duplicates = 0;
+  for (const raw of parsed.entries) {
+    const entry: SolveHistoryEntry = normalize({
+      ...raw,
+      id: crypto.randomUUID(),
+      inputKind: "scramble" as const,
+      moves: 0,
+      solution: "",
+      inspectionMs: 0,
+      tags: ["csTimer"],
+      phaseSplits: [],
+      source: "manual",
+    });
+    const key = cstimerEntryKey(entry);
+    if (seen.has(key)) {
+      duplicates += 1;
+      continue;
+    }
+    seen.add(key);
+    merged.push(entry);
+  }
+
+  // Newest first, same convention as the rest of the history.
+  write(
+    [...merged, ...existing].sort((a, b) => b.createdAt - a.createdAt).slice(
+      0,
+      MAX_ENTRIES,
+    ),
+  );
+  return {
+    sessions: parsed.sessions,
+    imported: merged.length,
+    duplicates,
+    skippedSessions: parsed.skippedSessions,
+    invalidSolves: parsed.invalidSolves,
+  };
+}
+
+/** Rebuild a csTimer export file from the stored history. */
+export function exportCstimerSolveHistory(): Record<string, unknown> {
+  return buildCstimerExport(readSolveHistory());
 }
 export function exportSolveHistory() { return { schema: "cfop-solver-timer-history", version: 2, exportedAt: new Date().toISOString(), entries: readSolveHistory() }; }
 export function effectiveTime(entry: SolveHistoryEntry): number | null { return entry.penalty === "DNF" ? null : entry.elapsedMs + (entry.penalty === "+2" ? 2000 : 0); }
