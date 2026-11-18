@@ -1,4 +1,4 @@
-import type { Dictionary } from "./index";
+﻿import type { Dictionary } from "./index";
 
 /** The study lane: Last Layer SRS drills and the 3-Style BLD learning path. */
 export const studyWords: Dictionary = {
@@ -37,6 +37,10 @@ export const studyWords: Dictionary = {
     "Practise 4×4 PLL parity with SRS: time each case and let the queue pick what is weakest.",
   ],
 
+  "study.description.l2e": [
+    "Luyện 5×5 Last Two Edges (15 case, cả parity và không parity) theo SRS.",
+    "Practise 5×5 Last Two Edges (15 cases, parity and no-parity) with SRS.",
+  ],
   "study.laneLabel": ["Loại luyện tập", "Practice type"],
   "study.laneLastLayer": ["Last Layer", "Last Layer"],
   "study.laneBld": ["3-Style BLD", "3-Style BLD"],
@@ -47,6 +51,7 @@ export const studyWords: Dictionary = {
   "study.laneSq1": ["Square-1", "Square-1"],
   "study.laneParity": ["4×4 Parity", "4×4 Parity"],
 
+  "study.laneL2E": ["5×5 L2E", "5×5 L2E"],
   "cfop.laneSummary": [
     "F2L {f2l} (41 × 4 hướng) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} case",
     "F2L {f2l} (41 × 4-way) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} cases",
@@ -174,6 +179,13 @@ export const studyWords: Dictionary = {
     "{count} PLL parity cases (the two last-layer edges to swap)",
   ],
   "parity.catalogTitle": ["Danh mục 4×4 Parity", "4×4 parity catalog"],
+  "l2e.caseLabel": ["Case 5×5 L2E đang học", "Active 5×5 L2E case"],
+  "l2e.loading3d": ["Đang tải 3D…", "Loading 3D…"],
+  "l2e.laneSummary": [
+    "{count} case Last Two Edges (2 cạnh cuối chưa ghép)",
+    "{count} Last Two Edges cases (the final two unpaired edges)",
+  ],
+  "l2e.catalogTitle": ["Danh mục 5×5 L2E", "5×5 L2E catalog"],
 
   "study.goalLabel": ["Mục tiêu hôm nay", "Today's goal"],
   "study.goalProgress": ["Tiến độ mục tiêu hôm nay", "Today's goal progress"],
@@ -305,6 +317,10 @@ export const studyWords: Dictionary = {
     "This is the 2D diagram of the case (as on cubingapp.com).",
   ],
   "study.previewHintParity": [
+    "Đây là sơ đồ 2D của case (như cubingapp.com).",
+    "This is the 2D diagram of the case (as on cubingapp.com).",
+  ],
+  "study.previewHintL2E": [
     "Đây là sơ đồ 2D của case (như cubingapp.com).",
     "This is the 2D diagram of the case (as on cubingapp.com).",
   ],

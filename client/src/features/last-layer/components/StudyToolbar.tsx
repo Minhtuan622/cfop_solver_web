@@ -9,7 +9,8 @@ export type StudyLane =
   | "pyraminx"
   | "skewb"
   | "sq1"
-  | "parity";
+  | "parity"
+  | "l2e";
 
 export type StudyToolbarProps = {
   lane: StudyLane;
@@ -123,6 +124,14 @@ export function StudyToolbar({
             className={laneButtonClass("parity")}
           >
             {t("study.laneParity")}
+          </button>
+          <button
+            type="button"
+            aria-pressed={lane === "l2e"}
+            onClick={() => onLaneChange("l2e")}
+            className={laneButtonClass("l2e")}
+          >
+            {t("study.laneL2E")}
           </button>
         </div>
 

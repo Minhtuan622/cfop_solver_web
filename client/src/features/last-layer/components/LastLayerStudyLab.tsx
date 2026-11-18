@@ -11,6 +11,7 @@ import { PyraminxStudyLab } from "@/features/pyraminx";
 import { SkewbStudyLab } from "@/features/skewb";
 import { SquareOneStudyLab } from "@/features/squareOne";
 import { FourByFourParityStudyLab } from "@/features/fourByFourParity";
+import { FiveByFiveL2EStudyLab } from "@/features/fiveByFiveL2E";
 import { LastLayerExplorer } from "@/features/last-layer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -63,7 +64,9 @@ export const studyLaneForQuery = (lane: string | null): StudyLane =>
               ? "sq1"
               : lane === "4x4" || lane === "444" || lane === "parity"
                 ? "parity"
-                : "lastLayer";
+                : lane === "5x5" || lane === "555" || lane === "l2e"
+                  ? "l2e"
+                  : "lastLayer";
 
 export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const { t } = useLanguage();
@@ -134,6 +137,14 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     catalogCount: 0,
   });
   const [parityStats, setParityStats] = useState({
+    reviewedToday: 0,
+    dailyGoal: 10,
+    goalPercent: 0,
+    queueCount: 0,
+    masteredCount: 0,
+    catalogCount: 0,
+  });
+  const [l2eStats, setL2EStats] = useState({
     reviewedToday: 0,
     dailyGoal: 10,
     goalPercent: 0,
@@ -248,6 +259,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     skewb: skewbStats,
     sq1: sq1Stats,
     parity: parityStats,
+    l2e: l2eStats,
   } as const;
   const activeLaneStats =
     studyLane === "lastLayer" ? null : laneStats[studyLane];
@@ -337,7 +349,9 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                       ? t("study.description.sq1")
                       : studyLane === "parity"
                         ? t("study.description.parity")
-                        : t("study.description.cfop")
+                        : studyLane === "l2e"
+                          ? t("study.description.l2e")
+                          : t("study.description.cfop")
         }
         actions={
           studyLane === "lastLayer" ? (
@@ -470,6 +484,10 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
       ) : studyLane === "parity" ? (
         <div className="mt-6">
           <FourByFourParityStudyLab language={language} onStatsChange={setParityStats} />
+        </div>
+      ) : studyLane === "l2e" ? (
+        <div className="mt-6">
+          <FiveByFiveL2EStudyLab language={language} onStatsChange={setL2EStats} />
         </div>
       ) : (
         <div className="mt-6">
