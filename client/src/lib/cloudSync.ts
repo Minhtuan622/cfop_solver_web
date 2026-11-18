@@ -6,6 +6,7 @@ import { readPyraminxStudy, readMasteredPyraminxCaseKeys, type PyraminxStudyStat
 import { readSkewbStudy, readMasteredSkewbCaseKeys, type SkewbStudyState, writeSkewbStudy, writeMasteredSkewbCaseKeys } from "@/features/skewb/lib/skewbStudy";
 import { readSquareOneStudy, readMasteredSquareOneCaseKeys, type SquareOneStudyState, writeSquareOneStudy, writeMasteredSquareOneCaseKeys } from "@/features/squareOne/lib/squareOneStudy";
 import { readFourByFourParityStudy, readMasteredFourByFourParityCaseKeys, type FourByFourParityStudyState, writeFourByFourParityStudy, writeMasteredFourByFourParityCaseKeys } from "@/features/fourByFourParity/lib/fourByFourParityStudy";
+import { readFiveByFiveL2EStudy, readMasteredFiveByFiveL2ECaseKeys, type FiveByFiveL2EStudyState, writeFiveByFiveL2EStudy, writeMasteredFiveByFiveL2ECaseKeys } from "@/features/fiveByFiveL2E/lib/l2eStudy";
 import { readSolveHistory, SolveHistoryEntry, importSolveHistory } from "./solveHistory";
 import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 
@@ -32,6 +33,8 @@ export type CfopCloudState = {
   sq1?: { study: SquareOneStudyState; masteredCaseKeys: string[] };
   /** Present for clients that run the 4×4 PLL parity lane; absent on old payloads. */
   parity?: { study: FourByFourParityStudyState; masteredCaseKeys: string[] };
+  /** Present for clients that run the 5×5 L2E lane; absent on old payloads. */
+  l2e?: { study: FiveByFiveL2EStudyState; masteredCaseKeys: string[] };
 };
 
 /** Giới hạn số lượng solve lưu trong lịch sử cloud state (dùng chung client/server). */
@@ -68,6 +71,10 @@ export function createCfopCloudState(now = Date.now()): CfopCloudState {
     parity: {
       study: readFourByFourParityStudy(),
       masteredCaseKeys: Array.from(readMasteredFourByFourParityCaseKeys()),
+    },
+    l2e: {
+      study: readFiveByFiveL2EStudy(),
+      masteredCaseKeys: Array.from(readMasteredFiveByFiveL2ECaseKeys()),
     },
   };
 }
@@ -202,6 +209,7 @@ export function mergeCfopCloudStates(local: CfopCloudState, remote: CfopCloudSta
     skewb: mergeLaneProgress(local.skewb, remote.skewb, preferLocal),
     sq1: mergeLaneProgress(local.sq1, remote.sq1, preferLocal),
     parity: mergeLaneProgress(local.parity, remote.parity, preferLocal),
+    l2e: mergeLaneProgress(local.l2e, remote.l2e, preferLocal),
   };
 }
 
@@ -230,5 +238,9 @@ export function applyCfopCloudState(state: CfopCloudState) {
   if (state.parity) {
     writeFourByFourParityStudy(state.parity.study);
     writeMasteredFourByFourParityCaseKeys(new Set(state.parity.masteredCaseKeys));
+  }
+  if (state.l2e) {
+    writeFiveByFiveL2EStudy(state.l2e.study);
+    writeMasteredFiveByFiveL2ECaseKeys(new Set(state.l2e.masteredCaseKeys));
   }
 }

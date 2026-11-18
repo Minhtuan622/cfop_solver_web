@@ -11,6 +11,7 @@ export type DiagramLane =
   | "skewb"
   | "squareOne"
   | "fourByFourParity"
+  | "fiveByFiveL2E"
   | "cfop"
   | "twoByTwo"
   | "lastLayer";
