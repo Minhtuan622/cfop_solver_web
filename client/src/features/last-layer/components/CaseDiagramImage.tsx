@@ -6,7 +6,14 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCallback, useState, type KeyboardEvent } from "react";
 
-export type DiagramLane = "pyraminx" | "skewb" | "squareOne" | "fourByFourParity";
+export type DiagramLane =
+  | "pyraminx"
+  | "skewb"
+  | "squareOne"
+  | "fourByFourParity"
+  | "cfop"
+  | "twoByTwo"
+  | "lastLayer";
 
 export type CaseDiagramImageProps = {
   lane: DiagramLane;

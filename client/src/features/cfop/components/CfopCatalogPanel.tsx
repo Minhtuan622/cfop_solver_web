@@ -1,14 +1,16 @@
 /**
  * CFOP catalog drawer: the shared CatalogExplorer wired to the F2L/OLL/PLL
- * data. The OLL-family cases (OLL/PLL/COLL/OLLCP) show the full last-layer
- * cross — the same diagram used by the Last Layer tab — F2L shows the full
- * net. Same learning tools as the last layer tab: group progress, unmastered
+ * data. Every case shows the generated flat case diagram from
+ * /diagrams/cfop (the same style as the other redesigned lanes). The old
+ * inline previews are kept as the fallback for a missing or broken diagram.
+ * Same learning tools as the last layer tab: group progress, unmastered
  * filter, random practice, bulk mark-as-learned, preview dialog.
  */
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCallback, useState, type KeyboardEvent } from "react";
 import { CubeNet } from "@/components/common/CubeNet";
 import { PracticeGroupPreview } from "@/features/last-layer/components/PracticeGroupPreview";
+import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import {
   CatalogExplorer,
   type CatalogExplorerPreviewProps,
@@ -18,7 +20,7 @@ import type { CfopCatalogCase } from "../lib/cfopCatalog";
 /** The OLL-family cases — every one of them is a last-layer case. */
 const LAST_LAYER_FAMILIES = new Set(["oll", "pll", "coll", "ollcp"]);
 
-function CfopNetPreview({
+function CfopInlinePreview({
   state,
   label,
   compact = false,
@@ -59,6 +61,20 @@ function CfopNetPreview({
     >
       <CubeNet state={state} />
     </div>
+  );
+}
+
+function CfopNetPreview(props: CatalogExplorerPreviewProps) {
+  // Catalog tiles pass the case id as the label; group tiles get the first
+  // case's stats in state but a group name as the label, so their diagram
+  // request falls back to the inline preview below.
+  return (
+    <CaseDiagramImage
+      lane="cfop"
+      {...props}
+      state={`cfop:${props.label}`}
+      fallback={<CfopInlinePreview {...props} />}
+    />
   );
 }
 
