@@ -623,31 +623,38 @@ export default function TimerLab() {
     : [];
   const bluetooth = useBluetoothTimer();
   const bleTimer = !isMultiBlind && bluetooth.status === "connected" ? bluetooth.timer : null;
+  // Tracks the GAN Timer's own solve recordings so a solve detected by the
+  // cube can be attributed to a matching mat measurement — never to a stale
+  // reading left over from earlier use.
+  const bleSolveRef = useRef<{ at: number; ms: number } | null>(null);
+  useEffect(() => {
+    const timer = bluetooth.timer;
+    if (!timer) return;
+    const onStop = (event: Event) => {
+      const ms = (event as CustomEvent<{ currentTime?: number }>).detail?.currentTime;
+      if (typeof ms === "number" && Number.isFinite(ms) && ms > 0) {
+        bleSolveRef.current = { at: Date.now(), ms };
+      }
+    };
+    timer.addEventListener("stop", onStop);
+    return () => timer.removeEventListener("stop", onStop);
+  }, [bluetooth.timer]);
   const smartCube = useSmartCube({
     enabled: isThreeByThree && !isMultiBlind,
     targetScramble: scramble,
     onSolveComplete: ({ elapsedMs }) => {
-      void (async () => {
-        let finalMs = elapsedMs;
-        const timer = bluetooth.timer;
-        if (timer) {
-          try {
-            const ble = await timer.getTime();
-            if (ble > 0) finalMs = ble;
-          } catch {
-            /* fall back to the app clock */
-          }
-        }
-        recordSolve(
-          {
-            elapsedMs: finalMs,
-            inspectionMs: 0,
-            automaticPenalty: "none",
-            phaseSplits: [],
-          },
-          "smartcube",
-        );
-      })();
+      const stop = bleSolveRef.current;
+      const finalMs =
+        stop && Date.now() - stop.at < 5_000 ? stop.ms : elapsedMs;
+      recordSolve(
+        {
+          elapsedMs: finalMs,
+          inspectionMs: 0,
+          automaticPenalty: "none",
+          phaseSplits: [],
+        },
+        "smartcube",
+      );
     },
   });
   const smartCubeActive =
@@ -955,8 +962,14 @@ export default function TimerLab() {
                           <SmartCubeHero
                             smartCube={smartCube}
                             onDisconnect={smartCube.disconnect}
-                            externalTimerLabel={
-                              bleTimer ? "GAN Timer" : undefined
+                            externalTimer={
+                              bleTimer
+                                ? {
+                                    deviceName:
+                                      bluetooth.deviceName ?? "GAN Timer",
+                                    timer: bleTimer,
+                                  }
+                                : undefined
                             }
                           />
                         ) : bleTimer ? (

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
 import {
   SolveTimer,
@@ -81,6 +82,19 @@ export function RoomRoundPanel({
     />
   ) : null;
   const eventScramble = activeRound?.scramble ?? "";
+  const bleSolveRef = useRef<{ at: number; ms: number } | null>(null);
+  useEffect(() => {
+    const timer = bluetooth.timer;
+    if (!timer) return;
+    const onStop = (event: Event) => {
+      const ms = (event as CustomEvent<{ currentTime?: number }>).detail?.currentTime;
+      if (typeof ms === "number" && Number.isFinite(ms) && ms > 0) {
+        bleSolveRef.current = { at: Date.now(), ms };
+      }
+    };
+    timer.addEventListener("stop", onStop);
+    return () => timer.removeEventListener("stop", onStop);
+  }, [bluetooth.timer]);
   const smartCube = useSmartCube({
     enabled:
       !isMultiBlind &&
@@ -89,24 +103,15 @@ export function RoomRoundPanel({
       !submitted,
     targetScramble: eventScramble,
     onSolveComplete: ({ elapsedMs }) => {
-      void (async () => {
-        let finalMs = elapsedMs;
-        const timer = bluetooth.timer;
-        if (timer) {
-          try {
-            const ble = await timer.getTime();
-            if (ble > 0) finalMs = ble;
-          } catch {
-            /* fall back to the app clock */
-          }
-        }
-        onComplete({
-          elapsedMs: finalMs,
-          inspectionMs: 0,
-          automaticPenalty: "none",
-          phaseSplits: [],
-        });
-      })();
+      const stop = bleSolveRef.current;
+      const finalMs =
+        stop && Date.now() - stop.at < 5_000 ? stop.ms : elapsedMs;
+      onComplete({
+        elapsedMs: finalMs,
+        inspectionMs: 0,
+        automaticPenalty: "none",
+        phaseSplits: [],
+      });
     },
   });
   const smartCubeActive =
@@ -127,7 +132,14 @@ export function RoomRoundPanel({
     <SmartCubeHero
       smartCube={smartCube}
       onDisconnect={smartCube.disconnect}
-      externalTimerLabel={bleTimer ? "GAN Timer" : undefined}
+      externalTimer={
+        bleTimer
+          ? {
+              deviceName: bluetooth.deviceName ?? "GAN Timer",
+              timer: bleTimer,
+            }
+          : undefined
+      }
     />
   ) : null;
   const bleHero = bleTimer ? (

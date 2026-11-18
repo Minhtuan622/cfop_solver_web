@@ -1,30 +1,82 @@
 /**
  * SmartCubeHero — the live display while a Bluetooth smart cube is paired.
  *
- * Shows the cube's current state (2D net), the move counter and TPS, and
- * the detection phase. The big timer display still comes from the app
- * (or the GAN Timer when it is connected), the cube drives *solve
- * boundaries*: it arms when the cube reaches the scramble, starts when the
- * first move lands, and stops when the cube is solved again.
+ * Shows the cube's current state (2D net), the live solve time, the move
+ * counter and TPS, and the detection phase. The cube drives *solve
+ * boundaries* (arm → first move → solved → stop); the time readout comes
+ * from the GAN Timer when one is connected, otherwise from a local clock.
  */
+import { useEffect, useRef, useState } from "react";
 import { Bluetooth, CheckCircleFill } from "@/components/ui/Icon";
 import { CubeNet } from "@/components/common/CubeNet";
+import { formatTimerReadout } from "@/lib/solveHistory";
 import type { SmartCube } from "../useSmartCube";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { GanTimerHandle } from "../lib/bluetoothTimer";
+
+type TimerDetail = { currentTime?: number };
 
 export function SmartCubeHero({
   smartCube,
   onDisconnect,
-  externalTimerLabel,
+  externalTimer,
 }: {
   smartCube: SmartCube;
   onDisconnect: () => void;
-  /** Label of the timer providing the recorded time (e.g. "GAN Timer"). */
-  externalTimerLabel?: string;
+  /** The connected GAN Timer, if any: its live time is the readout. */
+  externalTimer?: { deviceName: string; timer: GanTimerHandle };
 }) {
   const { language, t } = useLanguage();
   const { phase, movesCount, tps, state, batteryPercent, cubeName } = smartCube;
+
+  // Readout source: the GAN Timer's own event stream when connected…
+  const [timerMs, setTimerMs] = useState<number | null>(null);
+  useEffect(() => {
+    const timer = externalTimer?.timer;
+    if (!timer) return;
+    const onStart = () => setTimerMs(0);
+    const onUpdate = (event: Event) => {
+      const ms = (event as CustomEvent<TimerDetail>).detail?.currentTime;
+      if (typeof ms === "number" && Number.isFinite(ms)) setTimerMs(ms);
+    };
+    const onStop = (event: Event) => {
+      const ms = (event as CustomEvent<TimerDetail>).detail?.currentTime;
+      if (typeof ms === "number" && Number.isFinite(ms)) setTimerMs(ms);
+    };
+    const onReset = () => setTimerMs(0);
+    timer.addEventListener("start", onStart);
+    timer.addEventListener("update", onUpdate);
+    timer.addEventListener("stop", onStop);
+    timer.addEventListener("reset", onReset);
+    return () => {
+      timer.removeEventListener("start", onStart);
+      timer.removeEventListener("update", onUpdate);
+      timer.removeEventListener("stop", onStop);
+      timer.removeEventListener("reset", onReset);
+    };
+  }, [externalTimer?.timer]);
+
+  // …otherwise a local clock anchored on phase transitions.
+  const [localMs, setLocalMs] = useState(0);
+  const anchorRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (phase === "solving") {
+      if (anchorRef.current === null) anchorRef.current = performance.now();
+      const id = window.setInterval(
+        () => setLocalMs(performance.now() - (anchorRef.current ?? 0)),
+        50,
+      );
+      return () => window.clearInterval(id);
+    }
+    if (phase === "idle" || phase === "ready") {
+      anchorRef.current = null;
+      setLocalMs(0);
+    }
+    return undefined;
+  }, [phase]);
+
+  const readout = timerMs ?? localMs;
 
   const helper =
     phase === "ready"
@@ -65,18 +117,26 @@ export function SmartCubeHero({
             </span>
           </>
         ) : null}
-        {externalTimerLabel ? (
+        {externalTimer ? (
           <>
             <span aria-hidden="true">·</span>
             <span className="normal-case tracking-normal text-ink">
-              {externalTimerLabel}
+              GAN TIMER · {externalTimer.deviceName}
             </span>
           </>
         ) : null}
       </div>
 
-      <div className="flex items-center justify-center">
-        <div className="w-full max-w-xs sm:max-w-sm">
+      <p
+        className={`mb-0 max-w-full font-mono text-[clamp(1.25rem,11cqw,5.5rem)] font-bold leading-none tracking-tight tabular-nums ${
+          phase === "completed" ? "text-success" : "text-ink"
+        }`}
+      >
+        {formatTimerReadout(readout)}
+      </p>
+
+      <div className="mt-6 flex items-center justify-center">
+        <div className="w-full max-w-[11rem] sm:max-w-[13rem]">
           {state ? (
             <CubeNet state={state} />
           ) : (
