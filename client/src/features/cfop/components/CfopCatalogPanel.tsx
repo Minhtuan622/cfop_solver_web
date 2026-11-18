@@ -135,6 +135,7 @@ export function CfopCatalogPanel({
       onSelect={item => onSelect(item as CfopCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={CfopNetPreview}
+      focusStorageKey="cfop"
       dialogPreview={CfopReplayPreview}
       dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("cfop.catalogTitle")}

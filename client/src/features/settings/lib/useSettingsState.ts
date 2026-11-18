@@ -18,6 +18,12 @@ export function useSettingsState() {
   const { language } = useLanguage();
   const [solver, setSolver] = useState<SolverSettings>(readSolverSettings);
   const [sound, setSound] = useState(() => readStoredValue("cfop-inspection-sound") !== "off");
+  const [voice, setVoice] = useState(() => readStoredValue("cfop-inspection-voice") !== "off");
+  const [metronome, setMetronome] = useState(() => readStoredValue("cfop-metronome") === "on");
+  const [metronomeBpm, setMetronomeBpm] = useState(() => {
+    const stored = Number(readStoredValue("cfop-metronome-bpm"));
+    return Number.isFinite(stored) && stored >= 30 && stored <= 240 ? Math.round(stored) : 60;
+  });
   const [splits, setSplits] = useState(() => readStoredValue("cfop-space-splits") !== "off");
   const [highlight, setHighlight] = useState(() => readStoredValue("cfop-cross-highlight") !== "off");
 const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
@@ -35,6 +41,9 @@ const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
       writeSolverSettings(solver);
       writeStoredValue("cfop-inspection-color", solver.crossColor);
       writeStoredValue("cfop-inspection-sound", sound ? "on" : "off");
+      writeStoredValue("cfop-inspection-voice", voice ? "on" : "off");
+      writeStoredValue("cfop-metronome", metronome ? "on" : "off");
+      writeStoredValue("cfop-metronome-bpm", String(metronomeBpm));
       writeStoredValue("cfop-space-splits", splits ? "on" : "off");
       writeStoredValue("cfop-cross-highlight", highlight ? "on" : "off");
       writeStoredValue("cfop-scramble-size", scrambleSize);
@@ -42,7 +51,7 @@ const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
       setSaveState("saved");
     }, 350);
     return () => window.clearTimeout(id);
-  }, [solver, sound, splits, highlight, dailyGoal, scrambleSize, language]);
+  }, [solver, sound, voice, metronome, metronomeBpm, splits, highlight, dailyGoal, scrambleSize, language]);
 
   useEffect(() => {
     if (saveState !== "saved") return;
@@ -55,11 +64,14 @@ const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
     const excludedSlots = current.excludedSlots.includes(slot) ? current.excludedSlots.filter((value) => value !== slot) : [...current.excludedSlots, slot];
     return { ...current, excludedSlots, preferredSlot: current.preferredSlot === slot ? undefined : current.preferredSlot };
   });
-  const reset = () => { setSolver(DEFAULT_SOLVER_SETTINGS); setSound(true); setSplits(true); setHighlight(true); setScrambleSize("md"); setDailyGoal(12); };
+  const reset = () => { setSolver(DEFAULT_SOLVER_SETTINGS); setSound(true); setVoice(true); setMetronome(false); setMetronomeBpm(60); setSplits(true); setHighlight(true); setScrambleSize("md"); setDailyGoal(12); };
 
   return {
     solver,
     sound,
+    voice,
+    metronome,
+    metronomeBpm,
     splits,
     highlight,
     scrambleSize,
@@ -68,6 +80,9 @@ const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
     updateSolver,
     toggleExcluded,
     setSound,
+    setVoice,
+    setMetronome,
+    setMetronomeBpm,
     setSplits,
     setHighlight,
     setScrambleSize,

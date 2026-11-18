@@ -82,6 +82,7 @@ export function LastLayerExplorer({
       onSelect={item => onSelect(item as LastLayerCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={LastLayerPreview}
+      focusStorageKey="lastLayer"
       dialogPreview={LastLayerReplayPreview}
       dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("study.catalogTitle")}

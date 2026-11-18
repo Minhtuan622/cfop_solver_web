@@ -42,6 +42,7 @@ export function BldCatalogPanel({
       onSelect={item => onSelect(item as BldStudyCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={BldCasePreview}
+      focusStorageKey="bld"
       catalogTitle={t("study.bldCatalogTitle")}
       previewHint={t("study.previewHintCase")}
     />

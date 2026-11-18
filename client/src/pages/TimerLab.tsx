@@ -5,12 +5,15 @@
 import {
   BarChart3,
   BookOpenCheck,
+  Calendar3,
+  CircleGauge,
   ClipboardCheck,
   Dices,
   Eye,
   EyeOff,
   ImageDown,
   Play,
+  Sparkles,
   Timer,
 } from "@/components/ui/Icon";
 import { Link, useLocation } from "wouter";
@@ -36,6 +39,7 @@ import {
 } from "@/features/timer/lib/exportPalette";
 import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
 import { LastLayerStudyLab } from "@/features/last-layer";
+import { dailyDigest } from "@/features/timer/lib/dailyDigest";
 import { MoveComposer } from "@/components/common/MoveComposer";
 import {
   SolveTimer,
@@ -353,6 +357,7 @@ export default function TimerLab() {
   const [entries, setEntries] = useState<SolveHistoryEntry[]>(() =>
     readSolveHistory()
   );
+  const digest = useMemo(() => dailyDigest(entries), [entries]);
   const [timerVersion, setTimerVersion] = useState(0);
   const [saved, setSaved] = useState(false);
   const [latestRecorded, setLatestRecorded] =
@@ -369,6 +374,18 @@ export default function TimerLab() {
   const [inspectionSound] = useState(
     () => readStoredValue("cfop-inspection-sound") !== "off"
   );
+  const [inspectionVoice] = useState(
+    () => readStoredValue("cfop-inspection-voice") !== "off"
+  );
+  const [metronomeEnabled] = useState(
+    () => readStoredValue("cfop-metronome") === "on"
+  );
+  const [metronomeBpm] = useState(() => {
+    const stored = Number(readStoredValue("cfop-metronome-bpm"));
+    return Number.isFinite(stored) && stored >= 30 && stored <= 240
+      ? Math.round(stored)
+      : 60;
+  });
   const [spaceSplits] = useState(
     () => readStoredValue("cfop-space-splits") !== "off"
   );
@@ -790,6 +807,23 @@ export default function TimerLab() {
                 </Link>
               }
             />
+            <div
+              className="mt-4 flex flex-wrap items-center gap-2"
+              aria-label={t("timer.digestLabel")}
+            >
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
+                <Sparkles className="text-base text-primary" aria-hidden="true" />
+                {t("timer.digestStreak", { days: digest.streak })}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
+                <Calendar3 className="text-base text-primary" aria-hidden="true" />
+                {t("timer.digestToday", { count: digest.todayCount })}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
+                <CircleGauge className="text-base text-primary" aria-hidden="true" />
+                {t("timer.digestAo5", { value: metric(averages.ao5) })}
+              </span>
+            </div>
             <section className="grid grid-cols-12 gap-6">
               <section className="col-span-12 xl:col-span-8">
                 <div className="rounded-card bg-surface">
@@ -994,6 +1028,9 @@ export default function TimerLab() {
                             key={timerVersion}
                             onComplete={recordSolve}
                             soundEnabled={inspectionSound}
+                            voiceEnabled={inspectionVoice}
+                            metronomeEnabled={metronomeEnabled}
+                            metronomeBpm={metronomeBpm}
                             splitEnabled={
                               !isMultiBlind && isThreeByThree && spaceSplits
                             }

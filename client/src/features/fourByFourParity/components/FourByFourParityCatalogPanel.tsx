@@ -108,6 +108,7 @@ export function FourByFourParityCatalogPanel({
       onSelect={item => onSelect(item as FourByFourParityCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={ParityPreview}
+      focusStorageKey="fourByFourParity"
       dialogPreview={ParityReplayPreview}
       dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("parity.catalogTitle")}

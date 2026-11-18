@@ -104,6 +104,7 @@ export function TwoByTwoCatalogPanel({
       onSelect={item => onSelect(item as TwoByTwoCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={TwoByTwoNetPreview}
+      focusStorageKey="twoByTwo"
       dialogPreview={TwoByTwoReplayPreview}
       dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("twoByTwo.catalogTitle")}

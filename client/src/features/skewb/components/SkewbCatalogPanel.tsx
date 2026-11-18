@@ -76,6 +76,7 @@ export function SkewbCatalogPanel({
       onSelect={item => onSelect(item as SkewbCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={SkewbPreview}
+      focusStorageKey="skewb"
       catalogTitle={t("skewb.catalogTitle")}
       previewHint={t("study.previewHintSkewb")}
     />

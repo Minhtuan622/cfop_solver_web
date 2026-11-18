@@ -21,13 +21,14 @@ import {
   DialogTitle,
 } from "@/components/ui/StudioDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useMemo, useState, type ComponentType } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
 import { buttonClass } from "@/components/ui/Button";
+import { readFocusSet, writeFocusSet } from "../lib/focusSet";
 
 /** Any case row the catalog knows how to show: LL (zbll/1lll) or 2×2 (cll/pbl). */
 export type CatalogExplorerCase = {
@@ -84,6 +85,8 @@ type Props = {
   dialogPreview?: ComponentType<CatalogExplorerPreviewProps>;
   /** When set (and `dialogPreview` is provided), the dialog footer shows a replay button. */
   dialogReplayLabel?: string;
+  /** When set, the catalog narrows to the user's stored focus groups for this lane key. */
+  focusStorageKey?: string;
 };
 
 const keyOf = (catalogCase: CatalogExplorerCase) =>
@@ -103,6 +106,7 @@ export function CatalogExplorer({
   renderPreview: Preview,
   dialogPreview,
   dialogReplayLabel,
+  focusStorageKey,
 }: Props) {
   const { t } = useLanguage();
   const [group, setGroup] = useState("");
@@ -116,6 +120,13 @@ export function CatalogExplorer({
 
   const [replayToken, setReplayToken] = useState(0);
   const DialogPreview = dialogPreview ?? Preview;
+  const [focusSet, setFocusSet] = useState<string[]>(() =>
+    focusStorageKey ? readFocusSet(focusStorageKey) : []
+  );
+  const [focusOpen, setFocusOpen] = useState(false);
+  useEffect(() => {
+    if (focusStorageKey) writeFocusSet(focusStorageKey, focusSet);
+  }, [focusSet, focusStorageKey]);
   const families = useMemo(() => {
     const inFamily = catalog.filter(
       item => family === "all" || item.family === family
@@ -149,23 +160,36 @@ export function CatalogExplorer({
   const isUnmastered = (item: CatalogExplorerCase) =>
     !masteredKeys.has(keyOf(item));
 
+  const focusActive = focusSet.length > 0;
+  const inFocus = (item: CatalogExplorerCase) =>
+    !focusActive || focusSet.includes(item.group);
+  const visibleFamilies = useMemo(
+    () =>
+      focusActive
+        ? families.filter(entry => focusSet.includes(entry.name))
+        : families,
+    [families, focusActive, focusSet]
+  );
+
   const visibleGroups = useMemo(
     () =>
-      families.filter(entry =>
+      visibleFamilies.filter(entry =>
         entry.items.some(
           item => matchesQuery(item) && (!onlyUnmastered || isUnmastered(item))
         )
       ),
-    [families, needle, onlyUnmastered]
+    [visibleFamilies, needle, onlyUnmastered]
   );
 
   const unmasteredCount = useMemo(
     () =>
       catalog.filter(
         item =>
-          (family === "all" || item.family === family) && isUnmastered(item)
+          (family === "all" || item.family === family) &&
+          isUnmastered(item) &&
+          inFocus(item)
       ).length,
-    [catalog, family, masteredKeys]
+    [catalog, family, masteredKeys, focusActive, focusSet]
   );
 
   const openGroup = families.find(entry => entry.name === group) ?? null;
@@ -180,7 +204,8 @@ export function CatalogExplorer({
       item =>
         (family === "all" || item.family === family) &&
         isUnmastered(item) &&
-        matchesQuery(item)
+        matchesQuery(item) &&
+        inFocus(item)
     );
     if (candidates.length)
       onSelect(candidates[Math.floor(Math.random() * candidates.length)]);
@@ -241,7 +266,7 @@ export function CatalogExplorer({
         <small className="ml-2 text-muted">
           {t("study.catalogSummary", {
             cases: catalog.length,
-            groups: families.length,
+            groups: visibleFamilies.length,
           })}
         </small>
       </summary>
@@ -306,6 +331,19 @@ export function CatalogExplorer({
           >
             {onlyUnmastered ? t("study.unmasteredOnly") : t("study.allCases")}
           </Button>
+          {focusStorageKey ? (
+            <Button
+              type="button"
+              variant={focusActive ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => setFocusOpen(value => !value)}
+              aria-pressed={focusActive}
+            >
+              {focusActive
+                ? t("study.focusSetActive", { count: focusSet.length })
+                : t("study.focusSet")}
+            </Button>
+          ) : null}
           <IconButton
             label={t("study.randomPractice")}
             icon={<Dices className="text-base" />}
@@ -317,6 +355,60 @@ export function CatalogExplorer({
             {unmasteredCount} {t("study.unmasteredCount")}
           </span>
         </div>
+
+        {focusStorageKey && focusOpen ? (
+          <div className="mt-3 rounded-card bg-surface-2 p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <strong className="text-sm">{t("study.focusSetTitle")}</strong>
+              <small className="text-muted">{t("study.focusSetHint")}</small>
+              {focusActive ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="ml-auto text-xs"
+                  onClick={() => setFocusSet([])}
+                >
+                  {t("study.focusSetClear")}
+                </Button>
+              ) : null}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {families.map(group => {
+                const checked = focusSet.includes(group.name);
+                return (
+                  <label
+                    key={group.name}
+                    className={cn(
+                      "inline-flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition",
+                      checked
+                        ? "bg-primary text-on-primary"
+                        : "bg-surface text-ink hover:bg-surface-3"
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={checked}
+                      onChange={() =>
+                        setFocusSet(current =>
+                          checked
+                            ? current.filter(value => value !== group.name)
+                            : [...current, group.name]
+                        )
+                      }
+                      aria-label={group.name}
+                    />
+                    {group.name}
+                    <span className="tabular-nums opacity-75">
+                      {group.mastered}/{group.total}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
 
         {openGroup ? (
           <div className="mt-4">

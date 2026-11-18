@@ -114,6 +114,7 @@ export function FiveByFiveL2ECatalogPanel({
       onSelect={item => onSelect(item as FiveByFiveL2ECatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={L2EPreview}
+      focusStorageKey="fiveByFiveL2E"
       dialogPreview={L2EReplayPreview}
       dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("l2e.catalogTitle")}

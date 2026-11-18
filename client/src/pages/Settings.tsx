@@ -86,10 +86,16 @@ export default function Settings() {
               {group.id === "timer" ? (
                 <TimerSettingsGroup
                   sound={state.sound}
+                  voice={state.voice}
+                  metronome={state.metronome}
+                  metronomeBpm={state.metronomeBpm}
                   splits={state.splits}
                   highlight={state.highlight}
                   scrambleSize={state.scrambleSize}
                   onSoundChange={state.setSound}
+                  onVoiceChange={state.setVoice}
+                  onMetronomeChange={state.setMetronome}
+                  onMetronomeBpmChange={state.setMetronomeBpm}
                   onSplitsChange={state.setSplits}
                   onHighlightChange={state.setHighlight}
                   onScrambleSizeChange={state.setScrambleSize}
