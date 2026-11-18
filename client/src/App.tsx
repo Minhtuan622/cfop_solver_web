@@ -26,6 +26,7 @@ const CompetitionLeaderboard = lazy(
 const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
 const WcaCompetitions = lazy(() => import("./pages/WcaCompetitions"));
+const Play = lazy(() => import("./pages/Play"));
 
 function RouteLoading() {
   const { t } = useLanguage();
@@ -53,6 +54,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/timer" component={TimerLab} />
         <Route path="/study" component={TimerLab} />
+        <Route path="/play" component={Play} />
         <Route path="/settings" component={Settings} />
         <Route path="/history" component={History} />
         <Route path="/profile" component={Profile} />
@@ -92,6 +94,9 @@ function AppFooter() {
           </a>
           <a className="transition hover:text-primary" href="/timer">
             {t("nav.timer")}
+          </a>
+          <a className="transition hover:text-primary" href="/play">
+            {t("nav.play")}
           </a>
           <a className="transition hover:text-primary" href="/study">
             {t("nav.study")}

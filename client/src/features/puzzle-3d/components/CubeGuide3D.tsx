@@ -33,6 +33,8 @@ export type CubeGuide3DProps = {
   initialPitch?: number;
   /** Xoay scene để mặt Cross nằm trên D, không hoán vị facelet trong state. */
   alignCross?: boolean;
+  /** Mũi tên trái/phải/lên/xuống xoay góc nhìn (dùng cho chế độ chơi bằng bàn phím). */
+  orbitKeys?: boolean;
 };
 
 const FACE_ORDER: Array<"U" | "R" | "F" | "D" | "L" | "B"> = [
@@ -307,6 +309,7 @@ export function CubeGuide3D({
   surface = "dark",
   initialYaw = 0.55,
   initialPitch = 0.3,
+  orbitKeys = false,
 }: CubeGuide3DProps) {
   const { language } = useLanguage();
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -541,6 +544,45 @@ export function CubeGuide3D({
     bundle.resize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [alignCross, crossColor]);
+
+  // Camera nudges from the arrow keys (play mode). Ignores events from form
+  // fields so typing never orbits the cube behind the user's back.
+  useEffect(() => {
+    if (!orbitKeys) return undefined;
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.closest("input, textarea, select, [contenteditable='true']") ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      const orbit = orbitRef.current;
+      const STEP = 0.35;
+      switch (event.key) {
+        case "ArrowLeft":
+          orbit.yaw -= STEP;
+          break;
+        case "ArrowRight":
+          orbit.yaw += STEP;
+          break;
+        case "ArrowUp":
+          orbit.pitch = Math.min(ORBIT_LIMIT, orbit.pitch + STEP * 0.6);
+          break;
+        case "ArrowDown":
+          orbit.pitch = Math.max(-ORBIT_LIMIT, orbit.pitch - STEP * 0.6);
+          break;
+        default:
+          return;
+      }
+      event.preventDefault();
+      sceneRef.current?.resize();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orbitKeys]);
 
   // State-dependent: rebuild or animate on change.
   useEffect(() => {
