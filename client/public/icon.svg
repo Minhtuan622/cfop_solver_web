@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="CFOP Solver Studio">
+  <rect width="200" height="200" rx="46" fill="#5b5bd6" />
+  <g stroke="#4747c2" stroke-width="6" stroke-linejoin="round">
+    <polygon points="100,34 165,70 100,106 35,70" fill="#ffd500" />
+    <polygon points="35,70 100,106 100,169 35,133" fill="#009b48" />
+    <polygon points="165,70 100,106 100,169 165,133" fill="#b71234" />
+  </g>
+</svg>

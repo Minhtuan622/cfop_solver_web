@@ -1,6 +1,7 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import { VitePWA } from "vite-plugin-pwa";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
@@ -133,6 +134,96 @@ const plugins = [
   jsxLocPlugin(),
   siteUrlPlugin(),
   localPyodidePlugin(),
+  VitePWA({
+    registerType: "autoUpdate",
+    injectRegister: "auto",
+    includeAssets: ["icon.svg", "icon-maskable.svg", "apple-touch-icon.png"],
+    manifest: {
+      name: "CFOP Solver Studio",
+      short_name: "CFOP Studio",
+      description:
+        "Giải Rubik CFOP: giải từng bước, bấm giờ, luyện tập và thi đấu",
+      lang: "vi",
+      start_url: "/",
+      scope: "/",
+      display: "standalone",
+      orientation: "portrait",
+      background_color: "#f7f8fd",
+      theme_color: "#5b5bd6",
+      icons: [
+        {
+          src: "/icon.svg",
+          sizes: "any",
+          type: "image/svg+xml",
+          purpose: "any",
+        },
+        {
+          src: "/icon-maskable.svg",
+          sizes: "any",
+          type: "image/svg+xml",
+          purpose: "maskable",
+        },
+        {
+          src: "/icon-192.png",
+          sizes: "192x192",
+          type: "image/png",
+          purpose: "any",
+        },
+        {
+          src: "/icon-512.png",
+          sizes: "512x512",
+          type: "image/png",
+          purpose: "any",
+        },
+        {
+          src: "/icon-maskable-512.png",
+          sizes: "512x512",
+          type: "image/png",
+          purpose: "maskable",
+        },
+        {
+          src: "/apple-touch-icon.png",
+          sizes: "180x180",
+          type: "image/png",
+        },
+      ],
+    },
+    workbox: {
+      // The app shell stays small; solver + diagrams load on demand below.
+      globPatterns: ["**/*.{js,css,html}"],
+      navigateFallback: "/index.html",
+      navigateFallbackDenylist: [/^\/api\//],
+      maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+      runtimeCaching: [
+        {
+          // Case diagrams never change until a deploy — cache on first view.
+          urlPattern: /\/diagrams\/.*\.svg$/,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "cfop-diagrams",
+            expiration: { maxEntries: 3000, maxAgeSeconds: 60 * 60 * 24 * 180 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+        {
+          // The Pyodide solver payload (~13 MB) downloads on first use.
+          urlPattern: /\/pyodide\/.*$/,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "cfop-pyodide",
+            expiration: { maxEntries: 16, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+        {
+          // Fonts & other static assets: cache-then-network for freshness.
+          urlPattern: /\/assets\/.*$/,
+          handler: "CacheFirst",
+          options: { cacheName: "cfop-assets" },
+        },
+      ],
+    },
+  }),
   ...(includeManusRuntime ? [vitePluginManusRuntime()] : []),
   vitePluginOptionalAnalytics(analyticsEndpoint, analyticsWebsiteId),
 ];
