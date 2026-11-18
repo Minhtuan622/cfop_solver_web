@@ -1,5 +1,5 @@
 export type SolvePenalty = "none" | "+2" | "DNF";
-export type SolveSource = "manual" | "bluetooth";
+export type SolveSource = "manual" | "bluetooth" | "smartcube";
 import { z } from "zod";
 import { readStoredJson, writeStoredValue } from "./browserStorage";
 import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
@@ -128,7 +128,7 @@ const solveHistoryEntrySchema = z.object({
     .unknown()
     .optional()
     .transform(value => normalizeTimerEventId(value)),
-  source: z.enum(["manual", "bluetooth"]).optional().catch(undefined),
+  source: z.enum(["manual", "bluetooth", "smartcube"]).optional().catch(undefined),
   multiBlind: multiBlindSchema,
   multiBlindScrambles: multiBlindScramblesSchema,
   deletedAt: finiteNumber().min(0).optional().catch(undefined),

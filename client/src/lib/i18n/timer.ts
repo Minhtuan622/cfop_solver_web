@@ -243,4 +243,33 @@ export const timerWords: Dictionary = {
     "Solve đã xong và được ghi nhận",
     "Solve finished and recorded",
   ],
+  "timer.smartCube.connect": ["Kết nối Smart Cube", "Connect Smart Cube"],
+  "timer.smartCube.connected": [
+    "Smart Cube · đã kết nối",
+    "Smart Cube · connected",
+  ],
+  "timer.smartCube.unsupported": [
+    "Cần Chrome/Edge (hoặc Chrome Android) trên HTTPS/localhost mới kết nối được Smart Cube",
+    "Connecting to a smart cube requires Chrome/Edge (or Chrome on Android) over HTTPS/localhost",
+  ],
+  "timer.smartCube.heroLabel": ["CUBE", "CUBE"],
+  "timer.smartCube.armed": [
+    "Chờ cube về đúng scramble để tự động bắt đầu",
+    "Waiting for the cube to reach the scramble",
+  ],
+  "timer.smartCube.ready": [
+    "Cube đã khớp scramble — bắt đầu giải đi!",
+    "Cube is at the scramble — start solving!",
+  ],
+  "timer.smartCube.solving": ["Đang giải…", "Solving…"],
+  "timer.smartCube.saved": ["Solve đã được lưu", "Solve saved"],
+  "timer.smartCube.moves": ["nước", "moves"],
+  "timer.smartCube.reading": [
+    "Đang đọc state cube…",
+    "Reading the cube state…",
+  ],
+  "timer.smartCube.orientationNote": [
+    "Cube cần cùng chiều với state chuẩn (trắng U, xanh lá F) để tự nhận diện giải",
+    "The cube must be in its standard orientation (white U, green F) for auto detection",
+  ],
 };

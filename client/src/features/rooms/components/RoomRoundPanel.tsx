@@ -6,6 +6,9 @@ import {
 import { useBluetoothTimer } from "@/features/timer/useBluetoothTimer";
 import { BluetoothTimerBar } from "@/features/timer/components/BluetoothTimerBar";
 import { BluetoothTimerHero } from "@/features/timer/components/BluetoothTimerHero";
+import { useSmartCube } from "@/features/timer/useSmartCube";
+import { SmartCubeBar } from "@/features/timer/components/SmartCubeBar";
+import { SmartCubeHero } from "@/features/timer/components/SmartCubeHero";
 import { PendingButton } from "@/components/ui/StudioUI";
 import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
 import type { TimerEventId } from "@/lib/timerEvents";
@@ -75,6 +78,52 @@ export function RoomRoundPanel({
       lostConnection={bluetooth.lostConnection}
       onConnect={() => void bluetooth.connect()}
       onDisconnect={bluetooth.disconnect}
+    />
+  ) : null;
+  const eventScramble = activeRound?.scramble ?? "";
+  const smartCube = useSmartCube({
+    enabled: !isMultiBlind && eventId === "333" && eventScramble.length > 0,
+    targetScramble: eventScramble,
+    onSolveComplete: ({ elapsedMs }) => {
+      void (async () => {
+        let finalMs = elapsedMs;
+        const timer = bluetooth.timer;
+        if (timer) {
+          try {
+            const ble = await timer.getTime();
+            if (ble > 0) finalMs = ble;
+          } catch {
+            /* fall back to the app clock */
+          }
+        }
+        onComplete({
+          elapsedMs: finalMs,
+          inspectionMs: 0,
+          automaticPenalty: "none",
+          phaseSplits: [],
+        });
+      })();
+    },
+  });
+  const smartCubeActive =
+    !isMultiBlind &&
+    eventId === "333" &&
+    smartCube.status === "connected";
+  const smartCubeBar = !isMultiBlind ? (
+    <SmartCubeBar
+      status={smartCube.status}
+      cubeName={smartCube.cubeName}
+      batteryPercent={smartCube.batteryPercent}
+      errorKey={smartCube.errorKey}
+      onConnect={() => void smartCube.connect()}
+      onDisconnect={smartCube.disconnect}
+    />
+  ) : null;
+  const smartCubeHero = smartCubeActive ? (
+    <SmartCubeHero
+      smartCube={smartCube}
+      onDisconnect={smartCube.disconnect}
+      externalTimerLabel={bleTimer ? "GAN Timer" : undefined}
     />
   ) : null;
   const bleHero = bleTimer ? (
@@ -239,14 +288,16 @@ export function RoomRoundPanel({
               </div>
             ) : (
               <>
+                {smartCubeBar}
                 {bleBar}
-                {bleHero ?? (
-                  <SolveTimer
-                    key={activeRound.id}
-                    onComplete={onComplete}
-                    soundEnabled
-                  />
-                )}
+                {smartCubeHero ??
+                  bleHero ?? (
+                    <SolveTimer
+                      key={activeRound.id}
+                      onComplete={onComplete}
+                      soundEnabled
+                    />
+                  )}
               </>
             )}
           </>

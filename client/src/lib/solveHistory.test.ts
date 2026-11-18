@@ -222,6 +222,17 @@ describe("solveHistory: import/export", () => {
     expect(fromMat.source).toBe("bluetooth");
     expect(readSolveHistory()[0]?.source).toBe("bluetooth");
 
+    const fromCube = addSolveHistory({
+      elapsedMs: 9_900,
+      inspectionMs: 0,
+      input: solvedScramble,
+      inputKind: "scramble",
+      moves: 16,
+      source: "smartcube",
+    });
+    expect(fromCube.source).toBe("smartcube");
+    expect(readSolveHistory()[0]?.source).toBe("smartcube");
+
     // Old exports without the field still import cleanly.
     const imported = importSolveHistory([validEntry()]);
     expect(imported[0]?.source).toBeUndefined();
