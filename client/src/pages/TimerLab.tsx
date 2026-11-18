@@ -41,6 +41,9 @@ import {
   SolveTimer,
   type TimerCompletion,
 } from "@/components/common/SolveTimer";
+import { useBluetoothTimer } from "@/features/timer/useBluetoothTimer";
+import { BluetoothTimerBar } from "@/features/timer/components/BluetoothTimerBar";
+import { BluetoothTimerHero } from "@/features/timer/components/BluetoothTimerHero";
 import {
   SOLVED_FAST_STATE,
   stateFromScramble,
@@ -96,6 +99,7 @@ import {
   type SolveHistoryEntry,
   type SolvePenalty,
   type SplitPhase,
+  type SolveSource,
   updateSolveHistory,
 } from "@/lib/solveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -614,7 +618,9 @@ export default function TimerLab() {
   const practiceSplitPhases: readonly SplitPhase[] = isThreeByThree
     ? SPEED_PHASES
     : [];
-  const recordSolve = (completion: TimerCompletion) => {
+  const bluetooth = useBluetoothTimer();
+  const bleTimer = !isMultiBlind && bluetooth.status === "connected" ? bluetooth.timer : null;
+  const recordSolve = (completion: TimerCompletion, source: SolveSource = "manual") => {
     if (isMultiBlind) {
       setPendingMultiBlind(completion);
       setMultiBlindSolved(0);
@@ -631,6 +637,7 @@ export default function TimerLab() {
       moves: 0,
       tags: [],
       eventId,
+      source,
     });
     announceRecords(detectPersonalRecords(eventEntries, item));
     setEntries(previous => [item, ...previous].slice(0, 500));
@@ -883,6 +890,16 @@ export default function TimerLab() {
                             </div>
                           </div>
                         )}
+                        {!isMultiBlind && (
+                          <BluetoothTimerBar
+                            status={bluetooth.status}
+                            deviceName={bluetooth.deviceName}
+                            errorKey={bluetooth.errorKey}
+                            lostConnection={bluetooth.lostConnection}
+                            onConnect={() => void bluetooth.connect()}
+                            onDisconnect={bluetooth.disconnect}
+                          />
+                        )}
                         {scrambleLoading ? (
                           <div className="rounded-card bg-surface p-5 sm:p-6 animate-pulse text-center">
                             <span className="block h-3 rounded-full bg-surface-3 w-8/12 mx-auto" />
@@ -892,6 +909,23 @@ export default function TimerLab() {
                           <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mb-0">
                             {t("timer.multiBlindMissing")}
                           </div>
+                        ) : bleTimer ? (
+                          <BluetoothTimerHero
+                            timer={bleTimer}
+                            deviceName={bluetooth.deviceName ?? "GAN Timer"}
+                            onDisconnect={bluetooth.disconnect}
+                            onSolveComplete={elapsedMs =>
+                              recordSolve(
+                                {
+                                  elapsedMs,
+                                  inspectionMs: 0,
+                                  automaticPenalty: "none",
+                                  phaseSplits: [],
+                                },
+                                "bluetooth",
+                              )
+                            }
+                          />
                         ) : (
                           <SolveTimer
                             key={timerVersion}
@@ -2022,6 +2056,11 @@ function MetricDetailCard({
                   }
                 >
                   {entry.penalty}
+                </span>
+              )}
+              {entry.source === "bluetooth" && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-info-soft px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide text-ink">
+                  BLE
                 </span>
               )}
               {exclusion && (
