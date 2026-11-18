@@ -12,6 +12,7 @@ export type DiagramLane =
   | "squareOne"
   | "fourByFourParity"
   | "fiveByFiveL2E"
+  | "ftoL3t"
   | "cfop"
   | "twoByTwo"
   | "lastLayer";

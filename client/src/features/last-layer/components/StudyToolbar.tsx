@@ -10,7 +10,8 @@ export type StudyLane =
   | "skewb"
   | "sq1"
   | "parity"
-  | "l2e";
+  | "l2e"
+  | "l3t";
 
 export type StudyToolbarProps = {
   lane: StudyLane;
@@ -132,6 +133,14 @@ export function StudyToolbar({
             className={laneButtonClass("l2e")}
           >
             {t("study.laneL2E")}
+          </button>
+          <button
+            type="button"
+            aria-pressed={lane === "l3t"}
+            onClick={() => onLaneChange("l3t")}
+            className={laneButtonClass("l3t")}
+          >
+            {t("study.laneL3T")}
           </button>
         </div>
 
