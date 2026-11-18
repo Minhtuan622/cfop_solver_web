@@ -157,6 +157,62 @@ describe("useSmartCube", () => {
     expect(result.current.phase).toBe("idle");
   });
 
+  it("errors out instead of faking a solved cube when the state read fails", async () => {
+    const kpuzzle = await kpuzzlePromise;
+    const cube = makeFakeCube(kpuzzle.defaultPattern());
+    cube.getPattern = async () => {
+      throw new Error("transient BLE failure");
+    };
+    h.fake = cube;
+    const onSolveComplete = vi.fn();
+    const { result } = renderHook(() =>
+      useSmartCube({
+        enabled: true,
+        targetScramble: SOLVED_4,
+        onSolveComplete,
+      }),
+    );
+    await act(async () => {
+      await result.current.connect();
+    });
+    expect(result.current.status).toBe("error");
+    expect(result.current.errorKey).toBe("failed");
+    expect(cube.disconnected).toBe(true);
+    expect(cube.stopped).toBe(true);
+    expect(onSolveComplete).not.toHaveBeenCalled();
+  });
+
+  it("does not detect solves once detection is disabled (room submitted)", async () => {
+    const kpuzzle = await kpuzzlePromise;
+    const cube = makeFakeCube(kpuzzle.defaultPattern());
+    h.fake = cube;
+    const onSolveComplete = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ enabled }) =>
+        useSmartCube({
+          enabled,
+          targetScramble: SOLVED_4,
+          onSolveComplete,
+        }),
+      { initialProps: { enabled: true } },
+    );
+    await act(async () => {
+      await result.current.connect();
+    });
+    for (const move of ["R", "U", "R'", "U'"]) {
+      act(() => cube.emit(move));
+    }
+    await waitFor(() => expect(result.current.phase).toBe("ready"));
+
+    rerender({ enabled: false });
+    for (const move of ["U", "R", "U'", "R'"]) {
+      act(() => cube.emit(move));
+    }
+    // Wait a beat; no completion must be recorded.
+    await waitFor(() => expect(result.current.phase).not.toBe("completed"));
+    expect(onSolveComplete).not.toHaveBeenCalled();
+  });
+
   it("disconnects cleanly", async () => {
     const { result, cube } = await setup(SOLVED_4, atScramble(SOLVED_4));
     act(() => result.current.disconnect());

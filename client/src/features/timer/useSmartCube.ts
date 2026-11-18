@@ -223,12 +223,33 @@ export function useSmartCube({
 
       cubeRef.current = cube;
 
-      // Seed the cube's *current* physical state (mid-scramble connects work).
-      let current: KPattern;
-      try {
-        current = await cube.getPattern();
-      } catch {
-        current = await getSolvedPattern(); // read failed — treat as solved
+      // Seed the cube's *current* physical state (mid-scramble connects
+      // work). The read can fail transiently — retry a couple of times; if
+      // the cube still can't be read, stop rather than pretend solved.
+      let current: KPattern | null = null;
+      for (let attempt = 0; attempt < 3 && !current; attempt += 1) {
+        try {
+          current = await cube.getPattern();
+        } catch {
+          current = null;
+          if (attempt < 2) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+          }
+        }
+      }
+      if (!current) {
+        const deadCube = cubeRef.current;
+        cubeRef.current = null;
+        try {
+          deadCube?.stopTrackingMoves?.();
+          deadCube?.disconnect();
+        } catch {
+          /* already gone */
+        }
+        setCubeName(null);
+        setStatus("error");
+        setErrorKey("failed");
+        return;
       }
       currentRef.current = current;
       setState(kpatternToFacelets(current));

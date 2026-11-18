@@ -82,7 +82,11 @@ export function RoomRoundPanel({
   ) : null;
   const eventScramble = activeRound?.scramble ?? "";
   const smartCube = useSmartCube({
-    enabled: !isMultiBlind && eventId === "333" && eventScramble.length > 0,
+    enabled:
+      !isMultiBlind &&
+      eventId === "333" &&
+      eventScramble.length > 0 &&
+      !submitted,
     targetScramble: eventScramble,
     onSolveComplete: ({ elapsedMs }) => {
       void (async () => {
