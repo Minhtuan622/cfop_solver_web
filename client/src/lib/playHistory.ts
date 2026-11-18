@@ -5,7 +5,8 @@
  * solves must never mix into a cuber's real 3×3×3 statistics.
  */
 import { readStoredJson, writeStoredValue } from "./browserStorage";
-import type { SolvePenalty } from "./solveHistory";
+import type { SolvePenalty, SolveHistoryEntry } from "./solveHistory";
+import { rollingAverage } from "./timerRecords";
 
 const KEY = "cfop-play-history-v1";
 const MAX_ENTRIES = 500;
@@ -74,7 +75,7 @@ export type PlayStats = {
   count: number;
   validCount: number;
   bestMs: number | null;
-  /** Mean of the last 5 attempts; null when any of them is a DNF. */
+  /** WCA trimmed average of the last 5 (best & worst dropped; DNF = worst). */
   ao5Ms: number | null;
 };
 
@@ -84,20 +85,17 @@ export function playStats(entries: readonly PlayHistoryEntry[]): PlayStats {
     .filter((value): value is number => value !== null);
   const bestMs = valid.length ? Math.min(...valid) : null;
   const last5 = entries.slice(0, 5);
-  const ao5Ms =
-    last5.length === 5 && last5.every(entry => entry.penalty !== "DNF")
-      ? Math.round(
-          last5.reduce(
-            (sum, entry) => sum + (entry.elapsedMs + (entry.penalty === "+2" ? 2_000 : 0)),
-            0,
-          ) / 5,
-        )
+  // rollingAverage only reads penalty + elapsedMs via effectiveTime, so the
+  // cast is safe and keeps the WCA trimming rule identical everywhere.
+  const ao5 =
+    last5.length === 5
+      ? rollingAverage(last5 as unknown as SolveHistoryEntry[])
       : null;
   return {
     count: entries.length,
     validCount: valid.length,
     bestMs,
-    ao5Ms,
+    ao5Ms: ao5 === null ? null : Math.round(ao5),
   };
 }
 

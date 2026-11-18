@@ -153,17 +153,29 @@ export default function Play() {
   const dispatchMove = (token: string, rotation: boolean) => {
     if (mode === "race") {
       const cur = statusRef.current;
-      if (cur === "inspection" || cur === "armed") {
+      if (cur === "armed") {
+        // No inspection phase at all: the clock starts on the first move of
+        // any kind, including whole-cube rotations. (Inspection mode keeps
+        // rotations free for looking around, like csTimer.)
+        const now = performance.now();
+        inspectionMsRef.current = 0;
+        penaltyRef.current = "none";
+        startRef.current = now;
+        setElapsedMs(0);
+        setStatus("solving");
+        statusRef.current = "solving";
+        applyMoveToken(token, rotation);
+        finishIfSolved();
+        return;
+      }
+      if (cur === "inspection") {
         if (!rotation) {
+          // csTimer: rotations stay free during inspection (looking around);
+          // the clock starts at the first face move.
           const now = performance.now();
-          if (cur === "inspection") {
-            const ins = now - inspectionStartRef.current;
-            inspectionMsRef.current = ins;
-            penaltyRef.current = inspectionPenalty(ins);
-          } else {
-            inspectionMsRef.current = 0;
-            penaltyRef.current = "none";
-          }
+          const ins = now - inspectionStartRef.current;
+          inspectionMsRef.current = ins;
+          penaltyRef.current = inspectionPenalty(ins);
           startRef.current = now;
           setElapsedMs(0);
           setStatus("solving");
@@ -253,6 +265,16 @@ export default function Play() {
     if (!key) return;
     const action = playActionForKey(key, selectionRef.current);
     if (!action) return;
+    // A focused control handles Space itself (button, tab, switch…) — let
+    // it activate instead of starting a scramble behind the user's back.
+    if (
+      key === " " &&
+      target?.closest(
+        "button, a[href], [role='tab'], [role='switch'], input, summary",
+      )
+    ) {
+      return;
+    }
     switch (action.kind) {
       case "camera":
         return; // handled by CubeGuide3D's own arrow-key orbit
@@ -343,7 +365,12 @@ export default function Play() {
                     type="button"
                     role="tab"
                     aria-selected={mode === tab.id}
-                    onClick={() => switchMode(tab.id)}
+                    onClick={event => {
+                      switchMode(tab.id);
+                      // Hand Space back to the cube: after picking a mode,
+                      // Space should start the scramble, not re-click the tab.
+                      event.currentTarget.blur();
+                    }}
                     className={cn(
                       "rounded-full px-4 py-1.5 text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20",
                       mode === tab.id
