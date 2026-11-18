@@ -1,7 +1,8 @@
 /**
  * 5×5 L2E catalog drawer: the shared CatalogExplorer wired to the L2E
- * algorithms. The practice card shows the live 3D case; the grid uses the
- * lane's flat 5×5 emblem as icon fallback.
+ * algorithms. The practice card shows the live 3D case; the grid/dialog
+ * preview the generated `diagrams/fiveByFiveL2E/<id>.svg` flat last-layer
+ * cross, with the lane's 5×5 emblem as fallback.
  */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {

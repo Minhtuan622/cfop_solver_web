@@ -2,9 +2,9 @@
  * 5×5 L2E catalog for the /study 5×5 L2E lane.
  *
  * Mirrors the 4×4 parity catalog: rows carry a sentinel `state`
- * (`"l2e:<id>"`) that the icon preview ignores — there is no 2D facelet
- * model for 5×5; the case preview is the 3D twisty-player rendering of the
- * inverted algorithm applied to the solved puzzle.
+ * (`"l2e:<id>"`) that the catalog preview resolves to the generated
+ * `diagrams/fiveByFiveL2E/<id>.svg` last-layer cross. The practice card still
+ * renders the 3D twisty-player state of the inverted algorithm.
  */
 import {
   FIVE_BY_FIVE_L2E_CASES,
