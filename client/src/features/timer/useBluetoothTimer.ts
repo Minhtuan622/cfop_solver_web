@@ -55,6 +55,7 @@ export function useBluetoothTimer(): BluetoothTimer {
   );
   const [lostConnection, setLostConnection] = useState(false);
   const timerRef = useRef<GanTimerHandle | null>(null);
+  const mountedRef = useRef(true);
 
   const disconnect = useCallback(() => {
     teardown(timerRef.current);
@@ -65,9 +66,11 @@ export function useBluetoothTimer(): BluetoothTimer {
     );
   }, []);
 
-  // Tear the timer down when the host page unmounts.
+  // Tear the timer down when the host page unmounts — and remember that
+  // pairing finished after unmount must not install a live timer.
   useEffect(
     () => () => {
+      mountedRef.current = false;
       teardown(timerRef.current);
       timerRef.current = null;
     },
@@ -100,10 +103,17 @@ export function useBluetoothTimer(): BluetoothTimer {
     setLostConnection(false);
     try {
       const timer = await connectGanTimer();
+      // The pairing chooser can still be open while the host page unmounts.
+      // A timer that resolves now must not linger with polling active.
+      if (!mountedRef.current) {
+        teardown(timer);
+        return;
+      }
       timerRef.current = timer;
       setDeviceName(timer.name() ?? "GAN Timer");
       setStatus("connected");
     } catch (error) {
+      if (!mountedRef.current) return;
       timerRef.current = null;
       setDeviceName(null);
       setErrorKey(

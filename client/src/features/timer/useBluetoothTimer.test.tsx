@@ -76,6 +76,34 @@ describe("useBluetoothTimer", () => {
     expect(result.current.timer).toBeNull();
   });
 
+  it("tears down a timer that finishes pairing after unmount", async () => {
+    setBluetooth({ requestDevice: vi.fn() });
+    const mod = await import("cubing/bluetooth");
+    const fake = makeFakeTimer();
+    let resolveConnect!: (value: unknown) => void;
+    vi.mocked(mod.connectSmartTimer).mockReturnValueOnce(
+      new Promise(resolve => {
+        resolveConnect = resolve;
+      }) as unknown as ReturnType<typeof mod.connectSmartTimer>,
+    );
+    const warn = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { result, unmount } = renderHook(() => useBluetoothTimer());
+
+    let connectPromise!: Promise<void>;
+    act(() => {
+      connectPromise = result.current.connect();
+    });
+    unmount();
+    await act(async () => {
+      resolveConnect(fake);
+      await connectPromise;
+    });
+    expect(fake.stopPolling).toHaveBeenCalledTimes(1);
+    expect(fake.disconnect).toHaveBeenCalledTimes(1);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   it("reacts to a device-initiated disconnect", async () => {
     setBluetooth({ requestDevice: vi.fn() });
     const { result } = renderHook(() => useBluetoothTimer());
