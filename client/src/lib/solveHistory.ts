@@ -1,4 +1,5 @@
 export type SolvePenalty = "none" | "+2" | "DNF";
+export type SolveSource = "manual" | "bluetooth";
 import { z } from "zod";
 import { readStoredJson, writeStoredValue } from "./browserStorage";
 import { notifyCfopCloudStateChanged } from "./cloudSyncSignal";
@@ -24,6 +25,8 @@ export type SolveHistoryEntry = {
   phaseSplits: SolvePhaseSplit[];
   /** Older entries omit this field and are normalized as 3×3 when read. */
   eventId?: TimerEventId;
+  /** Where the solve came from. Older entries omit this field (treated as manual). */
+  source?: SolveSource;
   /** Present only for 3×3 Multi-Blind results. */
   multiBlind?: MultiBlindAttempt;
   /** One independent 3×3 scramble for each Multi-Blind cube. */
@@ -125,6 +128,7 @@ const solveHistoryEntrySchema = z.object({
     .unknown()
     .optional()
     .transform(value => normalizeTimerEventId(value)),
+  source: z.enum(["manual", "bluetooth"]).optional().catch(undefined),
   multiBlind: multiBlindSchema,
   multiBlindScrambles: multiBlindScramblesSchema,
   deletedAt: finiteNumber().min(0).optional().catch(undefined),

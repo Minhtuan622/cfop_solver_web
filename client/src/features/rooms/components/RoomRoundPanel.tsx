@@ -3,6 +3,9 @@ import {
   SolveTimer,
   type TimerCompletion,
 } from "@/components/common/SolveTimer";
+import { useBluetoothTimer } from "@/features/timer/useBluetoothTimer";
+import { BluetoothTimerBar } from "@/features/timer/components/BluetoothTimerBar";
+import { BluetoothTimerHero } from "@/features/timer/components/BluetoothTimerHero";
 import { PendingButton } from "@/components/ui/StudioUI";
 import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
 import type { TimerEventId } from "@/lib/timerEvents";
@@ -61,6 +64,34 @@ export function RoomRoundPanel({
 }: Props) {
   const { language, t } = useLanguage();
   const isMultiBlind = eventId === "333mbf";
+  const bluetooth = useBluetoothTimer();
+  const bleTimer =
+    !isMultiBlind && bluetooth.status === "connected" ? bluetooth.timer : null;
+  const bleBar = !isMultiBlind ? (
+    <BluetoothTimerBar
+      status={bluetooth.status}
+      deviceName={bluetooth.deviceName}
+      errorKey={bluetooth.errorKey}
+      lostConnection={bluetooth.lostConnection}
+      onConnect={() => void bluetooth.connect()}
+      onDisconnect={bluetooth.disconnect}
+    />
+  ) : null;
+  const bleHero = bleTimer ? (
+    <BluetoothTimerHero
+      timer={bleTimer}
+      deviceName={bluetooth.deviceName ?? "GAN Timer"}
+      onDisconnect={bluetooth.disconnect}
+      onSolveComplete={elapsedMs =>
+        onComplete({
+          elapsedMs,
+          inspectionMs: 0,
+          automaticPenalty: "none",
+          phaseSplits: [],
+        })
+      }
+    />
+  ) : null;
   const mbState = pendingMultiBlind
     ? multiBlindResult(
         { attempted: multiBlindCubes, solved: multiBlindSolved },
@@ -207,11 +238,16 @@ export function RoomRoundPanel({
                 {t("rooms.round.submitted", { result: myResultLabel })}
               </div>
             ) : (
-              <SolveTimer
-                key={activeRound.id}
-                onComplete={onComplete}
-                soundEnabled
-              />
+              <>
+                {bleBar}
+                {bleHero ?? (
+                  <SolveTimer
+                    key={activeRound.id}
+                    onComplete={onComplete}
+                    soundEnabled
+                  />
+                )}
+              </>
             )}
           </>
         ) : (

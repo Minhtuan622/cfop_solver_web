@@ -4,6 +4,7 @@ import {
   AlertTriangle as AlertTriangleGlyph,
   ArrowLeft as ArrowLeftGlyph,
   ArrowRight as ArrowRightGlyph,
+  Bluetooth as BluetoothGlyph,
   BarChart3 as BarChart3Glyph,
   BookOpenCheck as BookOpenCheckGlyph,
   Box as BoxGlyph,
@@ -100,6 +101,7 @@ export const AlertTriangle = icon(AlertTriangleGlyph);
 export const ArrowLeft = icon(ArrowLeftGlyph);
 export const ArrowRight = icon(ArrowRightGlyph);
 export const BarChart3 = icon(BarChart3Glyph);
+export const Bluetooth = icon(BluetoothGlyph);
 export const BookOpenCheck = icon(BookOpenCheckGlyph);
 export const BoxArrowRight = icon(BoxArrowRightGlyph);
 export const BoxIcon = icon(BoxGlyph);

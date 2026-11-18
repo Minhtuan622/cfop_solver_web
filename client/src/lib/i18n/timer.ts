@@ -210,4 +210,37 @@ export const timerWords: Dictionary = {
   ],
   "timer.wcaMetricColumn": ["Chỉ số", "Metric"],
   "timer.wcaDeltaColumn": ["Chênh lệch", "Difference"],
+  "timer.ble.connect": ["Kết nối GAN Timer", "Connect GAN Timer"],
+  "timer.ble.connecting": ["Đang kết nối…", "Connecting…"],
+  "timer.ble.connected": ["GAN Timer · đã kết nối", "GAN Timer · connected"],
+  "timer.ble.disconnect": ["Ngắt kết nối", "Disconnect"],
+  "timer.ble.reconnect": ["Kết nối lại", "Reconnect"],
+  "timer.ble.unsupported": [
+    "Cần Chrome/Edge (hoặc Chrome Android) trên HTTPS/localhost mới kết nối được GAN Timer",
+    "Connecting to a GAN Timer requires Chrome/Edge (or Chrome on Android) over HTTPS/localhost",
+  ],
+  "timer.ble.unsupportedDevice": [
+    "Thiết bị đã ghép đôi nhưng không có dịch vụ GAN Timer — hãy thử đúng timer GAN.",
+    "The paired device does not expose the GAN Timer service — try a GAN timer.",
+  ],
+  "timer.ble.cancelled": ["Đã huỷ kết nối.", "Connection cancelled."],
+  "timer.ble.denied": [
+    "Quyền truy cập Bluetooth bị từ chối.",
+    "Bluetooth access was denied.",
+  ],
+  "timer.ble.error": [
+    "Không kết nối được timer. Hãy kiểm tra timer còn pin và chưa ghép với thiết bị khác.",
+    "Could not connect to the timer. Make sure it has power and is not paired elsewhere.",
+  ],
+  "timer.ble.lost": ["Mất kết nối với GAN Timer.", "Lost connection to the GAN Timer."],
+  "timer.ble.heroLabel": ["GAN TIMER", "GAN TIMER"],
+  "timer.ble.heroReady": [
+    "Đặt hai tay lên timer để bắt đầu lượt",
+    "Place both hands on the timer to start a solve",
+  ],
+  "timer.ble.heroRunning": ["Đang tính giờ…", "Solving…"],
+  "timer.ble.heroSaved": [
+    "Solve đã xong và được ghi nhận",
+    "Solve finished and recorded",
+  ],
 };

@@ -209,4 +209,28 @@ describe("solveHistory: import/export", () => {
     expect(entry.penalty).toBe("none");
     expect(readSolveHistory()[0].id).toBe(entry.id);
   });
+
+  it("addSolveHistory round-trips the bluetooth source and legacy entries stay undefined", () => {
+    const fromMat = addSolveHistory({
+      elapsedMs: 10_500,
+      inspectionMs: 0,
+      input: solvedScramble,
+      inputKind: "scramble",
+      moves: 14,
+      source: "bluetooth",
+    });
+    expect(fromMat.source).toBe("bluetooth");
+    expect(readSolveHistory()[0]?.source).toBe("bluetooth");
+
+    // Old exports without the field still import cleanly.
+    const imported = importSolveHistory([validEntry()]);
+    expect(imported[0]?.source).toBeUndefined();
+  });
+
+  it("importSolveHistory keeps an unknown source out instead of storing it", () => {
+    const imported = importSolveHistory([
+      validEntry({ source: "telepathy" }),
+    ]);
+    expect(imported[0]?.source).toBeUndefined();
+  });
 });
