@@ -20,7 +20,17 @@ export const historyWords: Dictionary = {
   "history.importJson": ["Nhập JSON", "Import JSON"],
   "history.exportJson": ["Xuất JSON", "Export JSON"],
   "history.exportCsv": ["Xuất CSV", "Export CSV"],
+  "history.importCstimer": ["Nhập csTimer", "Import csTimer"],
+  "history.exportCstimer": ["Xuất csTimer", "Export csTimer"],
   "history.importFailed": ["Không thể đọc backup JSON hợp lệ.", "Could not read a valid JSON backup."],
+  "history.cstimerFailed": [
+    "Không thể đọc file csTimer hợp lệ.",
+    "Could not read a valid csTimer file.",
+  ],
+  "history.cstimerImported": [
+    "Đã nhập {count} lượt từ csTimer ({sessions} session · {dupes} trùng bỏ qua · {skipped} session không hỗ trợ · {invalid} solve hỏng · {truncated} bị cắt).",
+    "Imported {count} solves from csTimer ({sessions} sessions · {dupes} duplicates · {skipped} unsupported sessions · {invalid} bad solves · {truncated} truncated).",
+  ],
   "history.searchLabel": ["Tìm scramble, ghi chú hoặc tag", "Search scramble, note, or tag"],
   "history.eventFilterLabel": ["Loại khối", "Puzzle type"],
   "history.allEvents": ["Mọi loại Rubik", "All Rubik types"],
