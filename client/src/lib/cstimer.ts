@@ -49,38 +49,55 @@ export type CstimerInputEntry = {
   multiBlindScrambles?: string[] | undefined;
 };
 
+/**
+ * csTimer's registered scramble IDs, from its own scramble list
+ * (src/lang/en-us.js, scrdata). Legacy aliases are kept for tolerant import.
+ * Order matters: more specific prefixes must come before their prefixes.
+ */
 const SCRAMBLE_TYPE_TO_EVENT: Array<{ prefix: string; eventId: TimerEventId }> =
   [
-    { prefix: "333mbf", eventId: "333mbf" },
-    { prefix: "333bf", eventId: "333bf" },
+    { prefix: "333mbf", eventId: "333mbf" }, // legacy alias
+    { prefix: "r3ni", eventId: "333mbf" },
+    { prefix: "333bf", eventId: "333bf" }, // legacy alias
+    { prefix: "333ni", eventId: "333bf" },
     { prefix: "333oh", eventId: "333oh" },
     { prefix: "333fm", eventId: "333fm" },
     { prefix: "333", eventId: "333" },
-    { prefix: "222", eventId: "222" },
-    { prefix: "444bf", eventId: "444bf" },
-    { prefix: "555bf", eventId: "555bf" },
-    { prefix: "444", eventId: "444" },
+    { prefix: "222so", eventId: "222" },
+    { prefix: "222", eventId: "222" }, // legacy alias
+    { prefix: "444bld", eventId: "444bf" },
+    { prefix: "444bf", eventId: "444bf" }, // legacy alias
+    { prefix: "555bld", eventId: "555bf" },
+    { prefix: "555bf", eventId: "555bf" }, // legacy alias
+    { prefix: "444wca", eventId: "444" },
+    { prefix: "444", eventId: "444" }, // legacy alias
+    { prefix: "555wca", eventId: "555" },
     { prefix: "555", eventId: "555" },
+    { prefix: "666wca", eventId: "666" },
     { prefix: "666", eventId: "666" },
+    { prefix: "777wca", eventId: "777" },
     { prefix: "777", eventId: "777" },
-    { prefix: "pyraminx", eventId: "pyram" },
-    { prefix: "pyram", eventId: "pyram" },
-    { prefix: "skewb", eventId: "skewb" },
-    { prefix: "megaminx", eventId: "minx" },
-    { prefix: "minx", eventId: "minx" },
-    { prefix: "fto", eventId: "fto" },
-    { prefix: "square1", eventId: "sq1" },
-    { prefix: "sq1", eventId: "sq1" },
-    { prefix: "clock", eventId: "clock" },
+    { prefix: "pyraminx", eventId: "pyram" }, // legacy alias
+    { prefix: "pyrso", eventId: "pyram" },
+    { prefix: "pyram", eventId: "pyram" }, // legacy alias
+    { prefix: "skbso", eventId: "skewb" },
+    { prefix: "skewb", eventId: "skewb" }, // legacy alias
+    { prefix: "megaminx", eventId: "minx" }, // legacy alias
+    { prefix: "mgmp", eventId: "minx" },
+    { prefix: "minx", eventId: "minx" }, // legacy alias
+    { prefix: "ftoso", eventId: "fto" },
+    { prefix: "fto", eventId: "fto" }, // legacy alias
+    { prefix: "square1", eventId: "sq1" }, // legacy alias
+    { prefix: "sqrs", eventId: "sq1" },
+    { prefix: "sq1", eventId: "sq1" }, // legacy alias
+    { prefix: "clkwca", eventId: "clock" },
+    { prefix: "clock", eventId: "clock" }, // legacy alias
   ];
 
 /** Normalize a cstimer scramble type to a known timer event, or null. */
 export function eventForScrambleType(value: unknown): TimerEventId | null {
   if (typeof value !== "string") return "333";
-  const normalized = value
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "")
-    .replace(/wca$/, "");
+  const normalized = value.toLowerCase().replace(/[^a-z0-9]/g, "");
   if (!normalized) return "333";
   const match = SCRAMBLE_TYPE_TO_EVENT.find(({ prefix }) =>
     normalized.startsWith(prefix),
@@ -88,25 +105,25 @@ export function eventForScrambleType(value: unknown): TimerEventId | null {
   return match ? match.eventId : null;
 }
 
+/** csTimer's registered scramble IDs (the same IDs csTimer itself registers). */
 const EVENT_TO_SCR_TYPE: Partial<Record<TimerEventId, string>> = {
-  "222": "222",
-  // WCA 3×3×3 has no scrType in cstimer; exporting one makes it a custom session.
+  "222": "222so",
   "333oh": "333oh",
-  "333bf": "333bf",
+  "333bf": "333ni",
   "333fm": "333fm",
-  "333mbf": "333mbf",
+  "333mbf": "r3ni",
   "444": "444wca",
-  "444bf": "444bf",
+  "444bf": "444bld",
   "555": "555wca",
-  "555bf": "555bf",
+  "555bf": "555bld",
   "666": "666wca",
   "777": "777wca",
-  pyram: "pyram",
-  skewb: "skewb",
-  minx: "minx",
-  fto: "fto",
-  sq1: "sq1",
-  clock: "clock",
+  pyram: "pyrso",
+  skewb: "skbso",
+  minx: "mgmp",
+  fto: "ftoso",
+  sq1: "sqrs",
+  clock: "clkwca",
 };
 
 function toNumber(value: unknown): number | null {

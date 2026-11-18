@@ -28,8 +28,8 @@ export const historyWords: Dictionary = {
     "Could not read a valid csTimer file.",
   ],
   "history.cstimerImported": [
-    "Đã nhập {count} lượt từ csTimer ({sessions} session, {dupes} trùng bỏ qua).",
-    "Imported {count} solves from csTimer ({sessions} sessions, {dupes} duplicates skipped).",
+    "Đã nhập {count} lượt từ csTimer ({sessions} session · {dupes} trùng bỏ qua · {skipped} session không hỗ trợ · {invalid} solve hỏng · {truncated} bị cắt).",
+    "Imported {count} solves from csTimer ({sessions} sessions · {dupes} duplicates · {skipped} unsupported sessions · {invalid} bad solves · {truncated} truncated).",
   ],
   "history.searchLabel": ["Tìm scramble, ghi chú hoặc tag", "Search scramble, note, or tag"],
   "history.eventFilterLabel": ["Loại khối", "Puzzle type"],

@@ -267,6 +267,9 @@ export default function History() {
           count: summary.imported,
           sessions: summary.sessions,
           dupes: summary.duplicates,
+          skipped: summary.skippedSessions,
+          invalid: summary.invalidSolves,
+          truncated: summary.truncated,
         }),
       );
     } catch {
