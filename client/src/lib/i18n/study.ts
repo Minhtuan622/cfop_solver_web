@@ -188,6 +188,9 @@ export const studyWords: Dictionary = {
   "l2e.catalogTitle": ["Danh mục 5×5 L2E", "5×5 L2E catalog"],
 
   "study.goalLabel": ["Mục tiêu hôm nay", "Today's goal"],
+  "study.inlineToday": ["hôm nay", "today"],
+  "study.inlineQueue": ["hàng đợi", "in queue"],
+  "study.inlineMastered": ["đã thuộc", "mastered"],
   "study.goalProgress": ["Tiến độ mục tiêu hôm nay", "Today's goal progress"],
   "study.reviewedUnit": ["case đã ôn", "cases reviewed"],
   "study.goalHint": [
