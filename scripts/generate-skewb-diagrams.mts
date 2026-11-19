@@ -332,7 +332,7 @@ const render = (label: string, state: State) => {
       return `<path d="${pathOf(pts)}" fill="${s.color}" stroke="#000000" stroke-width="2.4" stroke-linejoin="round"/>`;
     })
     .join("");
-  return `<svg viewBox="0 0 ${VIEW_W} ${VIEW_H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${label} case, Skewb"><!-- Drawn from the catalog algorithm with cubing.js (scripts/generate-skewb-diagrams.mts). Not cubingapp.com artwork. -->${body}${stickersOut}</svg>\n`;
+  return `<svg viewBox="0 0 ${VIEW_W} ${VIEW_H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${label} case, Skewb"><!-- Drawn from the catalog algorithm with cubing.js (scripts/generate-skewb-diagrams.mts). Not cubingapp.com artwork. The #2a3048 tile matches the unsolved-tile tone used by the 2D lane previews so the black silhouette stays visible on both themes. --><rect x="0" y="0" width="${VIEW_W}" height="${VIEW_H}" rx="22" fill="#2a3048"/>${body}${stickersOut}</svg>\n`;
 };
 
 const cases = [...SARAH_INTERMEDIATE_CASES_SOURCE, ...SARAH_ADVANCED_CASES_SOURCE];
