@@ -59,6 +59,7 @@ describe("B3: cloud sync tombstones and merge", () => {
     expect(state.parity).toBeDefined();
     expect(state.l2e).toBeDefined();
     expect(state.l3t).toBeDefined();
+    expect(state.l3t2).toBeDefined();
   });
 
   it("parseCfopCloudState đọc được payload có twoByTwo và merge giữ 2×2 records", () => {
@@ -141,7 +142,7 @@ describe("B3: cloud sync tombstones and merge", () => {
     expect(parsed?.skewb?.study.records["sarah-intermediate:SI-Sledgehammer"]?.intervalDays).toBe(2);
   });
 
-  it("merge giữ sq1/parity/l2e/l3t records và masteredCaseKeys", () => {
+  it("merge giữ sq1/parity/l2e/l3t/l3t2 records và masteredCaseKeys", () => {
     const recordFor = <F extends string>(family: F, id: string, intervalDays: number) => ({
       key: `${family}:${id}`,
       family,
@@ -185,11 +186,19 @@ describe("B3: cloud sync tombstones and merge", () => {
       },
       masteredCaseKeys: ["l3t:TL-1"],
     };
+    local.l3t2 = {
+      study: {
+        records: { "l3t2:TCP-A1": recordFor("l3t2", "TCP-A1", 9) },
+        dailyGoal: 10,
+      },
+      masteredCaseKeys: ["l3t2:TCP-A1"],
+    };
     const remote = createCfopCloudState();
     remote.sq1 = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
     remote.parity = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
     remote.l2e = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
     remote.l3t = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
+    remote.l3t2 = { study: { records: {}, dailyGoal: 10 }, masteredCaseKeys: [] };
 
     const merged = mergeCfopCloudStates(local, remote);
     expect(merged.sq1?.study.records["cs:Kite-Kite"]?.attempts).toBe(4);
@@ -200,12 +209,15 @@ describe("B3: cloud sync tombstones and merge", () => {
     expect(merged.l2e?.masteredCaseKeys).toContain("l2e:L2E-1");
     expect(merged.l3t?.study.records["l3t:TL-1"]?.attempts).toBe(4);
     expect(merged.l3t?.masteredCaseKeys).toContain("l3t:TL-1");
+    expect(merged.l3t2?.study.records["l3t2:TCP-A1"]?.attempts).toBe(4);
+    expect(merged.l3t2?.masteredCaseKeys).toContain("l3t2:TCP-A1");
 
     const parsed = parseCfopCloudState(JSON.parse(JSON.stringify(merged)));
     expect(parsed?.sq1?.study.records["cs:Kite-Kite"]?.intervalDays).toBe(5);
     expect(parsed?.parity?.study.records["pll-parity:OPP-Parity"]?.intervalDays).toBe(6);
     expect(parsed?.l2e?.study.records["l2e:L2E-1"]?.intervalDays).toBe(7);
     expect(parsed?.l3t?.study.records["l3t:TL-1"]?.intervalDays).toBe(8);
+    expect(parsed?.l3t2?.study.records["l3t2:TCP-A1"]?.intervalDays).toBe(9);
   });
 
   it("payload cũ không có twoByTwo vẫn hợp lệ và merge giữ nguyên", () => {

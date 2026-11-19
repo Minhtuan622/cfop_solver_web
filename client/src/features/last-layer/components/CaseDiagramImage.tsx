@@ -13,6 +13,7 @@ export type DiagramLane =
   | "fourByFourParity"
   | "fiveByFiveL2E"
   | "ftoL3t"
+  | "fto2LookL3t"
   | "cfop"
   | "twoByTwo"
   | "lastLayer";

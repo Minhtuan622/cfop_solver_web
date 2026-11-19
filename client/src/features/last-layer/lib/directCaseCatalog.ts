@@ -38,7 +38,8 @@ export type LastLayerCatalogCase = {
     | "obl"
     | "pll-parity"
     | "l2e"
-    | "l3t";
+    | "l3t"
+    | "l3t2";
   group: string;
   algorithm: string;
   state: string;
