@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { studyLaneForQuery } from "./LastLayerStudyLab";
 
 describe("Study lanes", () => {
-  it("keeps Last Layer and 3-Style BLD available while retired FTO links safely open Last Layer", () => {
+  it("keeps Last Layer and 3-Style BLD available and routes FTO links to the FTO L3T lane", () => {
     expect(studyLaneForQuery(null)).toBe("lastLayer");
     expect(studyLaneForQuery("bld")).toBe("bld");
     expect(studyLaneForQuery("cfop")).toBe("cfop");
@@ -12,6 +12,9 @@ describe("Study lanes", () => {
     expect(studyLaneForQuery("sq1")).toBe("sq1");
     expect(studyLaneForQuery("4x4")).toBe("parity");
     expect(studyLaneForQuery("parity")).toBe("parity");
-    expect(studyLaneForQuery("fto")).toBe("lastLayer");
+    expect(studyLaneForQuery("5x5")).toBe("l2e");
+    expect(studyLaneForQuery("l2e")).toBe("l2e");
+    expect(studyLaneForQuery("fto")).toBe("l3t");
+    expect(studyLaneForQuery("l3t")).toBe("l3t");
   });
 });

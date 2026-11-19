@@ -7,6 +7,7 @@ import { readSkewbStudy, readMasteredSkewbCaseKeys, type SkewbStudyState, writeS
 import { readSquareOneStudy, readMasteredSquareOneCaseKeys, type SquareOneStudyState, writeSquareOneStudy, writeMasteredSquareOneCaseKeys } from "@/features/squareOne/lib/squareOneStudy";
 import { readFourByFourParityStudy, readMasteredFourByFourParityCaseKeys, type FourByFourParityStudyState, writeFourByFourParityStudy, writeMasteredFourByFourParityCaseKeys } from "@/features/fourByFourParity/lib/fourByFourParityStudy";
 import { readFiveByFiveL2EStudy, readMasteredFiveByFiveL2ECaseKeys, type FiveByFiveL2EStudyState, writeFiveByFiveL2EStudy, writeMasteredFiveByFiveL2ECaseKeys } from "@/features/fiveByFiveL2E/lib/l2eStudy";
+import { readFtoL3tStudy, readMasteredFtoL3tCaseKeys, type FtoL3tStudyState, writeFtoL3tStudy, writeMasteredFtoL3tCaseKeys } from "@/features/ftoL3t/lib/l3tStudy";
 import { readSolveHistory, SolveHistoryEntry, importSolveHistory } from "./solveHistory";
 import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 
@@ -35,6 +36,8 @@ export type CfopCloudState = {
   parity?: { study: FourByFourParityStudyState; masteredCaseKeys: string[] };
   /** Present for clients that run the 5×5 L2E lane; absent on old payloads. */
   l2e?: { study: FiveByFiveL2EStudyState; masteredCaseKeys: string[] };
+  /** Present for clients that run the FTO L3T lane; absent on old payloads. */
+  l3t?: { study: FtoL3tStudyState; masteredCaseKeys: string[] };
 };
 
 /** Giới hạn số lượng solve lưu trong lịch sử cloud state (dùng chung client/server). */
@@ -75,6 +78,10 @@ export function createCfopCloudState(now = Date.now()): CfopCloudState {
     l2e: {
       study: readFiveByFiveL2EStudy(),
       masteredCaseKeys: Array.from(readMasteredFiveByFiveL2ECaseKeys()),
+    },
+    l3t: {
+      study: readFtoL3tStudy(),
+      masteredCaseKeys: Array.from(readMasteredFtoL3tCaseKeys()),
     },
   };
 }
@@ -210,6 +217,7 @@ export function mergeCfopCloudStates(local: CfopCloudState, remote: CfopCloudSta
     sq1: mergeLaneProgress(local.sq1, remote.sq1, preferLocal),
     parity: mergeLaneProgress(local.parity, remote.parity, preferLocal),
     l2e: mergeLaneProgress(local.l2e, remote.l2e, preferLocal),
+    l3t: mergeLaneProgress(local.l3t, remote.l3t, preferLocal),
   };
 }
 
@@ -242,5 +250,9 @@ export function applyCfopCloudState(state: CfopCloudState) {
   if (state.l2e) {
     writeFiveByFiveL2EStudy(state.l2e.study);
     writeMasteredFiveByFiveL2ECaseKeys(new Set(state.l2e.masteredCaseKeys));
+  }
+  if (state.l3t) {
+    writeFtoL3tStudy(state.l3t.study);
+    writeMasteredFtoL3tCaseKeys(new Set(state.l3t.masteredCaseKeys));
   }
 }

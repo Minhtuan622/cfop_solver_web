@@ -10,7 +10,8 @@ export type StudyLane =
   | "skewb"
   | "sq1"
   | "parity"
-  | "l2e";
+  | "l2e"
+  | "l3t";
 
 export type StudyToolbarProps = {
   lane: StudyLane;
@@ -38,6 +39,7 @@ const LANES: ReadonlyArray<{ id: StudyLane; labelKey: string }> = [
   { id: "sq1", labelKey: "study.laneSq1" },
   { id: "parity", labelKey: "study.laneParity" },
   { id: "l2e", labelKey: "study.laneL2E" },
+  { id: "l3t", labelKey: "study.laneL3T" },
 ];
 
 /**

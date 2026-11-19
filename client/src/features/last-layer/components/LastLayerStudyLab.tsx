@@ -1,4 +1,4 @@
-/** Study is the only home for the Last Layer SRS and for the 3-Style BLD path. */
+﻿/** Study is the only home for the Last Layer SRS and for the 3-Style BLD path. */
 import { Download, FileUp } from "@/components/ui/Icon";
 import { PageHeader, StatusFeedback } from "@/components/ui/StudioUI";
 import type { TimerCompletion } from "@/components/common/SolveTimer";
@@ -12,6 +12,7 @@ import { SkewbStudyLab } from "@/features/skewb";
 import { SquareOneStudyLab } from "@/features/squareOne";
 import { FourByFourParityStudyLab } from "@/features/fourByFourParity";
 import { FiveByFiveL2EStudyLab } from "@/features/fiveByFiveL2E";
+import { FtoL3tStudyLab } from "@/features/ftoL3t";
 import { LastLayerExplorer } from "@/features/last-layer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -66,7 +67,9 @@ export const studyLaneForQuery = (lane: string | null): StudyLane =>
                 ? "parity"
                 : lane === "5x5" || lane === "555" || lane === "l2e"
                   ? "l2e"
-                  : "lastLayer";
+                  : lane === "fto" || lane === "l3t"
+                    ? "l3t"
+                    : "lastLayer";
 
 export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const { t } = useLanguage();
@@ -145,6 +148,14 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     catalogCount: 0,
   });
   const [l2eStats, setL2EStats] = useState({
+    reviewedToday: 0,
+    dailyGoal: 10,
+    goalPercent: 0,
+    queueCount: 0,
+    masteredCount: 0,
+    catalogCount: 0,
+  });
+  const [l3tStats, setL3TStats] = useState({
     reviewedToday: 0,
     dailyGoal: 10,
     goalPercent: 0,
@@ -260,6 +271,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     sq1: sq1Stats,
     parity: parityStats,
     l2e: l2eStats,
+    l3t: l3tStats,
   } as const;
   const activeLaneStats =
     studyLane === "lastLayer" ? null : laneStats[studyLane];
@@ -351,7 +363,9 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                         ? t("study.description.parity")
                         : studyLane === "l2e"
                           ? t("study.description.l2e")
-                          : t("study.description.cfop")
+                          : studyLane === "l3t"
+                            ? t("study.description.l3t")
+                            : t("study.description.cfop")
         }
         actions={
           studyLane === "lastLayer" ? (
@@ -485,6 +499,10 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
       ) : studyLane === "l2e" ? (
         <div className="mt-6">
           <FiveByFiveL2EStudyLab language={language} onStatsChange={setL2EStats} />
+        </div>
+      ) : studyLane === "l3t" ? (
+        <div className="mt-6">
+          <FtoL3tStudyLab language={language} onStatsChange={setL3TStats} />
         </div>
       ) : (
         <div className="mt-6">
