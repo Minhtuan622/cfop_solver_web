@@ -45,6 +45,10 @@ export const studyWords: Dictionary = {
     "Luyện FTO 3-Look L3T (17 case theo bộ PF → TL → LT) theo SRS.",
     "Practise FTO 3-Look L3T (17 cases, PF → TL → LT) with SRS.",
   ],
+  "study.description.l3t2": [
+    "Luyện FTO 2-Look L3T (44 case: PF → TCP A/B/C) theo SRS.",
+    "Practise FTO 2-Look L3T (44 cases, PF → TCP A/B/C) with SRS.",
+  ],
   "study.laneLabel": ["Loại luyện tập", "Practice type"],
   "study.laneLastLayer": ["Last Layer", "Last Layer"],
   "study.laneBld": ["3-Style BLD", "3-Style BLD"],
@@ -57,6 +61,7 @@ export const studyWords: Dictionary = {
 
   "study.laneL2E": ["5×5 L2E", "5×5 L2E"],
   "study.laneL3T": ["FTO L3T", "FTO L3T"],
+  "study.laneL3T2": ["FTO 2-Look", "FTO 2-Look"],
   "cfop.laneSummary": [
     "F2L {f2l} (41 × 4 hướng) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} case",
     "F2L {f2l} (41 × 4-way) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} cases",
@@ -202,6 +207,16 @@ export const studyWords: Dictionary = {
     "Hold as in the sheet: yellow on U, edge in front (EIF).",
   ],
   "l3t.catalogTitle": ["Danh mục FTO L3T", "FTO L3T catalog"],
+  "l2t.caseLabel": ["Case FTO 2-Look L3T đang học", "Active FTO 2-Look L3T case"],
+  "l2t.laneSummary": [
+    "{count} case 2-Look L3T của FTO (PF → TCP A/B/C)",
+    "{count} 2-Look L3T cases for FTO (PF → TCP A/B/C)",
+  ],
+  "l2t.gripHint": [
+    "Cách cầm khối theo sheet: yellow trên U, cạnh hướng về phía bạn (EIF).",
+    "Hold as in the sheet: yellow on U, edge in front (EIF).",
+  ],
+  "l2t.catalogTitle": ["Danh mục FTO 2-Look L3T", "FTO 2-Look L3T catalog"],
 
   "study.goalLabel": ["Mục tiêu hôm nay", "Today's goal"],
   "study.inlineToday": ["hôm nay", "today"],
@@ -357,6 +372,10 @@ export const studyWords: Dictionary = {
     "This is the 2D diagram of the case (as on cubingapp.com).",
   ],
   "study.previewHintL3T": [
+    "Đây là sơ đồ 2D của case (như cubingapp.com).",
+    "This is the 2D diagram of the case (as on cubingapp.com).",
+  ],
+  "study.previewHintL3T2": [
     "Đây là sơ đồ 2D của case (như cubingapp.com).",
     "This is the 2D diagram of the case (as on cubingapp.com).",
   ],

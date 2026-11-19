@@ -16,5 +16,8 @@ describe("Study lanes", () => {
     expect(studyLaneForQuery("l2e")).toBe("l2e");
     expect(studyLaneForQuery("fto")).toBe("l3t");
     expect(studyLaneForQuery("l3t")).toBe("l3t");
+    expect(studyLaneForQuery("fto2")).toBe("l3t2");
+    expect(studyLaneForQuery("2look")).toBe("l3t2");
+    expect(studyLaneForQuery("l3t2")).toBe("l3t2");
   });
 });
