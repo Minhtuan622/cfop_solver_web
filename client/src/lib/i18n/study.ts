@@ -352,8 +352,8 @@ export const studyWords: Dictionary = {
     "This shows the representative net of the 2×2 case.",
   ],
   "study.previewHintPyraminx": [
-    "Đây là sơ đồ 2D của case (như cubingapp.com).",
-    "This is the 2D diagram of the case (as on cubingapp.com).",
+    "Đây là sơ đồ 2D của case (như CubeRoot).",
+    "This is the 2D diagram of the case (as on CubeRoot).",
   ],
   "study.previewHintSkewb": [
     "Đây là sơ đồ 2D của case (như cubingapp.com).",

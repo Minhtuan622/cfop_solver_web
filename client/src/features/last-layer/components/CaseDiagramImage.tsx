@@ -1,7 +1,9 @@
 /**
- * Case diagram: an external SVG from /diagrams extracted from cubingapp.com
- * (the same case diagrams the site shows). Falls back to the lane's puzzle
- * emblem if the asset is missing (two SQ1 EO cases have no diagram).
+ * Case diagram: an external SVG from /diagrams — vendored from CubeRoot
+ * (cuberoot.me) for the FTO, Pyraminx, Skewb, Square-1, 2x2 and 4x4 parity
+ * lanes, extracted from cubingapp.com for the remaining lanes (see README).
+ * Falls back to the lane's puzzle emblem if the asset is missing (two SQ1 EO
+ * cases have no diagram).
  */
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCallback, useState, type KeyboardEvent } from "react";
