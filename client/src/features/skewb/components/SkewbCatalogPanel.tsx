@@ -1,6 +1,7 @@
 /**
  * Skewb catalog drawer: the shared CatalogExplorer wired to the Sarah
- * Intermediate/Advanced data and the extracted cubingapp.com case diagrams.
+ * Intermediate/Advanced data and the self-drawn case diagrams (generated
+ * from the catalog algs with cubing.js — see scripts/generate-skewb-diagrams.mts).
  * The practice card itself shows the live 3D case.
  */
 import { useLanguage } from "@/contexts/LanguageContext";

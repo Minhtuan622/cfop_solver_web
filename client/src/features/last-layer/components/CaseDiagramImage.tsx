@@ -1,9 +1,10 @@
 /**
  * Case diagram: an external SVG from /diagrams — vendored from CubeRoot
- * (cuberoot.me) for the FTO, Pyraminx, Skewb, Square-1, 2x2 and 4x4 parity
- * lanes, extracted from cubingapp.com for the remaining lanes (see README).
- * Falls back to the lane's puzzle emblem if the asset is missing (two SQ1 EO
- * cases have no diagram).
+ * (cuberoot.me) for the FTO, Pyraminx, Square-1, 2x2 and 4x4 parity lanes,
+ * self-drawn from the case state via cubing.js for the Skewb lane (see
+ * scripts/generate-skewb-diagrams.mts), extracted from cubingapp.com for the
+ * remaining lanes (see README). Falls back to the lane's puzzle emblem if
+ * the asset is missing (two SQ1 EO cases have no diagram).
  */
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCallback, useState, type KeyboardEvent } from "react";
