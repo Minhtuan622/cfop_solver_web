@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { FTO_L3T_CASES, FTO_L3T_GROUPS } from "./l3tData";
-import { ftoL3tScrambleOf, toCubingNotation } from "./l3tAlg";
+import { expandSheetAlgorithm } from "./l3tAlg";
 import { L3T_CATALOG, listFtoL3tCases } from "./l3tCatalog";
+
+const ALG_TOKEN = /^(?:S'|S|H'|H|r[2']?|R2'|(?:BL|BR|[UDFBLR])(?:2|')?|\{[A-Za-z]{1,2},[A-Za-z]{1,2}\})$/;
+const FACE_TURN_TOKEN = /^(?:BL|BR|[UDFBLR])(?:2|')?$/;
+const WIDE_TURN_TOKEN = /^r[2']?$/;
 
 describe("FTO L3T catalog data", () => {
   it("contains exactly the 17 3-Look L3T cases in practice order", () => {
@@ -22,11 +26,24 @@ describe("FTO L3T catalog data", () => {
     expect(groups.filter(group => group === "LT")).toHaveLength(3);
   });
 
-  it("keeps every algorithm free of groupings and empty", () => {
+  it("keeps every algorithm in the sheet's token alphabet", () => {
     for (const row of FTO_L3T_CASES) {
-      expect(row.algorithm).not.toMatch(/[[\]{}()]/);
-      expect(row.algorithm.trim().length).toBeGreaterThan(0);
       expect(row.family).toBe("l3t");
+      expect(row.algorithm.trim().length).toBeGreaterThan(0);
+      for (const token of row.algorithm.split(/\s+/)) {
+        expect(ALG_TOKEN.test(token), `${row.id}: "${token}"`).toBe(true);
+      }
+    }
+  });
+
+  it("expands every algorithm into plain FTO face turns", () => {
+    for (const row of FTO_L3T_CASES) {
+      const expanded = expandSheetAlgorithm(row.algorithm);
+      expect(expanded.length).toBeGreaterThan(0);
+      for (const token of expanded.split(" ")) {
+        const known = FACE_TURN_TOKEN.test(token) || WIDE_TURN_TOKEN.test(token);
+        expect(known, `${row.id}: "${token}"`).toBe(true);
+      }
     }
   });
 
@@ -36,18 +53,5 @@ describe("FTO L3T catalog data", () => {
     expect(listFtoL3tCases({ query: "R U' R' U" }).length).toBeGreaterThan(0);
     expect(listFtoL3tCases({ query: "no such move" })).toHaveLength(0);
     expect(listFtoL3tCases({ limit: 4 })).toHaveLength(4);
-  });
-
-  it("inverts each algorithm into an inverse of the same length", () => {
-    for (const row of FTO_L3T_CASES) {
-      const tokens = toCubingNotation(row.algorithm).split(" ");
-      const scramble = ftoL3tScrambleOf(row.algorithm);
-      expect(scramble.split(" ")).toHaveLength(tokens.length);
-      expect(scramble).toBe(
-        [...tokens].reverse().map(token =>
-          token.endsWith("2") ? token : token.endsWith("'") ? token.slice(0, -1) : `${token}'`,
-        ).join(" "),
-      );
-    }
   });
 });

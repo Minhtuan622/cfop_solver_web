@@ -198,8 +198,8 @@ export const studyWords: Dictionary = {
     "{count} 3-Look L3T cases for FTO (PF → TL → LT)",
   ],
   "l3t.gripHint": [
-    "Cách cầm khối theo sheet: yellow trên U, cạnh hướng về phía bạn (EIF).",
-    "Hold as in the sheet: yellow on U, edge in front (EIF).",
+    "Mở theo sheet (yellow trên U, cạnh U hướng về phía bạn). {A,B} = xoay cả khối: mặt A lên U, mặt B ra trước · S = R' L R L', S' = L R' L' R.",
+    "Start as the sheet (yellow on U, a U edge facing you). {A,B} = puzzle rotation: A to U, B to front · S = R' L R L', S' = L R' L' R.",
   ],
   "l3t.catalogTitle": ["Danh mục FTO L3T", "FTO L3T catalog"],
 
