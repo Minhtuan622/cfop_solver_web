@@ -42,6 +42,8 @@ export const cloudStateInput = z.object({
   l2e: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }).optional(),
   // Optional (absent on old clients): FTO L3T lane progress.
   l3t: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }).optional(),
+  // Optional (absent on old clients): FTO 2-Look L3T lane progress.
+  l3t2: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }).optional(),
 });
 export const roomCodeInput = z.object({ code: z.string().trim().min(4).max(10) });
 export const createRoomInput = z.object({ name: z.string().trim().min(2, "Tên phòng cần ít nhất 2 ký tự.").max(80), maxPlayers: z.number().int().min(2).max(16).default(8), format: z.enum(["best_of_3", "ao5", "ao12"]).default("ao5"), eventId: z.enum(TIMER_EVENT_IDS).default(DEFAULT_TIMER_EVENT), multiBlindCubes: z.number().int().min(2).max(99).default(2) });
