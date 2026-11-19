@@ -123,6 +123,26 @@ export function Fto2LookL3tCasePanel({
             <p className="mt-2 text-center text-xs text-muted">
               {t("l2t.gripHint")}
             </p>
+            <p className="mt-1 text-center text-[11px] text-muted/70">
+              Sơ đồ:{" "}
+              <a
+                href="https://cuberoot.me/alg/fto"
+                target="_blank"
+                rel="noreferrer"
+                className="underline underline-offset-2 hover:text-ink"
+              >
+                CubeRoot
+              </a>{" "}
+              · Biến thể (2):{" "}
+              <a
+                href="https://hcubist.com/learn/algorithms/fto-2-look-l3t"
+                target="_blank"
+                rel="noreferrer"
+                className="underline underline-offset-2 hover:text-ink"
+              >
+                HCubist
+              </a>
+            </p>
 
             <div className="mt-3 flex flex-wrap gap-2">
               <Button
