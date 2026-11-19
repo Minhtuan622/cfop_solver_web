@@ -4,6 +4,7 @@ import path from "node:path";
 import { listCfopCases } from "@/features/cfop/lib/cfopCatalog";
 import { listTwoByTwoCases } from "@/features/twoByTwo/lib/twoByTwoCatalog";
 import { listLastLayerDirectCases } from "@/features/last-layer/lib/directCaseCatalog";
+import { listFiveByFiveL2ECases } from "@/features/fiveByFiveL2E/lib/l2eCatalog";
 
 /**
  * The redesigned catalog tiles render static SVGs from /diagrams. These
@@ -16,6 +17,7 @@ const LANES: Array<{ lane: string; cases: Array<{ id: string }> }> = [
   { lane: "cfop", cases: listCfopCases({ limit: 10000 }) },
   { lane: "twoByTwo", cases: listTwoByTwoCases({ limit: 10000 }) },
   { lane: "lastLayer", cases: listLastLayerDirectCases({ limit: 10000 }) },
+  { lane: "fiveByFiveL2E", cases: listFiveByFiveL2ECases({ limit: 10000 }) },
 ];
 
 function diagramPath(lane: string, id: string) {

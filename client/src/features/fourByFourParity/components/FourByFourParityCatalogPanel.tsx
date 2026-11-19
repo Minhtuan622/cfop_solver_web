@@ -9,6 +9,11 @@ import {
   type CatalogExplorerPreviewProps,
 } from "@/features/last-layer/components/CatalogExplorer";
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
+import { CubeAlgorithmReplay } from "@/components/common/CubeAlgorithmReplay";
+import {
+  fourByFourParityScrambleOf,
+  toCubingNotation,
+} from "../lib/fourByFourParityAlg";
 import type { FourByFourParityCatalogCase } from "../lib/fourByFourParityCatalog";
 
 /** Flat 4×4 grid mark (used when a case has no diagram). */
@@ -57,6 +62,27 @@ function ParityPreview(props: CatalogExplorerPreviewProps) {
   );
 }
 
+function ParityReplayPreview({
+  algorithm,
+  replayToken,
+}: CatalogExplorerPreviewProps) {
+  const { language } = useLanguage();
+  const setup = algorithm ? fourByFourParityScrambleOf(algorithm) : "";
+  const play = algorithm ? toCubingNotation(algorithm) : "";
+  return (
+    <div className="h-72 w-full overflow-hidden rounded-xl bg-surface">
+      <CubeAlgorithmReplay
+        eventId="444"
+        puzzle="4x4x4"
+        scramble={setup}
+        algorithm={play}
+        language={language}
+        replayToken={replayToken}
+      />
+    </div>
+  );
+}
+
 export function FourByFourParityCatalogPanel({
   cases,
   masteredKeys,
@@ -82,8 +108,11 @@ export function FourByFourParityCatalogPanel({
       onSelect={item => onSelect(item as FourByFourParityCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={ParityPreview}
+      focusStorageKey="fourByFourParity"
+      dialogPreview={ParityReplayPreview}
+      dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("parity.catalogTitle")}
-      previewHint={t("study.previewHintParity")}
+      previewHint={t("study.previewHintReplay")}
     />
   );
 }

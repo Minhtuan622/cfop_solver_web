@@ -32,3 +32,12 @@ export function isSideEvent2DPuzzle(
 ): puzzle is SideEventPuzzle {
   return puzzle === "square1" || puzzle === "clock";
 }
+
+/**
+ * N×N cubes share Cubing.js's six sticker materials. The studio renders
+ * those in the z2 scheme (yellow up, red left, orange right), matching
+ * the 2D diagrams.
+ */
+export function isCubeFamilyPuzzle(puzzle: string): boolean {
+  return /^[234567]x[234567]x[234567]$/.test(puzzle);
+}

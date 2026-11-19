@@ -16,6 +16,8 @@ import {
   getSolvedPattern,
   patternFromAlg,
 } from "./lib/kpatternFacelets";
+import { detectCompletedPhases } from "./lib/phaseDetect";
+import type { SolvePhaseSplit } from "@/lib/solveHistory";
 import {
   BluetoothTimerError,
   type BluetoothTimerErrorKey,
@@ -39,6 +41,8 @@ export type SmartCubePhase = "idle" | "ready" | "solving" | "completed";
 export type SmartCubeSolveResult = {
   moves: string[];
   elapsedMs: number;
+  /** Auto-detected CFOP splits (Cross → F2L → OLL → PLL), empty for non-3×3. */
+  phaseSplits: SolvePhaseSplit[];
 };
 
 export type SmartCubeOptions = {
@@ -100,6 +104,9 @@ export function useSmartCube({
   const phaseRef = useRef<SmartCubePhase>("idle");
   const movesRef = useRef<string[]>([]);
   const startedAtRef = useRef<number | null>(null);
+  const marksRef = useRef<
+    Partial<Record<"cross" | "f2l" | "oll", { at: number; moves: number }>>
+  >({});
   const onSolveCompleteRef = useRef(onSolveComplete);
   onSolveCompleteRef.current = onSolveComplete;
 
@@ -131,16 +138,51 @@ export function useSmartCube({
     if (phaseRef.current === "completed") {
       // Leave the completed state once the cube moves away from solved —
       // otherwise a re-scramble would keep the UI "done" forever.
-      if (!isSolved) publishPhase("idle");
+      if (!isSolved) {
+        marksRef.current = {};
+        publishPhase("idle");
+      }
       return;
     }
     if (isSolved) {
       if (phaseRef.current === "solving" || phaseRef.current === "ready") {
         publishPhase("completed");
         const started = startedAtRef.current;
+        const endAt = performance.now();
+        const start = started ?? endAt;
+        const marks = marksRef.current;
+        const crossMark =
+          marks.cross ?? marks.f2l ?? marks.oll ?? { at: start, moves: 0 };
+        const f2lMark =
+          marks.f2l ?? marks.oll ?? { at: endAt, moves: movesRef.current.length };
+        const ollMark =
+          marks.oll ?? { at: endAt, moves: movesRef.current.length };
+        const phaseSplits: SolvePhaseSplit[] = [
+          {
+            phase: "Cross",
+            markedAtMs: crossMark.at - start,
+            elapsedMs: crossMark.at - start,
+          },
+          {
+            phase: "F2L",
+            markedAtMs: f2lMark.at - start,
+            elapsedMs: f2lMark.at - crossMark.at,
+          },
+          {
+            phase: "OLL",
+            markedAtMs: ollMark.at - start,
+            elapsedMs: ollMark.at - f2lMark.at,
+          },
+          {
+            phase: "PLL",
+            markedAtMs: endAt - start,
+            elapsedMs: endAt - ollMark.at,
+          },
+        ];
         onSolveCompleteRef.current?.({
           moves: [...movesRef.current],
-          elapsedMs: started === null ? 0 : performance.now() - started,
+          elapsedMs: endAt - start,
+          phaseSplits,
         });
       }
       return;
@@ -158,6 +200,7 @@ export function useSmartCube({
     if (phaseRef.current === "ready" && !isTarget) {
       publishPhase("solving");
       startedAtRef.current = performance.now();
+      marksRef.current = {};
     }
   }, [enabled, publishPhase]);
 
@@ -283,6 +326,17 @@ export function useSmartCube({
           return; // unknown move encoding — drop it rather than corrupt state
         }
         movesRef.current = [...movesRef.current, move.toString()];
+        if (currentRef.current && phaseRef.current === "solving") {
+          const facelets = kpatternToFacelets(currentRef.current);
+          const done = detectCompletedPhases(facelets);
+          const now = performance.now();
+          if (!marksRef.current.cross && done.cross)
+            marksRef.current.cross = { at: now, moves: movesRef.current.length };
+          if (!marksRef.current.f2l && done.f2l)
+            marksRef.current.f2l = { at: now, moves: movesRef.current.length };
+          if (!marksRef.current.oll && done.oll)
+            marksRef.current.oll = { at: now, moves: movesRef.current.length };
+        }
         publishProgress();
         void evaluateProgress();
       });
@@ -319,6 +373,7 @@ export function useSmartCube({
     setStatus(current =>
       current === "unsupported" ? current : "idle",
     );
+    marksRef.current = {};
   }, [publishPhase]);
 
   return {

@@ -1,11 +1,12 @@
 /**
- * FTO L3T practice card: the case preview (3D — the "three unsolved triples"
- * position on a normal FTO), the recall drill and the Again/Hard/Good/Easy
- * self-grade. Mirrors the other lanes.
+ * FTO L3T practice card: the case preview (static diagram from the 3-Look
+ * L3T sheet — the algorithms use `{…}` regrips that cubing.js's FTO KPuzzle
+ * cannot parse, so a live 3D replay would show the wrong state), the recall
+ * drill and the Again/Hard/Good/Easy self-grade. Mirrors the other lanes.
  */
 import { Check, Dices, Eye, EyeOff } from "@/components/ui/Icon";
-import { lazy, Suspense } from "react";
-import { ftoL3tScrambleOf } from "../lib/l3tAlg";
+import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
+import { FtoL3tMark } from "./FtoL3tCatalogPanel";
 import {
   SolveTimer,
   type TimerCompletion,
@@ -14,11 +15,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { formatTimerReadout } from "@/lib/solveHistory";
 import { Button } from "@/components/ui/Button";
 import type { FtoL3tCatalogCase } from "../lib/l3tCatalog";
-
-const Puzzle3DCanvas = lazy(async () => ({
-  default: (await import("@/features/puzzle-3d/components/Puzzle3DCanvas"))
-    .Puzzle3DCanvas,
-}));
 
 export type FtoL3tCasePanelProps = {
   activeCase: FtoL3tCatalogCase | null;
@@ -66,8 +62,6 @@ export function FtoL3tCasePanel({
       </section>
     );
   }
-
-  const setupAlg = ftoL3tScrambleOf(activeCase.algorithm);
 
   return (
     <section
@@ -117,24 +111,19 @@ export function FtoL3tCasePanel({
               </span>
             </div>
 
-            <div className="relative overflow-hidden rounded-xl bg-surface-2">
-              <Suspense
-                fallback={
-                  <div className="flex h-64 items-center justify-center text-sm text-muted">
-                    {t("l3t.loading3d")}
-                  </div>
-                }
-              >
-                <Puzzle3DCanvas
-                  eventId="fto"
-                  puzzle="fto"
-                  scramble={setupAlg}
-                  language={language}
-                />
-              </Suspense>
+            <div className="relative flex items-center justify-center overflow-hidden rounded-xl bg-surface-2 p-4">
+              <CaseDiagramImage
+                lane="ftoL3t"
+                state={activeCase.state}
+                label={activeCase.id}
+                fallback={<FtoL3tMark className="w-40 max-w-full" />}
+              />
             </div>
+            <p className="mt-2 text-center text-xs text-muted">
+              {t("l3t.gripHint")}
+            </p>
 
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               <Button
                 type="button"
                 variant="secondary"

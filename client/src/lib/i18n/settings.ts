@@ -82,6 +82,17 @@ export const settingsWords: Dictionary = {
     "Phát cảnh báo trước mốc +2 (15 giây) và DNF (17 giây).",
     "Warns before the +2 (15 seconds) and DNF (17 seconds) limits.",
   ],
+  "settings.voice": ["Giọng nói inspection", "Inspection voice callouts"],
+  "settings.voiceHelp": [
+    "Đọc “tám giây” và “mười hai giây” giống trọng tài giải thật.",
+    "Speaks “eight seconds” and “twelve seconds” like a real judge.",
+  ],
+  "settings.metronome": ["Metronome khi giải", "Solve metronome"],
+  "settings.metronomeHelp": [
+    "Beep đều nhịp theo BPM đã chọn trong lúc giải.",
+    "Beeps at the chosen BPM while you solve.",
+  ],
+  "settings.metronomeBpm": ["Nhịp độ (BPM)", "Metronome BPM"],
   "settings.highlight": ["Highlight Cross khi inspection", "Highlight Cross during inspection"],
   "settings.highlightHelp": [
     "Làm rõ các mảnh thuộc màu Cross đã chọn trên Cube 3D.",

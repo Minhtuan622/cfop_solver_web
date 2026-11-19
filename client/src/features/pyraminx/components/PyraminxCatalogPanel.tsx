@@ -71,6 +71,7 @@ export function PyraminxCatalogPanel({
       onSelect={item => onSelect(item as PyraminxCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={PyraminxPreview}
+      focusStorageKey="pyraminx"
       catalogTitle={t("pyraminx.catalogTitle")}
       previewHint={t("study.previewHintPyraminx")}
     />

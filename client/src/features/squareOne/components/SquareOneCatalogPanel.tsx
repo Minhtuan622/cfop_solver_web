@@ -68,6 +68,7 @@ export function SquareOneCatalogPanel({
       onSelect={item => onSelect(item as SquareOneCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={SquareOnePreview}
+      focusStorageKey="squareOne"
       catalogTitle={t("sq1.catalogTitle")}
       previewHint={t("study.previewHintSq1")}
     />

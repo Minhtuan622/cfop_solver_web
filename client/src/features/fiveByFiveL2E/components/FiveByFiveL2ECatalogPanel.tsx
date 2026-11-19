@@ -1,7 +1,9 @@
 /**
  * 5×5 L2E catalog drawer: the shared CatalogExplorer wired to the L2E
- * algorithms. The practice card shows the live 3D case; the grid uses the
- * lane's flat 5×5 emblem as icon fallback.
+ * algorithms. The practice card shows the live 3D case; the grid previews
+ * the generated `diagrams/fiveByFiveL2E/<id>.svg` flat last-layer cross,
+ * with the lane's 5×5 emblem as fallback; the dialog replays the solution
+ * in 3D under the same setup → algorithm flow as the practice card.
  */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -9,6 +11,11 @@ import {
   type CatalogExplorerPreviewProps,
 } from "@/features/last-layer/components/CatalogExplorer";
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
+import { CubeAlgorithmReplay } from "@/components/common/CubeAlgorithmReplay";
+import {
+  fiveByFiveL2EScrambleOf,
+  toCubingNotation,
+} from "../lib/l2eAlg";
 import type { FiveByFiveL2ECatalogCase } from "../lib/l2eCatalog";
 
 /** Flat 5×5 grid mark (used when a case has no diagram). */
@@ -61,6 +68,27 @@ function L2EPreview(props: CatalogExplorerPreviewProps) {
   );
 }
 
+function L2EReplayPreview({
+  algorithm,
+  replayToken,
+}: CatalogExplorerPreviewProps) {
+  const { language } = useLanguage();
+  const setup = algorithm ? fiveByFiveL2EScrambleOf(algorithm) : "";
+  const play = algorithm ? toCubingNotation(algorithm) : "";
+  return (
+    <div className="h-72 w-full overflow-hidden rounded-xl bg-surface">
+      <CubeAlgorithmReplay
+        eventId="555"
+        puzzle="5x5x5"
+        scramble={setup}
+        algorithm={play}
+        language={language}
+        replayToken={replayToken}
+      />
+    </div>
+  );
+}
+
 export function FiveByFiveL2ECatalogPanel({
   cases,
   masteredKeys,
@@ -86,8 +114,11 @@ export function FiveByFiveL2ECatalogPanel({
       onSelect={item => onSelect(item as FiveByFiveL2ECatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={L2EPreview}
+      focusStorageKey="fiveByFiveL2E"
+      dialogPreview={L2EReplayPreview}
+      dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("l2e.catalogTitle")}
-      previewHint={t("study.previewHintL2E")}
+      previewHint={t("study.previewHintReplay")}
     />
   );
 }

@@ -3,6 +3,7 @@ import type { BufferAttribute, Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
 import {
   isSideEvent2DPuzzle,
+  isCubeFamilyPuzzle,
   type FtoTeachingFace,
   type PuzzleId,
 } from "../lib/puzzleIds";
@@ -23,6 +24,10 @@ import {
   puzzlePreviewDistance,
   puzzlePreviewSetupAlgorithm,
 } from "../lib/puzzleFraming";
+import {
+  recolorCubeStickerColors,
+  type ColoredObject,
+} from "../lib/recolorCubeStickerColors";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/StudioUI";
 import { BoxSeam, RotateCcw } from "@/components/ui/Icon";
@@ -227,6 +232,10 @@ export function Puzzle3DCanvas({
         staging?.remove();
         return;
       }
+      if (isCubeFamilyPuzzle(puzzle))
+        recolorCubeStickerColors(
+          puzzleObject as unknown as ColoredObject,
+        );
       // Module đã tải xong và player đã trả về đối tượng 3D: xoá cờ "đã nạp
       // lại trang" để lần hỏng sau (nếu có) vẫn được phép nạp lại trang.
       try {
@@ -289,6 +298,10 @@ export function Puzzle3DCanvas({
       };
       const resizeAndRender = () => {
         sizeRenderer();
+        if (isCubeFamilyPuzzle(puzzle))
+          recolorCubeStickerColors(
+            puzzleObject as unknown as ColoredObject,
+          );
         root.rotation.set(orbit.pitch, orbit.yaw, 0);
         camera.position.set(0, 0, orbit.distance);
         camera.lookAt(0, 0, 0);

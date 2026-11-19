@@ -197,9 +197,16 @@ export const studyWords: Dictionary = {
     "{count} case 3-Look Last Three Triples của FTO (PF → TL → LT)",
     "{count} 3-Look L3T cases for FTO (PF → TL → LT)",
   ],
+  "l3t.gripHint": [
+    "Cách cầm khối theo sheet: yellow trên U, cạnh hướng về phía bạn (EIF).",
+    "Hold as in the sheet: yellow on U, edge in front (EIF).",
+  ],
   "l3t.catalogTitle": ["Danh mục FTO L3T", "FTO L3T catalog"],
 
   "study.goalLabel": ["Mục tiêu hôm nay", "Today's goal"],
+  "study.inlineToday": ["hôm nay", "today"],
+  "study.inlineQueue": ["hàng đợi", "in queue"],
+  "study.inlineMastered": ["đã thuộc", "mastered"],
   "study.goalProgress": ["Tiến độ mục tiêu hôm nay", "Today's goal progress"],
   "study.reviewedUnit": ["case đã ôn", "cases reviewed"],
   "study.goalHint": [
@@ -294,9 +301,22 @@ export const studyWords: Dictionary = {
   "study.unmasteredOnly": ["Chỉ chưa thuộc", "Unmastered"],
   "study.unmasteredCount": ["chưa thuộc", "unmastered"],
   "study.randomPractice": ["Luyện ngẫu nhiên", "Random practice"],
+  "study.focusSet": ["Bộ tập trung", "Focus set"],
+  "study.focusSetActive": ["Focus · {count} nhóm", "Focus · {count} groups"],
+  "study.focusSetTitle": ["Chỉ luyện các nhóm này", "Focus only these groups"],
+  "study.focusSetHint": [
+    "Tick nhóm để thu hẹp danh mục; bỏ tick hết để xem tất cả.",
+    "Tick groups to narrow the catalog; clear them all to see everything.",
+  ],
+  "study.focusSetClear": ["Bỏ hết focus", "Clear focus"],
   "study.collapseCases": ["Thu gọn danh sách case", "Collapse case cards"],
   "study.openCases": ["Mở để xem từng case", "Open to view each case"],
   "study.studyThisCase": ["Học case này", "Study this case"],
+  "study.previewHintReplay": [
+    "Mô phỏng 3D cách giải case theo công thức bên dưới (bấm Xem lại để chạy lại).",
+    "3D replay of the case solution following the algorithm below (press Replay to run it again).",
+  ],
+  "study.replayAlgorithm": ["Xem lại", "Replay"],
   "study.noCasesMatch": [
     "Không có case phù hợp bộ lọc.",
     "No cases match this filter.",

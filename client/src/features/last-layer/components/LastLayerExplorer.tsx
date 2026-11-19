@@ -10,6 +10,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { CatalogExplorer } from "./CatalogExplorer";
 import { PracticeGroupPreview } from "./PracticeGroupPreview";
 import { CaseDiagramImage } from "./CaseDiagramImage";
+import { CubeAlgorithmReplay } from "@/components/common/CubeAlgorithmReplay";
+import { invertAlgorithm } from "@/lib/fastCube";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 import type { ComponentType } from "react";
 import type { CatalogExplorerPreviewProps } from "./CatalogExplorer";
@@ -40,6 +42,26 @@ function LastLayerDiagramPreview(props: CatalogExplorerPreviewProps) {
 const LastLayerPreview: ComponentType<CatalogExplorerPreviewProps> =
   LastLayerDiagramPreview;
 
+function LastLayerReplayPreview({
+  algorithm,
+  replayToken,
+}: CatalogExplorerPreviewProps) {
+  const { language } = useLanguage();
+  const setup = algorithm ? invertAlgorithm(algorithm) : "";
+  return (
+    <div className="h-72 w-full overflow-hidden rounded-xl bg-surface">
+      <CubeAlgorithmReplay
+        eventId="333"
+        puzzle="3x3x3"
+        scramble={setup}
+        algorithm={algorithm ?? ""}
+        language={language}
+        replayToken={replayToken}
+      />
+    </div>
+  );
+}
+
 export function LastLayerExplorer({
   catalog,
   family,
@@ -60,8 +82,11 @@ export function LastLayerExplorer({
       onSelect={item => onSelect(item as LastLayerCatalogCase)}
       onMasteredChange={onMasteredChange}
       renderPreview={LastLayerPreview}
+      focusStorageKey="lastLayer"
+      dialogPreview={LastLayerReplayPreview}
+      dialogReplayLabel={t("study.replayAlgorithm")}
       catalogTitle={t("study.catalogTitle")}
-      previewHint={t("study.previewHint")}
+      previewHint={t("study.previewHintReplay")}
     />
   );
 }

@@ -5,12 +5,15 @@
 import {
   BarChart3,
   BookOpenCheck,
+  Calendar3,
+  CircleGauge,
   ClipboardCheck,
   Dices,
   Eye,
   EyeOff,
   ImageDown,
   Play,
+  Sparkles,
   Timer,
 } from "@/components/ui/Icon";
 import { Link, useLocation } from "wouter";
@@ -36,6 +39,7 @@ import {
 } from "@/features/timer/lib/exportPalette";
 import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
 import { LastLayerStudyLab } from "@/features/last-layer";
+import { dailyDigest } from "@/features/timer/lib/dailyDigest";
 import { MoveComposer } from "@/components/common/MoveComposer";
 import {
   SolveTimer,
@@ -326,6 +330,115 @@ function exportAo5Image(
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
+/** Dựng ảnh thẻ lượt giải để chia sẻ: thời gian lớn, scramble, net và pha. */
+function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en") {
+  const width = 1080;
+  const height = 1080;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  const palette = exportPalette();
+  const margin = 64;
+  const innerWidth = width - margin * 2;
+  const dateLocale = language === "vi" ? "vi-VN" : "en-US";
+
+  context.fillStyle = palette.paper;
+  context.fillRect(0, 0, width, height);
+  context.strokeStyle = palette.grid;
+  context.lineWidth = 1;
+  for (let x = 0; x < width; x += 54) {
+    context.beginPath();
+    context.moveTo(x, 0);
+    context.lineTo(x, height);
+    context.stroke();
+  }
+  context.fillStyle = palette.ink;
+  context.fillRect(0, 0, width, 20);
+
+  // Eyebrow row: studio mark on the left, the event on the right.
+  context.fillStyle = palette.accent;
+  context.font = "800 30px monospace";
+  context.fillText("CFOP SOLVER STUDIO", margin, 92);
+  const eventLabel = timerEventLabel(
+    normalizeTimerEventId(entry.eventId),
+    language
+  );
+  context.textAlign = "right";
+  context.fillStyle = palette.muted;
+  context.font = "700 22px monospace";
+  context.fillText(eventLabel, width - margin, 92);
+  context.textAlign = "left";
+
+  // Ink panel with the time itself.
+  context.fillStyle = palette.ink;
+  context.fillRect(margin, 128, innerWidth, 250);
+  context.fillStyle = palette.accent;
+  context.font = "700 24px monospace";
+  context.fillText("SOLVE CARD", margin + 44, 196);
+  context.fillStyle = palette.onAccent;
+  context.font = "900 112px monospace";
+  context.fillText(formatSolveResult(entry), margin + 44, 330);
+  context.fillStyle = palette.muted;
+  context.font = "600 22px monospace";
+  context.fillText(
+    new Date(entry.createdAt).toLocaleDateString(dateLocale, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
+    margin + 44,
+    372,
+  );
+
+  // Cube net + scramble block.
+  drawMetricCube(context, safeScrambleState(entry.input), margin, 448, 27, palette);
+  const rightX = margin + 360;
+  const rightWidth = width - margin - rightX;
+  context.fillStyle = palette.muted;
+  context.font = "700 20px monospace";
+  context.fillText("SCRAMBLE", rightX, 490);
+  context.fillStyle = palette.ink;
+  context.font = "800 34px monospace";
+  canvasLines(context, entry.input, rightWidth)
+    .slice(0, 4)
+    .forEach((line, lineIndex) =>
+      context.fillText(line, rightX, 540 + lineIndex * 46)
+    );
+  if (entry.penalty !== "none") {
+    context.fillStyle = palette.worst;
+    context.font = "800 26px monospace";
+    context.fillText(entry.penalty, rightX, 740);
+  }
+
+  // Phase splits (auto-detected on smart-cube solves when present).
+  if (entry.phaseSplits.length) {
+    context.fillStyle = palette.muted;
+    context.font = "700 20px monospace";
+    context.fillText("PHASES", margin, 830);
+    context.fillStyle = palette.ink;
+    context.font = "700 25px monospace";
+    context.fillText(splitSummary(entry).slice(0, 80), margin, 868);
+  }
+
+  // Footer.
+  context.textAlign = "center";
+  context.fillStyle = palette.muted;
+  context.font = "600 21px monospace";
+  context.fillText(
+    "CFOP SOLVER STUDIO · cfop-solver.studio",
+    width / 2,
+    height - 40
+  );
+  context.textAlign = "left";
+
+  const link = document.createElement("a");
+  link.download = `cfop-solve-${Date.now()}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
 function safeScrambleState(scramble: string) {
   try {
     return stateFromScramble(scramble);
@@ -353,6 +466,7 @@ export default function TimerLab() {
   const [entries, setEntries] = useState<SolveHistoryEntry[]>(() =>
     readSolveHistory()
   );
+  const digest = useMemo(() => dailyDigest(entries), [entries]);
   const [timerVersion, setTimerVersion] = useState(0);
   const [saved, setSaved] = useState(false);
   const [latestRecorded, setLatestRecorded] =
@@ -369,6 +483,18 @@ export default function TimerLab() {
   const [inspectionSound] = useState(
     () => readStoredValue("cfop-inspection-sound") !== "off"
   );
+  const [inspectionVoice] = useState(
+    () => readStoredValue("cfop-inspection-voice") !== "off"
+  );
+  const [metronomeEnabled] = useState(
+    () => readStoredValue("cfop-metronome") === "on"
+  );
+  const [metronomeBpm] = useState(() => {
+    const stored = Number(readStoredValue("cfop-metronome-bpm"));
+    return Number.isFinite(stored) && stored >= 30 && stored <= 240
+      ? Math.round(stored)
+      : 60;
+  });
   const [spaceSplits] = useState(
     () => readStoredValue("cfop-space-splits") !== "off"
   );
@@ -642,7 +768,7 @@ export default function TimerLab() {
   const smartCube = useSmartCube({
     enabled: isThreeByThree && !isMultiBlind,
     targetScramble: scramble,
-    onSolveComplete: ({ elapsedMs }) => {
+    onSolveComplete: ({ elapsedMs, moves, phaseSplits }) => {
       const stop = bleSolveRef.current;
       const finalMs =
         stop && Date.now() - stop.at < 5_000 ? stop.ms : elapsedMs;
@@ -651,7 +777,8 @@ export default function TimerLab() {
           elapsedMs: finalMs,
           inspectionMs: 0,
           automaticPenalty: "none",
-          phaseSplits: [],
+          phaseSplits: phaseSplits ?? [],
+          moves: moves?.length ?? 0,
         },
         "smartcube",
       );
@@ -659,7 +786,10 @@ export default function TimerLab() {
   });
   const smartCubeActive =
     isThreeByThree && !isMultiBlind && smartCube.status === "connected";
-  const recordSolve = (completion: TimerCompletion, source: SolveSource = "manual") => {
+  const recordSolve = (
+    completion: TimerCompletion & { moves?: number },
+    source: SolveSource = "manual"
+  ) => {
     if (isMultiBlind) {
       setPendingMultiBlind(completion);
       setMultiBlindSolved(0);
@@ -673,7 +803,7 @@ export default function TimerLab() {
       phaseSplits: completion.phaseSplits,
       input: scramble,
       inputKind: "scramble",
-      moves: 0,
+      moves: completion.moves ?? 0,
       tags: [],
       eventId,
       source,
@@ -790,6 +920,23 @@ export default function TimerLab() {
                 </Link>
               }
             />
+            <div
+              className="mt-4 flex flex-wrap items-center gap-2"
+              aria-label={t("timer.digestLabel")}
+            >
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
+                <Sparkles className="text-base text-primary" aria-hidden="true" />
+                {t("timer.digestStreak", { days: digest.streak })}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
+                <Calendar3 className="text-base text-primary" aria-hidden="true" />
+                {t("timer.digestToday", { count: digest.todayCount })}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
+                <CircleGauge className="text-base text-primary" aria-hidden="true" />
+                {t("timer.digestAo5", { value: metric(averages.ao5) })}
+              </span>
+            </div>
             <section className="grid grid-cols-12 gap-6">
               <section className="col-span-12 xl:col-span-8">
                 <div className="rounded-card bg-surface">
@@ -994,6 +1141,9 @@ export default function TimerLab() {
                             key={timerVersion}
                             onComplete={recordSolve}
                             soundEnabled={inspectionSound}
+                            voiceEnabled={inspectionVoice}
+                            metronomeEnabled={metronomeEnabled}
+                            metronomeBpm={metronomeBpm}
                             splitEnabled={
                               !isMultiBlind && isThreeByThree && spaceSplits
                             }
@@ -2035,7 +2185,7 @@ function EventWcaComparisonCard({
 }
 
 function RecentTimerSolve({ item }: { item: SolveHistoryEntry }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   return (
     <article className="block px-4 py-3 text-sm flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -2050,6 +2200,12 @@ function RecentTimerSolve({ item }: { item: SolveHistoryEntry }) {
         </small>
       </div>
       <span className="font-mono text-sm break-words grow">{item.input}</span>
+      <IconButton
+        label={t("timer.shareSolveImage")}
+        icon={<ImageDown className="text-lg" />}
+        onClick={() => exportSolveImage(item, language)}
+        className={`${buttonClass("secondary", "sm")}`}
+      />
     </article>
   );
 }
@@ -2147,6 +2303,12 @@ function MetricDetailCard({
             </div>
           </div>
           <p className="font-mono break-words mt-2 mb-2">{entry.input}</p>
+          {entry.phaseSplits.length > 0 || entry.moves > 0 ? (
+            <p className="text-xs text-muted mb-1 font-mono">
+              {entry.phaseSplits.length ? `${splitSummary(entry)} · ` : ""}
+              {entry.moves} moves · {(entry.moves / (entry.elapsedMs / 1000)).toFixed(2)} TPS
+            </p>
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <IconButton
               label={
@@ -2170,6 +2332,12 @@ function MetricDetailCard({
                   : t("timer.replayOnlyThree")}
               </span>
             )}
+            <IconButton
+              label={t("timer.shareSolveImage")}
+              icon={<ImageDown className="text-lg" />}
+              onClick={() => exportSolveImage(entry, language)}
+              className={`${buttonClass("secondary", "sm")}`}
+            />
           </div>
         </div>
       </div>

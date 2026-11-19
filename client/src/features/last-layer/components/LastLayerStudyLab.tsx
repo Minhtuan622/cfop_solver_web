@@ -411,9 +411,6 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
         reviewedToday={activeLaneStats?.reviewedToday ?? reviewedToday}
         dailyGoal={activeLaneStats?.dailyGoal ?? study.dailyGoal}
         goalPercent={activeLaneStats?.goalPercent ?? dailyPercent}
-        hint={t("study.goalHint", {
-          count: activeLaneStats?.queueCount ?? queue.length,
-        })}
         queueCount={activeLaneStats?.queueCount ?? queue.length}
         masteredCount={activeLaneStats?.masteredCount ?? masteredKeys.size}
         catalogCount={activeLaneStats?.catalogCount ?? catalog.length}

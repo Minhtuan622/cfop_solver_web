@@ -40,6 +40,11 @@ export const timerWords: Dictionary = {
   "timer.dnf": ["DNF", "DNF"],
   "timer.pb": ["PB", "PB"],
   "timer.total": ["LƯỢT", "SOLVES"],
+  "timer.digestToday": ["Hôm nay · {count} solves", "Today · {count} solves"],
+  "timer.digestStreak": ["Chuỗi {days} ngày", "Streak {days} days"],
+  "timer.digestAo5": ["Ao5 · {value}", "Ao5 · {value}"],
+  "timer.digestLabel": ["Tóm tắt hôm nay", "Today at a glance"],
+  "timer.shareSolveImage": ["Chia sẻ ảnh lượt giải", "Share solve card"],
   "timer.playbackTitle": ["PHÁT LẠI SOLUTION THỰC TẾ", "SOLUTION PLAYBACK"],
   "timer.noSolution": [
     "Lượt này chưa có solution thực tế đã lưu.",

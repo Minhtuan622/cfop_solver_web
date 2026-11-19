@@ -21,12 +21,18 @@ export type TimerCompletion = {
 export function SolveTimer({
   onComplete,
   soundEnabled = true,
+  voiceEnabled = true,
+  metronomeEnabled = false,
+  metronomeBpm = 60,
   splitEnabled = false,
   splitPhases = SPLIT_PHASES,
   inspectionEnabled = true,
 }: {
   onComplete?: (completion: TimerCompletion) => void;
   soundEnabled?: boolean;
+  voiceEnabled?: boolean;
+  metronomeEnabled?: boolean;
+  metronomeBpm?: number;
   splitEnabled?: boolean;
   splitPhases?: readonly SplitPhase[];
   inspectionEnabled?: boolean;
@@ -108,6 +114,21 @@ export function SolveTimer({
       window.setTimeout(() => void context.close(), 220);
     } catch {
       /* Browser audio may be blocked; timing remains accurate. */
+    }
+  };
+  const speak = (text: string) => {
+    if (!soundEnabled || !voiceEnabled) return;
+    try {
+      const synth = window.speechSynthesis;
+      if (!synth) return;
+      synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = language === "vi" ? "vi-VN" : "en-US";
+      utterance.rate = 1.05;
+      utterance.volume = 0.9;
+      synth.speak(utterance);
+    } catch {
+      /* Speech synthesis may be unavailable; the beeps still fire. */
     }
   };
   const startInspection = () => {
@@ -212,6 +233,12 @@ export function SolveTimer({
     beginFromReady();
   };
   useEffect(() => {
+    if (mode !== "running" || !metronomeEnabled) return;
+    const bpm = Math.max(30, Math.min(240, Math.round(metronomeBpm) || 60));
+    const id = window.setInterval(() => beep(980), 60_000 / bpm);
+    return () => window.clearInterval(id);
+  }, [mode, metronomeEnabled, metronomeBpm, soundEnabled]);
+  useEffect(() => {
     if (mode !== "running") return;
     const id = window.setInterval(
       () => setElapsed(carried.current + performance.now() - startedAt.current),
@@ -230,20 +257,26 @@ export function SolveTimer({
   }, [mode]);
   useEffect(() => {
     if (mode !== "inspection") return;
-    (
-      [
-        [8_000, 660],
-        [12_000, 880],
-      ] as const
-    ).forEach(([threshold, frequency]) => {
+    const cues: ReadonlyArray<readonly [number, number, string]> =
+      language === "vi"
+        ? [
+            [8_000, 660, "Tám giây"],
+            [12_000, 880, "Mười hai giây"],
+          ]
+        : [
+            [8_000, 660, "Eight seconds"],
+            [12_000, 880, "Twelve seconds"],
+          ];
+    for (const [threshold, frequency, words] of cues) {
       if (
         inspectionElapsed >= threshold &&
         !inspectionCues.current.has(threshold)
       ) {
         inspectionCues.current.add(threshold);
         beep(frequency);
+        speak(words);
       }
-    });
+    }
   }, [inspectionElapsed, mode]);
   const isInteractiveTarget = (target: EventTarget | null) => {
     const element = target as HTMLElement | null;
