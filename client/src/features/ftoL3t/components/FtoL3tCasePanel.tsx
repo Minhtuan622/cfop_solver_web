@@ -122,6 +122,17 @@ export function FtoL3tCasePanel({
             <p className="mt-2 text-center text-xs text-muted">
               {t("l3t.gripHint")}
             </p>
+            <p className="mt-1 text-center text-[11px] text-muted/70">
+              Sơ đồ:{" "}
+              <a
+                href="https://cuberoot.me/alg/fto"
+                target="_blank"
+                rel="noreferrer"
+                className="underline underline-offset-2 hover:text-ink"
+              >
+                CubeRoot
+              </a>
+            </p>
 
             <div className="mt-3 flex flex-wrap gap-2">
               <Button

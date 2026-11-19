@@ -150,6 +150,12 @@ Bundle phải **commit kèm** cùng thay đổi: CI kiểm tra bằng `pnpm run 
 
 Issue, tài liệu, kiểm thử và Pull Request đều được chào đón. Vui lòng đọc [CONTRIBUTING.md](CONTRIBUTING.md) trước khi bắt đầu.
 
+## Ghi công (credits)
+
+- **Sơ đồ case FTO**: [CubeRoot](https://cuberoot.me/alg/fto) — các bộ PF (9 case), TL (5 case), LT (3 case) và TCP (18 case cơ bản) được dùng nguyên bản với ghi công. Các biến thể TCP "(2)" (17 case) dựng từ sheet [HCubist](https://hcubist.com/learn/algorithms) FTO 2-Look L3T (được phân phối tự do trên trang của tác giả).
+- **Thuật toán FTO**: sheet HCubist "FTO 3-Look L3T" và "FTO 2-Look L3T" (Bencisco / CubeRoot) — algorithms hiển thị đúng ký hiệu sheet.
+- **Diagrams các lane khác** (lastLayer, CFOP, 2×2, 4×4/5×5…): cubingapp.com — xem ghi chú trong repo.
+
 ## License
 
 [MIT](LICENSE)
