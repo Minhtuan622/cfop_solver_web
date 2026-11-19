@@ -213,8 +213,8 @@ export const studyWords: Dictionary = {
     "{count} 2-Look L3T cases for FTO (PF → TCP A/B/C)",
   ],
   "l2t.gripHint": [
-    "Cách cầm khối theo sheet: yellow trên U, cạnh hướng về phía bạn (EIF).",
-    "Hold as in the sheet: yellow on U, edge in front (EIF).",
+    "Mở theo sheet (yellow trên U, cạnh U hướng về phía bạn). {A,B} = xoay cả khối: mặt A lên U, mặt B ra trước · S = R' L R L', S' = L R' L' R.",
+    "Start as the sheet (yellow on U, a U edge facing you). {A,B} = puzzle rotation: A to U, B to front · S = R' L R L', S' = L R' L' R.",
   ],
   "l2t.catalogTitle": ["Danh mục FTO 2-Look L3T", "FTO 2-Look L3T catalog"],
 

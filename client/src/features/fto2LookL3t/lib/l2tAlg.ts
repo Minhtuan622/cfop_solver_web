@@ -1,33 +1,31 @@
 /**
  * Notation helpers for the FTO 2-Look L3T lane.
  *
- * The published 2-Look L3T algorithms are already in plain FTO face-turn
- * notation (120° turns, lowercase = wide) after the S/H macro expansion done
- * in `l2tData.ts`, so the only normalisation needed is dropping bracket
- * groupings printed by sources (kept for robustness).
- *
- * The inverse is computed token-wise instead of via `fastCube` because that
- * parser only understands the 3x3 facelet moves.
+ * The lane stores and displays the sheet's exact notation (see
+ * `l2tData.ts`): braces {…} are puzzle rotations and S/H are macros.
+ * `expandSheetAlgorithm` produces the macro-free face-turn sequence a
+ * fixed-frame machine could apply:
+ *   - brace tokens (puzzle rotations) are dropped,
+ *   - S/S' expand to R' L R L' / L R' L' R, H/H' to R U' R' U / U' R U R',
+ *   - R2' is normalised to R2 (a double turn).
+ * The expanded form is used for machine checks; the app displays the
+ * published algorithm unchanged.
  */
 
-/** Strip bracketed groupings printed by the source pages; keep move order. */
-export function toCubingNotation(alg: string): string {
-  return alg.replace(/[[\]{}]/g, " ").split(/\s+/).filter(Boolean).join(" ");
-}
-
-/** Token-wise inverse: reversed order, primes flipped, half turns kept. */
-export function invertFto2LookL3tAlgorithm(alg: string): string {
-  return toCubingNotation(alg)
-    .split(" ")
-    .reverse()
-    .map(token => {
-      if (token.endsWith("2")) return token;
-      return token.endsWith("'") ? token.slice(0, -1) : `${token}'`;
-    })
-    .join(" ");
-}
-
-/** The move sequence that presents the case: inverse of the converted alg. */
-export function fto2LookL3tScrambleOf(alg: string): string {
-  return invertFto2LookL3tAlgorithm(alg);
+/** Strip the sheet's macro notation and rotations; keep the face turns. */
+export function expandSheetAlgorithm(alg: string): string {
+  const macros: Record<string, string> = {
+    S: "R' L R L'",
+    "S'": "L R' L' R",
+    H: "R U' R' U",
+    "H'": "U' R U R'",
+  };
+  return alg
+    .split(/\s+/)
+    .filter(token => !/^\{[A-Za-z]{1,2},[A-Za-z]{1,2}\}$/.test(token))
+    .map(token => macros[token] ?? token)
+    .join(" ")
+    .replace(/R2'/g, "R2")
+    .replace(/\s+/g, " ")
+    .trim();
 }
