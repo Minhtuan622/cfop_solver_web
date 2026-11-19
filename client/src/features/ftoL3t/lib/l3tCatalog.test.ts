@@ -1,11 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { FTO_L3T_CASES, FTO_L3T_GROUPS } from "./l3tData";
-import { expandSheetAlgorithm } from "./l3tAlg";
 import { L3T_CATALOG, listFtoL3tCases } from "./l3tCatalog";
 
 const ALG_TOKEN = /^(?:S'|S|H'|H|r[2']?|R2'|(?:BL|BR|[UDFBLR])(?:2|')?|\{[A-Za-z]{1,2},[A-Za-z]{1,2}\})$/;
-const FACE_TURN_TOKEN = /^(?:BL|BR|[UDFBLR])(?:2|')?$/;
-const WIDE_TURN_TOKEN = /^r[2']?$/;
 
 describe("FTO L3T catalog data", () => {
   it("contains exactly the 17 3-Look L3T cases in practice order", () => {
@@ -36,15 +33,14 @@ describe("FTO L3T catalog data", () => {
     }
   });
 
-  it("expands every algorithm into plain FTO face turns", () => {
+  it("stores the sheet's algorithm verbatim (braces kept, S macros unexpanded)", () => {
     for (const row of FTO_L3T_CASES) {
-      const expanded = expandSheetAlgorithm(row.algorithm);
-      expect(expanded.length).toBeGreaterThan(0);
-      for (const token of expanded.split(" ")) {
-        const known = FACE_TURN_TOKEN.test(token) || WIDE_TURN_TOKEN.test(token);
-        expect(known, `${row.id}: "${token}"`).toBe(true);
-      }
+      expect(row.algorithm.startsWith("{L,U}")).toBe(true);
     }
+    expect(FTO_L3T_CASES.find(row => row.id === "PF-1")?.algorithm).toBe("{L,U} S F");
+    expect(FTO_L3T_CASES.find(row => row.id === "LT-1")?.algorithm).toBe(
+      "{L,U} {U,BR} r U R' U' R r' U R U' R' {U,BL}",
+    );
   });
 
   it("builds catalog rows with the sentinel state and groups by PF/TL/LT", () => {

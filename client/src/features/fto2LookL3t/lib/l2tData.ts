@@ -22,12 +22,11 @@
  *   H / H' — hedge R U' R' U / inverse U' R U R'
  * Never strip the `{…}` turns: the moves after them are defined in the
  * rotated frame, so dropping them would misteach the case (e.g. TCP-C6).
- * The trainer opens in the sheet's hold (yellow on U, corner in front).
- *
- * For machine checks the macros/braces are expanded by `l2tAlg.ts`
- * (`expandSheetAlgorithm`): braces dropped, S/H expanded, R2' normalised
- * to R2. The macro-free sequences still apply cleanly through cubing.js's
- * FTO puzzle — verified 2026-11-19.
+ * The trainer opens in the sheet's hold (yellow on U, edge in front).
+ * There is deliberately NO machine-side expansion of these algorithms
+ * anywhere in the lane: discarding the rotations would produce a
+ * sequence that is not equivalent to the published one, and must never
+ * be executed as a move sequence.
  */
 export type Fto2LookL3tFamily = "l3t2";
 export type Fto2LookL3tGroup = "PF" | "TCP A" | "TCP B" | "TCP C";
