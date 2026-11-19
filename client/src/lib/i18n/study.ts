@@ -356,8 +356,8 @@ export const studyWords: Dictionary = {
     "This is the 2D diagram of the case (as on CubeRoot).",
   ],
   "study.previewHintSkewb": [
-    "Đây là sơ đồ 2D của case (như cubingapp.com).",
-    "This is the 2D diagram of the case (as on cubingapp.com).",
+    "Đây là sơ đồ 3D flat-art của case (tự vẽ theo trạng thái case, cùng trạng thái với preview 3D).",
+    "This is the self-drawn flat-art diagram of the case (same case state as the 3D preview).",
   ],
   "study.previewHintSq1": [
     "Đây là sơ đồ 2D của case (như cubingapp.com).",
