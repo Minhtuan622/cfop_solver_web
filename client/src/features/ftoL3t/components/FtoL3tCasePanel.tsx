@@ -181,7 +181,7 @@ export function FtoL3tCasePanel({
                   <p className="mb-2 text-sm text-muted">
                     {lastElapsed === null
                       ? t("study.stopToGrade")
-                      : `${t("study.result")} A� ${formatTimerReadout(lastElapsed)}`}
+                      : `${t("study.result")} · ${formatTimerReadout(lastElapsed)}`}
                   </p>
                   {lastElapsed !== null ? (
                     <div className="grid grid-cols-12 gap-2">
