@@ -154,6 +154,9 @@ Issue, tài liệu, kiểm thử và Pull Request đều được chào đón. V
 
 - **Sơ đồ case FTO**: [CubeRoot](https://cuberoot.me/alg/fto) — các bộ PF (9 case), TL (5 case), LT (3 case) và TCP (18 case cơ bản) được dùng nguyên bản với ghi công. Các biến thể TCP "(2)" (17 case) dựng từ sheet [HCubist](https://hcubist.com/learn/algorithms) FTO 2-Look L3T (được phân phối tự do trên trang của tác giả).
 - **Sơ đồ case Pyraminx**: [CubeRoot](https://cuberoot.me/alg/pyraminx) — 38/40 case (5 LL + 33 L4E) dùng nguyên bản với ghi công; 2 case không có bản trên CubeRoot (L4E-DEF-1, L4E-DEF-4) vẫn dùng ảnh từ cubingapp.com.
+- **Sơ đồ case Square-1**: cubingapp.com (restyled flat-art, nền #2a3048) — 586/588 case, 2 case EO không có diagram dùng fallback emblem (xem ghi chú trong repo).
+- **Sơ đồ case 2×2 (CLL/EG/PBL)**: cubingapp.com (restyled flat-art, nền #2a3048) — 118 diagram, catalog dùng 46 (CLL + PBL); các file EG1/EG2 không dùng trong catalog vẫn được restyled đồng bộ (xem ghi chú trong repo).
+- **Sơ đồ case 4×4 parity**: cubingapp.com (restyled flat-art, nền #2a3048) — 22 case PLL parity (xem ghi chú trong repo).
 - **Sơ đồ case Skewb**: tự vẽ (flat art) bằng Cubing.js từ trạng thái case trong catalog (`scripts/generate-skewb-diagrams.mts`) — cùng trạng thái với preview 3D trong app, không dùng ảnh cubingapp.com. Algorithms: **Sarah Strong — Sarah Intermediate & Advanced** (nguồn cubingapp.com).
 - **Thuật toán FTO**: sheet HCubist "FTO 3-Look L3T" và "FTO 2-Look L3T" (Bencisco / CubeRoot) — algorithms hiển thị đúng ký hiệu sheet.
 - **Diagrams các lane khác** (lastLayer, CFOP, 4×4/5×5…): cubingapp.com — xem ghi chú trong repo.
