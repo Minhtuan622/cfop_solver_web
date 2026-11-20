@@ -1,7 +1,8 @@
 /**
  * 4×4 Parity catalog drawer: the shared CatalogExplorer wired to the PLL
- * parity algorithms and the extracted cubingapp.com case diagrams. The
- * practice card itself shows the live 3D case.
+ * parity algorithms and the restyled cubingapp.com case diagrams (with a
+ * #2a3048 background so the black silhouette stays visible on both themes).
+ * The practice card itself shows the live 3D case.
  */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {

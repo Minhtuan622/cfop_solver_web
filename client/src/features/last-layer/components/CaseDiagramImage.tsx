@@ -1,7 +1,7 @@
 /**
  * Case diagram: an external SVG from /diagrams — vendored from CubeRoot
  * (cuberoot.me) for the FTO and Pyraminx lanes, restyled cubingapp.com
- * artwork for the Square-1 and 2x2 lanes (with a #2a3048 background so the
+ * artwork for the Square-1, 2x2 and 4×4 parity lanes (with a #2a3048 background so the
  * black silhouette stays visible on both themes), self-drawn from the case
  * state via cubing.js for the Skewb lane (see scripts/generate-skewb-diagrams.mts),
  * extracted from cubingapp.com for the remaining lanes (see README). Falls
