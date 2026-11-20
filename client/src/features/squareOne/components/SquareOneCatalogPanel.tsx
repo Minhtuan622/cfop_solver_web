@@ -1,8 +1,9 @@
 /**
  * Square-1 catalog drawer: the shared CatalogExplorer wired to the six
- * Square-1 sets and the extracted cubingapp.com case diagrams (two views of
- * the case per diagram — top and bottom layer). The practice card shows the
- * real 2D case. The parent already filters by the active set
+ * Square-1 sets and the restyled cubingapp.com case diagrams (two views of
+ * the case per diagram — top and bottom layer, now on a #2a3048 background
+ * so the black silhouette stays visible on both themes). The practice card
+ * shows the real 2D case. The parent already filters by the active set
  * (familyOptions=null); groups render one set at a time because the subset
  * names ("4 Slashes") repeat across sets.
  */
