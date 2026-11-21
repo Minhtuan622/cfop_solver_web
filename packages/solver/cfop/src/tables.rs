@@ -448,7 +448,7 @@ mod tests {
     #[test]
     fn coordinate_moves_agree_with_cube() {
         let t = tables();
-        for m in 0..FACE_MOVES {
+        for (m, table) in t.mv.edge.iter().enumerate() {
             let c = Cube::SOLVED.apply(face_move(m));
             for piece in 0..12 {
                 let pos = c
@@ -457,7 +457,7 @@ mod tests {
                     .position(|&v| v as usize == piece)
                     .unwrap();
                 let x = pos * 2 + c.edge_ori()[pos] as usize;
-                assert_eq!(t.mv.edge[m][piece * 2] as usize, x);
+                assert_eq!(table[piece * 2] as usize, x);
             }
         }
     }
