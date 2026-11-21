@@ -56,9 +56,8 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
 
 COPY . .
 COPY --from=solver /app/packages/solver/solver-wasm/pkg ./packages/solver/solver-wasm/pkg
-# Bản trong image phải có Pyodide cục bộ: build không được lặng lẽ bỏ qua
-# bước tải rồi để bộ giải gọi CDN lúc chạy.
-ENV REQUIRE_LOCAL_PYODIDE=1
+# `pnpm build` kiểm tra dist có đủ worker và .wasm của bộ giải
+# (scripts/verify-solver-dist.mjs), nên image thiếu bộ giải không thể build.
 RUN pnpm build
 
 # ---------------------------------------------------------------------------

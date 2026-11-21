@@ -18,7 +18,7 @@ Số liệu dưới đây đo trong container CI Linux x86_64 (Node 22.23, Rust 
 - 288/288 trạng thái hoán vị của last layer được giải đúng (21 case + skip).
 - 5000 scramble: `Cfop::solve` đưa khối về trạng thái đã giải; mỗi thuật toán OLL/PLL/ZBLL/1LLL được kiểm chứng bằng cách áp nghịch đảo lên khối đã giải.
 - Opening, 1000 scramble mỗi mức (độ sâu 9–10, 200 000 node mỗi lần thử): XCross 1000/1000, XXCross 997, XXXCross 131, XXXXCross 1. Mỗi opening được ghi nhận đều là MỘT chuỗi trực tiếp từ scramble đạt cross và đủ slot cùng lúc.
-- BLD 3-Style: khớp từng byte với output của bản Python trên 65 trạng thái cố định.
+- BLD 3-Style: khớp từng byte với output của engine cũ trên 65 trạng thái cố định (fixture đóng băng `solver-wasm/tests/fixtures/bld_reference.json`).
 
 ## Bảng tra
 
@@ -55,13 +55,34 @@ WebAssembly (Node), cả lần giải sau khi đã dựng bảng: opening `cross
 
 Giới hạn an toàn cho trình duyệt (đã áp dụng): độ sâu opening bị kẹp 4..10, ngân sách mỗi lần thử 500..50 000 node, ngân sách F2L 400 000 node mỗi cặp, ngân sách thời gian cả lần giải 40 s (trước hạn 45 s của client). Trường hợp xấu nhất đo được dưới 0.2 s, cách xa các giới hạn này.
 
-## So sánh hai engine trên 500 scramble
+## So sánh với engine cũ trên 500 scramble
 
-`node scripts/compare-solvers.mjs 500`: 25 nước ngẫu nhiên, seed cố định, tham số mặc định của Studio (cross U, opening cross, last layer auto). Lời giải của MỖI engine được kiểm tra độc lập bằng mô hình khối của Python.
+Trước khi gỡ engine Python cũ (chạy trong trình duyệt), hai engine được so sánh bằng một script tạm (`scripts/compare-solvers.mjs`, đã gỡ cùng engine cũ; xem lịch sử git): 500 scramble 25 nước ngẫu nhiên, seed cố định, tham số mặc định của Studio (cross U, opening cross, last layer auto). Lời giải của MỖI engine được kiểm tra độc lập bằng mô hình khối của engine cũ.
 
 | | Giải đúng | Độ dài TB | p50 | p95 | max |
 |---|---|---|---|---|---|
 | WASM (Rust) | **500/500** | 52.98 | 2.7 ms | 13.8 ms | 58.6 ms |
-| Pyodide (Python) | 494/500 | 55.07 | 585 ms | 8.6 s | 23.1 s |
+| Engine cũ (Python) | 494/500 | 55.07 | 585 ms | 8.6 s | 23.1 s |
 
-Sáu đề Pyodide không giải được: năm đề ném `RuntimeError: No full PLL case matched the current state` (lỗi có sẵn trong `solve_pll_full` của bản Python) và một đề hết ngân sách F2L 3 s. Trên 494 đề cả hai cùng giải đúng, độ dài khác nhau ở 444 đề (WASM ngắn hơn 271 đề, dài hơn 173 đề).
+Sáu đề engine cũ không giải được: năm đề ném `RuntimeError: No full PLL case matched the current state` (lỗi có sẵn trong bước PLL của engine cũ) và một đề hết ngân sách F2L 3 s. Trên 494 đề cả hai cùng giải đúng, độ dài khác nhau ở 444 đề (WASM ngắn hơn 271 đề, dài hơn 173 đề).
+
+## Kích thước bản phát hành khi gỡ engine cũ
+
+Đo bằng `pnpm build` ngay trước và ngay sau khi gỡ engine cũ. Bản "trước" là bản đã có cả hai engine (mặc định engine cũ), nên đã gồm sẵn worker và file `.wasm` của bộ giải Rust. gzip đo ở mức 9.
+
+| | Trước | Sau |
+|---|---|---|
+| `dist/public` | 25.12 MiB | **11.52 MiB** |
+| Runtime Python cục bộ (thư mục riêng trong `dist/public`) | 13.21 MiB (5.47 MiB gzip) | 0 |
+| `dist/public/assets` | 5.40 MiB | 5.01 MiB |
+| JS trong `assets` (raw / gzip) | 5.03 / 1.33 MiB | 4.64 / 1.20 MiB |
+| Entry `index-*.js` (raw / gzip) | 318.9 / 97.1 KiB | 318.9 / 97.1 KiB (không đổi) |
+| Worker bộ giải | 396.4 KiB (engine cũ, gồm mã Python nhúng) + 9.4 KiB | 9.4 KiB (3.7 KiB gzip) |
+| File `.wasm` của bộ giải (raw / gzip) | 300.4 / 116.3 KiB | 300.4 / 116.3 KiB |
+| Precache của service worker | 95 file, 6.36 MiB | 93 file, 4.78 MiB |
+| Server `dist/index.js` | 124.2 KiB | 124.2 KiB |
+
+Lượng tải của bộ giải trong trình duyệt:
+
+- **Trước:** trang Studio tải runtime Python ngay khi mở (warmup): 13.85 MB (5.74 MB gzip) cộng worker 396 KiB (135 KiB gzip).
+- **Sau:** mở trang không tải gì của bộ giải; lần bấm giải đầu tiên tải worker 9.4 KiB và file `.wasm` 300 KiB (tổng khoảng 120 KiB gzip), nhỏ hơn khoảng 45 lần.

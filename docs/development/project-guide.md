@@ -24,10 +24,10 @@ CFOP Solver Studio là ứng dụng web hỗ trợ giải, luyện tập và thi
 | Data fetching | tRPC 11, TanStack Query, SuperJSON |
 | Backend | Node.js, Express 5, tRPC server |
 | Database | MySQL/TiDB, Drizzle ORM và Drizzle Kit |
-| Rubik | Cubing.js, Three.js, Pyodide Web Worker, solver bundle Python đã nhúng |
+| Rubik | Cubing.js, Three.js; bộ giải Rust (`packages/solver`) biên dịch ra WebAssembly, chạy trong Web Worker |
 | Kiểm thử | Vitest, Testing Library, Playwright E2E |
 | Build | Vite cho frontend và esbuild cho Express server |
-| Deploy mẫu | `railway.json` dùng Railpack, `pnpm build`, `pnpm start` |
+| Deploy mẫu | `railway.json` build bằng `Dockerfile` đa tầng (Rust → Node → runtime) |
 
 Ứng dụng thông thường chạy dưới dạng **một Node process**: Express mount tRPC tại `/api/trpc`, phục vụ SPA và các route OAuth/WCA; trong development process này dùng Vite middleware, còn production phục vụ `dist/public`.
 
@@ -208,7 +208,7 @@ Trang `/study` là **một màn hình làm việc**, không phải một bảng 
 | pnpm | 10.34.5 | Phiên bản được khai báo trong `packageManager`; phải dùng lockfile hiện tại, không trộn npm/yarn trong project. |
 | Git | Phiên bản mới | Dùng để clone và quản lý thay đổi. |
 | MySQL/TiDB | MySQL 8 hoặc tương thích | Cần khi bật tài khoản, cloud sync, WCA account và Rooms. |
-| Python | 3.11 trở lên | Chỉ cần nếu sửa hoặc tái tạo solver Python; không cần để chạy bundle web đã có. |
+| Rust | stable (CI dùng 1.97) + target `wasm32-unknown-unknown` + `wasm-pack` | Bắt buộc: bộ giải là Rust biên dịch ra WebAssembly (`pnpm build:solver`). `wasm-opt` (Binaryen) là tùy chọn, giúp file `.wasm` nhỏ hơn. |
 | Chromium | Chromium của Playwright hoặc bản cài hệ thống | `pnpm test:e2e` ép dùng `/usr/bin/chromium`; nếu máy không có Chromium ở đường dẫn đó thì chạy `npx playwright test` để dùng browser do Playwright quản lý. |
 
 Kiểm tra nhanh:
@@ -218,10 +218,16 @@ node --version
 pnpm --version
 git --version
 mysql --version
-python3 --version       # chỉ cần cho Python solver
+rustc --version
+wasm-pack --version
 ```
 
-Nếu không dùng Python solver, dòng `python3 --version` có thể bỏ qua.
+Cài Rust qua [rustup](https://rustup.rs), rồi thêm target và `wasm-pack`:
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo install wasm-pack --locked
+```
 
 ## 4. Clone và cài dependency
 
@@ -230,7 +236,10 @@ git clone <URL_REPOSITORY> cfop_solver_web
 cd cfop_solver_web
 corepack enable
 pnpm install --frozen-lockfile
+pnpm build:solver
 ```
+
+`pnpm build:solver` biên dịch bộ giải ra `packages/solver/solver-wasm/pkg`. `pnpm dev` và `pnpm build` tự chạy bước này khi thư mục đó còn thiếu và máy có `wasm-pack` (`scripts/ensure-solver.mjs`).
 
 Không commit các file sau:
 
@@ -241,6 +250,8 @@ Không commit các file sau:
 node_modules/
 dist/
 test-results/
+packages/solver/target/
+packages/solver/solver-wasm/pkg/
 ```
 
 Các file media lớn không nên đặt trong `client/public` hoặc `client/src/assets`. Dùng object storage/CDN phù hợp và chỉ lưu URL/metadata trong ứng dụng.
@@ -399,21 +410,22 @@ Các route chính:
 | `pnpm check` | TypeScript check, không tạo output. |
 | `pnpm test` | Chạy toàn bộ Vitest server/client. |
 | `pnpm test:e2e` | Chạy Playwright bằng Chromium hệ thống tại `/usr/bin/chromium`; dùng `npx playwright test` nếu máy không có Chromium ở đường dẫn đó. |
+| `pnpm build:solver` | Build bộ giải Rust ra WebAssembly (`packages/solver/solver-wasm/pkg`); chạy lại sau mỗi lần sửa code Rust. |
 | `pnpm build` | Build frontend và bundle Express server production. |
 | `pnpm start` | Chạy `dist/index.js` ở production mode. |
-| `pnpm run embed-solver` | Tái tạo bundle solver từ `solver-python/cfop_solver`; chỉ cần khi sửa Python solver. |
 | `pnpm db:push` | Generate và apply Drizzle migration; không chạy tự động trong deploy nếu chưa kiểm soát. |
 | `pnpm format` | Format bằng Prettier. |
-| `node scripts/bench-solver.mjs` | Đo hiệu năng bộ giải trong Pyodide. |
+| `node scripts/bench-solver.mjs` | Đo hiệu năng bộ giải (chính bản WebAssembly mà trình duyệt tải, chạy trong Node). |
 | `node scripts/bench-solver.mjs --check` | Đo **kèm kiểm tra ngưỡng thời gian**; thoát mã khác 0 khi vi phạm. |
 
 ### Bộ đo bộ giải và ngưỡng thời gian
 
 `scripts/bench-solver.mjs` giải 11 đề cố định (`scripts/bench-scrambles.json`)
-trong Pyodide và in ra bảng: đề, đúng/sai, số nước, thời gian.
+bằng chính module WebAssembly mà trình duyệt tải và in ra bảng: đề, đúng/sai,
+số nước, thời gian.
 
 Thêm `--check` để **kiểm tra ngưỡng thời gian** — đây là chế độ CI dùng
-(job `Solver benchmark (Pyodide)`):
+(job `Solver benchmark (WASM)`):
 
 ```bash
 node scripts/bench-solver.mjs --check
@@ -435,15 +447,19 @@ Bộ đo chạy **hai kịch bản**, mỗi kịch bản một bộ ngưỡng ri
 | Kịch bản | `opening` | Ngưỡng mỗi đề | Ngưỡng tổng | Vì sao tách riêng |
 |---|---|---|---|---|
 | `cross` | `cross` | `PER_SCRAMBLE_LIMIT_SEC` (20s) | `TOTAL_LIMIT_SEC` (80s) | Kịch bản mặc định của app. |
-| `auto` | `auto` | `AUTO_PER_SCRAMBLE_LIMIT_SEC` (60s) | `AUTO_TOTAL_LIMIT_SEC` (200s) | Bộ giải thử bậc cross **cao nhất trước** (XXXXCross → XXXCross → XXCross → XCross) nên đắt hơn nhiều: đo được chậm nhất ~21s cho một đề, tổng ~69s cho 11 đề. |
+| `auto` | `auto` | `AUTO_PER_SCRAMBLE_LIMIT_SEC` (60s) | `AUTO_TOTAL_LIMIT_SEC` (200s) | Bộ giải thử bậc cross **cao nhất trước** (XXXXCross → XXXCross → XXCross → XCross) nên đắt hơn kịch bản `cross`. |
 
 `opening: "auto"` là lựa chọn có sẵn trong phần cài đặt của app, nên nó phải
 có ngân sách thời gian riêng — dùng chung ngưỡng với kịch bản `cross` thì kịch
 bản `auto` đỏ ngay, còn nếu nới ngưỡng chung thì kịch bản `cross` mất tác dụng
 bảo vệ.
 
-Logic chấm điểm nằm trong `scripts/bench-check.mjs` (hàm thuần, không cần
-Pyodide) và được kiểm thử bằng dữ liệu giả lập trong
+Ngưỡng hiện rất rộng so với bộ giải WebAssembly (đề chậm nhất của cả hai kịch
+bản dưới 0,1s); chúng chặn được hồi quy nghiêm trọng mà không làm CI dễ đỏ vì
+máy chậm.
+
+Logic chấm điểm nằm trong `scripts/bench-check.mjs` (hàm thuần, không cần nạp
+bộ giải) và được kiểm thử bằng dữ liệu giả lập trong
 `server/benchSolver.test.ts`.
 
 Báo cáo còn in thêm **`totals.wallClockSeconds`** = tổng lần chạy chính +
@@ -452,47 +468,47 @@ tổng **chỉ áp dụng cho lần chạy chính**; `wallClockSeconds` là số
 đối chiếu ngân sách thời gian của job (ví dụ khi nhiều đề phải chạy lại),
 **không** tham gia quyết định PASS/FAIL. Artifact cũ không có trường này vẫn đọc
 được — chỉ là thiếu số đo bổ sung.
-JSON artifact (`--json-file`) có thêm các trường cấp cao nhất
-`pyodideVersion`, `nodeVersion`, `platform`, `arch`. `pyodideVersion` được đọc
-từ `package.json` của gói `pyodide` thật trong `node_modules` (qua
-`import.meta.resolve("pyodide")`), không đọc hằng số trong source hay
-`package.json` của repo — nhờ vậy mỗi artifact tự mô tả runtime đã đo.
+JSON artifact (`--json-file`) có thêm các trường cấp cao nhất `engine`
+(`"wasm"`), `wasmBytes` (kích thước thật của file `.wasm` đã đo), `nodeVersion`,
+`platform`, `arch` — nhờ vậy mỗi artifact tự mô tả bản build đã đo.
 Artifact còn có mảng `scenarios` chứa đầy đủ cả hai kịch bản; các trường ở
 cấp cao nhất vẫn mô tả kịch bản `cross` như trước nên artifact cũ vẫn đọc
 được.
 
 ### Lưu ý quan trọng về `pnpm build`
 
-`pnpm build` **có chạy `tsc --noEmit` ở đầu chuỗi**, trước bước đóng gói. Lý do: Vite và esbuild chỉ *transpile*, **không type-check** — nên một lỗi TypeScript vẫn tạo ra bundle chạy được. Cả hai đường deploy đều gọi `pnpm build` (`railway.json` dùng `buildCommand: pnpm build`, `Dockerfile` dùng `RUN pnpm build`), tức là không có cổng type-check nào ở phía deploy. Chạy type-check trong `pnpm build` đóng lại lỗ hổng đó: lỗi TS làm **build fail**, nên bundle hỏng không bao giờ lên production.
+`pnpm build` **có chạy `tsc --noEmit` ở đầu chuỗi**, trước bước đóng gói. Lý do: Vite và esbuild chỉ *transpile*, **không type-check** — nên một lỗi TypeScript vẫn tạo ra bundle chạy được. Đường deploy gọi `pnpm build` (`railway.json` build bằng `Dockerfile`, trong đó có `RUN pnpm build`), tức là không có cổng type-check nào khác ở phía deploy. Chạy type-check trong `pnpm build` đóng lại lỗ hổng đó: lỗi TS làm **build fail**, nên bundle hỏng không bao giờ lên production.
 
 `server/build.config.test.ts` chặn việc gỡ bước `tsc --noEmit` khỏi script build (và chặn mất các bước build bắt buộc khác).
 
-`pnpm build` **không gọi** `embed-solver` để giữ build production nhanh và deterministic. Source Python solver hiện nằm công khai tại `solver-python/cfop_solver`; file `client/src/lib/embeddedSolver.ts` là bundle đã được theo dõi trong repository và được dùng trực tiếp khi build.
+`pnpm build` bắt đầu bằng `scripts/ensure-solver.mjs` (dừng với hướng dẫn rõ ràng nếu thiếu bản build WebAssembly của bộ giải) và kết thúc bằng `scripts/verify-solver-dist.mjs` (dist phải có worker `solverWorker-*.js` và đúng một file `solver_wasm_bg-*.wasm` hợp lệ).
 
-Khi thực sự sửa Python solver, cần có workspace đúng cấu trúc:
+### Bộ giải Rust/WebAssembly
 
-```text
-cfop_solver_web/
-├── scripts/embed-solver.mjs
-└── solver-python/
-    └── cfop_solver/
-        ├── __init__.py
-        ├── cube.py
-        ├── solver.py
-        └── ...
-```
+Bộ giải nằm ở `packages/solver`, một Cargo workspace riêng (không thuộc pnpm workspace):
 
-Sau khi sửa và kiểm thử Python:
+| Crate | Nội dung |
+|---|---|
+| `cube-core` | Mô hình cubie, nước đi, parse/format, chuyển đổi 54 sticker URFDLB có kiểm tra hợp lệ. Chỉ dùng thư viện chuẩn. |
+| `cfop` | Cross, F2L, OLL/PLL, XCross..XXXXCross, ZBLL/1LLL, pipeline `Cfop`. Bảng pruning dựng lười một lần (~3,7 MB). |
+| `solver-wasm` | wasm-bindgen: `solve`, `scrambleToStickers`, `analyzeBld`, `warmUp`; trả đúng tài liệu `SolverResult` mà client dùng. |
+
+Quy trình khi sửa bộ giải:
 
 ```bash
-cd cfop_solver_web
-pnpm run embed-solver
-pnpm check
-pnpm test
-pnpm build
+cd packages/solver
+cargo fmt --all
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+cd ../..
+pnpm build:solver          # build lại packages/solver/solver-wasm/pkg
+pnpm test                  # gồm test client chạy với module WASM thật
 ```
 
-Không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`; đây là output được sinh từ solver source.
+- `pnpm build:solver` chạy `wasm-pack build --target web --release`, rồi `wasm-opt -Os` nếu máy có Binaryen. Thư mục `pkg/` **không commit**; Docker build nó trong tầng Rust riêng.
+- Client nạp bộ giải qua alias `@solver-wasm` (`vite.config.ts`, `vitest.config.ts`, `tsconfig.json`). Worker là `client/src/lib/solverWorker.ts`; phần chuyển request ↔ lời gọi WASM nằm ở `client/src/lib/wasmSolverCore.ts` để test chạy được trên Node.
+- Bảng case ZBLL/1LLL mà trang Last Layer hiển thị (`client/src/features/last-layer/lib/directCaseCatalogData.ts`) được sinh từ `packages/solver/cfop/src/one_look_data.rs` bằng `pnpm build:solver && node scripts/export-last-layer-catalog.mjs`.
+- Kết quả kiểm chứng và benchmark: `docs/validation/rust-wasm-solver.md`.
 
 ### Dữ liệu thuật toán BLD (BLDDB)
 
@@ -515,60 +531,23 @@ Hai điều cần nhớ khi sửa module này:
 Có CSP cho phép `connect-src https://raw.githubusercontent.com`, nên không cần
 mở thêm origin nào.
 
-### Pyodide chạy offline
+### Bộ giải chạy offline
 
-Bộ giải CFOP chạy bằng Pyodide ngay trong trình duyệt (Web Worker). Bản phân
-phối Pyodide được tải về `client/public/pyodide` (~14 MB) bởi
-`scripts/fetch-pyodide.mjs`, và script này chạy trước cả `pnpm dev` lẫn
-`pnpm build`:
+Worker và file `.wasm` (~300 KB) của bộ giải nằm trong `dist/public/assets`, phục vụ cùng ứng dụng, không dùng CDN. Worker chỉ được tạo khi người dùng bấm giải lần đầu, nên trang đầu không tải `.wasm` (`e2e/solver-wasm-lazy.spec.ts`). Service worker của PWA cache mọi file trong `/assets/` theo chiến lược `CacheFirst`, nên sau lần giải đầu tiên bộ giải dùng được khi offline (`e2e/solve-offline.spec.ts`).
 
-```bash
-pnpm fetch-pyodide            # tải nếu thiếu hoặc sai phiên bản
-pnpm fetch-pyodide --force    # tải lại từ đầu
-```
+Đường dẫn `/assets/` không có file trả 404 JSON chứ không rơi vào `index.html` (`server/_core/vite.ts`, `server/assetRoute.test.ts`): một tab cũ xin worker hoặc `.wasm` của bản deploy trước sẽ nhận lỗi rõ ràng thay vì HTML.
 
-Nhờ vậy bộ giải chạy được khi offline. Loader
-(`client/src/lib/pyodideLoader.ts`) ưu tiên bản cục bộ và chỉ dùng CDN làm
-dự phòng khi bản cục bộ chưa có.
+### Nâng cấp toolchain Rust
 
-Những điều cần nhớ:
+Phiên bản được ghim ở các nơi sau và phải đổi **cùng lúc**:
 
-- **Phiên bản phải khớp ở ba nơi**: `PYODIDE_VERSION` trong
-  `client/src/lib/pyodideLoader.ts`, `PYODIDE_VERSION` trong
-  `scripts/fetch-pyodide.mjs`, và devDependency `"pyodide"` trong
-  `package.json`. Đổi phiên bản thì sửa cả ba rồi chạy lại
-  `pnpm fetch-pyodide --force` (xem mục "Nâng cấp Pyodide" bên dưới).
-- **Thư mục `client/public/pyodide` bị gitignore**, nên repo không phình;
-  bản build trên CI có nó vì script tải chạy trước khi build.
-- **Ở chế độ dev, Vite gắn `?import` vào mọi dynamic import** và từ chối
-  transform file trong `/public`. Vì vậy `vite.config.ts` có plugin
-  `localPyodidePlugin` tự phục vụ các file đó. Bỏ plugin này thì dev server
-  sẽ âm thầm lùi về CDN.
+| Nơi | Nội dung |
+|---|---|
+| `.github/workflows/ci.yml` | `dtolnay/rust-toolchain@1.97`, `wasm-pack@0.15.1` |
+| `Dockerfile` (tầng `solver`) | image `rust:1.97-slim-bookworm`, `wasm-pack` 0.15.1, `wasm-bindgen-cli` |
+| `packages/solver/Cargo.lock` | crate `wasm-bindgen`: phiên bản `wasm-bindgen-cli` trong Dockerfile phải trùng với phiên bản này |
 
-### Nâng cấp Pyodide
-
-Việc nâng Pyodide **phải làm thủ công** — Dependabot bị chặn nâng package
-`pyodide` ở `.github/dependabot.yml` (không giới hạn phiên bản) — và phải sửa
-**cùng lúc ba nơi**:
-
-| # | Nơi | Nội dung cần đổi |
-|---|---|---|
-| 1 | `client/src/lib/pyodideLoader.ts` | hằng số `PYODIDE_VERSION` (runtime trình duyệt nạp) |
-| 2 | `scripts/fetch-pyodide.mjs` | hằng số `PYODIDE_VERSION` (bản phân phối cục bộ tải về) |
-| 3 | `package.json` | devDependency `"pyodide"` — bản **đích xác**, không dùng `^` hay `~` |
-
-Sau khi sửa, kiểm tra bằng:
-
-```bash
-pnpm install                              # cập nhật pnpm-lock.yaml
-pnpm test --run server/pyodideAssets.test.ts
-node scripts/bench-solver.mjs
-```
-
-`server/pyodideAssets.test.ts` khẳng định ba nơi trên cùng một phiên bản và
-bản `pyodide` thực sự nằm trong `node_modules` cũng vậy, nên sửa thiếu một nơi
-là test FAIL. `node scripts/bench-solver.mjs` đo lại bộ giải trên runtime mới
-để so với số liệu cũ.
+Sau khi đổi, chạy lại toàn bộ test Rust, `pnpm build:solver`, `pnpm test`, `node scripts/bench-solver.mjs` và build Docker.
 
 
 ## 10. Kiểm thử trước khi commit
@@ -585,7 +564,11 @@ git diff --check
 
 `pnpm build` **đã chạy `tsc --noEmit` ở đầu chuỗi**, nên build fail ở local
 cũng là lỗi type — không phải chỉ lỗi bundling. Chạy `pnpm check` riêng vẫn
-hữu ích vì nó báo lỗi sớm hơn (trước bước tải Pyodide ~14 MB).
+hữu ích vì nó nhanh hơn (không đóng gói).
+
+Sửa code Rust thì chạy thêm `cargo fmt --all -- --check`, `cargo clippy
+--workspace --all-targets -- -D warnings` và `cargo test --workspace` trong
+`packages/solver`.
 
 Playwright dùng `playwright.config.ts`, tự khởi động hoặc tái sử dụng `pnpm dev`, chạy Chromium headless và mặc định truy cập `http://127.0.0.1:3000`. E2E account/Room dùng fixture tRPC trong bộ nhớ, không ghi account, cloud state hoặc phòng thật. E2E lazy-load kiểm tra Studio không tải Cubing/Three.js ban đầu, Timer tải Cubing khi cần scramble và event 3D tải Three.js khi mở canvas.
 
@@ -627,8 +610,15 @@ Build production:
 
 ```bash
 pnpm install --frozen-lockfile
+pnpm build:solver        # cần Rust + wasm-pack
 pnpm build
 NODE_ENV=production PORT=3000 pnpm start
+```
+
+Hoặc build image Docker (tầng Rust build bộ giải, tầng Node build web, tầng cuối chỉ có `dist` và dependency production):
+
+```bash
+docker build -t cfop-solver-studio .
 ```
 
 `pnpm build` chạy Vite với `NODE_ENV=production` tường minh, nên `.env.local` không thể vô tình biến build thành development bundle. Manus preview runtime chỉ được chèn khi chạy dev server hoặc khi đặt `MANUS_RUNTIME=1`; build Railway mặc định không kèm runtime đó.
@@ -644,11 +634,13 @@ dist/
 `railway.json` đã có sẵn cấu hình mẫu:
 
 ```text
-builder: Railpack
-build:   pnpm build
-start:   pnpm start
-restart: ON_FAILURE, tối đa 3 lần
+builder:     Dockerfile (Railpack không có Rust nên không build được bộ giải)
+start:       node dist/index.js
+healthcheck: /_app/ready
+restart:     ON_FAILURE, tối đa 3 lần
 ```
+
+Nếu service trên Railway có đặt đè build command hoặc start command trong dashboard, hãy xoá để Railway dùng cấu hình trong `railway.json`.
 
 Khi deploy, cần khai báo secret/database trong dashboard của nhà cung cấp, không commit vào repository. Phải chạy production Node server; static host thuần như GitHub Pages hoặc Cloudflare Pages chỉ phù hợp cho `dist/public` nếu tách backend riêng, không đủ cho account, sync và Rooms.
 
@@ -687,11 +679,15 @@ cfop_solver_web/
 │   ├── schema.ts              # MySQL schema và types
 │   ├── *.sql                  # Migration đã sinh
 │   └── meta/                  # Drizzle metadata
+├── packages/solver/           # Bộ giải Rust (Cargo workspace: cube-core, cfop, solver-wasm)
 ├── scripts/
-│   ├── embed-solver.mjs       # Tái tạo solver bundle khi có Python source
+│   ├── build-solver.mjs       # Build bộ giải ra WebAssembly (pnpm build:solver)
+│   ├── ensure-solver.mjs      # Đầu pnpm dev/build: bảo đảm đã có bản build WASM
+│   ├── verify-solver-dist.mjs # Cuối pnpm build: dist phải có worker + .wasm
 │   └── ...                    # Validation/build utilities
 ├── e2e/                       # Playwright browser workflows
-├── railway.json               # Deploy config mẫu cho Node/Express
+├── Dockerfile                 # Build đa tầng: Rust → Node → runtime
+├── railway.json               # Deploy config mẫu (build bằng Dockerfile)
 ├── playwright.config.ts
 ├── vite.config.ts
 ├── vitest.config.ts
@@ -774,7 +770,7 @@ CDN chỉ nên phục vụ static assets và chunk Cubing/Three.js. Lazy-load th
 - [ ] `pnpm check` đạt.
 - [ ] `pnpm test` đạt.
 - [ ] `pnpm test:e2e` đạt với Chromium.
-- [ ] `pnpm build` đạt trong môi trường checkout mới với source Python trong repository.
+- [ ] `pnpm build:solver` và `pnpm build` đạt trong môi trường checkout mới (có Rust + wasm-pack); `cargo test --workspace` đạt trong `packages/solver`.
 - [ ] Đã kiểm tra `git diff --check`.
 - [ ] Đã backup/export dữ liệu local quan trọng trước khi đổi origin/domain.
 - [ ] Đã kiểm tra redirect URI, cookie domain, CORS và secrets trên host thật.

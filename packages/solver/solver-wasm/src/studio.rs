@@ -3,8 +3,8 @@
 //!
 //! Field names, phase names (`cross`, `xcross_FR`, `f2l_BL`, `oll`, `pll`,
 //! `zbll`, `1lll`) and case ids (`"21"`, `"Ua"`, `"solved"`,
-//! `"ZBLLAS-001"`) match the previous Python engine, so the UI renders both
-//! engines identically.
+//! `"ZBLLAS-001"`) are the contract the Studio UI renders; changing them is a
+//! breaking change for the web client.
 
 use cfop::{
     now_ms, Cfop, CfopOptions, CfopSolution, ClockFn, Face, LastLayerMode, Limits, OpeningMode,

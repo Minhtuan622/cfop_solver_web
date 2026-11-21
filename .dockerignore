@@ -19,6 +19,3 @@ compose.local.yaml
 # Rust build output; the solver stage builds the WASM package itself.
 packages/solver/target
 packages/solver/solver-wasm/pkg
-
-# Large local download; `pnpm build` fetches it inside the image.
-client/public/pyodide

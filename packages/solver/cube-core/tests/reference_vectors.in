@@ -1,4 +1,4 @@
-// Generated from solver-python/cfop_solver/cube.py (the current production engine).
+// Frozen reference: sticker states recorded from the project's earlier facelet-model engine.
 pub const VECTORS: &[(&str, &str)] = &[
     ("R", "UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB"),
     ("U", "UUUUUUUUUBBBRRRRRRRRRFFFFFFDDDDDDDDDFFFLLLLLLLLLBBBBBB"),

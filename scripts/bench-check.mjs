@@ -3,7 +3,7 @@
  *
  * Tách riêng khỏi `scripts/bench-solver.mjs` để phần "quyết định đạt hay
  * không" là hàm thuần: nhận dữ liệu giả lập thì kiểm tra được ngay, không
- * cần nạp Pyodide. `scripts/bench-solver.mjs` chỉ lo phần đo và gọi vào đây.
+ * cần nạp bộ giải. `scripts/bench-solver.mjs` chỉ lo phần đo và gọi vào đây.
  *
  * Ba điều kiện làm chế độ kiểm tra FAIL:
  * (a) có đề giải sai (hoặc lỗi) — không bao giờ thử lại;

@@ -9,13 +9,19 @@ function buildScript(): string {
 }
 
 describe("production build configuration", () => {
-  it("uses the tracked solver bundle rather than a Python source path outside the repository", () => {
+  it("builds against the WebAssembly solver package and fails early when it is missing", () => {
+    // `pnpm build:solver` (Rust + wasm-pack) produces
+    // packages/solver/solver-wasm/pkg; the Docker image builds it in its own
+    // stage. `scripts/ensure-solver.mjs` stops the build with a clear message
+    // instead of a cryptic "cannot resolve @solver-wasm/..." error.
     const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { scripts: Record<string, string> };
-    const embeddedSolver = readFileSync(new URL("../client/src/lib/embeddedSolver.ts", import.meta.url), "utf8");
+    const build = buildScript();
 
-    expect(packageJson.scripts.build).not.toContain("embed-solver");
-    expect(embeddedSolver).toContain("PYTHON_SOLVER_FILES");
-    expect(embeddedSolver).toContain('"solver.py"');
+    expect(packageJson.scripts["build:solver"]).toBe("node scripts/build-solver.mjs");
+    // Trước cả type-check: thiếu package thì tsc cũng không tìm thấy kiểu.
+    expect(build.indexOf("scripts/ensure-solver.mjs")).toBeGreaterThanOrEqual(0);
+    expect(build.indexOf("scripts/ensure-solver.mjs")).toBeLessThan(build.indexOf("tsc --noEmit"));
+    expect(packageJson.scripts.dev).toContain("scripts/ensure-solver.mjs");
   });
 
   it("type-checks before bundling so a TypeScript error cannot reach production", () => {
@@ -41,9 +47,12 @@ describe("production build configuration", () => {
     // Bỏ sót một bước này là mất luôn một lớp bảo vệ khác.
     const build = buildScript();
 
-    expect(build).toContain("scripts/fetch-pyodide.mjs");
     expect(build).toContain("vite.js build");
     expect(build).toContain("esbuild server/_core/index.ts");
-    expect(build).toContain("scripts/verify-pyodide-dist.mjs");
+    // Bản phát hành phải chứa bộ giải: worker và file .wasm trong dist.
+    expect(build).toContain("scripts/verify-solver-dist.mjs");
+    expect(build.indexOf("scripts/verify-solver-dist.mjs")).toBeGreaterThan(
+      build.indexOf("vite.js build")
+    );
   });
 });

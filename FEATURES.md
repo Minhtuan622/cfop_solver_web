@@ -8,7 +8,7 @@ Danh sách tính năng thực sự có trong mã nguồn. Hai tính năng từng
 - Hỗ trợ màu ramo tùy chọn (cross color) và nhiều kiểu mở đầu: Cross, XCross, XXCross, XXXCross, XXXXCross,_auto_.
 - Hiển thị báo cáo từng phase (Cross, F2L, OLL, PLL) với số node, thời gian và trạng thái trung gian.
 - Xem lại scramble từng bước và effect 3D (Three.js).
-- Bộ giải chạy trong trình duyệt nhờ Pyodide (Web Worker), không gửi scramble lên server.
+- Bộ giải chạy trong trình duyệt (Rust biên dịch ra WebAssembly, chạy trong Web Worker), không gửi scramble lên server.
 
 ## 2. Bấm giờ (Timer Lab)
 

@@ -1,18 +1,16 @@
 /** Xưởng Cơ Khí Tốc Độ — typed bridge to the non-blocking CFOP solver worker.
  *
- * Một worker duy nhất đảm nhiệm solve, bld và warmup (tốn CPU): worker
- * Pyodide (`solverWorker.ts`, mặc định) hoặc worker WebAssembly
- * (`solverWorkerWasm.ts`) khi `VITE_SOLVER_ENGINE=wasm` — xem
+ * Một worker WebAssembly duy nhất (`solverWorker.ts`, bộ giải Rust trong
+ * `packages/solver`) đảm nhiệm solve và bld (tốn CPU) — xem
  * `lib/solverEngine.ts`. Việc kiểm tra hợp lệ trạng thái (`validateStateInBrowser`)
  * chạy thuần JavaScript trong trang (`lib/cubeValidation.ts`), còn duyệt danh
  * mục case 1LLL/ZBLL (`listLastLayerCasesInBrowser`) đọc từ dữ liệu đã được
  * nhúng sẵn (`features/last-layer/lib/directCaseCatalog.ts`) — không cần
- * runtime Python.
+ * worker.
  */
 import { validateCubeState } from "./cubeValidation";
 import {
-  createSolverEngine,
-  resolveSolverEngineName,
+  WasmSolverEngine,
   type SolverEngine,
   type SolverProgress,
 } from "./solverEngine";
@@ -116,15 +114,13 @@ export {
   SolverLimitError,
   SolverTimeoutError,
 } from "./solverEngine";
-export type { SolverEngine, SolverEngineName, SolverProgress } from "./solverEngine";
+export type { SolverEngine, SolverProgress } from "./solverEngine";
 
 let engine: SolverEngine | null = null;
 
-/** Engine đang dùng, chọn bằng `VITE_SOLVER_ENGINE` (mặc định pyodide). */
+/** Engine của trang (tạo lười, một lần). */
 export function getSolverEngine(): SolverEngine {
-  engine ??= createSolverEngine(
-    resolveSolverEngineName(import.meta.env.VITE_SOLVER_ENGINE as string | undefined)
-  );
+  engine ??= new WasmSolverEngine();
   return engine;
 }
 

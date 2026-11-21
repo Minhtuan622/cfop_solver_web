@@ -1,8 +1,8 @@
 //! OLL (57) and PLL (21) algorithm tables.
 //!
-//! Imported from the project's verified database
-//! (solver-python/cfop_solver/full_database.py). Every row is checked by
-//! tests: the inverse of each algorithm must produce its case.
+//! The project's curated algorithm set (carried over unchanged from the
+//! earlier solver). Every row is checked by tests: the inverse of each
+//! algorithm must produce its case.
 
 /// (case number, group, algorithm)
 pub const OLL_ALGORITHMS: [(u8, &str, &str); 57] = [

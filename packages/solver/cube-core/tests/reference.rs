@@ -1,13 +1,13 @@
-//! Cross-check against fixed vectors produced by the current production
-//! engine (solver-python, facelet model). Covers faces, slices, rotations,
-//! wide moves and random mixed sequences.
+//! Cross-check against frozen vectors recorded from the project's earlier,
+//! independent facelet-model engine (before this crate replaced it). Covers
+//! faces, slices, rotations, wide moves and random mixed sequences.
 
 include!("reference_vectors.in");
 
 use cube_core::{parse_moves, Cube};
 
 #[test]
-fn matches_python_engine_vectors() {
+fn matches_reference_vectors() {
     assert!(VECTORS.len() >= 50);
     for (scramble, expected) in VECTORS {
         let c = Cube::from_moves(&parse_moves(scramble).unwrap());

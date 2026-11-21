@@ -302,8 +302,8 @@ fn rotations() -> Vec<Cube> {
     all
 }
 
-/// Rotation bringing each cross color to D, in the same convention as the
-/// previous (Python) solver so slot names agree: U x2, R z, F x', D -, L z', B x.
+/// Rotation bringing each cross color to D. The Studio names F2L slots in this
+/// view, so the convention is fixed: U x2, R z, F x', D -, L z', B x.
 const CROSS_ROTATIONS: [&str; 6] = ["x2", "z", "x'", "", "z'", "x"];
 
 fn build_frame(color: usize) -> Frame {

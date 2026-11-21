@@ -2,7 +2,6 @@ import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
@@ -60,56 +59,6 @@ export function siteUrlPlugin(): Plugin {
   };
 }
 
-/**
- * Serves the local Pyodide distribution during development.
- *
- * The Pyodide files live in `client/public/pyodide` and are copied verbatim by
- * the build — they must not go through Vite's transform pipeline. In dev,
- * however, Vite appends `?import` to every dynamic import, and the transform
- * middleware then refuses the request with "This file is in /public and will
- * be copied as-is during build". The solver would silently fall back to the
- * CDN, so the dev server serves those files itself.
- */
-export function localPyodidePlugin(): Plugin {
-  const pyodideDir = path.resolve(
-    import.meta.dirname,
-    "client",
-    "public",
-    "pyodide",
-  );
-  const contentTypes: Record<string, string> = {
-    ".mjs": "text/javascript",
-    ".js": "text/javascript",
-    ".wasm": "application/wasm",
-    ".json": "application/json",
-    ".zip": "application/zip",
-  };
-
-  return {
-    name: "cfop-local-pyodide",
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        const url = req.url ?? "";
-        if (!url.startsWith("/pyodide/")) return next();
-        const name = decodeURIComponent(url.slice("/pyodide/".length).split("?")[0]);
-        if (!name || name.includes("/") || name.includes("..")) return next();
-        const file = path.join(pyodideDir, name);
-        try {
-          const body = readFileSync(file);
-          res.setHeader(
-            "Content-Type",
-            contentTypes[path.extname(name)] ?? "application/octet-stream",
-          );
-          res.setHeader("Cache-Control", "no-cache");
-          res.end(body);
-        } catch {
-          next();
-        }
-      });
-    },
-  };
-}
-
 const projectRoot = import.meta.dirname;
 const environment = loadEnv(
   process.env.NODE_ENV === "production" ? "production" : "development",
@@ -133,7 +82,6 @@ const plugins = [
   tailwindcss(),
   jsxLocPlugin(),
   siteUrlPlugin(),
-  localPyodidePlugin(),
   VitePWA({
     registerType: "autoUpdate",
     injectRegister: "auto",
@@ -206,17 +154,9 @@ const plugins = [
           },
         },
         {
-          // The Pyodide solver payload (~13 MB) downloads on first use.
-          urlPattern: /\/pyodide\/.*$/,
-          handler: "CacheFirst",
-          options: {
-            cacheName: "cfop-pyodide",
-            expiration: { maxEntries: 16, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            cacheableResponse: { statuses: [0, 200] },
-          },
-        },
-        {
-          // Fonts & other static assets: cache-then-network for freshness.
+          // Hashed build files — fonts, lazy chunks and the solver's worker
+          // and .wasm (~300 KB, fetched on the first solve) — so the solver
+          // keeps working offline after it has been used once.
           urlPattern: /\/assets\/.*$/,
           handler: "CacheFirst",
           options: { cacheName: "cfop-assets" },
@@ -262,8 +202,7 @@ export default defineConfig({
           // its React dependency into that chunk, and the entry would have to
           // preload the whole charting library just to get React. Let the lazy
           // route imports create the shared chart chunk instead.
-          if (id.includes("embeddedSolver") || id.includes("solverWorker"))
-            return "solver";
+          if (id.includes("solverWorker")) return "solver";
         },
       },
     },

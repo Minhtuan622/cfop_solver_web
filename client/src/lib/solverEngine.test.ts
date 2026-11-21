@@ -1,12 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  PyodideSolverEngine,
   SolverCancelledError,
   SolverLimitError,
+  SolverTimeoutError,
   WasmSolverEngine,
-  resolveSolverEngineName,
   type SolveRequest,
-  type SolverEngine,
 } from "@/lib/solverEngine";
 
 /** Worker giả: ghi lại message, cho test tự trả lời. */
@@ -41,74 +39,70 @@ const REQUEST: SolveRequest = {
 
 const RESULT = { initial_state: "x", final_state: "y", algorithm: "R", phases: [], trace: [] };
 
-function engines(): [SolverEngine, FakeWorker[]][] {
-  const make = (Engine: typeof PyodideSolverEngine | typeof WasmSolverEngine) => {
-    const workers: FakeWorker[] = [];
-    const engine = new Engine(() => {
-      const w = new FakeWorker();
-      workers.push(w);
-      return w as unknown as Worker;
-    });
-    return [engine, workers] as [SolverEngine, FakeWorker[]];
-  };
-  return [make(PyodideSolverEngine), make(WasmSolverEngine)];
+function engine(timeoutMs?: number) {
+  const workers: FakeWorker[] = [];
+  const instance = new WasmSolverEngine(() => {
+    const w = new FakeWorker();
+    workers.push(w);
+    return w as unknown as Worker;
+  }, timeoutMs);
+  return { engine: instance, workers };
 }
 
-describe("SolverEngine adapters (cùng input cho hai engine)", () => {
-  it("gửi cùng một message solve và trả cùng kết quả", async () => {
-    const seen: any[] = [];
-    for (const [engine, workers] of engines()) {
-      const promise = engine.solve(REQUEST);
-      const message = workers[0].messages.at(-1);
-      seen.push({ ...message, id: undefined });
-      workers[0].reply({ id: message.id, ok: true, output: JSON.stringify(RESULT) });
-      await expect(promise).resolves.toEqual(RESULT);
-    }
-    expect(seen[0]).toEqual(seen[1]);
-    expect(seen[0]).toMatchObject({ command: "solve", ...REQUEST });
+describe("WasmSolverEngine", () => {
+  it("gửi request solve cho worker và trả về kết quả đã parse", async () => {
+    const { engine: e, workers } = engine();
+    const promise = e.solve(REQUEST);
+    const message = workers[0].messages.at(-1);
+    expect(message).toMatchObject({ command: "solve", ...REQUEST });
+    expect(typeof message.id).toBe("number");
+    workers[0].reply({ id: message.id, ok: true, output: JSON.stringify(RESULT) });
+    await expect(promise).resolves.toEqual(RESULT);
   });
 
-  it("gửi cùng một message bld", async () => {
-    const seen: any[] = [];
-    for (const [engine, workers] of engines()) {
-      const promise = engine.analyzeBld("state", "UUU");
-      const message = workers[0].messages.at(-1);
-      seen.push({ ...message, id: undefined });
-      workers[0].reply({ id: message.id, ok: true, output: '{"analysis":{}}' });
-      await expect(promise).resolves.toEqual({ analysis: {} });
-    }
-    expect(seen[0]).toEqual({ command: "bld", kind: "state", value: "UUU", id: undefined });
-    expect(seen[1]).toEqual(seen[0]);
+  it("gửi request bld", async () => {
+    const { engine: e, workers } = engine();
+    const promise = e.analyzeBld("state", "UUU");
+    const message = workers[0].messages.at(-1);
+    expect(message).toEqual({ id: message.id, command: "bld", kind: "state", value: "UUU" });
+    workers[0].reply({ id: message.id, ok: true, output: '{"analysis":{}}' });
+    await expect(promise).resolves.toEqual({ analysis: {} });
   });
 
-  it("ánh xạ lỗi có cấu trúc giống nhau", async () => {
-    for (const [engine, workers] of engines()) {
-      const limited = engine.solve(REQUEST);
-      let m = workers[0].messages.at(-1);
-      workers[0].reply({ id: m.id, ok: false, error: "budget", code: "search_limit" });
-      await expect(limited).rejects.toBeInstanceOf(SolverLimitError);
+  it("ánh xạ lỗi có cấu trúc của solver", async () => {
+    const { engine: e, workers } = engine();
+    const limited = e.solve(REQUEST);
+    let m = workers[0].messages.at(-1);
+    workers[0].reply({ id: m.id, ok: false, error: "budget", code: "search_limit" });
+    await expect(limited).rejects.toBeInstanceOf(SolverLimitError);
 
-      const failed = engine.solve(REQUEST);
-      m = workers[0].messages.at(-1);
-      workers[0].reply({ id: m.id, ok: false, error: "bad cube", code: "invalid_input" });
-      await expect(failed).rejects.toThrow("bad cube");
-    }
+    const failed = e.solve(REQUEST);
+    m = workers[0].messages.at(-1);
+    workers[0].reply({ id: m.id, ok: false, error: "bad cube", code: "invalid_input" });
+    await expect(failed).rejects.toThrow("bad cube");
+
+    const stopped = e.solve(REQUEST);
+    m = workers[0].messages.at(-1);
+    workers[0].reply({ id: m.id, ok: false, error: "stop", code: "cancelled" });
+    await expect(stopped).rejects.toBeInstanceOf(SolverCancelledError);
   });
 
   it("huỷ: reject bằng SolverCancelledError và dừng worker", async () => {
-    for (const [engine, workers] of engines()) {
-      const promise = engine.solve(REQUEST);
-      engine.cancel();
-      await expect(promise).rejects.toBeInstanceOf(SolverCancelledError);
-      // Không có SharedArrayBuffer cách ly (jsdom): huỷ bằng terminate.
-      expect(workers[0].terminated).toBe(true);
-    }
+    const { engine: e, workers } = engine();
+    const promise = e.solve(REQUEST);
+    e.cancel();
+    await expect(promise).rejects.toBeInstanceOf(SolverCancelledError);
+    // Không có SharedArrayBuffer cách ly (jsdom): huỷ bằng terminate, lần
+    // giải sau tạo worker mới.
+    expect(workers[0].terminated).toBe(true);
+    void e.solve(REQUEST);
+    expect(workers).toHaveLength(2);
   });
 
-  it("chỉ engine wasm chuyển tiếp tiến độ, kết quả vẫn đến sau", async () => {
-    const [, [wasm, workers]] = engines();
+  it("chuyển tiếp tiến độ, kết quả vẫn đến sau", async () => {
+    const { engine: e, workers } = engine();
     const progress = vi.fn();
-    const promise = wasm.solve(REQUEST, progress);
+    const promise = e.solve(REQUEST, progress);
     const m = workers[0].messages.at(-1);
     workers[0].reply({ id: m.id, type: "progress", stage: "F2L", nodes: 16385 });
     expect(progress).toHaveBeenCalledWith({ stage: "F2L", nodes: 16385 });
@@ -116,23 +110,21 @@ describe("SolverEngine adapters (cùng input cho hai engine)", () => {
     await expect(promise).resolves.toEqual(RESULT);
   });
 
-  it("warmup: pyodide chuẩn bị trước, wasm không tạo worker (tải lười)", async () => {
-    const [[pyodide, pw], [wasm, ww]] = engines();
-    const warm = pyodide.warmup();
-    expect(pw[0].messages.at(-1)).toMatchObject({ command: "warmup" });
-    pw[0].reply({ id: pw[0].messages.at(-1).id, ok: true, output: '{"ready":true}' });
-    await warm;
-    await wasm.warmup();
-    expect(ww).toHaveLength(0);
+  it("warmup không tạo worker (file .wasm chỉ tải khi giải)", async () => {
+    const { engine: e, workers } = engine();
+    await e.warmup();
+    expect(workers).toHaveLength(0);
   });
-});
 
-describe("resolveSolverEngineName", () => {
-  it("mặc định là pyodide", () => {
-    expect(resolveSolverEngineName(undefined)).toBe("pyodide");
-    expect(resolveSolverEngineName("")).toBe("pyodide");
-    expect(resolveSolverEngineName("python")).toBe("pyodide");
-    expect(resolveSolverEngineName("wasm")).toBe("wasm");
-    expect(resolveSolverEngineName(" WASM ")).toBe("wasm");
+  it("hết hạn ở phía client thì reject bằng SolverTimeoutError", async () => {
+    vi.useFakeTimers();
+    try {
+      const { engine: e } = engine(1000);
+      const promise = e.solve(REQUEST);
+      vi.advanceTimersByTime(1001);
+      await expect(promise).rejects.toBeInstanceOf(SolverTimeoutError);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

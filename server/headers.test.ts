@@ -60,20 +60,21 @@ describe("the production header stack", () => {
     const csp = response.headers.get("content-security-policy-report-only");
     expect(csp).not.toBeNull();
     for (const origin of [
-      "cdn.jsdelivr.net",
       "raw.githubusercontent.com",
       "blob:",
       "wasm-unsafe-eval",
     ]) {
       expect(csp).toContain(origin);
     }
+    // The solver ships with the app (WebAssembly in /assets): no script CDN.
+    expect(csp).not.toContain("cdn.jsdelivr.net");
   });
 
   it("sends no enforced CSP, so nothing is blocked while the policy is report-only", async () => {
     const response = await fetch(`http://127.0.0.1:${port}/assets/x/main.a1b2.js`);
     // Helmet's default policy would add an enforced header with
     // `script-src 'self'` and no connect-src/worker-src. It blocked the React
-    // preamble in development and would block Pyodide and the solver worker in
+    // preamble in development and would block the WebAssembly solver worker in
     // production, so only the report-only policy may be sent.
     expect(response.headers.get("content-security-policy")).toBeNull();
     expect(response.headers.get("content-security-policy-report-only")).not.toBeNull();

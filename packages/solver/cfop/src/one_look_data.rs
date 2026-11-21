@@ -1,7 +1,8 @@
 //! Direct one-look last-layer tables: ZBLL (519 cases) and 1LLL (1163 cases).
 //!
-//! Imported from the project's verified catalog
-//! (solver-python/cfop_solver/one_look_database.py). Each row is
+//! The project's verified catalog (carried over unchanged from the earlier
+//! solver; the web catalog is generated from this file by
+//! `scripts/export-last-layer-catalog.mjs`). Each row is
 //! (case id, algorithm); the case state is the inverse of the algorithm
 //! applied to a solved cube, and tests replay every row.
 

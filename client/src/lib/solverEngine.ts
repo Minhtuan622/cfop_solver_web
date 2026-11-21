@@ -1,20 +1,15 @@
-/** Bộ giải CFOP chạy trong Web Worker, có hai engine thay thế được nhau.
+/** Bộ giải CFOP chạy trong Web Worker (WebAssembly).
  *
- * - `PyodideSolverEngine`: worker Pyodide hiện có (`solverWorker.ts`), giữ
- *   nguyên hành vi.
- * - `WasmSolverEngine`: worker WebAssembly (`solverWorkerWasm.ts`) chạy bộ giải
- *   Rust trong `packages/solver`. File `.wasm` chỉ được tải khi người dùng
- *   giải lần đầu (worker được tạo lười, warmup không làm gì).
+ * `WasmSolverEngine` điều khiển worker `solverWorker.ts`, nơi bộ giải Rust
+ * trong `packages/solver` (biên dịch ra WebAssembly) chạy. Worker được tạo
+ * lười khi người dùng giải lần đầu, nên file `.wasm` không được tải khi mở
+ * trang; `warmup()` vì thế không làm gì.
  *
- * Cả hai worker nói chung một giao thức: request `{ id, command, ... }`, kết
- * quả `{ id, ok, output | error, code }`. Worker WASM gửi thêm
- * `{ id, type: "progress", stage, nodes }` trong lúc tìm kiếm.
- *
- * Engine được chọn bằng `VITE_SOLVER_ENGINE=wasm|pyodide` (mặc định pyodide).
+ * Giao thức với worker: request `{ id, command, ... }`, kết quả
+ * `{ id, ok, output | error, code }`; trong lúc tìm kiếm worker gửi thêm
+ * `{ id, type: "progress", stage, nodes }`.
  */
 import type { BldResult, SolverResult } from "./solverRuntime";
-
-export type SolverEngineName = "pyodide" | "wasm";
 
 export type SolveRequest = {
   kind: "scramble" | "state";
@@ -32,13 +27,12 @@ export type SolveRequest = {
 export type SolverProgress = { stage: string; nodes: number };
 
 export interface SolverEngine {
-  readonly name: SolverEngineName;
   solve(
     request: SolveRequest,
     onProgress?: (progress: SolverProgress) => void
   ): Promise<SolverResult>;
   analyzeBld(kind: "scramble" | "state", value: string): Promise<BldResult>;
-  /** Chuẩn bị trước runtime (Pyodide); engine WASM bỏ qua để tải lười. */
+  /** Giữ cho tương thích API: worker và file `.wasm` được tải lười. */
   warmup(): Promise<void>;
   /** Huỷ mọi request đang chờ (reject bằng `SolverCancelledError`). */
   cancel(): void;
@@ -85,30 +79,22 @@ type PendingTask = {
   onProgress?: (progress: SolverProgress) => void;
 };
 
-export type WorkerEngineOptions = {
-  name: SolverEngineName;
-  createWorker: () => Worker;
-  /** `true`: warmup chạy lệnh "warmup" trong worker; `false`: không làm gì. */
-  eagerWarmup: boolean;
-  /**
-   * Huỷ mềm qua `SharedArrayBuffer` (worker và bảng tra được giữ lại) khi
-   * trình duyệt cho phép; nếu không thì terminate worker như trước.
-   */
-  softCancel: boolean;
-  timeoutMs?: number;
-};
+function createSolverWorker(): Worker {
+  return new Worker(new URL("./solverWorker.ts", import.meta.url), {
+    type: "module",
+  });
+}
 
-/** Engine dùng chung cho mọi worker nói giao thức ở trên. */
-export class WorkerSolverEngine implements SolverEngine {
-  readonly name: SolverEngineName;
+export class WasmSolverEngine implements SolverEngine {
   private worker: Worker | null = null;
   private nextId = 1;
   private readonly pending = new Map<number, PendingTask>();
   private cancelFlag: Int32Array | null = null;
 
-  constructor(private readonly options: WorkerEngineOptions) {
-    this.name = options.name;
-  }
+  constructor(
+    private readonly createWorker: () => Worker = createSolverWorker,
+    private readonly timeoutMs: number = SOLVER_TIMEOUT_MS
+  ) {}
 
   solve(
     request: SolveRequest,
@@ -122,14 +108,14 @@ export class WorkerSolverEngine implements SolverEngine {
   }
 
   async warmup(): Promise<void> {
-    if (!this.options.eagerWarmup) return;
-    await this.post<void>({ command: "warmup", value: "" });
+    // Không tạo worker ở đây: trang đầu không được tải file .wasm.
   }
 
   cancel(): void {
     const reason = new SolverCancelledError();
     if (this.cancelFlag && this.worker) {
-      // Mọi request có id <= giá trị này bị worker dừng ở lần kiểm tra tới.
+      // Huỷ mềm: mọi request có id <= giá trị này dừng ở lần kiểm tra tiến
+      // độ kế tiếp; worker và các bảng tra đã dựng được giữ lại.
       Atomics.store(this.cancelFlag, 0, this.nextId - 1);
       this.rejectAll(reason);
       return;
@@ -156,15 +142,16 @@ export class WorkerSolverEngine implements SolverEngine {
 
   private getWorker(): Worker {
     if (this.worker) return this.worker;
-    const worker = this.options.createWorker();
+    const worker = this.createWorker();
     worker.onmessage = (event: MessageEvent<WorkerReply>) => this.onMessage(event.data);
     worker.onerror = () => {
       this.reset(new Error("Solver heavy worker failed to start or crashed."));
     };
     this.worker = worker;
     this.cancelFlag = null;
+    // Huỷ mềm cần SharedArrayBuffer, chỉ có khi trang được cách ly
+    // cross-origin; nếu không, `cancel()` terminate worker như trước.
     if (
-      this.options.softCancel &&
       typeof SharedArrayBuffer !== "undefined" &&
       (globalThis as { crossOriginIsolated?: boolean }).crossOriginIsolated
     ) {
@@ -208,7 +195,6 @@ export class WorkerSolverEngine implements SolverEngine {
     onProgress?: (progress: SolverProgress) => void
   ): Promise<T> {
     const id = this.nextId++;
-    const timeoutMs = this.options.timeoutMs ?? SOLVER_TIMEOUT_MS;
     return new Promise<T>((resolve, reject) => {
       const timer = setTimeout(() => {
         const task = this.pending.get(id);
@@ -216,7 +202,7 @@ export class WorkerSolverEngine implements SolverEngine {
           this.pending.delete(id);
           task.reject(new SolverTimeoutError());
         }
-      }, timeoutMs);
+      }, this.timeoutMs);
       this.pending.set(id, {
         resolve: value => resolve(value as T),
         reject,
@@ -232,47 +218,4 @@ export class WorkerSolverEngine implements SolverEngine {
       }
     });
   }
-}
-
-/** Worker Pyodide hiện có, hành vi không đổi. */
-export class PyodideSolverEngine extends WorkerSolverEngine {
-  constructor(createWorker?: () => Worker) {
-    super({
-      name: "pyodide",
-      createWorker:
-        createWorker ??
-        (() =>
-          new Worker(new URL("./solverWorker.ts", import.meta.url), {
-            type: "module",
-          })),
-      eagerWarmup: true,
-      softCancel: false,
-    });
-  }
-}
-
-/** Worker WebAssembly (Rust). Tải `.wasm` khi giải lần đầu. */
-export class WasmSolverEngine extends WorkerSolverEngine {
-  constructor(createWorker?: () => Worker) {
-    super({
-      name: "wasm",
-      createWorker:
-        createWorker ??
-        (() =>
-          new Worker(new URL("./solverWorkerWasm.ts", import.meta.url), {
-            type: "module",
-          })),
-      eagerWarmup: false,
-      softCancel: true,
-    });
-  }
-}
-
-/** Đọc cờ cấu hình; giá trị lạ hoặc trống rơi về pyodide (mặc định). */
-export function resolveSolverEngineName(flag: string | undefined): SolverEngineName {
-  return flag?.trim().toLowerCase() === "wasm" ? "wasm" : "pyodide";
-}
-
-export function createSolverEngine(name: SolverEngineName): SolverEngine {
-  return name === "wasm" ? new WasmSolverEngine() : new PyodideSolverEngine();
 }

@@ -1,7 +1,7 @@
-/** Lõi của worker WebAssembly: chuyển một request của worker thành lời gọi
- * vào module `solver-wasm` (Rust) và trả về reply cùng giao thức với worker
- * Pyodide. Tách khỏi `solverWorkerWasm.ts` để test chạy được trên Node với
- * chính module WASM thật.
+/** Lõi của worker bộ giải: chuyển một request của worker thành lời gọi vào
+ * module `solver-wasm` (Rust) và trả về reply theo giao thức của
+ * `WasmSolverEngine`. Tách khỏi `solverWorker.ts` để test chạy được trên Node
+ * với chính module WASM thật.
  */
 import { SOLVER_NODE_BUDGET, SOLVER_TIME_BUDGET_SEC } from "./solverBudget";
 import type { WorkerReply } from "./solverEngine";
@@ -69,8 +69,8 @@ export function handleWasmRequest(
         directNodeBudget: request.directNodeBudget ?? 5000,
         preferredSlot: request.preferredSlot,
         excludedSlots: request.excludedSlots ?? [],
-        // Cùng ngân sách với worker Pyodide: solver tự dừng và báo lỗi có
-        // cấu trúc trước khi client ngắt.
+        // Ngân sách dùng chung (`solverBudget.ts`): solver tự dừng và báo lỗi
+        // có cấu trúc trước khi client ngắt.
         timeBudgetSec: SOLVER_TIME_BUDGET_SEC,
         nodeBudget: SOLVER_NODE_BUDGET,
       },
