@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["cube-core", "cfop"]
+members = ["cube-core", "cfop", "solver-wasm"]
 
 [workspace.package]
 version = "0.1.0"
@@ -14,3 +14,10 @@ unsafe_code = "forbid"
 # Search-heavy tests (thousands of scrambles) are run optimized.
 [profile.test]
 opt-level = 3
+
+# Small, fast WebAssembly for the browser.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"

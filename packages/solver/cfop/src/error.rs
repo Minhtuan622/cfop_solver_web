@@ -25,6 +25,8 @@ pub enum Error {
     },
     /// The node budget ran out.
     NodeLimit { stage: &'static str, max_nodes: u64 },
+    /// The progress hook asked to stop.
+    Cancelled { stage: &'static str },
 }
 
 impl Error {
@@ -37,6 +39,7 @@ impl Error {
             Error::DepthExceeded { .. } => "depth_exceeded",
             Error::Timeout { .. } => "timeout",
             Error::NodeLimit { .. } => "node_limit",
+            Error::Cancelled { .. } => "cancelled",
         }
     }
 }
@@ -59,6 +62,7 @@ impl fmt::Display for Error {
             Error::NodeLimit { stage, max_nodes } => {
                 write!(f, "{stage}: search exceeded {max_nodes} nodes")
             }
+            Error::Cancelled { stage } => write!(f, "{stage}: search cancelled"),
         }
     }
 }

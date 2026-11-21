@@ -11,6 +11,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(templateRoot, "client", "src"),
       "@shared": path.resolve(templateRoot, "shared"),
+      "@solver-wasm": path.resolve(templateRoot, "packages", "solver", "solver-wasm", "pkg"),
       "@assets": path.resolve(templateRoot, "attached_assets"),
     },
   },

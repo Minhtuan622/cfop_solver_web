@@ -21,8 +21,8 @@ describe("production build configuration", () => {
   it("type-checks before bundling so a TypeScript error cannot reach production", () => {
     // Vite và esbuild chỉ transpile, KHÔNG type-check. Nên một lỗi TypeScript
     // vẫn tạo ra bundle chạy được — và lỗi đó lên production qua
-    // `railway.json` (`buildCommand: pnpm build`) và `Dockerfile`
-    // (`RUN pnpm build`), hai đường deploy đều không có cổng type-check nào.
+    // `Dockerfile` (`RUN pnpm build`, Railway build bằng chính Dockerfile
+    // này), đường deploy không có cổng type-check nào khác.
     //
     // Bài này chặn việc gỡ bước type-check khỏi `pnpm build`.
     const build = buildScript();

@@ -1,0 +1,104 @@
+/** Lõi của worker WebAssembly: chuyển một request của worker thành lời gọi
+ * vào module `solver-wasm` (Rust) và trả về reply cùng giao thức với worker
+ * Pyodide. Tách khỏi `solverWorkerWasm.ts` để test chạy được trên Node với
+ * chính module WASM thật.
+ */
+import { SOLVER_NODE_BUDGET, SOLVER_TIME_BUDGET_SEC } from "./solverBudget";
+import type { WorkerReply } from "./solverEngine";
+
+/** Phần API của `solver-wasm` mà worker dùng. */
+export type SolverWasmModule = {
+  solve(
+    stickers: string,
+    options?: Record<string, unknown> | null,
+    onProgress?: ((stage: string, nodes: number) => boolean) | null
+  ): unknown;
+  scrambleToStickers(scramble: string): string;
+  analyzeBld(stickers: string): unknown;
+  warmUp(): void;
+};
+
+export type WorkerRequest = {
+  id: number;
+  command?: "solve" | "bld" | "warmup";
+  kind?: string;
+  value: string;
+  crossColor?: string;
+  opening?: string;
+  lastLayer?: string;
+  openingDepth?: number;
+  openingFindResult?: boolean;
+  directNodeBudget?: number;
+  preferredSlot?: string;
+  excludedSlots?: string[];
+};
+
+/** Báo tiến độ tối đa ~10 lần mỗi giây. */
+const PROGRESS_INTERVAL_MS = 100;
+
+export function handleWasmRequest(
+  wasm: SolverWasmModule,
+  request: WorkerRequest,
+  post: (reply: WorkerReply) => void,
+  isCancelled: () => boolean = () => false
+): WorkerReply {
+  const { id, command = "solve", kind, value } = request;
+  try {
+    if (command === "warmup") {
+      wasm.warmUp();
+      return { id, ok: true, output: JSON.stringify({ ready: true }) };
+    }
+    const stickers = kind === "state" ? value : wasm.scrambleToStickers(value);
+    if (command === "bld") {
+      const analysis = wasm.analyzeBld(stickers);
+      return {
+        id,
+        ok: true,
+        output: JSON.stringify({ initial_state: stickers, analysis }),
+      };
+    }
+    let lastReport = 0;
+    const result = wasm.solve(
+      stickers,
+      {
+        crossColor: request.crossColor ?? "U",
+        opening: request.opening ?? "cross",
+        lastLayer: request.lastLayer ?? "auto",
+        openingDepth: request.openingDepth ?? 8,
+        openingFindResult: request.openingFindResult ?? false,
+        directNodeBudget: request.directNodeBudget ?? 5000,
+        preferredSlot: request.preferredSlot,
+        excludedSlots: request.excludedSlots ?? [],
+        // Cùng ngân sách với worker Pyodide: solver tự dừng và báo lỗi có
+        // cấu trúc trước khi client ngắt.
+        timeBudgetSec: SOLVER_TIME_BUDGET_SEC,
+        nodeBudget: SOLVER_NODE_BUDGET,
+      },
+      (stage, nodes) => {
+        const now = Date.now();
+        if (now - lastReport >= PROGRESS_INTERVAL_MS) {
+          lastReport = now;
+          post({ id, type: "progress", stage, nodes });
+        }
+        return !isCancelled();
+      }
+    );
+    return { id, ok: true, output: JSON.stringify(result) };
+  } catch (error) {
+    const structured = error as { code?: unknown; message?: unknown } | null;
+    if (structured && typeof structured.code === "string") {
+      return {
+        id,
+        ok: false,
+        error: String(structured.message ?? ""),
+        code: structured.code,
+      };
+    }
+    return {
+      id,
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+      code: "",
+    };
+  }
+}

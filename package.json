@@ -19,7 +19,9 @@
     "db:setup": "node scripts/setup-local-db.mjs",
     "db:stop": "docker compose -f compose.local.yaml down",
     "db:reset": "docker compose -f compose.local.yaml down -v",
-    "db:logs": "docker compose -f compose.local.yaml logs -f database"
+    "db:logs": "docker compose -f compose.local.yaml logs -f database",
+    "build:solver": "node scripts/build-solver.mjs",
+    "compare-solvers": "node scripts/compare-solvers.mjs"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.4.1",

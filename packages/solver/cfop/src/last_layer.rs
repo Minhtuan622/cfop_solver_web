@@ -256,4 +256,126 @@ pub fn solve_pll(cube: &Cube, cross_color: Face) -> Result<StageResult, Error> {
 pub(crate) fn warm_up() {
     let _ = ll_tables();
     let _ = tables();
+    let _ = zbll_table();
+    let _ = one_lll_table();
+}
+
+// ---------------------------------------------------------------------------
+// Direct one-look last layer (ZBLL, 1LLL).
+//
+// A case is identified by the full last-layer state (permutation and
+// orientation of the four U corners and edges) that the inverse of its
+// algorithm produces from solved, combined with each pre-AUF. Solving is
+// `pre-AUF^-1, algorithm`; no post-AUF (the catalog algorithms already end
+// solved), and each candidate is replayed before it is accepted.
+
+use crate::one_look_data::{ONE_LLL_CASES, ZBLL_CASES};
+
+struct DirectTable {
+    cases: Vec<LlCase>,
+    index: HashMap<u32, Vec<(usize, u8)>>,
+}
+
+fn ll_state_key(c: &Cube) -> u32 {
+    let (cp, co, ep, eo) = (c.corner_perm(), c.corner_ori(), c.edge_perm(), c.edge_ori());
+    (0..4).fold(0u32, |k, i| {
+        (k << 8)
+            | ((cp[i] as u32 & 3) << 6)
+            | ((co[i] as u32) << 4)
+            | ((ep[i] as u32 & 3) << 2)
+            | eo[i] as u32
+    })
+}
+
+fn build_direct(rows: &[(&str, &str)], group: &'static str) -> DirectTable {
+    let cases: Vec<LlCase> = rows
+        .iter()
+        .map(|&(id, alg)| parse_case(id.to_string(), group, alg))
+        .collect();
+    let mut index: HashMap<u32, Vec<(usize, u8)>> = HashMap::new();
+    for (i, case) in cases.iter().enumerate() {
+        let fixture = Cube::from_moves(&invert_moves(&case.algorithm));
+        for auf in 0..4u8 {
+            index
+                .entry(ll_state_key(&apply_u(&fixture, auf)))
+                .or_default()
+                .push((i, auf));
+        }
+    }
+    DirectTable { cases, index }
+}
+
+fn zbll_table() -> &'static DirectTable {
+    static T: OnceLock<DirectTable> = OnceLock::new();
+    T.get_or_init(|| build_direct(&ZBLL_CASES, "ZBLL"))
+}
+
+fn one_lll_table() -> &'static DirectTable {
+    static T: OnceLock<DirectTable> = OnceLock::new();
+    T.get_or_init(|| build_direct(&ONE_LLL_CASES, "1LLL"))
+}
+
+/// The shipped ZBLL cases.
+pub fn zbll_cases() -> &'static [LlCase] {
+    &zbll_table().cases
+}
+
+/// The shipped 1LLL cases.
+pub fn one_lll_cases() -> &'static [LlCase] {
+    &one_lll_table().cases
+}
+
+fn solve_direct(
+    cube: &Cube,
+    color: Face,
+    stage: &'static str,
+    table: &DirectTable,
+    require_eo: bool,
+) -> Result<Option<StageResult>, Error> {
+    let (c, frame) = canonical_cube(cube, color)?;
+    if !f2l_done(&c) {
+        return Err(Error::PreconditionFailed {
+            stage,
+            reason: "Cross and F2L must be solved",
+        });
+    }
+    if require_eo && c.edge_ori()[..4].iter().any(|&o| o != 0) {
+        return Ok(None);
+    }
+    let mut candidates: Vec<(Vec<Move>, &LlCase)> = table
+        .index
+        .get(&ll_state_key(&c))
+        .into_iter()
+        .flatten()
+        .map(|&(i, auf)| {
+            let case = &table.cases[i];
+            (sequence((4 - auf) % 4, &case.algorithm, 0), case)
+        })
+        .collect();
+    candidates.sort_by_key(|(m, _)| m.len());
+    for (moves, case) in candidates {
+        if c.apply_moves(&moves).is_solved() {
+            let actual: Vec<Move> = moves.iter().map(|m| frame.to_actual[m.index()]).collect();
+            return Ok(Some(StageResult {
+                name: stage.into(),
+                state: cube.apply_moves(&actual),
+                moves: actual,
+                substeps: Vec::new(),
+                nodes: 0,
+                case: Some(case.name.clone()),
+            }));
+        }
+    }
+    Ok(None)
+}
+
+/// Solve the whole last layer with one shipped ZBLL algorithm. Returns
+/// `Ok(None)` when the U edges are not oriented or the case is not shipped.
+pub fn solve_zbll(cube: &Cube, cross_color: Face) -> Result<Option<StageResult>, Error> {
+    solve_direct(cube, cross_color, "ZBLL", zbll_table(), true)
+}
+
+/// Solve the whole last layer with one shipped 1LLL algorithm, if covered.
+pub fn solve_1lll(cube: &Cube, cross_color: Face) -> Result<Option<StageResult>, Error> {
+    solve_direct(cube, cross_color, "1LLL", one_lll_table(), false)
 }

@@ -43,11 +43,19 @@ describe("B2: worker truyền ngân sách giới hạn cho solver", () => {
 
   it("tách mã lỗi có cấu trúc để giao diện hiển thị đúng", () => {
     expect(workerSource).toContain("search_limit");
-    const runtime = readFileSync(
-      path.join(root, "client", "src", "lib", "solverRuntime.ts"),
+    // Việc ánh xạ mã lỗi nằm ở engine dùng chung cho cả hai worker.
+    const engine = readFileSync(
+      path.join(root, "client", "src", "lib", "solverEngine.ts"),
       "utf8"
     );
-    expect(runtime).toContain("SolverLimitError");
-    expect(runtime).toContain('event.data.code === "search_limit"');
+    expect(engine).toContain("SolverLimitError");
+    expect(engine).toContain('data.code === "search_limit"');
+    // Worker WASM truyền cùng ngân sách xuống solver Rust.
+    const wasmCore = readFileSync(
+      path.join(root, "client", "src", "lib", "wasmSolverCore.ts"),
+      "utf8"
+    );
+    expect(wasmCore).toContain("timeBudgetSec: SOLVER_TIME_BUDGET_SEC");
+    expect(wasmCore).toContain("nodeBudget: SOLVER_NODE_BUDGET");
   });
 });

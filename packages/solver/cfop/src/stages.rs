@@ -65,7 +65,8 @@ impl Default for CrossOptions {
 ///
 /// Slots are numbered 0..4 = FR, FL, BL, BR *relative to the cross*: for a
 /// D cross these are the real FR/FL/BL/BR slots; for another cross color the
-/// cube is viewed with that color on D (the result names use real positions).
+/// cube is viewed after the rotation that brings that color to D
+/// (U: x2, F: x', B: x, R: z, L: z'), and slot names follow that view.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SlotOrder {
     /// At every step solve whichever remaining pair is shortest.
@@ -93,9 +94,8 @@ impl Default for F2lOptions {
     }
 }
 
-const EDGE_NAMES: [&str; 12] = [
-    "UR", "UF", "UL", "UB", "DR", "DF", "DL", "DB", "FR", "FL", "BL", "BR",
-];
+/// Slot names relative to the cross on D (as the Studio shows them).
+pub const SLOT_NAMES: [&str; 4] = ["FR", "FL", "BL", "BR"];
 
 /// The cube seen with `color` on D (`G^-1 * cube * G`) and its frame.
 pub(crate) fn canonical_cube(cube: &Cube, color: Face) -> Result<(Cube, &'static Frame), Error> {
@@ -107,16 +107,16 @@ pub(crate) fn canonical_cube(cube: &Cube, color: Face) -> Result<(Cube, &'static
     Ok((frame.g_inv.multiply(cube).multiply(&frame.g), frame))
 }
 
-fn canonical(cube: &Cube, color: Face) -> Result<(State, &'static Frame), Error> {
+pub(crate) fn canonical(cube: &Cube, color: Face) -> Result<(State, &'static Frame), Error> {
     canonical_cube(cube, color).map(|(c, f)| (State::from_cube(&c), f))
 }
 
-fn cross_h(s: &State) -> u8 {
+pub(crate) fn cross_h(s: &State) -> u8 {
     tables().cross.get(&s.e[4..8], 0)
 }
 
 /// Lower bound for: cross solved and slot `j` solved.
-fn slot_h(s: &State, j: usize) -> u8 {
+pub(crate) fn slot_h(s: &State, j: usize) -> u8 {
     let t = tables();
     let conj = &t.slot_conj[j];
     let (cj, ej) = SLOTS[j];
@@ -129,7 +129,7 @@ fn slot_h(s: &State, j: usize) -> u8 {
     t.pair_edge.get(&ed, 0).max(t.pair_corner.get(&ed[..4], cx))
 }
 
-fn to_actual(frame: &Frame, path: &[u8]) -> Vec<Move> {
+pub(crate) fn to_actual(frame: &Frame, path: &[u8]) -> Vec<Move> {
     path.iter().map(|&m| frame.to_actual[m as usize]).collect() // face moves: index < 18
 }
 
@@ -243,7 +243,7 @@ pub fn solve_f2l_with(cube: &Cube, opts: &F2lOptions) -> Result<StageResult, Err
             }
         }
         substeps.push(StageResult {
-            name: format!("F2L {}", EDGE_NAMES[frame.edge_pos[SLOTS[j].1] as usize]),
+            name: format!("F2L {}", SLOT_NAMES[j]),
             moves,
             state,
             substeps: Vec::new(),

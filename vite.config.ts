@@ -234,6 +234,14 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
+      // Bộ giải Rust biên dịch ra WebAssembly (`pnpm build:solver`).
+      "@solver-wasm": path.resolve(
+        import.meta.dirname,
+        "packages",
+        "solver",
+        "solver-wasm",
+        "pkg",
+      ),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
   },

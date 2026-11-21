@@ -1,5 +1,45 @@
+# syntax=docker/dockerfile:1
 # ---------------------------------------------------------------------------
-# Stage "build": full dependency tree plus toolchain, discarded after the build.
+# Stage "solver": Rust toolchain builds the CFOP solver to WebAssembly.
+# Only `pkg/` (glue JS, .wasm, .d.ts) leaves this stage.
+# ---------------------------------------------------------------------------
+FROM rust:1.97-slim-bookworm AS solver
+
+# wasm-opt (Binaryen) shrinks the module further after wasm-pack.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends binaryen \
+  && rm -rf /var/lib/apt/lists/*
+RUN rustup target add wasm32-unknown-unknown
+
+# Tool versions are pinned; wasm-bindgen-cli must match the wasm-bindgen
+# crate in packages/solver/Cargo.lock.
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+  cargo install --locked wasm-pack --version 0.15.1 \
+  && cargo install --locked wasm-bindgen-cli --version 0.2.130
+
+WORKDIR /app/packages/solver
+
+# Dependencies first: a source change does not re-download crates.
+COPY packages/solver/Cargo.toml packages/solver/Cargo.lock ./
+COPY packages/solver/cube-core/Cargo.toml cube-core/Cargo.toml
+COPY packages/solver/cfop/Cargo.toml cfop/Cargo.toml
+COPY packages/solver/solver-wasm/Cargo.toml solver-wasm/Cargo.toml
+RUN mkdir -p cube-core/src cfop/src solver-wasm/src \
+  && touch cube-core/src/lib.rs cfop/src/lib.rs solver-wasm/src/lib.rs \
+  && cargo fetch --locked --target wasm32-unknown-unknown
+
+COPY packages/solver ./
+# The cache mounts keep the cargo registry and build directory between
+# builds; the artifact is copied out of the cache into the image layer.
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+  --mount=type=cache,target=/app/packages/solver/target \
+  wasm-pack build solver-wasm --target web --release --out-dir pkg --no-pack \
+  && wasm-opt -Os --enable-bulk-memory --enable-nontrapping-float-to-int \
+     --enable-sign-ext --enable-mutable-globals \
+     solver-wasm/pkg/solver_wasm_bg.wasm -o solver-wasm/pkg/solver_wasm_bg.wasm
+
+# ---------------------------------------------------------------------------
+# Stage "build": Node dependencies and the web build, discarded afterwards.
 # ---------------------------------------------------------------------------
 FROM node:22-bookworm-slim AS build
 
@@ -11,16 +51,18 @@ RUN corepack enable && corepack prepare pnpm@10.34.5 --activate
 # Dependencies first, so a source change does not reinstall them.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches ./patches
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+  pnpm install --frozen-lockfile
 
 COPY . .
+COPY --from=solver /app/packages/solver/solver-wasm/pkg ./packages/solver/solver-wasm/pkg
 # Bản trong image phải có Pyodide cục bộ: build không được lặng lẽ bỏ qua
 # bước tải rồi để bộ giải gọi CDN lúc chạy.
 ENV REQUIRE_LOCAL_PYODIDE=1
 RUN pnpm build
 
 # ---------------------------------------------------------------------------
-# Stage "runtime": production dependencies only, no build toolchain.
+# Stage "runtime": production dependencies and dist/ only, no toolchain.
 # ---------------------------------------------------------------------------
 FROM node:22-bookworm-slim
 

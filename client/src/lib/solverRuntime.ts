@@ -1,13 +1,21 @@
 /** Xưởng Cơ Khí Tốc Độ — typed bridge to the non-blocking CFOP solver worker.
  *
- * Một worker Pyodide duy nhất (`solverWorker.ts`) đảm nhiệm solve, bld và
- * warmup (tốn CPU). Việc kiểm tra hợp lệ trạng thái (`validateStateInBrowser`)
+ * Một worker duy nhất đảm nhiệm solve, bld và warmup (tốn CPU): worker
+ * Pyodide (`solverWorker.ts`, mặc định) hoặc worker WebAssembly
+ * (`solverWorkerWasm.ts`) khi `VITE_SOLVER_ENGINE=wasm` — xem
+ * `lib/solverEngine.ts`. Việc kiểm tra hợp lệ trạng thái (`validateStateInBrowser`)
  * chạy thuần JavaScript trong trang (`lib/cubeValidation.ts`), còn duyệt danh
  * mục case 1LLL/ZBLL (`listLastLayerCasesInBrowser`) đọc từ dữ liệu đã được
  * nhúng sẵn (`features/last-layer/lib/directCaseCatalog.ts`) — không cần
  * runtime Python.
  */
 import { validateCubeState } from "./cubeValidation";
+import {
+  createSolverEngine,
+  resolveSolverEngineName,
+  type SolverEngine,
+  type SolverProgress,
+} from "./solverEngine";
 import type { CubeValidation } from "./cubeValidation";
 import type { LastLayerCatalogCase } from "@/features/last-layer/lib/directCaseCatalog";
 export type { CubeValidation, LastLayerCatalogCase };
@@ -102,135 +110,26 @@ export type BldAnalysis = {
   catalog: { provider: string; source: string; note: string };
 };
 
-export const SOLVER_TIMEOUT_MS = 45000;
+export {
+  SOLVER_TIMEOUT_MS,
+  SolverCancelledError,
+  SolverLimitError,
+  SolverTimeoutError,
+} from "./solverEngine";
+export type { SolverEngine, SolverEngineName, SolverProgress } from "./solverEngine";
 
-export class SolverCancelledError extends Error {
-  constructor() {
-    super("Solver request cancelled.");
-    this.name = "SolverCancelledError";
-  }
-}
+let engine: SolverEngine | null = null;
 
-export class SolverTimeoutError extends Error {
-  constructor() {
-    super("Solver request exceeded the time limit and was stopped.");
-    this.name = "SolverTimeoutError";
-  }
-}
-
-/**
- * Solver đã dừng vì hết ngân sách tìm kiếm (thời gian hoặc số node).
- *
- * Đây là lỗi có cấu trúc từ solver (`search_limit`), khác với việc client
- * ngắt worker: giao diện có thể báo cho người dùng biết cần thử lại với
- * đề khác thay vì hiện một thông báo chung chung.
- */
-export class SolverLimitError extends Error {
-  constructor(message?: string) {
-    super(message ?? "The solver reached its search budget.");
-    this.name = "SolverLimitError";
-  }
-}
-
-type WorkerMessage = {
-  id: number;
-  ok: boolean;
-  output?: string;
-  error?: string;
-  code?: string;
-};
-type PendingTask = {
-  resolve: (value: unknown) => void;
-  reject: (reason: Error) => void;
-  timer: number;
-};
-
-let heavyWorker: Worker | null = null;
-let nextId = 1;
-const heavyPending = new Map<number, PendingTask>();
-
-function rejectPending(tasks: Map<number, PendingTask>, reason: Error) {
-  tasks.forEach(task => {
-    window.clearTimeout(task.timer);
-    task.reject(reason);
-  });
-  tasks.clear();
-}
-
-function resetHeavyWorker(reason: Error) {
-  heavyWorker?.terminate();
-  heavyWorker = null;
-  rejectPending(heavyPending, reason);
+/** Engine đang dùng, chọn bằng `VITE_SOLVER_ENGINE` (mặc định pyodide). */
+export function getSolverEngine(): SolverEngine {
+  engine ??= createSolverEngine(
+    resolveSolverEngineName(import.meta.env.VITE_SOLVER_ENGINE as string | undefined)
+  );
+  return engine;
 }
 
 export function cancelSolverInBrowser() {
-  resetHeavyWorker(new SolverCancelledError());
-}
-
-function getHeavyWorker() {
-  if (!heavyWorker) {
-    heavyWorker = new Worker(new URL("./solverWorker.ts", import.meta.url), {
-      type: "module",
-    });
-    heavyWorker.onmessage = (event: MessageEvent<WorkerMessage>) => {
-      const task = heavyPending.get(event.data.id);
-      if (!task) return;
-      heavyPending.delete(event.data.id);
-      window.clearTimeout(task.timer);
-      if (event.data.ok && event.data.output) {
-        try {
-          task.resolve(JSON.parse(event.data.output));
-        } catch (error) {
-          task.reject(
-            error instanceof Error
-              ? error
-              : new Error("Solver worker returned invalid JSON.")
-          );
-        }
-      } else {
-        task.reject(
-          event.data.code === "search_limit"
-            ? new SolverLimitError(event.data.error)
-            : new Error(
-                event.data.error ?? "Solver worker returned an empty response."
-              )
-        );
-      }
-    };
-    heavyWorker.onerror = () => {
-      resetHeavyWorker(
-        new Error("Solver heavy worker failed to start or crashed.")
-      );
-    };
-  }
-  return heavyWorker;
-}
-
-function postTask<T>(
-  tasks: Map<number, PendingTask>,
-  getWorker: () => Worker,
-  message: Record<string, unknown>,
-  timeoutMs: number
-): Promise<T> {
-  const id = nextId++;
-  return new Promise((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      const pendingTask = tasks.get(id);
-      if (pendingTask) {
-        tasks.delete(id);
-        window.clearTimeout(pendingTask.timer);
-        pendingTask.reject(new SolverTimeoutError());
-      }
-    }, timeoutMs);
-    tasks.set(id, { resolve: value => resolve(value as T), reject, timer });
-    try {
-      getWorker().postMessage({ id, ...message });
-    } catch (error) {
-      tasks.delete(id);
-      window.clearTimeout(timer);
-      reject(error instanceof Error ? error : new Error(String(error)));
-    }
-  });
+  getSolverEngine().cancel();
 }
 
 export function solveInBrowser(
@@ -242,13 +141,11 @@ export function solveInBrowser(
   lastLayer: LastLayerMode = "auto",
   openingDepth = 8,
   openingFindResult = false,
-  directNodeBudget = 5000
+  directNodeBudget = 5000,
+  onProgress?: (progress: SolverProgress) => void
 ): Promise<SolverResult> {
-  return postTask<SolverResult>(
-    heavyPending,
-    getHeavyWorker,
+  return getSolverEngine().solve(
     {
-      command: "solve",
       kind,
       value,
       crossColor,
@@ -260,29 +157,19 @@ export function solveInBrowser(
       preferredSlot: xcross.preferredSlot,
       excludedSlots: xcross.excludedSlots ?? [],
     },
-    SOLVER_TIMEOUT_MS
+    onProgress
   );
 }
 
 export function warmSolverInBrowser(): Promise<void> {
-  return postTask<void>(
-    heavyPending,
-    getHeavyWorker,
-    { command: "warmup", value: "" },
-    SOLVER_TIMEOUT_MS
-  );
+  return getSolverEngine().warmup();
 }
 
 export function analyzeBldInBrowser(
   kind: "scramble" | "state",
   value: string
 ): Promise<BldResult> {
-  return postTask<BldResult>(
-    heavyPending,
-    getHeavyWorker,
-    { command: "bld", kind, value },
-    SOLVER_TIMEOUT_MS
-  );
+  return getSolverEngine().analyzeBld(kind, value);
 }
 
 export async function validateStateInBrowser(

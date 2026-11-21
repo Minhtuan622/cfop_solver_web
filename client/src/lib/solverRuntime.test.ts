@@ -41,7 +41,9 @@ let workerInstance: MockWorker | null = null;
 const MockWorkerClass = class {
   constructor(url: string | URL) {
     const u = String(url);
-    if (u.includes("solverWorker.ts")) {
+    // Worker Pyodide (solverWorker.ts) hoặc WASM (solverWorkerWasm.ts),
+    // tuỳ VITE_SOLVER_ENGINE: cả hai nói chung một giao thức.
+    if (u.includes("solverWorker.ts") || u.includes("solverWorkerWasm.ts")) {
       Object.assign(this, heavyWorker);
       workerInstance = this;
     } else {

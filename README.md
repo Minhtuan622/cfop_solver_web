@@ -61,16 +61,26 @@ Phần **yêu cầu Database** (DATABASE_URL):
 
 ## Chạy local nhanh
 
-Yêu cầu Node.js 22+, pnpm **10.34.5**, Docker Desktop và Git. Database local dùng MariaDB trong Docker Compose nên không cần cài MySQL/MariaDB trực tiếp trên macOS hoặc Windows.
+Yêu cầu Node.js 22+, pnpm **10.34.5**, Docker Desktop, Git và **Rust** (stable, cài qua [rustup](https://rustup.rs)) kèm target WebAssembly và `wasm-pack`. Database local dùng MariaDB trong Docker Compose nên không cần cài MySQL/MariaDB trực tiếp trên macOS hoặc Windows.
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo install wasm-pack --locked
+```
+
+`wasm-opt` (gói Binaryen, ví dụ `brew install binaryen` hoặc `apt install binaryen`) là tùy chọn: có thì file `.wasm` nhỏ hơn khoảng 35%.
 
 ```bash
 git clone https://github.com/Minhtuan622/cfop_solver_web.git
 cd cfop_solver_web
 corepack enable
 pnpm install --frozen-lockfile
+pnpm build:solver
 pnpm db:setup
 pnpm dev
 ```
+
+`pnpm build:solver` biên dịch bộ giải Rust trong [`packages/solver`](packages/solver) ra `packages/solver/solver-wasm/pkg` (glue JS, `.wasm`, kiểu TypeScript). Thư mục này **không commit**; chạy lại lệnh sau mỗi lần sửa code Rust. `pnpm check`, `pnpm test`, `pnpm dev` và `pnpm build` đều cần nó.
 
 `pnpm db:setup` sẽ khởi động MariaDB tại `127.0.0.1:3307`, tạo/cập nhật `.env.local` và áp dụng Drizzle migration. Hãy bật Docker Desktop trước khi chạy lệnh này. Sau đó mở `http://localhost:3000`.
 
@@ -87,6 +97,7 @@ Các luồng account, cloud sync, Rooms và WCA cần `DATABASE_URL`. WCA OAuth 
 ## Kiểm tra trước khi mở Pull Request
 
 ```bash
+pnpm build:solver
 pnpm check
 pnpm test --run
 pnpm exec playwright install  # lần đầu, nếu máy chưa có Chromium
@@ -96,6 +107,16 @@ pnpm audit --prod --audit-level=high
 ```
 
 `pnpm test:e2e` dùng Chromium do Playwright quản lý (tự động tải về). Không cần cài Chromium hệ thống.
+
+Bộ giải Rust có test riêng, chạy trong `packages/solver`:
+
+```bash
+cd packages/solver
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+cargo run --release -p cfop --example bench   # benchmark Cross/F2L (p50, p95)
+```
 
 `pnpm build` **đã chạy `tsc --noEmit` ở đầu chuỗi**, nên build fail ở local cũng là lỗi type chứ không chỉ lỗi bundling. `pnpm check` vẫn đáng chạy riêng vì báo lỗi sớm hơn, trước bước tải Pyodide ~14 MB.
 

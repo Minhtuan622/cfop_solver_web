@@ -262,8 +262,6 @@ pub(crate) struct Frame {
     pub(crate) g_inv: Cube,
     /// Canonical move -> actual move (`G m G^-1`), for all 54 moves.
     pub(crate) to_actual: [Move; Move::COUNT],
-    /// Actual edge position of each canonical edge position.
-    pub(crate) edge_pos: [u8; 12],
 }
 
 pub(crate) struct Tables {
@@ -286,6 +284,7 @@ pub(crate) fn tables() -> &'static Tables {
     TABLES.get_or_init(Tables::build)
 }
 
+#[cfg(test)]
 fn rotations() -> Vec<Cube> {
     let x = *move_cube(Move::new(MoveBase::X, 1).unwrap());
     let y = *move_cube(Move::new(MoveBase::Y, 1).unwrap());
@@ -303,11 +302,13 @@ fn rotations() -> Vec<Cube> {
     all
 }
 
-fn build_frame(rotations: &[Cube], color: usize) -> Frame {
-    let g = *rotations
-        .iter()
-        .find(|g| g.centers()[3] as usize == color)
-        .expect("a rotation brings every face to D");
+/// Rotation bringing each cross color to D, in the same convention as the
+/// previous (Python) solver so slot names agree: U x2, R z, F x', D -, L z', B x.
+const CROSS_ROTATIONS: [&str; 6] = ["x2", "z", "x'", "", "z'", "x"];
+
+fn build_frame(color: usize) -> Frame {
+    let g = Cube::from_moves(&cube_core::parse_moves(CROSS_ROTATIONS[color]).expect("rotation"));
+    debug_assert_eq!(g.centers()[3] as usize, color);
     let g_inv = g.inverse();
     let to_actual = std::array::from_fn(|m| {
         let mv = Move::from_index(m).expect("move index");
@@ -320,7 +321,6 @@ fn build_frame(rotations: &[Cube], color: usize) -> Frame {
         g,
         g_inv,
         to_actual,
-        edge_pos: *g.edge_perm(),
     }
 }
 
@@ -365,8 +365,7 @@ impl Tables {
                 .find(|c| c.edge[ej][ej * 2].0 == 8 && c.corner[cj][cj * 3].0 == 4)
                 .expect("some y^k maps the slot onto FR")
         });
-        let rots = rotations();
-        let frames = std::array::from_fn(|c| build_frame(&rots, c));
+        let frames = std::array::from_fn(build_frame);
         #[cfg(not(target_arch = "wasm32"))]
         let build_time = Some(start.elapsed());
         #[cfg(target_arch = "wasm32")]
