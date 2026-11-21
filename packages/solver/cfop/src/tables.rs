@@ -260,8 +260,8 @@ pub(crate) struct Frame {
     /// Rotation `G` taking the cross face to D.
     pub(crate) g: Cube,
     pub(crate) g_inv: Cube,
-    /// Canonical face move -> actual face move.
-    pub(crate) to_actual: [Move; FACE_MOVES],
+    /// Canonical move -> actual move (`G m G^-1`), for all 54 moves.
+    pub(crate) to_actual: [Move; Move::COUNT],
     /// Actual edge position of each canonical edge position.
     pub(crate) edge_pos: [u8; 12],
 }
@@ -310,11 +310,11 @@ fn build_frame(rotations: &[Cube], color: usize) -> Frame {
         .expect("a rotation brings every face to D");
     let g_inv = g.inverse();
     let to_actual = std::array::from_fn(|m| {
-        let target = g.multiply(move_cube(face_move(m))).multiply(&g_inv);
+        let mv = Move::from_index(m).expect("move index");
+        let target = g.multiply(move_cube(mv)).multiply(&g_inv);
         Move::all()
-            .take(FACE_MOVES)
             .find(|&n| *move_cube(n) == target)
-            .expect("conjugate of a face move is a face move")
+            .expect("conjugate of a move is a move of the same kind")
     });
     Frame {
         g,

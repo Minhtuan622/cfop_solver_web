@@ -22,4 +22,4 @@ pub use cube::{
     FACE_CHARS, SOLVED_STICKERS,
 };
 pub use error::{ParseError, ParseErrorKind, StateError};
-pub use moves::{format_moves, invert_moves, parse_moves, Move, MoveBase};
+pub use moves::{format_moves, invert_moves, parse_moves, simplify_moves, Move, MoveBase};

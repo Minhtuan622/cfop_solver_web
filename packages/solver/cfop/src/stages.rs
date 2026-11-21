@@ -1,6 +1,7 @@
 //! Cross and F2L stage solvers.
 
 use cube_core::{Cube, Move};
+use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
 use crate::limits::{Budget, Limits};
@@ -8,7 +9,7 @@ use crate::search::{ida_star, State};
 use crate::tables::{tables, Frame, CROSS_EDGES, SLOTS};
 
 /// A face / center color, in `URFDLB` order.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Face {
     U,
     R,
@@ -28,7 +29,8 @@ impl Face {
 }
 
 /// Result of one stage (or sub-step, e.g. one F2L pair).
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct StageResult {
     /// "Cross", "F2L", or a pair name such as "F2L FR".
     pub name: String,
@@ -39,6 +41,9 @@ pub struct StageResult {
     pub substeps: Vec<StageResult>,
     /// Search nodes visited.
     pub nodes: u64,
+    /// Recognized case for OLL/PLL (e.g. "OLL 21", "PLL Ua", "OLL skip").
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub case: Option<String>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -61,7 +66,7 @@ impl Default for CrossOptions {
 /// Slots are numbered 0..4 = FR, FL, BL, BR *relative to the cross*: for a
 /// D cross these are the real FR/FL/BL/BR slots; for another cross color the
 /// cube is viewed with that color on D (the result names use real positions).
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SlotOrder {
     /// At every step solve whichever remaining pair is shortest.
     #[default]
@@ -92,14 +97,18 @@ const EDGE_NAMES: [&str; 12] = [
     "UR", "UF", "UL", "UB", "DR", "DF", "DL", "DB", "FR", "FL", "BL", "BR",
 ];
 
-fn canonical(cube: &Cube, color: Face) -> Result<(State, &'static Frame), Error> {
+/// The cube seen with `color` on D (`G^-1 * cube * G`) and its frame.
+pub(crate) fn canonical_cube(cube: &Cube, color: Face) -> Result<(Cube, &'static Frame), Error> {
     cube.verify()?;
     if cube.centers() != &[0, 1, 2, 3, 4, 5] {
         return Err(Error::CentersNotHome);
     }
     let frame = &tables().frames[color.index()];
-    let c = frame.g_inv.multiply(cube).multiply(&frame.g);
-    Ok((State::from_cube(&c), frame))
+    Ok((frame.g_inv.multiply(cube).multiply(&frame.g), frame))
+}
+
+fn canonical(cube: &Cube, color: Face) -> Result<(State, &'static Frame), Error> {
+    canonical_cube(cube, color).map(|(c, f)| (State::from_cube(&c), f))
 }
 
 fn cross_h(s: &State) -> u8 {
@@ -121,7 +130,7 @@ fn slot_h(s: &State, j: usize) -> u8 {
 }
 
 fn to_actual(frame: &Frame, path: &[u8]) -> Vec<Move> {
-    path.iter().map(|&m| frame.to_actual[m as usize]).collect()
+    path.iter().map(|&m| frame.to_actual[m as usize]).collect() // face moves: index < 18
 }
 
 /// True if the cross of `color` is solved.
@@ -156,6 +165,7 @@ pub fn solve_cross_with(cube: &Cube, opts: &CrossOptions) -> Result<StageResult,
         moves,
         substeps: Vec::new(),
         nodes: budget.nodes,
+        case: None,
     })
 }
 
@@ -238,6 +248,7 @@ pub fn solve_f2l_with(cube: &Cube, opts: &F2lOptions) -> Result<StageResult, Err
             state,
             substeps: Vec::new(),
             nodes: 0,
+            case: None,
         });
     }
 
@@ -247,5 +258,6 @@ pub fn solve_f2l_with(cube: &Cube, opts: &F2lOptions) -> Result<StageResult, Err
         state,
         substeps,
         nodes: budget.nodes,
+        case: None,
     })
 }

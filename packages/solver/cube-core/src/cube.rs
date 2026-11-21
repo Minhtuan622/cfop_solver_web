@@ -602,3 +602,23 @@ mod tests {
         assert!(!c.is_solved());
     }
 }
+
+#[cfg(feature = "serde")]
+mod serde_impl {
+    use super::Cube;
+    use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+
+    /// Serialized as its 54-sticker `URFDLB` string.
+    impl Serialize for Cube {
+        fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+            s.serialize_str(&self.to_stickers())
+        }
+    }
+
+    impl<'de> Deserialize<'de> for Cube {
+        fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+            let s = String::deserialize(d)?;
+            Cube::from_stickers(&s).map_err(de::Error::custom)
+        }
+    }
+}

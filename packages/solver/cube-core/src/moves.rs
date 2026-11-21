@@ -269,3 +269,41 @@ pub fn format_moves(moves: &[Move]) -> String {
 pub fn invert_moves(moves: &[Move]) -> Vec<Move> {
     moves.iter().rev().map(|m| m.inverse()).collect()
 }
+
+/// Merge adjacent moves of the same family (`R R` -> `R2`, `U U'` -> nothing),
+/// repeatedly, so `R U U' R'` becomes empty.
+pub fn simplify_moves(moves: &[Move]) -> Vec<Move> {
+    let mut out: Vec<Move> = Vec::with_capacity(moves.len());
+    for &m in moves {
+        match out.last() {
+            Some(&last) if last.base == m.base => {
+                out.pop();
+                if let Some(merged) = Move::new(m.base, last.turns + m.turns) {
+                    out.push(merged);
+                }
+            }
+            _ => out.push(m),
+        }
+    }
+    out
+}
+
+#[cfg(feature = "serde")]
+mod serde_impl {
+    use super::Move;
+    use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+
+    /// Serialized as its notation string, e.g. `"R'"`.
+    impl Serialize for Move {
+        fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+            s.collect_str(self)
+        }
+    }
+
+    impl<'de> Deserialize<'de> for Move {
+        fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+            let s = String::deserialize(d)?;
+            s.parse().map_err(de::Error::custom)
+        }
+    }
+}
