@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+members = ["cube-core", "cfop"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+publish = false
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+# Search-heavy tests (thousands of scrambles) are run optimized.
+[profile.test]
+opt-level = 3
