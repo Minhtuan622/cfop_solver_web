@@ -10,10 +10,19 @@ Cảm ơn bạn muốn cải thiện CFOP Solver Studio. Bạn có thể đóng 
 4. Chạy các kiểm tra phù hợp trước khi push:
 
    ```bash
+   pnpm build:solver
    pnpm check
    pnpm test --run
    pnpm test:e2e
    pnpm build
+   ```
+
+   Nếu sửa bộ giải Rust (`packages/solver`), chạy thêm trong thư mục đó:
+
+   ```bash
+   cargo fmt --all -- --check
+   cargo clippy --workspace --all-targets -- -D warnings
+   cargo test --workspace
    ```
 
 5. Mở Pull Request, mô tả vấn đề, cách sửa, các route/feature bị ảnh hưởng và kết quả kiểm thử.
