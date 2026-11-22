@@ -9,7 +9,6 @@ import {
   SkeletonCard,
 } from "@/components/ui/StudioUI";
 import {
-  SystemLeaderboard,
   competitionErrorText,
   competitionEventLabel,
   competitionResultLabel,
@@ -31,6 +30,7 @@ import {
 } from "@/lib/timerEvents";
 import { trpc } from "@/lib/trpc";
 import { useAsync } from "@/lib/useAsync";
+import { LeaderboardTeaser } from "@/features/competition/components/LeaderboardTeaser";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import { buttonClass } from "@/components/ui/Button";
@@ -166,14 +166,12 @@ export default function Rooms() {
     );
   if (!account.data)
     return (
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h1 className="text-lg font-semibold tracking-tight mb-0">
-          {t("rooms.title")}
-        </h1>
-        <SystemLeaderboard />
-        <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-6">
-          {t("rooms.signInHint")}
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+        <PageHeader title={t("rooms.title")} description={t("rooms.subtitle")} />
+        <div className="rounded-card bg-surface px-5 py-6 text-center sm:px-6">
+          <p className="mb-0 text-sm text-ink">{t("rooms.signInHint")}</p>
         </div>
+        <LeaderboardTeaser className="mt-6" />
       </div>
     );
   if (!code)
@@ -293,10 +291,10 @@ export default function Rooms() {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
         <div className="flex flex-wrap justify-between items-end gap-4 mb-6">
           <div>
-            <p className="text-muted text-sm mb-1">
+            <p className="text-muted text-sm mb-2">
               {competitionEventLabel(event, language)} ·{" "}
               {formatLabels[room.room.format]} ·{" "}
               {t("rooms.round", {
@@ -304,7 +302,7 @@ export default function Rooms() {
                 limit: room.roundLimit,
               })}
             </p>
-            <h1 className="text-xl font-semibold tracking-tight mb-1">
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl mb-2">
               {room.room.name}
             </h1>
             {roomQuery.isFetching ? (

@@ -50,6 +50,7 @@ export const roomsWords: Dictionary = {
   "rooms.deleteConfirmAction": ["Xóa phòng", "Delete room"],
 
   "rooms.lobby.title": ["Phòng thi đấu", "Competition rooms"],
+  "rooms.lobby.createTitle": ["Tạo phòng mới", "Create a room"],
   "rooms.lobby.intro": [
     "Chọn event, tạo scramble chung hoặc chia sẻ link để người khác thi và theo dõi.",
     "Pick an event, create a shared scramble or share a link so others can compete and follow along.",

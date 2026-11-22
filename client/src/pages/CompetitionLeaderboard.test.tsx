@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render } from "@testing-library/react";
-import { fireEvent, screen } from "@testing-library/dom";
+import { fireEvent, screen, within } from "@testing-library/dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import CompetitionLeaderboard from "./CompetitionLeaderboard";
 
@@ -44,9 +44,11 @@ describe("CompetitionLeaderboard", () => {
     mocks.leaderboard = { data: { startAt: new Date("2026-08-25T00:00:00Z"), endAt: new Date("2026-08-29T00:00:00Z"), players: [{ accountId: 42, displayName: "An", avatarUrl: null, points: 10, wins: 1, rooms: 1, rank: 1 }] }, isLoading: false, isError: false };
     render(<CompetitionLeaderboard />);
 
-    expect(screen.getByRole("heading", { name: "Xếp hạng & lịch sử thi đấu" })).toBeInTheDocument();
-    expect(screen.getByRole("cell", { name: "An" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "An" })).toHaveAttribute("href", "/competition/player/42");
+    expect(screen.getByRole("heading", { name: "Xếp hạng" })).toBeInTheDocument();
+    // Top 3 là các thẻ liên kết: tên người chơi nằm trong thẻ, dẫn tới lịch sử.
+    const podium = screen.getByRole("list", { name: "Ba người dẫn đầu" });
+    expect(within(podium).getByText("An")).toBeInTheDocument();
+    expect(within(podium).getByText("An").closest("a")).toHaveAttribute("href", "/competition/player/42");
     // Dropdown tự vẽ: nhãn của nút là lựa chọn đang chọn, không còn .value
     // như `<select>` gốc.
     expect(screen.getByLabelText("Bộ môn")).toHaveTextContent("Mọi bộ môn");

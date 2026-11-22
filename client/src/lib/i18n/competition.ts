@@ -2,7 +2,7 @@ import type { Dictionary } from "./index";
 
 /** The competition pages: leaderboards, player history and the room outcome. */
 export const competitionWords: Dictionary = {
-  "competition.leaderboard.title": ["Xếp hạng & lịch sử thi đấu", "Rankings & competition history"],
+  "competition.leaderboard.title": ["Xếp hạng", "Rankings"],
   "competition.leaderboard.description": [
     "Theo dõi phong độ thi đấu, điểm số và lịch sử của cộng đồng CFOP Solver.",
     "Follow the competitive form, points and history of the CFOP Solver community.",
@@ -134,6 +134,10 @@ export const competitionWords: Dictionary = {
     "No room with at least two players has finished in this period.",
   ],
   "competition.filter.points": ["{points} điểm", "{points} points"],
+  "competition.teaser.title": ["Dẫn đầu tuần này", "Leading this week"],
+  "competition.teaser.empty": ["Chưa có phòng nào hoàn tất tuần này.", "No finished rooms this week yet."],
+  "competition.teaser.viewAll": ["Xem bảng xếp hạng", "View rankings"],
+  "competition.podium.label": ["Ba người dẫn đầu", "Top three"],
   "competition.filter.fullBoard": ["Xem bảng đầy đủ", "See the full leaderboard"],
 
   "competition.format.bestOf3Description": ["3 lượt · lấy single tốt nhất", "3 attempts · the best single counts"],

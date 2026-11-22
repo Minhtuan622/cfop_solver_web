@@ -7,7 +7,6 @@ import {
   SkeletonList,
 } from "@/components/ui/StudioUI";
 import {
-  SystemLeaderboard,
   competitionEventLabel,
   formatLabels,
   type RoomFormat,
@@ -17,6 +16,7 @@ import {
   timerEventLabel,
   type TimerEventId,
 } from "@/lib/timerEvents";
+import { LeaderboardTeaser } from "@/features/competition/components/LeaderboardTeaser";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { RoomSummary } from "../lib/roomTypes";
 import { Input } from "@/components/ui/FormControls";
@@ -70,15 +70,15 @@ export function RoomLobby({
 }: Props) {
   const { language, t } = useLanguage();
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div>
       <div className="grid grid-cols-12 gap-6">
         <section className="col-span-12 xl:col-span-7">
           <div className="rounded-card bg-surface">
             <div className="p-5 sm:p-6">
-              <h1 className="text-xl font-semibold tracking-tight">
-                {t("rooms.lobby.title")}
-              </h1>
-              <p className="text-muted">{t("rooms.lobby.intro")}</p>
+              <h2 className="text-base font-semibold tracking-tight">
+                {t("rooms.lobby.createTitle")}
+              </h2>
+              <p className="text-sm text-muted">{t("rooms.lobby.intro")}</p>
               <form
                 onSubmit={form => {
                   form.preventDefault();
@@ -227,7 +227,7 @@ export function RoomLobby({
                   />
                 </Field>
                 <PendingButton
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-transparent text-primary hover:bg-primary-soft mt-4"
+                  className={`${buttonClass("soft", "md")} mt-4`}
                   pending={joinPending}
                 >
                   {t("rooms.lobby.join")}
@@ -245,13 +245,17 @@ export function RoomLobby({
                       <Link
                         key={room.id}
                         href={`/rooms/${room.code}`}
-                        className="block px-4 py-3 text-sm transition-colors hover:bg-surface-2 px-0"
+                        className="-mx-3 flex items-center justify-between gap-3 rounded-panel px-3 py-2.5 text-sm no-underline transition-colors hover:bg-surface-2"
                       >
-                        <strong className="block">{room.name}</strong>
-                        <small className="text-muted">
-                          {room.code} ·{" "}
-                          {competitionEventLabel(room.eventId, language)}
-                        </small>
+                        <span className="min-w-0">
+                          <strong className="block truncate text-ink">{room.name}</strong>
+                          <small className="text-muted">
+                            {competitionEventLabel(room.eventId, language)}
+                          </small>
+                        </span>
+                        <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 font-mono text-xs font-semibold text-muted">
+                          {room.code}
+                        </span>
                       </Link>
                     ))}
                   </div>
@@ -266,7 +270,7 @@ export function RoomLobby({
           </div>
         </aside>
       </div>
-      <SystemLeaderboard />
+      <LeaderboardTeaser className="mt-6" />
       {error ? (
         <div className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mt-6">
           {error}

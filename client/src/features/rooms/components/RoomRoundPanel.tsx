@@ -237,7 +237,6 @@ export function RoomRoundPanel({
                 </PendingButton>
               ) : null}
             </div>
-            <hr />
             {isSpectator ? (
               <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mb-0">
                 {t("rooms.round.spectating")}

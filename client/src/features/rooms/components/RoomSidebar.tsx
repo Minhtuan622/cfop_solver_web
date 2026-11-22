@@ -6,6 +6,7 @@ import {
 import { PendingButton } from "@/components/ui/StudioUI";
 import { translateServerText } from "@/lib/apiError";
 import type { TimerEventId } from "@/lib/timerEvents";
+import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RoomMemberRoster } from "./RoomMemberRoster";
 import { Input } from "@/components/ui/FormControls";
@@ -82,14 +83,27 @@ export function RoomSidebar({
               : t(formatDescriptionKey[format])}
           </p>
           {standings.length ? (
-            <ol className="overflow-hidden rounded-panel bg-surface list-decimal pl-6">
-              {standings.map(player => (
+            <ol className="mt-3 flex flex-col gap-1">
+              {standings.map((player, index) => (
                 <li
                   key={player.accountId}
-                  className="block px-4 py-3 text-sm flex justify-between"
+                  className={cn(
+                    "flex items-center gap-3 rounded-panel px-3 py-2.5 text-sm",
+                    index === 0 ? "bg-primary-soft" : "bg-surface-2"
+                  )}
                 >
-                  <span>{player.displayName}</span>
-                  <strong>
+                  <span
+                    className={cn(
+                      "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                      index === 0 ? "bg-primary text-on-primary" : "bg-surface text-muted"
+                    )}
+                  >
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate font-semibold text-ink">
+                    {player.displayName}
+                  </span>
+                  <strong className="tabular-nums text-ink">
                     {competitionResultLabel(player.lastResult, eventId, t)}
                   </strong>
                 </li>
@@ -126,11 +140,17 @@ export function RoomSidebar({
         </div>
       </div>
       {canManageSpectators ? (
-        <div className="rounded-card bg-surface mb-6">
-          <div className="p-5 sm:p-6">
-            <h2 className="text-base font-semibold tracking-tight">
-              {t("rooms.sidebar.moderationLog")}
-            </h2>
+        <details className="group rounded-card bg-surface mb-6">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-base font-semibold tracking-tight sm:px-6">
+            {t("rooms.sidebar.moderationLog")}
+            <span
+              aria-hidden="true"
+              className="text-muted transition-transform group-open:rotate-180"
+            >
+              ▾
+            </span>
+          </summary>
+          <div className="px-5 pb-5 sm:px-6 sm:pb-6">
             <p className="text-muted text-sm">
               {t("rooms.sidebar.moderationHint")}
             </p>
@@ -159,7 +179,7 @@ export function RoomSidebar({
               </p>
             )}
           </div>
-        </div>
+        </details>
       ) : null}
       {isSpectator ? (
         <div className="rounded-card bg-surface">
