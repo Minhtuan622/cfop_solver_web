@@ -92,7 +92,7 @@ export function BluetoothTimerHero({
       className="relative rounded-card px-4 py-10 text-center transition-colors duration-150 @container bg-surface-2"
     >
       <div className="mb-4 flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-        <Bluetooth className="text-base text-primary" aria-hidden="true" />
+        <Bluetooth className="text-base text-muted" aria-hidden="true" />
         <span>{t("timer.ble.heroLabel")}</span>
         <span aria-hidden="true">·</span>
         <span className="normal-case tracking-normal text-ink">{deviceName}</span>

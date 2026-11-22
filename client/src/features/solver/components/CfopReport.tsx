@@ -170,7 +170,7 @@ function CfopPhaseRow({
           size="plain"
           className={cn(
             "grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold tabular-nums",
-            !selected && "bg-primary-soft text-primary"
+            !selected && "bg-surface text-muted"
           )}
           onClick={() => onSelect(phase)}
           aria-label={`${index + 1} ${compactName}`}

@@ -1,3 +1,4 @@
+import { SettingRow } from "./SettingRow";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Info } from "@/components/ui/Icon";
 import { SectionCard, Switch } from "@/components/ui/StudioUI";
@@ -73,7 +74,7 @@ export function SolverSettingsGroup({
             {COLORS.map(color => (
               <Button
                 variant={
-                  solver.crossColor === color.value ? "primary" : "secondary"
+                  solver.crossColor === color.value ? "primary" : "soft"
                 }
                 size="md"
                 className="p-1"
@@ -102,16 +103,14 @@ export function SolverSettingsGroup({
           </p>
         </div>
 
-        <div>
-          <label
-            className="mb-1.5 block text-sm font-medium text-ink"
-            htmlFor="setting-opening"
-          >
-            {t("settings.opening")}
-          </label>
+        <SettingRow
+          label={t("settings.opening")}
+          help={t("settings.openingHint")}
+          htmlFor="setting-opening"
+        >
           <Select
             id="setting-opening"
-            className="max-w-md"
+            className="w-full sm:w-72"
             value={solver.opening}
             onChange={event =>
               onChange({
@@ -125,10 +124,7 @@ export function SolverSettingsGroup({
               </option>
             ))}
           </Select>
-          <p className="text-sm text-muted mb-0 mt-2">
-            {t("settings.openingHint")}
-          </p>
-        </div>
+        </SettingRow>
 
         {solver.opening !== "cross" ? (
           <>
@@ -192,7 +188,7 @@ export function SolverSettingsGroup({
                 role="group"
               >
                 <Button
-                  variant={!solver.preferredSlot ? "primary" : "secondary"}
+                  variant={!solver.preferredSlot ? "primary" : "soft"}
                   size="md"
                   type="button"
                   onClick={() => onChange({ preferredSlot: undefined })}
@@ -202,7 +198,7 @@ export function SolverSettingsGroup({
                 {SLOTS.map(slot => (
                   <Button
                     variant={
-                      solver.preferredSlot === slot ? "primary" : "secondary"
+                      solver.preferredSlot === slot ? "primary" : "soft"
                     }
                     size="md"
                     key={slot}
@@ -231,7 +227,7 @@ export function SolverSettingsGroup({
                     variant={
                       solver.excludedSlots.includes(slot)
                         ? "dangerSolid"
-                        : "secondary"
+                        : "soft"
                     }
                     size="md"
                     key={`exclude-${slot}`}
@@ -246,16 +242,14 @@ export function SolverSettingsGroup({
           </>
         ) : null}
 
-        <div>
-          <label
-            className="mb-1.5 block text-sm font-medium text-ink"
-            htmlFor="setting-last-layer"
-          >
-            {t("settings.lastLayer")}
-          </label>
+        <SettingRow
+          label={t("settings.lastLayer")}
+          help={t("settings.lastLayerHint")}
+          htmlFor="setting-last-layer"
+        >
           <Select
             id="setting-last-layer"
-            className="max-w-md"
+            className="w-full sm:w-72"
             value={solver.lastLayer}
             onChange={event =>
               onChange({
@@ -269,12 +263,9 @@ export function SolverSettingsGroup({
               </option>
             ))}
           </Select>
-          <p className="text-sm text-muted mb-0 mt-2">
-            {t("settings.lastLayerHint")}
-          </p>
-        </div>
+        </SettingRow>
 
-        <details className="rounded-card bg-surface-2/60 text-sm text-muted">
+        <details className="rounded-panel bg-surface-2 text-sm text-muted">
           <summary className="cursor-pointer rounded-t-card px-4 py-3 font-semibold text-ink first:rounded-t-card [&::-webkit-details-marker]:hidden">
             {t("settings.directNote")}
           </summary>

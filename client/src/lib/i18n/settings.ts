@@ -15,8 +15,8 @@ export const settingsWords: Dictionary = {
   ],
   "settings.group.timer": ["Bấm giờ", "Timer"],
   "settings.group.timerHelp": [
-    "Âm báo inspection, highlight Cross và speed splits.",
-    "The inspection sound, the Cross highlight and the speed splits.",
+    "Âm báo inspection, metronome, ẩn thời gian khi giải và cỡ scramble.",
+    "Inspection cues, the metronome, hiding the time while solving and the scramble size.",
   ],
   "settings.group.study": ["Học tập", "Study"],
   "settings.group.studyHelp": [

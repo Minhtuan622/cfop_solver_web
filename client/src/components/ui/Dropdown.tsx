@@ -63,12 +63,12 @@ export function Dropdown({
           <button
             type="button"
             className={cn(
-              "group inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20",
+              "group inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition-colors focus-visible:outline-none",
               variant === "nav"
-                ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink"
+                ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink data-[state=open]:bg-surface-2 data-[state=open]:text-ink"
                 : variant === "soft"
-                  ? "rounded-full bg-surface-2 px-3.5 py-2 text-ink hover:bg-surface-3"
-                  : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2",
+                  ? "rounded-full bg-surface-2 px-3.5 py-2 text-ink hover:bg-surface-3 data-[state=open]:bg-surface-3"
+                  : "rounded-full bg-surface px-3.5 py-2 text-ink hover:bg-surface-2 data-[state=open]:bg-surface-2",
               buttonClassName
             )}
             aria-label={label}
@@ -91,7 +91,7 @@ export function Dropdown({
             className={cn(
               // Không có bóng đổ: menu nổi dùng nền đậm hơn một bậc để tách
               // khỏi nội dung bên dưới.
-              "z-50 min-w-52 overflow-y-auto rounded-2xl bg-surface-2 p-1.5",
+              "z-50 min-w-52 overflow-y-auto rounded-2xl bg-surface-3 p-1.5",
               menuClassName
             )}
           >

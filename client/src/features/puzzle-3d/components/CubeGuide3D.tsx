@@ -146,7 +146,7 @@ function highlightedIndexes(
       if (!slotMap) continue;
       for (const face of Object.keys(slotMap) as Array<"D" | "F" | "R" | "L" | "B">) {
         for (const index of slotMap[face] ?? []) {
-          highlight.set(rawKey(face, index), { color: "#7c6cf0", intensity: 0.75 });
+          highlight.set(rawKey(face, index), { color: "#14b8a6", intensity: 0.75 });
         }
       }
     }

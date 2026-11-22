@@ -1,3 +1,4 @@
+import { SettingRow } from "./SettingRow";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Field, SectionCard } from "@/components/ui/StudioUI";
 import { Input } from "@/components/ui/FormControls";
@@ -19,29 +20,25 @@ export function StudySettingsGroup({
       title={t("settings.group.study")}
       description={t("settings.group.studyHelp")}
     >
-      <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12 sm:col-span-6">
-          <Field
-            id="setting-daily-goal"
-            label={t("settings.dailyGoal")}
-            hint={t("settings.dailyGoalHelp")}
-          >
-            <Input
-              id="setting-daily-goal"
-
-              type="number"
-              min={1}
-              max={200}
-              value={dailyGoal}
-              onChange={event =>
-                onDailyGoalChange(
-                  Math.max(1, Math.min(200, Number(event.target.value) || 1))
-                )
-              }
-            />
-          </Field>
-        </div>
-      </div>
+      <SettingRow
+        label={t("settings.dailyGoal")}
+        help={t("settings.dailyGoalHelp")}
+        htmlFor="setting-daily-goal"
+      >
+        <Input
+          id="setting-daily-goal"
+          className="w-28"
+          type="number"
+          min={1}
+          max={200}
+          value={dailyGoal}
+          onChange={event =>
+            onDailyGoalChange(
+              Math.max(1, Math.min(200, Number(event.target.value) || 1))
+            )
+          }
+        />
+      </SettingRow>
     </SectionCard>
   );
 }

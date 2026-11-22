@@ -55,7 +55,7 @@ export function NavUtilityMenu() {
   const itemClass =
     "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition";
   const baseChipClass = "bg-surface-2";
-  const highlight = "data-[highlighted]:bg-surface-3";
+  const highlight = "data-[highlighted]:bg-surface";
   const checkedClass =
     "data-[state=checked]:bg-primary-soft data-[state=checked]:font-semibold data-[state=checked]:text-primary data-[state=checked]:data-[highlighted]:bg-primary-soft";
 

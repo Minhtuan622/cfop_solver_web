@@ -43,12 +43,12 @@ export function WcaWorldRecords({
 
   return (
     <section
-      className="mt-6 rounded-3xl bg-warning-soft p-4 sm:p-5"
+      className="rounded-card bg-surface p-4 sm:p-5"
       aria-labelledby="wca-world-records-title"
     >
       <div className="flex flex-wrap items-center gap-3 sm:gap-4">
         <span
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-warning text-on-warning"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-surface-2 text-muted"
           aria-hidden="true"
         >
           <Trophy className="text-xl" />
@@ -127,7 +127,7 @@ export function WcaWorldRecords({
               <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                 {records.map(record => (
                   <li
-                    className="rounded-2xl bg-surface p-3"
+                    className="rounded-2xl bg-surface-2 p-3"
                     key={record.eventId}
                   >
                     <h3 className="mb-2 text-xs font-semibold tracking-tight text-ink">
@@ -174,7 +174,7 @@ export function WcaWorldRecords({
             >
               {Array.from({ length: 8 }, (_, index) => (
                 <div
-                  className="rounded-2xl bg-surface p-3"
+                  className="rounded-2xl bg-surface-2 p-3"
                   key={index}
                 >
                   <span className="mb-2 block h-3 w-5/12 rounded-full bg-surface-3" />

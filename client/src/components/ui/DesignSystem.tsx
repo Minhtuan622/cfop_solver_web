@@ -48,7 +48,7 @@ export function IconBox({
   return (
     <span
       className={cn(
-        "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-lg text-primary",
+        "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-lg text-muted",
         className
       )}
       aria-hidden="true"
@@ -71,7 +71,7 @@ export function EyebrowPill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full bg-primary-soft px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-primary",
+        "inline-flex items-center gap-2 rounded-full bg-surface-2 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-muted",
         className
       )}
     >

@@ -782,7 +782,7 @@ export default function Home() {
                     onSelectMove={moveIndex => selectCursor(moveIndex, "seek")}
                   />
                 ) : (
-                  <div className="rounded-2xl bg-primary-soft p-6 text-center">
+                  <div className="rounded-2xl bg-surface-2 p-6 text-center text-muted">
                     <p className="font-semibold mb-0">
                       {t("home.noSolutionYet")}
                     </p>

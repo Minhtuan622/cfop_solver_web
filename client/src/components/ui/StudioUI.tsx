@@ -72,7 +72,7 @@ export function PageHeader({
     >
       <div className="min-w-0">
         {eyebrow ? (
-          <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary-soft px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+          <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-muted">
             {eyebrow}
           </span>
         ) : null}
@@ -189,7 +189,7 @@ export function EmptyState({
     >
       {icon ? (
         <div
-          className="grid h-14 w-14 place-items-center rounded-2xl bg-primary-soft text-2xl text-primary"
+          className="grid h-14 w-14 place-items-center rounded-2xl bg-surface-2 text-2xl text-muted"
           aria-hidden="true"
         >
           {icon}
@@ -357,9 +357,10 @@ export function Switch({
   disabled?: boolean;
 }) {
   return (
-    <div className="flex items-start gap-3">
+    // Tên + mô tả bên trái, công tắc bên phải (giống một hàng cài đặt).
+    <div className="flex items-center justify-between gap-4">
       <label
-        className="relative mt-0.5 inline-flex h-6 w-11 shrink-0 cursor-pointer items-center"
+        className="relative order-2 inline-flex h-6 w-11 shrink-0 cursor-pointer items-center"
         htmlFor={id}
       >
         <input
@@ -383,7 +384,7 @@ export function Switch({
       <label
         htmlFor={id}
         className={cn(
-          "min-w-0 text-sm leading-relaxed",
+          "order-1 min-w-0 flex-1 text-sm leading-relaxed",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
         )}
       >
