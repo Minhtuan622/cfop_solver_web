@@ -34,6 +34,7 @@ import { LeaderboardTeaser } from "@/features/competition/components/Leaderboard
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import { buttonClass } from "@/components/ui/Button";
+import { requestSignIn } from "@/lib/signInRequest";
 
 export default function Rooms() {
   const { language, t } = useLanguage();
@@ -170,6 +171,13 @@ export default function Rooms() {
         <PageHeader title={t("rooms.title")} description={t("rooms.subtitle")} />
         <div className="rounded-card bg-surface px-5 py-6 text-center sm:px-6">
           <p className="mb-0 text-sm text-ink">{t("rooms.signInHint")}</p>
+          <button
+            type="button"
+            onClick={requestSignIn}
+            className={`${buttonClass("primary", "md")} mt-4`}
+          >
+            {t("account.signIn")}
+          </button>
         </div>
         <LeaderboardTeaser className="mt-6" />
       </div>

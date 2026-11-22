@@ -324,7 +324,7 @@ export function CatalogExplorer({
         <div className="flex flex-wrap gap-2 items-center mt-4">
           <Button
             type="button"
-            variant={onlyUnmastered ? "primary" : "secondary"}
+            variant={onlyUnmastered ? "primary" : "soft"}
             size="sm"
             onClick={() => setOnlyUnmastered(value => !value)}
             aria-pressed={onlyUnmastered}
@@ -334,7 +334,7 @@ export function CatalogExplorer({
           {focusStorageKey ? (
             <Button
               type="button"
-              variant={focusActive ? "primary" : "secondary"}
+              variant={focusActive ? "primary" : "soft"}
               size="sm"
               onClick={() => setFocusOpen(value => !value)}
               aria-pressed={focusActive}
@@ -349,7 +349,7 @@ export function CatalogExplorer({
             icon={<Dices className="text-base" />}
             onClick={pickRandom}
             disabled={!unmasteredCount}
-            className={`${buttonClass("secondary", "sm")}`}
+            className={`${buttonClass("soft", "sm")}`}
           />
           <span className="text-sm text-muted">
             {unmasteredCount} {t("study.unmasteredCount")}

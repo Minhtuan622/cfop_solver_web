@@ -1,3 +1,4 @@
+import { ChevronDown } from "@/components/ui/Icon";
 import {
   competitionResultLabel,
   formatDescriptionKey,
@@ -143,12 +144,10 @@ export function RoomSidebar({
         <details className="group rounded-card bg-surface mb-6">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-base font-semibold tracking-tight sm:px-6">
             {t("rooms.sidebar.moderationLog")}
-            <span
+            <ChevronDown
               aria-hidden="true"
-              className="text-muted transition-transform group-open:rotate-180"
-            >
-              ▾
-            </span>
+              className="text-base text-muted transition-transform group-open:rotate-180"
+            />
           </summary>
           <div className="px-5 pb-5 sm:px-6 sm:pb-6">
             <p className="text-muted text-sm">

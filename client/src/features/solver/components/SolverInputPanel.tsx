@@ -119,7 +119,7 @@ export function SolverInputPanel({
                 placeholder={t("home.scramblePlaceholder")}
                 spellCheck={false}
                 autoComplete="off"
-                className="h-full"
+                className="md:h-full"
               />
             </div>
             {loading ? (

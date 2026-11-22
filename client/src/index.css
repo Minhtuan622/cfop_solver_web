@@ -260,6 +260,11 @@
   font-family: var(--font-sans);
 }
 
+/* Hàng cuộn ngang: mờ dần ở mép phải để người dùng biết còn mục phía sau. */
+.scroll-fade-x {
+  mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+}
+
 /* Custom scrollbar — minimalist, soft, matches flat palette. */
 * {
   scrollbar-width: thin;

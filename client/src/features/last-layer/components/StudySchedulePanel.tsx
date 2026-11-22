@@ -47,7 +47,7 @@ export function StudySchedulePanel({
         </div>
 
         <div
-          className="mt-4 grid grid-cols-3 gap-1 sm:grid-cols-7"
+          className="mt-4 grid grid-cols-4 gap-1 sm:grid-cols-7"
           role="list"
           aria-label={t("study.next7Days")}
         >

@@ -35,7 +35,7 @@ export function SettingsGroupTabs({
     <div
       role="tablist"
       aria-label={label}
-      className="flex gap-1.5 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0"
+      className="scroll-fade-x flex gap-1.5 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0 lg:[mask-image:none]"
     >
       {groups.map((group, index) => {
         const active = group.id === activeId;
@@ -55,7 +55,7 @@ export function SettingsGroupTabs({
               "shrink-0 rounded-full px-4 py-2 text-left text-sm font-medium transition-colors lg:w-full",
               active
                 ? "bg-surface font-semibold text-primary"
-                : "text-muted hover:bg-surface hover:text-ink"
+                : "text-muted hover:bg-surface-2 hover:text-ink"
             )}
             onClick={() => onSelect(group.id)}
             onKeyDown={event => move(event, index)}

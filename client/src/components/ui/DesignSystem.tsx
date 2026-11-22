@@ -158,6 +158,7 @@ export function PillGroup<T extends string>({
   label,
   size = "md",
   fill = false,
+  tone = "primary",
   className,
 }: {
   value: T;
@@ -166,6 +167,9 @@ export function PillGroup<T extends string>({
   label?: string;
   size?: "sm" | "md";
   fill?: boolean;
+  /** primary: mục chọn nền màu nhấn. soft: mục chọn nền sáng, dùng cho nhóm
+   *  phụ đứng cạnh một nhóm primary để hai nút đặc không tranh nhau. */
+  tone?: "primary" | "soft";
   className?: string;
 }) {
   return (
@@ -185,7 +189,10 @@ export function PillGroup<T extends string>({
           aria-pressed={value === option.value}
           aria-label={option.ariaLabel}
           className={cn(
-            "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-muted transition hover:bg-surface-2 hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20 aria-pressed:bg-primary aria-pressed:text-on-primary aria-pressed:hover:bg-primary",
+            "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-muted transition hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20",
+            tone === "primary"
+              ? "hover:bg-surface-2 aria-pressed:bg-primary aria-pressed:text-on-primary aria-pressed:hover:bg-primary"
+              : "hover:bg-surface-3 aria-pressed:bg-surface aria-pressed:font-semibold aria-pressed:text-ink aria-pressed:hover:bg-surface",
             size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm",
             fill && "flex-1"
           )}

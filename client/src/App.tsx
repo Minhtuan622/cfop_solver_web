@@ -86,25 +86,25 @@ function AppFooter() {
           <p className="mt-1 text-xs text-muted">{t("footer.tagline")}</p>
         </div>
         <nav
-          className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted"
+          className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-muted"
           aria-label={t("footer.links")}
         >
-          <a className="transition hover:text-primary" href="/">
+          <a className="inline-flex min-h-6 min-w-6 items-center justify-center py-1 transition hover:text-primary" href="/">
             {t("nav.solve")}
           </a>
-          <a className="transition hover:text-primary" href="/timer">
+          <a className="inline-flex min-h-6 min-w-6 items-center justify-center py-1 transition hover:text-primary" href="/timer">
             {t("nav.timer")}
           </a>
-          <a className="transition hover:text-primary" href="/play">
+          <a className="inline-flex min-h-6 min-w-6 items-center justify-center py-1 transition hover:text-primary" href="/play">
             {t("nav.play")}
           </a>
-          <a className="transition hover:text-primary" href="/study">
+          <a className="inline-flex min-h-6 min-w-6 items-center justify-center py-1 transition hover:text-primary" href="/study">
             {t("nav.study")}
           </a>
-          <a className="transition hover:text-primary" href="/history">
+          <a className="inline-flex min-h-6 min-w-6 items-center justify-center py-1 transition hover:text-primary" href="/history">
             {t("nav.history")}
           </a>
-          <a className="transition hover:text-primary" href="/settings">
+          <a className="inline-flex min-h-6 min-w-6 items-center justify-center py-1 transition hover:text-primary" href="/settings">
             {t("nav.settings")}
           </a>
         </nav>

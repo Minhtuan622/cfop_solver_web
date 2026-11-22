@@ -65,7 +65,7 @@ export function WcaCompetitionRow({
               target="_blank"
               rel="noreferrer"
               title={competition.name}
-              className="line-clamp-2 text-sm font-semibold leading-snug tracking-tight text-ink transition-colors hover:text-primary"
+              className="line-clamp-2 py-0.5 text-sm font-semibold leading-snug tracking-tight text-ink transition-colors hover:text-primary"
             >
               {competition.name}
               <span className="sr-only"> — {t("wca.competitionPage")}</span>
