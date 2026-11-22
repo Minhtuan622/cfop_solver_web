@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { readLastLayerStudy, writeLastLayerStudy } from "@/features/last-layer/lib";
-import { DEFAULT_SOLVER_SETTINGS, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
+import { DEFAULT_SOLVER_SETTINGS, HIDE_RUNNING_TIME_KEY, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readStoredValue, writeStoredValue } from "@/lib/browserStorage";
 
 /** The F2L slots the solver can prefer or leave out. */
@@ -24,8 +24,7 @@ export function useSettingsState() {
     const stored = Number(readStoredValue("cfop-metronome-bpm"));
     return Number.isFinite(stored) && stored >= 30 && stored <= 240 ? Math.round(stored) : 60;
   });
-  const [splits, setSplits] = useState(() => readStoredValue("cfop-space-splits") !== "off");
-  const [highlight, setHighlight] = useState(() => readStoredValue("cfop-cross-highlight") !== "off");
+  const [hideRunningTime, setHideRunningTime] = useState(() => readStoredValue(HIDE_RUNNING_TIME_KEY) === "on");
 const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
   const stored = readStoredValue("cfop-scramble-size");
   return stored === "sm" || stored === "lg" ? stored : "md";
@@ -44,14 +43,13 @@ const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
       writeStoredValue("cfop-inspection-voice", voice ? "on" : "off");
       writeStoredValue("cfop-metronome", metronome ? "on" : "off");
       writeStoredValue("cfop-metronome-bpm", String(metronomeBpm));
-      writeStoredValue("cfop-space-splits", splits ? "on" : "off");
-      writeStoredValue("cfop-cross-highlight", highlight ? "on" : "off");
+      writeStoredValue(HIDE_RUNNING_TIME_KEY, hideRunningTime ? "on" : "off");
       writeStoredValue("cfop-scramble-size", scrambleSize);
       writeLastLayerStudy({ ...readLastLayerStudy(), dailyGoal });
       setSaveState("saved");
     }, 350);
     return () => window.clearTimeout(id);
-  }, [solver, sound, voice, metronome, metronomeBpm, splits, highlight, dailyGoal, scrambleSize, language]);
+  }, [solver, sound, voice, metronome, metronomeBpm, hideRunningTime, dailyGoal, scrambleSize, language]);
 
   useEffect(() => {
     if (saveState !== "saved") return;
@@ -64,7 +62,7 @@ const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
     const excludedSlots = current.excludedSlots.includes(slot) ? current.excludedSlots.filter((value) => value !== slot) : [...current.excludedSlots, slot];
     return { ...current, excludedSlots, preferredSlot: current.preferredSlot === slot ? undefined : current.preferredSlot };
   });
-  const reset = () => { setSolver(DEFAULT_SOLVER_SETTINGS); setSound(true); setVoice(true); setMetronome(false); setMetronomeBpm(60); setSplits(true); setHighlight(true); setScrambleSize("md"); setDailyGoal(12); };
+  const reset = () => { setSolver(DEFAULT_SOLVER_SETTINGS); setSound(true); setVoice(true); setMetronome(false); setMetronomeBpm(60); setHideRunningTime(false); setScrambleSize("md"); setDailyGoal(12); };
 
   return {
     solver,
@@ -72,8 +70,7 @@ const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
     voice,
     metronome,
     metronomeBpm,
-    splits,
-    highlight,
+    hideRunningTime,
     scrambleSize,
     dailyGoal,
     saveState,
@@ -83,8 +80,7 @@ const [scrambleSize, setScrambleSize] = useState<"sm" | "md" | "lg">(() => {
     setVoice,
     setMetronome,
     setMetronomeBpm,
-    setSplits,
-    setHighlight,
+    setHideRunningTime,
     setScrambleSize,
     setDailyGoal,
     reset,

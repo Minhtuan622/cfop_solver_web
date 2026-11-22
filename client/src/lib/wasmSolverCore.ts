@@ -15,12 +15,13 @@ export type SolverWasmModule = {
   ): unknown;
   scrambleToStickers(scramble: string): string;
   analyzeBld(stickers: string): unknown;
+  crossLengths(stickers: string): ArrayLike<number>;
   warmUp(): void;
 };
 
 export type WorkerRequest = {
   id: number;
-  command?: "solve" | "bld" | "warmup";
+  command?: "solve" | "bld" | "cross" | "warmup";
   kind?: string;
   value: string;
   crossColor?: string;
@@ -32,6 +33,9 @@ export type WorkerRequest = {
   preferredSlot?: string;
   excludedSlots?: string[];
 };
+
+/** Thứ tự mặt của `crossLengths` trong Rust. */
+const CROSS_FACE_ORDER = ["U", "R", "F", "D", "L", "B"] as const;
 
 /** Báo tiến độ tối đa ~10 lần mỗi giây. */
 const PROGRESS_INTERVAL_MS = 100;
@@ -49,6 +53,13 @@ export function handleWasmRequest(
       return { id, ok: true, output: JSON.stringify({ ready: true }) };
     }
     const stickers = kind === "state" ? value : wasm.scrambleToStickers(value);
+    if (command === "cross") {
+      const lengths = Array.from(wasm.crossLengths(stickers));
+      const byFace = Object.fromEntries(
+        CROSS_FACE_ORDER.map((face, index) => [face, lengths[index]])
+      );
+      return { id, ok: true, output: JSON.stringify(byFace) };
+    }
     if (command === "bld") {
       const analysis = wasm.analyzeBld(stickers);
       return {

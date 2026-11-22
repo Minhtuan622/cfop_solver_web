@@ -82,6 +82,16 @@ pub fn scramble_to_stickers(scramble: &str) -> Result<String, JsValue> {
     studio::scramble_to_stickers(scramble).map_err(throw)
 }
 
+/// Optimal cross length for each center color of a 54-sticker state, in
+/// `URFDLB` order.
+#[wasm_bindgen(js_name = crossLengths)]
+pub fn cross_lengths(stickers: &str) -> Result<Vec<u8>, JsValue> {
+    let cube = studio::parse_state(stickers).map_err(throw)?;
+    cfop::cross_lengths(&cube)
+        .map(|lengths| lengths.to_vec())
+        .map_err(|e| throw(SolverError::new("invalid_input", e.to_string())))
+}
+
 /// 3-Style (Speffz) memo for a 54-sticker state.
 #[wasm_bindgen(js_name = analyzeBld)]
 pub fn analyze_bld(stickers: &str) -> Result<BldAnalysis, JsValue> {

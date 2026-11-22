@@ -11,6 +11,7 @@
 import { validateCubeState } from "./cubeValidation";
 import {
   WasmSolverEngine,
+  type CrossLengths,
   type SolverEngine,
   type SolverProgress,
 } from "./solverEngine";
@@ -114,7 +115,7 @@ export {
   SolverLimitError,
   SolverTimeoutError,
 } from "./solverEngine";
-export type { SolverEngine, SolverProgress } from "./solverEngine";
+export type { CrossLengths, SolverEngine, SolverProgress } from "./solverEngine";
 
 let engine: SolverEngine | null = null;
 
@@ -166,6 +167,14 @@ export function analyzeBldInBrowser(
   value: string
 ): Promise<BldResult> {
   return getSolverEngine().analyzeBld(kind, value);
+}
+
+/** Số move cross tối ưu cho cả 6 màu (đọc thẳng từ bảng tra, không tìm kiếm). */
+export function crossLengthsInBrowser(
+  kind: "scramble" | "state",
+  value: string
+): Promise<CrossLengths> {
+  return getSolverEngine().crossLengths(kind, value);
 }
 
 export async function validateStateInBrowser(

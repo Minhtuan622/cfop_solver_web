@@ -143,6 +143,19 @@ pub fn slot_solved(cube: &Cube, color: Face, slot: usize) -> bool {
     canonical(cube, color).is_ok_and(|(s, _)| slot_h(&s, slot) == 0)
 }
 
+/// Optimal cross length (face turn metric) for every color, in `URFDLB` order.
+///
+/// The cross pruning table is a complete BFS of the four cross edges, so its
+/// entry is the exact distance: no search is needed.
+pub fn cross_lengths(cube: &Cube) -> Result<[u8; 6], Error> {
+    let mut lengths = [0u8; 6];
+    for color in Face::ALL {
+        let (s, _) = canonical(cube, color)?;
+        lengths[color.index()] = cross_h(&s);
+    }
+    Ok(lengths)
+}
+
 /// Solve the D cross with default limits (at most 8 moves).
 pub fn solve_cross(cube: &Cube) -> Result<Vec<Move>, Error> {
     solve_cross_with(cube, &CrossOptions::default()).map(|r| r.moves)

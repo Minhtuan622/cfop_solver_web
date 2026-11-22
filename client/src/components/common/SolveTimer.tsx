@@ -2,12 +2,7 @@
 /* Xưởng Cơ Khí Tốc Độ — timer là apparatus thao tác: mint chỉ báo arm, Space thả mới khởi động. */
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import {
-  formatTimerReadout,
-  SPLIT_PHASES,
-  type SolvePhaseSplit,
-  type SplitPhase,
-} from "@/lib/solveHistory";
+import { formatTimerReadout, type SolvePhaseSplit } from "@/lib/solveHistory";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 
@@ -24,27 +19,35 @@ export function SolveTimer({
   voiceEnabled = true,
   metronomeEnabled = false,
   metronomeBpm = 60,
-  splitEnabled = false,
-  splitPhases = SPLIT_PHASES,
   inspectionEnabled = true,
+  hideRunningTime = false,
+  onModeChange,
 }: {
   onComplete?: (completion: TimerCompletion) => void;
   soundEnabled?: boolean;
   voiceEnabled?: boolean;
   metronomeEnabled?: boolean;
   metronomeBpm?: number;
-  splitEnabled?: boolean;
-  splitPhases?: readonly SplitPhase[];
   inspectionEnabled?: boolean;
+  /** Trong lúc giải chỉ hiện "Đang giải…"; dừng lại thì hiện thời gian thật. */
+  hideRunningTime?: boolean;
+  /** Báo trạng thái đồng hồ (vd. để trang ẩn mọi thứ khi đang chạy). */
+  onModeChange?: (
+    mode: "ready" | "inspection" | "running" | "completed"
+  ) => void;
 }) {
   const { language } = useLanguage();
   const [mode, setMode] = useState<
     "ready" | "inspection" | "running" | "completed"
   >("ready");
   const [elapsed, setElapsed] = useState(0);
+  const onModeChangeRef = useRef(onModeChange);
+  onModeChangeRef.current = onModeChange;
+  useEffect(() => {
+    onModeChangeRef.current?.(mode);
+  }, [mode]);
   const [inspectionRemaining, setInspectionRemaining] = useState(15_000);
   const [inspectionElapsed, setInspectionElapsed] = useState(0);
-  const [splitIndex, setSplitIndex] = useState(0);
   const [armed, setArmed] = useState(false);
   const armedRef = useRef(false);
   const startedAt = useRef(0);
@@ -52,7 +55,6 @@ export function SolveTimer({
   const inspectionAt = useRef(0);
   const inspectionDuration = useRef(0);
   const inspectionCues = useRef(new Set<number>());
-  const phaseSplits = useRef<SolvePhaseSplit[]>([]);
   const labels =
     language === "vi"
       ? {
@@ -64,8 +66,7 @@ export function SolveTimer({
           inspectionEnd: "Inspection đã hết — bấm để bắt đầu solve.",
           inspectionPlusTwo: "Inspection vượt 15 giây: lượt này sẽ +2.",
           inspectionDnf: "Inspection vượt 17 giây: lượt này sẽ DNF.",
-          split: "SPLIT INPUT",
-          next: "MỐC KẾ TIẾP",
+          solving: "Đang giải…",
           armed: "THẢ SPACE / ENTER / CHẠM",
           cancelInspection: "ESC · HỦY INSPECTION",
         }
@@ -80,8 +81,7 @@ export function SolveTimer({
             "Inspection exceeded 15 seconds: this solve will receive +2.",
           inspectionDnf:
             "Inspection exceeded 17 seconds: this solve will be DNF.",
-          split: "INPUT SPLIT",
-          next: "NEXT MARK",
+          solving: "Solving…",
           armed: "RELEASE SPACE / ENTER / TOUCH",
           cancelInspection: "ESC · CANCEL INSPECTION",
         };
@@ -135,8 +135,6 @@ export function SolveTimer({
     carried.current = 0;
     inspectionDuration.current = 0;
     inspectionCues.current.clear();
-    phaseSplits.current = [];
-    setSplitIndex(0);
     setElapsed(0);
     setInspectionElapsed(0);
     setInspectionRemaining(15_000);
@@ -148,8 +146,6 @@ export function SolveTimer({
     carried.current = 0;
     inspectionDuration.current = 0;
     inspectionCues.current.clear();
-    phaseSplits.current = [];
-    setSplitIndex(0);
     setElapsed(0);
     setInspectionElapsed(0);
     setInspectionRemaining(15_000);
@@ -167,15 +163,12 @@ export function SolveTimer({
   const startDirect = () => {
     carried.current = 0;
     inspectionDuration.current = 0;
-    phaseSplits.current = [];
-    setSplitIndex(0);
     setElapsed(0);
     startedAt.current = performance.now();
     setMode("running");
   };
   const stopSolve = (
     finalElapsed = carried.current + performance.now() - startedAt.current,
-    splits = phaseSplits.current,
     forcedPenalty?: TimerCompletion["automaticPenalty"]
   ) => {
     carried.current = finalElapsed;
@@ -187,26 +180,9 @@ export function SolveTimer({
         inspectionMs: inspectionDuration.current,
         automaticPenalty:
           forcedPenalty ?? penaltyForInspection(inspectionDuration.current),
-        phaseSplits: splits,
+        // Mốc Cross/F2L/OLL/PLL chỉ còn đến từ smart cube.
+        phaseSplits: [] as SolvePhaseSplit[],
       });
-  };
-  const markSplit = () => {
-    const finalElapsed =
-      carried.current + performance.now() - startedAt.current;
-    const phase = splitPhases[splitIndex];
-    if (!phase) return stopSolve(finalElapsed);
-    const previousMark = phaseSplits.current.at(-1)?.markedAtMs ?? 0;
-    const nextSplits = [
-      ...phaseSplits.current,
-      {
-        phase,
-        markedAtMs: finalElapsed,
-        elapsedMs: finalElapsed - previousMark,
-      },
-    ];
-    phaseSplits.current = nextSplits;
-    if (phase === "PLL") stopSolve(finalElapsed, nextSplits);
-    else setSplitIndex(index => index + 1);
   };
   const beginFromReady = () => {
     if (mode === "ready" || mode === "completed") {
@@ -217,7 +193,6 @@ export function SolveTimer({
   const toggle = () => {
     if (mode === "ready" || mode === "completed" || mode === "inspection")
       beginFromReady();
-    else if (splitEnabled) markSplit();
     else stopSolve();
   };
   const armStart = () => {
@@ -294,10 +269,8 @@ export function SolveTimer({
     if (event.pointerType !== "touch" || isInteractiveTarget(event.target))
       return;
     event.preventDefault();
-    if (mode === "running") {
-      if (splitEnabled) markSplit();
-      else stopSolve();
-    } else armStart();
+    if (mode === "running") stopSolve();
+    else armStart();
   };
   const touchEnd = (event: PointerEvent<HTMLElement>) => {
     if (event.pointerType !== "touch" || isInteractiveTarget(event.target))
@@ -319,7 +292,6 @@ export function SolveTimer({
           event.preventDefault();
           stopSolve(
             carried.current + performance.now() - startedAt.current,
-            phaseSplits.current,
             "DNF"
           );
           return;
@@ -328,10 +300,8 @@ export function SolveTimer({
       if (!timerKey(event) || isInteractiveTarget(event.target)) return;
       event.preventDefault();
       if (event.repeat) return;
-      if (mode === "running") {
-        if (splitEnabled) markSplit();
-        else stopSolve();
-      } else armStart();
+      if (mode === "running") stopSolve();
+      else armStart();
     };
     const onKeyUp = (event: KeyboardEvent) => {
       if (!timerKey(event) || isInteractiveTarget(event.target)) return;
@@ -352,9 +322,12 @@ export function SolveTimer({
     };
   });
   const isInspection = mode === "inspection";
+  const isRunning = mode === "running";
   const readout = isInspection
     ? formatTimerReadout(inspectionRemaining)
-    : formatTimerReadout(elapsed);
+    : isRunning && hideRunningTime
+      ? labels.solving
+      : formatTimerReadout(elapsed);
   const inspectionPenalty = penaltyForInspection(inspectionElapsed);
   const helper = isInspection
     ? inspectionPenalty === "DNF"
@@ -372,12 +345,19 @@ export function SolveTimer({
         setArmed(false);
       }}
       className={cn(
-        "relative rounded-card px-4 py-10 text-center transition-colors duration-150 @container",
-        isInspection
-          ? "bg-warning-soft/40"
-          : armed
-            ? "bg-primary-soft/60"
-            : "bg-surface-2"
+        "rounded-card px-4 py-10 text-center transition-colors duration-150 @container",
+        // Khi đang giải, đồng hồ chiếm cả màn hình và nằm chính giữa (không
+        // phải giữa khối cha); chạm vào đâu cũng dừng được.
+        isRunning
+          ? "fixed inset-0 z-50 flex flex-col items-center justify-center rounded-none bg-surface"
+          : cn(
+              "relative",
+              isInspection
+                ? "bg-warning-soft/40"
+                : armed
+                  ? "bg-primary-soft/60"
+                  : "bg-surface-2"
+            )
       )}
       aria-live="polite"
     >
@@ -386,7 +366,10 @@ export function SolveTimer({
           className={cn(
             // Cỡ chữ theo bề rộng của khối đồng hồ (container query), không
             // theo bề rộng cửa sổ: đặt trong một cột hẹp thì chữ vẫn vừa.
-            "mb-0 max-w-full font-mono text-[clamp(1.25rem,11cqw,5.5rem)] font-bold leading-none tracking-tight tabular-nums",
+            "mb-0 max-w-full font-mono font-bold leading-none tracking-tight tabular-nums",
+            isRunning
+              ? "text-[clamp(2.5rem,14cqw,10rem)]"
+              : "text-[clamp(1.25rem,11cqw,5.5rem)]",
             isInspection ? "text-warning" : "text-ink"
           )}
         >
@@ -419,18 +402,6 @@ export function SolveTimer({
         <p className="mt-4 mb-0 text-sm text-muted">
           {labels.cancelInspection}
         </p>
-      )}
-      {splitEnabled && mode === "running" && (
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm">
-          <span className="font-semibold text-primary">{labels.split}</span>
-          <span className="text-muted">{labels.next}</span>
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-surface-3 text-ink">
-            {splitPhases[splitIndex] ?? splitPhases.at(-1) ?? "—"}
-          </span>
-          <span className="text-muted">
-            {phaseSplits.current.map(split => split.phase).join(" · ") || "—"}
-          </span>
-        </div>
       )}
       {helper && (
         <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink py-2 mt-4 mb-0 text-left">

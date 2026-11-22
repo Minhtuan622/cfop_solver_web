@@ -1,36 +1,32 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SectionCard, Switch } from "@/components/ui/StudioUI";
 
-/** The preferences of the timer: the inspection sound, the Cross highlight and the speed splits. */
+/** The preferences of the timer: inspection cues, the metronome and hiding the running time. */
 export function TimerSettingsGroup({
   sound,
   voice,
   metronome,
   metronomeBpm,
-  splits,
-  highlight,
+  hideRunningTime,
   scrambleSize,
   onSoundChange,
   onVoiceChange,
   onMetronomeChange,
   onMetronomeBpmChange,
-  onSplitsChange,
-  onHighlightChange,
+  onHideRunningTimeChange,
   onScrambleSizeChange,
 }: {
   sound: boolean;
   voice: boolean;
   metronome: boolean;
   metronomeBpm: number;
-  splits: boolean;
-  highlight: boolean;
+  hideRunningTime: boolean;
   scrambleSize: "sm" | "md" | "lg";
   onSoundChange: (next: boolean) => void;
   onVoiceChange: (next: boolean) => void;
   onMetronomeChange: (next: boolean) => void;
   onMetronomeBpmChange: (next: number) => void;
-  onSplitsChange: (next: boolean) => void;
-  onHighlightChange: (next: boolean) => void;
+  onHideRunningTimeChange: (next: boolean) => void;
   onScrambleSizeChange: (next: "sm" | "md" | "lg") => void;
 }) {
   const { language, t } = useLanguage();
@@ -80,18 +76,11 @@ export function TimerSettingsGroup({
           />
         </label>
         <Switch
-          id="setting-highlight"
-          checked={highlight}
-          onChange={onHighlightChange}
-          label={t("settings.highlight")}
-          help={t("settings.highlightHelp")}
-        />
-        <Switch
-          id="setting-splits"
-          checked={splits}
-          onChange={onSplitsChange}
-          label={t("settings.splits")}
-          help={t("settings.splitsHelp")}
+          id="setting-hide-running-time"
+          checked={hideRunningTime}
+          onChange={onHideRunningTimeChange}
+          label={t("settings.hideRunningTime")}
+          help={t("settings.hideRunningTimeHelp")}
         />
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium text-ink">

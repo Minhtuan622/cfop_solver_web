@@ -83,6 +83,15 @@ export const solverWords: Dictionary = {
   "home.stages": ["{count} bước", "{count} steps"],
   "home.chooseStage": ["Chọn một bước để xem", "Pick a step to inspect"],
   "home.learnMore": ["Học thêm về bước này", "Learn more about this step"],
+  "home.setupRotationLabel": ["Xoay trước khi giải", "Rotate before solving"],
+  "home.setupRotationHint": [
+    "để cross {color} nằm ở mặt dưới; các nước bên dưới viết theo hướng đó.",
+    "so the {color} cross is on the bottom; the moves below use that orientation.",
+  ],
+  "home.setupRotationNone": [
+    "Không cần xoay: cross {color} đã nằm ở mặt dưới.",
+    "No rotation needed: the {color} cross is already on the bottom.",
+  ],
   "home.copyTurns": ["Sao chép các nước", "Copy the moves"],
   "home.saveSteps": ["Tải các bước giải", "Download the steps"],
   "home.bldPrepare": [

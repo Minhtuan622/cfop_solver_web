@@ -89,15 +89,13 @@ export default function Settings() {
                   voice={state.voice}
                   metronome={state.metronome}
                   metronomeBpm={state.metronomeBpm}
-                  splits={state.splits}
-                  highlight={state.highlight}
+                  hideRunningTime={state.hideRunningTime}
                   scrambleSize={state.scrambleSize}
                   onSoundChange={state.setSound}
                   onVoiceChange={state.setVoice}
                   onMetronomeChange={state.setMetronome}
                   onMetronomeBpmChange={state.setMetronomeBpm}
-                  onSplitsChange={state.setSplits}
-                  onHighlightChange={state.setHighlight}
+                  onHideRunningTimeChange={state.setHideRunningTime}
                   onScrambleSizeChange={state.setScrambleSize}
                 />
               ) : null}

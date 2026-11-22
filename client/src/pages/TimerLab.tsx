@@ -105,11 +105,17 @@ import {
   readSolveHistory,
   type SolveHistoryEntry,
   type SolvePenalty,
-  type SplitPhase,
   type SolveSource,
   updateSolveHistory,
 } from "@/lib/solveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CrossLengthStrip } from "@/features/timer/components/CrossLengthStrip";
+import { HIDE_RUNNING_TIME_KEY, readSolverSettings } from "@/lib/appSettings";
+import {
+  orientForCross,
+  scrambledState,
+  wcaLettersToStudio,
+} from "@/lib/scrambleOrientation";
 import type { WordParams } from "@/lib/i18n";
 import {
   Dialog,
@@ -121,7 +127,7 @@ import {
 } from "@/components/ui/StudioDialog";
 import { MetricButton } from "@/features/timer";
 import { IconButton, PageHeader, StatTile } from "@/components/ui/StudioUI";
-import { PanelHeader, RoundButton } from "@/components/ui/DesignSystem";
+import { RoundButton } from "@/components/ui/DesignSystem";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 
@@ -130,7 +136,6 @@ import { Input, Textarea } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
 
 const AVERAGES = TIMER_AVERAGE_SIZES;
-const SPEED_PHASES: SplitPhase[] = ["Cross", "F2L", "OLL", "PLL"];
 type TimerWcaRecord = {
   eventId: string;
   singleCentiseconds: number | null;
@@ -286,7 +291,7 @@ function exportAo5Image(
     );
     drawMetricCube(
       context,
-      safeScrambleState(entry.input),
+      safeScrambleState(entry.input, entry.eventId),
       cubeX,
       top + 26,
       28,
@@ -389,11 +394,18 @@ function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en") {
       year: "numeric",
     }),
     margin + 44,
-    372,
+    372
   );
 
   // Cube net + scramble block.
-  drawMetricCube(context, safeScrambleState(entry.input), margin, 448, 27, palette);
+  drawMetricCube(
+    context,
+    safeScrambleState(entry.input, entry.eventId),
+    margin,
+    448,
+    27,
+    palette
+  );
   const rightX = margin + 360;
   const rightWidth = width - margin - rightX;
   context.fillStyle = palette.muted;
@@ -439,9 +451,19 @@ function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en") {
   link.click();
 }
 
-function safeScrambleState(scramble: string) {
+/**
+ * Khối sau khi tráo, cầm trắng U, xanh lá F. 3×3 thường: lật màu cross trong
+ * Cài đặt về D. BLD: giữ nguyên hướng tráo (người giải mù không lật khối).
+ */
+function safeScrambleState(scramble: string, eventId?: string) {
   try {
-    return stateFromScramble(scramble);
+    const event = normalizeTimerEventId(eventId);
+    return event === "333bf" || event === "333mbf"
+      ? wcaLettersToStudio(stateFromScramble(scramble))
+      : orientForCross(
+          scrambledState(scramble),
+          readSolverSettings().crossColor
+        );
   } catch {
     return SOLVED_FAST_STATE;
   }
@@ -495,8 +517,9 @@ export default function TimerLab() {
       ? Math.round(stored)
       : 60;
   });
-  const [spaceSplits] = useState(
-    () => readStoredValue("cfop-space-splits") !== "off"
+  // Cài đặt → Timer: chỉ hiện "Đang giải…" trong lúc đồng hồ chạy.
+  const [hideRunningTime] = useState(
+    () => readStoredValue(HIDE_RUNNING_TIME_KEY) === "on"
   );
   const [scrambleSize] = useState<"sm" | "md" | "lg">(() => {
     const stored = readStoredValue("cfop-scramble-size");
@@ -526,6 +549,15 @@ export default function TimerLab() {
   const [solutionError, setSolutionError] = useState("");
   const scrambleRequest = useRef(0);
 
+  // Chế độ tập trung: khi đồng hồ chạy, trang chỉ còn con số.
+  const [timerRunning, setTimerRunning] = useState(false);
+  useEffect(() => {
+    if (timerRunning) document.body.dataset.timerFocus = "true";
+    else delete document.body.dataset.timerFocus;
+    return () => {
+      delete document.body.dataset.timerFocus;
+    };
+  }, [timerRunning]);
   const isThreeByThree = isThreeByThreeEvent(eventId);
   const isMultiBlind = eventId === "333mbf";
   const multiBlindReady =
@@ -622,21 +654,11 @@ export default function TimerLab() {
   useEffect(() => {
     writeStoredValue("cfop-metric-cubenets", showMetricCubeNets ? "on" : "off");
   }, [showMetricCubeNets]);
-  useEffect(() => {
-    document.documentElement.dataset.speedSplit = spaceSplits ? "on" : "off";
-    return () => {
-      delete document.documentElement.dataset.speedSplit;
-    };
-  }, [spaceSplits]);
 
   // Ô số liệu chưa đủ dữ liệu hiện dấu gạch dài: "--:--" trông như lỗi
   // hiển thị chứ không phải một giá trị.
   const metric = (value: number | null | undefined) =>
-    value === undefined
-      ? "—"
-      : value === null
-        ? "DNF"
-        : formatSolveTime(value);
+    value === undefined ? "—" : value === null ? "DNF" : formatSolveTime(value);
   const metricLabel = (key: TimerMetricKey) =>
     key === "pb"
       ? t("timer.pb")
@@ -744,11 +766,9 @@ export default function TimerLab() {
     setNoteQuery("");
     void nextScramble(true, nextEventId);
   };
-  const practiceSplitPhases: readonly SplitPhase[] = isThreeByThree
-    ? SPEED_PHASES
-    : [];
   const bluetooth = useBluetoothTimer();
-  const bleTimer = !isMultiBlind && bluetooth.status === "connected" ? bluetooth.timer : null;
+  const bleTimer =
+    !isMultiBlind && bluetooth.status === "connected" ? bluetooth.timer : null;
   // Tracks the GAN Timer's own solve recordings so a solve detected by the
   // cube can be attributed to a matching mat measurement — never to a stale
   // reading left over from earlier use.
@@ -757,7 +777,8 @@ export default function TimerLab() {
     const timer = bluetooth.timer;
     if (!timer) return;
     const onStop = (event: Event) => {
-      const ms = (event as CustomEvent<{ currentTime?: number }>).detail?.currentTime;
+      const ms = (event as CustomEvent<{ currentTime?: number }>).detail
+        ?.currentTime;
       if (typeof ms === "number" && Number.isFinite(ms) && ms > 0) {
         bleSolveRef.current = { at: Date.now(), ms };
       }
@@ -780,7 +801,7 @@ export default function TimerLab() {
           phaseSplits: phaseSplits ?? [],
           moves: moves?.length ?? 0,
         },
-        "smartcube",
+        "smartcube"
       );
     },
   });
@@ -906,622 +927,616 @@ export default function TimerLab() {
           <LastLayerStudyLab language={language} />
         ) : (
           <>
-            <PageHeader
-              eyebrow={t("timer.eyebrow")}
-              title={t("timer.title")}
-              description={t("timer.subtitle")}
-              actions={
-                <Link
-                  href="/study"
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 bg-surface-2 text-ink hover:bg-surface-3"
-                >
-                  <BookOpenCheck className="mr-2" />
-                  {t("timer.openStudy")}
-                </Link>
-              }
-            />
+            {/* Bố cục "tập trung đồng hồ": scramble và đồng hồ ở giữa; khi đồng hồ
+                chạy, mọi phần `data-focus-hide` mờ đi (xem index.css). */}
+            <div data-focus-hide>
+              <PageHeader
+                eyebrow={t("timer.eyebrow")}
+                title={t("timer.title")}
+                actions={
+                  <Link
+                    href="/study"
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 bg-surface-2 text-ink hover:bg-surface-3"
+                  >
+                    <BookOpenCheck className="mr-2" />
+                    {t("timer.openStudy")}
+                  </Link>
+                }
+              />
+            </div>
             <div
-              className="mt-4 flex flex-wrap items-center gap-2"
+              data-focus-hide
+              className="mt-3 flex flex-wrap items-center gap-2"
               aria-label={t("timer.digestLabel")}
             >
               <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
-                <Sparkles className="text-base text-primary" aria-hidden="true" />
+                <Sparkles
+                  className="text-base text-primary"
+                  aria-hidden="true"
+                />
                 {t("timer.digestStreak", { days: digest.streak })}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
-                <Calendar3 className="text-base text-primary" aria-hidden="true" />
+                <Calendar3
+                  className="text-base text-primary"
+                  aria-hidden="true"
+                />
                 {t("timer.digestToday", { count: digest.todayCount })}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
-                <CircleGauge className="text-base text-primary" aria-hidden="true" />
+                <CircleGauge
+                  className="text-base text-primary"
+                  aria-hidden="true"
+                />
                 {t("timer.digestAo5", { value: metric(averages.ao5) })}
               </span>
             </div>
-            <section className="grid grid-cols-12 gap-6">
-              <section className="col-span-12 xl:col-span-8">
-                <div className="rounded-card bg-surface">
-                  <div className="p-5 sm:p-6 p-6">
-                    <div className="grid grid-cols-12 gap-2 items-end mb-2">
-                      <label className="col-span-12 sm:col-span-6">
-                        <span className="mb-1.5 block text-sm font-medium text-ink text-muted mb-1">
-                          {t("timer.puzzle")}
-                        </span>
-                        <Select
-                          className="rounded-full px-3.5 py-2.5"
-                          value={eventId}
-                          onChange={event =>
-                            selectTimerEvent(event.target.value as TimerEventId)
-                          }
-                        >
-                          {TIMER_EVENTS.map(event => (
-                            <option key={event.id} value={event.id}>
-                              {timerEventLabel(event.id, language)}
-                            </option>
-                          ))}
-                        </Select>
-                      </label>
-                      <div className="col-span-12 sm:col-span-6">
-                        <div className="flex items-center gap-2">
-                          <RoundButton
-                            label={t("timer.newCase")}
-                            icon={<Dices />}
-                            disabled={scrambleLoading}
-                            onClick={() => void nextScramble()}
-                            title={t("timer.newCase")}
-                          />
-                          <RoundButton
-                            label={t("timer.copy")}
-                            icon={<ClipboardCheck />}
-                            disabled={
-                              (!isMultiBlind && !scramble) ||
-                              (isMultiBlind && !multiBlindScrambles.length) ||
-                              scrambleLoading
-                            }
-                            onClick={() =>
-                              navigator.clipboard?.writeText(
-                                isMultiBlind
-                                  ? multiBlindScrambles
-                                      .map(
-                                        (item, index) => `${index + 1}. ${item}`
+
+            <section
+              aria-label={t("timer.title")}
+              className="mt-5 rounded-card bg-surface p-4 sm:p-6 lg:p-8"
+            >
+              <div
+                data-focus-hide
+                className="flex flex-wrap items-center justify-between gap-3"
+              >
+                <label className="w-full sm:w-64">
+                  <span className="sr-only">{t("timer.puzzle")}</span>
+                  <Select
+                    className="rounded-full px-3.5 py-2.5"
+                    value={eventId}
+                    onChange={event =>
+                      selectTimerEvent(event.target.value as TimerEventId)
+                    }
+                  >
+                    {TIMER_EVENTS.map(event => (
+                      <option key={event.id} value={event.id}>
+                        {timerEventLabel(event.id, language)}
+                      </option>
+                    ))}
+                  </Select>
+                </label>
+                <div className="flex items-center gap-2">
+                  <RoundButton
+                    label={t("timer.newCase")}
+                    icon={<Dices />}
+                    disabled={scrambleLoading}
+                    onClick={() => void nextScramble()}
+                    title={t("timer.newCase")}
+                  />
+                  <RoundButton
+                    label={t("timer.copy")}
+                    icon={<ClipboardCheck />}
+                    disabled={
+                      (!isMultiBlind && !scramble) ||
+                      (isMultiBlind && !multiBlindScrambles.length) ||
+                      scrambleLoading
+                    }
+                    onClick={() =>
+                      navigator.clipboard?.writeText(
+                        isMultiBlind
+                          ? multiBlindScrambles
+                              .map((item, index) => `${index + 1}. ${item}`)
+                              .join("\n")
+                          : scramble
+                      )
+                    }
+                    title={t("timer.copy")}
+                  />
+                </div>
+              </div>
+              <div
+                data-focus-hide
+                className="mx-auto mt-6 max-w-4xl text-center"
+              >
+                {isMultiBlind ? (
+                  <MultiBlindScrambleList
+                    scrambles={multiBlindScrambles}
+                    loading={scrambleLoading}
+                  />
+                ) : (
+                  <p
+                    className={
+                      scrambleSize === "sm"
+                        ? "break-words mb-4 text-lg sm:text-xl font-semibold leading-snug tracking-wide"
+                        : scrambleSize === "lg"
+                          ? "break-words mb-4 text-2xl sm:text-4xl font-semibold leading-snug tracking-wide"
+                          : "break-words mb-4 text-xl sm:text-3xl font-semibold leading-snug tracking-wide"
+                    }
+                    aria-live="polite"
+                  >
+                    {scrambleLoading
+                      ? t("timer.generating", { event: eventLabel })
+                      : scramble}
+                  </p>
+                )}
+                {isThreeByThree &&
+                !isMultiBlind &&
+                !scrambleLoading &&
+                scramble ? (
+                  <CrossLengthStrip
+                    scramble={scramble}
+                    className="justify-center"
+                  />
+                ) : null}
+                {scrambleError ? (
+                  <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mb-4">
+                    {scrambleError}
+                  </div>
+                ) : null}
+              </div>
+              <div className="mt-2 grid grid-cols-12 gap-6 items-stretch">
+                <div className="col-span-12 lg:col-span-8">
+                  <div data-focus-hide>
+                    {isMultiBlind && (
+                      <div className="rounded-card bg-surface bg-surface-2 mb-4">
+                        <div className="p-5 sm:p-6">
+                          <div className="flex flex-wrap justify-between items-center gap-2">
+                            <label className="mb-1.5 block text-sm font-medium text-ink mb-0">
+                              {t("timer.multiBlindAttempted")}
+                              <input
+                                aria-label={t("timer.multiBlindAttemptedAria")}
+                                type="number"
+                                min="2"
+                                max="99"
+                                value={multiBlindAttempted}
+                                onChange={event => {
+                                  setMultiBlindAttempted(
+                                    Math.max(
+                                      2,
+                                      Math.min(
+                                        99,
+                                        Number(event.target.value) || 2
                                       )
-                                      .join("\n")
-                                  : scramble
-                              )
-                            }
-                            title={t("timer.copy")}
-                          />
+                                    )
+                                  );
+                                  setMultiBlindScrambles([]);
+                                  setScramble("");
+                                }}
+                                className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-placeholder focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
+                              />
+                            </label>
+                            <span className="text-sm text-muted">
+                              {t("timer.multiBlindLimit")}:{" "}
+                              {formatMultiBlindTime(
+                                multiBlindTimeLimitMs(multiBlindAttempted)
+                              )}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              type="button"
+
+                              disabled={scrambleLoading}
+                              onClick={() => void generateMultiBlindScrambles()}
+                              aria-label={t("timer.multiBlindGenerateAria")}
+                            >
+                              {t("timer.multiBlindGenerate", {
+                                count: multiBlindAttempted,
+                              })}
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    {isMultiBlind ? (
-                      <MultiBlindScrambleList
-                        scrambles={multiBlindScrambles}
-                        loading={scrambleLoading}
-                      />
-                    ) : (
-                      <p
-                        className={
-                          scrambleSize === "sm"
-                            ? "break-words mb-4 text-sm"
-                            : scrambleSize === "lg"
-                              ? "break-words mb-4 text-2xl sm:text-3xl"
-                              : "break-words mb-4 text-lg sm:text-xl"
-                        }
-                        aria-live="polite"
-                      >
-                        {scrambleLoading
-                          ? t("timer.generating", { event: eventLabel })
-                          : scramble}
-                      </p>
                     )}
-                    {scrambleError ? (
-                      <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mb-4">
-                        {scrambleError}
-                      </div>
-                    ) : null}
-                    <div className="grid grid-cols-12 gap-2 mt-1 items-stretch">
-                      <div className="col-span-12 lg:col-span-7">
-                        {isMultiBlind && (
-                          <div className="rounded-card bg-surface bg-surface-2 mb-4">
-                            <div className="p-5 sm:p-6">
-                              <div className="flex flex-wrap justify-between items-center gap-2">
-                                <label className="mb-1.5 block text-sm font-medium text-ink mb-0">
-                                  {t("timer.multiBlindAttempted")}
-                                  <input
-                                    aria-label={t(
-                                      "timer.multiBlindAttemptedAria"
-                                    )}
-                                    type="number"
-                                    min="2"
-                                    max="99"
-                                    value={multiBlindAttempted}
-                                    onChange={event => {
-                                      setMultiBlindAttempted(
-                                        Math.max(
-                                          2,
-                                          Math.min(
-                                            99,
-                                            Number(event.target.value) || 2
-                                          )
-                                        )
-                                      );
-                                      setMultiBlindScrambles([]);
-                                      setScramble("");
-                                    }}
-                                    className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-placeholder focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 rounded-lg px-3 py-1.5 text-xs mt-1 w-auto"
-                                  />
-                                </label>
-                                <span className="text-sm text-muted">
-                                  {t("timer.multiBlindLimit")}:{" "}
-                                  {formatMultiBlindTime(
-                                    multiBlindTimeLimitMs(multiBlindAttempted)
-                                  )}
-                                </span>
-                                <Button
-                                  variant="outline"
-                                  size="xs"
-                                  type="button"
-
-                                  disabled={scrambleLoading}
-                                  onClick={() =>
-                                    void generateMultiBlindScrambles()
-                                  }
-                                  aria-label={t("timer.multiBlindGenerateAria")}
-                                >
-                                  {t("timer.multiBlindGenerate", {
-                                    count: multiBlindAttempted,
-                                  })}
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        {!isMultiBlind && (
-                          <SmartCubeBar
-                            status={smartCube.status}
-                            cubeName={smartCube.cubeName}
-                            batteryPercent={smartCube.batteryPercent}
-                            errorKey={smartCube.errorKey}
-                            onConnect={() => void smartCube.connect()}
-                            onDisconnect={smartCube.disconnect}
-                          />
-                        )}
-                        {!isMultiBlind && (
-                          <BluetoothTimerBar
-                            status={bluetooth.status}
-                            deviceName={bluetooth.deviceName}
-                            errorKey={bluetooth.errorKey}
-                            lostConnection={bluetooth.lostConnection}
-                            onConnect={() => void bluetooth.connect()}
-                            onDisconnect={bluetooth.disconnect}
-                          />
-                        )}
-                        {scrambleLoading ? (
-                          <div className="rounded-card bg-surface p-5 sm:p-6 animate-pulse text-center">
-                            <span className="block h-3 rounded-full bg-surface-3 w-8/12 mx-auto" />
-                            <span className="block h-3 rounded-full bg-surface-3 w-5/12 mx-auto mt-4" />
-                          </div>
-                        ) : isMultiBlind && !multiBlindReady ? (
-                          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mb-0">
-                            {t("timer.multiBlindMissing")}
-                          </div>
-                        ) : smartCubeActive ? (
-                          <SmartCubeHero
-                            smartCube={smartCube}
-                            onDisconnect={smartCube.disconnect}
-                            externalTimer={
-                              bleTimer
-                                ? {
-                                    deviceName:
-                                      bluetooth.deviceName ?? "GAN Timer",
-                                    timer: bleTimer,
-                                  }
-                                : undefined
-                            }
-                          />
-                        ) : bleTimer ? (
-                          <BluetoothTimerHero
-                            timer={bleTimer}
-                            deviceName={bluetooth.deviceName ?? "GAN Timer"}
-                            onDisconnect={bluetooth.disconnect}
-                            onSolveComplete={elapsedMs =>
-                              recordSolve(
-                                {
-                                  elapsedMs,
-                                  inspectionMs: 0,
-                                  automaticPenalty: "none",
-                                  phaseSplits: [],
-                                },
-                                "bluetooth",
-                              )
-                            }
-                          />
-                        ) : (
-                          <SolveTimer
-                            key={timerVersion}
-                            onComplete={recordSolve}
-                            soundEnabled={inspectionSound}
-                            voiceEnabled={inspectionVoice}
-                            metronomeEnabled={metronomeEnabled}
-                            metronomeBpm={metronomeBpm}
-                            splitEnabled={
-                              !isMultiBlind && isThreeByThree && spaceSplits
-                            }
-                            splitPhases={
-                              isMultiBlind ? [] : practiceSplitPhases
-                            }
-                          />
-                        )}
-                        {pendingMultiBlind && (
-                          <MultiBlindResultCard
-                            completion={pendingMultiBlind}
-                            attempted={multiBlindAttempted}
-                            solved={multiBlindSolved}
-                            onSolvedChange={setMultiBlindSolved}
-                            onSave={saveMultiBlind}
-                          />
-                        )}
-                        {isThreeByThree && !isMultiBlind && spaceSplits && (
-                          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mt-4 mb-0">
-                            {t("timer.splitHint")}
-                          </div>
-                        )}
-                        {saved && (
-                          <div className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink mt-4 mb-0">
-                            {t("timer.saved")}
-                          </div>
-                        )}
-                        {isThreeByThree &&
-                          !isMultiBlind &&
-                          saved &&
-                          latestRecorded &&
-                          !latestRecorded.solution.trim() && (
-                            <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                              <span>{t("timer.addSolutionHint")}</span>
-                              <Button
-                                variant="outline"
-                                size="xs"
-                                className="shrink-0"
-                                type="button"
-                                onClick={() => openEdit(latestRecorded)}
-                              >
-                                {t("timer.addSolution")}
-                              </Button>
-                            </div>
-                          )}
-                      </div>
-                      <div className="col-span-12 lg:col-span-5">
-                        {!isMultiBlind &&
-                          timerPreviewPuzzleId(eventId) &&
-                          scramble &&
-                          !scrambleLoading ? (
-                          <div
-                            className={
-                              scrambleSize === "sm"
-                                ? "h-full min-h-[12rem]"
-                                : scrambleSize === "lg"
-                                  ? "h-full min-h-[24rem]"
-                                  : "h-full min-h-[18rem]"
-                            }
-                          >
-                            <PuzzleScramblePreview
-                              eventId={eventId}
-                              scramble={scramble}
-                              language={language}
-                            />
-                          </div>
-                        ) : (
-                          <div className="rounded-card bg-surface p-5 sm:p-6 h-full flex justify-center text-center">
-                            <Timer className="text-4xl text-muted mb-4" />
-                            <p className="font-semibold mb-1">{eventLabel}</p>
-                            <p className="text-sm text-muted mb-0">
-                              {isMultiBlind
-                                ? t("timer.multiBlindHint")
-                                : t("timer.eventHint")}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {!isMultiBlind && (
+                      <SmartCubeBar
+                        status={smartCube.status}
+                        cubeName={smartCube.cubeName}
+                        batteryPercent={smartCube.batteryPercent}
+                        errorKey={smartCube.errorKey}
+                        onConnect={() => void smartCube.connect()}
+                        onDisconnect={smartCube.disconnect}
+                      />
+                    )}
+                    {!isMultiBlind && (
+                      <BluetoothTimerBar
+                        status={bluetooth.status}
+                        deviceName={bluetooth.deviceName}
+                        errorKey={bluetooth.errorKey}
+                        lostConnection={bluetooth.lostConnection}
+                        onConnect={() => void bluetooth.connect()}
+                        onDisconnect={bluetooth.disconnect}
+                      />
+                    )}
                   </div>
-                </div>
-              </section>
-              <aside
-                className="col-span-12 xl:col-span-4"
-                aria-label={t("timer.stats")}
-              >
-                <div className="rounded-card bg-surface h-full">
-                  <div className="p-5 sm:p-6">
-                    <PanelHeader
-                      icon={<BarChart3 className="text-lg" />}
-                      title={t("timer.summary")}
-                      actions={
-                        <span className="text-sm text-muted">
-                          {visibleEntries.length} {t("timer.total")}
-                        </span>
+                  {scrambleLoading ? (
+                    <div className="rounded-card bg-surface p-5 sm:p-6 animate-pulse text-center">
+                      <span className="block h-3 rounded-full bg-surface-3 w-8/12 mx-auto" />
+                      <span className="block h-3 rounded-full bg-surface-3 w-5/12 mx-auto mt-4" />
+                    </div>
+                  ) : isMultiBlind && !multiBlindReady ? (
+                    <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mb-0">
+                      {t("timer.multiBlindMissing")}
+                    </div>
+                  ) : smartCubeActive ? (
+                    <SmartCubeHero
+                      smartCube={smartCube}
+                      onDisconnect={smartCube.disconnect}
+                      externalTimer={
+                        bleTimer
+                          ? {
+                              deviceName: bluetooth.deviceName ?? "GAN Timer",
+                              timer: bleTimer,
+                            }
+                          : undefined
                       }
                     />
-                    <div className="grid grid-cols-12 gap-2 mt-2">
-                      <div className="col-span-12 sm:col-span-6">
-                        <MetricButton
-                          label={
-                            isMultiBlind ? t("timer.bestScore") : t("timer.pb")
-                          }
-                          value={metric(pb)}
-                          enabled={pb !== undefined}
-                          onClick={() => setSelectedMetric("pb")}
-                        />
-                      </div>
-                      {!isMultiBlind && (
-                        <>
-                          <div className="col-span-12 sm:col-span-6">
-                            <MetricButton
-                              label="AO5"
-                              value={metric(averages.ao5)}
-                              enabled={averages.ao5 !== undefined}
-                              onClick={() => setSelectedMetric("ao5")}
-                            />
-                          </div>
-                          <div className="col-span-12 sm:col-span-6">
-                            <MetricButton
-                              label="AO12"
-                              value={metric(averages.ao12)}
-                              enabled={averages.ao12 !== undefined}
-                              onClick={() => setSelectedMetric("ao12")}
-                            />
-                          </div>
-                          <div className="col-span-12 sm:col-span-6">
-                            <MetricButton
-                              label="AO50"
-                              value={metric(averages.ao50)}
-                              enabled={averages.ao50 !== undefined}
-                              onClick={() => setSelectedMetric("ao50")}
-                            />
-                          </div>
-                          <div className="col-span-12 sm:col-span-6">
-                            <MetricButton
-                              label="AO100"
-                              value={metric(averages.ao100)}
-                              enabled={averages.ao100 !== undefined}
-                              onClick={() => setSelectedMetric("ao100")}
-                            />
-                          </div>
-                        </>
-                      )}
-                      <div className="col-span-12 sm:col-span-6">
-                        <MetricButton
-                          label={t("timer.total")}
-                          value={String(visibleEntries.length)}
-                          enabled={visibleEntries.length > 0}
-                          onClick={() => setSelectedMetric("total")}
-                        />
-                      </div>
+                  ) : bleTimer ? (
+                    <BluetoothTimerHero
+                      timer={bleTimer}
+                      deviceName={bluetooth.deviceName ?? "GAN Timer"}
+                      onDisconnect={bluetooth.disconnect}
+                      onSolveComplete={elapsedMs =>
+                        recordSolve(
+                          {
+                            elapsedMs,
+                            inspectionMs: 0,
+                            automaticPenalty: "none",
+                            phaseSplits: [],
+                          },
+                          "bluetooth"
+                        )
+                      }
+                    />
+                  ) : (
+                    <SolveTimer
+                      key={timerVersion}
+                      onComplete={recordSolve}
+                      onModeChange={mode => setTimerRunning(mode === "running")}
+                      soundEnabled={inspectionSound}
+                      voiceEnabled={inspectionVoice}
+                      metronomeEnabled={metronomeEnabled}
+                      metronomeBpm={metronomeBpm}
+                      hideRunningTime={hideRunningTime}
+                    />
+                  )}
+                  {pendingMultiBlind && (
+                    <MultiBlindResultCard
+                      completion={pendingMultiBlind}
+                      attempted={multiBlindAttempted}
+                      solved={multiBlindSolved}
+                      onSolvedChange={setMultiBlindSolved}
+                      onSave={saveMultiBlind}
+                    />
+                  )}
+                  {saved && (
+                    <div className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink mt-4 mb-0">
+                      {t("timer.saved")}
                     </div>
-                  </div>
-                </div>
-              </aside>
-
-              {!isMultiBlind && (
-                <section className="col-span-12">
-                  <EventProgressCard
-                    eventLabel={eventLabel}
-                    entries={eventEntries}
-                    progress={progress}
-                  />
-                </section>
-              )}
-              {!isMultiBlind && (
-                <section className="col-span-12">
-                  <EventWcaComparisonCard
-                    eventId={eventId}
-                    eventLabel={eventLabel}
-                    rows={eventWcaRows}
-                    hasWcaId={Boolean(accountQuery.data?.wcaId)}
-                    loading={wcaProfileQuery.isLoading}
-                    unavailable={wcaProfileQuery.isError}
-                    hasRecord={Boolean(eventWcaRecord)}
-                  />
-                </section>
-              )}
-
-              <section
-                className="col-span-12 mt-6"
-                aria-labelledby="timer-analytics-heading"
-              >
-                <h2
-                  id="timer-analytics-heading"
-                  className="text-base font-semibold tracking-tight mb-0"
-                >
-                  {t("timer.analyticsTitle")}
-                </h2>
-                <div className="mt-6 flex flex-col gap-6">
-                  <section className="grid grid-cols-12 gap-6">
-                    <div className="col-span-12 xl:col-span-4 rounded-card bg-surface p-5 sm:p-6">
-                      <h3 className="text-sm font-semibold tracking-tight">
-                        {t("timer.stats")}
-                      </h3>
-                      <div className="grid grid-cols-12 gap-2 mt-6">
-                        {(
-                          [
-                            [t("timer.pb"), metric(pb)],
-                            ["AO5", metric(averages.ao5)],
-                            ["AO12", metric(averages.ao12)],
-                            ["AO50", metric(averages.ao50)],
-                            ["AO100", metric(averages.ao100)],
-                            [t("timer.total"), String(visibleEntries.length)],
-                          ] as const
-                        ).map(([label, value]) => (
-                          // Hai ô mỗi hàng: ô hẹp (1/3 card) không đủ chỗ cho
-                          // thời gian dài như "83:20.00", chữ sẽ tràn ra ngoài.
-                          <div key={label} className="col-span-6">
-                            <StatTile label={label} value={value} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="col-span-12 xl:col-span-8 rounded-card bg-surface p-5 sm:p-6">
-                      <h3 className="text-sm font-semibold tracking-tight">
-                        {t("timer.progress")}
-                      </h3>
-                      {visibleEntries.length ? (
-                        <div className="h-72 mt-6">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={progress}>
-                              <XAxis
-                                dataKey="solve"
-                                type="number"
-                                axisLine={false}
-                                tickLine={false}
-                              />
-                              <YAxis
-                                tickFormatter={value =>
-                                  `${(Number(value) / 1000).toFixed(0)}s`
-                                }
-                                axisLine={false}
-                                tickLine={false}
-                                width={56}
-                              />
-                              <Tooltip
-                                formatter={value => [
-                                  value == null
-                                    ? "DNF"
-                                    : `${(Number(value) / 1000).toFixed(2)}s`,
-                                ]}
-                              />
-                              <Line
-                                type="monotone"
-                                dataKey="ao5"
-                                stroke="var(--chart-1)"
-                                strokeWidth={3}
-                                dot={false}
-                                connectNulls
-                                name="Ao5"
-                              />
-                              <Line
-                                type="monotone"
-                                dataKey="ao12"
-                                stroke="var(--chart-2)"
-                                strokeWidth={2}
-                                dot={false}
-                                connectNulls
-                                name="Ao12"
-                              />
-                              <Line
-                                type="monotone"
-                                dataKey="ao50"
-                                stroke="var(--chart-3)"
-                                strokeWidth={2}
-                                strokeDasharray="5 3"
-                                dot={false}
-                                connectNulls
-                                name="Ao50"
-                              />
-                              <Line
-                                type="monotone"
-                                dataKey="ao100"
-                                stroke="var(--chart-4)"
-                                strokeWidth={2}
-                                strokeDasharray="2 4"
-                                dot={false}
-                                connectNulls
-                                name="Ao100"
-                              />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </div>
-                      ) : (
-                        <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-6">
-                          {t("timer.chartEmpty")}
-                        </div>
-                      )}
-                    </div>
-                  </section>
-
-
-
-                  <section className="rounded-card bg-surface mt-6">
-                    <div className="p-5 sm:p-6">
-                      <div className="flex flex-wrap justify-between gap-2">
-                        <h3 className="text-sm font-semibold tracking-tight mb-0">
-                          {t("timer.efficiency")}
-                        </h3>
-                        {latestSolution && (
-                          <span className="text-sm text-muted">
-                            {new Date(
-                              latestSolution.createdAt
-                            ).toLocaleDateString(
-                              language === "vi" ? "vi-VN" : "en-US"
-                            )}
-                          </span>
-                        )}
-                      </div>
-                      {latestEfficiency ? (
-                        <div className="grid grid-cols-12 gap-4 mt-1">
-                          <div className="col-span-12 md:col-span-6">
-                            <StatTile
-                              label={t("timer.moves")}
-                              value={String(latestEfficiency.moves)}
-                              tone="dark"
-                            />
-                          </div>
-                          <div className="col-span-12 md:col-span-6">
-                            <StatTile
-                              label={t("timer.tps")}
-                              value={latestEfficiency.tps.toFixed(2)}
-                              tone="dark"
-                            />
-                          </div>
-                          <div className="col-span-12">
-                            <StatTile
-                              label="RATING"
-                              value={latestEfficiency.label}
-                              tone="dark"
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
-                          {t("timer.noSolutionToAnalyze")}
-                        </div>
-                      )}
-                    </div>
-                  </section>
-                </div>
-              </section>
-              <section className="col-span-12">
-                <div className="rounded-card bg-surface">
-                  <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6 gap-2">
-                    <div>
-                      <h2 className="text-base font-semibold tracking-tight mb-0">
-                        {t("timer.recentTitle", { event: eventLabel })}
-                      </h2>
-                      <small className="text-muted">
-                        {t("timer.recentHint")}
-                      </small>
-                    </div>
-                    <Link
-                      href="/history"
-                      className={`${buttonClass("secondary", "sm")}`}
-                    >
-                      {t("timer.openHistory")}
-                    </Link>
-                  </div>
-                  <div className="p-5 sm:p-6">
-                    {eventEntries.length ? (
-                      <div className="bg-transparent">
-                        {eventEntries.slice(0, 5).map(item => (
-                          <RecentTimerSolve key={item.id} item={item} />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mb-0">
-                        {t("timer.noEventSolves", { event: eventLabel })}
+                  )}
+                  {isThreeByThree &&
+                    !isMultiBlind &&
+                    saved &&
+                    latestRecorded &&
+                    !latestRecorded.solution.trim() && (
+                      <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span>{t("timer.addSolutionHint")}</span>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          className="shrink-0"
+                          type="button"
+                          onClick={() => openEdit(latestRecorded)}
+                        >
+                          {t("timer.addSolution")}
+                        </Button>
                       </div>
                     )}
-                  </div>
                 </div>
-              </section>
+                <div data-focus-hide className="col-span-12 lg:col-span-4">
+                  {!isMultiBlind &&
+                  timerPreviewPuzzleId(eventId) &&
+                  scramble &&
+                  !scrambleLoading ? (
+                    <div
+                      className={
+                        scrambleSize === "sm"
+                          ? "h-full min-h-[12rem]"
+                          : scrambleSize === "lg"
+                            ? "h-full min-h-[24rem]"
+                            : "h-full min-h-[18rem]"
+                      }
+                    >
+                      <PuzzleScramblePreview
+                        eventId={eventId}
+                        scramble={scramble}
+                        language={language}
+                      />
+                    </div>
+                  ) : (
+                    <div className="rounded-card bg-surface p-5 sm:p-6 h-full flex justify-center text-center">
+                      <Timer className="text-4xl text-muted mb-4" />
+                      <p className="font-semibold mb-1">{eventLabel}</p>
+                      <p className="text-sm text-muted mb-0">
+                        {isMultiBlind
+                          ? t("timer.multiBlindHint")
+                          : t("timer.eventHint")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </section>
+
+            <section
+              data-focus-hide
+              aria-labelledby="timer-summary-heading"
+              className="mt-6 rounded-card bg-surface p-5 sm:p-6"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2
+                  id="timer-summary-heading"
+                  className="flex items-center gap-2 text-base font-semibold tracking-tight"
+                >
+                  <BarChart3
+                    className="text-lg text-primary"
+                    aria-hidden="true"
+                  />
+                  {t("timer.summary")}
+                </h2>
+                <Link
+                  href="/history"
+                  className={buttonClass("secondary", "sm")}
+                >
+                  {t("timer.openHistory")}
+                </Link>
+              </div>
+              <div className="grid grid-cols-12 gap-2 mt-4">
+                <div className="col-span-6 sm:col-span-4 lg:col-span-2">
+                  <MetricButton
+                    label={isMultiBlind ? t("timer.bestScore") : t("timer.pb")}
+                    value={metric(pb)}
+                    enabled={pb !== undefined}
+                    onClick={() => setSelectedMetric("pb")}
+                  />
+                </div>
+                {!isMultiBlind && (
+                  <>
+                    <div className="col-span-6 sm:col-span-4 lg:col-span-2">
+                      <MetricButton
+                        label="AO5"
+                        value={metric(averages.ao5)}
+                        enabled={averages.ao5 !== undefined}
+                        onClick={() => setSelectedMetric("ao5")}
+                      />
+                    </div>
+                    <div className="col-span-6 sm:col-span-4 lg:col-span-2">
+                      <MetricButton
+                        label="AO12"
+                        value={metric(averages.ao12)}
+                        enabled={averages.ao12 !== undefined}
+                        onClick={() => setSelectedMetric("ao12")}
+                      />
+                    </div>
+                    <div className="col-span-6 sm:col-span-4 lg:col-span-2">
+                      <MetricButton
+                        label="AO50"
+                        value={metric(averages.ao50)}
+                        enabled={averages.ao50 !== undefined}
+                        onClick={() => setSelectedMetric("ao50")}
+                      />
+                    </div>
+                    <div className="col-span-6 sm:col-span-4 lg:col-span-2">
+                      <MetricButton
+                        label="AO100"
+                        value={metric(averages.ao100)}
+                        enabled={averages.ao100 !== undefined}
+                        onClick={() => setSelectedMetric("ao100")}
+                      />
+                    </div>
+                  </>
+                )}
+                <div className="col-span-6 sm:col-span-4 lg:col-span-2">
+                  <MetricButton
+                    label={t("timer.total")}
+                    value={String(visibleEntries.length)}
+                    enabled={visibleEntries.length > 0}
+                    onClick={() => setSelectedMetric("total")}
+                  />
+                </div>
+              </div>
+            </section>
+
+            <details
+              data-focus-hide
+              className="group mt-6 rounded-card bg-surface"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-base font-semibold tracking-tight sm:px-6">
+                {t("timer.analyticsTitle")}
+                <span
+                  aria-hidden="true"
+                  className="text-muted transition-transform group-open:rotate-180"
+                >
+                  ▾
+                </span>
+              </summary>
+              <div className="grid grid-cols-12 gap-6 px-5 pb-6 sm:px-6">
+                {!isMultiBlind && (
+                  <section className="col-span-12">
+                    <EventProgressCard
+                      eventLabel={eventLabel}
+                      entries={eventEntries}
+                      progress={progress}
+                    />
+                  </section>
+                )}
+                {!isMultiBlind && (
+                  <section className="col-span-12">
+                    <EventWcaComparisonCard
+                      eventId={eventId}
+                      eventLabel={eventLabel}
+                      rows={eventWcaRows}
+                      hasWcaId={Boolean(accountQuery.data?.wcaId)}
+                      loading={wcaProfileQuery.isLoading}
+                      unavailable={wcaProfileQuery.isError}
+                      hasRecord={Boolean(eventWcaRecord)}
+                    />
+                  </section>
+                )}
+
+                <section
+                  className="col-span-12"
+                  aria-labelledby="timer-analytics-heading"
+                >
+                  {/* Tiêu đề đã nằm ở <summary>; giữ cho trình đọc màn hình. */}
+                  <h2 id="timer-analytics-heading" className="sr-only">
+                    {t("timer.analyticsTitle")}
+                  </h2>
+                  <div className="flex flex-col gap-6">
+                    <section className="grid grid-cols-12 gap-6">
+                      <div className="col-span-12 xl:col-span-4 rounded-card bg-surface p-5 sm:p-6">
+                        <h3 className="text-sm font-semibold tracking-tight">
+                          {t("timer.stats")}
+                        </h3>
+                        <div className="grid grid-cols-12 gap-2 mt-6">
+                          {(
+                            [
+                              [t("timer.pb"), metric(pb)],
+                              ["AO5", metric(averages.ao5)],
+                              ["AO12", metric(averages.ao12)],
+                              ["AO50", metric(averages.ao50)],
+                              ["AO100", metric(averages.ao100)],
+                              [t("timer.total"), String(visibleEntries.length)],
+                            ] as const
+                          ).map(([label, value]) => (
+                            // Hai ô mỗi hàng: ô hẹp (1/3 card) không đủ chỗ cho
+                            // thời gian dài như "83:20.00", chữ sẽ tràn ra ngoài.
+                            <div key={label} className="col-span-6">
+                              <StatTile label={label} value={value} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="col-span-12 xl:col-span-8 rounded-card bg-surface p-5 sm:p-6">
+                        <h3 className="text-sm font-semibold tracking-tight">
+                          {t("timer.progress")}
+                        </h3>
+                        {visibleEntries.length ? (
+                          <div className="h-72 mt-6">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <LineChart data={progress}>
+                                <XAxis
+                                  dataKey="solve"
+                                  type="number"
+                                  axisLine={false}
+                                  tickLine={false}
+                                />
+                                <YAxis
+                                  tickFormatter={value =>
+                                    `${(Number(value) / 1000).toFixed(0)}s`
+                                  }
+                                  axisLine={false}
+                                  tickLine={false}
+                                  width={56}
+                                />
+                                <Tooltip
+                                  formatter={value => [
+                                    value == null
+                                      ? "DNF"
+                                      : `${(Number(value) / 1000).toFixed(2)}s`,
+                                  ]}
+                                />
+                                <Line
+                                  type="monotone"
+                                  dataKey="ao5"
+                                  stroke="var(--chart-1)"
+                                  strokeWidth={3}
+                                  dot={false}
+                                  connectNulls
+                                  name="Ao5"
+                                />
+                                <Line
+                                  type="monotone"
+                                  dataKey="ao12"
+                                  stroke="var(--chart-2)"
+                                  strokeWidth={2}
+                                  dot={false}
+                                  connectNulls
+                                  name="Ao12"
+                                />
+                                <Line
+                                  type="monotone"
+                                  dataKey="ao50"
+                                  stroke="var(--chart-3)"
+                                  strokeWidth={2}
+                                  strokeDasharray="5 3"
+                                  dot={false}
+                                  connectNulls
+                                  name="Ao50"
+                                />
+                                <Line
+                                  type="monotone"
+                                  dataKey="ao100"
+                                  stroke="var(--chart-4)"
+                                  strokeWidth={2}
+                                  strokeDasharray="2 4"
+                                  dot={false}
+                                  connectNulls
+                                  name="Ao100"
+                                />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          </div>
+                        ) : (
+                          <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-6">
+                            {t("timer.chartEmpty")}
+                          </div>
+                        )}
+                      </div>
+                    </section>
+
+                    <section className="rounded-card bg-surface mt-6">
+                      <div className="p-5 sm:p-6">
+                        <div className="flex flex-wrap justify-between gap-2">
+                          <h3 className="text-sm font-semibold tracking-tight mb-0">
+                            {t("timer.efficiency")}
+                          </h3>
+                          {latestSolution && (
+                            <span className="text-sm text-muted">
+                              {new Date(
+                                latestSolution.createdAt
+                              ).toLocaleDateString(
+                                language === "vi" ? "vi-VN" : "en-US"
+                              )}
+                            </span>
+                          )}
+                        </div>
+                        {latestEfficiency ? (
+                          <div className="grid grid-cols-12 gap-4 mt-1">
+                            <div className="col-span-12 md:col-span-6">
+                              <StatTile
+                                label={t("timer.moves")}
+                                value={String(latestEfficiency.moves)}
+                                tone="dark"
+                              />
+                            </div>
+                            <div className="col-span-12 md:col-span-6">
+                              <StatTile
+                                label={t("timer.tps")}
+                                value={latestEfficiency.tps.toFixed(2)}
+                                tone="dark"
+                              />
+                            </div>
+                            <div className="col-span-12">
+                              <StatTile
+                                label="RATING"
+                                value={latestEfficiency.label}
+                                tone="dark"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
+                            {t("timer.noSolutionToAnalyze")}
+                          </div>
+                        )}
+                      </div>
+                    </section>
+                  </div>
+                </section>
+              </div>
+            </details>
 
             <Dialog
               open={Boolean(selectedMetric)}
@@ -1654,7 +1669,10 @@ export default function TimerLab() {
                 <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 flex justify-center">
                   {expandedMetricCube && (
                     <CubeNet
-                      state={safeScrambleState(expandedMetricCube.input)}
+                      state={safeScrambleState(
+                        expandedMetricCube.input,
+                        expandedMetricCube.eventId
+                      )}
                     />
                   )}
                 </div>
@@ -2184,31 +2202,6 @@ function EventWcaComparisonCard({
   );
 }
 
-function RecentTimerSolve({ item }: { item: SolveHistoryEntry }) {
-  const { language, t } = useLanguage();
-  return (
-    <article className="block px-4 py-3 text-sm flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <strong className={item.penalty === "DNF" ? "text-danger" : ""}>
-          {formatSolveResult(item)}
-        </strong>
-        <small className="block text-muted">
-          {new Date(item.createdAt).toLocaleString(
-            language === "vi" ? "vi-VN" : "en-US"
-          )}
-          {item.tags.length ? ` · ${item.tags.join(", ")}` : ""}
-        </small>
-      </div>
-      <span className="font-mono text-sm break-words grow">{item.input}</span>
-      <IconButton
-        label={t("timer.shareSolveImage")}
-        icon={<ImageDown className="text-lg" />}
-        onClick={() => exportSolveImage(item, language)}
-        className={`${buttonClass("secondary", "sm")}`}
-      />
-    </article>
-  );
-}
 function MetricDetailCard({
   entry,
   exclusion,
@@ -2230,7 +2223,10 @@ function MetricDetailCard({
   const isThreeByThree = isThreeByThreeEvent(
     normalizeTimerEventId(entry.eventId)
   );
-  const state = useMemo(() => safeScrambleState(entry.input), [entry.input]);
+  const state = useMemo(
+    () => safeScrambleState(entry.input, entry.eventId),
+    [entry.input, entry.eventId]
+  );
   const solution = useMemo(
     () =>
       isThreeByThree
@@ -2306,7 +2302,8 @@ function MetricDetailCard({
           {entry.phaseSplits.length > 0 || entry.moves > 0 ? (
             <p className="text-xs text-muted mb-1 font-mono">
               {entry.phaseSplits.length ? `${splitSummary(entry)} · ` : ""}
-              {entry.moves} moves · {(entry.moves / (entry.elapsedMs / 1000)).toFixed(2)} TPS
+              {entry.moves} moves ·{" "}
+              {(entry.moves / (entry.elapsedMs / 1000)).toFixed(2)} TPS
             </p>
           ) : null}
           <div className="flex flex-wrap items-center gap-2">

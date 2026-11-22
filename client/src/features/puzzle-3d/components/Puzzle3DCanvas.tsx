@@ -91,6 +91,7 @@ export function Puzzle3DCanvas({
   animationRunId = 0,
   focusFtoWhiteFace = false,
   focusFtoFace,
+  nativeColors = false,
 }: {
   eventId: TimerEventId;
   puzzle: PuzzleId;
@@ -100,6 +101,11 @@ export function Puzzle3DCanvas({
   animationRunId?: number;
   focusFtoWhiteFace?: boolean;
   focusFtoFace?: FtoTeachingFace;
+  /**
+   * Giữ màu WCA gốc của Cubing.js (trắng U, xanh lá F) thay vì đổi sang bảng
+   * màu studio (vàng U): dùng khi xem scramble đúng hướng cầm lúc tráo.
+   */
+  nativeColors?: boolean;
 }) {
   const isTwoD = isSideEvent2DPuzzle(puzzle);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -232,7 +238,7 @@ export function Puzzle3DCanvas({
         staging?.remove();
         return;
       }
-      if (isCubeFamilyPuzzle(puzzle))
+      if (isCubeFamilyPuzzle(puzzle) && !nativeColors)
         recolorCubeStickerColors(
           puzzleObject as unknown as ColoredObject,
         );
@@ -298,7 +304,7 @@ export function Puzzle3DCanvas({
       };
       const resizeAndRender = () => {
         sizeRenderer();
-        if (isCubeFamilyPuzzle(puzzle))
+        if (isCubeFamilyPuzzle(puzzle) && !nativeColors)
           recolorCubeStickerColors(
             puzzleObject as unknown as ColoredObject,
           );
@@ -466,6 +472,7 @@ export function Puzzle3DCanvas({
     animationRunId,
     focusFtoWhiteFace,
     focusFtoFace,
+    nativeColors,
     retryTick,
   ]);
 

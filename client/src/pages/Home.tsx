@@ -36,9 +36,20 @@ import {
   type SolverKind,
 } from "@/features/solver";
 import { stateFromScramble } from "@/lib/fastCube";
+import {
+  heldNotationResult,
+  orientForCross,
+  scrambledState,
+  solutionSetupRotation,
+  wcaLettersToStudio,
+} from "@/lib/scrambleOrientation";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
-import { lastLayerModeLabel, lastLayerCaseLabel, openingModeLabel } from "@/lib/solverPresentation";
+import {
+  lastLayerModeLabel,
+  lastLayerCaseLabel,
+  openingModeLabel,
+} from "@/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
 import {
@@ -135,11 +146,16 @@ export default function Home() {
   const previewState = useMemo(() => {
     if (mode === "state") return stateValidation?.valid ? value : SOLVED_STATE;
     try {
-      return value.trim() ? stateFromScramble(value) : SOLVED_STATE;
+      if (!value.trim()) return SOLVED_STATE;
+      // CFOP: khối thật khi tráo theo chuẩn WCA (trắng U, xanh lá F).
+      // BLD: giữ trắng U, xanh lá F (người giải mù không lật khối).
+      return solverKind === "bld"
+        ? wcaLettersToStudio(stateFromScramble(value))
+        : scrambledState(value);
     } catch {
       return SOLVED_STATE;
     }
-  }, [mode, value]);
+  }, [mode, solverKind, value]);
   const currentState = useMemo(() => {
     if (!result) return previewState;
     return cursor === 0
@@ -153,6 +169,19 @@ export default function Home() {
       : result.trace[cursor - 2]?.state;
   }, [cursor, result]);
   const currentStep = result?.trace[cursor - 1];
+  // Lời giải viết theo hướng đang cầm (màu cross ở D) và phép xoay ghi ở đầu;
+  // khối 3D vẫn chạy bằng các lượt gốc của bộ giải (`result`).
+  const solvedFrom = useRef<"scramble" | "state">("scramble");
+  const displayResult = useMemo(
+    () => (result ? heldNotationResult(result, crossColor) : null),
+    [crossColor, result]
+  );
+  const setupRotation = useMemo(
+    () => solutionSetupRotation(crossColor, solvedFrom.current),
+    // `result` đổi sau mỗi lần giải, khi `solvedFrom` đã được cập nhật.
+    [crossColor, result]
+  );
+  const currentStepLabel = displayResult?.trace[cursor - 1]?.move;
   const activePhase =
     cursor > 0
       ? (result?.phases.find(
@@ -307,9 +336,13 @@ export default function Home() {
     setError("");
     setSolverStatus(t("home.preparing"));
     try {
-      await new Promise<void>(resolve =>
-        window.requestAnimationFrame(() => resolve())
-      );
+      // Nhường một khung hình để hiện trạng thái "đang chuẩn bị". Tab nằm nền
+      // không chạy requestAnimationFrame, nên có hẹn giờ dự phòng: nếu không,
+      // bấm giải rồi chuyển tab thì bộ giải chỉ chạy khi quay lại.
+      await new Promise<void>(resolve => {
+        window.requestAnimationFrame(() => resolve());
+        window.setTimeout(resolve, 50);
+      });
       if (solverKind === "bld") {
         setSolverStatus(t("home.buildingMemo"));
         const next = await analyzeBldInBrowser(mode, value.trim());
@@ -328,9 +361,12 @@ export default function Home() {
       setSolverStatus(
         t("home.searching", { opening: openingModeLabel(opening, language) })
       );
+      // Scramble được đổi thành trạng thái thật (tráo cầm trắng U, xanh lá F)
+      // ngay trong trang, để bộ giải và hình hiển thị cùng một khối.
+      solvedFrom.current = mode === "state" ? "state" : "scramble";
       const next = await solveInBrowser(
-        mode,
-        value.trim(),
+        "state",
+        mode === "state" ? value.trim() : scrambledState(value.trim()),
         crossColor,
         opening,
         { preferredSlot, excludedSlots },
@@ -497,10 +533,15 @@ export default function Home() {
   };
 
   const hasResult = Boolean(result);
+  // BLD: memo tính theo khung WCA (U = mặt trên = trắng); chỉ đổi màu để vẽ
+  // khối đúng như cầm trắng U, xanh lá F khi tráo.
+  const bldDisplayState = bldResult
+    ? mode === "state"
+      ? bldResult.initial_state
+      : wcaLettersToStudio(bldResult.initial_state)
+    : undefined;
   const stage =
-    solverKind === "bld"
-      ? (bldResult?.initial_state ?? currentState)
-      : currentState;
+    solverKind === "bld" ? (bldDisplayState ?? currentState) : currentState;
   const solutionTitle =
     solverKind === "bld"
       ? bldResult
@@ -515,7 +556,7 @@ export default function Home() {
         ? t("home.memoSeparated")
         : t("home.memoStudioOnly")
       : currentStep
-        ? `${t("guide.move")}: ${currentStep.move}`
+        ? `${t("guide.move")}: ${currentStepLabel ?? currentStep.move}`
         : hasResult
           ? t("home.solutionReady")
           : t("guide.help");
@@ -524,7 +565,7 @@ export default function Home() {
       ? bldResult
         ? `${bldResult.analysis.edges.memo.length} / ${bldResult.analysis.corners.memo.length}`
         : "—"
-      : (currentStep?.move ?? "—");
+      : (currentStepLabel ?? currentStep?.move ?? "—");
 
   const heroCube = (
     <svg
@@ -664,12 +705,12 @@ export default function Home() {
                 <CubeNet
                   state={
                     solverKind === "bld"
-                      ? (bldResult?.initial_state ?? currentState)
+                      ? (bldDisplayState ?? currentState)
                       : mode === "state"
                         ? value.length === 54
                           ? value
                           : SOLVED_STATE
-                        : currentState
+                        : orientForCross(currentState, crossColor)
                   }
                   editable={mode === "state" && solverKind !== "bld"}
                   selectedColor={paintColor}
@@ -683,7 +724,7 @@ export default function Home() {
                   move={solverKind === "bld" ? undefined : currentStep?.move}
                   step={cursor}
                   crossColor={crossColor}
-                  alignCross
+                  alignCross={solverKind !== "bld"}
                   xcrossSlots={activeXCrossSlots}
                   lastLayerCase={activeLastLayerCase}
                   transition={cubeMotion.kind}
@@ -781,7 +822,9 @@ export default function Home() {
                   />
                 ) : result ? (
                   <CfopReport
-                    result={result}
+                    result={displayResult ?? result}
+                    setupRotation={setupRotation}
+                    crossColor={crossColor}
                     language={language}
                     activePhase={activePhase?.name ?? null}
                     cursor={cursor}

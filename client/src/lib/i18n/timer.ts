@@ -69,15 +69,14 @@ export const timerWords: Dictionary = {
   "timer.newScore": ["ĐIỂM MỚI", "NEW SCORE"],
   "timer.bestScore": ["ĐIỂM CAO NHẤT", "BEST SCORE"],
 
-  "timer.splitHint": [
-    "Khi đồng hồ đang chạy, nhấn Space, Enter hoặc chạm vào đồng hồ để ghi các mốc bạn muốn theo dõi. Lần chạm cuối sẽ kết thúc lượt.",
-    "While the timer runs, press Space, Enter, or touch it to record any milestones you want to follow. The last input finishes the attempt.",
-  ],
   "timer.analyticsTitle": ["Phân tích", "Analytics"],
   "timer.moves": ["MOVES", "MOVES"],
   "timer.efficiency": ["HIỆU QUẢ SOLUTION", "SOLUTION EFFICIENCY"],
   "timer.noSolutionToAnalyze": ["THÊM SOLUTION ĐỂ PHÂN TÍCH", "ADD A SOLUTION TO ANALYZE"],
 
+  "timer.crossLengths": ["Cross tối ưu", "Optimal cross"],
+  "timer.crossBest": ["tốt nhất", "best"],
+  "timer.crossLengthAria": ["Cross {color}: {moves} move", "{color} cross: {moves} moves"],
   "timer.generating": ["Đang tạo scramble {event}…", "Generating {event} scramble…"],
   "timer.multiBlindAttempted": ["Số khối thử", "Cubes attempted"],
   "timer.multiBlindAttemptedAria": ["Số khối thử Multi-Blind", "Multi-Blind cubes attempted"],
