@@ -2,13 +2,31 @@ import type { Dictionary } from "./index";
 
 /** The virtual keyboard-driven cube page (/play). */
 export const playWords: Dictionary = {
-  "play.eyebrow": ["Chơi ảo", "Virtual cube"],
-  "play.title": ["Rubik ảo bằng bàn phím", "Virtual cube on your keyboard"],
+  "play.eyebrow": ["Rubik ảo", "Virtual cube"],
+  "play.title": ["Rubik ảo", "Virtual cube"],
   "play.subtitle": [
-    "Xoay khối 3×3 bằng bàn phím theo bộ phím của csTimer — chế độ tự do để nghịch, hoặc chế độ giải có giờ như một solve thật.",
-    "Turn a 3×3 on your keyboard with the csTimer key layout — free-play to mess around, or a timed solve like the real thing.",
+    "Xoay khối 3×3 bằng bàn phím (bộ phím csTimer) hoặc bàn nút trên màn hình — chơi tự do, hoặc giải có giờ như một lượt thật.",
+    "Turn a 3×3 with your keyboard (csTimer layout) or the on-screen pad — free play, or a timed solve like the real thing.",
   ],
-  "nav.play": ["Chơi ảo", "Play"],
+  "nav.play": ["Rubik ảo", "Virtual cube"],
+  "play.modeLabel": ["Chế độ", "Mode"],
+  "play.startButton": ["Xáo trộn & bắt đầu", "Scramble & start"],
+  "play.stopDnf": ["Dừng (DNF)", "Stop (DNF)"],
+  "play.cancelAttempt": ["Huỷ ván", "Cancel attempt"],
+  "play.showPad": ["Hiện bàn nút xoay", "Show move pad"],
+  "play.hidePad": ["Ẩn bàn nút xoay", "Hide move pad"],
+  "play.padLabel": ["Bàn nút xoay", "Move pad"],
+  "play.padMove": ["Xoay {move}", "Turn {move}"],
+  "play.keyGroupFaces": ["Mặt", "Faces"],
+  "play.keyGroupWide": ["Rộng", "Wide"],
+  "play.keyGroupSlice": ["Slice", "Slices"],
+  "play.keyGroupRotate": ["Xoay cả khối", "Rotations"],
+  "play.keyGroupControl": ["Điều khiển", "Controls"],
+  "play.keyControlSpace": ["Xáo trộn / bắt đầu · về tầng 1/1", "Scramble / start · reset layers to 1/1"],
+  "play.keyControlEscape": ["Huỷ ván (đang giải thì DNF)", "Cancel (DNF while solving)"],
+  "play.keyControlLeftLayer": ["Thu / giãn tầng trái", "Shrink / extend left layer"],
+  "play.keyControlRightLayer": ["Thu / giãn tầng phải", "Shrink / extend right layer"],
+  "play.keyControlCamera": ["Xoay góc nhìn", "Orbit the view"],
 
   "play.modeFree": ["Tự do", "Free play"],
   "play.modeRace": ["Giải có giờ", "Timed solve"],
@@ -20,8 +38,8 @@ export const playWords: Dictionary = {
 
   "play.inspectionLabel": ["15 giây kiểm tra (WCA)", "15s inspection (WCA)"],
   "play.startHint": [
-    "Bấm Space để xáo trộn và bắt đầu",
-    "Press Space to scramble and start",
+    "Bấm Space hoặc nút Xáo trộn & bắt đầu",
+    "Press Space or Scramble & start",
   ],
   "play.readyHint": [
     "Sẵn sàng — nước đi đầu tiên sẽ bắt đầu tính giờ",
@@ -64,17 +82,17 @@ export const playWords: Dictionary = {
     "Arrows = orbit camera · Space = scramble / start · Esc = cancel",
   ],
 
-  "play.historyTitle": ["Lịch sử chơi ảo", "Virtual solve history"],
+  "play.historyTitle": ["Lịch sử Rubik ảo", "Virtual solve history"],
   "play.historyNote": [
     "Riêng biệt hoàn toàn — không tính vào solve 3×3×3 thật.",
     "Completely separate — never counted into your real 3×3×3 solves.",
   ],
   "play.historyEmpty": [
-    "Chưa có lần giải nào. Chuyển sang Giải có giờ và bấm Space để bắt đầu.",
-    "No solves yet. Switch to Timed solve and press Space to start.",
+    "Chưa có lần giải nào. Chuyển sang Giải có giờ rồi bấm Xáo trộn & bắt đầu.",
+    "No solves yet. Switch to Timed solve, then Scramble & start.",
   ],
   "play.clearAll": ["Xóa toàn bộ", "Clear all"],
-  "play.clearTitle": ["Xóa toàn bộ lịch sử chơi ảo?", "Clear virtual solve history?"],
+  "play.clearTitle": ["Xóa toàn bộ lịch sử Rubik ảo?", "Clear virtual solve history?"],
   "play.clearDetail": [
     "Toàn bộ {count} lần giải ảo sẽ bị xóa vĩnh viễn. Không ảnh hưởng solve thật.",
     "All {count} virtual solves will be permanently deleted. Real solves are untouched.",

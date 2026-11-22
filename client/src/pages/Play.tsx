@@ -10,15 +10,17 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import {
-  BarChart3,
   ChevronDown,
   Dices,
-  ListUl,
+  Grid,
+  Play,
   RotateCcw,
   Timer,
   Trash2,
 } from "@/components/ui/Icon";
-import { PageHeader, Switch, StatTile, IconButton, EmptyState } from "@/components/ui/StudioUI";
+import { PageHeader, Switch, StatTile, IconButton } from "@/components/ui/StudioUI";
+import { PlayKeyMap } from "@/features/play/components/PlayKeyMap";
+import { PlayMovePad } from "@/features/play/components/PlayMovePad";
 import {
   Dialog,
   DialogContent,
@@ -55,7 +57,7 @@ import {
 type PlayMode = "free" | "race";
 type RaceStatus = "idle" | "inspection" | "armed" | "solving";
 
-export default function Play() {
+export default function PlayPage() {
   const { t } = useLanguage();
   const [mode, setMode] = useState<PlayMode>("free");
   const [state, setState] = useState(SOLVED_FAST_STATE);
@@ -81,7 +83,22 @@ export default function Play() {
   const [inspectionEnabled, setInspectionEnabled] = useState(true);
   const [entries, setEntries] = useState<PlayHistoryEntry[]>(() => readPlayHistory());
   const [clearOpen, setClearOpen] = useState(false);
-  const [keysOpen, setKeysOpen] = useState(true);
+  // Màn hình nhỏ thường không có bàn phím: thu gọn bảng phím mặc định.
+  const [keysOpen, setKeysOpen] = useState(
+    () => typeof window === "undefined" || !window.matchMedia?.("(max-width: 1023px)").matches
+  );
+  const [padOpen, setPadOpen] = useState(false);
+  // Màn hình hẹp: khung khối thấp hơn để khối không bị phóng quá to và cắt.
+  const [narrowScreen, setNarrowScreen] = useState(
+    () => typeof window !== "undefined" && window.matchMedia?.("(max-width: 639px)").matches
+  );
+  useEffect(() => {
+    const query = window.matchMedia?.("(max-width: 639px)");
+    if (!query) return undefined;
+    const update = () => setNarrowScreen(query.matches);
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
 
   const commitCube = (prev: string, next: string, token?: string) => {
     prevStateRef.current = prev;
@@ -317,41 +334,32 @@ export default function Play() {
   const bestText = stats.bestMs !== null ? formatPlayTime(stats.bestMs) : "—";
   const ao5Text = stats.ao5Ms !== null ? formatPlayTime(stats.ao5Ms) : "—";
 
-  const keyRows = [
-    t("play.keyFaces"),
-    t("play.keyWide"),
-    t("play.keySlice"),
-    t("play.keyRotate"),
-    t("play.keyLayers"),
-    t("play.keyCamera"),
-  ];
+  const raceBusy = mode === "race" && status !== "idle";
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
       <PageHeader
         title={t("play.title")}
         description={t("play.subtitle")}
-        eyebrow={t("play.eyebrow")}
         actions={
           <Link
             href="/timer"
-            aria-label={t("nav.timer")}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-surface px-3 py-1.5 text-xs font-semibold leading-none text-ink transition hover:bg-surface-2 focus-visible:ring-4 focus-visible:ring-primary/20"
+            className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-surface px-3.5 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2 focus-visible:ring-4 focus-visible:ring-primary/20"
           >
-            <Timer className="text-base" />
+            <Timer className="text-base" aria-hidden="true" />
             {t("nav.timer")}
           </Link>
         }
       />
 
-      <div className="grid grid-cols-12 gap-4">
-        {/* ===== Cube ===== */}
-        <section className="col-span-12 xl:col-span-7">
-          <div className="rounded-card bg-surface">
-            <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6 sm:pt-5">
+      <div className="grid grid-cols-12 gap-6">
+        {/* ===== Khối: lớn, ở giữa; điều khiển gọn quanh khối ===== */}
+        <section className="col-span-12 xl:col-span-8">
+          <div className="rounded-card bg-surface p-4 sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div
                 role="tablist"
-                aria-label={t("play.eyebrow")}
+                aria-label={t("play.modeLabel")}
                 className="inline-flex rounded-full bg-surface-2 p-1"
               >
                 {(
@@ -367,35 +375,32 @@ export default function Play() {
                     aria-selected={mode === tab.id}
                     onClick={event => {
                       switchMode(tab.id);
-                      // Hand Space back to the cube: after picking a mode,
-                      // Space should start the scramble, not re-click the tab.
+                      // Trả Space về cho khối: sau khi chọn chế độ, Space phải
+                      // xáo trộn chứ không bấm lại tab.
                       event.currentTarget.blur();
                     }}
                     className={cn(
                       "rounded-full px-4 py-1.5 text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20",
                       mode === tab.id
                         ? "bg-primary text-on-primary"
-                        : "text-muted hover:text-ink",
+                        : "text-muted hover:text-ink"
                     )}
                   >
                     {tab.label}
                   </button>
                 ))}
               </div>
-              {mode === "race" ? (
-                <Switch
-                  id="play-inspection"
-                  checked={inspectionEnabled}
-                  onChange={setInspectionEnabled}
-                  disabled={status !== "idle"}
-                  label={t("play.inspectionLabel")}
-                />
-              ) : (
-                <p className="max-w-64 text-xs text-muted">{t("play.freeHint")}</p>
-              )}
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted">
+                <span className="rounded-full bg-surface-2 px-3 py-1.5">
+                  {t("play.movesLabel", { count: moveCount })}
+                </span>
+                <span className="rounded-full bg-surface-2 px-3 py-1.5">
+                  {t("play.layersLabel", { oSl: selection.oSl, oSr: selection.oSr })}
+                </span>
+              </div>
             </div>
 
-            <div className="relative px-2">
+            <div className="relative mt-2">
               <Cube3DGuide
                 state={state}
                 previousState={prevStateRef.current}
@@ -409,139 +414,165 @@ export default function Play() {
                 initialOrbit={0.55}
                 initialPitch={0.3}
                 orbitKeys
+                stageHeight={narrowScreen ? 300 : 420}
               />
               <div
                 className="pointer-events-none absolute inset-0 grid place-items-center"
                 aria-live="polite"
               >
                 {mode === "race" && status === "solving" ? (
-                  <p className="rounded-full bg-ink/70 px-6 py-3 font-mono text-5xl font-bold tabular-nums text-white sm:text-6xl">
+                  <p className="rounded-full bg-canvas/90 px-6 py-3 font-mono text-5xl font-bold tabular-nums text-ink sm:text-6xl">
                     {formatPlayTime(elapsedMs)}
                   </p>
                 ) : null}
                 {mode === "race" && status === "inspection" ? (
                   <p
                     className={cn(
-                      "rounded-full bg-ink/70 px-6 py-3 font-mono text-6xl font-bold tabular-nums",
-                      inspectionLeft <= 3 ? "text-red-400" : "text-white",
+                      "rounded-full bg-canvas/90 px-6 py-3 font-mono text-6xl font-bold tabular-nums",
+                      inspectionLeft <= 3 ? "text-danger" : "text-ink"
                     )}
                   >
                     {Math.ceil(inspectionLeft)}
                   </p>
                 ) : null}
                 {mode === "race" && (status === "armed" || status === "idle") ? (
-                  <p className="max-w-xs rounded-full bg-ink/70 px-6 py-3 text-center text-sm font-semibold text-white">
+                  <p className="max-w-xs rounded-full bg-canvas/90 px-6 py-3 text-center text-sm font-semibold text-ink">
                     {status === "armed" ? t("play.readyHint") : t("play.startHint")}
                   </p>
                 ) : null}
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 p-4 sm:px-6 sm:pb-5">
-              <div className="flex flex-wrap gap-2 text-xs font-semibold text-muted">
-                <span className="rounded-full bg-surface-2 px-3 py-1">
-                  {t("play.movesLabel", { count: moveCount })}
-                </span>
-                <span className="rounded-full bg-surface-2 px-3 py-1">
-                  {t("play.layersLabel", { oSl: selection.oSl, oSr: selection.oSr })}
-                </span>
+            {mode === "race" ? (
+              <div className="mt-2 rounded-panel bg-surface-2 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted">
+                    {t("play.scramble")}
+                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {status === "idle" ? (
+                      <>
+                        <button
+                          type="button"
+                          className={buttonClass("secondary", "sm")}
+                          onClick={newScramble}
+                        >
+                          <Dices className="text-base" aria-hidden="true" />
+                          {t("play.newScramble")}
+                        </button>
+                        {/* Điện thoại không có phím Space: nút thay thế. */}
+                        <button
+                          type="button"
+                          className={buttonClass("primary", "sm")}
+                          onClick={event => {
+                            event.currentTarget.blur();
+                            onSpace();
+                          }}
+                        >
+                          <Play className="text-base" aria-hidden="true" />
+                          {t("play.startButton")}
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        className={buttonClass("danger", "sm")}
+                        onClick={event => {
+                          event.currentTarget.blur();
+                          onEscape();
+                        }}
+                      >
+                        {status === "solving" ? t("play.stopDnf") : t("play.cancelAttempt")}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <p className="mb-0 mt-2 font-mono text-sm leading-relaxed text-ink">{scramble}</p>
+                {mode === "race" ? (
+                  <div className="mt-3">
+                    <Switch
+                      id="play-inspection"
+                      checked={inspectionEnabled}
+                      onChange={setInspectionEnabled}
+                      disabled={raceBusy}
+                      label={t("play.inspectionLabel")}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <p className="mb-0 mt-2 text-center text-xs text-muted">{t("play.freeHint")}</p>
+            )}
+
+            {/* Bàn nút xoay: luôn hiện trên màn hình nhỏ/cảm ứng; trên máy tính
+                bật bằng nút bên dưới. */}
+            <div className={cn("mt-4", padOpen ? "" : "lg:hidden")}>
+              <PlayMovePad
+                onMove={dispatchMove}
+                disabled={mode === "race" && status === "idle"}
+              />
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+              {/* Chỉ trên màn hình lớn; màn hình nhỏ luôn hiện bàn nút. */}
+              <div className="hidden lg:block">
+                <button
+                  type="button"
+                  className={buttonClass("soft", "sm")}
+                  aria-pressed={padOpen}
+                  onClick={event => {
+                    event.currentTarget.blur();
+                    setPadOpen(open => !open);
+                  }}
+                >
+                  <Grid className="text-base" aria-hidden="true" />
+                  {padOpen ? t("play.hidePad") : t("play.showPad")}
+                </button>
               </div>
               <button
                 type="button"
-                className={buttonClass("secondary", "sm")}
-                onClick={() => resetCube(false)}
+                className={cn(buttonClass("soft", "sm"), "ml-auto")}
+                onClick={event => {
+                  event.currentTarget.blur();
+                  resetCube(false);
+                }}
               >
-                <RotateCcw className="text-base" />
+                <RotateCcw className="text-base" aria-hidden="true" />
                 {t("play.resetCube")}
               </button>
             </div>
           </div>
-
-          {mode === "race" ? (
-            <div className="mt-4 rounded-card bg-surface p-4 sm:px-6">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                  {t("play.scramble")}
-                </span>
-                <button
-                  type="button"
-                  className={buttonClass("secondary", "sm")}
-                  onClick={newScramble}
-                  disabled={status !== "idle"}
-                >
-                  <Dices className="text-base" />
-                  {t("play.newScramble")}
-                </button>
-              </div>
-              <p className="mt-2 font-mono text-sm leading-relaxed text-ink">{scramble}</p>
-              <p className="mt-2 text-xs text-muted">{t("play.idleDnfHint")}</p>
-            </div>
-          ) : null}
-
-          <div className="mt-4 rounded-card bg-surface p-4 sm:px-6">
-            <button
-              type="button"
-              onClick={() => setKeysOpen(open => !open)}
-              aria-expanded={keysOpen}
-              className="flex w-full items-center justify-between gap-2 py-1 text-left text-sm font-semibold text-ink focus-visible:ring-4 focus-visible:ring-primary/20 rounded-panel"
-            >
-              {t("play.keysTitle")}
-              <ChevronDown
-                className={cn("text-lg transition-transform", keysOpen && "rotate-180")}
-              />
-            </button>
-            {keysOpen ? (
-              <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-muted">
-                {keyRows.map(row => (
-                  <li key={row}>{row}</li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
         </section>
 
-        {/* ===== Standalone history ===== */}
-        <aside className="col-span-12 xl:col-span-5">
+        {/* ===== Lịch sử riêng + bộ phím ===== */}
+        <aside className="col-span-12 flex flex-col gap-6 xl:col-span-4">
           <div className="rounded-card bg-surface p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-base font-semibold tracking-tight text-ink">
+              <h2 className="mb-0 text-base font-semibold tracking-tight text-ink">
                 {t("play.historyTitle")}
               </h2>
               {entries.length > 0 ? (
                 <button
                   type="button"
-                  className={buttonClass("danger", "sm")}
+                  className="rounded-full px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger-soft focus-visible:ring-4 focus-visible:ring-primary/20"
                   onClick={() => setClearOpen(true)}
                 >
-                  <Trash2 className="text-base" />
                   {t("play.clearAll")}
                 </button>
               ) : null}
             </div>
-            <p className="mt-1 text-xs text-muted">{t("play.historyNote")}</p>
+            <p className="mb-0 mt-1 text-xs text-muted">{t("play.historyNote")}</p>
 
             <div className="mt-4 grid grid-cols-3 gap-2">
-              <StatTile
-                label={t("play.best")}
-                value={bestText}
-                icon={<Timer className="text-lg" />}
-              />
-              <StatTile
-                label={t("play.ao5")}
-                value={ao5Text}
-                icon={<BarChart3 className="text-lg" />}
-              />
-              <StatTile
-                label={t("play.solves")}
-                value={String(stats.count)}
-                icon={<ListUl className="text-lg" />}
-              />
+              <StatTile compact label={t("play.best")} value={bestText} />
+              <StatTile compact label={t("play.ao5")} value={ao5Text} />
+              <StatTile compact label={t("play.solves")} value={String(stats.count)} />
             </div>
 
             {entries.length === 0 ? (
-              <div className="mt-4">
-                <EmptyState title={t("play.historyEmpty")} />
-              </div>
+              <p className="mb-0 mt-4 rounded-panel bg-surface-2 px-4 py-6 text-center text-sm text-muted">
+                {t("play.historyEmpty")}
+              </p>
             ) : (
               <ul className="mt-4 flex flex-col gap-1">
                 {entries.slice(0, 12).map(entry => {
@@ -549,7 +580,7 @@ export default function Play() {
                   return (
                     <li
                       key={entry.id}
-                      className="flex items-center gap-3 rounded-panel px-2 py-2 transition hover:bg-surface-2"
+                      className="group flex items-center gap-3 rounded-panel px-2 py-2 transition-colors hover:bg-surface-2"
                     >
                       <span className="font-mono text-sm font-semibold tabular-nums text-ink">
                         {effective !== null ? formatPlayTime(effective) : "DNF"}
@@ -560,29 +591,49 @@ export default function Play() {
                             "rounded-full px-2 py-0.5 text-[10px] font-bold",
                             entry.penalty === "+2"
                               ? "bg-warning-soft text-ink"
-                              : "bg-danger-soft text-danger",
+                              : "bg-danger-soft text-danger"
                           )}
                         >
                           {entry.penalty}
                         </span>
                       ) : null}
                       <span className="text-[11px] text-muted">
-                        {new Date(entry.createdAt).toLocaleDateString()}
-                      </span>
-                      <span className="hidden text-[11px] text-muted sm:inline">
                         {t("play.movesLabel", { count: entry.moves })}
+                      </span>
+                      <span className="ml-auto text-[11px] text-muted">
+                        {new Date(entry.createdAt).toLocaleDateString()}
                       </span>
                       <IconButton
                         label={t("play.deleteSolve")}
                         icon={<Trash2 className="text-base" />}
                         onClick={() => setEntries(deletePlayHistory(entry.id))}
-                        className="ml-auto hover:text-danger"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-danger-soft hover:text-danger"
                       />
                     </li>
                   );
                 })}
               </ul>
             )}
+          </div>
+
+          <div className="rounded-card bg-surface p-5 sm:p-6">
+            <button
+              type="button"
+              onClick={() => setKeysOpen(open => !open)}
+              aria-expanded={keysOpen}
+              className="flex w-full items-center justify-between gap-2 rounded-panel text-left text-base font-semibold tracking-tight text-ink focus-visible:ring-4 focus-visible:ring-primary/20"
+            >
+              {t("play.keysTitle")}
+              <ChevronDown
+                className={cn("text-lg text-muted transition-transform", keysOpen && "rotate-180")}
+                aria-hidden="true"
+              />
+            </button>
+            {keysOpen ? (
+              <div className="mt-4">
+                <PlayKeyMap />
+              </div>
+            ) : null}
           </div>
         </aside>
       </div>
