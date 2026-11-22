@@ -1,0 +1,17 @@
+[package]
+name = "cube-core"
+description = "3x3x3 cubie model, move tables, notation and facelet conversion"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde = { version = "1", optional = true }
+
+[features]
+# Serialize Move as its notation and Cube as its 54-sticker string.
+serde = ["dep:serde"]

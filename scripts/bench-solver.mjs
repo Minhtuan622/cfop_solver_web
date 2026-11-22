@@ -1,24 +1,16 @@
 /**
- * Bộ đo bộ giải CFOP trong Pyodide — chạy được trong sandbox không có trình
+ * Bộ đo bộ giải CFOP — chạy chính bản WebAssembly mà trình duyệt dùng
+ * (`packages/solver`, build bằng `pnpm build:solver`), trong Node, không cần
+ * trình duyệt.
+ *
+ * Bộ đo giải bộ đề cố định (`scripts/bench-scrambles.json`) và in ra bảng:
+ * đề, đúng/sai, số nước, thời gian. Lần giải đầu tiên gồm cả thời gian dựng
+ * bảng tra (một lần mỗi worker), giống lần bấm giải đầu tiên trong trình
  * duyệt.
- *
- * Dùng đúng gói `pyodide` mà ứng dụng chạy trong trình duyệt. Phiên bản được
- * ghim ở ba nơi và phải khớp nhau: hằng số `PYODIDE_VERSION` trong
- * `client/src/lib/pyodideLoader.ts`, hằng số `PYODIDE_VERSION` trong
- * `scripts/fetch-pyodide.mjs`, và devDependency `pyodide` trong
- * `package.json` (bản đích xác, không dùng `^` hay `~`).
- * `server/pyodideAssets.test.ts` chặn lệch ở cả ba nơi, nên bộ đo luôn đo
- * đúng runtime đang phát hành — không cần nhắc phiên bản cứng ở đây.
- *
- * Bộ đo nạp mã Python từ `solver-python/cfop_solver` vào hệ thống file của
- * Pyodide giống hệt `writeSolverFiles` trong
- * `client/src/lib/pyodideLoader.ts`, rồi giải bộ đề cố định và in ra bảng:
- * đề, đúng/sai, số nước, thời gian.
  *
  * Có **hai kịch bản**, mỗi kịch bản một bộ ngưỡng riêng:
  * - `cross` — `opening: "cross"`, tức kịch bản mặc định của app;
- * - `auto`  — `opening: "auto"`, bộ giải thử bậc cross cao nhất trước nên đắt
- *   hơn nhiều (đo được chậm nhất ~21s cho một đề, tổng ~69s cho 11 đề).
+ * - `auto`  — `opening: "auto"`, bộ giải thử bậc cross cao nhất trước.
  *
  *   node scripts/bench-solver.mjs
  *   node scripts/bench-solver.mjs --json      # xuất JSON để so sánh tự động
@@ -28,37 +20,24 @@
  * ngưỡng của kịch bản đó (đề vượt ngưỡng được chạy lại một lần để loại
  * nhiễu), hoặc tổng thời gian vượt ngưỡng tổng. Ngưỡng mặc định xem ở
  * `scripts/bench-check.mjs`.
- *
- * Số liệu trên CPython để đối chiếu: `python3 solver-python/bench_solver.py`.
  */
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import { evaluateRun, resolveLimits } from "./bench-check.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
-const solverDir = path.join(root, "solver-python", "cfop_solver");
+const pkgDir = path.join(root, "packages", "solver", "solver-wasm", "pkg");
 const scrambles = JSON.parse(
   readFileSync(path.join(root, "scripts", "bench-scrambles.json"), "utf8")
 );
 
-/** Thư mục chứa package Python trong hệ thống file của Pyodide. */
-const PACKAGE_DIR = "/home/pyodide/cfop_solver";
+const SOLVED = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
 
-/**
- * Metadata của runtime đo được — đọc từ gói đang cài, không đọc hằng số
- * trong source hay `package.json` của repo.
- *
- * `import.meta.resolve("pyodide")` trỏ tới entry thật trong `node_modules`
- * (qua symlink pnpm); `package.json` cùng thư mục là phiên bản đang chạy.
- */
+/** Metadata của runtime đo được. */
 function runtimeMetadata() {
-  const entry = fileURLToPath(import.meta.resolve("pyodide"));
-  const pkg = JSON.parse(
-    readFileSync(path.join(path.dirname(entry), "package.json"), "utf8")
-  );
   return {
-    pyodideVersion: pkg.version,
+    engine: "wasm",
+    wasmBytes: readFileSync(path.join(pkgDir, "solver_wasm_bg.wasm")).length,
     nodeVersion: process.version,
     platform: process.platform,
     arch: process.arch,
@@ -67,17 +46,14 @@ function runtimeMetadata() {
 
 /** Tham số giải giống hệt đường gọi của worker trong trình duyệt. */
 const SOLVE_OPTIONS = {
-  last_layer: "auto",
-  cross_color: "U",
+  lastLayer: "auto",
+  crossColor: "U",
   opening: "cross",
-  xcross_depth: 8,
-  xxcross_depth: 8,
-  xxxcross_depth: 8,
-  xxxxcross_depth: 8,
-  direct_node_budget: 5000,
+  openingDepth: 8,
+  directNodeBudget: 5000,
   // Cùng ngân sách với đường gọi của worker trong trình duyệt.
-  time_budget_sec: 40,
-  node_budget: 400000,
+  timeBudgetSec: 40,
+  nodeBudget: 400000,
 };
 
 /**
@@ -85,71 +61,30 @@ const SOLVE_OPTIONS = {
  *
  * - `cross`: kịch bản mặc định của app (`opening: "cross"`).
  * - `auto`: `opening: "auto"` — bộ giải thử bậc cross cao nhất trước nên
- *   đắt hơn nhiều. Đây là lựa chọn có sẵn trong phần cài đặt của app, nên
- *   phải có ngân sách thời gian riêng, nếu không một chậm lệch nhỏ ở đây sẽ
- *   không bao giờ bị bắt.
+ *   đắt hơn. Đây là lựa chọn có sẵn trong phần cài đặt của app, nên phải có
+ *   ngân sách thời gian riêng.
  */
 const SCENARIOS = [
   { name: "cross", opening: "cross" },
   { name: "auto", opening: "auto" },
 ];
 
-/** Mã Python giải một đề, in ra JSON kết quả. */
-const SOLVE_PYTHON = `
-import json, time
-from cfop_solver.cube import Cube, SOLVED
-from cfop_solver.notation import parse_moves
-from cfop_solver.solver import solve
-
-request = json.loads(__PAYLOAD__)
-scramble = request["scramble"]
-options = request["options"]
-cube = Cube().apply_many(parse_moves(scramble))
-started = time.monotonic()
-solution = solve(cube, **options)
-elapsed = time.monotonic() - started
-check = Cube().apply_many(parse_moves(scramble)).apply_many(solution.moves)
-json.dumps({
-    "moves": list(solution.moves),
-    "seconds": elapsed,
-    "solved": check.stickers == SOLVED,
-})
-`;
-
-/** Nạp Pyodide và đưa mã solver vào hệ thống file của nó. */
+/** Nạp module WebAssembly của bộ giải. */
 async function createRuntime() {
-  const { loadPyodide } = await import("pyodide");
-  // Gói npm `pyodide` đóng gói sẵn runtime (wasm, stdlib, lock file), nên
-  // bộ đo chạy được hoàn toàn offline. Trong Node, `indexURL` là một đường
-  // dẫn thường (không phải file:// URL).
-  const pyodideDir = path.dirname(
-    fileURLToPath(import.meta.resolve("pyodide"))
-  );
-  const runtime = await loadPyodide({ indexURL: `${pyodideDir}${path.sep}` });
-
-  // Nạp mã solver vào hệ thống file, giống writeSolverFiles.
-  runtime.FS.mkdirTree(PACKAGE_DIR);
-  for (const file of readdirSync(solverDir)) {
-    if (!file.endsWith(".py")) continue;
-    runtime.FS.writeFile(
-      `${PACKAGE_DIR}/${file}`,
-      readFileSync(path.join(solverDir, file), "utf8")
-    );
-  }
-  return runtime;
+  const wasm = await import(path.join(pkgDir, "solver_wasm.js"));
+  wasm.initSync({ module: readFileSync(path.join(pkgDir, "solver_wasm_bg.wasm")) });
+  return wasm;
 }
 
 /** Giải một đề và trả về { moves, seconds, solved }. */
-async function solveScramble(runtime, scramble, options) {
-  const payload = JSON.stringify({ scramble, options });
-  // `JSON.stringify` của payload cho ra một chuỗi JSON; nhúng nguyên chuỗi đó
-  // vào mã Python (dùng hàm thay thế để `$` trong chuỗi không bị hiểu sai).
-  const source = SOLVE_PYTHON.replace(
-    "__PAYLOAD__",
-    () => JSON.stringify(payload)
-  );
-  const output = await runtime.runPythonAsync(source);
-  return JSON.parse(String(output));
+async function solveScramble(wasm, scramble, options) {
+  const started = performance.now();
+  const result = wasm.solve(wasm.scrambleToStickers(scramble), options);
+  const seconds = (performance.now() - started) / 1000;
+  const moves = result.phases.flatMap(phase => phase.moves);
+  // Kiểm tra lại: scramble rồi lời giải phải về trạng thái đã giải.
+  const check = wasm.scrambleToStickers(`${scramble} ${moves.join(" ")}`);
+  return { moves, seconds, solved: check === SOLVED };
 }
 
 /** In một dòng kết quả của bảng bộ đo. */
@@ -263,7 +198,7 @@ async function main() {
 
   const runtimeInfo = runtimeMetadata();
   console.log(
-    `[bench] pyodide ${runtimeInfo.pyodideVersion} · node ${runtimeInfo.nodeVersion} · ` +
+    `[bench] wasm ${(runtimeInfo.wasmBytes / 1024).toFixed(0)} KiB · node ${runtimeInfo.nodeVersion} · ` +
       `${runtimeInfo.platform}/${runtimeInfo.arch}`
   );
 

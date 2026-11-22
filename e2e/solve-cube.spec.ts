@@ -3,13 +3,13 @@ import { expect, test } from "@playwright/test";
 /**
  * Kịch bản e2e: bộ giải CFOP thật sự giải được khối trong trình duyệt.
  *
- * Đây là bài test bắt được lỗi mà các test khác bỏ sót: nếu các file
- * Python của solver không được ghi vào filesystem của Pyodide thì mọi lệnh
- * `from cfop_solver import Cube` đều ném ImportError và bộ giải hỏng, nhưng
- * unit test vẫn xanh vì chúng mock runtime.
+ * Đây là bài test bắt được lỗi mà các test khác bỏ sót: worker, file
+ * `.wasm` và glue JS của bộ giải phải được Vite đóng gói và phục vụ đúng,
+ * nếu không bộ giải hỏng trong trình duyệt trong khi unit test vẫn xanh vì
+ * chúng mock worker.
  *
- * Bài test cần bản Pyodide cục bộ (script `pnpm fetch-pyodide` tải về
- * `client/public/pyodide` trước khi chạy e2e).
+ * Bài test cần bản build WebAssembly của bộ giải (`pnpm build:solver`;
+ * `pnpm dev` tự build nếu thiếu và máy có wasm-pack).
  */
 test("bộ giải giải được khối CFOP trong trình duyệt", async ({ page }) => {
   const errors: string[] = [];

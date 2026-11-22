@@ -12,10 +12,10 @@ trên nhánh `main`. Không phải mã nguồn — chỉ là quy định vận h
   duyệt, 0 approval).
 - **Require status checks to pass before merge**: các check bắt buộc sau phải xanh
   trước khi merge:
-  - `check-test-build` (typecheck + unit tests + build + e2e + audit)
-  - `Solver tests (pytest)` (pytest cho solver-python)
-  - `Solver benchmark (Pyodide)` (bộ đo bộ giải ở chế độ kiểm tra ngưỡng thời
-    gian — job mới, xem mục 2.1)
+  - `Rust solver (fmt, clippy, test)` (cargo fmt/clippy/test cho `packages/solver`)
+  - `check-test-build` (build bộ giải WASM + typecheck + unit tests + e2e + build + audit)
+  - `Solver benchmark (WASM)` (bộ đo bộ giải ở chế độ kiểm tra ngưỡng thời
+    gian, xem mục 2.1)
 - **Require branches to be up to date before merging** (`strict`): đây là điều
   kiện quan trọng nhất cho Dependabot — một nhánh Dependabot tạo từ `main` cũ sẽ
   không được merge cho tới khi được cập nhật, nên không thể vô tình đè lên thay
@@ -29,14 +29,21 @@ trên nhánh `main`. Không phải mã nguồn — chỉ là quy định vận h
 
 Quy trình merge: PR → CI xanh toàn bộ check bắt buộc → merge.
 
-## 2.1. Check "Solver benchmark (Pyodide)" trong branch protection
+## 2.1. Các check của bộ giải trong branch protection
 
-**Đã bật.** Branch protection của `main` hiện yêu cầu đủ ba check:
+Từ khi bộ giải chuyển sang Rust/WebAssembly, branch protection của `main`
+phải yêu cầu đúng ba check:
 
-- `check-test-build` (typecheck + unit test + e2e + build + audit)
-- `Solver tests (pytest)` (pytest cho solver-python)
-- `Solver benchmark (Pyodide)` (bộ đo bộ giải ở chế độ kiểm tra ngưỡng thời
+- `Rust solver (fmt, clippy, test)` (cargo fmt/clippy/test cho `packages/solver`)
+- `check-test-build` (build bộ giải WASM + typecheck + unit test + e2e + build + audit)
+- `Solver benchmark (WASM)` (bộ đo bộ giải ở chế độ kiểm tra ngưỡng thời
   gian)
+
+**Việc của chủ kho khi chuyển đổi:** trong Settings → Branches → `main`, gỡ hai
+check cũ không còn chạy (`Solver tests (pytest)` và check `Solver benchmark`
+của engine cũ) rồi thêm `Rust solver (fmt, clippy, test)` và `Solver benchmark
+(WASM)`. Nếu còn giữ check cũ, mọi PR sẽ đứng ở trạng thái "Expected —
+Waiting for status to be reported" và không merge được.
 
 Kiểm tra lại bằng:
 
@@ -44,15 +51,16 @@ Kiểm tra lại bằng:
 gh api repos/Minhtuan622/cfop_solver_web/branches/main/protection
 ```
 
-Job `Solver benchmark (Pyodide)` trong `.github/workflows/ci.yml` chạy bộ đo
-bộ giải ở chế độ kiểm tra: job đỏ khi bộ giải giải sai, khi một đề chậm hơn
-`PER_SCRAMBLE_LIMIT_SEC`, hoặc khi tổng thời gian vượt `TOTAL_LIMIT_SEC`. Job
-này **chạy song song** với `Solver tests (pytest)`.
+Job `Solver benchmark (WASM)` trong `.github/workflows/ci.yml` build bộ giải
+ra WebAssembly rồi chạy bộ đo ở chế độ kiểm tra: job đỏ khi bộ giải giải sai,
+khi một đề chậm hơn `PER_SCRAMBLE_LIMIT_SEC`, hoặc khi tổng thời gian vượt
+`TOTAL_LIMIT_SEC`. Job này **chạy song song** với `Rust solver (fmt, clippy,
+test)` và `check-test-build`.
 
 Nếu sau này thêm hoặc đổi tên job, phải cập nhật lại danh sách check bắt
 buộc ở mục 1. Tên check phải khớp **chính xác** với `name:` trong
 `.github/workflows/ci.yml` — GitHub hiển thị tên job (`Solver benchmark
-(Pyodide)`), không phải tên key (`solver-benchmark`).
+(WASM)`), không phải tên key (`solver-benchmark`).
 
 ### Bật `enforce_admins` (tùy chọn, việc của chủ kho)
 
@@ -68,8 +76,8 @@ tài liệu này chỉ ghi nhận trạng thái hiện tại.
 
 Nếu bật Dependabot automerge, chỉ cho phép automerge khi:
 
-- Tất cả check bắt buộc trên `main` đều xanh (`check-test-build`,
-  `solver-tests` và `solver-benchmark`).
+- Tất cả check bắt buộc trên `main` đều xanh (`rust`, `check-test-build` và
+  `solver-benchmark`).
 - PR Dependabot không gâyfail kiểm tra bảo mật (`pnpm audit --prod
   --audit-level=high` phải xanh).
 - Có ít nhất một review từ thành viên cốt lõi nếu thay đổi dependency lớn
@@ -94,7 +102,7 @@ Bật tính năng **Private Vulnerability Reporting** cho kho chứa trên GitHu
 ## 4. Ghi nhớ cho chủ repo
 
 - Trước khi merge bất kỳ PR nào vào `main`, hãy đảm bảo toàn bộ CI xanh
-  trên cả ba job: `check-test-build`, `solver-tests` và `solver-benchmark`.
+  trên cả ba job: `rust`, `check-test-build` và `solver-benchmark`.
 - Không bật automerge cho dependency nếu kiểm tra bảo mật (`pnpm audit`)
   chưa xanh.
 - Giữ danh sách biến môi trường trong `.env.example` đồng bộ với code

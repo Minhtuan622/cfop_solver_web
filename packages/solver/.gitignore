@@ -1,0 +1,3 @@
+/target
+# WASM build output (pnpm build:solver); never committed.
+/solver-wasm/pkg

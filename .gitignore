@@ -117,10 +117,5 @@ playwright-report/
 client/public/__manus__/version.json
 .project-config.json
 
-# Pyodide distribution (downloaded by scripts/fetch-pyodide.mjs at build time,
-# ~14 MB). Not tracked so the repository stays small; the build step puts it
-# in client/public/pyodide before Vite copies the public folder.
-client/public/pyodide/
-
 # Python cache\n__pycache__/
 *.pyc

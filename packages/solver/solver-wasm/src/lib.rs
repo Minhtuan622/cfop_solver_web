@@ -1,0 +1,96 @@
+//! WebAssembly entry points for the CFOP solver.
+//!
+//! ```js
+//! import init, { solve, scrambleToStickers } from "solver-wasm";
+//! await init();
+//! const result = solve(scrambleToStickers("R U R' U'"), { crossColor: "D" });
+//! ```
+//!
+//! Errors are thrown as `{ code, message }` objects (`SolverError`).
+
+#![forbid(unsafe_code)]
+
+pub mod bld;
+pub mod studio;
+
+use std::cell::RefCell;
+
+use wasm_bindgen::prelude::*;
+
+pub use bld::{analyze_3style, BldAnalysis};
+pub use studio::{SolveOptions, SolverError, SolverResult};
+
+thread_local! {
+    static PROGRESS: RefCell<Option<js_sys::Function>> = const { RefCell::new(None) };
+}
+
+fn js_now() -> f64 {
+    js_sys::Date::now()
+}
+
+/// Bridges the search hook to the JS callback: `onProgress(stage, nodes)`;
+/// returning `false` from the callback cancels the search.
+fn js_progress(stage: &'static str, nodes: u64) -> bool {
+    PROGRESS.with(|p| match p.borrow().as_ref() {
+        Some(f) => f
+            .call2(
+                &JsValue::NULL,
+                &JsValue::from_str(stage),
+                &JsValue::from_f64(nodes as f64),
+            )
+            .map(|v| v.as_bool() != Some(false))
+            .unwrap_or(true),
+        None => true,
+    })
+}
+
+fn throw(e: SolverError) -> JsValue {
+    serde_wasm_bindgen::to_value(&e).unwrap_or_else(|_| JsValue::from_str(&e.message))
+}
+
+/// Solve a 54-sticker URFDLB state.
+///
+/// `onProgress(stage, nodes)` (optional) is called periodically during
+/// search; return `false` from it to cancel (the call then throws
+/// `{ code: "cancelled" }`).
+#[wasm_bindgen]
+pub fn solve(
+    stickers: &str,
+    options: Option<SolveOptions>,
+    #[wasm_bindgen(js_name = onProgress)] on_progress: Option<js_sys::Function>,
+) -> Result<SolverResult, JsValue> {
+    let has_progress = on_progress.is_some();
+    PROGRESS.with(|p| *p.borrow_mut() = on_progress);
+    let progress: Option<cfop::ProgressFn> = if has_progress {
+        Some(js_progress)
+    } else {
+        None
+    };
+    let result = studio::solve_stickers(
+        stickers,
+        &options.unwrap_or_default(),
+        Some(js_now),
+        progress,
+    );
+    PROGRESS.with(|p| *p.borrow_mut() = None);
+    result.map_err(throw)
+}
+
+/// The 54-sticker state produced by a scramble from solved.
+#[wasm_bindgen(js_name = scrambleToStickers)]
+pub fn scramble_to_stickers(scramble: &str) -> Result<String, JsValue> {
+    studio::scramble_to_stickers(scramble).map_err(throw)
+}
+
+/// 3-Style (Speffz) memo for a 54-sticker state.
+#[wasm_bindgen(js_name = analyzeBld)]
+pub fn analyze_bld(stickers: &str) -> Result<BldAnalysis, JsValue> {
+    let cube = studio::parse_state(stickers).map_err(throw)?;
+    Ok(bld::analyze_3style(&cube))
+}
+
+/// Build every lookup table now (otherwise built on the first solve).
+#[wasm_bindgen(js_name = warmUp)]
+pub fn warm_up() {
+    cfop::warm_up();
+}
