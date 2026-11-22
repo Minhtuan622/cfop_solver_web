@@ -44,9 +44,10 @@
   /* Chữ gợi ý trong ô nhập: đủ đậm để đạt 4.5:1 trên mọi nền ô nhập. */
   --placeholder: #5f6474;
 
-  --cube-stage: #11162a;
-  --cube-stage-ink: #f2f5ff;
-  --cube-stage-muted: rgba(226, 232, 255, 0.62);
+  /* Nền sơ đồ khối: nhạt, phẳng, theo theme; đủ đậm để ô trắng vẫn nổi. */
+  --cube-stage: #e3e1da;
+  --cube-stage-ink: #1f2330;
+  --cube-stage-muted: #5f6474;
 
   --chart-1: #5b5bd6;
   --chart-2: #0891b2;
@@ -105,9 +106,9 @@
 
   --placeholder: #a2a6b2;
 
-  --cube-stage: #070a15;
-  --cube-stage-ink: #edf1ff;
-  --cube-stage-muted: rgba(226, 232, 255, 0.58);
+  --cube-stage: #2b2e36;
+  --cube-stage-ink: #e6e7eb;
+  --cube-stage-muted: #a2a6b2;
 
   --chart-1: #8585f6;
   --chart-2: #22d3ee;
@@ -283,6 +284,15 @@
 
 *::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+/* Hàng cuộn ngang không hiện thanh cuộn (vd. lưới chủ đề Học thêm trên điện
+   thoại). Không nằm trong layer, giống quy tắc thanh cuộn chung ở trên. */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 /* Chế độ tập trung của trang bấm giờ: khi đồng hồ chạy, mọi phần có

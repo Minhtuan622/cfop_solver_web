@@ -39,7 +39,15 @@ import {
 import { StudyCasePanel } from "./StudyCasePanel";
 import { StudySchedulePanel } from "./StudySchedulePanel";
 import { StudyToolbar, type StudyLane } from "./StudyToolbar";
-import { Button } from "@/components/ui/Button";
+import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
+import {
+  readLaneProgress,
+  writeLaneProgress,
+  type LaneProgressMap,
+} from "../lib/studyLaneProgress";
+
+const BACKUP_ITEM_CLASS =
+  "flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink outline-none transition data-[highlighted]:bg-surface-3";
 
 function download(name: string, value: unknown) {
   const url = URL.createObjectURL(
@@ -288,6 +296,16 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const activeLaneStats =
     studyLane === "lastLayer" ? null : laneStats[studyLane];
 
+  // Lưu tiến độ của chủ đề đang mở cho lưới chủ đề (xem studyLaneProgress).
+  const [laneProgress, setLaneProgress] = useState<LaneProgressMap>(readLaneProgress);
+  const currentMastered = activeLaneStats?.masteredCount ?? masteredKeys.size;
+  const currentTotal = activeLaneStats?.catalogCount ?? catalog.length;
+  useEffect(() => {
+    setLaneProgress(
+      writeLaneProgress(studyLane, { mastered: currentMastered, total: currentTotal })
+    );
+  }, [studyLane, currentMastered, currentTotal]);
+
   const selectCase = (candidate: LastLayerCatalogCase) => {
     setActiveCase(candidate);
     setLastElapsed(null);
@@ -356,7 +374,6 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   return (
     <div>
       <PageHeader
-        eyebrow={t("study.eyebrow")}
         title={t("study.title")}
         description={
           studyLane === "lastLayer"
@@ -391,29 +408,38 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                 type="file"
                 className="hidden"
               />
-              <Button
-                variant="secondary"
-                size="sm"
-                type="button"
-                onClick={() => backupRef.current?.click()}
-              >
-                <FileUp className="text-base mr-1" />
-                {t("study.importProgress")}
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                type="button"
-                onClick={() =>
-                  download(
-                    "cfop-last-layer-study-backup.json",
-                    exportLastLayerStudy(study, masteredKeys)
-                  )
+              {/* Nhập/xuất tiến độ ít dùng: gom vào một menu nhỏ. */}
+              <Dropdown
+                id="study-backup-menu"
+                label={t("study.backupMenu")}
+                variant="soft"
+                button={
+                  <>
+                    <Download className="text-base" aria-hidden="true" />
+                    <span>{t("study.backupMenu")}</span>
+                  </>
                 }
               >
-                <Download className="text-base mr-1" />
-                {t("study.exportBackup")}
-              </Button>
+                <DropdownItem
+                  className={BACKUP_ITEM_CLASS}
+                  onSelect={() => backupRef.current?.click()}
+                >
+                  <FileUp className="text-base" aria-hidden="true" />
+                  {t("study.importProgress")}
+                </DropdownItem>
+                <DropdownItem
+                  className={BACKUP_ITEM_CLASS}
+                  onSelect={() =>
+                    download(
+                      "cfop-last-layer-study-backup.json",
+                      exportLastLayerStudy(study, masteredKeys)
+                    )
+                  }
+                >
+                  <Download className="text-base" aria-hidden="true" />
+                  {t("study.exportBackup")}
+                </DropdownItem>
+              </Dropdown>
             </>
           ) : undefined
         }
@@ -428,6 +454,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
         queueCount={activeLaneStats?.queueCount ?? queue.length}
         masteredCount={activeLaneStats?.masteredCount ?? masteredKeys.size}
         catalogCount={activeLaneStats?.catalogCount ?? catalog.length}
+        progress={laneProgress}
       />
 
       {studyLane === "lastLayer" ? (

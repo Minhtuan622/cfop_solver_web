@@ -45,7 +45,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
           <DropdownRadioItem
             key={option.value}
             value={option.value}
-            className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition data-[highlighted]:bg-surface-2 data-[state=checked]:bg-primary-soft data-[state=checked]:font-semibold data-[state=checked]:text-primary"
+            className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition data-[highlighted]:bg-surface-3 data-[state=checked]:bg-primary-soft data-[state=checked]:font-semibold data-[state=checked]:text-primary"
           >
             <Translate className="text-base" />
             {t(option.labelKey)}
