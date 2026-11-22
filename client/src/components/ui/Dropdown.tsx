@@ -89,7 +89,9 @@ export function Dropdown({
             collisionPadding={8}
             aria-label={menuLabel ?? label}
             className={cn(
-              "z-50 min-w-52 overflow-y-auto rounded-2xl bg-surface p-1.5",
+              // Không có bóng đổ: menu nổi dùng nền đậm hơn một bậc để tách
+              // khỏi nội dung bên dưới.
+              "z-50 min-w-52 overflow-y-auto rounded-2xl bg-surface-2 p-1.5",
               menuClassName
             )}
           >

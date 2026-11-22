@@ -1,5 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import type { LaneProgressMap } from "../lib/studyLaneProgress";
 
 export type StudyLane =
   | "lastLayer"
@@ -28,6 +29,8 @@ export type StudyToolbarProps = {
   /** Cases already marked as mastered, out of the whole catalog. */
   masteredCount: number;
   catalogCount: number;
+  /** Tiến độ gần nhất của mọi chủ đề, cho lưới chọn chủ đề. */
+  progress?: LaneProgressMap;
 };
 
 const LANES: ReadonlyArray<{ id: StudyLane; labelKey: string }> = [
@@ -45,9 +48,9 @@ const LANES: ReadonlyArray<{ id: StudyLane; labelKey: string }> = [
 ];
 
 /**
- * Ultra-slim lane strip: which lane you are in, today's reviews, the queue
- * and how much is mastered — one line of muted text under a single row of
- * lane pills, plus a hairline goal bar. No card, no big stat blocks.
+ * Lưới chủ đề: mỗi ô là một chủ đề với tiến độ "đã thuộc / tổng" và một thanh
+ * mảnh; ô đang học được tô màu nhạt. Bên dưới là số liệu hôm nay của chủ đề
+ * đang mở. Phẳng: không viền, không bóng, chỉ đổi nền khi hover.
  */
 export function StudyToolbar({
   lane,
@@ -58,66 +61,94 @@ export function StudyToolbar({
   queueCount,
   masteredCount,
   catalogCount,
+  progress = {},
 }: StudyToolbarProps) {
   const { t } = useLanguage();
 
-  const laneButtonClass = (next: StudyLane) =>
-    cn(
-      "inline-flex shrink-0 items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold leading-none transition focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50",
-      lane === next
-        ? "bg-primary text-on-primary hover:bg-primary-hover"
-        : "bg-surface text-ink hover:bg-surface-2",
-    );
-
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div
-          className="inline-flex max-w-full items-center gap-1 overflow-x-auto whitespace-nowrap"
-          role="group"
-          aria-label={t("study.laneLabel")}
-        >
-          {LANES.map(({ id, labelKey }) => (
+      <div
+        // Điện thoại: một hàng cuộn ngang để phần học không bị đẩy xuống xa;
+        // màn hình vừa trở lên: lưới.
+        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6"
+        role="group"
+        aria-label={t("study.laneLabel")}
+      >
+        {LANES.map(({ id, labelKey }) => {
+          const active = lane === id;
+          const known =
+            active && catalogCount > 0
+              ? { mastered: masteredCount, total: catalogCount }
+              : progress[id];
+          const percent = known?.total
+            ? Math.round((known.mastered / known.total) * 100)
+            : 0;
+          return (
             <button
               key={id}
               type="button"
-              aria-pressed={lane === id}
+              aria-pressed={active}
               onClick={() => onLaneChange(id)}
-              className={laneButtonClass(id)}
+              className={cn(
+                "flex w-40 shrink-0 flex-col gap-1.5 rounded-panel px-4 py-3 text-left transition-colors focus-visible:ring-4 focus-visible:ring-primary/20 sm:w-auto",
+                active
+                  ? "bg-primary-soft text-ink"
+                  : "bg-surface text-ink hover:bg-surface-2"
+              )}
             >
-              {t(labelKey)}
+              <span
+                className={cn(
+                  "text-sm font-semibold",
+                  active && "text-primary"
+                )}
+              >
+                {t(labelKey)}
+              </span>
+              <span className="text-xs tabular-nums text-muted">
+                {known
+                  ? t("study.laneProgress", {
+                      mastered: known.mastered,
+                      total: known.total,
+                    })
+                  : t("study.laneNotStarted")}
+              </span>
+              <span
+                className="h-1 w-full overflow-hidden rounded-full bg-surface-3"
+                aria-hidden="true"
+              >
+                <span
+                  className="block h-full rounded-full bg-primary"
+                  style={{ width: `${percent}%` }}
+                />
+              </span>
             </button>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        <p className="mb-0 whitespace-nowrap text-xs tabular-nums text-muted">
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <p className="mb-0 whitespace-nowrap text-sm tabular-nums text-muted">
           <strong className="font-semibold text-ink">
             {reviewedToday}/{dailyGoal}
           </strong>{" "}
           {t("study.inlineToday")}{" "}
           <span aria-hidden="true">·</span>{" "}
           <strong className="font-semibold text-ink">{queueCount}</strong>{" "}
-          {t("study.inlineQueue")}{" "}
-          <span aria-hidden="true">·</span>{" "}
-          <strong className="font-semibold text-ink">
-            {masteredCount}/{catalogCount}
-          </strong>{" "}
-          {t("study.inlineMastered")}
+          {t("study.inlineQueue")}
         </p>
-      </div>
-
-      <div
-        className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-surface-3"
-        role="progressbar"
-        aria-label={t("study.goalProgress")}
-        aria-valuenow={goalPercent}
-        aria-valuemin={0}
-        aria-valuemax={100}
-      >
         <div
-          className="h-full rounded-full bg-primary transition-[width]"
-          style={{ width: `${goalPercent}%` }}
-        />
+          className="h-1 min-w-24 flex-1 overflow-hidden rounded-full bg-surface-3"
+          role="progressbar"
+          aria-label={t("study.goalProgress")}
+          aria-valuenow={goalPercent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div
+            className="h-full rounded-full bg-primary"
+            style={{ width: `${goalPercent}%` }}
+          />
+        </div>
       </div>
     </div>
   );

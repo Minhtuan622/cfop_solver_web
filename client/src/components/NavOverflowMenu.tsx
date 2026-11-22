@@ -40,7 +40,7 @@ export function NavOverflowMenu({
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center rounded-xl px-3 py-2 text-sm transition data-[highlighted]:bg-surface-2",
+                "flex items-center rounded-xl px-3 py-2 text-sm transition data-[highlighted]:bg-surface-3",
                 active ? "bg-primary-soft font-semibold text-primary" : "text-ink"
               )}
               onClick={onNavigate}
