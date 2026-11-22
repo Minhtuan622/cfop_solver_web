@@ -3,9 +3,9 @@ import type { Dictionary } from "./index";
 /** The solve history page: metrics, filters, the log and the edit dialogs. */
 export const historyWords: Dictionary = {
   "history.eyebrow": ["Quản lý & phân tích", "Management & analytics"],
-  "history.title": ["History & phân tích solve", "History & solve analysis"],
+  "history.title": ["Kết quả", "Results"],
   "history.subtitle": [
-    "Toàn bộ lượt giải đã lưu trên thiết bị này: chỉ số, xu hướng và quản lý dữ liệu.",
+    "Mọi lượt giải đã lưu trên thiết bị này: chỉ số, xu hướng và danh sách lượt giải.",
     "Every solve saved on this device: metrics, trends and data management.",
   ],
   "history.backToTimer": ["Về Timer", "Back to Timer"],
@@ -16,7 +16,11 @@ export const historyWords: Dictionary = {
   "history.penalties": ["Phạt", "Penalties"],
   "history.trendTitle": ["Xu hướng 30 solve gần nhất", "Last 30-solve trend"],
   "history.timeLabel": ["Thời gian", "Time"],
-  "history.manageTitle": ["Quản lý solve", "Manage solves"],
+  "history.manageTitle": ["Lượt giải", "Solves"],
+  "history.transferMenu": ["Nhập / Xuất", "Import / Export"],
+  "history.solveNumber": ["Lượt {number}", "Solve {number}"],
+  "history.selectedCount": ["Đã chọn {count}", "{count} selected"],
+  "history.showMore": ["Xem thêm {count} lượt (còn {remaining})", "Show {count} more ({remaining} left)"],
   "history.importJson": ["Nhập JSON", "Import JSON"],
   "history.exportJson": ["Xuất JSON", "Export JSON"],
   "history.exportCsv": ["Xuất CSV", "Export CSV"],
