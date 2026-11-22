@@ -8,17 +8,19 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  --canvas: #f4f5fb;
+  /* Phong cách mềm mại, tối giản: không viền, không bóng — các lớp chỉ tách
+     nhau bằng sắc độ nền rất nhẹ và góc bo lớn. */
+  --canvas: #f5f4f1;
   --surface: #ffffff;
-  --surface-2: #f7f8fd;
-  --surface-3: #eef0fa;
-  --ink: #10142a;
-  --muted: #59617f;
-  --line: #e3e6f1;
+  --surface-2: #f3f2ee;
+  --surface-3: #e9e7e1;
+  --ink: #1f2330;
+  --muted: #5f6474;
+  --line: #e9e7e1;
 
-  --primary: #504fd3;
-  --primary-hover: #3f3e9f;
-  --primary-soft: #eeedff;
+  --primary: #5458c8;
+  --primary-hover: #474bb0;
+  --primary-soft: #eceafb;
   --accent: #077894;
   --accent-soft: #e6f8fc;
 
@@ -40,7 +42,7 @@
   --on-warning: #10142a;
 
   /* Chữ gợi ý trong ô nhập: đủ đậm để đạt 4.5:1 trên mọi nền ô nhập. */
-  --placeholder: #59617f;
+  --placeholder: #5f6474;
 
   --cube-stage: #11162a;
   --cube-stage-ink: #f2f5ff;
@@ -71,17 +73,17 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --canvas: #0b0f1b;
-  --surface: #141a2c;
-  --surface-2: #1a2137;
-  --surface-3: #222b45;
-  --ink: #e9edf9;
-  --muted: #9aa5c2;
-  --line: #283250;
+  --canvas: #16181d;
+  --surface: #1e2027;
+  --surface-2: #25282f;
+  --surface-3: #2e3139;
+  --ink: #e6e7eb;
+  --muted: #a2a6b2;
+  --line: #2e3139;
 
-  --primary: #8585f6;
-  --primary-hover: #9d9dff;
-  --primary-soft: #22254a;
+  --primary: #a4a7f2;
+  --primary-hover: #b6b8f5;
+  --primary-soft: #2b2d45;
   --accent: #22d3ee;
   --accent-soft: #0e2f3c;
 
@@ -101,7 +103,7 @@
   --on-danger: #0b1020;
   --on-warning: #0b1020;
 
-  --placeholder: #9aa5c2;
+  --placeholder: #a2a6b2;
 
   --cube-stage: #070a15;
   --cube-stage-ink: #edf1ff;
@@ -159,9 +161,9 @@
   --color-on-warning: var(--on-warning);
   --color-placeholder: var(--placeholder);
 
-  --radius-card: 1.5rem;
+  --radius-card: 1.75rem;
   --radius-panel: 1.25rem;
-  --radius-field: 0.875rem;
+  --radius-field: 1rem;
 
   --font-sans: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --font-mono: "SFMono-Regular", "Cascadia Code", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;

@@ -1141,7 +1141,7 @@ export default function TimerLab() {
                     )}
                   </div>
                   {scrambleLoading ? (
-                    <div className="rounded-card bg-surface p-5 sm:p-6 animate-pulse text-center">
+                    <div className="rounded-card bg-surface p-5 sm:p-6 text-center">
                       <span className="block h-3 rounded-full bg-surface-3 w-8/12 mx-auto" />
                       <span className="block h-3 rounded-full bg-surface-3 w-5/12 mx-auto mt-4" />
                     </div>
@@ -2136,7 +2136,7 @@ function EventWcaComparisonCard({
             {t("timer.wcaLinkHint")}
           </div>
         ) : loading ? (
-          <div className="animate-pulse mt-4">
+          <div className="mt-4">
             <span className="block h-3 rounded-full bg-surface-3 w-8/12" />
             <span className="block h-3 rounded-full bg-surface-3 w-5/12 mt-2" />
           </div>
@@ -2351,7 +2351,7 @@ function MultiBlindScrambleList({
   const { t } = useLanguage();
   if (loading)
     return (
-      <div className="animate-pulse mb-4">
+      <div className="mb-4">
         <span className="block h-3 rounded-full bg-surface-3 w-10/12" />
         <span className="block h-3 rounded-full bg-surface-3 w-8/12 mt-2" />
       </div>

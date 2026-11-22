@@ -146,7 +146,11 @@ export const solverWords: Dictionary = {
   "home.preparing": ["Đang chuẩn bị dữ liệu cube…", "Preparing cube data…"],
   "home.buildingMemo": ["Đang dựng memo 3-Style…", "Building 3-Style memo…"],
   "home.searching": ["Đang tìm {opening}…", "Searching {opening}…"],
-  "home.cameraSection": ["Quét camera · tùy chọn", "Camera scan · optional"],
+  "home.cameraScan": ["Quét bằng camera", "Scan with camera"],
+  "home.cameraScanHint": [
+    "Đưa từng mặt của khối vào khung để tự điền trạng thái.",
+    "Hold each face of the cube to the frame to fill in the state.",
+  ],
   "home.scrambleHint": [
     "Bạn đã nhập chuỗi xáo trộn của khối. Bấm nút Tìm cách giải khi sẵn sàng.",
     "You entered how the cube was mixed. Choose Find a solution when ready.",

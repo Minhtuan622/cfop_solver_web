@@ -77,7 +77,7 @@ function Router() {
 function AppFooter() {
   const { t } = useLanguage();
   return (
-    <footer data-focus-hide className="mt-auto bg-surface/50 py-8 backdrop-blur-sm">
+    <footer data-focus-hide className="mt-auto py-8">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
         <div>
           <p className="text-sm font-semibold tracking-tight text-ink">
@@ -117,14 +117,6 @@ function AppShell() {
   const { t } = useLanguage();
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-clip">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
-      >
-        <div className="absolute -top-40 right-[-12%] h-[34rem] w-[34rem] rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute left-[-15%] top-[28%] h-[30rem] w-[30rem] rounded-full bg-accent/10 blur-3xl" />
-        <div className="absolute bottom-[-20%] right-[20%] h-[26rem] w-[26rem] rounded-full bg-primary/5 blur-3xl" />
-      </div>
       <Suspense fallback={null}>
         <CfopCloudSync />
       </Suspense>

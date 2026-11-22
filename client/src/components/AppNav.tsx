@@ -84,14 +84,14 @@ export function AppNav() {
 
   return (
     <header data-focus-hide className="sticky top-0 z-40 px-3 pt-3 sm:px-4 lg:px-6">
-      <div className="mx-auto flex w-full max-w-[88rem] flex-wrap items-center gap-2 rounded-[1.4rem] bg-surface/90 bg-linear-to-b from-white/55 to-transparent px-3 py-2 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-surface/55 dark:from-white/10 sm:px-4">
+      <div className="mx-auto flex w-full max-w-[88rem] flex-wrap items-center gap-2 rounded-card bg-surface px-3 py-2 sm:px-4">
         <Link
           href="/"
           className="group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20"
           aria-label={t("nav.brandLabel")}
           onClick={closeMenus}
         >
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-linear-to-br from-primary to-accent text-white transition-transform duration-300 group-hover:-rotate-6">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary text-on-primary">
             <BoxSeam className="text-xl" />
           </span>
           <span className="min-w-0">

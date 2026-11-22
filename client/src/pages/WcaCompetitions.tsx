@@ -94,7 +94,6 @@ export default function WcaCompetitions() {
         className="relative overflow-hidden rounded-3xl bg-surface px-5 py-6 sm:px-8"
         aria-labelledby="wca-title"
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_0%,rgba(91,91,214,0.14),transparent_55%)]" />
         <div className="relative flex flex-wrap items-end justify-between gap-6">
           <div className="min-w-0 flex-1 basis-72">
             <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
