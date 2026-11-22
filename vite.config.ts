@@ -168,6 +168,10 @@ const plugins = [
   vitePluginOptionalAnalytics(analyticsEndpoint, analyticsWebsiteId),
 ];
 
+/** Các chunk của cubing.js chạy trong worker sinh scramble (xem `modulePreload`). */
+const CUBING_WORKER_CHUNK =
+  /(search-worker-entry|inside-[A-Z0-9]+|search-dynamic-|twips-)/;
+
 export default defineConfig({
   plugins,
   resolve: {
@@ -195,8 +199,27 @@ export default defineConfig({
     // Their raw chunks are intentionally larger than Vite's generic 500 kB
     // advisory, while their gzip sizes remain suitable for an on-demand view.
     chunkSizeWarningLimit: 750,
+    // Bộ sinh scramble của cubing.js chạy trong Web Worker. Vite bọc mọi
+    // import() động bằng hàm preload, và hàm đó dùng `document` khi có danh
+    // sách phụ thuộc — trong worker không có `document`, nên worker chết ngay
+    // lúc khởi động và Timer luôn rơi về scramble dự phòng (không chuẩn WCA).
+    // Danh sách rỗng thì hàm preload chỉ gọi import(), an toàn trong worker.
+    modulePreload: {
+      resolveDependencies: (filename, deps, { hostId }) =>
+        CUBING_WORKER_CHUNK.test(hostId) || CUBING_WORKER_CHUNK.test(filename)
+          ? []
+          : deps,
+    },
     rollupOptions: {
       output: {
+        // Mã băm tên file được tính trước khi Vite ghi danh sách preload vào
+        // chunk, nên sửa `modulePreload` ở trên không làm đổi tên các chunk
+        // worker của cubing.js — trình duyệt sẽ giữ bản hỏng trong cache.
+        // Hậu tố "-w2" buộc tải bản mới; tăng số này nếu phải đổi lại.
+        chunkFileNames: chunk =>
+          CUBING_WORKER_CHUNK.test(chunk.name)
+            ? "assets/[name]-w2-[hash].js"
+            : "assets/[name]-[hash].js",
         manualChunks(id) {
           // Do not force recharts into a manual chunk: Rollup would then pull
           // its React dependency into that chunk, and the entry would have to

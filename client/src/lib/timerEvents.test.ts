@@ -65,6 +65,17 @@ describe("timer events", () => {
     expect(scramble.split(/\s+/).length).toBeGreaterThanOrEqual(17);
   });
 
+  it("tự sinh 2×2, 6×6 và Clock theo định dạng TNoodle (WCA)", async () => {
+    const two = (await generateTimerScramble("222")).split(" ");
+    expect(two.every(move => /^[RUF]['2]?$/.test(move))).toBe(true);
+    const six = (await generateTimerScramble("666")).split(" ");
+    expect(six).toHaveLength(80);
+    expect(six.filter(move => move.startsWith("3")).every(move => /^3[URF]w/.test(move))).toBe(true);
+    const clock = (await generateTimerScramble("clock")).split(" ");
+    expect(clock.slice(0, 9).map(move => move.replace(/[0-6][+-]$/, ""))).toEqual(["UR", "DR", "DL", "UL", "U", "R", "D", "L", "ALL"]);
+    expect(clock[9]).toBe("y2");
+  });
+
   it("has a non-empty local fallback for every event in the selector", () => {
     for (const eventId of ["222", "333", "333oh", "333bf", "333fm", "333mbf", "444", "444bf", "555", "555bf", "666", "777", "pyram", "skewb", "minx", "fto", "sq1", "clock"] as const) {
       expect(fallbackTimerScramble(eventId), eventId).not.toBe("");
