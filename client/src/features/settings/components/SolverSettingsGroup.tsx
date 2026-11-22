@@ -1,6 +1,6 @@
 import { SettingRow } from "./SettingRow";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Info } from "@/components/ui/Icon";
+import { ChevronRight, Info } from "@/components/ui/Icon";
 import { SectionCard, Switch } from "@/components/ui/StudioUI";
 import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
 import type { SolverSettings } from "@/lib/appSettings";
@@ -265,8 +265,12 @@ export function SolverSettingsGroup({
           </Select>
         </SettingRow>
 
-        <details className="rounded-panel bg-surface-2 text-sm text-muted">
-          <summary className="cursor-pointer rounded-t-card px-4 py-3 font-semibold text-ink first:rounded-t-card [&::-webkit-details-marker]:hidden">
+        <details className="group rounded-panel bg-surface-2 text-sm text-muted">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 font-semibold text-ink [&::-webkit-details-marker]:hidden">
+            <ChevronRight
+              aria-hidden="true"
+              className="text-base text-muted transition-transform group-open:rotate-90"
+            />
             {t("settings.directNote")}
           </summary>
           <p className="mb-0 mt-2 px-4 py-3">

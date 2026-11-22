@@ -28,7 +28,8 @@ export function NavOverflowMenu({
       className="w-full xl:w-auto"
       buttonClassName={cn(
         "w-full justify-between xl:w-auto xl:justify-center",
-        anyActive && "bg-surface-2 text-ink"
+        anyActive &&
+          "bg-primary text-on-primary hover:bg-primary-hover hover:text-on-primary data-[state=open]:bg-primary-hover"
       )}
       button={<span>{t("nav.more")}</span>}
     >

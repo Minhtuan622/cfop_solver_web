@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { SIGN_IN_EVENT } from "@/lib/signInRequest";
 import { Link } from "wouter";
 import { Dropdown, DropdownItem, DropdownRadioGroup, DropdownRadioItem } from "@/components/ui/Dropdown";
 import {
@@ -42,6 +43,13 @@ export function NavUtilityMenu() {
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const session = useCfopAccountSession();
+  const showSession = session.show;
+  // Nút "Đăng nhập" ở các trang (Phòng thi, Xếp hạng) mở cùng hộp đăng nhập này.
+  useEffect(() => {
+    const open = () => showSession("login");
+    window.addEventListener(SIGN_IN_EVENT, open);
+    return () => window.removeEventListener(SIGN_IN_EVENT, open);
+  }, [showSession]);
 
   const themeLabels = useMemo(
     () => ({

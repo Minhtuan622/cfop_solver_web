@@ -15,6 +15,7 @@ import {
   Play,
   Sparkles,
   Timer,
+  ChevronDown,
 } from "@/components/ui/Icon";
 import { Link, useLocation } from "wouter";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -1344,12 +1345,10 @@ export default function TimerLab() {
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-base font-semibold tracking-tight sm:px-6">
                 {t("timer.analyticsTitle")}
-                <span
+                <ChevronDown
                   aria-hidden="true"
-                  className="text-muted transition-transform group-open:rotate-180"
-                >
-                  ▾
-                </span>
+                  className="text-base text-muted transition-transform group-open:rotate-180"
+                />
               </summary>
               <div className="grid grid-cols-12 gap-6 px-5 pb-6 sm:px-6">
                 {!isMultiBlind && (

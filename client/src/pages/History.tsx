@@ -634,10 +634,10 @@ export default function History() {
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <Link
                   href="/timer"
-                  aria-label={t("history.openTimer")}
                   className={`${buttonClass("primary", "sm")}`}
                 >
                   <Play className="text-base" />
+                  {t("history.openTimer")}
                 </Link>
                 <button
                   type="button"

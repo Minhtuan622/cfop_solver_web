@@ -70,7 +70,7 @@ export function StudyToolbar({
       <div
         // Điện thoại: một hàng cuộn ngang để phần học không bị đẩy xuống xa;
         // màn hình vừa trở lên: lưới.
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6"
+        className="scroll-fade-x -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:[mask-image:none] sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6"
         role="group"
         aria-label={t("study.laneLabel")}
       >

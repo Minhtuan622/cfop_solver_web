@@ -27,6 +27,7 @@ import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import type { Translate } from "@/lib/i18n";
 import { PersonCircle } from "@/components/ui/Icon";
 import { buttonClass } from "@/components/ui/Button";
+import { requestSignIn } from "@/lib/signInRequest";
 
 function formatDate(value: Date | string, language: Language) {
   return new Date(value).toLocaleString(language === "vi" ? "vi-VN" : "en-US", {
@@ -420,7 +421,7 @@ function LeaderboardHome() {
           </Link>
         }
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4 mb-6">
         <div>
           <StatTile
             label={t("competition.stat.players")}
@@ -533,6 +534,15 @@ function LeaderboardHome() {
               <StatusFeedback
                 tone="secondary"
                 title={t("competition.myHistory.signInTitle")}
+                action={
+                  <button
+                    type="button"
+                    onClick={requestSignIn}
+                    className={buttonClass("primary", "sm")}
+                  >
+                    {t("account.signIn")}
+                  </button>
+                }
               >
                 {t("competition.myHistory.signInDetail")}
               </StatusFeedback>
