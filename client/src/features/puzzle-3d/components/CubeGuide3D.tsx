@@ -34,6 +34,8 @@ export type CubeGuide3DProps = {
   alignCross?: boolean;
   /** Mũi tên trái/phải/lên/xuống xoay góc nhìn (dùng cho chế độ chơi bằng bàn phím). */
   orbitKeys?: boolean;
+  /** Chiều cao tối thiểu của khung khối (px), mặc định 288. */
+  stageHeight?: number;
 };
 
 const FACE_ORDER: Array<"U" | "R" | "F" | "D" | "L" | "B"> = [
@@ -205,6 +207,9 @@ const ALIGN_ROTATIONS: Record<string, { axis: "x" | "z"; angle: number } | null>
   L: { axis: "z", angle: Math.PI / 2 }, // z — L → D
 };
 
+/** Góc nhìn dọc (độ) khi khung vuông hoặc rộng hơn cao. */
+const BASE_FOV = 34;
+
 function alignQuaternionFor(crossColor: string) {
   const spec = ALIGN_ROTATIONS[crossColor] ?? null;
   const quaternion = new THREE.Quaternion();
@@ -295,6 +300,7 @@ export function CubeGuide3D({
   initialYaw = 0.55,
   initialPitch = 0.3,
   orbitKeys = false,
+  stageHeight = 288,
 }: CubeGuide3DProps) {
   const { language } = useLanguage();
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -466,7 +472,7 @@ export function CubeGuide3D({
     activeRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     activeRenderer.setClearColor(0x000000, 0);
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 50);
+    const camera = new THREE.PerspectiveCamera(BASE_FOV, 1, 0.1, 50);
     const alignGroup = new THREE.Group();
     alignGroup.quaternion.copy(alignQuaternionFor(alignCross ? crossColor : "D"));
     scene.add(alignGroup);
@@ -482,6 +488,12 @@ export function CubeGuide3D({
       const height = Math.max(220, host.clientHeight || (dimension === 2 ? 260 : 320));
       activeRenderer.setSize(width, height, false);
       camera.aspect = width / height;
+      // Khung hẹp hơn cao (điện thoại): mở rộng góc nhìn dọc để góc nhìn
+      // ngang giữ như khung vuông — khối luôn vừa chiều ngang, không bị cắt.
+      camera.fov =
+        camera.aspect < 1
+          ? (2 * Math.atan(Math.tan((BASE_FOV * Math.PI) / 360) / camera.aspect) * 180) / Math.PI
+          : BASE_FOV;
       camera.updateProjectionMatrix();
       const orbit = orbitRef.current;
       root.rotation.set(orbit.pitch, orbit.yaw, 0);
@@ -742,7 +754,7 @@ export function CubeGuide3D({
         role="img"
         className="interactive-cube-stage h-full w-full"
         style={{
-          minHeight: 288,
+          minHeight: stageHeight,
           touchAction: "none",
           cursor: "grab",
           // `.interactive-cube-stage` trong cube.css đặt nền đặc
