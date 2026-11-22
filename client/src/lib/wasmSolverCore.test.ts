@@ -20,6 +20,21 @@ beforeAll(() => {
 });
 
 describe("handleWasmRequest", () => {
+  it("trả về số move cross tối ưu cho từng mặt", () => {
+    const solved = handleWasmRequest(wasm, { id: 1, command: "cross", kind: "state", value: SOLVED }, () => {});
+    if (solved.type !== undefined || !solved.ok) throw new Error("expected success");
+    expect(JSON.parse(solved.output!)).toEqual({ U: 0, R: 0, F: 0, D: 0, L: 0, B: 0 });
+
+    const reply = handleWasmRequest(wasm, { id: 2, command: "cross", kind: "scramble", value: "R" }, () => {});
+    if (reply.type !== undefined || !reply.ok) throw new Error("expected success");
+    expect(JSON.parse(reply.output!)).toEqual({ U: 1, R: 1, F: 1, D: 1, L: 0, B: 1 });
+  });
+
+  it("báo lỗi cross khi scramble làm lệch tâm", () => {
+    const reply = handleWasmRequest(wasm, { id: 3, command: "cross", kind: "scramble", value: "x" }, () => {});
+    expect(reply.type === undefined && reply.ok).toBe(false);
+  });
+
   it("giải scramble và trả về đúng tài liệu SolverResult", () => {
     const posts: unknown[] = [];
     const reply = handleWasmRequest(

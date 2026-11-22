@@ -26,12 +26,16 @@ export type SolveRequest = {
 
 export type SolverProgress = { stage: string; nodes: number };
 
+export type CrossLengths = Record<"U" | "R" | "F" | "D" | "L" | "B", number>;
+
 export interface SolverEngine {
   solve(
     request: SolveRequest,
     onProgress?: (progress: SolverProgress) => void
   ): Promise<SolverResult>;
   analyzeBld(kind: "scramble" | "state", value: string): Promise<BldResult>;
+  /** Số move cross tối ưu (HTM) cho từng màu tâm, theo chữ cái mặt URFDLB. */
+  crossLengths(kind: "scramble" | "state", value: string): Promise<CrossLengths>;
   /** Giữ cho tương thích API: worker và file `.wasm` được tải lười. */
   warmup(): Promise<void>;
   /** Huỷ mọi request đang chờ (reject bằng `SolverCancelledError`). */
@@ -105,6 +109,10 @@ export class WasmSolverEngine implements SolverEngine {
 
   analyzeBld(kind: "scramble" | "state", value: string): Promise<BldResult> {
     return this.post<BldResult>({ command: "bld", kind, value });
+  }
+
+  crossLengths(kind: "scramble" | "state", value: string): Promise<CrossLengths> {
+    return this.post<CrossLengths>({ command: "cross", kind, value });
   }
 
   async warmup(): Promise<void> {

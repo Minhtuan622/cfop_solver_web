@@ -58,9 +58,12 @@ fn fixed_order_and_other_colors() {
                 slot_order: SlotOrder::Fixed([2, 0, 3, 1]),
                 ..Default::default()
             };
+            // A pair can already be solved right after the cross; only the
+            // unsolved ones get a substep.
+            let unsolved = (0..4).filter(|&j| !slot_solved(&c, color, j)).count();
             let r = solve_f2l_with(&c, &opts).unwrap();
             assert!(cross_solved(&r.state, color) && f2l_done(&r.state, color));
-            assert_eq!(r.substeps.len(), 4);
+            assert_eq!(r.substeps.len(), unsolved);
         }
     }
 }

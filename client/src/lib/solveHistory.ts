@@ -9,7 +9,8 @@ import {
 } from "./cstimer";
 import { formatMultiBlindTime, multiBlindResult, type MultiBlindAttempt } from "./multiBlind";
 import { normalizeTimerEventId, type TimerEventId } from "./timerEvents";
-import { stateFromScramble } from "./fastCube";
+import { readSolverSettings } from "./appSettings";
+import { orientForCross, scrambledState } from "./scrambleOrientation";
 
 export const SPLIT_PHASES = ["Cross", "F2L", "OLL", "PLL"] as const;
 export type SplitPhase = (typeof SPLIT_PHASES)[number];
@@ -309,6 +310,12 @@ export function formatSolveResult(entry: SolveHistoryEntry) {
  * A solve is stored either as a scramble or as a full state, so the state is
  * only replayed when the entry already carries one.
  */
+/**
+ * Khối lúc bắt đầu giải: tráo cầm trắng U, xanh lá F rồi lật màu cross trong
+ * Cài đặt về D — lời giải người dùng nhập được viết theo hướng đang cầm này.
+ */
 export function initialStateFor(entry: SolveHistoryEntry) {
-  return entry.inputKind === "state" && entry.input.length === 54 ? entry.input : stateFromScramble(entry.input);
+  return entry.inputKind === "state" && entry.input.length === 54
+    ? entry.input
+    : orientForCross(scrambledState(entry.input), readSolverSettings().crossColor);
 }

@@ -13,8 +13,11 @@ export type SolverSettings = {
 };
 
 const SOLVER_SETTINGS_KEY = "cfop-app-solver-settings-v1";
+
+/** "on": đồng hồ chỉ hiện "Đang giải…" khi đang chạy (Cài đặt → Timer). */
+export const HIDE_RUNNING_TIME_KEY = "cfop-hide-running-time";
 export const DEFAULT_SOLVER_SETTINGS: SolverSettings = {
-  crossColor: "U",
+  crossColor: "D", // trắng (khung studio: trắng ở D)
   opening: "cross",
   openingDepth: 8,
   openingFindResult: false,

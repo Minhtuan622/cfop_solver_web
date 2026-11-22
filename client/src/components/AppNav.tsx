@@ -83,7 +83,7 @@ export function AppNav() {
   };
 
   return (
-    <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4 lg:px-6">
+    <header data-focus-hide className="sticky top-0 z-40 px-3 pt-3 sm:px-4 lg:px-6">
       <div className="mx-auto flex w-full max-w-[88rem] flex-wrap items-center gap-2 rounded-[1.4rem] bg-surface/90 bg-linear-to-b from-white/55 to-transparent px-3 py-2 backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-surface/55 dark:from-white/10 sm:px-4">
         <Link
           href="/"

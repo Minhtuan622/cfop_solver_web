@@ -5,10 +5,6 @@
 # ---------------------------------------------------------------------------
 FROM rust:1.97-slim-bookworm AS solver
 
-# wasm-opt (Binaryen) shrinks the module further after wasm-pack.
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends binaryen \
-  && rm -rf /var/lib/apt/lists/*
 RUN rustup target add wasm32-unknown-unknown
 
 # Tool versions are pinned; wasm-bindgen-cli must match the wasm-bindgen
@@ -33,10 +29,11 @@ COPY packages/solver ./
 # builds; the artifact is copied out of the cache into the image layer.
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
   --mount=type=cache,target=/app/packages/solver/target \
-  wasm-pack build solver-wasm --target web --release --out-dir pkg --no-pack \
-  && wasm-opt -Os --enable-bulk-memory --enable-nontrapping-float-to-int \
-     --enable-sign-ext --enable-mutable-globals \
-     solver-wasm/pkg/solver_wasm_bg.wasm -o solver-wasm/pkg/solver_wasm_bg.wasm
+  wasm-pack build solver-wasm --target web --release --out-dir pkg --no-pack
+# No wasm-opt pass here: Debian bookworm ships Binaryen 108, which rewrites the
+# externref table that wasm-bindgen 0.2.130 emits, and the module then fails
+# to instantiate ("WebAssembly.Table.set(): ... function-typed object").
+# Skipping it costs about 13 KB gzipped.
 
 # ---------------------------------------------------------------------------
 # Stage "build": Node dependencies and the web build, discarded afterwards.

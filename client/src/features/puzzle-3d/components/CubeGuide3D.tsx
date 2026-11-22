@@ -21,7 +21,6 @@ export type CubeGuide3DProps = {
   /** Thời lượng một nước, mặc định 340ms. */
   turnDurationMs?: number;
   dimension?: 2 | 3;
-  inspectCross?: boolean;
   crossColor?: string;
   xcrossSlots?: string[];
   lastLayerCase?: { family: string; id: string } | null;
@@ -84,7 +83,6 @@ const XROSS_STICKERS: Record<string, Partial<Record<string, number[]>>> = {
   BL: { D: [6], B: [5, 8], L: [3, 6] },
   BR: { D: [8], B: [3, 6], R: [5, 8] },
 };
-const CROSS_EDGES = [1, 3, 5, 7];
 
 function indexFor(face: string, x: number, y: number, z: number) {
   switch (face) {
@@ -127,9 +125,6 @@ function parseMove(move: string) {
 }
 
 function highlightedIndexes(
-  state: string,
-  inspectCross: boolean,
-  crossColor: string,
   xcrossSlots: string[] | undefined,
   lastLayerCase: { family: string; id: string } | null | undefined,
   specialStickers: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>> | undefined,
@@ -143,18 +138,6 @@ function highlightedIndexes(
     const rawPos = inverse[FACE_OFFSET[face] + faceIndex];
     return `${faceOfPos(rawPos)}:${rawPos % 9}`;
   };
-  /** Letter shown at an aligned-frame face/index, read from the raw state. */
-  const alignedLetter = (face: string, faceIndex: number) => {
-    const pos = FACE_OFFSET[face] + faceIndex;
-    return inverse ? state[inverse[pos]] : state[pos];
-  };
-  if (inspectCross) {
-    for (const index of CROSS_EDGES) {
-      if (alignedLetter("D", index) === crossColor) {
-        highlight.set(rawKey("D", index), { color: "#ffffff", intensity: 0.6 });
-      }
-    }
-  }
   if (xcrossSlots?.length) {
     for (const slot of xcrossSlots) {
       const slotMap = XROSS_STICKERS[slot];
@@ -214,7 +197,7 @@ type TrackedScene = {
  * state — cubie quay sai lớp và sticker nhảy loạn ở cuối mỗi bước.
  */
 const ALIGN_ROTATIONS: Record<string, { axis: "x" | "z"; angle: number } | null> = {
-  U: { axis: "x", angle: Math.PI }, // x2 — khối 180° quanh x: U ↔ D
+  U: { axis: "z", angle: Math.PI }, // z2 — U ↔ D, xanh lá vẫn ở trước
   D: null,
   F: { axis: "x", angle: Math.PI / 2 }, // x — F → D
   B: { axis: "x", angle: -Math.PI / 2 }, // x' — B → D
@@ -268,13 +251,16 @@ const WHOLE_CUBE_PERM: Record<string, number[]> = {
   ],
 };
 const ALIGN_PERM_KEY: Record<string, keyof typeof WHOLE_CUBE_PERM | null> = {
-  U: "x2",
+  U: "z2",
   D: null,
-  F: "x",
-  B: "x'",
-  R: "z'",
-  L: "z",
+  // Cùng phép xoay với bộ giải Rust (`CROSS_ROTATIONS`): đưa mặt cross về D.
+  F: "x'",
+  B: "x",
+  R: "z",
+  L: "z'",
 };
+// z2 = z hai lần (cùng quy ước với bảng hoán vị ở trên).
+WHOLE_CUBE_PERM.z2 = WHOLE_CUBE_PERM.z.map(index => WHOLE_CUBE_PERM.z[index]);
 function alignPermFor(crossColor: string) {
   const key = ALIGN_PERM_KEY[crossColor] ?? null;
   return key ? WHOLE_CUBE_PERM[key] : null;
@@ -300,7 +286,6 @@ export function CubeGuide3D({
   transition = "idle",
   turnDurationMs = 340,
   dimension = 3,
-  inspectCross = false,
   crossColor = "U",
   alignCross = false,
   xcrossSlots,
@@ -365,7 +350,6 @@ export function CubeGuide3D({
     bundle: TrackedScene,
     nextState: string,
     opts: {
-      inspectCross?: boolean;
       crossColor?: string;
       alignCross?: boolean;
       xcrossSlots?: string[];
@@ -384,9 +368,6 @@ export function CubeGuide3D({
     cubiesRef.current = [];
 
     const highlight = highlightedIndexes(
-      nextState,
-      opts.inspectCross ?? false,
-      opts.crossColor ?? "U",
       opts.xcrossSlots,
       opts.lastLayerCase,
       opts.specialStickers,
@@ -513,7 +494,6 @@ export function CubeGuide3D({
     sceneRef.current = { renderer: activeRenderer, scene, camera, root, alignGroup, host, resize };
     builtStateRef.current = state;
     buildFromState(sceneRef.current, state, {
-      inspectCross,
       crossColor,
       alignCross,
       xcrossSlots,
@@ -592,7 +572,6 @@ export function CubeGuide3D({
 
     const rebuild = () =>
       buildFromState(bundle, state, {
-        inspectCross,
         crossColor,
         alignCross,
         xcrossSlots,
@@ -615,7 +594,6 @@ export function CubeGuide3D({
     // animation may have left it behind. Cheap when already up to date.
     if (builtStateRef.current !== previousState) {
       buildFromState(bundle, previousState, {
-        inspectCross,
         crossColor,
         alignCross,
         xcrossSlots,

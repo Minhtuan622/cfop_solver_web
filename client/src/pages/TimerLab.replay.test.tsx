@@ -28,7 +28,9 @@ const replayFixture: SolveHistoryEntry = {
   inputKind: "scramble",
   moves: 2,
   penalty: "none",
-  solution: "U' R'",
+  // Tráo "R U" khi cầm trắng U, xanh lá F, rồi lật trắng xuống D: lời giải
+  // theo hướng đang cầm là D' L' (lượt R của scramble xoay mặt đỏ, nay ở L).
+  solution: "D' L'",
   note: "Fixture replay only",
   tags: ["test"],
   phaseSplits: [],
@@ -59,7 +61,7 @@ describe("Timer replay với solution đã lưu", () => {
     fireEvent.click(replayAction);
 
     expect(await screen.findByText("PHÁT LẠI SOLUTION THỰC TẾ")).toBeInTheDocument();
-    expect(screen.getByText("U' R'")).toBeInTheDocument();
+    expect(screen.getByText("D' L'")).toBeInTheDocument();
     // Không còn step-by-step: chỉ còn MOVES và TPS.
     const replayDialog = screen.getByRole("dialog", { name: "PHÁT LẠI SOLUTION THỰC TẾ" });
     expect(within(replayDialog).getByText("MOVES")).toBeInTheDocument();
@@ -92,20 +94,19 @@ describe("Timer replay với solution đã lưu", () => {
     expect(screen.getAllByText("Pyraminx").length).toBeGreaterThan(0);
     expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("pyram preview");
     expect(screen.queryByText(/Các công cụ CFOP\/3D chỉ áp dụng cho 3×3/i)).not.toBeInTheDocument();
-    expect(screen.getByText("Chưa có solve Pyraminx.")).toBeInTheDocument();
+    // Danh sách solve gần đây đã chuyển sang trang Lịch sử: chỉ còn nút mở.
+    expect(screen.getByRole("link", { name: "Mở History" })).toHaveAttribute("href", "/history");
     expect(screen.getByText("Liên kết WCA ID")).toBeInTheDocument();
 
     fireEvent.click(eventSelect);
     fireEvent.click(screen.getByRole("option", { name: "4×4×4" }));
     expect(await screen.findByText("444 scramble")).toBeInTheDocument();
     expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("444 preview");
-    expect(screen.getByText("Chưa có solve 4×4×4.")).toBeInTheDocument();
 
     fireEvent.click(eventSelect);
     fireEvent.click(screen.getByRole("option", { name: "3×3 BLD" }));
     expect(await screen.findByText("333bf scramble")).toBeInTheDocument();
     expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("333bf preview");
-    expect(screen.getByText("Chưa có solve 3×3 BLD.")).toBeInTheDocument();
   });
 
   it("ghi điểm Multi-Blind từ số khối giải đúng và thời gian sau khi dừng timer", async () => {
@@ -125,6 +126,9 @@ describe("Timer replay với solution đã lưu", () => {
     expect(await screen.findByText("Xác nhận kết quả Multi-Blind")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Số khối giải đúng Multi-Blind"), { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: "Lưu điểm Multi-Blind" }));
-    expect(await screen.findByText(/3\/4 · 2đ · 0:30/)).toBeInTheDocument();
+    expect(await screen.findByText("Đã lưu lượt vào nhật ký.")).toBeInTheDocument();
+    // Lượt Multi-Blind được ghi vào nhật ký (trang Lịch sử đọc từ đây).
+    const saved = JSON.parse(localStorage.getItem("cfop-solve-history-v1") ?? "[]");
+    expect(saved[0]).toMatchObject({ eventId: "333mbf" });
   });
 });

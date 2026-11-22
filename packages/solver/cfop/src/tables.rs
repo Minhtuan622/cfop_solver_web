@@ -303,8 +303,10 @@ fn rotations() -> Vec<Cube> {
 }
 
 /// Rotation bringing each cross color to D. The Studio names F2L slots in this
-/// view, so the convention is fixed: U x2, R z, F x', D -, L z', B x.
-const CROSS_ROTATIONS: [&str; 6] = ["x2", "z", "x'", "", "z'", "x"];
+/// view, so the convention is fixed: U z2, R z, F x', D -, L z', B x.
+/// U uses z2 (not x2) so a yellow cross keeps green in front: exactly how the
+/// cube is held after a WCA scramble (white U, green F) — no rotation needed.
+const CROSS_ROTATIONS: [&str; 6] = ["z2", "z", "x'", "", "z'", "x"];
 
 fn build_frame(color: usize) -> Frame {
     let g = Cube::from_moves(&cube_core::parse_moves(CROSS_ROTATIONS[color]).expect("rotation"));

@@ -23,8 +23,19 @@ import { Button } from "@/components/ui/Button";
 const COLLAPSED_PHASES = 4;
 type Phase = SolverResult["phases"][number];
 
+const CROSS_COLOR_KEY: Record<string, string> = {
+  U: "settings.color.yellow",
+  R: "settings.color.orange",
+  F: "settings.color.green",
+  D: "settings.color.white",
+  L: "settings.color.red",
+  B: "settings.color.blue",
+};
+
 export function CfopReport({
   result,
+  setupRotation,
+  crossColor,
   language,
   activePhase,
   cursor,
@@ -32,6 +43,9 @@ export function CfopReport({
   onSelectMove,
 }: {
   result: SolverResult;
+  /** Phép xoay trước khi giải để màu cross nằm ở D ("" = không cần xoay). */
+  setupRotation?: string;
+  crossColor?: string;
   language: "vi" | "en";
   activePhase: string | null;
   cursor: number;
@@ -67,6 +81,25 @@ export function CfopReport({
           className="rounded-full bg-surface-2 px-3 py-1.5 text-xs text-ink transition hover:bg-surface-3"
         />
       </div>
+      {setupRotation !== undefined && crossColor ? (
+        <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl bg-surface-2 px-3 py-2 text-sm text-ink">
+          <span className="font-semibold">{t("home.setupRotationLabel")}</span>
+          {setupRotation ? (
+            <code className="rounded-md bg-surface px-2 py-0.5 font-mono font-semibold">
+              {setupRotation}
+            </code>
+          ) : null}
+          <span className="text-muted">
+            {setupRotation
+              ? t("home.setupRotationHint", {
+                  color: t(CROSS_COLOR_KEY[crossColor] ?? ""),
+                })
+              : t("home.setupRotationNone", {
+                  color: t(CROSS_COLOR_KEY[crossColor] ?? ""),
+                })}
+          </span>
+        </div>
+      ) : null}
       {visible.map((phase, index) => (
         <CfopPhaseRow
           key={phase.name}
@@ -127,9 +160,7 @@ function CfopPhaseRow({
     <article
       className={cn(
         "mb-2.5 rounded-panel p-3 transition",
-        selected
-          ? "bg-primary-soft/60"
-          : "bg-surface-2"
+        selected ? "bg-primary-soft/60" : "bg-surface-2"
       )}
     >
       <div className="flex items-center gap-3">

@@ -93,15 +93,10 @@ export const settingsWords: Dictionary = {
     "Beeps at the chosen BPM while you solve.",
   ],
   "settings.metronomeBpm": ["Nhịp độ (BPM)", "Metronome BPM"],
-  "settings.highlight": ["Highlight Cross khi inspection", "Highlight Cross during inspection"],
-  "settings.highlightHelp": [
-    "Làm rõ các mảnh thuộc màu Cross đã chọn trên Cube 3D.",
-    "Emphasizes the cubies matching the chosen Cross color on Cube 3D.",
-  ],
-  "settings.splits": ["Speed splits", "Speed splits"],
-  "settings.splitsHelp": [
-    "Space / Enter / chạm Timer lần lượt đánh dấu Cross → F2L → OLL → PLL.",
-    "Space / Enter / touch marks Cross → F2L → OLL → PLL in order.",
+  "settings.hideRunningTime": ["Ẩn thời gian khi đang giải", "Hide the time while solving"],
+  "settings.hideRunningTimeHelp": [
+    "Trong lúc giải, đồng hồ chỉ hiện \"Đang giải…\"; dừng lại thì hiện thời gian thật.",
+    "While solving the timer only shows \"Solving…\"; the real time appears when you stop.",
   ],
   "settings.dailyGoal": ["Mục tiêu case mỗi ngày", "Daily case goal"],
   "settings.dailyGoalHelp": ["Áp dụng cho danh sách ôn Study/SRS.", "Applies to the Study/SRS review list."],

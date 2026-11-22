@@ -78,3 +78,28 @@ fn rejects_rotated_cube() {
     let cube = Cube::from_moves(&parse_moves("x").unwrap());
     assert_eq!(solve_cross(&cube), Err(Error::CentersNotHome));
 }
+
+#[test]
+fn cross_lengths_match_optimal_solves() {
+    let mut rng = Rng::new(2026);
+    for _ in 0..200 {
+        let cube = Cube::from_moves(&rng.scramble(25));
+        let lengths = cfop::cross_lengths(&cube).unwrap();
+        for color in Face::ALL {
+            let opts = CrossOptions {
+                color,
+                ..Default::default()
+            };
+            let optimal = solve_cross_with(&cube, &opts).unwrap().moves.len();
+            assert_eq!(lengths[color.index()] as usize, optimal, "{color:?}");
+        }
+    }
+}
+
+#[test]
+fn cross_lengths_of_solved_and_one_move() {
+    assert_eq!(cfop::cross_lengths(&Cube::default()).unwrap(), [0; 6]);
+    let cube = Cube::from_moves(&parse_moves("R").unwrap());
+    // R cycles the R-cross edges too; only the L cross is untouched.
+    assert_eq!(cfop::cross_lengths(&cube).unwrap(), [1, 1, 1, 1, 0, 1]);
+}

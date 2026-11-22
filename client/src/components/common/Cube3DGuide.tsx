@@ -25,9 +25,7 @@ export function Cube3DGuide({
   move,
   dimension = 3,
   crossColor = "U",
-  inspection = false,
   alignCross = false,
-  highlightCross = true,
   xcrossSlots,
   lastLayerCase,
   specialStickers,
@@ -45,9 +43,7 @@ export function Cube3DGuide({
   step: number;
   dimension?: 2 | 3;
   crossColor?: string;
-  inspection?: boolean;
   alignCross?: boolean;
-  highlightCross?: boolean;
   xcrossSlots?: string[];
   lastLayerCase?: { family: string; id: string };
   specialStickers?: Partial<
@@ -63,8 +59,6 @@ export function Cube3DGuide({
   initialPitch?: number;
   surface?: "dark" | "light";
 }) {
-  const activeInspection = highlightCross && inspection;
-
   return (
     <div
       className={`w-full overflow-hidden rounded-card bg-surface ${
@@ -87,7 +81,6 @@ export function Cube3DGuide({
               transition={transition}
               turnDurationMs={turnDurationMs}
               dimension={dimension}
-              inspectCross={activeInspection}
               crossColor={crossColor}
               alignCross={alignCross}
               xcrossSlots={xcrossSlots}
