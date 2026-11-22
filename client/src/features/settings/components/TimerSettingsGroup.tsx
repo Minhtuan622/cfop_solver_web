@@ -1,5 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SectionCard, Switch } from "@/components/ui/StudioUI";
+import { Select } from "@/components/ui/Select";
+import { SettingRow } from "./SettingRow";
 
 /** The preferences of the timer: inspection cues, the metronome and hiding the running time. */
 export function TimerSettingsGroup({
@@ -36,7 +38,7 @@ export function TimerSettingsGroup({
       title={t("settings.group.timer")}
       description={t("settings.group.timerHelp")}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         <Switch
           id="setting-sound"
           checked={sound}
@@ -58,8 +60,8 @@ export function TimerSettingsGroup({
           label={t("settings.metronome")}
           help={t("settings.metronomeHelp")}
         />
-        <label className="flex flex-col gap-1.5">
-          <span className="mb-1.5 flex items-center justify-between text-sm font-medium text-ink">
+        <label className="flex flex-col gap-2">
+          <span className="flex items-center justify-between text-sm font-medium text-ink">
             {t("settings.metronomeBpm")}
             <strong className="tabular-nums">{metronomeBpm}</strong>
           </span>
@@ -82,22 +84,23 @@ export function TimerSettingsGroup({
           label={t("settings.hideRunningTime")}
           help={t("settings.hideRunningTimeHelp")}
         />
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-ink">
-            {language === "vi" ? "Cỡ scramble" : "Scramble size"}
-          </span>
-          <select
+        <SettingRow
+          label={language === "vi" ? "Cỡ scramble" : "Scramble size"}
+          htmlFor="setting-scramble-size"
+        >
+          <Select
+            id="setting-scramble-size"
+            className="w-40"
             value={scrambleSize}
             onChange={event =>
               onScrambleSizeChange(event.target.value as "sm" | "md" | "lg")
             }
-            className="rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink"
           >
             <option value="sm">{language === "vi" ? "Nhỏ" : "Small"}</option>
             <option value="md">{language === "vi" ? "Vừa" : "Medium"}</option>
             <option value="lg">{language === "vi" ? "Lớn" : "Large"}</option>
-          </select>
-        </label>
+          </Select>
+        </SettingRow>
       </div>
     </SectionCard>
   );

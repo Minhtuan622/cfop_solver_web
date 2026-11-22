@@ -1,5 +1,6 @@
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { SettingRow } from "./SettingRow";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SectionCard } from "@/components/ui/StudioUI";
 
@@ -13,26 +14,12 @@ export function AppearanceSettingsGroup() {
       description={t("settings.group.appearanceHelp")}
     >
       <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="grow">
-            <p className="mb-1.5 block text-sm font-medium text-ink mb-0">
-              {t("settings.language")}
-            </p>
-            <p className="text-sm text-muted mb-0">
-              {t("settings.languageHelp")}
-            </p>
-          </div>
+        <SettingRow label={t("settings.language")} help={t("settings.languageHelp")}>
           <LanguageSwitcher />
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="grow">
-            <p className="mb-1.5 block text-sm font-medium text-ink mb-0">
-              {t("settings.theme")}
-            </p>
-            <p className="text-sm text-muted mb-0">{t("settings.themeHelp")}</p>
-          </div>
+        </SettingRow>
+        <SettingRow label={t("settings.theme")} help={t("settings.themeHelp")}>
           <ThemeSwitcher />
-        </div>
+        </SettingRow>
       </div>
     </SectionCard>
   );

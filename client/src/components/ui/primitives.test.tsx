@@ -128,7 +128,9 @@ describe("ô nhập", () => {
     const input = screen.getByLabelText("Tên") as HTMLInputElement;
     expect(input.value).toBe("abc");
     expect(input.className).toContain("rounded-field");
-    expect(input.className).toContain("focus:ring-primary");
+    // Phong cách không viền: focus đổi nền đậm hơn một bậc, không có vòng ring.
+    expect(input.className).toContain("focus:bg-surface-3");
+    expect(input.className).not.toContain("ring");
   });
 
   it("Textarea có số dòng mặc định", () => {

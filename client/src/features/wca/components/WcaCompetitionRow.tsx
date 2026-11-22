@@ -13,11 +13,10 @@ import {
 } from "../lib/wcaCalendar";
 
 /**
- * One competition of the calendar, presented as a compact card: the date on
- * one line, the name as the link to the competition page, then the place and
- * venue and the events as single text lines. Cards tile into a grid so the
- * row never leaves one side empty. The website link is an icon on the top
- * right; the name stays the only text link.
+ * One competition of the calendar as a compact card: the date stands out in a
+ * soft tile on the left; the name (link to the competition page), the place
+ * and venue, and the events sit on the right. The website link is a small
+ * icon next to the name.
  */
 export function WcaCompetitionRow({
   competition,
@@ -48,25 +47,30 @@ export function WcaCompetitionRow({
     .join(" · ");
 
   return (
-    <li className="flex h-full flex-col rounded-2xl bg-surface p-3 sm:p-4">
-      <div className="flex items-center gap-2">
-        <span className="text-xl font-bold tabular-nums leading-none text-primary">
+    <li className="flex h-full gap-3 rounded-2xl bg-surface p-3 sm:p-4">
+      {/* Ngày nổi bật bên trái, thông tin gọn bên phải. */}
+      <div className="flex w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-surface-2 px-1 py-2 text-center">
+        <span className="text-lg font-bold leading-none tabular-nums text-ink">
           {range.days}
         </span>
-        <span className="text-[10px] font-semibold uppercase leading-tight tracking-wide text-muted">
+        <span className="mt-1 text-[10px] font-semibold uppercase leading-tight tracking-wide text-muted">
           {range.months}
         </span>
-        <span className="ml-auto flex items-center gap-1.5">
-          {ongoing ? (
-            <span className="inline-flex items-center rounded-full bg-success px-2 py-0.5 text-[9px] font-semibold text-on-success">
-              {t("wca.ongoing")}
-            </span>
-          ) : null}
-          {cancelled ? (
-            <span className="inline-flex items-center rounded-full bg-danger px-2 py-0.5 text-[9px] font-semibold text-on-danger">
-              {competitionStatusLabel(competition.status, t)}
-            </span>
-          ) : null}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-start gap-2">
+          <h3 className="min-w-0 flex-1">
+            <a
+              href={competition.wcaUrl}
+              target="_blank"
+              rel="noreferrer"
+              title={competition.name}
+              className="line-clamp-2 text-sm font-semibold leading-snug tracking-tight text-ink transition-colors hover:text-primary"
+            >
+              {competition.name}
+              <span className="sr-only"> — {t("wca.competitionPage")}</span>
+            </a>
+          </h3>
           {competition.website ? (
             <a
               href={competition.website}
@@ -74,60 +78,57 @@ export function WcaCompetitionRow({
               rel="noreferrer"
               aria-label={t("wca.website")}
               title={t("wca.website")}
-              className="inline-flex shrink-0 items-center justify-center rounded-full bg-surface-2 p-2 text-muted transition hover:bg-surface-3 hover:text-ink"
+              className="inline-flex shrink-0 items-center justify-center rounded-full p-1.5 text-muted transition-colors hover:bg-surface-2 hover:text-ink"
             >
               <ExternalLink className="text-xs" />
             </a>
           ) : null}
-        </span>
-      </div>
-      <h3 className="mt-2 min-w-0">
-        <a
-          href={competition.wcaUrl}
-          target="_blank"
-          rel="noreferrer"
-          title={competition.name}
-          className="line-clamp-2 text-sm font-semibold leading-snug tracking-tight text-ink hover:text-primary"
-        >
-          {competition.name}
-          <span className="sr-only"> — {t("wca.competitionPage")}</span>
-        </a>
-      </h3>
-      <p
-        className="mt-1.5 truncate text-[11px] text-muted"
-        title={[place || t("wca.locationUnknown"), venue.text].filter(Boolean).join(" · ")}
-      >
-        {flag ? (
-          <span aria-hidden="true">{flag} </span>
+        </div>
+        {ongoing || cancelled ? (
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {ongoing ? (
+              <span className="inline-flex items-center rounded-full bg-success-soft px-2 py-0.5 text-[10px] font-semibold text-success">
+                {t("wca.ongoing")}
+              </span>
+            ) : null}
+            {cancelled ? (
+              <span className="inline-flex items-center rounded-full bg-danger-soft px-2 py-0.5 text-[10px] font-semibold text-danger">
+                {competitionStatusLabel(competition.status, t)}
+              </span>
+            ) : null}
+          </div>
         ) : null}
-        <GeoAlt className="inline text-[10px] align-[-0.1em]" />{" "}
-        {place || t("wca.locationUnknown")}
-        {venue.text ? (
-          <>
-            <span aria-hidden="true"> · </span>
-            {venue.href ? (
-              <a
-                href={venue.href}
-                target="_blank"
-                rel="noreferrer"
-                className="text-ink underline decoration-line underline-offset-2 hover:text-primary"
-              >
-                {venue.text}
-              </a>
-            ) : (
-              <span className="text-ink">{venue.text}</span>
-            )}
-          </>
-        ) : null}
-      </p>
-      {eventsText ? (
         <p
-          className="mt-1 truncate text-[11px] text-muted"
-          title={eventsTitle}
+          className="mb-0 mt-1.5 truncate text-xs text-muted"
+          title={[place || t("wca.locationUnknown"), venue.text].filter(Boolean).join(" · ")}
         >
-          {eventsText}
+          {flag ? <span aria-hidden="true">{flag} </span> : null}
+          <GeoAlt className="inline text-[10px] align-[-0.1em]" />{" "}
+          {place || t("wca.locationUnknown")}
+          {venue.text ? (
+            <>
+              <span aria-hidden="true"> · </span>
+              {venue.href ? (
+                <a
+                  href={venue.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-ink transition-colors hover:text-primary"
+                >
+                  {venue.text}
+                </a>
+              ) : (
+                <span className="text-ink">{venue.text}</span>
+              )}
+            </>
+          ) : null}
         </p>
-      ) : null}
+        {eventsText ? (
+          <p className="mb-0 mt-1 truncate text-xs text-muted" title={eventsTitle}>
+            {eventsText}
+          </p>
+        ) : null}
+      </div>
     </li>
   );
 }

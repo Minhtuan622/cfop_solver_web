@@ -531,7 +531,7 @@ export default function Profile() {
             <div className="col-span-12 lg:col-span-6">
               <div className="flex flex-wrap items-center gap-4">
                 <div
-                  className="rounded-full bg-primary-soft text-primary flex items-center justify-center overflow-hidden shrink-0"
+                  className="rounded-full bg-surface-2 text-muted flex items-center justify-center overflow-hidden shrink-0"
                   style={{ width: 88, height: 88 }}
                   aria-label={t("profile.avatarAlt")}
                 >

@@ -32,7 +32,7 @@ export function PlayMovePad({
         "h-11 rounded-xl font-mono text-sm font-semibold transition-colors focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-40",
         rotation
           ? "bg-surface-2 text-muted hover:bg-surface-3 hover:text-ink active:bg-surface-3"
-          : "bg-primary-soft text-primary hover:bg-surface-3 active:bg-surface-3"
+          : "bg-surface-2 text-ink hover:bg-surface-3 active:bg-surface-3"
       )}
     >
       {move}

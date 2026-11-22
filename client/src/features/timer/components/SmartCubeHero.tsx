@@ -101,7 +101,7 @@ export function SmartCubeHero({
       className="relative rounded-card px-4 py-10 text-center transition-colors duration-150 @container bg-surface-2"
     >
       <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-        <Bluetooth className="text-base text-primary" aria-hidden="true" />
+        <Bluetooth className="text-base text-muted" aria-hidden="true" />
         <span>{t("timer.smartCube.heroLabel")}</span>
         {cubeName ? (
           <>

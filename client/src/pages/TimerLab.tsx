@@ -951,21 +951,21 @@ export default function TimerLab() {
             >
               <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
                 <Sparkles
-                  className="text-base text-primary"
+                  className="text-base text-muted"
                   aria-hidden="true"
                 />
                 {t("timer.digestStreak", { days: digest.streak })}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
                 <Calendar3
-                  className="text-base text-primary"
+                  className="text-base text-muted"
                   aria-hidden="true"
                 />
                 {t("timer.digestToday", { count: digest.todayCount })}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink">
                 <CircleGauge
-                  className="text-base text-primary"
+                  className="text-base text-muted"
                   aria-hidden="true"
                 />
                 {t("timer.digestAo5", { value: metric(averages.ao5) })}
@@ -1270,7 +1270,7 @@ export default function TimerLab() {
                   className="flex items-center gap-2 text-base font-semibold tracking-tight"
                 >
                   <BarChart3
-                    className="text-lg text-primary"
+                    className="text-lg text-muted"
                     aria-hidden="true"
                   />
                   {t("timer.summary")}

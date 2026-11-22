@@ -8,21 +8,22 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  /* Phong cách mềm mại, tối giản: không viền, không bóng — các lớp chỉ tách
-     nhau bằng sắc độ nền rất nhẹ và góc bo lớn. */
-  --canvas: #f5f4f1;
-  --surface: #ffffff;
-  --surface-2: #f3f2ee;
-  --surface-3: #e9e7e1;
-  --ink: #1f2330;
-  --muted: #5f6474;
-  --line: #e9e7e1;
+  /* Nền trung tính ấm (không ám xanh); màu nhấn xanh ngọc chỉ dành cho chỗ
+     quan trọng: nút chính, mục đang chọn, liên kết, số liệu nổi bật.
+     Không viền, không bóng: các lớp tách nhau bằng sắc độ nền. */
+  --canvas: #f8f7f3;
+  --surface: #fdfcfa;
+  --surface-2: #f0eee8;
+  --surface-3: #e7e4dc;
+  --ink: #1f2422;
+  --muted: #5a605d;
+  --line: #e7e4dc;
 
-  --primary: #5458c8;
-  --primary-hover: #474bb0;
-  --primary-soft: #eceafb;
-  --accent: #077894;
-  --accent-soft: #e6f8fc;
+  --primary: #0b7466;
+  --primary-hover: #085f54;
+  --primary-soft: #e1f1ec;
+  --accent: #1d6fa5;
+  --accent-soft: #e0eef8;
 
   --success: #0c7e57;
   --success-soft: #e7f8f0;
@@ -42,15 +43,15 @@
   --on-warning: #10142a;
 
   /* Chữ gợi ý trong ô nhập: đủ đậm để đạt 4.5:1 trên mọi nền ô nhập. */
-  --placeholder: #5f6474;
+  --placeholder: #5a605d;
 
   /* Nền sơ đồ khối: nhạt, phẳng, theo theme; đủ đậm để ô trắng vẫn nổi. */
-  --cube-stage: #e3e1da;
-  --cube-stage-ink: #1f2330;
-  --cube-stage-muted: #5f6474;
+  --cube-stage: #ebe8e1;
+  --cube-stage-ink: #1f2422;
+  --cube-stage-muted: #5a605d;
 
-  --chart-1: #5b5bd6;
-  --chart-2: #0891b2;
+  --chart-1: #0b7466;
+  --chart-2: #1d6fa5;
   --chart-3: #e11d48;
   --chart-4: #d97706;
   --chart-5: #0f9f6e;
@@ -74,19 +75,19 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --canvas: #16181d;
-  --surface: #1e2027;
-  --surface-2: #25282f;
-  --surface-3: #2e3139;
-  --ink: #e6e7eb;
-  --muted: #a2a6b2;
-  --line: #2e3139;
+  --canvas: #161616;
+  --surface: #1f1f1e;
+  --surface-2: #2a2a28;
+  --surface-3: #353532;
+  --ink: #ececea;
+  --muted: #a9a9a4;
+  --line: #353532;
 
-  --primary: #a4a7f2;
-  --primary-hover: #b6b8f5;
-  --primary-soft: #2b2d45;
-  --accent: #22d3ee;
-  --accent-soft: #0e2f3c;
+  --primary: #4fd1bc;
+  --primary-hover: #72dcca;
+  --primary-soft: #1a3a34;
+  --accent: #7cc4f2;
+  --accent-soft: #15334a;
 
   --success: #34d399;
   --success-soft: #102f25;
@@ -98,20 +99,20 @@
   --info-soft: #17264b;
 
   /* Nền màu ở chế độ tối là màu sáng, nên chữ trên nền đó phải là chữ tối
-     để vẫn đạt WCAG AA (tím sáng #8585f6 với chữ trắng chỉ đạt 3.14:1). */
-  --on-primary: #0b1020;
+     để vẫn đạt WCAG AA (xanh ngọc sáng #4fd1bc với chữ trắng không đủ tương phản). */
+  --on-primary: #05211d;
   --on-success: #0b1020;
   --on-danger: #0b1020;
   --on-warning: #0b1020;
 
-  --placeholder: #a2a6b2;
+  --placeholder: #a9a9a4;
 
-  --cube-stage: #2b2e36;
-  --cube-stage-ink: #e6e7eb;
-  --cube-stage-muted: #a2a6b2;
+  --cube-stage: #2a2a28;
+  --cube-stage-ink: #ececea;
+  --cube-stage-muted: #a9a9a4;
 
-  --chart-1: #8585f6;
-  --chart-2: #22d3ee;
+  --chart-1: #4fd1bc;
+  --chart-2: #7cc4f2;
   --chart-3: #fb7185;
   --chart-4: #fbbf24;
   --chart-5: #34d399;
@@ -194,12 +195,22 @@
 
   ::selection {
     background: var(--primary);
-    color: #fff;
+    color: var(--on-primary);
   }
 
   :focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
+  }
+
+  /* Mục trong menu/ô chọn: Radix chuyển focus vào mục ngay khi rê chuột, nên
+     :focus-visible khớp và hiện viền khi hover. Các mục này đã đổi nền khi
+     đang trỏ (data-highlighted), nên không bao giờ vẽ viền focus. */
+  [role="menuitem"]:focus-visible,
+  [role="menuitemradio"]:focus-visible,
+  [role="menuitemcheckbox"]:focus-visible,
+  [role="option"]:focus-visible {
+    outline: none;
   }
 
   [aria-busy="true"] {

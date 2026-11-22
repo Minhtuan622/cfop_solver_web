@@ -69,8 +69,8 @@ export function StudySchedulePanel({
                       33px trong ô). Không dùng `whitespace-nowrap` để khi thiếu
                       chỗ nó xuống dòng chứ không tràn ra ngoài ô.
 
-                      Ô hôm nay nền tím nên chữ phải là chữ trắng: màu phụ
-                      và màu tím trên nền tím không đọc được. */}
+                      Ô hôm nay có nền màu nhấn nên chữ dùng màu on-primary:
+                      màu phụ và màu nhấn trên nền nhấn không đọc được. */}
                   <span
                     className={cn(
                       "block text-[11px]",
@@ -83,7 +83,13 @@ export function StudySchedulePanel({
                   <strong
                     className={cn(
                       "block text-sm tabular-nums",
-                      day.isToday ? "text-white" : "text-primary"
+                      // Chỉ ngày có case cần ôn mới tô màu nhấn; ngày trống để
+                      // màu phụ. Ô hôm nay dùng màu chữ trên nền nhấn.
+                      day.isToday
+                        ? "text-on-primary"
+                        : day.dueCount > 0
+                          ? "text-primary"
+                          : "text-muted"
                     )}
                   >
                     {day.dueCount}

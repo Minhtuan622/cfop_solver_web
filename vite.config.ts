@@ -96,8 +96,8 @@ const plugins = [
       scope: "/",
       display: "standalone",
       orientation: "portrait",
-      background_color: "#f7f8fd",
-      theme_color: "#5b5bd6",
+      background_color: "#f8f7f3",
+      theme_color: "#0b7466",
       icons: [
         {
           src: "/icon.svg",
