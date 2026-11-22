@@ -481,7 +481,7 @@ export function SkeletonCard({
   return (
     <div
       className={cn(
-        "animate-pulse rounded-card bg-surface p-5 sm:p-6",
+        "rounded-card bg-surface p-5 sm:p-6",
         className
       )}
       role="status"
@@ -511,7 +511,7 @@ export function SkeletonList({
 }) {
   return (
     <div
-      className="animate-pulse overflow-hidden rounded-panel bg-surface"
+      className="overflow-hidden rounded-panel bg-surface"
       role="status"
       aria-label={label}
     >
@@ -538,7 +538,7 @@ export function SkeletonTable({
 }) {
   return (
     <div
-      className="animate-pulse overflow-x-auto"
+      className="overflow-x-auto"
       role="status"
       aria-label={label}
     >

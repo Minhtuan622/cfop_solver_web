@@ -1,21 +1,13 @@
 /**
- * Giải Rubik dashboard: blue pill-shaped controls, soft white cards, the cube
- * stage with a player on the left and the numbered CFOP solution on the right.
- * Styles and reusable pieces live in styles/design-system.css and components/ui/DesignSystem.tsx.
+ * Trang giải Rubik — phong cách mềm mại, tối giản: không viền, không bóng,
+ * chỉ hiệu ứng hover cơ bản. Hai cột: nhập scramble + khối 3D bên trái, lời
+ * giải từng bước bên phải.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  BoxSeam,
-  CheckCircleFill,
-  ChevronUp,
-  ListUl,
-  Puzzle,
-} from "@/components/ui/Icon";
+import { CheckCircleFill, ChevronUp, ListUl } from "@/components/ui/Icon";
 import {
   Banner,
-  EyebrowPill,
   PanelHeader,
-  PillTabs,
   RoundButton,
   Surface,
 } from "@/components/ui/DesignSystem";
@@ -567,24 +559,6 @@ export default function Home() {
         : "—"
       : (currentStepLabel ?? currentStep?.move ?? "—");
 
-  const heroCube = (
-    <svg
-      // Cube trang trí: đặt cao và nhỏ lại để không che nút chuyển thể thức
-      // nằm cùng hàng với tiêu đề, và không bắt chuột.
-      className="pointer-events-none absolute hidden select-none xl:block"
-      style={{ right: "4%", top: "-3.5rem", width: 130, height: 130 }}
-      viewBox="0 0 120 120"
-      aria-hidden="true"
-    >
-      <polygon points="60,8 108,34 60,60 12,34" fill="#ffd95a" />
-      <polygon points="12,34 60,60 60,112 12,86" fill="#2f6df6" />
-      <polygon points="108,34 60,60 60,112 108,86" fill="#ef5b45" />
-      <g stroke="rgba(20,28,60,.35)" strokeWidth="1.6" fill="none">
-        <path d="M44 16.7 92 42.7M28 25.3 76 51.3M36 73 36 107M24 80 24 98M84 73 84 107M96 80 96 98" />
-        <path d="M12 34 60 60 108 34M60 60 60 112" />
-      </g>
-    </svg>
-  );
   const firstStepsBanner =
     solverKind !== "bld" && openingOutcome ? (
       <Banner
@@ -599,14 +573,10 @@ export default function Home() {
 
   return (
     <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6 lg:px-8 lg:px-6 pb-6 lg:pb-12">
-      <section className="relative my-6">
-        {heroCube}
-        <EyebrowPill className="mb-4" icon={<BoxSeam aria-hidden="true" />}>
-          {t("home.eyebrow")}
-        </EyebrowPill>
+      <section className="my-8">
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-2">
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl mb-2">
               {solverKind === "bld"
                 ? t("home.title.bld")
                 : t("home.title.solve")}
@@ -793,26 +763,6 @@ export default function Home() {
             />
             {solutionOpen ? (
               <>
-                <PillTabs<SolverKind>
-                  variant="soft"
-                  fill
-                  className="mb-4"
-                  label={t("home.modeLabel")}
-                  value={solverKind}
-                  onChange={switchSolverKind}
-                  options={[
-                    {
-                      value: "cfop",
-                      label: "CFOP",
-                      icon: <BoxSeam aria-hidden="true" />,
-                    },
-                    {
-                      value: "bld",
-                      label: "BLD",
-                      icon: <Puzzle aria-hidden="true" />,
-                    },
-                  ]}
-                />
                 {solverKind === "bld" && bldResult ? (
                   <BldReport
                     result={bldResult}

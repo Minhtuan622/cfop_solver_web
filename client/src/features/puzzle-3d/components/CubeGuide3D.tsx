@@ -679,10 +679,10 @@ export function CubeGuide3D({
     renderNow();
   };
 
+  // Nền phẳng, theo theme (không gradient): "light" dùng màu bề mặt nhạt
+  // của trang nên tự đổi theo chế độ sáng/tối.
   const stageBackground =
-    surface === "light"
-      ? "radial-gradient(ellipse at 50% 38%, #ffffff 0%, #eceef7 60%, #e2e4f0 100%)"
-      : "radial-gradient(ellipse at 50% 38%, #1b2240 0%, #10142a 60%, #070a15 100%)";
+    surface === "light" ? "var(--surface-2)" : "var(--cube-stage)";
 
   if (status === "error")
     return (

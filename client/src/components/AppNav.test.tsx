@@ -67,20 +67,14 @@ describe("AppNav", () => {
     }
   });
 
-  it("dùng chất liệu kính mờ cho thanh điều hướng", () => {
+  it("thanh điều hướng phẳng: nền đặc, không blur, không gradient", () => {
     const { container } = renderNav();
     const bar = container.querySelector("header > div");
 
     expect(bar).not.toBeNull();
-    expect(bar?.classList.contains("backdrop-blur-2xl")).toBe(true);
-    expect(bar?.classList.contains("backdrop-saturate-150")).toBe(true);
-    // Nền trong suốt có fallback đục hơn khi trình duyệt không hỗ trợ
-    // backdrop-filter, cộng một lớp sheen trắng rất nhẹ ở cạnh trên.
-    expect(bar?.classList.contains("bg-surface/90")).toBe(true);
-    expect(
-      bar?.classList.contains("supports-[backdrop-filter]:bg-surface/55")
-    ).toBe(true);
-    expect(bar?.className).toContain("from-white/55");
+    expect(bar?.classList.contains("bg-surface")).toBe(true);
+    // Phong cách tối giản: không viền, không bóng, không kính mờ hay gradient.
+    expect(bar?.className).not.toMatch(/backdrop-|shadow|border|gradient|from-/);
   });
 
   it("đánh dấu route đang mở bằng aria-current", () => {

@@ -52,7 +52,7 @@ export function Dialog({
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
-          className="fixed inset-0 z-50 bg-ink/45 backdrop-blur-[2px]"
+          className="fixed inset-0 z-50 bg-ink/40"
           data-testid="dialog-backdrop"
         />
         <DialogPrimitive.Content

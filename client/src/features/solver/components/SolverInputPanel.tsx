@@ -1,4 +1,4 @@
-import { Dices, PencilSquare, Play } from "@/components/ui/Icon";
+import { Camera, Dices, PencilSquare, Play } from "@/components/ui/Icon";
 import { PanelHeader, PillInput, Surface } from "@/components/ui/DesignSystem";
 import { Field, StatusFeedback } from "@/components/ui/StudioUI";
 import { CameraScanner } from "@/components/common/CameraScanner";
@@ -6,7 +6,14 @@ import { CubeStateEditor } from "@/components/common/CubeStateEditor";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { CrossColor, CubeValidation } from "@/lib/solverRuntime";
 import { cn } from "@/lib/utils";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/StudioDialog";
 import type { RecentCubeState } from "../lib/recentStates";
 import { SolverDetails } from "./SolverDetails";
 import { SolverRecentStates } from "./SolverRecentStates";
@@ -74,6 +81,7 @@ export function SolverInputPanel({
   onResetDefaults,
 }: SolverInputPanelProps) {
   const { t } = useLanguage();
+  const [cameraOpen, setCameraOpen] = useState(false);
   const solving = solverKind === "bld";
 
   return (
@@ -210,10 +218,30 @@ export function SolverInputPanel({
                 {t("home.resetOptions")}
               </Button>
             ) : null}
+            <Button
+              variant="link"
+              size="sm"
+              className="p-0 no-underline"
+              type="button"
+              onClick={() => setCameraOpen(true)}
+            >
+              <Camera className="text-base mr-1" aria-hidden="true" />
+              {t("home.cameraScan")}
+            </Button>
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2 mt-3">
             <span className="text-sm text-muted">{t("home.stateHint")}</span>
+            <Button
+              variant="link"
+              size="sm"
+              className="p-0 no-underline"
+              type="button"
+              onClick={() => setCameraOpen(true)}
+            >
+              <Camera className="text-base mr-1" aria-hidden="true" />
+              {t("home.cameraScan")}
+            </Button>
           </div>
         )}
 
@@ -245,11 +273,28 @@ export function SolverInputPanel({
 
         {advancedOptions ? <div className="mt-4">{advancedOptions}</div> : null}
 
-        <div className="mt-4">
-          <SolverDetails summary={t("home.cameraSection")}>
-            <CameraScanner onState={onCameraState} />
-          </SolverDetails>
-        </div>
+        {/* Quét camera là tuỳ chọn: một liên kết nhỏ mở hộp thoại thay vì
+            chiếm một hàng riêng trên trang. */}
+        <Dialog open={cameraOpen} onOpenChange={setCameraOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <div>
+                <DialogTitle>{t("home.cameraScan")}</DialogTitle>
+                <DialogDescription>{t("home.cameraScanHint")}</DialogDescription>
+              </div>
+            </DialogHeader>
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
+              {cameraOpen ? (
+                <CameraScanner
+                  onState={state => {
+                    onCameraState(state);
+                    setCameraOpen(false);
+                  }}
+                />
+              ) : null}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {error ? (
           <div className="mt-4">
