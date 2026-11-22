@@ -2,10 +2,10 @@
  * Pure-TypeScript listing of the verified direct 1LLL/ZBLL cases, shown in the
  * Last Layer Study catalog.
  *
- * Replaces the old lite Pyodide worker's `catalog` command: the same query
- * (family / group / query / limit) over the same rows, without loading a
- * Python runtime. The rows are the ones embedded in the solver for the
- * one-look direct cases (see `directCaseCatalogData.ts`).
+ * Runs in the page (family / group / query / limit), without starting the
+ * solver worker. The rows are the solver's own one-look tables
+ * (`directCaseCatalogData.ts`, generated from
+ * `packages/solver/cfop/src/one_look_data.rs`).
  */
 import { ONE_LLL_DIRECT_CASES, ZBLL_DIRECT_CASES } from "./directCaseCatalogData";
 
@@ -89,7 +89,7 @@ function pushCases(
   return false;
 }
 
-/** List direct cases in the same order as the legacy Python catalog (ZBLL first, then 1LLL). */
+/** List direct cases in the solver's table order (ZBLL first, then 1LLL). */
 export function listLastLayerDirectCases(
   filters: ListLastLayerCasesFilter = {}
 ): LastLayerCatalogCase[] {

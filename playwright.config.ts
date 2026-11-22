@@ -19,8 +19,8 @@ export default defineConfig({
     command: "pnpm dev",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
-    // `pnpm dev` tải bản Pyodide cục bộ trước khi khởi động, nên cần thời
-    // gian nhiều hơn cho lần chạy đầu tiên.
+    // `pnpm dev` build bộ giải WebAssembly trước khi khởi động nếu chưa có
+    // (`scripts/ensure-solver.mjs`), nên lần chạy đầu tiên cần thêm thời gian.
     timeout: 120_000,
   },
 });

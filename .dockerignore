@@ -15,3 +15,7 @@ dist
 
 # Local development database and tooling.
 compose.local.yaml
+
+# Rust build output; the solver stage builds the WASM package itself.
+packages/solver/target
+packages/solver/solver-wasm/pkg

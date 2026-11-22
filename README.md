@@ -43,8 +43,10 @@ Toàn bộ ứng dụng responsive trên màn hình nhỏ (ảnh dưới đây c
 - Timer đa event với inspection, +2/DNF, split, replay, history, thống kê và cỡ chữ scramble tuỳ chọn.
 - Study cho Last Layer và 3-Style BLD.
 - Tài khoản, đồng bộ dữ liệu, WCA, phòng thi đấu và bảng xếp hạng.
-- Bộ giải chạy offline: Pyodide và catalog thuật toán BLD đều được tải về
-  máy người dùng, không phụ thuộc CDN sau lần tải đầu.
+- Bộ giải chạy hoàn toàn trong trình duyệt: viết bằng Rust, biên dịch ra
+  WebAssembly (~300 KB, chỉ tải khi bấm giải lần đầu). Bộ giải và catalog
+  thuật toán BLD được lưu lại trên máy người dùng, nên vẫn dùng được khi
+  offline sau lần tải đầu.
 
 ## Phần chạy được khi không có Database
 
@@ -61,16 +63,26 @@ Phần **yêu cầu Database** (DATABASE_URL):
 
 ## Chạy local nhanh
 
-Yêu cầu Node.js 22+, pnpm **10.34.5**, Docker Desktop và Git. Database local dùng MariaDB trong Docker Compose nên không cần cài MySQL/MariaDB trực tiếp trên macOS hoặc Windows.
+Yêu cầu Node.js 22+, pnpm **10.34.5**, Docker Desktop, Git và **Rust** (stable, cài qua [rustup](https://rustup.rs)) kèm target WebAssembly và `wasm-pack`. Database local dùng MariaDB trong Docker Compose nên không cần cài MySQL/MariaDB trực tiếp trên macOS hoặc Windows.
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo install wasm-pack --locked
+```
+
+`wasm-opt` (gói Binaryen, ví dụ `brew install binaryen` hoặc `apt install binaryen`) là tùy chọn: có thì file `.wasm` nhỏ hơn khoảng 35%.
 
 ```bash
 git clone https://github.com/Minhtuan622/cfop_solver_web.git
 cd cfop_solver_web
 corepack enable
 pnpm install --frozen-lockfile
+pnpm build:solver
 pnpm db:setup
 pnpm dev
 ```
+
+`pnpm build:solver` biên dịch bộ giải Rust trong [`packages/solver`](packages/solver) ra `packages/solver/solver-wasm/pkg` (glue JS, `.wasm`, kiểu TypeScript). Thư mục này **không commit**; chạy lại lệnh sau mỗi lần sửa code Rust. `pnpm check`, `pnpm test`, `pnpm dev` và `pnpm build` đều cần nó (`pnpm dev` và `pnpm build` tự build khi thiếu và máy có `wasm-pack`).
 
 `pnpm db:setup` sẽ khởi động MariaDB tại `127.0.0.1:3307`, tạo/cập nhật `.env.local` và áp dụng Drizzle migration. Hãy bật Docker Desktop trước khi chạy lệnh này. Sau đó mở `http://localhost:3000`.
 
@@ -87,6 +99,7 @@ Các luồng account, cloud sync, Rooms và WCA cần `DATABASE_URL`. WCA OAuth 
 ## Kiểm tra trước khi mở Pull Request
 
 ```bash
+pnpm build:solver
 pnpm check
 pnpm test --run
 pnpm exec playwright install  # lần đầu, nếu máy chưa có Chromium
@@ -97,7 +110,17 @@ pnpm audit --prod --audit-level=high
 
 `pnpm test:e2e` dùng Chromium do Playwright quản lý (tự động tải về). Không cần cài Chromium hệ thống.
 
-`pnpm build` **đã chạy `tsc --noEmit` ở đầu chuỗi**, nên build fail ở local cũng là lỗi type chứ không chỉ lỗi bundling. `pnpm check` vẫn đáng chạy riêng vì báo lỗi sớm hơn, trước bước tải Pyodide ~14 MB.
+Bộ giải Rust có test riêng, chạy trong `packages/solver`:
+
+```bash
+cd packages/solver
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+cargo run --release -p cfop --example bench   # benchmark Cross/F2L (p50, p95)
+```
+
+`pnpm build` **đã chạy `tsc --noEmit` ở đầu chuỗi**, nên build fail ở local cũng là lỗi type chứ không chỉ lỗi bundling. `pnpm check` vẫn đáng chạy riêng vì nhanh hơn (không đóng gói).
 
 ## Cổng chất lượng tự động
 
@@ -107,21 +130,22 @@ Ngoài unit test và e2e, repo còn có các cổng kiểm tra riêng — tất 
 |---|---|---|
 | Tương phản token | `pnpm test --run server/contrast.test.ts` | Cặp màu chính rơi dưới WCAG AA (4.5:1 cho chữ, 3:1 cho vòng focus và biểu tượng trạng thái) ở **cả hai** chế độ sáng và tối. |
 | Tương phản trên trang thật | `pnpm exec playwright test e2e/contrast-a11y.spec.ts` | Vi phạm axe mới trên 6 trang chính × 2 chế độ, và danh sách vi phạm đã biết (`e2e/contrast-a11y.baseline.json`) bị lỗi thời. |
-| Hiệu năng bộ giải | `node scripts/bench-solver.mjs --check` | Bộ giải giải sai, hoặc một kịch bản vượt ngân sách: `cross` (mặc định 20s/đề, 80s tổng) hoặc `auto` (60s/đề, 200s tổng). |
-| Ghim phiên bản Pyodide | `pnpm test --run server/pyodideAssets.test.ts` | Lệch phiên bản Pyodide giữa loader, script tải và gói npm — đồng nghĩa là bộ đo đo sai runtime. |
-| Bundle solver tất định | `pnpm test --run server/embedSolver.test.ts` | Bundle `embeddedSolver.ts` lệch với source Python, hoặc sinh khác nhau giữa Windows và Linux vì line ending. |
+| Tính chất bộ giải | `cd packages/solver && cargo test --workspace` | Cross dài hơn 8 nước, F2L làm hỏng cross hoặc cặp đã giải, một trong 216 trạng thái hướng / 288 trạng thái hoán vị của last layer không giải đúng, một thuật toán OLL/PLL/ZBLL/1LLL không ra đúng case của nó, hoặc một trong 5000 scramble ngẫu nhiên không về trạng thái đã giải. |
+| Hiệu năng bộ giải | `node scripts/bench-solver.mjs --check` | Bộ giải (bản WebAssembly thật) giải sai, hoặc một kịch bản vượt ngân sách: `cross` (mặc định 20s/đề, 80s tổng) hoặc `auto` (60s/đề, 200s tổng). |
+| Bản phát hành có bộ giải | `node scripts/verify-solver-dist.mjs` (chạy cuối `pnpm build`) | `dist` thiếu worker hoặc file `.wasm` hợp lệ của bộ giải. |
+| Xem trước khớp bộ giải | `pnpm test --run client/src/lib/fastCube.solver.test.ts` | Bảng nước đi dùng để xem trước scramble trong trang lệch với bộ giải ở bất kỳ nước nào (mặt, slice, xoay, wide). |
 
 Báo cáo tương phản đầy đủ (bảng số đo, các cặp chưa đạt và giới hạn của phép đo) nằm ở [docs/validation/contrast-report.md](docs/validation/contrast-report.md).
 
 ## CI
 
-Workflow `CI` chạy **3 job** song song:
+Workflow `CI` chạy **3 job** song song trên mỗi push và pull request:
 
 | Job | Nội dung |
 |---|---|
-| `check-test-build` | typecheck → unit test → kiểm tra bundle solver không drift → e2e → production build → audit dependency |
-| `Solver tests (pytest)` | bộ test Python của `solver-python` |
-| `Solver benchmark (Pyodide)` | đo hiệu năng bộ giải ở chế độ kiểm tra, xuất JSON làm artifact để theo dõi xu hướng |
+| `Rust solver (fmt, clippy, test)` | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` cho `packages/solver` |
+| `check-test-build` | build bộ giải WASM → typecheck → unit test → e2e → production build → audit dependency |
+| `Solver benchmark (WASM)` | đo hiệu năng bộ giải ở chế độ kiểm tra, xuất JSON làm artifact để theo dõi xu hướng |
 
 Ba job đều là **check bắt buộc** khi merge vào `main` — xem [docs/REPO-OWNER-CHECKLIST.md](docs/REPO-OWNER-CHECKLIST.md).
 
@@ -139,12 +163,19 @@ Ba job đều là **check bắt buộc** khi merge vào `main` — xem [docs/REP
 
 - Frontend React 19 + TypeScript 7 + Vite 8, giao diện Tailwind CSS/Studio UI.
 - Backend Express 5 + tRPC 11, Drizzle ORM và MySQL/MariaDB.
-- Cubing.js, Three.js và Pyodide Web Worker cho scramble, cube 3D và solver trong trình duyệt.
+- Cubing.js và Three.js cho scramble và cube 3D.
+- Bộ giải CFOP viết bằng Rust, biên dịch ra WebAssembly và chạy trong Web Worker.
 - Vitest/Testing Library cho unit tests và Playwright cho browser E2E.
 
-Source Python của solver nằm tại [`solver-python/cfop_solver`](solver-python/cfop_solver). Sau khi chỉnh sửa source, chạy `pnpm run embed-solver` để tái tạo bundle Pyodide được dùng trong trình duyệt; không chỉnh sửa thủ công `client/src/lib/embeddedSolver.ts`.
+Bộ giải nằm ở [`packages/solver`](packages/solver), một Cargo workspace gồm ba crate:
 
-Bundle phải **commit kèm** cùng thay đổi: CI kiểm tra bằng `pnpm run embed-solver && git diff --exit-code client/src/lib/embeddedSolver.ts` nên quên commit sẽ bị đỏ. Script nhúng đã chuẩn hoá line ending (`.gitattributes` cũng ép file `.py` luôn dùng LF) để bundle **giống hệt nhau trên mọi OS** — nếu không, bước kiểm tra này sẽ đỏ trên Linux mỗi khi bundle được sinh trên Windows.
+| Crate | Nội dung |
+|---|---|
+| `cube-core` | Mô hình cubie (8 góc, 12 cạnh, 6 tâm), mọi nước đi U R F D L B / M E S / x y z / wide, parse và format, chuyển đổi 54 sticker URFDLB có kiểm tra hợp lệ. Chỉ dùng thư viện chuẩn. |
+| `cfop` | Cross và F2L (IDA* với bảng pruning), OLL 57 case, PLL 21 case có AUF, XCross..XXXXCross, ZBLL và 1LLL. |
+| `solver-wasm` | Binding wasm-bindgen cho trình duyệt; kiểu TypeScript sinh bằng tsify. |
+
+Sau khi sửa code Rust, chạy `pnpm build:solver` để build lại bản WebAssembly (`packages/solver/solver-wasm/pkg`, không commit). Kết quả kiểm chứng và benchmark của bộ giải: [docs/validation/rust-wasm-solver.md](docs/validation/rust-wasm-solver.md).
 
 ## Đóng góp
 

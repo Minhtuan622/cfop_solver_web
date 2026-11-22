@@ -7,14 +7,15 @@ import type { InlineConfig, ViteDevServer } from "vite";
 import { cacheControlForFile } from "./staticCache";
 
 /**
- * Đường dẫn của bản Pyodide cục bộ.
+ * Đường dẫn của file build (JS, worker, `.wasm` của bộ giải...).
  *
- * Một đường dẫn /pyodide/ không có file phải trả 404 chứ không rơi vào
+ * Một đường dẫn /assets/ không có file phải trả 404 chứ không rơi vào
  * index.html của SPA: nếu không, trình duyệt nhận HTML (HTTP 200) rồi cố
- * chạy nó như một module JavaScript và báo lỗi khó hiểu.
+ * chạy nó như một module JavaScript hoặc WebAssembly và báo lỗi khó hiểu
+ * (ví dụ khi một tab cũ xin worker của bản deploy trước).
  */
-export function isPyodidePath(requestPath: string): boolean {
-  return requestPath === "/pyodide" || requestPath.startsWith("/pyodide/");
+export function isAssetPath(requestPath: string): boolean {
+  return requestPath === "/assets" || requestPath.startsWith("/assets/");
 }
 
 export async function setupVite(app: Express, server: Server) {
@@ -41,7 +42,7 @@ export async function setupVite(app: Express, server: Server) {
   app.use("/{*splat}", async (req, res, next) => {
     const url = req.originalUrl;
 
-    if (isPyodidePath(req.originalUrl.split("?")[0])) {
+    if (isAssetPath(req.originalUrl.split("?")[0])) {
       res.status(404).json({ message: "Không tìm thấy." });
       return;
     }
@@ -96,8 +97,8 @@ export function serveStatic(app: Express) {
   // fall through to index.html if the file doesn't exist
   app.use("/{*splat}", (req, res) => {
     // `req.path` bị cắt theo điểm gắn ("/{*splat}"), nên phải dùng
-    // `originalUrl` để thấy được tiền tố /pyodide.
-    if (isPyodidePath(req.originalUrl.split("?")[0])) {
+    // `originalUrl` để thấy được tiền tố /assets.
+    if (isAssetPath(req.originalUrl.split("?")[0])) {
       res.status(404).json({ message: "Không tìm thấy." });
       return;
     }
