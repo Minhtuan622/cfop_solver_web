@@ -1,14 +1,15 @@
 /**
  * Generates `client/src/features/last-layer/lib/directCaseCatalogData.ts`
- * from `solver-python/cfop_solver/one_look_database.py`.
+ * from the solver's one-look tables in
+ * `packages/solver/cfop/src/one_look_data.rs`.
  *
- * Each row is (case_id, Singmaster algorithm, inverse fixture facelets).
- * The generated module is checked in (like `fastCube.ts`), so the app can
- * browse the 1LLL/ZBLL direct-case catalog in pure JavaScript without the
- * Python/Pyodide runtime — this replaces the old lite worker's catalog
- * command. Re-run this after editing `one_look_database.py`:
+ * Each row is (case_id, Singmaster algorithm, inverse fixture facelets). The
+ * fixture is computed by the solver itself (WebAssembly build, see
+ * `pnpm build:solver`): the inverse of the algorithm applied to a solved
+ * cube. The generated module is checked in, so the app can browse the
+ * 1LLL/ZBLL catalog in pure JavaScript. Re-run this after editing the tables:
  *
- *   node scripts/export-last-layer-catalog.mjs
+ *   pnpm build:solver && node scripts/export-last-layer-catalog.mjs
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -16,35 +17,51 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const source = readFileSync(
-  join(root, "solver-python/cfop_solver/one_look_database.py"),
+  join(root, "packages/solver/cfop/src/one_look_data.rs"),
   "utf8"
 );
 const target = join(
   root,
   "client/src/features/last-layer/lib/directCaseCatalogData.ts"
 );
+const pkg = join(root, "packages/solver/solver-wasm/pkg");
+const wasm = await import(join(pkg, "solver_wasm.js"));
+wasm.initSync({ module: readFileSync(join(pkg, "solver_wasm_bg.wasm")) });
 
-/** Extract the (id, algorithm, state) tuples of a `NAME: tuple[...] = (…)` block. */
+/** Inverse of a move sequence, in the solver's notation. */
+function invert(algorithm) {
+  return algorithm
+    .replace(/[(),]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .reverse()
+    .map(move => (move.endsWith("3") ? `${move.slice(0, -1)}'` : move))
+    .map(move => {
+      if (move.endsWith("2") || move.endsWith("2'")) return move.replace(/'$/, "");
+      if (move.endsWith("'")) return move.slice(0, -1);
+      return `${move}'`;
+    })
+    .join(" ");
+}
+
+/** Extract the (id, algorithm) rows of a `static NAME: [...] = [...]` table. */
 function tableOf(name) {
-  const start = source.indexOf(`${name}:`);
-  if (start < 0) throw new Error(`Table ${name} not found in one_look_database.py`);
-  const open = source.indexOf("(", start);
-  const closeMatch = /\n\)[ \t]*\r?\n/.exec(source.slice(open));
-  if (open < 0 || !closeMatch)
-    throw new Error(`Could not find the body of ${name}`);
-  const body = source.slice(open + 1, open + closeMatch.index);
+  const start = source.indexOf(`static ${name}:`);
+  if (start < 0) throw new Error(`Table ${name} not found in one_look_data.rs`);
+  const end = source.indexOf("\n];", start);
   const rows = [];
-  for (const match of body.matchAll(
-    /\('([^']+)',\s*"((?:[^"\\]|\\.)*)",\s*'([A-Z]{54})'\)/g
-  )) {
-    rows.push({ id: match[1], algorithm: match[2], state: match[3] });
+  for (const match of source
+    .slice(start, end)
+    .matchAll(/\(\s*"((?:[^"\\]|\\.)*)",\s*"((?:[^"\\]|\\.)*)",?\s*\),/g)) {
+    const [id, algorithm] = [JSON.parse(`"${match[1]}"`), JSON.parse(`"${match[2]}"`)];
+    rows.push({ id, algorithm, state: wasm.scrambleToStickers(invert(algorithm)) });
   }
   if (!rows.length) throw new Error(`No rows parsed for ${name}`);
   return rows;
 }
 
-const oneLll = tableOf("ONE_LLL_DIRECT_CASES");
-const zbll = tableOf("ZBLL_DIRECT_CASES");
+const oneLll = tableOf("ONE_LLL_CASES");
+const zbll = tableOf("ZBLL_CASES");
 
 const literal = row =>
   `  { id: ${JSON.stringify(row.id)}, algorithm: ${JSON.stringify(
@@ -52,7 +69,7 @@ const literal = row =>
   )}, state: ${JSON.stringify(row.state)} },`;
 
 const output = `/**
- * Generated from solver-python/cfop_solver/one_look_database.py — do not hand-edit.
+ * Generated from packages/solver/cfop/src/one_look_data.rs — do not hand-edit.
  * Regenerate with: node scripts/export-last-layer-catalog.mjs
  *
  * Each row is (case_id, Singmaster algorithm, inverse fixture facelets).

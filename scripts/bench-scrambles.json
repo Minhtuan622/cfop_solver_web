@@ -1,5 +1,5 @@
 {
-  "note": "Bộ đề cố định dùng chung cho scripts/bench-solver.mjs (Pyodide) và solver-python/bench_solver.py (CPython).",
+  "note": "Bộ đề cố định của scripts/bench-solver.mjs (bộ giải WebAssembly).",
   "specified": [
     "U L B2 L' F U2 B R2 B2 L2 R2 L U' R' F D U L D2 F'",
     "D' U2 R' D U R2 L D2 F' L U' D B' L D' L2 B' U2 L2 R2",

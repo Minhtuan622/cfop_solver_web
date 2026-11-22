@@ -4,8 +4,9 @@
  * Unlike the 3×3 `fastCube.ts`, the 2×2 has no centers and no slice moves; the
  * positions are the 8 corner cubies. Coordinates use half-edge units so the
  * outer faces sit exactly at ±0.5 from the cube centre. Move tables are
- * generated from the same coordinate geometry as `cfop_solver/cube.py` (face
- * normals + quarter-turn rotation):
+ * generated from the same coordinate geometry as the 3×3 solver model
+ * (`packages/solver/cube-core/src/geometry.rs`: face normals + quarter-turn
+ * rotation):
  *
  * - U, R, F, D, L, B face turns (clockwise viewed at that face)
  * - x, y, z whole-cube rotations (follows R/U/F slabs)

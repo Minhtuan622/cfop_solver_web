@@ -4,11 +4,9 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "node scripts/fetch-pyodide.mjs && node scripts/run-with-env.mjs development tsx watch server/_core/index.ts",
-    "embed-solver": "node scripts/embed-solver.mjs",
-    "fetch-pyodide": "node scripts/fetch-pyodide.mjs",
+    "dev": "node scripts/ensure-solver.mjs && node scripts/run-with-env.mjs development tsx watch server/_core/index.ts",
     "screenshots": "node scripts/capture-screenshots.mjs",
-    "build": "tsc --noEmit && node scripts/fetch-pyodide.mjs && node scripts/run-with-env.mjs production node node_modules/vite/bin/vite.js build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --splitting --outdir=dist && node scripts/verify-pyodide-dist.mjs",
+    "build": "node scripts/ensure-solver.mjs && tsc --noEmit && node scripts/run-with-env.mjs production node node_modules/vite/bin/vite.js build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --splitting --outdir=dist && node scripts/verify-solver-dist.mjs",
     "start": "node scripts/run-with-env.mjs production node dist/index.js",
     "check": "tsc --noEmit",
     "audit:classes": "node scripts/audit-bootstrap-classes.mjs && node scripts/audit-tailwind-classes.mjs",
@@ -19,7 +17,8 @@
     "db:setup": "node scripts/setup-local-db.mjs",
     "db:stop": "docker compose -f compose.local.yaml down",
     "db:reset": "docker compose -f compose.local.yaml down -v",
-    "db:logs": "docker compose -f compose.local.yaml logs -f database"
+    "db:logs": "docker compose -f compose.local.yaml logs -f database",
+    "build:solver": "node scripts/build-solver.mjs"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.4.1",
@@ -75,7 +74,6 @@
     "esbuild": "^0.28.2",
     "jsdom": "^31.0.0",
     "prettier": "^3.9.10",
-    "pyodide": "0.27.7",
     "rollup": "^4.68.2",
     "tailwindcss": "^4.3.5",
     "tsx": "^4.23.15",

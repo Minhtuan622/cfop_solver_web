@@ -7,8 +7,8 @@ import { expect, test } from "@playwright/test";
  * giao diện và hiện thông báo hủy đúng.
  *
  * Script của Web Worker bị treo có chủ ý: bộ giải chạy hoàn toàn trong
- * trình duyệt (Pyodide), nên nếu không treo worker thì bài test sẽ phụ thuộc
- * vào tốc độ tải Pyodide và có thể bị flaky.
+ * trình duyệt (WebAssembly) và thường xong trong vài mili giây, nên nếu
+ * không treo worker thì lời giải có thể đến trước khi kịp bấm "Dừng".
  */
 test("hủy giải bộ giải không làm gián đoạn giao diện", async ({ page }) => {
   // Không fulfill → request treo, worker không bao giờ khởi động.

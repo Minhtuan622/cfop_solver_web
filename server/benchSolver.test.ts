@@ -10,8 +10,8 @@ import { evaluateRun, resolveLimits } from "../scripts/bench-check.mjs";
  *
  * Bộ đo là công cụ đo hiệu năng: nếu nó hỏng thì mọi quyết định tối ưu sau
  * này đều dựa trên số liệu sai. Test giữ cho:
- * - bộ đề cố định dùng chung giữa bộ đo Pyodide và bộ đo CPython;
- * - hai bộ đo dùng cùng tham số giải, nên số liệu so sánh được;
+ * - bộ đề cố định;
+ * - bộ đo dùng đúng tham số giải của worker trong trình duyệt;
  * - chế độ --smoke thực sự giải được và giải đúng.
  *
  * Phần cuối của file kiểm tra chế độ `--check` (ngưỡng thời gian) — đây là
@@ -21,7 +21,6 @@ import { evaluateRun, resolveLimits } from "../scripts/bench-check.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const benchScript = path.join(root, "scripts", "bench-solver.mjs");
-const pythonBench = path.join(root, "solver-python", "bench_solver.py");
 const scrambleFile = path.join(root, "scripts", "bench-scrambles.json");
 
 type Scrambles = { specified: string[]; random: string[] };
@@ -48,9 +47,8 @@ function row(overrides: Partial<BenchRow> & { scramble: string }): BenchRow {
 }
 
 describe("B1: bộ đo bộ giải", () => {
-  it("có cả hai bộ đo và bộ đề cố định dùng chung", () => {
+  it("có bộ đo và bộ đề cố định", () => {
     expect(existsSync(benchScript)).toBe(true);
-    expect(existsSync(pythonBench)).toBe(true);
     expect(existsSync(scrambleFile)).toBe(true);
   });
 
@@ -69,29 +67,26 @@ describe("B1: bộ đo bộ giải", () => {
     );
   });
 
-  it("hai bộ đo dùng cùng tham số giải nên số liệu so sánh được", () => {
+  it("bộ đo dùng cùng tham số giải với worker trong trình duyệt", () => {
     const nodeBench = readFileSync(benchScript, "utf8");
-    const pyBench = readFileSync(pythonBench, "utf8");
-
     for (const [key, value] of Object.entries({
-      last_layer: '"auto"',
-      cross_color: '"U"',
+      lastLayer: '"auto"',
+      crossColor: '"U"',
       opening: '"cross"',
-      xcross_depth: "8",
-      direct_node_budget: "5000",
+      openingDepth: "8",
+      directNodeBudget: "5000",
+      timeBudgetSec: "40",
+      nodeBudget: "400000",
     })) {
       expect(nodeBench, key).toContain(`${key}: ${value}`);
-      expect(pyBench, key).toContain(`"${key}": ${value}`);
     }
   });
 
-  it("bộ đo Pyodide nạp mã solver từ solver-python/cfop_solver", () => {
+  it("bộ đo nạp chính module WebAssembly mà trình duyệt dùng", () => {
     const nodeBench = readFileSync(benchScript, "utf8");
-    expect(nodeBench).toContain("solver-python");
-    expect(nodeBench).toContain("cfop_solver");
-    // Cùng thư mục package và cùng cách ghi file như writeSolverFiles.
-    expect(nodeBench).toContain("PACKAGE_DIR");
-    expect(nodeBench).toContain("runtime.FS.writeFile");
+    expect(nodeBench).toContain("solver-wasm");
+    expect(nodeBench).toContain("solver_wasm_bg.wasm");
+    expect(nodeBench).toContain("initSync");
   });
 
   it("chế độ --smoke giải đúng một đề (kiểm chứng bộ đo chạy được)", () => {
@@ -273,15 +268,13 @@ describe("B1: chế độ --check chạy thật", () => {
     const report = JSON.parse(readFileSync(jsonFile, "utf8"));
     expect(report.ok).toBe(true);
     expect(report.exitCode).toBe(0);
-    // Artifact tự mô tả runtime đã đo: đọc từ gói pyodide đang cài, không
-    // phải hằng số trong source hay package.json của repo.
-    const installed = JSON.parse(
-      readFileSync(
-        path.join(root, "node_modules", "pyodide", "package.json"),
-        "utf8"
-      )
-    ) as { version: string };
-    expect(report.pyodideVersion).toBe(installed.version);
+    // Artifact tự mô tả runtime đã đo: engine và kích thước file .wasm
+    // thật đang được đo.
+    const wasmFile = path.join(
+      root, "packages", "solver", "solver-wasm", "pkg", "solver_wasm_bg.wasm"
+    );
+    expect(report.engine).toBe("wasm");
+    expect(report.wasmBytes).toBe(readFileSync(wasmFile).length);
     expect(report.nodeVersion).toBe(process.version);
     expect(report.platform).toBe(process.platform);
     expect(report.arch).toBe(process.arch);

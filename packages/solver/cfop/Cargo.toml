@@ -1,0 +1,17 @@
+[package]
+name = "cfop"
+description = "CFOP stages (Cross, F2L) on top of cube-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+cube-core = { path = "../cube-core", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1"

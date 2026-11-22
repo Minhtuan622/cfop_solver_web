@@ -1,11 +1,11 @@
 /**
  * Validates a 54-sticker facelet state (U R F D L B, row-major per face).
  *
- * Direct TypeScript port of the Python `cfop_solver/cube.py` geometry and
- * `cfop_solver/validation.py` (`validate_cube`): cube state checks (sticker
- * counts, fixed centers, cubie color signatures, corner/edge orientation
- * sums, permutation parity) without needing Pyodide. Used by the Home page
- * to validate hand-painted cube states before solving.
+ * Same facelet conventions and checks as the solver's
+ * `Cube::from_stickers` (`packages/solver/cube-core`): sticker counts, fixed
+ * centers, cubie color signatures, corner/edge orientation sums, permutation
+ * parity — in plain TypeScript, so the Home page can validate hand-painted
+ * cube states without starting the solver worker.
  */
 
 export type CubeValidation = { valid: boolean; message: string };
@@ -262,7 +262,7 @@ export function assertValidScrambleState(stickers: string): void {
     throw new Error("Edge orientation sum is not even");
 }
 
-/** Throws `Error` with the same wording as the Python validator when the state is illegal. */
+/** Throws `Error` (with the wording the Studio shows) when the state is illegal. */
 export function assertValidCubeState(stickers: string): void {
   validateFacelets(stickers);
   const view = viewOf(stickers);
