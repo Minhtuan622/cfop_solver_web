@@ -27,9 +27,10 @@ Regenerate them with `node scripts/capture-screenshots.mjs` while the dev server
 - Multi-event timer with inspection, +2/DNF, splits, replay, history, statistics and an adjustable scramble font size.
 - Study: Last Layer and 3-Style BLD.
 - Account, cloud sync, WCA, competition rooms and leaderboard.
-- The solver works offline: Pyodide and the BLD algorithm catalog are both
-  delivered to the visitor's machine, so there is no CDN dependency after the
-  first load.
+- The solver runs entirely in the browser: written in Rust and compiled to
+  WebAssembly (~300 KB, downloaded on the first solve). The solver and the BLD
+  algorithm catalog are kept on the visitor's machine, so they keep working
+  offline after the first load.
 
 ## Run without a Database
 
@@ -46,16 +47,26 @@ Features that **require** DATABASE_URL:
 
 ## Quick start locally
 
-Requires Node.js 22+, pnpm **10.34.5**, Docker Desktop and Git. Local database uses MariaDB via Docker Compose — no need to install MySQL/MariaDB directly on macOS or Windows.
+Requires Node.js 22+, pnpm **10.34.5**, Docker Desktop, Git and **Rust** (stable, via [rustup](https://rustup.rs)) with the WebAssembly target and `wasm-pack`. Local database uses MariaDB via Docker Compose — no need to install MySQL/MariaDB directly on macOS or Windows.
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo install wasm-pack --locked
+```
+
+`wasm-opt` (the Binaryen package, e.g. `brew install binaryen` or `apt install binaryen`) is optional: with it the `.wasm` file is about 35% smaller.
 
 ```bash
 git clone https://github.com/Minhtuan622/cfop_solver_web.git
 cd cfop_solver_web
 corepack enable
 pnpm install --frozen-lockfile
+pnpm build:solver
 pnpm db:setup
 pnpm dev
 ```
+
+`pnpm build:solver` compiles the Rust solver in [`packages/solver`](packages/solver) to `packages/solver/solver-wasm/pkg` (glue JS, `.wasm`, TypeScript types). That folder is **not committed**; re-run the command after changing Rust code. `pnpm check`, `pnpm test`, `pnpm dev` and `pnpm build` all need it (`pnpm dev` and `pnpm build` build it themselves when it is missing and `wasm-pack` is installed).
 
 `pnpm db:setup` starts MariaDB at `127.0.0.1:3307`, creates/updates `.env.local` and applies Drizzle migrations. Start Docker Desktop first. Then open `http://localhost:3000`.
 
@@ -72,6 +83,7 @@ Account, cloud sync, Rooms and WCA flows require `DATABASE_URL`. WCA OAuth and p
 ## Pre-Pull-Request checklist
 
 ```bash
+pnpm build:solver
 pnpm check
 pnpm test --run
 pnpm exec playwright install  # first time, if Chromium is not installed
@@ -82,7 +94,17 @@ pnpm audit --prod --audit-level=high
 
 `pnpm test:e2e` uses Playwright-managed Chromium (downloaded automatically). No system Chromium path required.
 
-`pnpm build` **runs `tsc --noEmit` first**, so a build failure locally is a type error and not just a bundling error. Running `pnpm check` separately is still useful: it reports errors earlier, before the ~14 MB Pyodide download.
+The Rust solver has its own tests, run in `packages/solver`:
+
+```bash
+cd packages/solver
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+cargo run --release -p cfop --example bench   # Cross/F2L benchmark (p50, p95)
+```
+
+`pnpm build` **runs `tsc --noEmit` first**, so a build failure locally is a type error and not just a bundling error. Running `pnpm check` separately is still useful because it is faster (no bundling).
 
 ## Automated quality gates
 
@@ -92,21 +114,22 @@ Beyond unit tests and e2e, the repo has a few dedicated gates — all of them ru
 |---|---|---|
 | Token contrast | `pnpm test --run server/contrast.test.ts` | A main colour pair falling below WCAG AA (4.5:1 for text, 3:1 for the focus ring and status icons) in **both** light and dark mode. |
 | Contrast on real pages | `pnpm exec playwright test e2e/contrast-a11y.spec.ts` | New axe violations on the 6 main pages × 2 modes, and a stale known-violations list (`e2e/contrast-a11y.baseline.json`). |
-| Solver performance | `node scripts/bench-solver.mjs --check` | The solver returning a wrong answer, or either scenario exceeding its budget: `cross` (20s/scramble, 80s total) or `auto` (60s/scramble, 200s total). |
-| Pyodide version pinning | `pnpm test --run server/pyodideAssets.test.ts` | The Pyodide version drifting between the loader, the fetch script and the npm package — which means the benchmark measures the wrong runtime. |
-| Deterministic solver bundle | `pnpm test --run server/embedSolver.test.ts` | `embeddedSolver.ts` drifting from the Python source, or being generated differently on Windows and Linux because of line endings. |
+| Solver properties | `cd packages/solver && cargo test --workspace` | A Cross longer than 8 moves, F2L breaking the cross or a solved pair, any of the 216 orientation / 288 permutation last-layer states not solved, an OLL/PLL/ZBLL/1LLL algorithm not producing its own case, or any of 5000 random scrambles not ending solved. |
+| Solver performance | `node scripts/bench-solver.mjs --check` | The solver (the real WebAssembly build) returning a wrong answer, or either scenario exceeding its budget: `cross` (20s/scramble, 80s total) or `auto` (60s/scramble, 200s total). |
+| Release contains the solver | `node scripts/verify-solver-dist.mjs` (last step of `pnpm build`) | `dist` missing the solver worker or a valid `.wasm` file. |
+| Preview matches the solver | `pnpm test --run client/src/lib/fastCube.solver.test.ts` | The in-page scramble preview tables disagreeing with the solver for any move (faces, slices, rotations, wide). |
 
 The full contrast report (measurement table, pairs still below target, and the limits of the measurement) lives in [docs/validation/contrast-report.md](docs/validation/contrast-report.md).
 
 ## CI
 
-The `CI` workflow runs **3 jobs** in parallel:
+The `CI` workflow runs **3 jobs** in parallel on every push and pull request:
 
 | Job | What it does |
 |---|---|
-| `check-test-build` | typecheck → unit tests → verify the solver bundle has not drifted → e2e → production build → dependency audit |
-| `Solver tests (pytest)` | the Python test suite in `solver-python` |
-| `Solver benchmark (Pyodide)` | measures solver performance in check mode and uploads a JSON artifact to track the trend |
+| `Rust solver (fmt, clippy, test)` | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` for `packages/solver` |
+| `check-test-build` | build the WASM solver → typecheck → unit tests → e2e → production build → dependency audit |
+| `Solver benchmark (WASM)` | measures solver performance in check mode and uploads a JSON artifact to track the trend |
 
 All three are **required status checks** for merging into `main` — see [docs/REPO-OWNER-CHECKLIST.md](docs/REPO-OWNER-CHECKLIST.md).
 
@@ -124,12 +147,19 @@ All three are **required status checks** for merging into `main` — see [docs/R
 
 - Frontend: React 19 + TypeScript 7 + Vite 8, Tailwind CSS/Studio UI.
 - Backend: Express 5 + tRPC 11, Drizzle ORM, MySQL/MariaDB.
-- Cubing.js, Three.js and Pyodide Web Worker for scramble, 3D cube and browser solver.
+- Cubing.js and Three.js for scrambles and the 3D cube.
+- The CFOP solver is written in Rust, compiled to WebAssembly and run in a Web Worker.
 - Vitest/Testing Library for unit tests; Playwright for browser E2E.
 
-Python solver source lives in [`solver-python/cfop_solver`](solver-python/cfop_solver). After editing the Python source, run `pnpm run embed-solver` to regenerate the Pyodide bundle used in the browser; do not edit `client/src/lib/embeddedSolver.ts` by hand.
+The solver lives in [`packages/solver`](packages/solver), a Cargo workspace with three crates:
 
-The bundle must be **committed together with the change**: CI checks with `pnpm run embed-solver && git diff --exit-code client/src/lib/embeddedSolver.ts`, so forgetting to commit it turns the job red. The script normalises line endings when embedding (and `.gitattributes` forces `.py` files to LF) so the bundle is **identical on every OS** — otherwise this check goes red on Linux whenever the bundle was generated on Windows.
+| Crate | Contents |
+|---|---|
+| `cube-core` | Cubie model (8 corners, 12 edges, 6 centers), every move U R F D L B / M E S / x y z / wide, parsing and formatting, validated conversion to and from the 54-sticker URFDLB string. Standard library only. |
+| `cfop` | Cross and F2L (IDA* with pruning tables), 57 OLL cases, 21 PLL cases with AUF, XCross..XXXXCross, ZBLL and 1LLL. |
+| `solver-wasm` | wasm-bindgen bindings for the browser; TypeScript types generated with tsify. |
+
+After changing Rust code, run `pnpm build:solver` to rebuild the WebAssembly package (`packages/solver/solver-wasm/pkg`, not committed). Verification results and solver benchmarks: [docs/validation/rust-wasm-solver.md](docs/validation/rust-wasm-solver.md).
 
 ## Contributing
 

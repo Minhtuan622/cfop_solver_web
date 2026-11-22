@@ -1,5 +1,9 @@
 # Checklist mở rộng CFOP Studio
 
+> Lưu trữ. Các mục nói về solver Python và worker chạy Python trong trình duyệt
+> thuộc engine cũ, nay đã được thay bằng bộ giải Rust/WebAssembly trong
+> `packages/solver`.
+
 ## Hướng dẫn 3D, timer, biểu đồ và song ngữ
 
 - [x] Tạo cube 3D CSS với hiệu ứng hướng dẫn theo move đang chọn trong lời giải.
@@ -26,7 +30,7 @@
 
 - [x] Dựng đủ 6 mặt U/R/F/D/L/B trong cube 3D, bao gồm backface và shading đồng nhất.
 - [x] Tạo bảng hoán vị facelet tĩnh và parser cho 18 move cơ bản để tạo state từ scramble trực tiếp ở frontend.
-- [x] Đồng bộ preview tức thì với ô nhập scramble, không chờ Pyodide/solver chạy.
+- [x] Đồng bộ preview tức thì với ô nhập scramble, không chờ solver chạy.
 - [x] So sánh state engine frontend với solver Python bằng scramble `B L R B2 U2 R U2 L F2 R F2 D' R F U' R F L2 R`.
 - [x] Kiểm tra desktop/mobile, build production và lưu checkpoint.
 
@@ -153,7 +157,7 @@
 
 ## Trọng tâm CFOP Studio
 
-- [x] Kiểm toán luồng nhập cube, solver Pyodide, kết quả Cross/F2L/OLL/PLL và Cube 3D ở Studio.
+- [x] Kiểm toán luồng nhập cube, solver trong worker, kết quả Cross/F2L/OLL/PLL và Cube 3D ở Studio.
 - [x] Xác định các điểm nghẽn về phản hồi lỗi, trạng thái solver và khả năng theo dõi từng bước.
 - [x] Thiết kế ưu tiên cải tiến cho thao tác nhập, kết quả CFOP, playback và điều khiển Cube 3D.
 - [x] Triển khai các cải tiến Studio được ưu tiên thay vì mở rộng Timer Lab.
@@ -201,7 +205,7 @@
 
 ## Tích hợp XCross vào CFOP Studio
 
-- [x] Đồng bộ source Python XCross/F2L symmetry vào Pyodide worker và mở rộng protocol `opening`.
+- [x] Đồng bộ source Python XCross/F2L symmetry vào worker solver và mở rộng protocol `opening`.
 - [x] Thêm control Studio chọn Cross thường hoặc Auto XCross, giữ mặc định tương thích.
 - [x] Hiển thị phase XCross, slot F2L được hoàn tất, fallback Cross và move count trong báo cáo.
 - [x] Đồng bộ playback Cube 3D và điều hướng phase với tên `xcross_<slot>`.
@@ -221,7 +225,7 @@
 - [x] Khảo sát predicate/coordinate Cross + hai slot và xác định budget khả thi cho tracked meet-in-the-middle.
 - [x] Thêm search XXCross cho sáu cặp F2L, ưu tiên/loại trừ slot và fallback Auto XXCross → XCross → Cross.
 - [x] Viết regression invariant XXCross, fallback, macro symmetry và benchmark mở đầu bằng fixture cố định.
-- [x] Mở rộng protocol Pyodide/Studio để chọn Auto XXCross, hiển thị hai slot và highlight kép trên Cube 3D.
+- [x] Mở rộng protocol worker/Studio để chọn Auto XXCross, hiển thị hai slot và highlight kép trên Cube 3D.
 - [x] Kiểm tra end-to-end, responsive, TypeScript, production build và checkpoint.
 
 ## Chuyển bước Cube 3D mượt hơn
@@ -232,10 +236,10 @@
 
 ## XXXCross: Cross cộng ba slot F2L
 
-- [x] Khảo sát predicate, coordinate và benchmark budget cho Cross + ba slot F2L trong Python/Pyodide.
+- [x] Khảo sát predicate, coordinate và benchmark budget cho Cross + ba slot F2L trong Python.
 - [x] Thiết kế search trên bốn bộ ba slot, ưu tiên/loại trừ slot và fallback XXXCross → XXCross → XCross → Cross.
 - [x] Triển khai solver, test invariant/regression sáu màu và benchmark latency/move count.
-- [x] Mở rộng protocol Pyodide/Studio, báo cáo phase và Cube 3D highlight ba slot F2L.
+- [x] Mở rộng protocol worker/Studio, báo cáo phase và Cube 3D highlight ba slot F2L.
 - [x] Kiểm tra browser end-to-end, responsive, TypeScript, production build và checkpoint.
 
 ## CSS audit và XXXXCross: Cross cộng đủ F2L
@@ -243,7 +247,7 @@
 - [x] Rà soát lỗi CSS desktop/mobile, overflow selector opening và hierarchy panel Studio.
 - [x] Khảo sát coordinate Cross + bốn F2L, chốt budget và fallback XXXXCross → XXXCross → XXCross → XCross → Cross.
 - [x] Triển khai solver XXXXCross, predicate, regression sáu màu và benchmark latency.
-- [x] Mở rộng Pyodide/Studio/report/Cube 3D để hiển thị XXXXCross và bốn slot F2L.
+- [x] Mở rộng worker/Studio/report/Cube 3D để hiển thị XXXXCross và bốn slot F2L.
 - [x] Kiểm tra browser end-to-end, responsive, TypeScript, production build và checkpoint.
 
 ## Opening fallback minh bạch và Studio gọn hơn
@@ -378,7 +382,7 @@
 - [x] Benchmark từng cấp opening, xác minh slot F2L thực tế đạt được và truy vết nguyên nhân nếu lùi cấp.
 - [x] Điều chỉnh search/macro/depth hoặc metadata fallback để XXXXCross có cơ hội tìm nghiệm đúng thay vì luôn dừng XCross.
 - [x] Đổi scramble mặc định Studio thành scramble ngẫu nhiên hợp lệ, không cố định R U R' U'.
-- [x] Chạy regression solver, nhúng lại Pyodide worker, kiểm tra giao diện opening và build production trước checkpoint.
+- [x] Chạy regression solver, nhúng lại worker solver, kiểm tra giao diện opening và build production trước checkpoint.
 
 ## Strict opening, Last Layer direct và report gọn
 

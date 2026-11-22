@@ -7,6 +7,7 @@ Tài liệu được tập trung trong thư mục này. Các file ở root chỉ
 - [Hướng dẫn phát triển chi tiết](development/project-guide.md)
 - [Hướng dẫn môi trường Preview/Dev](development/dev-preview.md)
 - [Ghi chú license bên thứ ba](development/third-party-licenses.md)
+- [Bộ giải Rust/WebAssembly: kiểm chứng và benchmark](validation/rust-wasm-solver.md)
 - [Hướng dẫn đóng góp](../CONTRIBUTING.md)
 
 ## Theo nhóm

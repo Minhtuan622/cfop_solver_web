@@ -30,10 +30,14 @@ describe("the container image", () => {
   const dockerfile = readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
   const dockerignore = readFileSync(new URL("../.dockerignore", import.meta.url), "utf8");
 
-  it("builds in one stage and runs in another", () => {
+  it("builds the Rust solver, then the web app, and runs in a third stage", () => {
     const stages = dockerfile.match(/^FROM\s+\S+/gm);
-    expect(stages).toHaveLength(2);
+    expect(stages).toHaveLength(3);
+    expect(dockerfile).toContain("AS solver");
     expect(dockerfile).toContain("AS build");
+    // Only the WASM package travels from the Rust stage to the Node stage.
+    expect(dockerfile).toContain("COPY --from=solver /app/packages/solver/solver-wasm/pkg");
+    expect(dockerfile).toContain("wasm32-unknown-unknown");
   });
 
   it("installs production dependencies only in the runtime stage", () => {

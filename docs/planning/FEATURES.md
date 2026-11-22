@@ -10,8 +10,9 @@ nằm ở [FEATURES.md](../../FEATURES.md) ở thư mục gốc; trang này nằ
   thái 54 sticker.
 - Báo cáo theo từng phase (Cross, F2L, OLL, PLL), kèm cube 2D/3D và thước đo thời
   gian.
-- Chạy hoàn toàn trong trình duyệt bằng Pyodide; bản Pyodide được đóng gói cục
-  bộ nên bộ giải vẫn dùng được khi offline.
+- Chạy hoàn toàn trong trình duyệt bằng bộ giải Rust biên dịch ra WebAssembly;
+  file `.wasm` được phục vụ cùng ứng dụng và được lưu lại sau lần dùng đầu, nên
+  bộ giải vẫn dùng được khi offline.
 
 ## Quét màu qua camera
 

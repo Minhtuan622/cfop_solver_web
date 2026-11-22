@@ -2,23 +2,71 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
 
 permissions:
   contents: read
 
 jobs:
-  check-test-build:
+  rust:
+    name: Rust solver (fmt, clippy, test)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    env:
-      # Bản phát hành phải có Pyodide cục bộ: không được lặng lẽ phụ thuộc
-      # CDN khi build.
-      REQUIRE_LOCAL_PYODIDE: "1"
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: packages/solver
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@1.97
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/solver
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace
+
+  check-test-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust (wasm32 target)
+        uses: dtolnay/rust-toolchain@1.97
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/solver
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack@0.15.1
+
+      - name: Install wasm-opt (best effort)
+        continue-on-error: true
+        timeout-minutes: 5
+        run: sudo apt-get install -y --no-install-recommends binaryen
+
+      - name: Build WASM solver
+        run: node scripts/build-solver.mjs
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -38,14 +86,8 @@ jobs:
       - name: Unit and router tests
         run: pnpm test --run
 
-      - name: Embed solver and verify no drift
-        run: pnpm run embed-solver && git diff --exit-code client/src/lib/embeddedSolver.ts
-
       - name: Install Chromium for browser tests
         run: pnpm exec playwright install chromium
-
-      - name: Fetch the local Pyodide build
-        run: pnpm fetch-pyodide
 
       - name: Install Chromium system packages (best effort)
         continue-on-error: true
@@ -79,29 +121,46 @@ jobs:
         run: pnpm audit --prod --audit-level=high
 
   solver-benchmark:
-    name: Solver benchmark (Pyodide)
+    name: Solver benchmark (WASM)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Rust (wasm32 target)
+        uses: dtolnay/rust-toolchain@1.97
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/solver
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack@0.15.1
+
+      - name: Install wasm-opt (best effort)
+        continue-on-error: true
+        timeout-minutes: 5
+        run: sudo apt-get install -y --no-install-recommends binaryen
+
+      # Bộ đo đo chính bản build WebAssembly mà trình duyệt tải.
+      - name: Build WASM solver
+        run: node scripts/build-solver.mjs
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
 
       # Chế độ kiểm tra của bộ đo: FAIL khi có đề giải sai, khi một đề chậm
       # hơn PER_SCRAMBLE_LIMIT_SEC (đề vượt ngưỡng được chạy lại một lần để
-      # loại nhiễu), hoặc khi tổng thời gian vượt TOTAL_LIMIT_SEC.
-      # Bộ đo dùng gói npm `pyodide` nên không cần tải bản phân phối cục bộ.
+      # loại nhiễu), hoặc khi tổng thời gian vượt TOTAL_LIMIT_SEC. Bộ đo chỉ
+      # cần Node và module WASM, không cần cài dependency của app.
       - name: Run solver benchmark check
         run: node scripts/bench-solver.mjs --check --json-file bench-result.json
 
@@ -112,23 +171,3 @@ jobs:
           name: solver-benchmark
           path: bench-result.json
           if-no-files-found: warn
-
-  solver-tests:
-    name: Solver tests (pytest)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install pytest
-        run: pip install pytest
-
-      - name: Run solver pytest suite
-        working-directory: solver-python
-        run: pytest tests/

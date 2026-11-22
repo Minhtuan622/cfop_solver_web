@@ -48,21 +48,28 @@ Dự án CFOP Solver Studio sử dụng các thư viện và tài nguyên bên t
 
 ## Các thành phần đặc biệt
 
-### Pyodide
-- **Giấy phép:** MPL-2.0
-- **Vai trò:** Chạy bộ giải CFOP (Python) trong trình duyệt qua Web Worker.
-- **Nguồn:** https://pyodide.org
-- **Lưu ý:** Pyodide được tải từ CDN (`cdn.jsdelivr.net`) theo mặc định. Có thể đóng gói vào `public/` để chạy ngoại línea (tùy chọn).
+### Bộ giải WebAssembly (`packages/solver`)
+- **Giấy phép:** MIT (mã của dự án: crate `cube-core`, `cfop`, `solver-wasm`).
+- **Vai trò:** Bộ giải CFOP viết bằng Rust, biên dịch ra WebAssembly và chạy trong Web Worker. File `.wasm` được phục vụ cùng ứng dụng, không tải từ CDN.
+- **Crate bên thứ ba được biên dịch vào file `.wasm`:**
+
+| Crate | Giấy phép |
+|-------|-----------|
+| Thư viện chuẩn Rust (`std`, `core`, `alloc`) | MIT OR Apache-2.0 |
+| wasm-bindgen, wasm-bindgen-shared, js-sys | MIT OR Apache-2.0 |
+| serde, serde_core | MIT OR Apache-2.0 |
+| serde-wasm-bindgen | MIT |
+| tsify-next | MIT OR Apache-2.0 |
+| bumpalo, cfg-if, futures-core, futures-task, futures-util, pin-project-lite | MIT OR Apache-2.0 |
+| slab | MIT |
+
+Các crate chỉ dùng lúc biên dịch (proc-macro như `serde_derive`, `syn`, `quote`, `proc-macro2`, `wasm-bindgen-macro`, `tsify-next-macros`, `unicode-ident`) không nằm trong file phát hành. Danh sách đầy đủ: `cargo tree -p solver-wasm --target wasm32-unknown-unknown -e normal` trong `packages/solver`.
 
 ### BLDDB (dữ liệu BLD)
 - **Giấy phép theo file LICENSE:** GPL-3.0
 - **Giấy phép theo package.json:** ISC
 - **Vai trò:** Dữ liệu các thể thức BLD (3-Style) từ `raw.githubusercontent.com/nbwzx/blddb`.
 - **Lưu ý:** Hai ghi chú giấy phép trên không nhất quán. Người duy trì dự án nên liên hệ tác giả BLDDB để xác nhận giấy phép chính xác trước khi sử dụng dữ liệu này trong sản phẩm công khai.
-
-### solver-python
-- Bộ giải CFOP viết bằng Python, chạy qua Pyodide.
-- **Ghi chú:** Kiểm tra lại giấy phép của thư mục `solver-python` trước khi công bố chính thức.
 
 ## Triết lý
 

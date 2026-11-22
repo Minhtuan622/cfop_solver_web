@@ -1,5 +1,5 @@
 /**
- * Generated from solver-python/cfop_solver/one_look_database.py — do not hand-edit.
+ * Generated from packages/solver/cfop/src/one_look_data.rs — do not hand-edit.
  * Regenerate with: node scripts/export-last-layer-catalog.mjs
  *
  * Each row is (case_id, Singmaster algorithm, inverse fixture facelets).
