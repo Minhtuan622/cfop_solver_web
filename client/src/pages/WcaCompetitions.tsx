@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   EmptyState,
-  LoadingTransition,
   PageHeader,
   RefreshIndicator,
   SkeletonList,
@@ -53,7 +52,6 @@ export default function WcaCompetitions() {
       countryIso2: countryIso2 || null,
     };
   }, [year, month, countryIso2]);
-  const rangeIsValid = true;
   const competitionsQuery = trpc.wca.competitions.useQuery(calendarInput, {
     staleTime: 5 * 60 * 1000,
     retry: 1,

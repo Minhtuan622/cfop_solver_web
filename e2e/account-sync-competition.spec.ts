@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Route } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 type Account = {
   id: number;
@@ -23,14 +23,6 @@ const account: Account = {
   createdAt: "2026-08-27T00:00:00.000Z",
   lastSignedIn: "2026-08-27T00:00:00.000Z",
 };
-
-function trpcJson(data: unknown) {
-  return { contentType: "application/json", body: JSON.stringify([{ result: { data: { json: data } } }]) };
-}
-
-async function fulfillTrpc(route: Route, data: unknown) {
-  await route.fulfill(trpcJson(data));
-}
 
 async function mockAccountSyncAndCompetition(page: Page) {
   let authenticated = false;

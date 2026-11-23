@@ -91,7 +91,6 @@ import {
 } from "@/lib/wcaTimerComparison";
 import { trpc } from "@/lib/trpc";
 import {
-  readStoredJson,
   readStoredValue,
   writeStoredValue,
 } from "@/lib/browserStorage";

@@ -16,7 +16,6 @@ import {
 import type { BldResult } from "@/lib/solverRuntime";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
-import { Textarea } from "@/components/ui/FormControls";
 
 type Catalog = Record<string, string>;
 type RuntimeCatalogs = {

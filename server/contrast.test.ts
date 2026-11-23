@@ -394,7 +394,7 @@ const PAIRS: Pair[] = [
     fg: { token: "primary" },
     bg: { token: "primary-soft" },
     min: TEXT_MIN,
-    source: "DesignSystem.tsx IconBox / EyebrowPill (bg-primary-soft text-primary)",
+    source: "DesignSystem.tsx IconBox (bg-primary-soft text-primary)",
   },
   {
     id: "chip/accent",

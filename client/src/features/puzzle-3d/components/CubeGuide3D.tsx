@@ -75,7 +75,6 @@ const SLICE_MOVES: Record<string, { axis: "x" | "y" | "z"; layers: number[]; sig
   z: { axis: "z", layers: [-1, 0, 1], sign: -1 },
 };
 const ORBIT_LIMIT = 1.1;
-const HALF = 1.05;
 const BODY = 0.66;
 const CELL_3 = 0.7;
 const CELL_2 = 0.95;

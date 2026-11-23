@@ -115,8 +115,3 @@ export async function patternFromAlg(alg: string): Promise<KPattern> {
   const { Alg } = await import("cubing/alg");
   return (await getKpuzzle()).defaultPattern().applyAlg(new Alg(alg));
 }
-
-/** Facelet string of the cube reached by a scramble (async). */
-export async function faceletsFromAlg(alg: string): Promise<string> {
-  return kpatternToFacelets(await patternFromAlg(alg));
-}

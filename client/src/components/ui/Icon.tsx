@@ -35,10 +35,8 @@ import {
   ImageDown as ImageDownGlyph,
   Info as InfoGlyph,
   Languages as TranslateGlyph,
-  Layers3 as Layers3Glyph,
   Link2 as Link2Glyph,
   List as ListUlGlyph,
-  LoaderCircle as Loader2Glyph,
   LogOut as BoxArrowRightGlyph,
   MapPin as GeoAltGlyph,
   MoonStar as MoonStarsGlyph,
@@ -48,7 +46,6 @@ import {
   Play as PlayGlyph,
   Puzzle as PuzzleGlyph,
   Redo2 as Redo2Glyph,
-  RefreshCw as RefreshCwGlyph,
   Rotate3D as Rotate3DGlyph,
   RotateCcw as RotateCcwGlyph,
   ScanLine as ScanLineGlyph,
@@ -68,8 +65,6 @@ import {
   Trash2 as Trash2Glyph,
   Trophy as TrophyGlyph,
   Undo2 as Undo2Glyph,
-  Volume2 as Volume2Glyph,
-  VolumeX as VolumeXGlyph,
   X as XGlyph,
   type LucideProps,
 } from "lucide-react";
@@ -133,10 +128,8 @@ export const History = icon(HistoryGlyph);
 export const Home = icon(HomeGlyph);
 export const ImageDown = icon(ImageDownGlyph);
 export const Info = icon(InfoGlyph);
-export const Layers3 = icon(Layers3Glyph);
 export const Link2 = icon(Link2Glyph);
 export const ListUl = icon(ListUlGlyph);
-export const Loader2 = icon(Loader2Glyph);
 export const MoonStars = icon(MoonStarsGlyph);
 export const Pause = icon(PauseGlyph);
 export const Pencil = icon(PencilGlyph);
@@ -145,7 +138,6 @@ export const PersonCircle = icon(PersonCircleGlyph);
 export const Play = icon(PlayGlyph);
 export const Puzzle = icon(PuzzleGlyph);
 export const Redo2 = icon(Redo2Glyph);
-export const RefreshCw = icon(RefreshCwGlyph);
 export const Rotate3D = icon(Rotate3DGlyph);
 export const RotateCcw = icon(RotateCcwGlyph);
 export const ScanLine = icon(ScanLineGlyph);
@@ -164,6 +156,4 @@ export const Translate = icon(TranslateGlyph);
 export const Trash2 = icon(Trash2Glyph);
 export const Trophy = icon(TrophyGlyph);
 export const Undo2 = icon(Undo2Glyph);
-export const Volume2 = icon(Volume2Glyph);
-export const VolumeX = icon(VolumeXGlyph);
 export const X = icon(XGlyph);
