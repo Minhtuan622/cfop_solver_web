@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { compareCompetitionResults, competitionFormatScore, competitionRoundLimit, type CompetitionFormat } from "../services/competition";
 import { findCompetitionMember, findCompetitionRoomByCode, findLatestCompetitionModerationLog, getCompetitionActiveRound, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listFinishedCompetitionRoomsForAccount, touchCompetitionMember } from "../db";
-import { LATEST_MESSAGES_LIMIT } from "./competition";
+import { LATEST_MESSAGES_LIMIT } from "./competitionState";
 
 type CompetitionResultRow = Awaited<ReturnType<typeof listCompetitionResults>>[number];
 

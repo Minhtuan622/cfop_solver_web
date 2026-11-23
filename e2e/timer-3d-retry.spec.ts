@@ -13,6 +13,9 @@ import { expect, test, type Page } from "@playwright/test";
 
 test.setTimeout(60_000);
 
+// Mẫu này chặn mọi request có chữ "twisty" trong URL (chunk của Cubing.js). Vì
+// thế tên file của chính app KHÔNG được chứa "twisty" (trên dev server nó sẽ bị
+// chặn theo, làm hỏng module tĩnh thay vì chunk động mà bài test nhắm tới).
 const TWISTY_PATTERN = "**/*twisty*";
 const DYNAMIC_3D_PATTERN = "**/twisty-dynamic-3d-*.js*";
 const RELOAD_FLAG = "cfop-3d-preview-reload";

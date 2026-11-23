@@ -6,21 +6,24 @@ import {
   type WheelEvent,
 } from "react";
 import * as THREE from "three";
-import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
-import { CUBE_COLORS, CUBE_FALLBACK_COLOR } from "../lib/cubeColors";
 import {
-  BODY,
   CELL_2,
   CELL_3,
-  FACE_OFFSET,
-  FACE_ORDER,
   ORBIT_LIMIT,
   alignPermFor,
   highlightedIndexes,
-  indexFor,
   parseMove,
 } from "../lib/cubeGuideFacelets";
 import { IconButton } from "@/components/ui/StudioUI";
+import { CubeGuide3DFallback } from "./CubeGuide3DFallback";
+import {
+  BASE_FOV,
+  alignQuaternionFor,
+  buildCubies,
+  disposeObject,
+  type Cubie,
+  type TrackedScene,
+} from "../lib/cubeGuideScene";
 import { Rotate3D } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -50,60 +53,6 @@ export type CubeGuide3DProps = {
   stageHeight?: number;
 };
 
-const _geoSticker3 = new RoundedBoxGeometry(CELL_3 * 0.88, CELL_3 * 0.88, 0.052, 4, 0.075);
-const _geoBody3 = new RoundedBoxGeometry(CELL_3 * 0.94, CELL_3 * 0.94, CELL_3 * 0.94, 4, 0.09);
-const _geoSticker2 = new RoundedBoxGeometry(CELL_2 * 0.88, CELL_2 * 0.88, 0.052, 4, 0.075);
-const _geoBody2 = new RoundedBoxGeometry(CELL_2 * 0.94, CELL_2 * 0.94, CELL_2 * 0.94, 4, 0.09);
-
-type Cubie = {
-  unit: { x: number; y: number; z: number };
-  group: THREE.Group;
-  stickerMaterials: THREE.MeshLambertMaterial[];
-};
-
-type TrackedScene = {
-  renderer: THREE.WebGLRenderer;
-  scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
-  root: THREE.Group;
-  /** Xoay whole-cube alignment (Cross → D) một lần cho toàn bộ scene con. */
-  alignGroup: THREE.Group;
-  host: HTMLDivElement;
-  resize: () => void;
-};
-
-/**
- * Căn mặt Cross xuống D bằng một phép xoay cố định của TOÀN BỘ scene (alignGroup),
- * KHÔNG hoán vị facelet trong state.
- *
- * Trước đây state được hoán vị (x2/x'/z…) còn `move` giữ nguyên ký hiệu gốc,
- * nên layer mà animation xoay không trùng với layer thực sự bị xoay trong
- * state — cubie quay sai lớp và sticker nhảy loạn ở cuối mỗi bước.
- */
-const ALIGN_ROTATIONS: Record<string, { axis: "x" | "z"; angle: number } | null> = {
-  U: { axis: "z", angle: Math.PI }, // z2 — U ↔ D, xanh lá vẫn ở trước
-  D: null,
-  F: { axis: "x", angle: Math.PI / 2 }, // x — F → D
-  B: { axis: "x", angle: -Math.PI / 2 }, // x' — B → D
-  R: { axis: "z", angle: -Math.PI / 2 }, // z' — R → D
-  L: { axis: "z", angle: Math.PI / 2 }, // z — L → D
-};
-
-/** Góc nhìn dọc (độ) khi khung vuông hoặc rộng hơn cao. */
-const BASE_FOV = 34;
-
-function alignQuaternionFor(crossColor: string) {
-  const spec = ALIGN_ROTATIONS[crossColor] ?? null;
-  const quaternion = new THREE.Quaternion();
-  if (spec) {
-    quaternion.setFromAxisAngle(
-      spec.axis === "x" ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1),
-      spec.angle
-    );
-  }
-  return quaternion;
-}
-
 export function CubeGuide3D({
   state,
   previousState,
@@ -132,18 +81,6 @@ export function CubeGuide3D({
   const pivotRef = useRef<THREE.Group | null>(null);
   const orbitRef = useRef({ yaw: initialYaw, pitch: initialPitch, distance: dimension === 2 ? 5.3 : 6.0 });
   const [status, setStatus] = useState<"loading" | "ready" | "fallback" | "error">("loading");
-
-  const disposeObject = (object: THREE.Object3D) => {
-    object.traverse(node => {
-      const mesh = node as THREE.Mesh;
-      if (mesh.isMesh) {
-        // Geometry được chia sẻ toàn cục (xem _geoSticker2/_geoBody2 …) — KHÔNG dispose.
-        const material = mesh.material;
-        if (Array.isArray(material)) material.forEach(m => m.dispose());
-        else material?.dispose();
-      }
-    });
-  };
 
   const cancelAnimation = () => {
     if (animFrameRef.current !== null) {
@@ -199,76 +136,7 @@ export function CubeGuide3D({
       opts.specialStickers,
       alignPermFor(opts.alignCross ? (opts.crossColor ?? "U") : "D")
     );
-    const cell = dimension === 2 ? CELL_2 : CELL_3;
-    const coords = dimension === 2 ? [-1, 1] : [-1, 0, 1];
-
-    const stickerGeometry = dimension === 2 ? _geoSticker2 : _geoSticker3;
-    const bodyGeometry = dimension === 2 ? _geoBody2 : _geoBody3;
-
-    for (const x of coords) {
-      for (const y of coords) {
-        for (const z of coords) {
-          if (dimension === 3 && x === 0 && y === 0 && z === 0) continue;
-          const group = new THREE.Group();
-          group.position.set(x * cell, y * cell, z * cell);
-          const bodyMaterial = new THREE.MeshLambertMaterial({ color: "#141414" });
-          const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-          group.add(body);
-          const cubie: Cubie = { unit: { x, y, z }, group, stickerMaterials: [] };
-          for (const face of FACE_ORDER) {
-            const exposed =
-              (face === "U" && y === 1) ||
-              (face === "D" && y === -1) ||
-              (face === "F" && z === 1) ||
-              (face === "B" && z === -1) ||
-              (face === "R" && x === 1) ||
-              (face === "L" && x === -1);
-            if (!exposed) continue;
-            const faceletIndex = indexFor(face, x, y, z);
-            const faceIndex = faceletIndex % 9;
-            const letter = nextState[faceletIndex] ?? "?";
-            const color = CUBE_COLORS[letter] ?? CUBE_FALLBACK_COLOR;
-            const highlightInfo = highlight.get(`${face}:${faceIndex}`);
-            const material = new THREE.MeshLambertMaterial({
-              color,
-              emissive: highlightInfo ? new THREE.Color(highlightInfo.color) : new THREE.Color("#000000"),
-              emissiveIntensity: highlightInfo?.intensity ?? 0,
-            });
-            const sticker = new THREE.Mesh(stickerGeometry, material);
-            const offset = BODY / 2 + 0.026;
-            switch (face) {
-              case "U":
-                sticker.position.set(0, offset, 0);
-                sticker.rotation.set(-Math.PI / 2, 0, 0);
-                break;
-              case "D":
-                sticker.position.set(0, -offset, 0);
-                sticker.rotation.set(Math.PI / 2, 0, 0);
-                break;
-              case "F":
-                sticker.position.set(0, 0, offset);
-                break;
-              case "B":
-                sticker.position.set(0, 0, -offset);
-                sticker.rotation.set(0, Math.PI, 0);
-                break;
-              case "R":
-                sticker.position.set(offset, 0, 0);
-                sticker.rotation.set(0, Math.PI / 2, 0);
-                break;
-              default: // L
-                sticker.position.set(-offset, 0, 0);
-                sticker.rotation.set(0, -Math.PI / 2, 0);
-                break;
-            }
-            group.add(sticker);
-            cubie.stickerMaterials.push(material);
-          }
-          root.add(group);
-          cubiesRef.current.push(cubie);
-        }
-      }
-    }
+    cubiesRef.current = buildCubies(root, nextState, dimension, highlight);
     builtStateRef.current = nextState;
     bundle.resize();
   };
@@ -523,49 +391,15 @@ export function CubeGuide3D({
       </div>
     );
 
-  if (status === "fallback") {
-    const stickerIndexes = dimension === 2 ? [0, 2, 6, 8] : [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  if (status === "fallback")
     return (
-      <div
-        className="grid min-h-84 w-full place-items-center rounded-card"
-        style={{ background: stageBackground }}
-        aria-label={language === "vi" ? "Mô hình Rubik 3D của bạn" : "3D Rubik model"}
-      >
-        <div className="grid grid-cols-4 gap-2" data-testid="cube-3d-fallback">
-          {FACE_ORDER.map(face => (
-            <div
-              key={face}
-              data-testid={`face-${face}`}
-              className="cube3d-face-fallback grid gap-1 rounded-lg bg-black/40 p-1.5"
-              style={{ gridTemplateColumns: `repeat(${dimension}, 1fr)` }}
-            >
-              {stickerIndexes.map(index => {
-                const letter = state[FACE_OFFSET[face] + index] ?? "?";
-                return (
-                  <span
-                    key={index}
-                    className="cube3d-sticker-fallback h-5 w-5 rounded-sm"
-                    style={{ background: CUBE_COLORS[letter] ?? CUBE_FALLBACK_COLOR }}
-                  />
-                );
-              })}
-            </div>
-          ))}
-        </div>
-        <p
-          className={
-            surface === "light"
-              ? "pb-3 text-[11px] text-ink/60"
-              : "pb-3 text-[11px] text-white/60"
-          }
-        >
-          {language === "vi"
-            ? "Thiết bị không hỗ trợ WebGL — hiển thị 2D."
-            : "Device does not support WebGL — 2D preview."}
-        </p>
-      </div>
+      <CubeGuide3DFallback
+        state={state}
+        dimension={dimension}
+        surface={surface}
+        stageBackground={stageBackground}
+      />
     );
-  }
 
   return (
     <div className="relative grid min-h-84 w-full place-items-center overflow-hidden rounded-card" style={{ background: stageBackground }}>
