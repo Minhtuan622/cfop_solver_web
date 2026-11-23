@@ -1,5 +1,12 @@
 import { Translate } from "@/components/ui/Icon";
-import { Dropdown, DropdownRadioGroup, DropdownRadioItem } from "@/components/ui/Dropdown";
+import {
+  Dropdown,
+  DropdownRadioGroup,
+  DropdownRadioItem,
+  MENU_ITEM_CHECKED_CLASS,
+  MENU_ITEM_CLASS,
+  MenuCheck,
+} from "@/components/ui/Dropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -45,10 +52,11 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
           <DropdownRadioItem
             key={option.value}
             value={option.value}
-            className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition data-[highlighted]:bg-surface data-[state=checked]:bg-primary-soft data-[state=checked]:font-semibold data-[state=checked]:text-primary"
+            className={`${MENU_ITEM_CLASS} ${MENU_ITEM_CHECKED_CLASS}`}
           >
             <Translate className="text-base" />
             {t(option.labelKey)}
+            <MenuCheck />
           </DropdownRadioItem>
         ))}
       </DropdownRadioGroup>

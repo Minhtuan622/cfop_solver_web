@@ -2,7 +2,7 @@ import { Calendar3, Search } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { WcaCountry } from "../lib/wcaCalendar";
 import { Button } from "@/components/ui/Button";
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem, MENU_ITEM_CLASS } from "@/components/ui/Dropdown";
 import { Select } from "@/components/ui/Select";
 
 export type WcaCalendarFiltersProps = {
@@ -150,7 +150,7 @@ export function WcaCalendarFilters({
             <DropdownItem asChild>
               <button
                 type="button"
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition-colors data-[highlighted]:bg-surface"
+                className={MENU_ITEM_CLASS}
                 onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
               >
                 {t("wca.thisMonth")}
@@ -159,7 +159,7 @@ export function WcaCalendarFilters({
             <DropdownItem asChild>
               <button
                 type="button"
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition-colors data-[highlighted]:bg-surface"
+                className={MENU_ITEM_CLASS}
                 onClick={() => {
                   const next = new Date();
                   next.setMonth(next.getMonth() + 1);
@@ -172,7 +172,7 @@ export function WcaCalendarFilters({
             <DropdownItem asChild>
               <button
                 type="button"
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition-colors data-[highlighted]:bg-surface"
+                className={MENU_ITEM_CLASS}
                 onClick={() => jumpTo(currentYear, 0)}
               >
                 {t("wca.thisYear")}

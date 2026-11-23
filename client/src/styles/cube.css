@@ -154,10 +154,10 @@
   height: 100%;
 }
 
+/* Tô sáng sticker bằng độ sáng, không dùng viền. */
 .cube-sticker--highlight {
   z-index: 10;
-  outline: 3px solid var(--primary);
-  outline-offset: 1px;
+  filter: brightness(1.15) saturate(1.25);
 }
 
 .cube-sticker--editable {
@@ -477,23 +477,6 @@
     opacity: 0;
     transform: rotateZ(var(--turn-angle));
   }
-}
-
-.cube3d-cross-sticker {
-  outline: 3px solid #fff;
-  outline-offset: -3px;
-}
-.cube3d-xcross-sticker {
-  outline: 3px solid var(--primary);
-  outline-offset: -3px;
-}
-.cube3d-last-layer-sticker {
-  outline: 3px solid #ffc107;
-  outline-offset: -3px;
-}
-.cube3d-special-sticker {
-  outline: 3px solid #dc3545;
-  outline-offset: -3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
