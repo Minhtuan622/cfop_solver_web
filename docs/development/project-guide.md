@@ -47,6 +47,7 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 | `features/bld/` | Catalog 3-Style, lộ trình học, bảng công thức BLD. |
 | `features/last-layer/` | Thanh công cụ Study, panel luyện case, panel lịch ôn, catalog Last Layer và preview 2D. |
 | `features/wca/` | Bộ lọc lịch giải WCA, danh sách theo tháng, dòng từng giải và so sánh thời gian Timer với thành tích WCA (`lib/wcaTimerComparison.ts`). |
+| `features/history/` | Trang Lịch sử: thẻ lượt giải, ô số liệu, biểu đồ xu hướng, bộ lọc, menu nhập/xuất, hộp thoại sửa và xoá; phép tính lọc/biểu đồ/CSV ở `lib/historyView.ts`. |
 | `features/play/` | Bảng phím và logic khối của trang Chơi (`lib/playCube.ts`), lịch sử lượt chơi (`lib/playHistory.ts`). |
 | `features/twoByTwo/` | Lane 2×2 của trang Học thêm, kèm sơ đồ mặt 2×2 `CubeNet2x2`. |
 | `features/case-study/` | Khung dùng chung của các lane Học thêm: hook `useCaseStudyLane` (vòng SRS), bố cục `CaseStudyLaneShell`, thẻ case `CasePracticePanel`, khung 3D tải lười `LazyPuzzlePreview`. Bộ lưu tiến độ dùng chung nằm ở `client/src/lib/caseStudy.ts`. |

@@ -286,3 +286,11 @@ Hành vi không đổi; chỉ đổi vị trí file và đường dẫn import (
 | `lib/wcaTimerComparison.ts` | `features/wca/lib/` | trang Hồ sơ, trang Bấm giờ |
 
 File test đi cùng module. Trang bên ngoài import thẳng đường dẫn module cụ thể (`@/features/x/lib/y`), không qua barrel, để không kéo thêm code vào chunk tải sớm; barrel của các feature giữ nguyên.
+
+## Đợt 11: tách `pages/History.tsx`
+
+Hành vi, route, định dạng CSV/JSON và locator không đổi. `pages/History.tsx` từ **968 → 316 dòng**, chỉ còn giữ state và điều phối.
+
+- `features/history/lib/historyView.ts`: lọc lượt giải, danh sách tag, thời gian hợp lệ, dữ liệu biểu đồ xu hướng (30 lượt, ao5) và nội dung CSV — hàm thuần, có test riêng `historyView.test.ts`.
+- `features/history/lib/useSolveEditor.ts`: state và logic lưu của hộp thoại sửa lượt giải; hook chạy trong trang nên state vẫn nằm đúng chỗ cũ.
+- `features/history/components/`: `SolveCard`, `HistoryStatTiles`, `HistoryTrendChart`, `HistoryTransferMenu`, `HistoryFilters`, `HistoryEmptyState`, `SolveEditDialog` và `ConfirmDeleteDialog` (gộp hai hộp thoại xoá một lượt / xoá các lượt đã chọn vốn giống hệt nhau). Markup và class giữ nguyên.
