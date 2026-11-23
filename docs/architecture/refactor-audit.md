@@ -254,3 +254,19 @@ Trang `/study`, **URL, route và hành vi SRS không đổi** — chỉ cách tr
 **Dùng lại primitive.** Ba component mới dùng chung `.cfop-solver-panel__header`, `.cfop-solver-eyebrow` và `.cfop-solver-details` với trang giải, nên trang học và trang giải đọc như **một sản phẩm** chứ không phải hai trang dán nhau.
 
 **Xác minh.** `tsc --noEmit` và `tsc --noEmit --noUnusedLocals` sạch; Vitest **78 file / 278 test** đạt; production build đạt; Playwright 2 kịch bản đạt. Chạy trình duyệt thật ở 1440 px và 420 px: không lỗi trang, không tràn ngang, catalog mở ra 56 ô nhóm, thanh tiến độ hiện đúng nền.
+
+## Đợt 9: gộp các lane luyện tập
+
+Nhánh dọn code, **hành vi không đổi**: key localStorage, định dạng ghi, định dạng file backup, tên export của từng lane và locator đều giữ nguyên.
+
+**Vấn đề.** Mười một lane của trang Học thêm (Last Layer, 3-Style BLD, CFOP, 2×2, Pyraminx, Skewb, Square-1, 4×4 Parity, 5×5 L2E, FTO L3T, FTO 2-Look) chép nhau gần nguyên văn: `*Study.ts` khoảng 200 dòng × 11, `*StudyLab.tsx` khoảng 300 dòng × 9, `*CasePanel.tsx` khoảng 260 dòng × 8. Khác nhau chỉ ở key lưu, tên schema, danh sách family, dailyGoal mặc định, giới hạn bản ghi và phần xem case.
+
+**Đã gộp.**
+
+- `client/src/lib/caseStudy.ts`: `createCaseStudyStore({ storageKey, masteredStorageKey, schema, families, defaultDailyGoal, maxRecords, maxMasteredKeys })` cùng các hàm xếp hàng ôn dùng chung. Mười một file `*Study.ts` chỉ còn khai báo tham số và giữ nguyên mọi tên export cũ.
+- `client/src/features/case-study/`: hook `useCaseStudyLane` (state, effect, chấm điểm, nhập backup, số liệu cho thanh công cụ), `CaseStudyLaneShell` (nút chọn bộ, tóm tắt, backup, lịch ôn, catalog), `CasePracticePanel` (thẻ case, timer, bốn nút chấm) và `LazyPuzzlePreview` (canvas 3D tải lười, import động trỏ module cụ thể). Chín `*StudyLab.tsx` và tám `*CasePanel.tsx` chỉ còn phần riêng của lane.
+- BLD giữ `BldStudyLab` riêng vì tải catalog bất đồng bộ và tự chọn case theo điều kiện khác; Last Layer giữ `LastLayerStudyLab`. Cả hai vẫn dùng bộ lưu chung.
+
+**Lỗi hiển thị được sửa theo.** Dòng kết quả của lane 5×5 L2E và FTO 2-Look hiển thị `Â·` (lỗi mã hoá) thay cho `·`; thẻ case dùng chung hiển thị đúng.
+
+**Chốt hợp đồng.** `client/src/lib/caseStudy.contract.test.ts` (77 test) chạy trên cả 11 lane: đọc rỗng, định dạng JSON ghi ra, chuẩn hoá bản ghi lỗi, giới hạn bản ghi và case đã thuộc, chấm điểm, export/import và thuật toán xếp hàng. Test đạt trên code cũ trước khi gộp và đạt lại sau khi gộp.
