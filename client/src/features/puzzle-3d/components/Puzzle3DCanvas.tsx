@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type PointerEvent } from "react";
-import type { BufferAttribute, Object3D, WebGLRenderer } from "three";
+import { useEffect, useRef, useState } from "react";
+import type { Object3D, WebGLRenderer } from "three";
 import { timerEventLabel, type TimerEventId } from "@/lib/timerEvents";
 import {
   isSideEvent2DPuzzle,
@@ -7,16 +7,7 @@ import {
   type FtoTeachingFace,
   type PuzzleId,
 } from "../lib/puzzleIds";
-import {
-  defaultPuzzleCamera,
-  distanceFromPinch,
-  fitDistanceForPoints,
-  gapBetween,
-  inertiaStepForPuzzle,
-  orbitFromPuzzleDrag,
-  type PointerPoint,
-  type ProjectedPoint,
-} from "../lib/puzzleCamera";
+import { defaultPuzzleCamera, fitDistanceForPoints } from "../lib/puzzleCamera";
 import {
   focusActualFtoFace,
   puzzleInitialOrbit,
@@ -24,63 +15,19 @@ import {
   puzzlePreviewDistance,
   puzzlePreviewSetupAlgorithm,
 } from "../lib/puzzleFraming";
-import {
-  recolorCubeStickerColors,
-  type ColoredObject,
-} from "../lib/recolorCubeStickerColors";
-import { Button } from "@/components/ui/Button";
+import { recolorCubeStickerColors, type ColoredObject } from "../lib/recolorCubeStickerColors";
 import { IconButton } from "@/components/ui/StudioUI";
-import { BoxSeam, RotateCcw } from "@/components/ui/Icon";
-
-type PuzzlePlayer = HTMLElement & {
-  puzzle: PuzzleId;
-  experimentalSetupAlg: string;
-  experimentalModel: {
-    currentPattern: { get: () => Promise<{ patternData: unknown }> };
-  };
-  alg: string;
-  visualization: "2D" | "3D";
-  hintFacelets: "none";
-  controlPanel: "none";
-  backView: "none";
-  background: "none";
-  experimentalCurrentThreeJSPuzzleObject: (
-    callback: () => void
-  ) => Promise<unknown>;
-  play?: () => void;
-  pause?: () => void;
-};
-
-function startMountedTwistyPlayer(player: HTMLElement) {
-  let target: object | null = player;
-  while (target) {
-    const startSymbol = Object.getOwnPropertySymbols(target).find(
-      symbol => symbol.description === "intersectedCallback"
-    );
-    if (startSymbol) {
-      const start = (target as Record<symbol, unknown>)[startSymbol];
-      if (typeof start === "function") {
-        void start.call(player);
-        return;
-      }
-    }
-    target = Object.getPrototypeOf(target);
-  }
-}
-
-/** Cờ sessionStorage đánh dấu trang đã được nạp lại một lần để cứu lỗi 3D. */
-const PREVIEW_RELOAD_FLAG = "cfop-3d-preview-reload";
-
-/**
- * Lỗi tải module (import động hỏng). Module map của trình duyệt cache luôn cả
- * thất bại, nên thử lại `import()` trong cùng document sẽ fail ngay mà không
- * có request mạng nào nữa — chỉ nạp lại trang (document mới) mới xoá được cache.
- */
-function isModuleLoadFailure(error: unknown): boolean {
-  return /dynamically imported module|importing a module/i.test(
-    String((error as { message?: string } | null | undefined)?.message ?? error)
-  );
-}
+import { RotateCcw } from "@/components/ui/Icon";
+import { Puzzle3DErrorCard } from "./Puzzle3DErrorCard";
+import { collectShownPoints } from "../lib/puzzleFitPoints";
+import { usePuzzleOrbitControls } from "../lib/usePuzzleOrbitControls";
+import {
+  clearPreviewReloadFlag,
+  isModuleLoadFailure,
+  reloadPreviewPageOnce,
+  startMountedTwistyPlayer,
+  type PuzzlePlayer,
+} from "../lib/previewPlayer";
 
 export function Puzzle3DCanvas({
   eventId,
@@ -109,26 +56,21 @@ export function Puzzle3DCanvas({
 }) {
   const isTwoD = isSideEvent2DPuzzle(puzzle);
   const hostRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{
-    x: number;
-    y: number;
-    yaw: number;
-    pitch: number;
-    lastX: number;
-    lastY: number;
-    lastAt: number;
-    moved: boolean;
-  } | null>(null);
-  const orbitRef = useRef({ yaw: -0.55, pitch: 0.32, distance: 5.4 });
-  const targetDistanceRef = useRef(5.4);
-  const pointersRef = useRef(new Map<number, PointerPoint>());
-  const pinchRef = useRef<{ gap: number; distance: number } | null>(null);
-  const userZoomedRef = useRef(false);
-  const zoomFrameRef = useRef<number | null>(null);
-  const inertiaFrameRef = useRef<number | null>(null);
-  const inertiaVelocityRef = useRef({ yaw: 0, pitch: 0 });
-  const renderRef = useRef<(() => void) | null>(null);
-  const resetRef = useRef<(() => void) | null>(null);
+  const {
+    orbitRef,
+    targetDistanceRef,
+    pointersRef,
+    pinchRef,
+    userZoomedRef,
+    zoomFrameRef,
+    inertiaFrameRef,
+    renderRef,
+    resetRef,
+    pointerDown,
+    pointerMove,
+    pointerUp,
+    resetView,
+  } = usePuzzleOrbitControls(puzzle);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading"
   );
@@ -184,11 +126,7 @@ export function Puzzle3DCanvas({
         // The player waits for an IntersectionObserver before rendering; start
         // it explicitly so the 2D SVG appears even inside a short preview card.
         startMountedTwistyPlayer(player);
-        try {
-          window.sessionStorage.removeItem(PREVIEW_RELOAD_FLAG);
-        } catch {
-          /* sessionStorage có thể bị chặn — bỏ qua. */
-        }
+        clearPreviewReloadFlag();
         setStatus("ready");
         if (animationAlg.trim()) {
           window.setTimeout(() => {
@@ -244,11 +182,7 @@ export function Puzzle3DCanvas({
         );
       // Module đã tải xong và player đã trả về đối tượng 3D: xoá cờ "đã nạp
       // lại trang" để lần hỏng sau (nếu có) vẫn được phép nạp lại trang.
-      try {
-        window.sessionStorage.removeItem(PREVIEW_RELOAD_FLAG);
-      } catch {
-        /* sessionStorage có thể bị chặn — bỏ qua. */
-      }
+      clearPreviewReloadFlag();
       const activeRenderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha: true,
@@ -313,78 +247,11 @@ export function Puzzle3DCanvas({
         camera.lookAt(0, 0, 0);
         activeRenderer.render(scene, camera);
       };
-      /**
-       * cubing.js hides hint facelets behind invisible materials and meshes.
-       * Both extend past the puzzle, so only sample groups the renderer shows.
-       */
-      const isShownMaterial = (
-        material: { visible?: boolean; opacity?: number } | undefined
-      ) => {
-        if (!material) return false;
-        return material.visible !== false && (material.opacity ?? 1) > 0.02;
-      };
-      const isShown = (object: Object3D) => {
-        let node: Object3D | null = object;
-        while (node) {
-          if (!node.visible) return false;
-          node = node.parent;
-        }
-        return true;
-      };
-      type FitMesh = Object3D & {
-        isMesh?: boolean;
-        geometry?: {
-          attributes?: { position?: BufferAttribute };
-          groups?: ReadonlyArray<{
-            start: number;
-            count: number;
-            materialIndex?: number;
-          }>;
-          index?: BufferAttribute | null;
-        };
-        material?:
-          | { visible?: boolean; opacity?: number }
-          | Array<{ visible?: boolean; opacity?: number }>;
-      };
       const fitDistance = () => {
         if (!fitEnabled) return previewDistance;
         root.rotation.set(orbit.pitch, orbit.yaw, 0);
         puzzleObject.updateWorldMatrix(true, true);
-        const points: ProjectedPoint[] = [];
-        const vertex = new THREE.Vector3();
-        puzzleObject.traverse(child => {
-          const mesh = child as FitMesh;
-          const geometry = mesh.geometry;
-          const position = geometry?.attributes?.position;
-          if (!mesh.isMesh || !position || !isShown(mesh)) return;
-          const materials = Array.isArray(mesh.material)
-            ? mesh.material
-            : [mesh.material];
-          const materialShown = (materialIndex: number) =>
-            isShownMaterial(materials[materialIndex] ?? materials[0]);
-          const push = (index: number) => {
-            vertex.fromBufferAttribute(position, index);
-            vertex.applyMatrix4(mesh.matrixWorld);
-            points.push({ x: vertex.x, y: vertex.y, z: vertex.z });
-          };
-          const groups = geometry?.groups ?? [];
-          if (!groups.length) {
-            if (!materialShown(0)) return;
-            for (let index = 0; index < position.count; index += 1) push(index);
-            return;
-          }
-          const triangles = geometry?.index;
-          for (const group of groups) {
-            if (group.count <= 0 || !materialShown(group.materialIndex ?? 0))
-              continue;
-            const end = Math.min(
-              group.start + group.count,
-              triangles ? triangles.count : position.count
-            );
-            for (let index = group.start; index < end; index += 1)
-              push(triangles ? triangles.getX(index) : index);
-          }
-        });
+        const points = collectShownPoints(puzzleObject, new THREE.Vector3());
         if (!points.length) return previewDistance;
         return fitDistanceForPoints(points, camera.fov, camera.aspect);
       };
@@ -476,186 +343,26 @@ export function Puzzle3DCanvas({
     retryTick,
   ]);
 
-  const smoothZoom = () => {
-    if (!renderRef.current) return;
-    if (zoomFrameRef.current !== null) return;
-    const tick = () => {
-      const orbit = orbitRef.current;
-      const target = targetDistanceRef.current;
-      const nextDistance = orbit.distance + (target - orbit.distance) * 0.28;
-      orbit.distance =
-        Math.abs(target - nextDistance) < 0.01 ? target : nextDistance;
-      renderRef.current?.();
-      if (orbit.distance === target) {
-        zoomFrameRef.current = null;
-        return;
-      }
-      zoomFrameRef.current = window.requestAnimationFrame(tick);
-    };
-    zoomFrameRef.current = window.requestAnimationFrame(tick);
-  };
-
-  const cancelInertia = () => {
-    if (inertiaFrameRef.current !== null)
-      window.cancelAnimationFrame(inertiaFrameRef.current);
-    inertiaFrameRef.current = null;
-    inertiaVelocityRef.current = { yaw: 0, pitch: 0 };
-  };
-
-  const startInertia = () => {
-    if (
-      !renderRef.current ||
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
-    )
-      return;
-    const advance = () => {
-      const next = inertiaStepForPuzzle(
-        puzzle,
-        orbitRef.current,
-        inertiaVelocityRef.current
-      );
-      inertiaVelocityRef.current = next.velocity;
-      if (
-        Math.abs(next.velocity.yaw) < 0.0004 &&
-        Math.abs(next.velocity.pitch) < 0.0004
-      ) {
-        cancelInertia();
-        return;
-      }
-      orbitRef.current.yaw = next.orbit.yaw;
-      orbitRef.current.pitch = next.orbit.pitch;
-      renderRef.current?.();
-      inertiaFrameRef.current = window.requestAnimationFrame(advance);
-    };
-    inertiaFrameRef.current = window.requestAnimationFrame(advance);
-  };
-
-  const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    if (!renderRef.current) return;
-    cancelInertia();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    pointersRef.current.set(event.pointerId, {
-      x: event.clientX,
-      y: event.clientY,
-    });
-    if (pointersRef.current.size >= 2) {
-      const points = Array.from(pointersRef.current.values());
-      pinchRef.current = {
-        gap: gapBetween(points),
-        distance: targetDistanceRef.current,
-      };
-      dragRef.current = null;
-      return;
-    }
-    dragRef.current = {
-      x: event.clientX,
-      y: event.clientY,
-      yaw: orbitRef.current.yaw,
-      pitch: orbitRef.current.pitch,
-      lastX: event.clientX,
-      lastY: event.clientY,
-      lastAt: performance.now(),
-      moved: false,
-    };
-  };
-  const pointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (!pointersRef.current.has(event.pointerId) || !renderRef.current) return;
-    pointersRef.current.set(event.pointerId, {
-      x: event.clientX,
-      y: event.clientY,
-    });
-    if (pointersRef.current.size >= 2 && pinchRef.current) {
-      userZoomedRef.current = true;
-      targetDistanceRef.current = distanceFromPinch(
-        pinchRef.current.distance,
-        pinchRef.current.gap,
-        gapBetween(Array.from(pointersRef.current.values()))
-      );
-      smoothZoom();
-      return;
-    }
-    const drag = dragRef.current;
-    if (!drag) return;
-    const now = performance.now();
-    const elapsed = Math.max(8, now - drag.lastAt);
-    inertiaVelocityRef.current = {
-      yaw: ((event.clientX - drag.lastX) * 0.012 * 16) / elapsed,
-      pitch: ((event.clientY - drag.lastY) * 0.012 * 16) / elapsed,
-    };
-    drag.lastX = event.clientX;
-    drag.lastY = event.clientY;
-    drag.lastAt = now;
-    drag.moved = true;
-    const nextOrbit = orbitFromPuzzleDrag(
-      puzzle,
-      { yaw: drag.yaw, pitch: drag.pitch, distance: orbitRef.current.distance },
-      event.clientX - drag.x,
-      event.clientY - drag.y
-    );
-    orbitRef.current.yaw = nextOrbit.yaw;
-    orbitRef.current.pitch = nextOrbit.pitch;
-    renderRef.current();
-  };
-  const pointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    const wasDragged = dragRef.current?.moved ?? false;
-    if (event.currentTarget.hasPointerCapture(event.pointerId))
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    pointersRef.current.delete(event.pointerId);
-    pinchRef.current = null;
-    const remaining = Array.from(pointersRef.current.values())[0];
-    dragRef.current = remaining
-      ? {
-          x: remaining.x,
-          y: remaining.y,
-          yaw: orbitRef.current.yaw,
-          pitch: orbitRef.current.pitch,
-          lastX: remaining.x,
-          lastY: remaining.y,
-          lastAt: performance.now(),
-          moved: false,
-        }
-      : null;
-    if (!remaining && wasDragged) startInertia();
-  };
   const label = timerEventLabel(eventId, language);
   const modelLabel = isTwoD ? "2D" : "3D";
   if (status === "error")
     return (
-      <div className="rounded-card bg-surface p-5 sm:p-6 h-full flex flex-col items-center justify-center text-center">
-        <BoxSeam className="text-4xl text-muted mb-4" />
-        <p className="font-semibold mb-1">{label}</p>
-        <p className="text-sm text-muted mb-3">
-          {language === "vi"
-            ? `Không thể tạo mô hình ${modelLabel} cho scramble này.`
-            : `The ${modelLabel} model could not be created for this scramble.`}
-        </p>
-        <Button
-          variant="outline"
-          size="xs"
-          onClick={() => {
-            // Lỗi thường để lại cache hỏng trong module map của document hiện
-            // tại, nên nạp lại trang một lần là cách phục hồi đáng tin nhất.
-            // Cờ sessionStorage chặn vòng lặp nạp lại; các lần bấm sau (và
-            // trường hợp sessionStorage bị chặn) dựng lại trong trang.
-            try {
-              if (!window.sessionStorage.getItem(PREVIEW_RELOAD_FLAG)) {
-                window.sessionStorage.setItem(PREVIEW_RELOAD_FLAG, "1");
-                window.location.reload();
-                return;
-              }
-            } catch {
-              /* sessionStorage có thể bị chặn — dựng lại trong trang. */
-            }
-            attemptRef.current = { key: attemptRef.current.key, attempt: 0 };
-            moduleFailureRef.current = false;
-            setStatus("loading");
-            setRetryTick(value => value + 1);
-          }}
-        >
-          {language === "vi" ? "Thử lại" : "Try again"}
-        </Button>
-      </div>
+      <Puzzle3DErrorCard
+        label={label}
+        modelLabel={modelLabel}
+        language={language}
+        onRetry={() => {
+          // Lỗi thường để lại cache hỏng trong module map của document hiện
+          // tại, nên nạp lại trang một lần là cách phục hồi đáng tin nhất.
+          // Các lần bấm sau (và trường hợp sessionStorage bị chặn) dựng lại
+          // trong trang.
+          if (reloadPreviewPageOnce()) return;
+          attemptRef.current = { key: attemptRef.current.key, attempt: 0 };
+          moduleFailureRef.current = false;
+          setStatus("loading");
+          setRetryTick(value => value + 1);
+        }}
+      />
     );
 
   return (
@@ -695,12 +402,7 @@ export function Puzzle3DCanvas({
             label={language === "vi" ? "Đặt lại góc nhìn 3D" : "Reset 3D view"}
             icon={<RotateCcw className="text-base" aria-hidden="true" />}
             className="absolute bottom-0 right-0 m-2 inline-flex items-center justify-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() => {
-              cancelInertia();
-              userZoomedRef.current = false;
-              resetRef.current?.();
-              targetDistanceRef.current = orbitRef.current.distance;
-            }}
+            onClick={resetView}
             title={language === "vi" ? "Đặt lại góc nhìn" : "Reset view"}
           />
         )}
