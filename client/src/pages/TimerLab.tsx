@@ -12,16 +12,18 @@ import {
   Eye,
   EyeOff,
   ImageDown,
-  Play,
   Sparkles,
   Timer,
   ChevronDown,
 } from "@/components/ui/Icon";
 import { Link, useLocation } from "wouter";
-import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Bar,
-  BarChart,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
   Line,
   LineChart,
   ResponsiveContainer,
@@ -30,33 +32,17 @@ import {
   YAxis,
 } from "recharts";
 import { CubeNet } from "@/components/common/CubeNet";
-import {
-  CUBE_COLORS,
-  CUBE_FALLBACK_COLOR,
-} from "@/features/puzzle-3d/lib/cubeColors";
-import {
-  exportPalette,
-  type ExportPalette,
-} from "@/features/timer/lib/exportPalette";
 import { PuzzleScramblePreview } from "@/components/common/PuzzleScramblePreview";
 import { LastLayerStudyLab } from "@/features/last-layer";
 import { dailyDigest } from "@/features/timer/lib/dailyDigest";
-import { MoveComposer } from "@/components/common/MoveComposer";
-import {
-  SolveTimer,
-  type TimerCompletion,
-} from "@/components/common/SolveTimer";
+import { SolveTimer, type TimerCompletion } from "@/components/common/SolveTimer";
 import { useBluetoothTimer } from "@/features/timer/useBluetoothTimer";
 import { useSmartCube } from "@/features/timer/useSmartCube";
 import { BluetoothTimerBar } from "@/features/timer/components/BluetoothTimerBar";
 import { BluetoothTimerHero } from "@/features/timer/components/BluetoothTimerHero";
 import { SmartCubeBar } from "@/features/timer/components/SmartCubeBar";
 import { SmartCubeHero } from "@/features/timer/components/SmartCubeHero";
-import {
-  SOLVED_FAST_STATE,
-  stateFromScramble,
-  validateRecordedSolution,
-} from "@/lib/fastCube";
+import { validateRecordedSolution } from "@/lib/fastCube";
 import {
   detectPersonalRecords,
   metricEvidence,
@@ -73,50 +59,31 @@ import {
   timerPreviewPuzzleId,
   type TimerEventId,
 } from "@/lib/timerEvents";
-import {
-  formatMultiBlindTime,
-  multiBlindResult,
-  multiBlindTimeLimitMs,
-} from "@/lib/multiBlind";
+import { formatMultiBlindTime, multiBlindResult, multiBlindTimeLimitMs } from "@/lib/multiBlind";
 import {
   phaseTpsFromSolution,
   progressSeries,
   solutionEfficiency,
-  splitSummary,
   TIMER_AVERAGE_SIZES,
 } from "@/features/timer/lib/timerAnalysis";
-import {
-  wcaTimerComparison,
-  type WcaTimerComparisonRow,
-} from "@/features/wca/lib/wcaTimerComparison";
+import { wcaTimerComparison } from "@/features/wca/lib/wcaTimerComparison";
 import { trpc } from "@/lib/trpc";
-import {
-  readStoredValue,
-  writeStoredValue,
-} from "@/lib/browserStorage";
+import { readStoredValue, writeStoredValue } from "@/lib/browserStorage";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import {
   addSolveHistory,
   deleteSolveHistory,
   effectiveTime,
-  formatSolveResult,
   formatSolveTime,
   initialStateFor,
   readSolveHistory,
   type SolveHistoryEntry,
   type SolvePenalty,
   type SolveSource,
-  updateSolveHistory,
 } from "@/lib/solveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CrossLengthStrip } from "@/features/timer/components/CrossLengthStrip";
-import { HIDE_RUNNING_TIME_KEY, readSolverSettings } from "@/lib/appSettings";
-import {
-  orientForCross,
-  scrambledState,
-  wcaLettersToStudio,
-} from "@/lib/scrambleOrientation";
-import type { WordParams } from "@/lib/i18n";
+import { HIDE_RUNNING_TIME_KEY } from "@/lib/appSettings";
 import {
   Dialog,
   DialogContent,
@@ -126,348 +93,26 @@ import {
   DialogTitle,
 } from "@/components/ui/StudioDialog";
 import { MetricButton } from "@/features/timer";
+import { TimerReplayDialog } from "@/features/timer/components/TimerReplayDialog";
+import { TimerSolveEditDialog } from "@/features/timer/components/TimerSolveEditDialog";
+import { useTimerSolveEditor } from "@/features/timer/lib/useTimerSolveEditor";
 import { IconButton, PageHeader, StatTile } from "@/components/ui/StudioUI";
 import { RoundButton } from "@/components/ui/DesignSystem";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 
 import { buttonClass } from "@/components/ui/Button";
-import { Input, Textarea } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
 
+import type { TimerWcaRecord } from "@/features/timer/lib/timerLabTypes";
+import { safeScrambleState } from "@/features/timer/lib/timerScrambleState";
+import { exportAo5Image } from "@/features/timer/lib/timerImageExport";
+import { EventProgressCard } from "@/features/timer/components/EventProgressCard";
+import { EventWcaComparisonCard } from "@/features/timer/components/EventWcaComparisonCard";
+import { MetricDetailCard } from "@/features/timer/components/MetricDetailCard";
+import { MultiBlindResultCard, MultiBlindScrambleList } from "@/features/timer/components/MultiBlindCards";
+
 const AVERAGES = TIMER_AVERAGE_SIZES;
-type TimerWcaRecord = {
-  eventId: string;
-  singleCentiseconds: number | null;
-  averageCentiseconds: number | null;
-};
-/** Resolves a `namespace.key` entry of the shared bilingual dictionary. */
-type Translate = (key: string, params?: WordParams) => string;
-
-function canvasLines(
-  context: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number
-) {
-  const words = text.trim().split(/\s+/).filter(Boolean);
-  const lines: string[] = [];
-  let line = "";
-  for (const word of words) {
-    const candidate = line ? `${line} ${word}` : word;
-    if (line && context.measureText(candidate).width > maxWidth) {
-      lines.push(line);
-      line = word;
-    } else line = candidate;
-  }
-  if (line) lines.push(line);
-  return lines;
-}
-function drawMetricCube(
-  context: CanvasRenderingContext2D,
-  state: string,
-  x: number,
-  y: number,
-  tile: number,
-  palette: ExportPalette
-) {
-  const safe = state.length === 54 ? state : SOLVED_FAST_STATE;
-  const faces = ["U", "R", "F", "D", "L", "B"] as const;
-  const positions = {
-    U: [1, 0],
-    L: [0, 1],
-    F: [1, 1],
-    R: [2, 1],
-    B: [3, 1],
-    D: [1, 2],
-  } as const;
-  const offsets = { U: 0, R: 9, F: 18, D: 27, L: 36, B: 45 } as const;
-  context.fillStyle = palette.ink;
-  context.fillRect(x - 8, y - 8, tile * 12 + 16, tile * 9 + 16);
-  for (const face of faces) {
-    const [column, row] = positions[face];
-    for (let index = 0; index < 9; index += 1) {
-      const sticker = safe[offsets[face] + index] ?? "U";
-      const sx = x + (column * 3 + (index % 3)) * tile;
-      const sy = y + (row * 3 + Math.floor(index / 3)) * tile;
-      context.fillStyle = CUBE_COLORS[sticker] ?? CUBE_FALLBACK_COLOR;
-      context.fillRect(sx, sy, tile - 1, tile - 1);
-    }
-  }
-}
-/** Dựng ảnh Ao5 để chia sẻ: mỗi lượt một hàng, kèm scramble và CubeNet. */
-function exportAo5Image(
-  entries: SolveHistoryEntry[],
-  exclusions: Record<string, "best" | "worst">,
-  value: number | null | undefined,
-  t: Translate,
-  language: "vi" | "en"
-) {
-  const width = 3200;
-  const headerHeight = 320;
-  const rowHeight = 330;
-  const footerHeight = 150;
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = headerHeight + entries.length * rowHeight + footerHeight;
-  const context = canvas.getContext("2d");
-  if (!context) return;
-  const palette = exportPalette();
-  const margin = 100;
-  const cubeX = 690;
-  const scrambleX = 1120;
-  const scrambleWidth = width - scrambleX - margin;
-  const dateLocale = language === "vi" ? "vi-VN" : "en-US";
-  context.fillStyle = palette.paper;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  context.strokeStyle = palette.grid;
-  context.lineWidth = 1;
-  for (let x = 0; x < width; x += 64) {
-    context.beginPath();
-    context.moveTo(x, 0);
-    context.lineTo(x, canvas.height);
-    context.stroke();
-  }
-  context.fillStyle = palette.ink;
-  context.fillRect(0, 0, width, 22);
-  context.fillRect(margin, 62, width - margin * 2, 184);
-  context.fillStyle = palette.accent;
-  context.font = "700 32px monospace";
-  context.fillText("CFOP SOLVER STUDIO · TIMER RECORD", 148, 118);
-  context.fillStyle = palette.paper;
-  context.font = "800 84px monospace";
-  context.fillText(
-    `AO5 · ${value == null ? "DNF" : formatSolveTime(value)}`,
-    148,
-    204
-  );
-  context.fillStyle = palette.onAccent;
-  context.font = "600 24px monospace";
-  context.fillText(t("timer.exportSheetNote"), 150, 236);
-  entries.forEach((entry, index) => {
-    const top = headerHeight + index * rowHeight;
-    const exclusion = exclusions[entry.id];
-    context.fillStyle = index % 2 ? palette.rowAlt : palette.row;
-    context.fillRect(margin, top + 12, width - margin * 2, rowHeight - 24);
-    context.strokeStyle =
-      exclusion === "best"
-        ? palette.accent
-        : exclusion === "worst"
-          ? palette.worst
-          : palette.rule;
-    context.lineWidth = exclusion ? 7 : 3;
-    context.strokeRect(margin, top + 12, width - margin * 2, rowHeight - 24);
-    context.fillStyle =
-      exclusion === "best"
-        ? palette.accentInk
-        : exclusion === "worst"
-          ? palette.worstInk
-          : palette.ink;
-    context.font = "900 34px monospace";
-    context.fillText(String(index + 1).padStart(2, "0"), 150, top + 82);
-    context.font = "900 58px monospace";
-    context.fillText(formatSolveResult(entry), 150, top + 153);
-    context.font = "700 19px monospace";
-    context.fillStyle = palette.muted;
-    context.fillText(
-      new Date(entry.createdAt).toLocaleDateString(dateLocale),
-      152,
-      top + 196
-    );
-    context.fillStyle =
-      exclusion === "best"
-        ? palette.accentInk
-        : exclusion === "worst"
-          ? palette.worstInk
-          : palette.muted;
-    context.font = "700 18px monospace";
-    context.fillText(
-      exclusion
-        ? exclusion === "best"
-          ? t("timer.exportBest")
-          : t("timer.exportWorst")
-        : t("timer.exportCounted"),
-      150,
-      top + 244
-    );
-    drawMetricCube(
-      context,
-      safeScrambleState(entry.input, entry.eventId),
-      cubeX,
-      top + 26,
-      28,
-      palette
-    );
-    context.fillStyle = palette.label;
-    context.font = "800 20px monospace";
-    context.fillText("SCRAMBLE", scrambleX, top + 64);
-    context.fillStyle = palette.ink;
-    context.font = "900 36px monospace";
-    const scramble = canvasLines(context, entry.input, scrambleWidth).slice(
-      0,
-      2
-    );
-    scramble.forEach((line, lineIndex) =>
-      context.fillText(line, scrambleX, top + 126 + lineIndex * 50)
-    );
-    context.fillStyle = palette.muted;
-    context.font = "700 19px monospace";
-    context.fillText(
-      entry.phaseSplits.length
-        ? splitSummary(entry)
-        : t("timer.exportNoSplits"),
-      scrambleX,
-      top + 245
-    );
-    if (entry.note) {
-      context.font = "600 18px monospace";
-      context.fillText(
-        `${t("timer.exportNote")}: ${entry.note.slice(0, 132)}`,
-        scrambleX,
-        top + 280
-      );
-    }
-  });
-  context.fillStyle = palette.muted;
-  context.font = "600 21px monospace";
-  context.fillText(t("timer.exportFooter"), margin, canvas.height - 54);
-  const link = document.createElement("a");
-  link.download = `cfop-ao5-${Date.now()}.png`;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
-}
-/** Dựng ảnh thẻ lượt giải để chia sẻ: thời gian lớn, scramble, net và pha. */
-function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en") {
-  const width = 1080;
-  const height = 1080;
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  if (!context) return;
-  const palette = exportPalette();
-  const margin = 64;
-  const innerWidth = width - margin * 2;
-  const dateLocale = language === "vi" ? "vi-VN" : "en-US";
-
-  context.fillStyle = palette.paper;
-  context.fillRect(0, 0, width, height);
-  context.strokeStyle = palette.grid;
-  context.lineWidth = 1;
-  for (let x = 0; x < width; x += 54) {
-    context.beginPath();
-    context.moveTo(x, 0);
-    context.lineTo(x, height);
-    context.stroke();
-  }
-  context.fillStyle = palette.ink;
-  context.fillRect(0, 0, width, 20);
-
-  // Eyebrow row: studio mark on the left, the event on the right.
-  context.fillStyle = palette.accent;
-  context.font = "800 30px monospace";
-  context.fillText("CFOP SOLVER STUDIO", margin, 92);
-  const eventLabel = timerEventLabel(
-    normalizeTimerEventId(entry.eventId),
-    language
-  );
-  context.textAlign = "right";
-  context.fillStyle = palette.muted;
-  context.font = "700 22px monospace";
-  context.fillText(eventLabel, width - margin, 92);
-  context.textAlign = "left";
-
-  // Ink panel with the time itself.
-  context.fillStyle = palette.ink;
-  context.fillRect(margin, 128, innerWidth, 250);
-  context.fillStyle = palette.accent;
-  context.font = "700 24px monospace";
-  context.fillText("SOLVE CARD", margin + 44, 196);
-  context.fillStyle = palette.onAccent;
-  context.font = "900 112px monospace";
-  context.fillText(formatSolveResult(entry), margin + 44, 330);
-  context.fillStyle = palette.muted;
-  context.font = "600 22px monospace";
-  context.fillText(
-    new Date(entry.createdAt).toLocaleDateString(dateLocale, {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }),
-    margin + 44,
-    372
-  );
-
-  // Cube net + scramble block.
-  drawMetricCube(
-    context,
-    safeScrambleState(entry.input, entry.eventId),
-    margin,
-    448,
-    27,
-    palette
-  );
-  const rightX = margin + 360;
-  const rightWidth = width - margin - rightX;
-  context.fillStyle = palette.muted;
-  context.font = "700 20px monospace";
-  context.fillText("SCRAMBLE", rightX, 490);
-  context.fillStyle = palette.ink;
-  context.font = "800 34px monospace";
-  canvasLines(context, entry.input, rightWidth)
-    .slice(0, 4)
-    .forEach((line, lineIndex) =>
-      context.fillText(line, rightX, 540 + lineIndex * 46)
-    );
-  if (entry.penalty !== "none") {
-    context.fillStyle = palette.worst;
-    context.font = "800 26px monospace";
-    context.fillText(entry.penalty, rightX, 740);
-  }
-
-  // Phase splits (auto-detected on smart-cube solves when present).
-  if (entry.phaseSplits.length) {
-    context.fillStyle = palette.muted;
-    context.font = "700 20px monospace";
-    context.fillText("PHASES", margin, 830);
-    context.fillStyle = palette.ink;
-    context.font = "700 25px monospace";
-    context.fillText(splitSummary(entry).slice(0, 80), margin, 868);
-  }
-
-  // Footer.
-  context.textAlign = "center";
-  context.fillStyle = palette.muted;
-  context.font = "600 21px monospace";
-  context.fillText(
-    "CFOP SOLVER STUDIO · cfop-solver.studio",
-    width / 2,
-    height - 40
-  );
-  context.textAlign = "left";
-
-  const link = document.createElement("a");
-  link.download = `cfop-solve-${Date.now()}.png`;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
-}
-
-/**
- * Khối sau khi tráo, cầm trắng U, xanh lá F. 3×3 thường: lật màu cross trong
- * Cài đặt về D. BLD: giữ nguyên hướng tráo (người giải mù không lật khối).
- */
-function safeScrambleState(scramble: string, eventId?: string) {
-  try {
-    const event = normalizeTimerEventId(eventId);
-    return event === "333bf" || event === "333mbf"
-      ? wcaLettersToStudio(stateFromScramble(scramble))
-      : orientForCross(
-          scrambledState(scramble),
-          readSolverSettings().crossColor
-        );
-  } catch {
-    return SOLVED_FAST_STATE;
-  }
-}
 export default function TimerLab() {
   const { language, t } = useLanguage();
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, {
@@ -489,6 +134,11 @@ export default function TimerLab() {
     readSolveHistory()
   );
   const digest = useMemo(() => dailyDigest(entries), [entries]);
+  const editor = useTimerSolveEditor({
+    onSaved: setEntries,
+    unfinishedMessage: t("timer.unfinishedSolution"),
+    unsupportedMessage: t("timer.unsupportedNotation"),
+  });
   const [timerVersion, setTimerVersion] = useState(0);
   const [saved, setSaved] = useState(false);
   const [latestRecorded, setLatestRecorded] =
@@ -530,12 +180,6 @@ export default function TimerLab() {
   const [multiBlindScrambles, setMultiBlindScrambles] = useState<string[]>([]);
   const [pendingMultiBlind, setPendingMultiBlind] =
     useState<TimerCompletion | null>(null);
-  const [editing, setEditing] = useState<SolveHistoryEntry | null>(null);
-  const [editSeconds, setEditSeconds] = useState("");
-  const [editPenalty, setEditPenalty] = useState<SolvePenalty>("none");
-  const [editSolution, setEditSolution] = useState("");
-  const [editNote, setEditNote] = useState("");
-  const [editTags, setEditTags] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<SolveHistoryEntry | null>(
     null
   );
@@ -546,7 +190,6 @@ export default function TimerLab() {
   const [location] = useLocation();
   const labTab: "timer" | "study" =
     location.split("?")[0] === "/study" ? "study" : "timer";
-  const [solutionError, setSolutionError] = useState("");
   const scrambleRequest = useRef(0);
 
   // Chế độ tập trung: khi đồng hồ chạy, trang chỉ còn con số.
@@ -869,47 +512,6 @@ export default function TimerLab() {
   useEffect(() => {
     void nextScramble(false);
   }, []);
-  const openEdit = (entry: SolveHistoryEntry) => {
-    setEditing(entry);
-    setEditSeconds((entry.elapsedMs / 1000).toFixed(2));
-    setEditPenalty(entry.penalty);
-    setEditSolution(entry.solution);
-    setEditNote(entry.note);
-    setEditTags(entry.tags.join(", "));
-    setSolutionError("");
-  };
-  const saveEdit = () => {
-    if (!editing) return;
-    const seconds = Number(editSeconds);
-    if (!Number.isFinite(seconds) || seconds < 0) return;
-    const validation = validateRecordedSolution(
-      initialStateFor(editing),
-      editSolution
-    );
-    if (!validation.valid && validation.error !== "empty") {
-      setSolutionError(
-        validation.error === "unfinished"
-          ? t("timer.unfinishedSolution")
-          : t("timer.unsupportedNotation")
-      );
-      return;
-    }
-    setEntries(
-      updateSolveHistory(editing.id, {
-        elapsedMs: Math.round(seconds * 1000),
-        penalty: editPenalty,
-        solution: validation.normalized,
-        moves: validation.moves.length,
-        note: editNote.trim(),
-        tags: editTags
-          .split(",")
-          .map(tag => tag.trim())
-          .filter(Boolean),
-      })
-    );
-    setSolutionError("");
-    setEditing(null);
-  };
   const openReplay = (entry: SolveHistoryEntry) => {
     const validation = validateRecordedSolution(
       initialStateFor(entry),
@@ -1217,7 +819,7 @@ export default function TimerLab() {
                           size="xs"
                           className="shrink-0"
                           type="button"
-                          onClick={() => openEdit(latestRecorded)}
+                          onClick={() => editor.open(latestRecorded)}
                         >
                           {t("timer.addSolution")}
                         </Button>
@@ -1686,264 +1288,17 @@ export default function TimerLab() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <Dialog
-              open={Boolean(editing)}
-              onOpenChange={open => !open && setEditing(null)}
-            >
-              <DialogContent>
-                <DialogHeader>
-                  <div>
-                    <DialogTitle>{t("timer.edit")}</DialogTitle>
-                    <DialogDescription>
-                      <span className="font-mono break-words">
-                        {editing?.input}
-                      </span>
-                    </DialogDescription>
-                  </div>
-                </DialogHeader>
-                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-                  <div className="grid grid-cols-12 gap-4">
-                    <label className="col-span-12 md:col-span-6">
-                      <span className="mb-1.5 block text-sm font-medium text-ink">
-                        {t("timer.base")}
-                      </span>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={editSeconds}
-                        onChange={event => setEditSeconds(event.target.value)}
-                      />
-                    </label>
-                    <label className="col-span-12 md:col-span-6">
-                      <span className="mb-1.5 block text-sm font-medium text-ink">
-                        {t("timer.penalty")}
-                      </span>
-                      <Select
-                        value={editPenalty}
-                        onChange={event =>
-                          setEditPenalty(event.target.value as SolvePenalty)
-                        }
-                      >
-                        <option value="none">{t("timer.noPenalty")}</option>
-                        <option value="+2">{t("timer.plusTwo")}</option>
-                        <option value="DNF">{t("timer.dnf")}</option>
-                      </Select>
-                    </label>
-                    <div className="col-span-12">
-                      <MoveComposer
-                        value={editSolution}
-                        onChange={value => {
-                          setEditSolution(value);
-                          if (solutionError) setSolutionError("");
-                        }}
-                        label={t("timer.solution")}
-                        pasteLabel={t("timer.solutionHint")}
-                      />
-                    </div>
-                    {solutionError && (
-                      <div className="col-span-12">
-                        <div
-                          role="alert"
-                          className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink mb-0"
-                        >
-                          {solutionError}
-                        </div>
-                      </div>
-                    )}
-                    <label className="col-span-12">
-                      <span className="mb-1.5 block text-sm font-medium text-ink">
-                        {t("timer.note")}
-                      </span>
-                      <Textarea
-                        value={editNote}
-                        onChange={event => setEditNote(event.target.value)}
-                        rows={3}
-                      />
-                    </label>
-                    <label className="col-span-12">
-                      <span className="mb-1.5 block text-sm font-medium text-ink">
-                        {t("timer.tags")}
-                      </span>
-                      <Input
-                        value={editTags}
-                        onChange={event => setEditTags(event.target.value)}
-                      />
-                    </label>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    type="button"
-                    onClick={() => setEditing(null)}
-                  >
-                    {t("timer.cancel")}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="md"
-                    type="button"
-                    onClick={saveEdit}
-                  >
-                    {t("timer.save")}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <TimerSolveEditDialog editor={editor} />
 
-            <Dialog
-              open={Boolean(replay)}
-              onOpenChange={open => {
-                if (!open) {
-                  setReplay(null);
-                }
-              }}
-            >
-              <DialogContent>
-                <DialogHeader>
-                  <div>
-                    <DialogTitle>{t("timer.playbackTitle")}</DialogTitle>
-                    <DialogDescription>
-                      <span className="font-mono break-words">
-                        {replayText}
-                      </span>
-                    </DialogDescription>
-                  </div>
-                </DialogHeader>
-                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-                  {replayText.trim() ? (
-                    <div className="grid grid-cols-12 gap-4">
-                      <div className="col-span-12 lg:col-span-7">
-                        {replay?.inputKind === "scramble" ? (
-                          <div className="min-h-[16rem] h-full rounded-card overflow-hidden">
-                            <PuzzleScramblePreview
-                              eventId={normalizeTimerEventId(replay?.eventId)}
-                              scramble={replay?.input ?? ""}
-                              language={language}
-                              animationAlg={replayText}
-                              animationRunId={replayRunId}
-                            />
-                          </div>
-                        ) : (
-                          <div className="rounded-card bg-surface h-full flex flex-col items-center justify-center text-center p-5 sm:p-6">
-                            <Timer className="text-4xl text-muted mb-4" />
-                            <p className="text-sm text-muted mb-0">
-                              {t("timer.replayStateSolve")}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="col-span-12 lg:col-span-5">
-                        <div className="rounded-card bg-surface h-full">
-                          <div className="p-5 sm:p-6">
-                            <p className="text-sm uppercase tracking-wide font-semibold text-muted mb-1">
-                              {t("timer.moves")}
-                            </p>
-                            <p className="text-3xl font-bold tracking-tight sm:text-4xl font-mono">
-                              {replay?.moves ?? 0}
-                            </p>
-                            <p className="text-sm text-muted">
-                              {t("timer.tps")} {replayTps.toFixed(2)}
-                            </p>
-                            {replay?.phaseSplits.length ? (
-                              <div className="mt-4">
-                                <p className="text-sm font-semibold mb-1">
-                                  {t("timer.splitTimes")}
-                                </p>
-                                <div className="grid grid-cols-12 gap-1">
-                                  {replay.phaseSplits.map(split => (
-                                    <div
-                                      key={split.phase}
-                                      className="col-span-6"
-                                    >
-                                      <span className="text-sm text-muted">
-                                        {split.phase}{" "}
-                                      </span>
-                                      <strong className="text-sm">
-                                        {(split.elapsedMs / 1000).toFixed(2)}s
-                                      </strong>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            ) : null}
-                            {phaseTps.length ? (
-                              <div className="mt-4">
-                                <p className="text-sm font-semibold mb-1">
-                                  {t("timer.tpsByPhase")}
-                                </p>
-                                <div className="h-64">
-                                  <ResponsiveContainer
-                                    width="100%"
-                                    height="100%"
-                                  >
-                                    <BarChart data={phaseTps}>
-                                      <XAxis
-                                        dataKey="phase"
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fontSize: 9 }}
-                                      />
-                                      <YAxis
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fontSize: 9 }}
-                                        width={24}
-                                      />
-                                      <Tooltip
-                                        formatter={value => [
-                                          `${Number(value).toFixed(2)} TPS`,
-                                          t("timer.tps"),
-                                        ]}
-                                      />
-                                      <Bar
-                                        dataKey="tps"
-                                        fill="var(--chart-1)"
-                                        radius={[2, 2, 0, 0]}
-                                      />
-                                    </BarChart>
-                                  </ResponsiveContainer>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink py-2 mt-4 mb-0">
-                                {t("timer.tpsEmpty")}
-                              </div>
-                            )}
-                            <Button
-                              variant="primary"
-                              size="md"
-                              className="w-full mt-4 gap-1"
-                              type="button"
-                              onClick={() => setReplayRunId(value => value + 1)}
-                            >
-                              <Play className="text-base mr-1" />
-                              {t("timer.playSolution")}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mb-0">
-                      {t("timer.noSolution")}
-                    </div>
-                  )}
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    type="button"
-                    onClick={() => setReplay(null)}
-                  >
-                    {t("timer.close")}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <TimerReplayDialog
+              replay={replay}
+              replayText={replayText}
+              replayTps={replayTps}
+              phaseTps={phaseTps}
+              replayRunId={replayRunId}
+              onPlay={() => setReplayRunId(value => value + 1)}
+              onClose={() => setReplay(null)}
+            />
 
             <Dialog
               open={Boolean(deleteTarget)}
@@ -1986,466 +1341,6 @@ export default function TimerLab() {
             </Dialog>
           </>
         )}
-      </div>
-    </div>
-  );
-}
-
-function EventProgressCard({
-  eventLabel,
-  entries,
-  progress,
-}: {
-  eventLabel: string;
-  entries: SolveHistoryEntry[];
-  progress: ReturnType<typeof progressSeries>;
-}) {
-  const { t } = useLanguage();
-  return (
-    <div className="rounded-card bg-surface h-full">
-      <div className="p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 className="text-sm font-semibold tracking-tight mb-1">
-              {t("timer.eventProgress", { event: eventLabel })}
-            </h2>
-            <p className="text-sm text-muted mb-0">
-              {t("timer.eventProgressHint")}
-            </p>
-          </div>
-          <span className="text-sm text-muted">
-            {t("timer.solveCount", { count: entries.length })}
-          </span>
-        </div>
-        {entries.length ? (
-          <div className="h-72 mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={progress}>
-                <XAxis dataKey="solve" axisLine={false} tickLine={false} />
-                <YAxis
-                  tickFormatter={value =>
-                    `${(Number(value) / 1000).toFixed(0)}s`
-                  }
-                  axisLine={false}
-                  tickLine={false}
-                  width={56}
-                />
-                <Tooltip
-                  formatter={value => [
-                    value == null ? "DNF" : formatSolveTime(Number(value)),
-                    "",
-                  ]}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="single"
-                  stroke="var(--chart-6)"
-                  strokeWidth={1.5}
-                  dot={{ r: 2 }}
-                  connectNulls
-                  name="Single"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="ao5"
-                  stroke="var(--chart-1)"
-                  strokeWidth={3}
-                  dot={false}
-                  connectNulls
-                  name="Ao5"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="ao12"
-                  stroke="var(--chart-2)"
-                  strokeWidth={2}
-                  dot={false}
-                  connectNulls
-                  name="Ao12"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          <div className="rounded-panel px-4 py-3 text-sm bg-info-soft text-ink mt-4 mb-0">
-            {t("timer.firstSolveHint", { event: eventLabel })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function wcaDeltaMessage(deltaMs: number | null, t: Translate) {
-  if (deltaMs === null) return t("timer.wcaDeltaMissing");
-  if (deltaMs === 0) return t("timer.wcaDeltaEqual");
-  const difference = formatSolveTime(Math.abs(deltaMs));
-  return deltaMs < 0
-    ? t("timer.wcaTimerFaster", { value: difference })
-    : t("timer.wcaOfficialFaster", { value: difference });
-}
-
-function EventWcaComparisonCard({
-  eventId,
-  eventLabel,
-  rows,
-  hasWcaId,
-  loading,
-  unavailable,
-  hasRecord,
-}: {
-  eventId: TimerEventId;
-  eventLabel: string;
-  rows: WcaTimerComparisonRow[];
-  hasWcaId: boolean;
-  loading: boolean;
-  unavailable: boolean;
-  hasRecord: boolean;
-}) {
-  const { t } = useLanguage();
-  return (
-    <div className="rounded-card bg-surface">
-      <div className="p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 className="text-sm font-semibold tracking-tight mb-1">
-              {t("timer.wcaTitle", { event: eventLabel })}
-            </h2>
-            <p className="text-sm text-muted mb-0">{t("timer.wcaHint")}</p>
-          </div>
-          {hasWcaId ? (
-            <Link
-              href="/profile"
-              className={`${buttonClass("secondary", "sm")}`}
-            >
-              {t("timer.wcaProfile")}
-            </Link>
-          ) : (
-            <Link
-              href="/profile"
-              className={`${buttonClass("secondary", "sm")}`}
-            >
-              {t("timer.wcaLink")}
-            </Link>
-          )}
-        </div>
-        {!hasWcaId ? (
-          <div className="rounded-panel px-4 py-3 text-sm bg-surface-2 text-ink mt-4 mb-0">
-            {t("timer.wcaLinkHint")}
-          </div>
-        ) : loading ? (
-          <div className="mt-4">
-            <span className="block h-3 rounded-full bg-surface-3 w-8/12" />
-            <span className="block h-3 rounded-full bg-surface-3 w-5/12 mt-2" />
-          </div>
-        ) : unavailable ? (
-          <div className="rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mt-4 mb-0">
-            {t("timer.wcaUnavailable")}
-          </div>
-        ) : (
-          <>
-            <div className="w-full overflow-x-auto mt-4">
-              <table className="w-full text-left text-sm [&_th]:px-3 [&_th]:py-2.5 [&_th]:align-middle [&_th]:font-semibold [&_th]:text-muted [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:py-1.5 [&_td]:py-1.5 align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th scope="col">{t("timer.wcaMetricColumn")}</th>
-                    <th scope="col">Timer</th>
-                    <th scope="col">WCA</th>
-                    <th scope="col">{t("timer.wcaDeltaColumn")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map(row => (
-                    <tr key={row.key}>
-                      <th scope="row">{row.label}</th>
-                      <td>
-                        {row.timerMs === null
-                          ? "—"
-                          : formatSolveTime(row.timerMs)}
-                      </td>
-                      <td>
-                        {row.wcaMs === null ? "—" : formatSolveTime(row.wcaMs)}
-                      </td>
-                      <td
-                        className={
-                          row.deltaMs === null
-                            ? "text-muted"
-                            : row.deltaMs < 0
-                              ? "text-success"
-                              : row.deltaMs > 0
-                                ? "text-primary"
-                                : "text-muted"
-                        }
-                      >
-                        {wcaDeltaMessage(row.deltaMs, t)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {!hasRecord ? (
-              <p className="text-sm text-muted mt-2 mb-0">
-                {t("timer.wcaNoRecord", { event: eventLabel })}
-              </p>
-            ) : (
-              <p className="text-sm text-muted mt-2 mb-0">
-                {t("timer.wcaAo5Note")}
-              </p>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function MetricDetailCard({
-  entry,
-  exclusion,
-  showCubeNet,
-  copied,
-  onCopy,
-  onExpand,
-  onReplay,
-}: {
-  entry: SolveHistoryEntry;
-  exclusion?: "best" | "worst";
-  showCubeNet: boolean;
-  copied: boolean;
-  onCopy: (entry: SolveHistoryEntry) => void;
-  onExpand: (entry: SolveHistoryEntry) => void;
-  onReplay: (entry: SolveHistoryEntry) => void;
-}) {
-  const { language, t } = useLanguage();
-  const isThreeByThree = isThreeByThreeEvent(
-    normalizeTimerEventId(entry.eventId)
-  );
-  const state = useMemo(
-    () => safeScrambleState(entry.input, entry.eventId),
-    [entry.input, entry.eventId]
-  );
-  const solution = useMemo(
-    () =>
-      isThreeByThree
-        ? validateRecordedSolution(initialStateFor(entry), entry.solution)
-        : null,
-    [entry, isThreeByThree]
-  );
-  const canReplay = Boolean(solution?.valid && solution.moves.length > 0);
-  return (
-    <article className="block px-4 py-3 text-sm">
-      <div className="grid grid-cols-12 gap-4 items-center">
-        {isThreeByThree && showCubeNet && (
-          <div className="col-span-12">
-            <Button
-              variant="secondary"
-              size="xs"
-              type="button"
-              onClick={() => onExpand(entry)}
-              aria-label={t("timer.enlargeCubeNet")}
-            >
-              <CubeNet state={state} compact />
-            </Button>
-          </div>
-        )}
-        <div className="col-span-12">
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <div>
-              <strong className="text-lg">{formatSolveResult(entry)}</strong>
-              <small className="block text-muted">
-                {new Date(entry.createdAt).toLocaleString(
-                  language === "vi" ? "vi-VN" : "en-US"
-                )}
-              </small>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {entry.penalty !== "none" && (
-                <span
-                  className={
-                    entry.penalty === "DNF"
-                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-on-danger"
-                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-warning text-on-warning"
-                  }
-                >
-                  {entry.penalty}
-                </span>
-              )}
-              {entry.source === "bluetooth" && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-info-soft px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide text-ink">
-                  BLE
-                </span>
-              )}
-              {entry.source === "smartcube" && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-info-soft px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide text-ink">
-                  CUBE
-                </span>
-              )}
-              {exclusion && (
-                <span
-                  className={
-                    exclusion === "best"
-                      ? "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-success text-on-success"
-                      : "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none tracking-wide bg-danger text-on-danger"
-                  }
-                >
-                  {exclusion === "best"
-                    ? t("timer.bestDiscarded")
-                    : t("timer.worstDiscarded")}
-                </span>
-              )}
-            </div>
-          </div>
-          <p className="font-mono break-words mt-2 mb-2">{entry.input}</p>
-          {entry.phaseSplits.length > 0 || entry.moves > 0 ? (
-            <p className="text-xs text-muted mb-1 font-mono">
-              {entry.phaseSplits.length ? `${splitSummary(entry)} · ` : ""}
-              {entry.moves} moves ·{" "}
-              {(entry.moves / (entry.elapsedMs / 1000)).toFixed(2)} TPS
-            </p>
-          ) : null}
-          <div className="flex flex-wrap items-center gap-2">
-            <IconButton
-              label={
-                copied ? t("timer.scrambleCopied") : t("timer.copyScramble")
-              }
-              icon={<ClipboardCheck className="text-lg" />}
-              onClick={() => onCopy(entry)}
-              className={`${buttonClass("secondary", "sm")}`}
-            />
-            {canReplay ? (
-              <IconButton
-                label={t("timer.playSolution")}
-                icon={<Play className="text-lg" />}
-                onClick={() => onReplay(entry)}
-                className={`${buttonClass("secondary", "sm")}`}
-              />
-            ) : (
-              <span className="text-sm text-muted">
-                {isThreeByThree
-                  ? t("timer.noSavedSolution")
-                  : t("timer.replayOnlyThree")}
-              </span>
-            )}
-            <IconButton
-              label={t("timer.shareSolveImage")}
-              icon={<ImageDown className="text-lg" />}
-              onClick={() => exportSolveImage(entry, language)}
-              className={`${buttonClass("secondary", "sm")}`}
-            />
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-}
-function MultiBlindScrambleList({
-  scrambles,
-  loading,
-}: {
-  scrambles: string[];
-  loading: boolean;
-}) {
-  const { t } = useLanguage();
-  if (loading)
-    return (
-      <div className="mb-4">
-        <span className="block h-3 rounded-full bg-surface-3 w-10/12" />
-        <span className="block h-3 rounded-full bg-surface-3 w-8/12 mt-2" />
-      </div>
-    );
-  if (!scrambles.length)
-    return (
-      <p className="text-sm text-muted mb-4">
-        {t("timer.multiBlindPickCount")}
-      </p>
-    );
-  return (
-    <div className="mb-4">
-      <p className="text-sm font-semibold mb-2">
-        {t("timer.multiBlindBundle", { count: scrambles.length })}
-      </p>
-      <ol className="overflow-hidden rounded-panel bg-surface list-decimal pl-6">
-        {scrambles.map((item, index) => (
-          <li
-            key={`${index}-${item}`}
-            className="block px-4 py-3 text-sm font-mono break-words"
-          >
-            {item}
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-function MultiBlindResultCard({
-  completion,
-  attempted,
-  solved,
-  onSolvedChange,
-  onSave,
-}: {
-  completion: TimerCompletion;
-  attempted: number;
-  solved: number;
-  onSolvedChange: (value: number) => void;
-  onSave: () => void;
-}) {
-  const { t } = useLanguage();
-  const result = multiBlindResult({ attempted, solved }, completion.elapsedMs);
-  return (
-    <div className="rounded-card bg-surface mt-4">
-      <div className="p-5 sm:p-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold tracking-tight mb-1">
-              {t("timer.multiBlindConfirm")}
-            </p>
-            <p className="text-sm text-muted mb-0">
-              {t("timer.multiBlindScoreRule", {
-                time: formatMultiBlindTime(completion.elapsedMs),
-              })}
-            </p>
-          </div>
-          <label className="mb-1.5 block text-sm font-medium text-ink mb-0">
-            {t("timer.multiBlindSolved")}
-            <input
-              aria-label={t("timer.multiBlindSolvedAria")}
-              type="number"
-              min="0"
-              max={attempted}
-              value={solved}
-              onChange={event =>
-                onSolvedChange(
-                  Math.min(
-                    attempted,
-                    Math.max(0, Number(event.target.value) || 0)
-                  )
-                )
-              }
-              className="w-full rounded-field bg-surface px-3.5 py-2.5 text-sm text-ink transition placeholder:text-placeholder focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 mt-1 w-auto"
-            />
-          </label>
-        </div>
-        <div
-          className={
-            result.valid
-              ? "rounded-panel px-4 py-3 text-sm bg-success-soft text-ink mt-4 mb-4"
-              : "rounded-panel px-4 py-3 text-sm bg-warning-soft text-ink mt-4 mb-4"
-          }
-        >
-          {t("timer.multiBlindSummary", {
-            solved: result.solved,
-            attempted: result.attempted,
-            score: result.score,
-            unsolved: result.unsolved,
-            limit: formatMultiBlindTime(result.timeLimitMs),
-          })}
-          {!result.valid ? t("timer.multiBlindDnf") : ""}
-        </div>
-        <Button variant="primary" size="md" type="button" onClick={onSave}>
-          {t("timer.multiBlindSave")}
-        </Button>
       </div>
     </div>
   );
