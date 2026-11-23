@@ -97,6 +97,20 @@ const page = await browser.newPage({
 // Tài khoản giả để các trang cần đăng nhập vẫn render được.
 await mockAccount(page);
 
+/**
+ * Trang Bấm giờ tính độ dài cross tối ưu của 6 màu sau khi tải bộ giải; chờ
+ * dải đó có kết quả (ô tốt nhất mang `data-best`) để ảnh không chụp phải
+ * trạng thái "đang tính".
+ */
+async function waitForTimerReady(target, path) {
+  if (path !== "/timer") return;
+  await target
+    .locator("[data-best]")
+    .first()
+    .waitFor({ timeout: 20_000 })
+    .catch(() => console.warn("⚠ /timer: dải cross tối ưu chưa có kết quả, vẫn chụp ảnh"));
+}
+
 for (const item of PAGES) {
   if (item.seed) {
     await page.addInitScript(entries => {
@@ -116,6 +130,7 @@ for (const item of PAGES) {
   } else {
     await page.waitForTimeout(1_800);
   }
+  await waitForTimerReady(page, item.path);
   await page.screenshot({ path: `${OUT}/${item.file}`, fullPage: false });
   console.log(`✓ ${OUT}/${item.file}`);
 }
@@ -150,6 +165,7 @@ for (const item of [
   await mockAccount(darkPage);
   await darkPage.goto(`${BASE}${item.path}`, { waitUntil: "domcontentloaded" });
   await darkPage.waitForTimeout(2_500);
+  await waitForTimerReady(darkPage, item.path);
   await darkPage.screenshot({ path: `${OUT}/${item.file}`, fullPage: false });
   console.log(`✓ ${OUT}/${item.file}`);
   await darkPage.close();
@@ -171,6 +187,7 @@ for (const item of [
   await mockAccount(mobilePage);
   await mobilePage.goto(`${BASE}${item.path}`, { waitUntil: "domcontentloaded" });
   await mobilePage.waitForTimeout(2_500);
+  await waitForTimerReady(mobilePage, item.path);
   await mobilePage.screenshot({ path: `${OUT}/${item.file}`, fullPage: false });
   console.log(`✓ ${OUT}/${item.file}`);
   await mobilePage.close();

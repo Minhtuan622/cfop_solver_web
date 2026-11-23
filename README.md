@@ -39,10 +39,12 @@ Toàn bộ ứng dụng responsive trên màn hình nhỏ (ảnh dưới đây c
 
 ## Tính năng chính
 
-- Solver CFOP/BLD: nhập scramble hoặc trạng thái sáu mặt, báo cáo theo phase, CubeNet/3D, opening "Tự động" (thử XXXXCross → XXXCross → XXCross → XCross; độ sâu tìm kiếm chỉnh được trong Cài đặt — mặc định 8 nước) và hiển thị case Last Layer (OLL/PLL, ZBLL, 1LLL) trên banner và trong danh sách phase.
-- Timer đa event với inspection, +2/DNF, split, replay, history, thống kê và cỡ chữ scramble tuỳ chọn.
-- Study cho Last Layer và 3-Style BLD.
-- Tài khoản, đồng bộ dữ liệu, WCA, phòng thi đấu và bảng xếp hạng.
+- **Giải Rubik (CFOP/BLD):** nhập scramble hoặc trạng thái sáu mặt (gõ tay hoặc quét bằng camera), báo cáo theo phase, khối 2D/3D có phát lại từng nước. Opening chọn được Cross, XCross … XXXXCross hoặc "Tự động" (thử XXXXCross → XXXCross → XXCross → XCross); độ sâu tìm kiếm chỉnh trong Cài đặt từ 4 đến 12 nước (mặc định 8). Last Layer nhận diện OLL/PLL, ZBLL và 1LLL. Màu cross được đặt ở mặt D, lời giải ghi kèm phép xoay khối.
+- **Bấm giờ:** đa event, scramble chuẩn WCA (định dạng TNoodle) với hướng tráo trắng U · xanh lá F; độ dài cross tối ưu của cả 6 màu cho mỗi scramble; inspection có âm báo, +2/DNF, metronome; chế độ tập trung (ẩn mọi thứ khi đang giải, đồng hồ ở giữa màn hình) và tuỳ chọn ẩn thời gian khi giải; kết nối Smart Cube và GAN Timer qua Bluetooth; replay, thống kê và cỡ chữ scramble tuỳ chọn.
+- **Kết quả:** lịch sử lượt giải, chỉ số (PB, Ao5, Ao12…), biểu đồ xu hướng, lọc theo event, nhập từ csTimer và nhập/xuất JSON, CSV.
+- **Học thêm (SRS):** Last Layer (OLL, PLL, ZBLL, 1LLL), CFOP, 3-Style BLD, 2×2, Pyraminx, Skewb, Square-1, 4×4 Parity, 5×5 L2E, FTO L3T và FTO 2-Look; lịch ôn 7 ngày và mục tiêu mỗi ngày.
+- **Rubik ảo:** xoay khối 3×3 bằng bàn phím (bộ phím giống csTimer) hoặc nút trên màn hình, chơi tự do hoặc giải có giờ.
+- **Thi đấu:** tài khoản, đồng bộ dữ liệu giữa thiết bị, phòng thi đấu, bảng xếp hạng tuần/tháng, lịch giải WCA kèm kỷ lục thế giới.
 - Bộ giải chạy hoàn toàn trong trình duyệt: viết bằng Rust, biên dịch ra
   WebAssembly (~300 KB, chỉ tải khi bấm giải lần đầu). Bộ giải và catalog
   thuật toán BLD được lưu lại trên máy người dùng, nên vẫn dùng được khi
@@ -117,6 +119,7 @@ cd packages/solver
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
+cargo deny check advisories licenses          # cần cargo-deny (cargo install cargo-deny --locked)
 cargo run --release -p cfop --example bench   # benchmark Cross/F2L (p50, p95)
 ```
 
@@ -130,7 +133,9 @@ Ngoài unit test và e2e, repo còn có các cổng kiểm tra riêng — tất 
 |---|---|---|
 | Tương phản token | `pnpm test --run server/contrast.test.ts` | Cặp màu chính rơi dưới WCAG AA (4.5:1 cho chữ, 3:1 cho vòng focus và biểu tượng trạng thái) ở **cả hai** chế độ sáng và tối. |
 | Tương phản trên trang thật | `pnpm exec playwright test e2e/contrast-a11y.spec.ts` | Vi phạm axe mới trên 6 trang chính × 2 chế độ, và danh sách vi phạm đã biết (`e2e/contrast-a11y.baseline.json`) bị lỗi thời. |
-| Tính chất bộ giải | `cd packages/solver && cargo test --workspace` | Cross dài hơn 8 nước, F2L làm hỏng cross hoặc cặp đã giải, một trong 216 trạng thái hướng / 288 trạng thái hoán vị của last layer không giải đúng, một thuật toán OLL/PLL/ZBLL/1LLL không ra đúng case của nó, hoặc một trong 5000 scramble ngẫu nhiên không về trạng thái đã giải. |
+| Tính chất bộ giải | `cd packages/solver && cargo test --workspace` | Cross dài hơn 8 nước, F2L làm hỏng cross hoặc cặp đã giải, một trong 216 trạng thái hướng / 288 trạng thái hoán vị của last layer không giải đúng, một thuật toán OLL/PLL/ZBLL/1LLL không ra đúng case của nó, một trong 5000 scramble ngẫu nhiên không về trạng thái đã giải, hoặc một test proptest (nước đi rồi nghịch đảo, chuyển đổi 54 sticker, giải scramble ngẫu nhiên) thất bại. |
+| Lỗ hổng và giấy phép Rust | `cd packages/solver && cargo deny check advisories licenses` | Dependency Rust có advisory RustSec hoặc giấy phép ngoài danh sách cho phép (`packages/solver/deny.toml`). |
+| Giao diện phẳng | `pnpm test --run server/flatUi.test.ts` | Class đổ bóng, viền (`border-*`, `divide-*`), `ring` dùng làm viền trang trí, `outline-none`, khoảng cách gán cứng. |
 | Hiệu năng bộ giải | `node scripts/bench-solver.mjs --check` | Bộ giải (bản WebAssembly thật) giải sai, hoặc một kịch bản vượt ngân sách: `cross` (mặc định 20s/đề, 80s tổng) hoặc `auto` (60s/đề, 200s tổng). |
 | Bản phát hành có bộ giải | `node scripts/verify-solver-dist.mjs` (chạy cuối `pnpm build`) | `dist` thiếu worker hoặc file `.wasm` hợp lệ của bộ giải. |
 | Xem trước khớp bộ giải | `pnpm test --run client/src/lib/fastCube.solver.test.ts` | Bảng nước đi dùng để xem trước scramble trong trang lệch với bộ giải ở bất kỳ nước nào (mặt, slice, xoay, wide). |
@@ -143,8 +148,8 @@ Workflow `CI` chạy **3 job** song song trên mỗi push và pull request:
 
 | Job | Nội dung |
 |---|---|
-| `Rust solver (fmt, clippy, test)` | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` cho `packages/solver` |
-| `check-test-build` | build bộ giải WASM → typecheck → unit test → e2e → production build → audit dependency |
+| `Rust solver (fmt, clippy, test)` | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` và `cargo deny check advisories licenses` cho `packages/solver` |
+| `check-test-build` | build bộ giải WASM (wasm-opt từ Binaryen 133, cùng bản với Docker) → typecheck → unit test → e2e → production build → audit dependency |
 | `Solver benchmark (WASM)` | đo hiệu năng bộ giải ở chế độ kiểm tra, xuất JSON làm artifact để theo dõi xu hướng |
 
 Ba job đều là **check bắt buộc** khi merge vào `main` — xem [docs/REPO-OWNER-CHECKLIST.md](docs/REPO-OWNER-CHECKLIST.md).
@@ -152,6 +157,7 @@ Ba job đều là **check bắt buộc** khi merge vào `main` — xem [docs/REP
 ## Tài liệu
 
 - [Mục lục tài liệu](docs/README.md)
+- [Hướng dẫn ngắn cho agent và người đóng góp (AGENTS.md)](AGENTS.md)
 - [Hướng dẫn phát triển chi tiết](docs/development/project-guide.md)
 - [Báo cáo tương phản màu](docs/validation/contrast-report.md)
 - [Danh sách việc còn mở](TODO.md)
@@ -161,7 +167,7 @@ Ba job đều là **check bắt buộc** khi merge vào `main` — xem [docs/REP
 
 ## Công nghệ và cấu trúc chính
 
-- Frontend React 19 + TypeScript 7 + Vite 8, giao diện Tailwind CSS/Studio UI.
+- Frontend React 19 + TypeScript 7 + Vite 8, Tailwind CSS 4 và Radix UI; giao diện phẳng (không viền, không bóng), màu theo token cho cả chế độ sáng và tối.
 - Backend Express 5 + tRPC 11, Drizzle ORM và MySQL/MariaDB.
 - Cubing.js và Three.js cho scramble và cube 3D.
 - Bộ giải CFOP viết bằng Rust, biên dịch ra WebAssembly và chạy trong Web Worker.
