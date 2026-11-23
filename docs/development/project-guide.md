@@ -799,17 +799,3 @@ Giữ license hiện có của repository khi phát hành hoặc fork dự án. 
 [6]: https://playwright.dev/docs/intro "Playwright documentation"
 [7]: https://docs.railway.com/config-as-code/reference "Railway configuration reference"
 [8]: https://dev.mysql.com/doc/refman/8.4/en/mysql-indexes.html "MySQL indexing documentation"
-
-## Đợt 12: tách các file lớn còn lại
-
-Hành vi, route, key lưu, định dạng export, contract tRPC và locator không đổi; markup được chép nguyên văn sang component mới.
-
-| File | Trước | Sau | Tách ra |
-|---|---|---|---|
-| `pages/Home.tsx` | 799 | 559 | `features/solver/lib/solutionView.ts` (+ test), hook `useSolverPlayback`, `useSolverSettingsState`, `useStateValidation`; `SolverSolutionSidebar`, `OpeningOutcomeBanner`, `LastLayerOutcomeBanner` |
-| `features/bld/components/BldReport.tsx` | 741 | 282 | `lib/bldExecution.ts` (+ test), `lib/useBldRuntimeCatalogs.ts`, `BldMemoTokens`, `BldAlgorithmRow`, `BldParityPicker`; bỏ import barrel `@/features/bld` từ bên trong feature |
-| `features/puzzle-3d/components/CubeGuide3D.tsx` | 795 | 614 | `lib/cubeGuideFacelets.ts` (+ test): bảng facelet, đọc lệnh xoay, tô sáng sticker, hoán vị căn Cross. Phần còn lại là renderer Three.js, giữ nguyên. |
-| `pages/Profile.tsx` | 1028 | 365 | 9 component trong `features/profile/components/`; state ô nhập thông tin cá nhân và mật khẩu nằm trong form tương ứng |
-| `pages/TimerLab.tsx` | 2454 | 1347 | `features/timer/lib/timerImageExport.ts`, `timerScrambleState.ts`, `timerLabTypes.ts`, `useTimerSolveEditor.ts`; `EventProgressCard`, `EventWcaComparisonCard`, `MetricDetailCard`, `MultiBlindCards`, `TimerSolveEditDialog`, `TimerReplayDialog` |
-
-**Còn để ngỏ (chờ quyết định sản phẩm).** `TimerLab.tsx` giữ hộp thoại xoá lượt giải nhưng không có chỗ nào mở nó (`deleteTarget` không bao giờ được gán); `Profile.tsx` giữ mutation `unlinkWca` nhưng không có nút gọi.

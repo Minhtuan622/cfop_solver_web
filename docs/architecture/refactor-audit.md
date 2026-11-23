@@ -294,3 +294,17 @@ Hành vi, route, định dạng CSV/JSON và locator không đổi. `pages/Histo
 - `features/history/lib/historyView.ts`: lọc lượt giải, danh sách tag, thời gian hợp lệ, dữ liệu biểu đồ xu hướng (30 lượt, ao5) và nội dung CSV — hàm thuần, có test riêng `historyView.test.ts`.
 - `features/history/lib/useSolveEditor.ts`: state và logic lưu của hộp thoại sửa lượt giải; hook chạy trong trang nên state vẫn nằm đúng chỗ cũ.
 - `features/history/components/`: `SolveCard`, `HistoryStatTiles`, `HistoryTrendChart`, `HistoryTransferMenu`, `HistoryFilters`, `HistoryEmptyState`, `SolveEditDialog` và `ConfirmDeleteDialog` (gộp hai hộp thoại xoá một lượt / xoá các lượt đã chọn vốn giống hệt nhau). Markup và class giữ nguyên.
+
+## Đợt 12: tách các file lớn còn lại
+
+Hành vi, route, key lưu, định dạng export, contract tRPC và locator không đổi; markup được chép nguyên văn sang component mới.
+
+| File | Trước | Sau | Tách ra |
+|---|---|---|---|
+| `pages/Home.tsx` | 799 | 559 | `features/solver/lib/solutionView.ts` (+ test), hook `useSolverPlayback`, `useSolverSettingsState`, `useStateValidation`; `SolverSolutionSidebar`, `OpeningOutcomeBanner`, `LastLayerOutcomeBanner` |
+| `features/bld/components/BldReport.tsx` | 741 | 282 | `lib/bldExecution.ts` (+ test), `lib/useBldRuntimeCatalogs.ts`, `BldMemoTokens`, `BldAlgorithmRow`, `BldParityPicker`; bỏ import barrel `@/features/bld` từ bên trong feature |
+| `features/puzzle-3d/components/CubeGuide3D.tsx` | 795 | 614 | `lib/cubeGuideFacelets.ts` (+ test): bảng facelet, đọc lệnh xoay, tô sáng sticker, hoán vị căn Cross. Phần còn lại là renderer Three.js, giữ nguyên. |
+| `pages/Profile.tsx` | 1028 | 365 | 9 component trong `features/profile/components/`; state ô nhập thông tin cá nhân và mật khẩu nằm trong form tương ứng |
+| `pages/TimerLab.tsx` | 2454 | 1347 | `features/timer/lib/timerImageExport.ts`, `timerScrambleState.ts`, `timerLabTypes.ts`, `useTimerSolveEditor.ts`; `EventProgressCard`, `EventWcaComparisonCard`, `MetricDetailCard`, `MultiBlindCards`, `TimerSolveEditDialog`, `TimerReplayDialog` |
+
+**Còn để ngỏ (chờ quyết định sản phẩm).** `TimerLab.tsx` giữ hộp thoại xoá lượt giải nhưng không có chỗ nào mở nó (`deleteTarget` không bao giờ được gán); `Profile.tsx` giữ mutation `unlinkWca` nhưng không có nút gọi.
