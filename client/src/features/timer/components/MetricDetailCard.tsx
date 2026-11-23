@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { CubeNet } from "@/components/common/CubeNet";
 import { validateRecordedSolution } from "@/lib/fastCube";
 import { isThreeByThreeEvent, normalizeTimerEventId } from "@/lib/timerEvents";
-import { splitSummary } from "@/features/timer/lib/timerAnalysis";
+import { splitSummary } from "../lib/timerAnalysis";
 import { formatSolveResult, initialStateFor, type SolveHistoryEntry } from "@/lib/solveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { IconButton } from "@/components/ui/StudioUI";
@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/Button";
 
 import { buttonClass } from "@/components/ui/Button";
 
-import { safeScrambleState } from "@/features/timer/lib/timerScrambleState";
-import { exportSolveImage } from "@/features/timer/lib/timerImageExport";
+import { safeScrambleState } from "../lib/timerScrambleState";
+import { exportSolveImage } from "../lib/timerImageExport";
 
 export function MetricDetailCard({
   entry,

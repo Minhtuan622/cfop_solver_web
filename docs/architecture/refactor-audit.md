@@ -320,3 +320,11 @@ Người dùng đã duyệt từng mục.
 - **Tương phản.** `CrossLengthStrip` đặt `aria-busy` lên danh sách số thay vì cả thanh: quy tắc `[aria-busy="true"] { opacity: 0.72 }` từng kéo nhãn "Cross tối ưu" xuống 3,3:1 trong lúc đang tính.
 - **E2E.** 9 spec lane tìm ô lane theo tên bắt đầu bằng tên lane (ô giờ kèm số liệu); `navbar-glass` → `navbar-sticky` (thiết kế tối giản đã bỏ kính mờ); `solver-spacing` kiểm mục gập "Dán chuỗi 54 sticker" thay cho mục camera đã thành hộp thoại; `timer-layout` mở mục "Phân tích" trước khi đo; `study-card-bounds` chờ phần tử thay vì chờ cứng 2,5 s; `e2e/global-setup.ts` mở trước các route chính để Vite biên dịch sẵn, tránh test đầu tiên timeout.
 
+## Đợt 14: tách tiếp `pages/TimerLab.tsx`
+
+`pages/TimerLab.tsx` từ **1347 → 737 dòng** (bản đầu 2454). JSX chép nguyên văn; chỉ kiểm bằng `tsc --noEmit --noUnusedLocals` theo yêu cầu (chưa chạy Vitest/E2E cho đợt này).
+
+- Hook `features/timer/lib/useTimerPreferences.ts` (tuỳ chọn âm thanh, metronome, cỡ scramble — đọc một lần) và `useTimerMetrics.ts` (chuỗi tiến bộ, PB, ao5…ao100).
+- Component `TimerDigestChips`, `MultiBlindAttemptPanel`, `TimerSummaryMetrics`, `TimerAnalyticsPanel`, `TimerMetricDialog` (giữ luôn state sao chép scramble và bật/tắt sơ đồ khối, vốn chỉ hộp thoại này dùng), `TimerCubeNetDialog`.
+- Các file trong `features/timer` (gồm cả file tách ở Đợt 12) đổi import `@/features/timer/...` sang đường dẫn tương đối theo quy ước bên trong feature.
+

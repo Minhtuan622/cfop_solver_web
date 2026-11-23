@@ -1,9 +1,9 @@
 /** Vẽ ảnh PNG để chia sẻ: thẻ ao5 (kèm khối sau khi tráo) và thẻ một lượt giải. */
 import { CUBE_COLORS, CUBE_FALLBACK_COLOR } from "@/features/puzzle-3d/lib/cubeColors";
-import { exportPalette, type ExportPalette } from "@/features/timer/lib/exportPalette";
+import { exportPalette, type ExportPalette } from "./exportPalette";
 import { SOLVED_FAST_STATE } from "@/lib/fastCube";
 import { normalizeTimerEventId, timerEventLabel } from "@/lib/timerEvents";
-import { splitSummary } from "@/features/timer/lib/timerAnalysis";
+import { splitSummary } from "./timerAnalysis";
 import { formatSolveResult, formatSolveTime, type SolveHistoryEntry } from "@/lib/solveHistory";
 
 import type { Translate } from "./timerLabTypes";

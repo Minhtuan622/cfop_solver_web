@@ -7,7 +7,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { progressSeries } from "@/features/timer/lib/timerAnalysis";
+import { progressSeries } from "../lib/timerAnalysis";
 import { formatSolveTime, type SolveHistoryEntry } from "@/lib/solveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
 

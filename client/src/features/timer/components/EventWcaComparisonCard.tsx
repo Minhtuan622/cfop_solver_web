@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 import { buttonClass } from "@/components/ui/Button";
 
-import type { Translate } from "@/features/timer/lib/timerLabTypes";
+import type { Translate } from "../lib/timerLabTypes";
 
 function wcaDeltaMessage(deltaMs: number | null, t: Translate) {
   if (deltaMs === null) return t("timer.wcaDeltaMissing");
