@@ -3,6 +3,7 @@ import {
   deleteSolveHistory,
   deleteSolveHistoryMany,
   addSolveHistory,
+  formatSolveTime,
   exportSolveHistory,
   importSolveHistory,
   readSolveHistory,
@@ -175,6 +176,35 @@ describe("solveHistory: normalization on read", () => {
     expect(deleteSolveHistoryMany(["a", "d"]).map(entry => entry.id)).toEqual(["c"]);
     expect(stored().filter(entry => entry.deletedAt).map(entry => entry.id)).toEqual(expect.arrayContaining(["a", "d"]));
     expect(readSolveHistory().map(entry => entry.id)).toEqual(["c"]);
+  });
+
+  it("giữ tombstone qua các lần ghi sau và giới hạn số tombstone", () => {
+    window.localStorage.setItem(KEY, JSON.stringify([validEntry({ id: "a" }), validEntry({ id: "b" })]));
+    const stored = () => JSON.parse(window.localStorage.getItem(KEY) ?? "[]") as { id: string; deletedAt?: number }[];
+    deleteSolveHistory("b");
+    addSolveHistory({ eventId: "333", input: "R U", inputKind: "scramble", elapsedMs: 9000, inspectionMs: 0, moves: 0 });
+    deleteSolveHistory("a");
+    expect(stored().filter(entry => entry.deletedAt).map(entry => entry.id).sort()).toEqual(["a", "b"]);
+    expect(readSolveHistory()).toHaveLength(1);
+
+    const many = Array.from({ length: 130 }, (_, index) => validEntry({ id: `t${index}`, deletedAt: 1_700_000_000_000 + index }));
+    window.localStorage.setItem(KEY, JSON.stringify([validEntry({ id: "live" }), ...many]));
+    deleteSolveHistory("live");
+    const tombstones = stored().filter(entry => entry.deletedAt);
+    expect(tombstones).toHaveLength(100);
+    expect(tombstones[0].id).toBe("live");
+  });
+});
+
+describe("solveHistory: formatSolveTime", () => {
+  it("cắt tới phần trăm giây, không lệch do sai số dấu phẩy động", () => {
+    expect(formatSolveTime(9_870)).toBe("00:09.87");
+    expect(formatSolveTime(12_340)).toBe("00:12.34");
+    expect(formatSolveTime(12_349)).toBe("00:12.34");
+    expect(formatSolveTime(1_204.199999)).toBe("00:01.20");
+    expect(formatSolveTime(0)).toBe("00:00.00");
+    expect(formatSolveTime(61_005)).toBe("01:01.00");
+    expect(formatSolveTime(3_600_000)).toBe("60:00.00");
   });
 });
 

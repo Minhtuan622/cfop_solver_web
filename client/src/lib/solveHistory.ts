@@ -43,6 +43,12 @@ export type SolveHistoryEntry = {
 
 const KEY = "cfop-solve-history-v1";
 const MAX_ENTRIES = 500;
+/**
+ * Số tombstone (lượt đã xoá) giữ lại tối đa, mới xoá trước. Tombstone được
+ * gửi kèm khi đồng bộ cloud để máy khác cũng xoá theo; chúng không chiếm chỗ
+ * của 500 lượt đang hiển thị.
+ */
+export const MAX_SOLVE_TOMBSTONES = 100;
 /** Imports may exceed MAX_ENTRIES but never exceed this (localStorage safety). */
 const IMPORT_LIMIT = 10_000;
 type Imported = Partial<SolveHistoryEntry> & Record<string, unknown>;
@@ -164,20 +170,39 @@ function normalize(item: Imported): SolveHistoryEntry {
     return fallback;
   }
 }
-function write(entries: SolveHistoryEntry[], limit = MAX_ENTRIES) { writeStoredValue(KEY, JSON.stringify(entries.slice(0, limit))); notifyCfopCloudStateChanged(); }
+/**
+ * Ghi lịch sử: tối đa `limit` lượt đang hiển thị (giữ nguyên thứ tự), sau đó
+ * là các tombstone mới xoá nhất (tối đa `MAX_SOLVE_TOMBSTONES`).
+ */
+function write(entries: SolveHistoryEntry[], limit = MAX_ENTRIES) {
+  const live = entries.filter((entry) => !entry.deletedAt).slice(0, limit);
+  const tombstones = entries
+    .filter((entry) => entry.deletedAt)
+    .sort((left, right) => (right.deletedAt ?? 0) - (left.deletedAt ?? 0))
+    .slice(0, MAX_SOLVE_TOMBSTONES);
+  writeStoredValue(KEY, JSON.stringify([...live, ...tombstones]));
+  notifyCfopCloudStateChanged();
+}
 
-export function readSolveHistory(): SolveHistoryEntry[] {
+/** Mọi lượt đã lưu, kể cả tombstone (dùng cho đồng bộ và các lần ghi). */
+export function readStoredSolveHistory(): SolveHistoryEntry[] {
   return readStoredJson<Imported[]>(KEY, [])
     .filter((item): item is Imported =>
       Boolean(item) && typeof item === "object" && !Array.isArray(item),
     )
-    .map(normalize)
-    .filter((entry) => !entry.deletedAt);
+    .map(normalize);
 }
+
+/** Các lượt đang hiển thị (bỏ tombstone). */
+export function readSolveHistory(): SolveHistoryEntry[] {
+  return readStoredSolveHistory().filter((entry) => !entry.deletedAt);
+}
+const liveEntries = (entries: SolveHistoryEntry[]) =>
+  entries.filter((entry) => !entry.deletedAt);
 export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags" | "phaseSplits"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry {
-  const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readSolveHistory()]); return item;
+  const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readStoredSolveHistory()]); return item;
 }
-export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
+export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readStoredSolveHistory().map((entry) => entry.id === id && !entry.deletedAt ? normalize({ ...entry, ...patch }) : entry); write(next); return liveEntries(next); }
 /**
  * Xoá mềm: ghi tombstone (`deletedAt`) vào bộ nhớ nhưng chỉ trả về các lượt
  * còn hiển thị, giống `readSolveHistory`, để màn hình bỏ ngay lượt vừa xoá.
@@ -187,18 +212,18 @@ export function deleteSolveHistory(id: string): SolveHistoryEntry[] {
 }
 export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry[] {
   const selected = new Set(ids);
-  const next = readSolveHistory().map((entry) =>
-    selected.has(entry.id) ? normalize({ ...entry, deletedAt: Date.now() }) : entry,
+  const next = readStoredSolveHistory().map((entry) =>
+    selected.has(entry.id) && !entry.deletedAt ? normalize({ ...entry, deletedAt: Date.now() }) : entry,
   );
   write(next);
-  return next.filter((entry) => !entry.deletedAt);
+  return liveEntries(next);
 }
 export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
   const raw = Array.isArray(payload) ? payload : payload && typeof payload === "object" && Array.isArray((payload as { entries?: unknown }).entries) ? (payload as { entries: unknown[] }).entries : null;
   if (!raw) throw new Error("Invalid backup");
   const seen = new Set<string>();
-  const entries = raw.filter((item): item is Imported => Boolean(item) && typeof item === "object" && !Array.isArray(item)).map(normalize).filter((item) => { if (seen.has(item.id)) return false; seen.add(item.id); return true; }).sort((a, b) => b.createdAt - a.createdAt).slice(0, MAX_ENTRIES);
-  write(entries); return entries;
+  const entries = raw.filter((item): item is Imported => Boolean(item) && typeof item === "object" && !Array.isArray(item)).map(normalize).filter((item) => { if (seen.has(item.id)) return false; seen.add(item.id); return true; }).sort((a, b) => b.createdAt - a.createdAt);
+  write(entries); return liveEntries(entries).slice(0, MAX_ENTRIES);
 }
 
 export type CstimerImportSummary = {
@@ -235,7 +260,9 @@ export function importCstimerSolveHistory(
   payload: unknown,
 ): CstimerImportSummary {
   const parsed = parseCstimerExport(payload);
-  const existing = readSolveHistory();
+  const stored = readStoredSolveHistory();
+  const existing = liveEntries(stored);
+  const tombstones = stored.filter((entry) => entry.deletedAt);
   const seen = new Set(existing.map(cstimerEntryKey));
 
   const merged: SolveHistoryEntry[] = [];
@@ -268,7 +295,7 @@ export function importCstimerSolveHistory(
     (a, b) => b.createdAt - a.createdAt,
   );
   const truncated = Math.max(0, all.length - IMPORT_LIMIT);
-  write(all.slice(0, IMPORT_LIMIT), IMPORT_LIMIT);
+  write([...all.slice(0, IMPORT_LIMIT), ...tombstones], IMPORT_LIMIT);
   return {
     sessions: parsed.sessions,
     imported: merged.length,
@@ -285,7 +312,17 @@ export function exportCstimerSolveHistory(): Record<string, unknown> {
 }
 export function exportSolveHistory() { return { schema: "cfop-solver-timer-history", version: 2, exportedAt: new Date().toISOString(), entries: readSolveHistory() }; }
 export function effectiveTime(entry: SolveHistoryEntry): number | null { return entry.penalty === "DNF" ? null : entry.elapsedMs + (entry.penalty === "+2" ? 2000 : 0); }
-export function formatSolveTime(ms: number) { const total = ms / 1000; return `${Math.floor(total / 60).toString().padStart(2, "0")}:${Math.floor(total % 60).toString().padStart(2, "0")}.${Math.floor((total % 1) * 100).toString().padStart(2, "0")}`; }
+/**
+ * `mm:ss.cc`, cắt (không làm tròn lên) tới phần trăm giây như WCA. Tính trên
+ * số phần trăm giây nguyên để 9870 ms ra "00:09.87" chứ không phải "00:09.86"
+ * do sai số dấu phẩy động.
+ */
+export function formatSolveTime(ms: number) {
+  const centis = Math.floor(Math.floor(ms + 1e-6) / 10);
+  const minutes = Math.floor(centis / 6000);
+  const seconds = Math.floor(centis / 100) % 60;
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${(centis % 100).toString().padStart(2, "0")}`;
+}
 /**
  * Formats a running timer readout.
  *

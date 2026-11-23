@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  applyCfopCloudState,
   createCfopCloudState,
   MAX_CLOUD_TIMER_ENTRIES,
+  MAX_CLOUD_TIMER_TOMBSTONES,
   mergeCfopCloudStates,
   parseCfopCloudState,
 } from "@/lib/cloudSync";
@@ -305,5 +307,41 @@ describe("B3: cloud sync tombstones and merge", () => {
 
   it("MAX_CLOUD_TIMER_ENTRIES có giá trị 500", () => {
     expect(MAX_CLOUD_TIMER_ENTRIES).toBe(500);
+  });
+
+  it("gửi tombstone kèm bản đồng bộ để máy khác cũng xoá theo", () => {
+    const now = Date.now();
+    writeStoredValue(
+      "cfop-solve-history-v1",
+      JSON.stringify([makeEntry("keep", now - 1000), makeEntry("gone", now - 2000)]),
+    );
+    deleteSolveHistory("gone");
+    const local = createCfopCloudState();
+    expect(local.timer.map(entry => entry.id).sort()).toEqual(["gone", "keep"]);
+    expect(local.timer.find(entry => entry.id === "gone")?.deletedAt).toBeGreaterThan(0);
+
+    // Máy khác vẫn còn "gone" (bản cũ): sau khi gộp và áp dụng, "gone" bị xoá ở đó.
+    localStorage.removeItem("cfop-solve-history-v1");
+    const otherDevice = createCfopCloudState();
+    otherDevice.timer = [makeEntry("keep", now - 1000), makeEntry("gone", now - 2000)];
+    applyCfopCloudState(mergeCfopCloudStates(otherDevice, local));
+    expect(readSolveHistory().map(entry => entry.id)).toEqual(["keep"]);
+  });
+
+  it("gộp giữ tối đa 500 lượt đang hiển thị cộng tối đa 100 tombstone", () => {
+    const now = Date.now();
+    const live = Array.from({ length: MAX_CLOUD_TIMER_ENTRIES + 20 }, (_, i) => makeEntry(`live-${i}`, now - i));
+    const dead = Array.from({ length: MAX_CLOUD_TIMER_TOMBSTONES + 20 }, (_, i) => makeEntry(`dead-${i}`, now - 10_000 - i, now - i));
+    const local = createCfopCloudState();
+    local.timer = [...live, ...dead];
+    const remote = createCfopCloudState();
+    remote.timer = [];
+    const merged = mergeCfopCloudStates(local, remote);
+    expect(merged.timer.filter(entry => !entry.deletedAt)).toHaveLength(MAX_CLOUD_TIMER_ENTRIES);
+    expect(merged.timer.filter(entry => entry.deletedAt)).toHaveLength(MAX_CLOUD_TIMER_TOMBSTONES);
+    // Lượt đang hiển thị mới nhất được giữ, tombstone mới xoá nhất được giữ.
+    expect(merged.timer.some(entry => entry.id === "live-0")).toBe(true);
+    expect(merged.timer.some(entry => entry.id === "dead-0")).toBe(true);
+    expect(merged.timer.some(entry => entry.id === `dead-${MAX_CLOUD_TIMER_TOMBSTONES + 19}`)).toBe(false);
   });
 });

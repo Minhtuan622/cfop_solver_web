@@ -13,8 +13,8 @@ describe("competitionPresentation", () => {
   });
 
   it("formats standard, penalized and multi-blind room results", () => {
-    expect(competitionResultLabel({ elapsedMs: 12_340, penalty: "none" }, "333", t)).toBe("00:12.33");
-    expect(competitionResultLabel({ elapsedMs: 12_340, penalty: "+2" }, "333", t)).toBe("00:14.33 +2");
+    expect(competitionResultLabel({ elapsedMs: 12_340, penalty: "none" }, "333", t)).toBe("00:12.34");
+    expect(competitionResultLabel({ elapsedMs: 12_340, penalty: "+2" }, "333", t)).toBe("00:14.34 +2");
     expect(competitionResultLabel({ elapsedMs: 12_340, penalty: "DNF" }, "333", t)).toBe("DNF");
     expect(competitionResultLabel({ elapsedMs: 12_340, penalty: "none", multiBlindScore: 5 }, "333mbf", t)).toContain("5 điểm");
   });
