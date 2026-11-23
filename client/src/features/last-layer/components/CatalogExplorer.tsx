@@ -12,49 +12,29 @@ import {
   Search,
 } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/StudioUI";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/StudioDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useEffect, useMemo, useState, type ComponentType } from "react";
-import { cn } from "@/lib/utils";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ComponentType,
+} from "react";
 import { Button } from "@/components/ui/Button";
-import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
 import { buttonClass } from "@/components/ui/Button";
 import { readFocusSet, writeFocusSet } from "../lib/focusSet";
+import type { CatalogExplorerCase, CatalogExplorerPreviewProps, CatalogGroupEntry } from "../lib/catalogExplorerTypes";
+import { CatalogBulkBar } from "./CatalogBulkBar";
+import { CatalogCaseCard } from "./CatalogCaseCard";
+import { CatalogFocusPanel } from "./CatalogFocusPanel";
+import { CatalogGroupGrid } from "./CatalogGroupGrid";
+import { CatalogPreviewDialog } from "./CatalogPreviewDialog";
 
-/** Any case row the catalog knows how to show: LL (zbll/1lll) or 2×2 (cll/pbl). */
-export type CatalogExplorerCase = {
-  family: string;
-  id: string;
-  group: string;
-  algorithm: string;
-  state: string;
-  /** Display name for humans; falls back to the id. */
-  name?: string;
-  /** Optional qualifier for the group tile's counter line (e.g. the case kind). */
-  meta?: string;
-};
-
-export type CatalogExplorerPreviewProps = {
-  state: string;
-  label: string;
-  compact?: boolean;
-  onClick?: () => void;
-  /** The owning case family (f2l/oll/pll/cll/pbl/zbll/1lll) — previews may vary per family. */
-  family?: string;
-  /** The case algorithm — dialog previews use it to replay the solution in 3D. */
-  algorithm?: string;
-  /** Bumped by the dialog's "Xem lại" button to restart the replay. */
-  replayToken?: number;
-};
+export type {
+  CatalogExplorerCase,
+  CatalogExplorerPreviewProps,
+} from "../lib/catalogExplorerTypes";
 
 type Family = string;
 
@@ -127,7 +107,7 @@ export function CatalogExplorer({
   useEffect(() => {
     if (focusStorageKey) writeFocusSet(focusStorageKey, focusSet);
   }, [focusSet, focusStorageKey]);
-  const families = useMemo(() => {
+  const families = useMemo((): CatalogGroupEntry[] => {
     const inFamily = catalog.filter(
       item => family === "all" || item.family === family
     );
@@ -357,57 +337,11 @@ export function CatalogExplorer({
         </div>
 
         {focusStorageKey && focusOpen ? (
-          <div className="mt-3 rounded-card bg-surface-2 p-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <strong className="text-sm">{t("study.focusSetTitle")}</strong>
-              <small className="text-muted">{t("study.focusSetHint")}</small>
-              {focusActive ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="ml-auto text-xs"
-                  onClick={() => setFocusSet([])}
-                >
-                  {t("study.focusSetClear")}
-                </Button>
-              ) : null}
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {families.map(group => {
-                const checked = focusSet.includes(group.name);
-                return (
-                  <label
-                    key={group.name}
-                    className={cn(
-                      "inline-flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition",
-                      checked
-                        ? "bg-primary text-on-primary"
-                        : "bg-surface text-ink hover:bg-surface-3"
-                    )}
-                  >
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={checked}
-                      onChange={() =>
-                        setFocusSet(current =>
-                          checked
-                            ? current.filter(value => value !== group.name)
-                            : [...current, group.name]
-                        )
-                      }
-                      aria-label={group.name}
-                    />
-                    {group.name}
-                    <span className="tabular-nums opacity-75">
-                      {group.mastered}/{group.total}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
+          <CatalogFocusPanel
+            families={families}
+            focusSet={focusSet}
+            setFocusSet={setFocusSet}
+          />
         ) : null}
 
         {openGroup ? (
@@ -439,46 +373,13 @@ export function CatalogExplorer({
               ) : null}
             </div>
             {selectionMode ? (
-              <div className="sticky bottom-3 z-10 mb-3 flex flex-wrap items-center gap-2 rounded-full bg-ink px-4 py-2 text-canvas">
-                <span className="text-xs font-semibold tabular-nums">
-                  {t("study.bulkSelected", {
-                    count: selectedKeys.size,
-                    total: openGroupCases.length,
-                  })}
-                </span>
-                <button
-                  type="button"
-                  className="rounded-full px-2 py-1 text-xs font-semibold text-canvas/80 transition hover:bg-white/10 hover:text-canvas"
-                  onClick={selectAllVisible}
-                >
-                  {t("study.bulkSelectAll")}
-                </button>
-                <button
-                  type="button"
-                  className="rounded-full px-2 py-1 text-xs font-semibold text-canvas/80 transition hover:bg-white/10 hover:text-canvas"
-                  onClick={clearSelection}
-                >
-                  {t("study.bulkClear")}
-                </button>
-                <span className="ml-auto flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    className="rounded-full bg-warning px-3 py-1.5 text-xs font-semibold text-on-warning transition disabled:opacity-40"
-                    disabled={selectedKeys.size === 0}
-                    onClick={() => markSelected(true)}
-                  >
-                    {t("study.bulkMark", { count: selectedKeys.size })}
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full px-3 py-1.5 text-xs font-semibold text-canvas/90 transition hover:bg-white/10 disabled:opacity-40"
-                    disabled={selectedKeys.size === 0}
-                    onClick={() => markSelected(false)}
-                  >
-                    {t("study.bulkUnmark", { count: selectedKeys.size })}
-                  </button>
-                </span>
-              </div>
+              <CatalogBulkBar
+                selectedCount={selectedKeys.size}
+                total={openGroupCases.length}
+                onSelectAll={selectAllVisible}
+                onClear={clearSelection}
+                onMark={markSelected}
+              />
             ) : null}
             {openGroupCases.length ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -490,80 +391,18 @@ export function CatalogExplorer({
                   const selected = selectedKeys.has(keyOf(catalogCase));
                   return (
                     <div key={`${catalogCase.family}:${catalogCase.id}`}>
-                      <div
-                        className={cn(
-                          "h-full rounded-card bg-surface",
-                          selectionMode && "cursor-pointer"
-                        )}
-                        onClick={event => {
-                          if (!selectionMode) return;
-                          if (
-                            (event.target as HTMLElement).closest(
-                              "button, a, input, label, select, textarea"
-                            )
-                          )
-                            return;
-                          toggleSelected(catalogCase);
-                        }}
-                      >
-                        <div className="p-5 sm:p-6">
-                          <div className="flex items-start justify-between gap-2">
-                            <Preview
-                              state={catalogCase.state}
-                              label={catalogCase.id}
-                              compact
-                              family={catalogCase.family}
-                              algorithm={catalogCase.algorithm}
-                              replayToken={replayToken}
-                              onClick={() => setPreviewCase(catalogCase)}
-                            />
-                            <div className="flex shrink-0 items-center gap-2">
-                              {selectionMode ? (
-                                <Checkbox
-                                  checked={selected}
-                                  onChange={() => toggleSelected(catalogCase)}
-                                  ariaLabel={`${t("study.bulkSelect")} ${catalogCase.id}`}
-                                />
-                              ) : null}
-                              {mastered ? (
-                                <span
-                                  className={
-                                    active
-                                      ? "inline-flex items-center rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold text-on-primary"
-                                      : "inline-flex items-center rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-on-success"
-                                  }
-                                >
-                                  ✓
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                          <strong className="mt-4 block">
-                            {catalogCase.name ?? catalogCase.id}
-                          </strong>
-                          <small className="text-muted mt-1 block">
-                            {catalogCase.family.toUpperCase()} ·{" "}
-                            {catalogCase.group}
-                          </small>
-                          <code
-                            className="text-muted mt-2 block truncate text-sm"
-                            title={catalogCase.algorithm}
-                          >
-                            {catalogCase.algorithm}
-                          </code>
-                          {selectionMode ? null : (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="plain"
-                              className="mt-4 px-3 py-1.5 text-xs"
-                              onClick={() => selectCase(catalogCase)}
-                            >
-                              {t("study.studyThisCase")}
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+                      <CatalogCaseCard
+                        catalogCase={catalogCase}
+                        mastered={mastered}
+                        active={active}
+                        selected={selected}
+                        selectionMode={selectionMode}
+                        Preview={Preview}
+                        replayToken={replayToken}
+                        onToggleSelected={() => toggleSelected(catalogCase)}
+                        onPreview={() => setPreviewCase(catalogCase)}
+                        onStudy={() => selectCase(catalogCase)}
+                      />
                     </div>
                   );
                 })}
@@ -575,131 +414,25 @@ export function CatalogExplorer({
             )}
           </div>
         ) : (
-          <div className="mt-1 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-            {visibleGroups.map(entry => {
-              const percent = entry.total
-                ? Math.round((entry.mastered / entry.total) * 100)
-                : 0;
-              return (
-                <div key={entry.name}>
-                  <button
-                    type="button"
-                    onClick={() => openGroupName(entry.name)}
-                    className="h-full w-full rounded-card bg-surface-2 px-5 py-4 text-left transition"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Preview
-                        state={entry.previewState}
-                        label={entry.name}
-                        compact
-                        family={entry.family}
-                      />
-                      <span className="grow min-w-0">
-                        <strong className="block truncate">{entry.name}</strong>
-                        <small className="text-muted">
-                          {entry.meta ? `${entry.meta} · ` : ""}
-                          {entry.mastered}/{entry.total}
-                        </small>
-                      </span>
-                    </div>
-                    <span className="bg-surface-3 mt-3 block h-2 w-full overflow-hidden rounded-full">
-                      <span
-                        className="h-full rounded-full bg-primary transition-[width]"
-                        style={{ width: `${percent}%` }}
-                      />
-                    </span>
-                  </button>
-                </div>
-              );
-            })}
-            {visibleGroups.length ? null : (
-              <p className="text-sm text-muted mb-0">
-                {t("study.noCasesMatch")}
-              </p>
-            )}
-          </div>
+          <CatalogGroupGrid
+            groups={visibleGroups}
+            Preview={Preview}
+            onOpenGroup={openGroupName}
+          />
         )}
       </div>
 
-      <Dialog
-        open={Boolean(previewCase)}
-        onOpenChange={open => {
-          if (!open) setPreviewCase(null);
-        }}
-      >
-        <DialogContent className="w-full overflow-hidden">
-          <DialogHeader>
-            <div>
-              <DialogTitle>
-                {previewCase
-                  ? (previewCase.name ??
-                    `${previewCase.family.toUpperCase()} · ${previewCase.id}`)
-                  : t("study.previewTitle")}
-              </DialogTitle>
-              <DialogDescription>{previewHint}</DialogDescription>
-            </div>
-            <IconButton
-              className="ml-auto h-8 w-8 shrink-0 text-muted hover:bg-surface-3 hover:text-ink"
-              label={t("study.closePreview")}
-              icon={null}
-              onClick={() => setPreviewCase(null)}
-            />
-          </DialogHeader>
-          {previewCase ? (
-            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 flex flex-col items-center gap-4 p-4 sm:p-6 overflow-auto">
-              <DialogPreview
-                state={previewCase.state}
-                label={previewCase.id}
-                family={previewCase.family}
-                algorithm={previewCase.algorithm}
-                replayToken={replayToken}
-              />
-              <div className="text-center w-full">
-                <strong>{previewCase.group}</strong>
-                <code className="block text-sm text-muted mt-2 break-words">
-                  {previewCase.algorithm}
-                </code>
-              </div>
-            </div>
-          ) : null}
-          <DialogFooter className="flex-col sm:flex-row">
-            <Button
-              variant="secondary"
-              size="md"
-              className="w-full sm:grow-0"
-              type="button"
-
-              onClick={() => setPreviewCase(null)}
-            >
-              {t("study.close")}
-            </Button>
-            {dialogPreview && dialogReplayLabel ? (
-              <Button
-                variant="secondary"
-                size="md"
-                className="w-full sm:grow-0"
-                type="button"
-                onClick={() => setReplayToken(token => token + 1)}
-                aria-label={dialogReplayLabel}
-              >
-                {dialogReplayLabel}
-              </Button>
-            ) : null}
-            {previewCase ? (
-              <Button
-                variant="primary"
-                size="md"
-                className="w-full sm:grow-0"
-                type="button"
-
-                onClick={() => selectCase(previewCase)}
-              >
-                {t("study.studyThisCase")}
-              </Button>
-            ) : null}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CatalogPreviewDialog
+        previewCase={previewCase}
+        previewHint={previewHint}
+        DialogPreview={DialogPreview}
+        replayToken={replayToken}
+        canReplay={Boolean(dialogPreview)}
+        replayLabel={dialogReplayLabel}
+        onClose={() => setPreviewCase(null)}
+        onReplay={() => setReplayToken(token => token + 1)}
+        onStudy={selectCase}
+      />
     </details>
   );
 }

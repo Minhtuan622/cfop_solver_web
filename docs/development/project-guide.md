@@ -43,12 +43,12 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 | `features/puzzle-3d/` | Canvas 3D, toán camera, framing theo puzzle, hình học Square-1/Clock, phần thuần của renderer khối (`lib/cubeGuideFacelets.ts`, không import Three.js). |
 | `features/solver/` | Thanh công cụ, panel nhập khối (kèm quét camera `CameraScanner` và tô màu `CubeStateEditor`), panel lời giải, tuỳ chọn F2L, state gần đây, báo cáo CFOP và nhãn/xuất kết quả (`lib/solverPresentation.ts`), đọc phase theo con trỏ (`lib/solutionView.ts`), hook phát lại/tuỳ chọn/kiểm trạng thái, cột lời giải và banner kết quả của trang Giải Rubik. |
 | `features/settings/` | Nhóm cài đặt, panel theo nhóm và state tự lưu của trang Cài đặt. |
-| `features/competition/` | Bộ lọc bảng xếp hạng, lễ kỳ hoàn thành phòng, bảng xếp hạng toàn hệ thống. |
+| `features/competition/` | Bộ lọc bảng xếp hạng, lễ kỳ hoàn thành phòng, bảng xếp hạng toàn hệ thống, trang bảng xếp hạng (`LeaderboardHome`, `LeaderboardTable`) và lịch sử người chơi (`PlayerHistory`) — hai trang này import thẳng module, không qua barrel, để chunk của trang Phòng thi không kéo theo. |
 | `features/bld/` | Catalog 3-Style, lộ trình học, bảng công thức BLD, báo cáo BLD của trang Giải Rubik (`BldReport` + `lib/bldExecution.ts` ghép key flip/twist/parity theo BLDDB). |
 | `features/last-layer/` | Thanh công cụ Study, panel luyện case, panel lịch ôn, catalog Last Layer và preview 2D. |
 | `features/wca/` | Bộ lọc lịch giải WCA, danh sách theo tháng, dòng từng giải và so sánh thời gian Timer với thành tích WCA (`lib/wcaTimerComparison.ts`). |
 | `features/history/` | Trang Lịch sử: thẻ lượt giải, ô số liệu, biểu đồ xu hướng, bộ lọc, menu nhập/xuất, hộp thoại sửa và xoá; phép tính lọc/biểu đồ/CSV ở `lib/historyView.ts`. |
-| `features/play/` | Bảng phím và logic khối của trang Chơi (`lib/playCube.ts`), lịch sử lượt chơi (`lib/playHistory.ts`). |
+| `features/play/` | Trang Chơi: logic khối bằng phím (`lib/playCube.ts`), lịch sử lượt chơi (`lib/playHistory.ts`), bảng phím, bàn nút xoay, tab chế độ, lớp phủ đồng hồ, bảng đua, lịch sử và hộp thoại xoá. |
 | `features/twoByTwo/` | Lane 2×2 của trang Học thêm, kèm sơ đồ mặt 2×2 `CubeNet2x2`. |
 | `features/case-study/` | Khung dùng chung của các lane Học thêm: hook `useCaseStudyLane` (vòng SRS), bố cục `CaseStudyLaneShell`, thẻ case `CasePracticePanel`, khung 3D tải lười `LazyPuzzlePreview`. Bộ lưu tiến độ dùng chung nằm ở `client/src/lib/caseStudy.ts`. |
 
