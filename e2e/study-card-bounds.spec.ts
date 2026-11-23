@@ -46,7 +46,8 @@ test("/study?lane=bld không có card tràn qua footer", async ({ page }) => {
 
 test("/study card Lịch ôn ôm nội dung, không bị kéo giãn đáy trống", async ({ page }) => {
   await page.goto("/study");
-  await page.waitForTimeout(2500);
+  // Chờ card Lịch ôn hiện ra thay vì chờ cứng một khoảng thời gian.
+  await page.locator("main aside.rounded-card").first().waitFor();
 
   const slack = await page.evaluate(() => {
     const aside = document.querySelector<HTMLElement>("main aside.rounded-card");

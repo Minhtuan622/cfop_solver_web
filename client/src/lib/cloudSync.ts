@@ -9,7 +9,7 @@ import { readFourByFourParityStudy, readMasteredFourByFourParityCaseKeys, type F
 import { readFiveByFiveL2EStudy, readMasteredFiveByFiveL2ECaseKeys, type FiveByFiveL2EStudyState, writeFiveByFiveL2EStudy, writeMasteredFiveByFiveL2ECaseKeys } from "@/features/fiveByFiveL2E/lib/l2eStudy";
 import { readFtoL3tStudy, readMasteredFtoL3tCaseKeys, type FtoL3tStudyState, writeFtoL3tStudy, writeMasteredFtoL3tCaseKeys } from "@/features/ftoL3t/lib/l3tStudy";
 import { readFto2LookL3tStudy, readMasteredFto2LookL3tCaseKeys, type Fto2LookL3tStudyState, writeFto2LookL3tStudy, writeMasteredFto2LookL3tCaseKeys } from "@/features/fto2LookL3t/lib/l2tStudy";
-import { readSolveHistory, SolveHistoryEntry, importSolveHistory } from "./solveHistory";
+import { readStoredSolveHistory, SolveHistoryEntry, importSolveHistory, MAX_SOLVE_TOMBSTONES } from "./solveHistory";
 import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 
 export type CfopCloudState = {
@@ -47,6 +47,21 @@ export type CfopCloudState = {
 export const MAX_CLOUD_TIMER_ENTRIES = 500;
 
 const maxTimerEntries = MAX_CLOUD_TIMER_ENTRIES;
+/** Số tombstone tối đa gửi kèm (ngoài 500 lượt đang hiển thị). */
+export const MAX_CLOUD_TIMER_TOMBSTONES = MAX_SOLVE_TOMBSTONES;
+
+/** Tối đa 500 lượt đang hiển thị (mới trước) và 100 tombstone (mới xoá trước). */
+function capTimerEntries(entries: SolveHistoryEntry[]) {
+  const live = entries
+    .filter(entry => !entry.deletedAt)
+    .sort((left, right) => right.createdAt - left.createdAt)
+    .slice(0, maxTimerEntries);
+  const tombstones = entries
+    .filter(entry => entry.deletedAt)
+    .sort((left, right) => (right.deletedAt ?? 0) - (left.deletedAt ?? 0))
+    .slice(0, MAX_CLOUD_TIMER_TOMBSTONES);
+  return [...live, ...tombstones].sort((left, right) => right.createdAt - left.createdAt);
+}
 const maxDrillAttempts = 600;
 
 export function createCfopCloudState(now = Date.now()): CfopCloudState {
@@ -54,7 +69,7 @@ export function createCfopCloudState(now = Date.now()): CfopCloudState {
     schema: "cfop-account-cloud-state",
     schemaVersion: 2,
     capturedAt: readCfopCloudChangeAt() || 0,
-    timer: readSolveHistory().slice(0, maxTimerEntries),
+    timer: capTimerEntries(readStoredSolveHistory()),
     lastLayer: { study: readLastLayerStudy(), masteredCaseKeys: Array.from(readMasteredCaseKeys()) },
     bldProfile: readBldProfile(),
     bldLearningPath: readBldLearningPath(),
@@ -134,7 +149,7 @@ function mergeTimer(local: SolveHistoryEntry[], remote: SolveHistoryEntry[], pre
     }
     byId.set(entry.id, newest(existing, entry, preferLocal));
   }
-  return Array.from(byId.values()).sort((left, right) => right.createdAt - left.createdAt).slice(0, maxTimerEntries);
+  return capTimerEntries(Array.from(byId.values()));
 }
 
 function mergeLastLayer(local: CfopCloudState["lastLayer"], remote: CfopCloudState["lastLayer"], preferLocal: boolean) {

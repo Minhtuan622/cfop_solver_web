@@ -8,7 +8,7 @@ describe("profilePresentation", () => {
   it("formats stable account and WCA labels", () => {
     expect(initials("Nguyễn Văn A")).toBe("NV");
     expect(initials("  ")).toBe("CF");
-    expect(formatWcaTime(1_234)).toBe("00:12.33");
+    expect(formatWcaTime(1_234)).toBe("00:12.34");
     expect(wcaEventName("333bf", "vi")).toBe("3×3 bịt mắt");
     expect(wcaEventName("333bf", "en")).toBe("3×3 blindfolded");
     expect(wcaEventName("fto", "vi")).toBe("FTO");

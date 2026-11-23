@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test("lane 2×2 trong tab Học thêm: mở, nhóm, chọn case (CLL + PBL)", async ({ page }) => {
   await page.goto("/study?lane=2x2");
 
-  await expect(page.getByRole("button", { name: "2×2", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^2×2(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/40 CLL case/)).toBeVisible();
 
   // Drawer danh mục: nhóm Sune có đủ 6 case

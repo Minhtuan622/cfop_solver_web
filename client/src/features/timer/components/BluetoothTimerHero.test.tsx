@@ -53,8 +53,8 @@ describe("BluetoothTimerHero", () => {
     expect(screen.getByRole("status")).toHaveTextContent(/đang tính giờ/i);
 
     act(() => emit(timer, "update", { currentTime: 12_340 }));
-    // The app's readout floors cents (12340ms → 00:12.33).
-    expect(screen.getByRole("status")).toHaveTextContent("00:12.33");
+    // The app's readout truncates to hundredths (12340ms → 00:12.34).
+    expect(screen.getByRole("status")).toHaveTextContent("00:12.34");
 
     act(() => emit(timer, "update", { currentTime: 20_000 }));
     expect(screen.getByRole("status")).toHaveTextContent("00:20.00");

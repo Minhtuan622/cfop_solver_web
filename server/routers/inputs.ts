@@ -3,6 +3,8 @@ import { DEFAULT_TIMER_EVENT, TIMER_EVENT_IDS } from "../../shared/timerEvents";
 
 /** Giới hạn số lượng solve lưu trong lịch sử cloud state (dùng chung client/server). */
 export const MAX_CLOUD_TIMER_ENTRIES = 500;
+/** Số lượt đã xoá (tombstone) tối đa gửi kèm, để máy khác cũng xoá theo. */
+export const MAX_CLOUD_TIMER_TOMBSTONES = 100;
 
 /** Thời gian tối thiểu (ms) một giải hợp lý cần mất, bất kể thể thức. */
 export const MIN_ELAPSED_MS = 1_000;
@@ -24,7 +26,7 @@ export const cloudStateInput = z.object({
   // trang thay vì ghi đè mất dữ liệu.
   baseVersion: z.number().int().nonnegative().nullable().optional(),
   capturedAt: z.number().int().nonnegative(),
-  timer: z.array(z.unknown()).max(MAX_CLOUD_TIMER_ENTRIES),
+  timer: z.array(z.unknown()).max(MAX_CLOUD_TIMER_ENTRIES + MAX_CLOUD_TIMER_TOMBSTONES),
   lastLayer: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }),
   bldProfile: z.unknown(),
   bldLearningPath: z.unknown(),

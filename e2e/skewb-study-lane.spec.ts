@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test("lane Skewb trong tab Học thêm: mở, nhóm, chọn case (Sarah Int + Adv)", async ({ page }) => {
   await page.goto("/study?lane=skewb");
 
-  await expect(page.getByRole("button", { name: "Skewb", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^Skewb(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/10 Sarah Intermediate/)).toBeVisible();
 
   // Drawer danh mục: nhóm 1T có đủ 2 trigger

@@ -1,5 +1,14 @@
+import { useState } from "react";
 import { BoxArrowRight } from "@/components/ui/Icon";
 import { Button, buttonClass } from "@/components/ui/Button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/StudioDialog";
 import { RefreshIndicator, SkeletonCard } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { SolveHistoryEntry } from "@/lib/solveHistory";
@@ -16,6 +25,8 @@ export function ProfileWcaSection({
   oauthConfigured,
   oauthPending,
   onStartOAuth,
+  unlinkPending,
+  onUnlink,
 }: {
   wcaId: string | null | undefined;
   wcaProfile: WcaProfileData | undefined;
@@ -26,8 +37,12 @@ export function ProfileWcaSection({
   oauthConfigured: boolean | undefined;
   oauthPending: boolean;
   onStartOAuth: () => void;
+  unlinkPending: boolean;
+  /** Gỡ WCA ID khỏi tài khoản (sau khi người dùng xác nhận). */
+  onUnlink: () => void;
 }) {
   const { t } = useLanguage();
+  const [confirmUnlink, setConfirmUnlink] = useState(false);
   return (
     <section className="rounded-card bg-surface mb-6">
       <div className="p-5 sm:p-6">
@@ -42,17 +57,30 @@ export function ProfileWcaSection({
             <p className="text-sm text-muted mb-0">{t("profile.wcaHint")}</p>
           </div>
           {wcaId ? (
-            <a
-              className={`${buttonClass("secondary", "sm")}`}
-              href={
-                wcaProfile?.profileUrl ??
-                `https://www.worldcubeassociation.org/persons/${wcaId}`
-              }
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t("profile.wcaOpen")} <BoxArrowRight className="ml-1" />
-            </a>
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                className={`${buttonClass("secondary", "sm")}`}
+                href={
+                  wcaProfile?.profileUrl ??
+                  `https://www.worldcubeassociation.org/persons/${wcaId}`
+                }
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t("profile.wcaOpen")} <BoxArrowRight className="ml-1" />
+              </a>
+              <Button
+                variant="danger"
+                size="sm"
+                type="button"
+                disabled={unlinkPending}
+                onClick={() => setConfirmUnlink(true)}
+              >
+                {unlinkPending
+                  ? t("profile.wcaUnlinkPending")
+                  : t("profile.wcaUnlink")}
+              </Button>
+            </div>
           ) : null}
         </div>
         {refreshing ? (
@@ -90,6 +118,37 @@ export function ProfileWcaSection({
           </Button>
         </div>
       </div>
+      <Dialog open={confirmUnlink} onOpenChange={setConfirmUnlink}>
+        <DialogContent>
+          <DialogHeader>
+            <div>
+              <DialogTitle>{t("profile.wcaUnlinkTitle")}</DialogTitle>
+              <DialogDescription>{t("profile.wcaUnlinkDetail")}</DialogDescription>
+            </div>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              size="md"
+              type="button"
+              onClick={() => setConfirmUnlink(false)}
+            >
+              {t("profile.wcaUnlinkCancel")}
+            </Button>
+            <Button
+              variant="dangerSolid"
+              size="md"
+              type="button"
+              onClick={() => {
+                setConfirmUnlink(false);
+                onUnlink();
+              }}
+            >
+              {t("profile.wcaUnlink")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

@@ -85,6 +85,12 @@ export const profileWords: Dictionary = {
   "profile.wcaLookupPending": ["Đang tra cứu…", "Looking up…"],
   "profile.wcaUnlink": ["Gỡ liên kết", "Unlink"],
   "profile.wcaUnlinkPending": ["Đang gỡ…", "Unlinking…"],
+  "profile.wcaUnlinkTitle": ["Gỡ liên kết WCA?", "Unlink WCA?"],
+  "profile.wcaUnlinkDetail": [
+    "Hồ sơ CFOP sẽ không còn hiện thành tích WCA. Bạn có thể liên kết lại bằng WCA OAuth bất cứ lúc nào.",
+    "Your CFOP profile will stop showing WCA results. You can link again with WCA OAuth at any time.",
+  ],
+  "profile.wcaUnlinkCancel": ["Hủy", "Cancel"],
   "profile.wcaRefreshing": ["Đang cập nhật thành tích WCA", "Updating WCA results"],
   "profile.wcaLoading": ["Đang tải thành tích WCA", "Loading WCA results"],
   "profile.wcaOauthReady": [

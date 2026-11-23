@@ -15,6 +15,9 @@ test("trang Bấm giờ không bị bóp cột", async ({ page }) => {
   await page.goto("/timer");
   await page.waitForTimeout(1500);
 
+  // Khối phân tích nằm trong mục gập (đóng mặc định): mở ra trước khi đo.
+  await page.locator("details", { hasText: "Phân tích" }).first().locator("summary").click();
+
   // Khối phân tích phải chiếm gần hết chiều rộng của lưới chứa nó.
   const analytics = page.locator(
     'section[aria-labelledby="timer-analytics-heading"]'

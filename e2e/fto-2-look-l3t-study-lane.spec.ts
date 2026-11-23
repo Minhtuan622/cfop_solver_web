@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test("lane FTO 2-Look L3T trong tab Học thêm: mở, nhóm, chọn case", async ({ page }) => {
   await page.goto("/study?lane=l3t2");
 
-  await expect(page.getByRole("button", { name: "FTO 2-Look", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^FTO 2-Look(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/44 case 2-Look/)).toBeVisible();
 
   // Drawer danh mục: 4 nhóm PF / TCP A / TCP B / TCP C
