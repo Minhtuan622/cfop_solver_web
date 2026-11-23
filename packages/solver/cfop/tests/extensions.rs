@@ -66,6 +66,31 @@ fn openings_1000_scrambles_per_tier() {
     }
 }
 
+/// Depth 12 with the browser's upper node budget (2 000 000 per attempt):
+/// XXXCross exists for most scrambles. At depth 10 most scrambles have no
+/// direct XXXCross at all (see docs/validation/rust-wasm-solver.md).
+#[test]
+fn xxxcross_at_depth_12_is_usually_found() {
+    let mut rng = Rng::new(0x0E0 + 3);
+    let mut found = 0;
+    for i in 0..20 {
+        let cube = Cube::from_moves(&rng.scramble(25));
+        let r = solve_opening(&cube, &options(Opening::XXXCross, 12, 2_000_000)).unwrap();
+        if let Some((slots, stage)) = r.solution {
+            found += 1;
+            assert_eq!(slots.len(), 3, "#{i}");
+            assert!(stage.moves.len() <= 12, "#{i}");
+            let after = cube.apply_moves(&stage.moves);
+            assert!(cross_solved(&after, Face::D), "#{i}: cross");
+            for &j in &slots {
+                assert!(slot_solved(&after, Face::D, j), "#{i}: slot {j}");
+            }
+        }
+    }
+    println!("XXXCross depth 12: {found}/20 found");
+    assert!(found >= 16, "XXXCross depth 12: only {found}/20 found");
+}
+
 #[test]
 fn opening_slot_preferences() {
     let mut rng = Rng::new(42);

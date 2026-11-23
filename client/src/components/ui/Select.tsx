@@ -99,7 +99,7 @@ export function Select({
         className={cn(
           // Đậm hơn thẻ một bậc; hover/mở/focus đậm thêm một bậc. Không viền,
           // không vòng focus (Radix trả focus về nút sau khi chọn).
-          "flex w-full items-center justify-between gap-1.5 rounded-field bg-surface-2 px-3 py-2.5 text-left text-sm text-ink transition-colors hover:bg-surface-3 focus-visible:bg-surface-3 focus-visible:outline-none data-[state=open]:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-60",
+          "flex w-full items-center justify-between gap-1.5 rounded-field bg-surface-2 px-3 py-2.5 text-left text-sm text-ink transition-colors hover:bg-surface-3 focus-visible:bg-surface-3 data-[state=open]:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-60",
           buttonClassName
         )}
       >
@@ -130,7 +130,7 @@ export function Select({
                 value={toItemValue(option.value)}
                 disabled={option.disabled}
                 className={cn(
-                  "relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-ink outline-none transition-colors",
+                  "relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-ink transition-colors",
                   "data-[highlighted]:bg-surface",
                   "data-[state=checked]:font-semibold data-[state=checked]:text-primary",
                   "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"

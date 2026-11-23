@@ -63,7 +63,7 @@ export function Dropdown({
           <button
             type="button"
             className={cn(
-              "group inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition-colors focus-visible:outline-none",
+              "group inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold transition-colors",
               variant === "nav"
                 ? "rounded-full px-3.5 py-2 text-muted hover:bg-surface-2 hover:text-ink data-[state=open]:bg-surface-2 data-[state=open]:text-ink"
                 : variant === "soft"

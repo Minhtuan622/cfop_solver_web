@@ -30,10 +30,20 @@ COPY packages/solver ./
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
   --mount=type=cache,target=/app/packages/solver/target \
   wasm-pack build solver-wasm --target web --release --out-dir pkg --no-pack
-# No wasm-opt pass here: Debian bookworm ships Binaryen 108, which rewrites the
-# externref table that wasm-bindgen 0.2.130 emits, and the module then fails
-# to instantiate ("WebAssembly.Table.set(): ... function-typed object").
-# Skipping it costs about 13 KB gzipped.
+
+# wasm-opt comes from a pinned Binaryen release (checksum verified by ADD), not
+# from apt: Debian bookworm ships Binaryen 108, which breaks the externref table
+# that wasm-bindgen 0.2.130 emits. CI uses the same version and flags
+# (.github/workflows/ci.yml, scripts/build-solver.mjs).
+ARG BINARYEN_VERSION=133
+ADD --checksum=sha256:2dc9c7813f5375db93d96ead4b78222fcc3e2677bbb832297af4797782a37489 \
+  https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VERSION}/binaryen-version_${BINARYEN_VERSION}-x86_64-linux.tar.gz \
+  /tmp/binaryen.tar.gz
+RUN tar -xzf /tmp/binaryen.tar.gz -C /opt \
+  && /opt/binaryen-version_${BINARYEN_VERSION}/bin/wasm-opt -Os \
+    --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext --enable-mutable-globals \
+    solver-wasm/pkg/solver_wasm_bg.wasm -o solver-wasm/pkg/solver_wasm_bg.wasm \
+  && rm -rf /tmp/binaryen.tar.gz /opt/binaryen-version_${BINARYEN_VERSION}
 
 # ---------------------------------------------------------------------------
 # Stage "build": Node dependencies and the web build, discarded afterwards.

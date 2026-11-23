@@ -138,7 +138,7 @@ export function SolverSettingsGroup({
                   aria-label={t("settings.openingDepth")}
                   type="range"
                   min="4"
-                  max="10"
+                  max="12"
                   step="1"
                   value={solver.openingDepth}
                   onChange={event =>
@@ -159,7 +159,7 @@ export function SolverSettingsGroup({
                   aria-label={t("settings.nodeBudget")}
                   type="range"
                   min="500"
-                  max="50000"
+                  max="2000000"
                   step="500"
                   value={solver.directNodeBudget}
                   onChange={event =>

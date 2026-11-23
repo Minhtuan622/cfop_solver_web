@@ -15,6 +15,7 @@ pub mod studio;
 
 use std::cell::RefCell;
 
+use tsify::Ts;
 use wasm_bindgen::prelude::*;
 
 pub use bld::{analyze_3style, BldAnalysis};
@@ -48,6 +49,11 @@ fn throw(e: SolverError) -> JsValue {
     serde_wasm_bindgen::to_value(&e).unwrap_or_else(|_| JsValue::from_str(&e.message))
 }
 
+/// Rust value -> JS object (`Ts<T>` keeps the TypeScript type in the .d.ts).
+fn to_js<T: tsify::Tsify + serde::Serialize>(value: &T) -> Result<Ts<T>, JsValue> {
+    Ts::from_rust(value).map_err(|e| throw(SolverError::new("internal", e.to_string())))
+}
+
 /// Solve a 54-sticker URFDLB state.
 ///
 /// `onProgress(stage, nodes)` (optional) is called periodically during
@@ -56,9 +62,15 @@ fn throw(e: SolverError) -> JsValue {
 #[wasm_bindgen]
 pub fn solve(
     stickers: &str,
-    options: Option<SolveOptions>,
+    options: Option<Ts<SolveOptions>>,
     #[wasm_bindgen(js_name = onProgress)] on_progress: Option<js_sys::Function>,
-) -> Result<SolverResult, JsValue> {
+) -> Result<Ts<SolverResult>, JsValue> {
+    let options = match options {
+        Some(options) => options
+            .to_rust()
+            .map_err(|e| throw(SolverError::new("invalid_option", e.to_string())))?,
+        None => SolveOptions::default(),
+    };
     let has_progress = on_progress.is_some();
     PROGRESS.with(|p| *p.borrow_mut() = on_progress);
     let progress: Option<cfop::ProgressFn> = if has_progress {
@@ -66,14 +78,9 @@ pub fn solve(
     } else {
         None
     };
-    let result = studio::solve_stickers(
-        stickers,
-        &options.unwrap_or_default(),
-        Some(js_now),
-        progress,
-    );
+    let result = studio::solve_stickers(stickers, &options, Some(js_now), progress);
     PROGRESS.with(|p| *p.borrow_mut() = None);
-    result.map_err(throw)
+    to_js(&result.map_err(throw)?)
 }
 
 /// The 54-sticker state produced by a scramble from solved.
@@ -94,9 +101,9 @@ pub fn cross_lengths(stickers: &str) -> Result<Vec<u8>, JsValue> {
 
 /// 3-Style (Speffz) memo for a 54-sticker state.
 #[wasm_bindgen(js_name = analyzeBld)]
-pub fn analyze_bld(stickers: &str) -> Result<BldAnalysis, JsValue> {
+pub fn analyze_bld(stickers: &str) -> Result<Ts<BldAnalysis>, JsValue> {
     let cube = studio::parse_state(stickers).map_err(throw)?;
-    Ok(bld::analyze_3style(&cube))
+    to_js(&bld::analyze_3style(&cube))
 }
 
 /// Build every lookup table now (otherwise built on the first solve).

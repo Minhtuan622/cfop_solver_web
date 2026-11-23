@@ -150,7 +150,7 @@ export function WcaCalendarFilters({
             <DropdownItem asChild>
               <button
                 type="button"
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink outline-none transition-colors data-[highlighted]:bg-surface"
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition-colors data-[highlighted]:bg-surface"
                 onClick={() => jumpTo(currentYear, new Date().getMonth() + 1)}
               >
                 {t("wca.thisMonth")}
@@ -159,7 +159,7 @@ export function WcaCalendarFilters({
             <DropdownItem asChild>
               <button
                 type="button"
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink outline-none transition-colors data-[highlighted]:bg-surface"
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition-colors data-[highlighted]:bg-surface"
                 onClick={() => {
                   const next = new Date();
                   next.setMonth(next.getMonth() + 1);
@@ -172,7 +172,7 @@ export function WcaCalendarFilters({
             <DropdownItem asChild>
               <button
                 type="button"
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink outline-none transition-colors data-[highlighted]:bg-surface"
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition-colors data-[highlighted]:bg-surface"
                 onClick={() => jumpTo(currentYear, 0)}
               >
                 {t("wca.thisYear")}
@@ -185,7 +185,7 @@ export function WcaCalendarFilters({
               type="button"
               variant="link"
               size="plain"
-              className="col-span-2 justify-self-start px-1.5 py-1.5 text-xs sm:col-span-1"
+              className="col-span-2 w-fit px-1.5 py-1.5 text-xs sm:col-span-1"
               onClick={onReset}
             >
               {t("wca.resetFilters")}

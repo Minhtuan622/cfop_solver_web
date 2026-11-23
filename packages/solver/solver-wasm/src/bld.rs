@@ -72,7 +72,7 @@ const EDGE_POSITIONS: [&str; 12] = [
 ];
 const CORNER_POSITIONS: [&str; 8] = ["UFR", "UFL", "UBL", "UBR", "DFR", "DFL", "DBL", "DBR"];
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify_next::Tsify)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify::Tsify)]
 pub struct BldCycle {
     pub buffer: String,
     pub targets: Vec<String>,
@@ -81,33 +81,33 @@ pub struct BldCycle {
     pub execution_keys: Vec<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify_next::Tsify)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify::Tsify)]
 pub struct BldPieces {
     pub cycles: Vec<BldCycle>,
     pub memo: Vec<String>,
     pub execution_keys: Vec<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify_next::Tsify)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify::Tsify)]
 pub struct BldBuffer {
     pub letter: String,
     pub position: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify_next::Tsify)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify::Tsify)]
 pub struct BldBuffers {
     pub edge: BldBuffer,
     pub corner: BldBuffer,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify_next::Tsify)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify::Tsify)]
 pub struct CornerTwist {
     pub position: String,
     /// "cw" or "ccw".
     pub direction: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify_next::Tsify)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify::Tsify)]
 pub struct BldSpecial {
     pub parity: bool,
     pub edge_flips: Vec<String>,
@@ -116,15 +116,14 @@ pub struct BldSpecial {
     pub corner_orientation_sum: u32,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify_next::Tsify)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify::Tsify)]
 pub struct BldCatalog {
     pub provider: String,
     pub source: String,
     pub note: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify_next::Tsify)]
-#[tsify(into_wasm_abi)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify::Tsify)]
 pub struct BldAnalysis {
     pub method: String,
     pub buffers: BldBuffers,

@@ -29,6 +29,8 @@ Cảm ơn bạn muốn cải thiện CFOP Solver Studio. Bạn có thể đóng 
 
 ## Quy ước code
 
+Bản tóm tắt ngắn các quy ước và lệnh kiểm tra nằm ở [AGENTS.md](AGENTS.md).
+
 - TypeScript strict; ưu tiên module theo feature trong `client/src/features/`.
 - Giao diện dùng **Tailwind CSS 4** và các primitive trong
   `client/src/components/ui/`. Không thêm custom CSS khi utility Tailwind hoặc
