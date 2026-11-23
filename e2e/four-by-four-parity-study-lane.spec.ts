@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test("lane 4×4 Parity trong tab Học thêm: mở, nhóm, chọn case", async ({ page }) => {
   await page.goto("/study?lane=parity");
 
-  await expect(page.getByRole("button", { name: "4×4 Parity", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^4×4 Parity(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/22 PLL Parity case/)).toBeVisible();
 
   // Drawer danh mục: nhóm PLL có đủ 22 case

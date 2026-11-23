@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test("lane Pyraminx trong tab Học thêm: mở, nhóm, chọn case (LL + L4E)", async ({ page }) => {
   await page.goto("/study?lane=pyraminx");
 
-  await expect(page.getByRole("button", { name: "Pyraminx", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^Pyraminx(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/35 L4E case/)).toBeVisible();
 
   // Drawer danh mục: nhóm DES có đủ 5 case

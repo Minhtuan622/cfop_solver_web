@@ -308,3 +308,15 @@ Hành vi, route, key lưu, định dạng export, contract tRPC và locator khô
 | `pages/TimerLab.tsx` | 2454 | 1347 | `features/timer/lib/timerImageExport.ts`, `timerScrambleState.ts`, `timerLabTypes.ts`, `useTimerSolveEditor.ts`; `EventProgressCard`, `EventWcaComparisonCard`, `MetricDetailCard`, `MultiBlindCards`, `TimerSolveEditDialog`, `TimerReplayDialog` |
 
 **Còn để ngỏ (chờ quyết định sản phẩm).** `TimerLab.tsx` giữ hộp thoại xoá lượt giải nhưng không có chỗ nào mở nó (`deleteTarget` không bao giờ được gán); `Profile.tsx` giữ mutation `unlinkWca` nhưng không có nút gọi.
+
+## Đợt 13: các quyết định còn treo và bộ E2E
+
+Người dùng đã duyệt từng mục.
+
+- **Đồng bộ lượt đã xoá.** Trước đây tombstone (`deletedAt`) không bao giờ lên cloud (`createCfopCloudState` đọc danh sách đã lọc) và mỗi lần ghi lịch sử làm rơi tombstone cũ, nên lượt đã xoá có thể sống lại khi gộp với bản cloud cũ. Giờ `solveHistory.ts` giữ tối đa 100 tombstone mới xoá nhất (đặt sau 500 lượt đang hiển thị, không chiếm chỗ), `createCfopCloudState` gửi kèm chúng, `mergeTimer` giữ 500 lượt + 100 tombstone, và `cloudStateInput` phía server nhận tối đa 600 mục (`MAX_CLOUD_TIMER_TOMBSTONES`). `importSolveHistory` chỉ trả về lượt đang hiển thị.
+- **Làm tròn thời gian.** `formatSolveTime` tính trên số phần trăm giây nguyên: 9870 ms ra `00:09.87` (trước là `00:09.86`), thành tích WCA 1234 cs ra `00:12.34` (trước `00:12.33`). Vẫn cắt, không làm tròn lên.
+- **Trang Bấm giờ.** Gỡ hộp thoại xoá không có đường mở (`deleteTarget` không bao giờ được gán) và 3 câu i18n đi kèm.
+- **Trang Hồ sơ.** Thêm nút "Gỡ liên kết" WCA kèm hộp thoại xác nhận, dùng mutation `wca.unlink` có sẵn; có test `ProfileWcaSection.test.tsx`.
+- **Tương phản.** `CrossLengthStrip` đặt `aria-busy` lên danh sách số thay vì cả thanh: quy tắc `[aria-busy="true"] { opacity: 0.72 }` từng kéo nhãn "Cross tối ưu" xuống 3,3:1 trong lúc đang tính.
+- **E2E.** 9 spec lane tìm ô lane theo tên bắt đầu bằng tên lane (ô giờ kèm số liệu); `navbar-glass` → `navbar-sticky` (thiết kế tối giản đã bỏ kính mờ); `solver-spacing` kiểm mục gập "Dán chuỗi 54 sticker" thay cho mục camera đã thành hộp thoại; `timer-layout` mở mục "Phân tích" trước khi đo; `study-card-bounds` chờ phần tử thay vì chờ cứng 2,5 s; `e2e/global-setup.ts` mở trước các route chính để Vite biên dịch sẵn, tránh test đầu tiên timeout.
+

@@ -5,6 +5,8 @@ const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/*.spec.ts",
+  // Khởi động sẵn dev server (Vite biên dịch module khi được xin lần đầu).
+  globalSetup: "./e2e/global-setup.ts",
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,

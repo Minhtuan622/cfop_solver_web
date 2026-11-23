@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test("lane CFOP trong tab Học thêm: mở, chọn family, chọn case", async ({ page }) => {
   await page.goto("/study?lane=cfop");
 
-  await expect(page.getByRole("button", { name: "CFOP", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^CFOP(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/F2L 164|41 × 4/)).toBeVisible();
 
   // Drawer danh mục: chọn family OLL → nhóm oll với 57 case

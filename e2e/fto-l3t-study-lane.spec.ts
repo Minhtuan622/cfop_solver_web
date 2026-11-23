@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test("lane FTO L3T trong tab Học thêm: mở, nhóm, chọn case", async ({ page }) => {
   await page.goto("/study?lane=l3t");
 
-  await expect(page.getByRole("button", { name: "FTO L3T", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^FTO L3T(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/17 case 3-Look/)).toBeVisible();
 
   // Drawer danh mục: 3 nhóm PF / TL / LT

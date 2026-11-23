@@ -1,14 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * Kịch bản e2e: thanh điều hướng phải là một tấm kính thật — nền bán trong
- * suốt, làm mờ và tăng độ bão hoà nội dung phía sau — và vẫn dính trên cùng
- * khi cuộn trang.
+ * Kịch bản e2e: thanh điều hướng dính trên cùng khi cuộn và theo phong cách
+ * phẳng — nền đặc theo theme, không kính mờ (`backdrop-filter`), không bóng.
  *
- * Unit test chỉ kiểm tra tên class; bài này kiểm tra CSS đã biên dịch thật sự
- * tạo ra `backdrop-filter` mà Safari/Chromium hiển thị.
+ * Trước đây thanh dùng chất liệu kính; đợt thiết kế lại tối giản đã bỏ kính mờ
+ * (xem `docs/architecture/refactor-audit.md`). Bài này đo CSS đã biên dịch thật
+ * trong trình duyệt để kính mờ hay bóng không quay lại.
  */
-test("thanh điều hướng có chất liệu kính khi cuộn", async ({ page }) => {
+test("thanh điều hướng phẳng và dính trên cùng khi cuộn", async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await page.goto("/");
 
@@ -37,28 +37,20 @@ test("thanh điều hướng có chất liệu kính khi cuộn", async ({ page 
     const style = getComputedStyle(element);
     return {
       backdropFilter: style.backdropFilter,
-      webkitBackdropFilter: style.getPropertyValue("-webkit-backdrop-filter"),
+      boxShadow: style.boxShadow,
       backgroundColor: style.backgroundColor,
-      backgroundImage: style.backgroundImage,
     };
   });
 
-  expect(styles.backdropFilter).toContain("blur(40px)");
-  expect(styles.backdropFilter).toContain("saturate(1.5)");
-  // Safari cũ chỉ dùng thuộc tính có tiền tố; Tailwind xuất cả hai. Chromium
-  // không trả giá trị có tiền tố trong computed style, còn WebKit thì có.
-  if (styles.webkitBackdropFilter) {
-    expect(styles.webkitBackdropFilter).toContain("blur(40px)");
-  }
-  expect(styles.backgroundImage).toContain("linear-gradient");
-
-  // Nền phải còn trong suốt để nhìn xuyên qua lớp kính. `oklab(... / 0.55)`
-  // và `rgba(..., 0.55)` đều có alpha ở cuối.
+  expect(styles.backdropFilter).toBe("none");
+  expect(styles.boxShadow).toBe("none");
+  // Nền đặc: không trong suốt để chữ phía sau không lộ qua khi cuộn.
   const alpha = Number(
     styles.backgroundColor.match(/\/\s*([\d.]+)\s*\)/)?.[1] ??
-      styles.backgroundColor.match(/,\s*([\d.]+)\s*\)/)?.[1]
+      styles.backgroundColor.match(/rgba\([^)]*,\s*([\d.]+)\s*\)/)?.[1] ??
+      1
   );
-  expect(alpha).toBeCloseTo(0.55, 2);
+  expect(alpha).toBe(1);
 
   // Cuộn xong thanh vẫn ở đúng vị trí cũ, tức là sticky vẫn hoạt động.
   const after = await bar.boundingBox();

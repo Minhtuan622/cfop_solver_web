@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test("lane Square-1 trong tab Học thêm: mở, nhóm, chọn case (CS + CP)", async ({ page }) => {
   await page.goto("/study?lane=sq1");
 
-  await expect(page.getByRole("button", { name: "Square-1", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^Square-1(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/169 Cube Shape case/)).toBeVisible();
 
   // Drawer danh mục: nhóm 4 Slashes có đủ 45 case

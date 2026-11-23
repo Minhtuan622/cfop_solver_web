@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
  * không dính vào nhau.
  *
  * Lỗi thật: panel BUFFER sát ô scramble (0px), hàng link phụ chỉ cách 8px, và
- * nội dung accordion camera dính ngay dưới dòng tiêu đề (0px).
+ * nội dung mục gập dính ngay dưới dòng tiêu đề (0px).
  */
 test("panel nhập scramble không dính các khối", async ({ page }) => {
   await page.goto("/");
@@ -30,15 +30,18 @@ test("panel nhập scramble không dính các khối", async ({ page }) => {
     12
   );
 
-  // Mở accordion camera: nội dung phải cách dòng tiêu đề ít nhất 8px.
-  await page.getByText("Quét camera · tùy chọn").click();
+  // Mục gập trong panel (dùng chung `SolverDetails`): nội dung phải cách
+  // dòng tiêu đề ít nhất 8px. Quét camera nay là hộp thoại riêng, nên kiểm
+  // mục "Dán chuỗi 54 sticker" của chế độ nhập trạng thái.
+  await page.getByRole("button", { name: "Trạng thái cube" }).click();
+  await page.getByText("Dán chuỗi 54 sticker").click();
   const gap = await page
-    .locator("details", { hasText: "Quét camera" })
+    .locator("details", { hasText: "Dán chuỗi 54 sticker" })
     .first()
     .evaluate(element => {
       const summary = element.querySelector("summary");
       const content = summary?.nextElementSibling;
-      const firstChild = content?.firstElementChild;
+      const firstChild = content?.firstElementChild ?? content;
       if (!summary || !firstChild) return -1;
       return (
         firstChild.getBoundingClientRect().top -
