@@ -328,3 +328,14 @@ Người dùng đã duyệt từng mục.
 - Component `TimerDigestChips`, `MultiBlindAttemptPanel`, `TimerSummaryMetrics`, `TimerAnalyticsPanel`, `TimerMetricDialog` (giữ luôn state sao chép scramble và bật/tắt sơ đồ khối, vốn chỉ hộp thoại này dùng), `TimerCubeNetDialog`.
 - Các file trong `features/timer` (gồm cả file tách ở Đợt 12) đổi import `@/features/timer/...` sang đường dẫn tương đối theo quy ước bên trong feature.
 
+## Đợt 15: tách `Play`, `CompetitionLeaderboard`, `CatalogExplorer`
+
+Hành vi, route, key lưu và locator không đổi; JSX chép nguyên văn.
+
+| File | Trước | Sau | Tách ra |
+|---|---|---|---|
+| `pages/Play.tsx` | 673 | 443 | `features/play/components/`: `PlayModeTabs`, `PlayCubeOverlay`, `PlayRacePanel`, `PlayHistoryPanel`, `PlayKeysPanel`, `PlayClearDialog`; `lib/useMediaQuery.ts`, `lib/playTypes.ts`. Logic phím/đồng hồ (nhiều ref đan xen) giữ trong trang. |
+| `pages/CompetitionLeaderboard.tsx` | 624 | 12 | `features/competition/components/`: `LeaderboardHome`, `LeaderboardTable`, `PlayerHistory`; `lib/leaderboardFormat.ts`. Trang chỉ còn chọn giữa hai màn theo route. |
+| `features/last-layer/components/CatalogExplorer.tsx` | 705 | 438 | `CatalogFocusPanel`, `CatalogBulkBar`, `CatalogCaseCard`, `CatalogGroupGrid`, `CatalogPreviewDialog`; kiểu dữ liệu ra `lib/catalogExplorerTypes.ts` (vẫn re-export từ `CatalogExplorer`). State và bộ lọc giữ trong `CatalogExplorer`. |
+
+**Cố ý chưa tách.** `components/ui/StudioUI.tsx` (587 dòng) là thư viện primitive gồm nhiều component nhỏ độc lập, không phải một file phình ra. `Puzzle3DCanvas.tsx` và `CubeGuide3D.tsx` là renderer Three.js. `server/routers/competition.ts` và `server/services/wcaApi.ts` đụng contract tRPC / rate limit nên cần một đợt riêng có test server theo từng procedure. Hai file dữ liệu (`directCaseCatalogData.ts`, `squareOneData.ts`) là bảng dữ liệu thuần.
