@@ -4,7 +4,7 @@
  */
 import { useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { DEFAULT_LAYER_SELECTION, playActionForKey } from "@/lib/playCube";
+import { DEFAULT_LAYER_SELECTION, playActionForKey } from "../lib/playCube";
 
 type GroupId = "faces" | "wide" | "slice" | "rotate";
 type Row = { move: string; keys: string[] };

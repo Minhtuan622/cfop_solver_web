@@ -1,5 +1,5 @@
-import { effectiveTime, type SolveHistoryEntry } from "./solveHistory";
-import { rollingAverage } from "./timerRecords";
+import { effectiveTime, type SolveHistoryEntry } from "@/lib/solveHistory";
+import { rollingAverage } from "@/lib/timerRecords";
 
 export const TIMER_AVERAGE_SIZES = [5, 12, 50, 100] as const;
 export type TimerAverageSize = (typeof TIMER_AVERAGE_SIZES)[number];

@@ -42,7 +42,7 @@ import {
   normalizePlayKey,
   playActionForKey,
   type LayerSelection,
-} from "@/lib/playCube";
+} from "@/features/play/lib/playCube";
 import {
   addPlayHistory,
   clearPlayHistory,
@@ -52,7 +52,7 @@ import {
   playStats,
   readPlayHistory,
   type PlayHistoryEntry,
-} from "@/lib/playHistory";
+} from "@/features/play/lib/playHistory";
 
 type PlayMode = "free" | "race";
 type RaceStatus = "idle" | "inspection" | "armed" | "solving";

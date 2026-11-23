@@ -270,3 +270,19 @@ Nhánh dọn code, **hành vi không đổi**: key localStorage, định dạng 
 **Lỗi hiển thị được sửa theo.** Dòng kết quả của lane 5×5 L2E và FTO 2-Look hiển thị `Â·` (lỗi mã hoá) thay cho `·`; thẻ case dùng chung hiển thị đúng.
 
 **Chốt hợp đồng.** `client/src/lib/caseStudy.contract.test.ts` (77 test) chạy trên cả 11 lane: đọc rỗng, định dạng JSON ghi ra, chuẩn hoá bản ghi lỗi, giới hạn bản ghi và case đã thuộc, chấm điểm, export/import và thuật toán xếp hàng. Test đạt trên code cũ trước khi gộp và đạt lại sau khi gộp.
+
+## Đợt 10: dời module về đúng feature
+
+Hành vi không đổi; chỉ đổi vị trí file và đường dẫn import (`git mv`, giữ lịch sử).
+
+| Trước | Sau | Nơi dùng |
+|---|---|---|
+| `lib/playCube.ts`, `lib/playHistory.ts` | `features/play/lib/` | trang Chơi, `PlayKeyMap` |
+| `lib/avatarCrop.ts`, `components/AvatarCropDialog.tsx` | `features/profile/lib/`, `features/profile/components/` | trang Hồ sơ |
+| `lib/timerAnalysis.ts` | `features/timer/lib/` | trang Bấm giờ |
+| `lib/solverPresentation.ts` | `features/solver/lib/` | trang Giải Rubik, `CfopReport`, `SolverF2LOptions` |
+| `components/common/CameraScanner.tsx`, `CubeStateEditor.tsx` | `features/solver/components/` | `SolverInputPanel` |
+| `components/common/CubeNet2x2.tsx` | `features/twoByTwo/components/` | thẻ case và catalog 2×2 |
+| `lib/wcaTimerComparison.ts` | `features/wca/lib/` | trang Hồ sơ, trang Bấm giờ |
+
+File test đi cùng module. Trang bên ngoài import thẳng đường dẫn module cụ thể (`@/features/x/lib/y`), không qua barrel, để không kéo thêm code vào chunk tải sớm; barrel của các feature giữ nguyên.

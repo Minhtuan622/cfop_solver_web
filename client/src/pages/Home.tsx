@@ -41,7 +41,7 @@ import {
   lastLayerModeLabel,
   lastLayerCaseLabel,
   openingModeLabel,
-} from "@/lib/solverPresentation";
+} from "@/features/solver/lib/solverPresentation";
 import { readSolverSettings } from "@/lib/appSettings";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
 import {

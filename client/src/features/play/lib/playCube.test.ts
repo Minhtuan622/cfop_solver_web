@@ -8,7 +8,7 @@ import {
   normalizePlayKey,
   playActionForKey,
 } from "./playCube";
-import { applyFastMoves, stateFromScramble } from "./fastCube";
+import { applyFastMoves, stateFromScramble } from "@/lib/fastCube";
 
 const sel = (oSl: number, oSr: number) => ({ oSl, oSr });
 

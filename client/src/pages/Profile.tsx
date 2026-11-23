@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { AvatarCropDialog } from "@/features/profile/components/AvatarCropDialog";
 import { ProfileProgressChart } from "@/features/profile/components/ProfileProgressChart";
 import {
   applyCfopCloudState,
@@ -29,7 +29,7 @@ import {
 } from "@/lib/solveHistory";
 import { rollingAverage } from "@/lib/timerRecords";
 import { DEFAULT_TIMER_EVENT, normalizeTimerEventId } from "@/lib/timerEvents";
-import { wcaTimerComparison } from "@/lib/wcaTimerComparison";
+import { wcaTimerComparison } from "@/features/wca/lib/wcaTimerComparison";
 import {
   dueMemoRecords,
   readBldProfile,

@@ -1,5 +1,5 @@
-import type { F2LSlot, LastLayerMode, OpeningMode, SolverResult } from "./solverRuntime";
-import { downloadFile } from "./browserDownload";
+import type { F2LSlot, LastLayerMode, OpeningMode, SolverResult } from "@/lib/solverRuntime";
+import { downloadFile } from "@/lib/browserDownload";
 
 export const F2L_SLOTS: F2LSlot[] = ["FR", "FL", "BL", "BR"];
 export const OPENING_OPTIONS: { value: OpeningMode; vi: string; en: string; compact: string }[] = [

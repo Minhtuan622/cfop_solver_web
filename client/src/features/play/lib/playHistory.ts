@@ -4,9 +4,9 @@
  * Deliberately NOT backed by solve-history storage or cloud sync: virtual
  * solves must never mix into a cuber's real 3×3×3 statistics.
  */
-import { readStoredJson, writeStoredValue } from "./browserStorage";
-import type { SolvePenalty, SolveHistoryEntry } from "./solveHistory";
-import { rollingAverage } from "./timerRecords";
+import { readStoredJson, writeStoredValue } from "@/lib/browserStorage";
+import type { SolvePenalty, SolveHistoryEntry } from "@/lib/solveHistory";
+import { rollingAverage } from "@/lib/timerRecords";
 
 const KEY = "cfop-play-history-v1";
 const MAX_ENTRIES = 500;

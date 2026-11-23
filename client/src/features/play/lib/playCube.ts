@@ -8,7 +8,7 @@
  * csTimer turns the *far* face layer when a layer selection is active and a
  * slice key is pressed; we keep the slice key turning the middle slice.
  */
-import { SOLVED_FAST_STATE } from "./fastCube";
+import { SOLVED_FAST_STATE } from "@/lib/fastCube";
 
 export type LayerSelection = { oSl: number; oSr: number };
 export const DEFAULT_LAYER_SELECTION: LayerSelection = { oSl: 1, oSr: 1 };
