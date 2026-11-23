@@ -3,29 +3,32 @@
  * chỉ hiệu ứng hover cơ bản. Hai cột: nhập scramble + khối 3D bên trái, lời
  * giải từng bước bên phải.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircleFill, ChevronUp, ListUl } from "@/components/ui/Icon";
-import {
-  Banner,
-  PanelHeader,
-  RoundButton,
-  Surface,
-} from "@/components/ui/DesignSystem";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CubeNet, SOLVED_STATE } from "@/components/common/CubeNet";
 import { Cube3DGuide } from "@/components/common/Cube3DGuide";
 import { BldReport } from "@/features/bld";
 import {
   CfopReport,
+  LastLayerOutcomeBanner,
+  OpeningOutcomeBanner,
   SolverF2LOptions,
   SolverInputPanel,
   SolverSolutionPanel,
+  SolverSolutionSidebar,
   SolverToolbar,
+  lastLayerCaseOf,
+  openingOutcomeOf,
+  phaseAt,
   readRecentStates,
   rememberRecentState,
   writeRecentStates,
   type RecentCubeState,
   type SolverInputMode,
   type SolverKind,
+  useSolverPlayback,
+  useSolverSettingsState,
+  useStateValidation,
+  xcrossSlotsOf,
 } from "@/features/solver";
 import { stateFromScramble } from "@/lib/fastCube";
 import {
@@ -37,12 +40,7 @@ import {
 } from "@/lib/scrambleOrientation";
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
-import {
-  lastLayerModeLabel,
-  lastLayerCaseLabel,
-  openingModeLabel,
-} from "@/features/solver/lib/solverPresentation";
-import { readSolverSettings } from "@/lib/appSettings";
+import { openingModeLabel } from "@/features/solver/lib/solverPresentation";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
 import {
   analyzeBldInBrowser,
@@ -51,48 +49,30 @@ import {
   SolverCancelledError,
   SolverLimitError,
   SolverTimeoutError,
-  validateStateInBrowser,
   warmSolverInBrowser,
   type BldResult,
   type CrossColor,
-  type CubeValidation,
-  type F2LSlot,
-  type LastLayerMode,
-  type OpeningMode,
   type SolverResult,
 } from "@/lib/solverRuntime";
-
-type CubeMotionKind = "idle" | "move" | "seek" | "phase" | "reset";
-type CursorIntent = "step" | "playback" | "seek" | "phase" | "reset";
 
 export default function Home() {
   const { language, t } = useLanguage();
   const [mode, setMode] = useState<SolverInputMode>("scramble");
   const [solverKind, setSolverKind] = useState<SolverKind>("cfop");
-  const [crossColor, setCrossColor] = useState<CrossColor>(
-    () => readSolverSettings().crossColor
-  );
-  const [opening, setOpening] = useState<OpeningMode>(
-    () => readSolverSettings().opening
-  );
-  const [openingDepth, setOpeningDepth] = useState(
-    () => readSolverSettings().openingDepth
-  );
-  const [openingFindResult, setOpeningFindResult] = useState(
-    () => readSolverSettings().openingFindResult
-  );
-  const [directNodeBudget, setDirectNodeBudget] = useState(
-    () => readSolverSettings().directNodeBudget
-  );
-  const [lastLayer, setLastLayer] = useState<LastLayerMode>(
-    () => readSolverSettings().lastLayer
-  );
-  const [preferredSlot, setPreferredSlot] = useState<F2LSlot | undefined>(
-    () => readSolverSettings().preferredSlot
-  );
-  const [excludedSlots, setExcludedSlots] = useState<F2LSlot[]>(
-    () => readSolverSettings().excludedSlots
-  );
+  const {
+    crossColor,
+    setCrossColor,
+    opening,
+    openingDepth,
+    openingFindResult,
+    directNodeBudget,
+    lastLayer,
+    preferredSlot,
+    setPreferredSlot,
+    excludedSlots,
+    setExcludedSlots,
+    resetDefaults,
+  } = useSolverSettingsState();
   const [initialScramble] = useState(() => randomThreeByThreeScramble());
   const [value, setValue] = useState(initialScramble);
   const [savedScramble, setSavedScramble] = useState(initialScramble);
@@ -100,23 +80,27 @@ export default function Home() {
   const [result, setResult] = useState<SolverResult | null>(null);
   const [bldResult, setBldResult] = useState<BldResult | null>(null);
   const [bldProfile, setBldProfile] = useState(() => readBldProfile());
-  const [cursor, setCursor] = useState(0);
+  const {
+    cursor,
+    setCursor,
+    playing,
+    setPlaying,
+    playbackSpeed,
+    setPlaybackSpeed,
+    cubeMotion,
+    selectCursor,
+    resetToStart,
+  } = useSolverPlayback(result);
   const [loading, setLoading] = useState(false);
   const [solverStatus, setSolverStatus] = useState("");
-  const [playing, setPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [cubeMotion, setCubeMotion] = useState<{
-    id: number;
-    kind: CubeMotionKind;
-    direction: "forward" | "backward";
-    phaseName?: string;
-  }>({ id: 0, kind: "idle", direction: "forward" });
   const [cubeView, setCubeView] = useState<"2d" | "3d">("3d");
   const [error, setError] = useState("");
-  const [solutionOpen, setSolutionOpen] = useState(true);
-  const [stateValidation, setStateValidation] = useState<CubeValidation | null>(
-    null
-  );
+  const stateValidation = useStateValidation({
+    enabled: mode === "state",
+    value,
+    language,
+    incompleteMessage: t("home.incompleteState"),
+  });
   const [paintColor, setPaintColor] = useState<CrossColor>("U");
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() =>
     readRecentStates()
@@ -131,8 +115,6 @@ export default function Home() {
     past: [],
     future: [],
   });
-  const cursorRef = useRef(0);
-  const motionIdRef = useRef(0);
   const [, setStateHistoryVersion] = useState(0);
 
   const previewState = useMemo(() => {
@@ -174,149 +156,13 @@ export default function Home() {
     [crossColor, result]
   );
   const currentStepLabel = displayResult?.trace[cursor - 1]?.move;
-  const activePhase =
-    cursor > 0
-      ? (result?.phases.find(
-          phase => cursor > phase.start && cursor <= phase.end
-        ) ??
-        result?.phases.find(phase => phase.end === cursor) ??
-        null)
-      : null;
+  const activePhase = phaseAt(result, cursor);
   const totalMoves = result?.trace.length ?? 0;
   const openingTelemetry = result?.opening;
   const lastLayerTelemetry = result?.last_layer;
-  const openingOutcome = useMemo(() => {
-    const first = result?.phases[0];
-    if (!first) return null;
-    if (first.name.startsWith("xxxxcross_"))
-      return {
-        kind: "xxxxcross" as const,
-        slots: first.name.slice("xxxxcross_".length).split("_"),
-        moves: first.moves.length,
-      };
-    if (first.name.startsWith("xxxcross_"))
-      return {
-        kind: "xxxcross" as const,
-        slots: first.name.slice("xxxcross_".length).split("_"),
-        moves: first.moves.length,
-      };
-    if (first.name.startsWith("xxcross_"))
-      return {
-        kind: "xxcross" as const,
-        slots: first.name.slice("xxcross_".length).split("_"),
-        moves: first.moves.length,
-      };
-    if (first.name.startsWith("xcross_"))
-      return {
-        kind: "xcross" as const,
-        slot: first.name.slice("xcross_".length),
-        moves: first.moves.length,
-      };
-    return { kind: "cross" as const, slot: null, moves: first.moves.length };
-  }, [result]);
-  const activeXCrossSlots = activePhase?.name.startsWith("xxxxcross_")
-    ? activePhase.name.slice("xxxxcross_".length).split("_")
-    : activePhase?.name.startsWith("xxxcross_")
-      ? activePhase.name.slice("xxxcross_".length).split("_")
-      : activePhase?.name.startsWith("xxcross_")
-        ? activePhase.name.slice("xxcross_".length).split("_")
-        : activePhase?.name.startsWith("xcross_")
-          ? [activePhase.name.slice("xcross_".length)]
-          : undefined;
-  const activeLastLayerCase =
-    activePhase &&
-    (activePhase.name === "zbll" || activePhase.name === "1lll") &&
-    activePhase.case_id
-      ? { family: activePhase.name, id: activePhase.case_id }
-      : undefined;
-  const phaseNameAt = useCallback(
-    (position: number) => {
-      if (!result || position <= 0) return undefined;
-      return (
-        result.phases.find(
-          phase => position > phase.start && position <= phase.end
-        )?.name ?? result.phases.find(phase => phase.end === position)?.name
-      );
-    },
-    [result]
-  );
-  const updateCursor = useCallback(
-    (next: number, intent: CursorIntent = "seek") => {
-      const limit = result?.trace.length ?? 0;
-      const target = Math.max(0, Math.min(limit, next));
-      const previous = cursorRef.current;
-      if (target === previous) return;
-      const direction =
-        target >= previous ? ("forward" as const) : ("backward" as const);
-      const fromPhase = phaseNameAt(previous);
-      const toPhase = phaseNameAt(target);
-      const distance = Math.abs(target - previous);
-      const kind: CubeMotionKind =
-        intent === "reset" || target === 0
-          ? "reset"
-          : intent === "phase" || (distance > 1 && fromPhase !== toPhase)
-            ? "phase"
-            : distance === 1
-              ? "move"
-              : "seek";
-      cursorRef.current = target;
-      setCubeMotion({
-        id: ++motionIdRef.current,
-        kind,
-        direction,
-        phaseName: toPhase,
-      });
-      setCursor(target);
-    },
-    [phaseNameAt, result]
-  );
-
-  useEffect(() => {
-    if (!playing || !result) return;
-    const id = window.setInterval(
-      () => {
-        const next = cursorRef.current + 1;
-        if (next > result.trace.length) {
-          setPlaying(false);
-          return;
-        }
-        updateCursor(next, "playback");
-      },
-      Math.max(100, Math.round(360 / playbackSpeed))
-    );
-    return () => window.clearInterval(id);
-  }, [playbackSpeed, playing, result, updateCursor]);
-
-  useEffect(() => {
-    if (mode !== "state") {
-      setStateValidation(null);
-      return;
-    }
-    const candidate = value.trim();
-    if (candidate.length !== 54) {
-      setStateValidation({ valid: false, message: t("home.incompleteState") });
-      return;
-    }
-    let active = true;
-    const timer = window.setTimeout(() => {
-      validateStateInBrowser(candidate)
-        .then(validation => {
-          if (active) setStateValidation(validation);
-        })
-        .catch(reason => {
-          if (active)
-            setStateValidation({
-              valid: false,
-              message:
-                reason instanceof Error ? reason.message : "Validation failed.",
-            });
-        });
-    }, 280);
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-    };
-  }, [language, mode, value]);
+  const openingOutcome = useMemo(() => openingOutcomeOf(result), [result]);
+  const activeXCrossSlots = xcrossSlotsOf(activePhase?.name);
+  const activeLastLayerCase = lastLayerCaseOf(activePhase);
 
   async function runSolver() {
     if (mode === "state" && !stateValidation?.valid) {
@@ -340,13 +186,7 @@ export default function Home() {
         const next = await analyzeBldInBrowser(mode, value.trim());
         setBldResult(next);
         setResult(null);
-        cursorRef.current = 0;
-        setCubeMotion({
-          id: ++motionIdRef.current,
-          kind: "reset",
-          direction: "forward",
-        });
-        setCursor(0);
+        resetToStart();
         if (mode === "state") saveRecentState(value.trim(), crossColor);
         return;
       }
@@ -369,13 +209,7 @@ export default function Home() {
       );
       setResult(next);
       setBldResult(null);
-      cursorRef.current = 0;
-      setCubeMotion({
-        id: ++motionIdRef.current,
-        kind: "reset",
-        direction: "forward",
-      });
-      setCursor(0);
+      resetToStart();
       if (mode === "state") saveRecentState(value.trim(), crossColor);
     } catch (reason) {
       if (reason instanceof SolverCancelledError)
@@ -424,10 +258,6 @@ export default function Home() {
     const next = recentStates.filter(item => item.id !== id);
     setRecentStates(next);
     writeRecentStates(next);
-  };
-  const selectCursor = (next: number, intent: CursorIntent = "seek") => {
-    setPlaying(false);
-    updateCursor(next, intent);
   };
   const applyStateEdit = (next: string) => {
     const current = value.length === 54 ? value : SOLVED_STATE;
@@ -492,17 +322,6 @@ export default function Home() {
     setPlaying(false);
     setError("");
   };
-  const resetDefaults = () => {
-    const defaults = readSolverSettings();
-    setCrossColor(defaults.crossColor);
-    setOpening(defaults.opening);
-    setOpeningDepth(defaults.openingDepth);
-    setOpeningFindResult(defaults.openingFindResult);
-    setDirectNodeBudget(defaults.directNodeBudget);
-    setLastLayer(defaults.lastLayer);
-    setPreferredSlot(defaults.preferredSlot);
-    setExcludedSlots(defaults.excludedSlots);
-  };
   const randomScramble = () => {
     const next = randomThreeByThreeScramble();
     setValue(next);
@@ -561,14 +380,7 @@ export default function Home() {
 
   const firstStepsBanner =
     solverKind !== "bld" && openingOutcome ? (
-      <Banner
-        tone={openingTelemetry?.did_fallback ? "warning" : "success"}
-        icon={<CheckCircleFill aria-hidden="true" />}
-      >
-        <strong>{t("home.firstSteps")}</strong>{" "}
-        {t("home.turns", { count: openingOutcome.moves })}
-        {openingTelemetry?.did_fallback ? ` · ${t("home.autoFallback")}` : ""}
-      </Banner>
+      <OpeningOutcomeBanner outcome={openingOutcome} telemetry={openingTelemetry} />
     ) : null;
 
   return (
@@ -715,83 +527,32 @@ export default function Home() {
               )}
             </SolverSolutionPanel>
             {solverKind !== "bld" && lastLayerTelemetry ? (
-              <Banner
-                className="mt-4"
-                tone={lastLayerTelemetry.did_fallback ? "warning" : "success"}
-                icon={<CheckCircleFill aria-hidden="true" />}
-              >
-                <strong>{t("home.finalPart")}</strong>{" "}
-                {lastLayerModeLabel(lastLayerTelemetry.achieved, language)}
-                {lastLayerCaseLabel(lastLayerTelemetry.case_id) ? (
-                  <span className="font-semibold tabular-nums text-muted">
-                    {" "}
-                    · {lastLayerCaseLabel(lastLayerTelemetry.case_id)}
-                  </span>
-                ) : null}
-              </Banner>
+              <LastLayerOutcomeBanner telemetry={lastLayerTelemetry} />
             ) : null}
           </div>
         </div>
 
-        <aside className="col-span-12 xl:col-span-4">
-          <Surface
-            className="p-4 lg:p-6 xl:sticky"
-            style={{ top: "6rem" }}
-            aria-label={t("home.solutionTitle")}
-          >
-            <PanelHeader
-              className="mb-4"
-              icon={<ListUl />}
-              title={t("home.solutionTitle")}
-              actions={
-                <RoundButton
-                  tone="plain"
-                  size="sm"
-                  label={t("home.toggleSolution")}
-                  aria-expanded={solutionOpen}
-                  onClick={() => setSolutionOpen(open => !open)}
-                  icon={
-                    <ChevronUp
-                      style={{
-                        transform: solutionOpen ? "none" : "rotate(180deg)",
-                        transition: "transform .15s",
-                      }}
-                    />
-                  }
-                />
-              }
+        <SolverSolutionSidebar>
+          {solverKind === "bld" && bldResult ? (
+            <BldReport
+              result={bldResult}
+              language={language}
+              profile={bldProfile}
+              onProfile={setBldProfile}
             />
-            {solutionOpen ? (
-              <>
-                {solverKind === "bld" && bldResult ? (
-                  <BldReport
-                    result={bldResult}
-                    language={language}
-                    profile={bldProfile}
-                    onProfile={setBldProfile}
-                  />
-                ) : result ? (
-                  <CfopReport
-                    result={displayResult ?? result}
-                    setupRotation={setupRotation}
-                    crossColor={crossColor}
-                    language={language}
-                    activePhase={activePhase?.name ?? null}
-                    cursor={cursor}
-                    onSelectPhase={phase => selectCursor(phase.end, "phase")}
-                    onSelectMove={moveIndex => selectCursor(moveIndex, "seek")}
-                  />
-                ) : (
-                  <div className="rounded-2xl bg-surface-2 p-6 text-center text-muted">
-                    <p className="font-semibold mb-0">
-                      {t("home.noSolutionYet")}
-                    </p>
-                  </div>
-                )}
-              </>
-            ) : null}
-          </Surface>
-        </aside>
+          ) : result ? (
+            <CfopReport
+              result={displayResult ?? result}
+              setupRotation={setupRotation}
+              crossColor={crossColor}
+              language={language}
+              activePhase={activePhase?.name ?? null}
+              cursor={cursor}
+              onSelectPhase={phase => selectCursor(phase.end, "phase")}
+              onSelectMove={moveIndex => selectCursor(moveIndex, "seek")}
+            />
+          ) : null}
+        </SolverSolutionSidebar>
       </div>
     </div>
   );

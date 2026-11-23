@@ -178,12 +178,12 @@ export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readSolveHistory()]); return item;
 }
 export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readSolveHistory().map((entry) => entry.id === id ? normalize({ ...entry, ...patch }) : entry); write(next); return next; }
+/**
+ * Xoá mềm: ghi tombstone (`deletedAt`) vào bộ nhớ nhưng chỉ trả về các lượt
+ * còn hiển thị, giống `readSolveHistory`, để màn hình bỏ ngay lượt vừa xoá.
+ */
 export function deleteSolveHistory(id: string): SolveHistoryEntry[] {
-  const next = readSolveHistory().map((entry) =>
-    entry.id === id ? normalize({ ...entry, deletedAt: Date.now() }) : entry,
-  );
-  write(next);
-  return next;
+  return deleteSolveHistoryMany([id]);
 }
 export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry[] {
   const selected = new Set(ids);
@@ -191,7 +191,7 @@ export function deleteSolveHistoryMany(ids: Iterable<string>): SolveHistoryEntry
     selected.has(entry.id) ? normalize({ ...entry, deletedAt: Date.now() }) : entry,
   );
   write(next);
-  return next;
+  return next.filter((entry) => !entry.deletedAt);
 }
 export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
   const raw = Array.isArray(payload) ? payload : payload && typeof payload === "object" && Array.isArray((payload as { entries?: unknown }).entries) ? (payload as { entries: unknown[] }).entries : null;
