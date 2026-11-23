@@ -30,12 +30,6 @@ export const timerWords: Dictionary = {
   ],
   "timer.save": ["Lưu solution", "Save changes"],
   "timer.cancel": ["Hủy", "Cancel"],
-  "timer.remove": ["Xóa", "Delete"],
-  "timer.deleteTitle": ["Xóa lượt giải?", "Delete this solve?"],
-  "timer.deleteDetail": [
-    "Lượt này sẽ bị xóa khỏi nhật ký và thống kê.",
-    "This solve will be removed from the log and metrics.",
-  ],
   "timer.plusTwo": ["+2", "+2"],
   "timer.dnf": ["DNF", "DNF"],
   "timer.pb": ["PB", "PB"],

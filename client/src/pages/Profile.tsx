@@ -339,6 +339,12 @@ export default function Profile() {
           setMessage("");
           startWcaOAuth.mutate();
         }}
+        unlinkPending={unlinkWca.isPending}
+        onUnlink={() => {
+          setError("");
+          setMessage("");
+          unlinkWca.mutate();
+        }}
       />
 
       <div className="grid grid-cols-12 gap-6">

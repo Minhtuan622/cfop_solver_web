@@ -86,14 +86,16 @@ export function CrossLengthStrip({
         "flex flex-wrap items-center gap-x-3 gap-y-2 mb-4",
         className
       )}
-      aria-busy={state.status === "loading"}
     >
       <span className="text-sm font-medium text-muted">
         {t("timer.crossLengths")}
       </span>
+      {/* Chỉ danh sách số là đang tính: `aria-busy` làm mờ phần tử (index.css),
+          nên đặt ở đây để nhãn bên cạnh giữ đủ tương phản trong lúc chờ. */}
       <ul
         className="flex flex-wrap items-center gap-2"
         aria-label={t("timer.crossLengths")}
+        aria-busy={state.status === "loading"}
       >
         {DISPLAY_ORDER.map(face => {
           const moves = lengths?.[face];

@@ -72,7 +72,6 @@ import { readStoredValue, writeStoredValue } from "@/lib/browserStorage";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import {
   addSolveHistory,
-  deleteSolveHistory,
   effectiveTime,
   formatSolveTime,
   initialStateFor,
@@ -180,9 +179,6 @@ export default function TimerLab() {
   const [multiBlindScrambles, setMultiBlindScrambles] = useState<string[]>([]);
   const [pendingMultiBlind, setPendingMultiBlind] =
     useState<TimerCompletion | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<SolveHistoryEntry | null>(
-    null
-  );
   const [tagFilter, setTagFilter] = useState("all");
   const [noteQuery, setNoteQuery] = useState("");
   const [replay, setReplay] = useState<SolveHistoryEntry | null>(null);
@@ -1299,46 +1295,6 @@ export default function TimerLab() {
               onPlay={() => setReplayRunId(value => value + 1)}
               onClose={() => setReplay(null)}
             />
-
-            <Dialog
-              open={Boolean(deleteTarget)}
-              onOpenChange={open => !open && setDeleteTarget(null)}
-            >
-              <DialogContent>
-                <DialogHeader>
-                  <div>
-                    <DialogTitle>{t("timer.deleteTitle")}</DialogTitle>
-                    <DialogDescription>
-                      {t("timer.deleteDetail")}
-                    </DialogDescription>
-                  </div>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    type="button"
-
-                    onClick={() => setDeleteTarget(null)}
-                  >
-                    {t("timer.cancel")}
-                  </Button>
-                  <Button
-                    variant="dangerSolid"
-                    size="md"
-                    type="button"
-
-                    onClick={() => {
-                      if (deleteTarget)
-                        setEntries(deleteSolveHistory(deleteTarget.id));
-                      setDeleteTarget(null);
-                    }}
-                  >
-                    {t("timer.remove")}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
           </>
         )}
       </div>
