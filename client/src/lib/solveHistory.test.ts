@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  deleteSolveHistory,
+  deleteSolveHistoryMany,
   addSolveHistory,
   exportSolveHistory,
   importSolveHistory,
@@ -158,6 +160,21 @@ describe("solveHistory: normalization on read", () => {
     const entries = readSolveHistory();
     expect(entries).toHaveLength(1);
     expect(entries[0].id).toBe("live");
+  });
+
+  it("xoá trả về danh sách còn lại (không kèm lượt vừa xoá) và vẫn ghi tombstone", () => {
+    window.localStorage.setItem(
+      KEY,
+      JSON.stringify([validEntry({ id: "a" }), validEntry({ id: "b" }), validEntry({ id: "c" }), validEntry({ id: "d" })]),
+    );
+    const stored = () => JSON.parse(window.localStorage.getItem(KEY) ?? "[]") as { id: string; deletedAt?: number }[];
+
+    expect(deleteSolveHistory("b").map(entry => entry.id)).toEqual(["a", "c", "d"]);
+    expect(stored().find(entry => entry.id === "b")?.deletedAt).toBeGreaterThan(0);
+
+    expect(deleteSolveHistoryMany(["a", "d"]).map(entry => entry.id)).toEqual(["c"]);
+    expect(stored().filter(entry => entry.deletedAt).map(entry => entry.id)).toEqual(expect.arrayContaining(["a", "d"]));
+    expect(readSolveHistory().map(entry => entry.id)).toEqual(["c"]);
   });
 });
 
