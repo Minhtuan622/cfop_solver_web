@@ -1,3 +1,4 @@
+import { ReviewReminderSetting } from "./ReviewReminderSetting";
 import { SettingRow } from "./SettingRow";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SectionCard } from "@/components/ui/StudioUI";
@@ -37,6 +38,7 @@ export function StudySettingsGroup({
           }
         />
       </SettingRow>
+      <ReviewReminderSetting />
     </SectionCard>
   );
 }

@@ -6,6 +6,8 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import compression from "compression";
 import { registerStorageProxy } from "./storageProxy";
 import { registerWcaOAuthRoutes } from "../services/wcaOAuthRoutes";
+import { registerCompetitionEventRoutes } from "../services/competitionEvents";
+import { startReminderScheduler } from "../services/pushReminders";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic } from "./vite";
@@ -67,6 +69,7 @@ async function startServer() {
   });
   registerStorageProxy(app);
   registerWcaOAuthRoutes(app);
+  registerCompetitionEventRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",
@@ -98,6 +101,8 @@ async function startServer() {
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
+  // Nhắc ôn tập (Web Push): chỉ chạy khi đã cấu hình khoá VAPID.
+  if (startReminderScheduler()) console.log("[Push] Review reminders enabled.");
 }
 
 startServer().catch(console.error);

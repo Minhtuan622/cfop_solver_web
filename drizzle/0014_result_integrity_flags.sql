@@ -1,0 +1,1 @@
+ALTER TABLE `cfop_competition_results` ADD `flags` varchar(80) DEFAULT '' NOT NULL;

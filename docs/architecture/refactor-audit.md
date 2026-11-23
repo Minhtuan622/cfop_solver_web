@@ -354,3 +354,18 @@ Hành vi, contract tRPC, rate limit, key lưu và ranh giới chunk 3D không đ
 | `features/squareOne/lib/squareOneData.ts` | 671 → 66 | 6 bộ trong `squareOneSets/` (cp, cs, csp, eo, ep, obl); 588 case giữ nguyên. |
 
 **Cố ý không tách.** `features/last-layer/lib/directCaseCatalogData.ts` (1696 dòng) là file **sinh tự động** từ `packages/solver/cfop/src/one_look_data.rs` bằng `scripts/export-last-layer-catalog.mjs` ("do not hand-edit"); chia nó cần đổi cả bộ sinh và dễ lệch nguồn Rust nên để nguyên. `lib/i18n/study.ts` (414 dòng) và `features/cfop/lib/cfopOLLCPData.ts` (358 dòng) là bảng dữ liệu thuần dưới 500 dòng.
+
+## Đợt 17: sáu hạng mục mới
+
+Thêm tính năng, không đổi key `localStorage`, ID event, format export hay shape cloud payload. Migration chỉ **thêm** (`0013`, `0014`).
+
+| Hạng mục | Thay đổi chính |
+|---|---|
+| Phòng thi cập nhật tức thì | `GET /api/competition/events?code=…` (Server-Sent Events, `server/services/competitionEvents.ts`) + bus trong bộ nhớ `competitionEventBus.ts`. Các procedure `join/spectate/leave/delete/finish/rematch/startRound/submit/sendMessage` và nhóm moderation gọi `publishCompetitionEvent`. Client: `features/rooms/lib/useRoomEvents.ts`; `Rooms.tsx` hạ polling từ 2,5 s xuống 30 s khi kênh sống và giữ 2,5 s khi chưa kết nối. Nhịp tim 15 s ghi `lastSeen`; tối đa 6 kết nối/tài khoản. |
+| Thống kê Timer sâu hơn | `features/timer/lib/timerInsights.ts` (hàm thuần: phân bố thời gian, bản đồ nhiệt 84 ngày, chuỗi sub-X, so sánh tuần/tháng) và `components/TimerInsightsPanel.tsx` trong mục "Phân tích". Chỉ đọc nhật ký solve, không ghi gì. |
+| Nhắc ôn tập (Web Push) | Bảng `cfop_push_subscriptions` (migration `0013`), router `push` (`config/subscribe/sync/unsubscribe`), `services/pushReminders.ts` (quét 5 phút một lần), service worker nhận push ở `client/public/push-sw.js` nạp qua `workbox.importScripts`. Client tự tính lịch (`lib/reviewSchedule.ts`) rồi báo `nextDueAt`; server không đọc payload cloud. Công tắc nằm ở Cài đặt → Study. |
+| Chống gian lận phòng thi | Cột `cfop_competition_results.flags` (migration `0014`), `services/competitionIntegrity.ts`: `impossible_time`, `too_fast`, `repeated_time`. **Chỉ gắn cờ**, kết quả vẫn được tính; chỉ chủ phòng và moderator thấy (mục "Cảnh báo kết quả"). |
+| Giải 2×2 / Pyraminx / Skewb | Trang `/puzzles` (`features/puzzle-solver`), dùng `cubing/search` (`experimentalSolve2x2x2`, `solvePyraminx`, `solveSkewb`) nạp lười khi bấm Giải; xem lại bằng `CubeAlgorithmReplay`. |
+| Lời giải ngắn nhất so với CFOP | `OptimalComparisonCard` ở trang Giải: dựng lại trạng thái từ nghịch đảo lời giải CFOP rồi chạy `experimentalSolve3x3x3IgnoringCenters`; hiện số lượt mặt của CFOP, của lời giải ngắn và chênh lệch. |
+
+**Giới hạn đã biết.** Bus SSE chỉ phát trong một tiến trình Node; chạy nhiều instance cần Redis Pub/Sub (xem project-guide §15), khi đó client vẫn nhận thay đổi nhờ polling dự phòng. Web Push chỉ gửi **một** thông báo cho mỗi đợt đến hạn và không gửi từ 22:00 đến 08:00 theo giờ trình duyệt.

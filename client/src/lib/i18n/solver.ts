@@ -2,6 +2,55 @@ import type { Dictionary } from "./index";
 
 /** The solver workspace: cube input, the move guide and the camera scanner. */
 export const solverWords: Dictionary = {
+  "optimal.title": ["So với lời giải ngắn nhất", "Compare with the shortest solution"],
+  "optimal.hint": [
+    "Tìm lời giải không theo CFOP cho đúng trạng thái này để xem CFOP dài hơn bao nhiêu lượt.",
+    "Find a non-CFOP solution for this exact state to see how many moves CFOP adds.",
+  ],
+  "optimal.run": ["Tìm lời giải ngắn", "Find shortest solution"],
+  "optimal.searching": ["Đang tìm…", "Searching…"],
+  "optimal.shortest": ["NGẮN NHẤT", "SHORTEST"],
+  "optimal.difference": ["CFOP DÀI HƠN", "CFOP EXTRA"],
+  "optimal.frame": [
+    "Lời giải ngắn viết theo hướng ban đầu của khối (U trên, F trước) và đếm theo lượt mặt, không tính phép xoay cả khối.",
+    "The short solution uses the cube's original orientation (U up, F front) and counts face turns, not whole-cube rotations.",
+  ],
+  "optimal.error": ["Không tìm được lời giải ngắn. Hãy thử lại.", "Could not find a short solution. Try again."],
+  "otherPuzzles.eyebrow": ["Khối khác", "Other puzzles"],
+  "otherPuzzles.title": ["Giải 2×2, Pyraminx và Skewb", "Solve 2×2, Pyraminx and Skewb"],
+  "otherPuzzles.subtitle": [
+    "Nhập scramble, nhận lời giải ngắn và xem lại từng lượt trên mô hình 3D.",
+    "Enter a scramble, get a short solution and watch it on the 3D model.",
+  ],
+  "otherPuzzles.puzzle": ["Loại khối", "Puzzle"],
+  "otherPuzzles.puzzle.222": ["2×2×2", "2×2×2"],
+  "otherPuzzles.puzzle.pyram": ["Pyraminx", "Pyraminx"],
+  "otherPuzzles.puzzle.skewb": ["Skewb", "Skewb"],
+  "otherPuzzles.scramble": ["Scramble", "Scramble"],
+  "otherPuzzles.scramblePlaceholder": ["Ví dụ: R U R' U' F2 …", "For example: R U R' U' F2 …"],
+  "otherPuzzles.solve": ["Giải", "Solve"],
+  "otherPuzzles.solving": ["Đang giải…", "Solving…"],
+  "otherPuzzles.random": ["Scramble ngẫu nhiên", "Random scramble"],
+  "otherPuzzles.generating": ["Đang tạo…", "Generating…"],
+  "otherPuzzles.note": [
+    "Bộ giải tìm lời giải ngắn, không theo phương pháp học cụ thể. Dùng ký hiệu WCA của từng khối.",
+    "The solver finds a short solution, not one for a specific method. Use the WCA notation of each puzzle.",
+  ],
+  "otherPuzzles.moves": ["SỐ LƯỢT", "MOVES"],
+  "otherPuzzles.solution": ["Lời giải", "Solution"],
+  "otherPuzzles.alreadySolved": ["Khối đã được giải.", "The puzzle is already solved."],
+  "otherPuzzles.copy": ["Sao chép", "Copy"],
+  "otherPuzzles.copied": ["Đã sao chép", "Copied"],
+  "otherPuzzles.replay": ["Xem lại", "Replay"],
+  "otherPuzzles.empty": ["Lời giải sẽ hiện ở đây.", "The solution will appear here."],
+  "otherPuzzles.error.empty": ["Hãy nhập scramble trước.", "Enter a scramble first."],
+  "otherPuzzles.error.too-long": ["Scramble quá dài.", "The scramble is too long."],
+  "otherPuzzles.error.invalid-scramble": [
+    "Scramble không hợp lệ với khối này. Kiểm tra lại các ký hiệu lượt.",
+    "The scramble is not valid for this puzzle. Check the move notation.",
+  ],
+  "otherPuzzles.error.solver-failed": ["Không tìm được lời giải. Hãy thử lại.", "Could not find a solution. Try again."],
+
   "input.solve": ["Tìm cách giải", "Find a solution"],
 
   "guide.ready": ["Sẵn sàng giải", "Ready to solve"],

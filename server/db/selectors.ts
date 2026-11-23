@@ -35,6 +35,7 @@ export const competitionResultSelect = {
   multiBlindAttempted: cfopCompetitionResults.multiBlindAttempted,
   multiBlindSolved: cfopCompetitionResults.multiBlindSolved,
   multiBlindScore: cfopCompetitionResults.multiBlindScore,
+  integrityFlags: cfopCompetitionResults.flags,
   submittedAt: cfopCompetitionResults.submittedAt,
 };
 

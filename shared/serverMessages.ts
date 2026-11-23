@@ -112,4 +112,9 @@ export const serverMessageKeys: Record<string, string> = {
   "Dịch vụ WCA đang bận. Hãy thử lại sau.": "wca.errorBusy",
   "Khoảng ngày quá dài. Tối đa 366 ngày.": "wca.errorDateRangeTooLong",
   "Mã WCA này đã được liên kết với tài khoản khác.": "wca.errorWcaIdTaken",
+
+  // Nhắc ôn tập (Web Push)
+  "Thông báo ôn tập chưa được bật trên máy chủ.": "push.errorNotConfigured",
+  "Địa chỉ nhận thông báo không hợp lệ.": "push.errorEndpoint",
+  "Bạn đã bật thông báo trên quá nhiều trình duyệt.": "push.errorTooMany",
 };

@@ -15,6 +15,7 @@ import { buttonClass } from "@/components/ui/Button";
 import type {
   RemovalTarget,
   RoomMember,
+  RoomIntegrityEntry,
   RoomMessage,
   RoomModerationEntry,
   RoomStanding,
@@ -31,6 +32,7 @@ type Props = {
   onlineSpectators: RoomMember[];
   moderationNotice: string | null;
   moderationLogs: RoomModerationEntry[];
+  integrityFlags: RoomIntegrityEntry[];
   isSpectator: boolean;
   messages: RoomMessage[];
   chat: string;
@@ -56,6 +58,7 @@ export function RoomSidebar({
   onlineSpectators,
   moderationNotice,
   moderationLogs,
+  integrityFlags,
   isSpectator,
   messages,
   chat,
@@ -173,6 +176,50 @@ export function RoomSidebar({
             ) : (
               <p className="text-muted text-sm mb-0">
                 {t("rooms.sidebar.noModeration")}
+              </p>
+            )}
+          </div>
+        </details>
+      ) : null}
+      {canManageSpectators ? (
+        <details className="group rounded-card bg-surface mb-6">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-base font-semibold tracking-tight sm:px-6">
+            {t("rooms.integrity.title")}
+            {integrityFlags.length ? (
+              <span className="rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-semibold text-ink">
+                {integrityFlags.length}
+              </span>
+            ) : null}
+            <ChevronDown
+              aria-hidden="true"
+              className="ml-auto text-base text-muted transition-transform group-open:rotate-180"
+            />
+          </summary>
+          <div className="px-5 pb-5 sm:px-6 sm:pb-6">
+            <p className="text-muted text-sm">{t("rooms.integrity.hint")}</p>
+            {integrityFlags.length ? (
+              <ul className="list-none p-0 m-0 flex flex-col gap-2">
+                {integrityFlags.map(entry => (
+                  <li
+                    key={`${entry.accountId}-${entry.roundSequence}`}
+                    className="rounded-panel bg-surface-2 px-4 py-3 text-sm"
+                  >
+                    <strong>{entry.displayName}</strong>{" "}
+                    {t("rooms.integrity.round", {
+                      round: entry.roundSequence,
+                      result: competitionResultLabel(entry, eventId, t),
+                    })}
+                    <small className="block text-muted mt-1">
+                      {entry.flags
+                        .map(flag => t(`rooms.integrity.flag.${flag}`))
+                        .join(" · ")}
+                    </small>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted text-sm mb-0">
+                {t("rooms.integrity.none")}
               </p>
             )}
           </div>

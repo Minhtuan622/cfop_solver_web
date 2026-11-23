@@ -1,4 +1,4 @@
-import { index, int, json, mysqlEnum, mysqlTable, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { bigint, index, int, json, mysqlEnum, mysqlTable, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 /** Native CFOP account. It is deliberately separate from Manus/OAuth users. */
 export const cfopAccounts = mysqlTable("cfop_accounts", {
@@ -112,6 +112,8 @@ export const cfopCompetitionResults = mysqlTable("cfop_competition_results", {
   multiBlindAttempted: int("multiBlindAttempted"),
   multiBlindSolved: int("multiBlindSolved"),
   multiBlindScore: int("multiBlindScore"),
+  /** Integrity flags (comma separated) raised on submit; informational only, see competitionIntegrity. */
+  flags: varchar("flags", { length: 80 }).notNull().default(""),
   submittedAt: timestamp("submittedAt").defaultNow().notNull(),
 }, (table) => [uniqueIndex("cfop_competition_results_round_account_unique").on(table.roundId, table.accountId), index("cfop_competition_results_account_idx").on(table.accountId)]);
 
@@ -124,8 +126,28 @@ export const cfopCompetitionMessages = mysqlTable("cfop_competition_messages", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => [index("cfop_competition_messages_room_created_idx").on(table.roomId, table.createdAt), index("cfop_competition_messages_account_idx").on(table.accountId)]);
 
+/**
+ * Web Push subscription of one browser, used for study-review reminders. The
+ * client reports when its next case falls due (`nextDueAt`, epoch ms); the
+ * server only stores that schedule and never reads the study payload.
+ */
+export const cfopPushSubscriptions = mysqlTable("cfop_push_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
+  endpoint: varchar("endpoint", { length: 512 }).notNull(),
+  p256dh: varchar("p256dh", { length: 160 }).notNull(),
+  auth: varchar("auth", { length: 64 }).notNull(),
+  /** `Date.getTimezoneOffset()` of the browser, to keep reminders out of the night. */
+  tzOffsetMinutes: int("tzOffsetMinutes").default(0).notNull(),
+  nextDueAt: bigint("nextDueAt", { mode: "number" }),
+  dueCount: int("dueCount").default(0).notNull(),
+  lastNotifiedAt: bigint("lastNotifiedAt", { mode: "number" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => [uniqueIndex("cfop_push_subscriptions_endpoint_idx").on(table.endpoint), index("cfop_push_subscriptions_account_idx").on(table.accountId), index("cfop_push_subscriptions_due_idx").on(table.nextDueAt)]);
+
 export type CfopAccount = typeof cfopAccounts.$inferSelect;
 export type InsertCfopAccount = typeof cfopAccounts.$inferInsert;
 export type CfopAccountCloudState = typeof cfopAccountCloudStates.$inferSelect;
 export type CfopWcaOauthState = typeof cfopWcaOauthStates.$inferSelect;
 export type CfopCompetitionRoom = typeof cfopCompetitionRooms.$inferSelect;
+export type CfopPushSubscription = typeof cfopPushSubscriptions.$inferSelect;

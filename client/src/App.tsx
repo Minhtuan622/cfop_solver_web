@@ -16,7 +16,14 @@ const CfopCloudSync = lazy(() =>
     default: module.CfopCloudSync,
   }))
 );
+// Nhắc ôn tập chạy nền, chỉ nạp sau màn hình đầu tiên như CfopCloudSync.
+const ReviewReminderSync = lazy(() =>
+  import("./features/settings/components/ReviewReminderSync").then(module => ({
+    default: module.ReviewReminderSync,
+  }))
+);
 const Home = lazy(() => import("./pages/Home"));
+const OtherPuzzles = lazy(() => import("./pages/OtherPuzzles"));
 const History = lazy(() => import("./pages/History"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Rooms = lazy(() => import("./pages/Rooms"));
@@ -54,6 +61,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/timer" component={TimerLab} />
         <Route path="/study" component={TimerLab} />
+        <Route path="/puzzles" component={OtherPuzzles} />
         <Route path="/play" component={Play} />
         <Route path="/settings" component={Settings} />
         <Route path="/history" component={History} />
@@ -119,6 +127,7 @@ function AppShell() {
     <div className="relative flex min-h-screen flex-col overflow-x-clip">
       <Suspense fallback={null}>
         <CfopCloudSync />
+        <ReviewReminderSync />
       </Suspense>
       <CompetitionOutcomeCelebration />
       <a

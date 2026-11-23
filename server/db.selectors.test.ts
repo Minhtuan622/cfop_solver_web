@@ -11,7 +11,7 @@ describe("typed competition selectors", () => {
   });
 
   it("keeps both competition result shapes complete", () => {
-    expect(keys(competitionResultSelect)).toEqual(["accountId", "avatarUrl", "displayName", "elapsedMs", "inspectionMs", "multiBlindAttempted", "multiBlindScore", "multiBlindSolved", "penalty", "roundId", "roundSequence", "submittedAt"]);
+    expect(keys(competitionResultSelect)).toEqual(["accountId", "avatarUrl", "displayName", "elapsedMs", "inspectionMs", "integrityFlags", "multiBlindAttempted", "multiBlindScore", "multiBlindSolved", "penalty", "roundId", "roundSequence", "submittedAt"]);
     expect(keys(finishedCompetitionResultSelect)).toEqual(["accountId", "avatarUrl", "displayName", "elapsedMs", "multiBlindAttempted", "multiBlindScore", "multiBlindSolved", "penalty", "roomEventId", "roomFormat", "roomId", "roundSequence"]);
   });
 });

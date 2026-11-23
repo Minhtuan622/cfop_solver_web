@@ -20,6 +20,8 @@ import {
   RoomLobby,
   RoomRoundPanel,
   RoomSidebar,
+  roomPollInterval,
+  useRoomEvents,
   type PendingSolve,
   type RemovalTarget,
 } from "@/features/rooms";
@@ -73,9 +75,13 @@ export default function Rooms() {
     enabled: Boolean(account.data),
     retry: false,
   });
+  const live = useRoomEvents(code, Boolean(account.data && code), () => {
+    void utils.competition.state.invalidate(roomInput);
+    void utils.competition.listMine.invalidate();
+  });
   const roomQuery = trpc.competition.state.useQuery(roomInput, {
     enabled: Boolean(account.data && code),
-    refetchInterval: code ? 2_500 : false,
+    refetchInterval: code ? roomPollInterval(live) : false,
     retry: false,
   });
   const refresh = async () => {
@@ -428,6 +434,7 @@ export default function Rooms() {
             onlineSpectators={room.onlineSpectators}
             moderationNotice={moderationNotice}
             moderationLogs={room.moderationLogs}
+            integrityFlags={room.integrityFlags}
             isSpectator={room.isSpectator}
             messages={room.messages}
             chat={chat}

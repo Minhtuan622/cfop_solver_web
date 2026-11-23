@@ -1,6 +1,19 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/trpc", () => ({
+  trpc: {
+    cfopAccount: { me: { useQuery: () => ({ data: null, isLoading: false }) } },
+    push: {
+      config: { useQuery: () => ({ data: { enabled: false, publicKey: null }, isLoading: false }) },
+      subscribe: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) },
+      sync: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) },
+      unsubscribe: { useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }) },
+    },
+  },
+}));
+
 import Settings from "./Settings";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 

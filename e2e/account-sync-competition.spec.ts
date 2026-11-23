@@ -60,6 +60,7 @@ async function mockAccountSyncAndCompetition(page: Page) {
         standings: submitted ? [{ accountId: account.id, displayName: account.displayName, lastResult: { elapsedMs: 120, penalty: "none" } }] : [],
         messages: [],
         moderationLogs: [],
+        integrityFlags: [],
       };
       return null;
     };

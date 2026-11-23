@@ -35,12 +35,16 @@ describe("domain router composition", () => {
   });
 
   it("preserves the public tRPC namespace consumed by the frontend", () => {
-    expect(Object.keys(appRouter._def.record).sort()).toEqual(["cfopAccount", "competition", "wca"]);
+    expect(Object.keys(appRouter._def.record).sort()).toEqual(["cfopAccount", "competition", "push", "wca"]);
     expect(procedureKeys(appRouter as typeof appRouter)).toEqual(expect.arrayContaining([
       "cfopAccount.login",
       "cfopAccount.wca.profile",
       "competition.leaderboard",
       "competition.playerHistory",
+      "push.config",
+      "push.subscribe",
+      "push.sync",
+      "push.unsubscribe",
       "wca.competitions",
       "wca.countries",
     ]));

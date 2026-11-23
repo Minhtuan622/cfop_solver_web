@@ -15,6 +15,7 @@ import {
   listCompetitionMembers,
   listCompetitionRoomsForAccount,
 } from "../db";
+import { publishCompetitionEvent } from "../services/competitionEventBus";
 import { createRoomInput, roomCodeInput } from "./inputs";
 import {
   competitionHistory,
@@ -89,6 +90,7 @@ export const roomProcedures = {
           message: "Phòng đã đủ người chơi.",
         });
       await joinCompetitionRoom(room.id, ctx.cfopAccount.id);
+      publishCompetitionEvent(room.id, "member");
       return { code: room.code };
     }),
   spectate: cfopAccountProcedure
@@ -106,6 +108,7 @@ export const roomProcedures = {
             message: "Phòng đã đủ khán giả.",
           });
         await joinCompetitionRoom(room.id, ctx.cfopAccount.id, "spectator");
+        publishCompetitionEvent(room.id, "member");
       }
       return { code: room.code };
     }),
@@ -125,6 +128,7 @@ export const roomProcedures = {
         });
       await requireCompetitionMember(room.id, ctx.cfopAccount.id);
       await leaveCompetitionRoom(room.id, ctx.cfopAccount.id);
+      publishCompetitionEvent(room.id, "member");
       return { success: true } as const;
     }),
   delete: cfopAccountProcedure
@@ -143,6 +147,7 @@ export const roomProcedures = {
             "Không thể xóa khi phòng đang thi. Hãy hoàn tất thể thức trước.",
         });
       await deleteCompetitionRoom(room.id);
+      publishCompetitionEvent(room.id, "room");
       return { success: true } as const;
     }),
   finish: cfopAccountProcedure
@@ -157,6 +162,7 @@ export const roomProcedures = {
       const activeRound = await getCompetitionActiveRound(room.id);
       if (activeRound) await finishCompetitionRound(activeRound.id);
       await finishCompetitionRoom(room.id);
+      publishCompetitionEvent(room.id, "room");
       leaderboardCache.invalidate();
       return { success: true } as const;
     }),
@@ -180,6 +186,7 @@ export const roomProcedures = {
         if (await findCompetitionRoomByCode(code)) continue;
         room = await createCompetitionRematch(source.id, code);
       }
+      publishCompetitionEvent(source.id, "room");
       if (!room)
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

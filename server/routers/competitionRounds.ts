@@ -15,6 +15,11 @@ import {
 import { isTimerEventId, DEFAULT_TIMER_EVENT } from "../../shared/timerEvents";
 import { multiBlindResult } from "../../shared/multiBlind";
 import {
+  competitionIntegrityFlags,
+  serializeIntegrityFlags,
+} from "../services/competitionIntegrity";
+import { publishCompetitionEvent } from "../services/competitionEventBus";
+import {
   messageInput,
   resultInput,
   roomCodeInput,
@@ -71,6 +76,7 @@ export const roundProcedures = {
         scrambleBundle[0] ?? "",
         eventId === "333mbf" ? scrambleBundle : undefined
       );
+      publishCompetitionEvent(room.id, "round");
       return {
         sequence: round.sequence,
         scramble: round.scramble,
@@ -126,8 +132,19 @@ export const roundProcedures = {
         input.penalty === "DNF" || (multiBlind && !multiBlind.valid)
           ? "DNF"
           : input.penalty;
+      const earlier = (await listCompetitionResults(room.id)).filter(
+        result => result.accountId === ctx.cfopAccount.id
+      );
+      const flags = competitionIntegrityFlags({
+        eventId: room.eventId,
+        elapsedMs: input.elapsedMs,
+        inspectionMs: input.inspectionMs,
+        roundStartedAt: activeRound.startedAt,
+        previousElapsedMs: earlier.map(result => result.elapsedMs),
+      });
       await submitCompetitionResult({
         roundId: activeRound.id,
+        flags: serializeIntegrityFlags(flags),
         accountId: ctx.cfopAccount.id,
         elapsedMs: input.elapsedMs,
         inspectionMs: input.inspectionMs,
@@ -162,6 +179,7 @@ export const roundProcedures = {
           leaderboardCache.invalidate();
         }
       }
+      publishCompetitionEvent(room.id, "result");
       return { success: true } as const;
     }),
   sendMessage: cfopAccountProcedure
@@ -192,6 +210,7 @@ export const roundProcedures = {
         accountId: ctx.cfopAccount.id,
         content: input.content,
       });
+      publishCompetitionEvent(room.id, "message");
       return { success: true } as const;
     }),
 };

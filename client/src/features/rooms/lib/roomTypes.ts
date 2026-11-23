@@ -33,6 +33,18 @@ export type RoomResult = {
   multiBlindScore?: number | null;
 };
 
+/** Cờ kiểm tra tính toàn vẹn của một kết quả; chỉ chủ phòng/moderator nhận được. */
+export type RoomIntegrityFlagId = "impossible_time" | "too_fast" | "repeated_time";
+
+export type RoomIntegrityEntry = {
+  accountId: number;
+  displayName: string;
+  roundSequence: number;
+  elapsedMs: number;
+  penalty: CompetitionPenalty;
+  flags: RoomIntegrityFlagId[];
+};
+
 export type RoomStanding = {
   accountId: number;
   displayName: string;

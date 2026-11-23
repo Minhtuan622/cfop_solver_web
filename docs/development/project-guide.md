@@ -9,11 +9,12 @@ CFOP Solver Studio là ứng dụng web hỗ trợ giải, luyện tập và thi
 | Khu vực | Phạm vi chính |
 |---|---|
 | **Studio / Solver** | Nhập scramble hoặc trạng thái sáu mặt, giải theo CFOP, Cross, F2L, OLL/PLL, XCross đến XXXXCross, ZBLL/1LLL và xem CubeNet/3D. |
-| **Timer** | Inspection, solve, +2/DNF, split, thành tích cá nhân, nhiều loại Rubik, scramble preview, replay solution và thống kê theo event. |
+| **Timer** | Inspection, solve, +2/DNF, split, thành tích cá nhân, nhiều loại Rubik, scramble preview, replay solution và thống kê theo event, gồm phân bố thời gian, bản đồ nhiệt luyện tập, chuỗi sub-X và so sánh tuần/tháng. |
 | **History** | Lọc theo loại Rubik, analytics, chọn nhiều solve, export/import và quản lý dữ liệu solve tập trung. |
 | **Study** | Last Layer và 3-Style BLD, catalog công thức, SRS, drill, streak, learning path, profile học tập và tự kiểm tra bằng scramble. FTO Study không còn trong sản phẩm. |
 | **Profile / Account** | Đăng ký, đăng nhập, đổi mật khẩu, quên mật khẩu, avatar, mục tiêu cá nhân, đồng bộ Timer/Study và liên kết WCA. |
-| **Rooms** | Tạo/tham gia phòng, Best of 3/Ao5/Ao12, MBLD, chat, spectator, moderator, moderation log, rematch, lịch sử phòng và leaderboard. |
+| **Rooms** | Tạo/tham gia phòng, Best of 3/Ao5/Ao12, MBLD, chat, spectator, moderator, moderation log, rematch, lịch sử phòng và leaderboard. Cập nhật tức thì qua SSE; chủ phòng/moderator thấy cờ cảnh báo kết quả đáng ngờ. |
+| **Khối khác** | Trang `/puzzles` giải 2×2×2, Pyraminx, Skewb bằng `cubing/search`; trang Giải có thẻ so CFOP với lời giải ngắn nhất. |
 | **WCA** | Lịch thi đấu, lọc quốc gia, hồ sơ WCA, OAuth WCA khi đủ cấu hình và so sánh thành tích. |
 
 ## 2. Stack công nghệ
@@ -194,6 +195,10 @@ Trang `/` là một **không gian làm việc** hai cột, không phải một c
 - **Báo cáo CFOP** nằm full-width dưới cả hai cột; số lượt và số chặng gộp vào header của chính báo cáo nên không còn thẻ số liệu trùng lặp.
 - Các khối gập dùng `<details>` native, không cần JS.
 
+### Trang khối khác
+
+Trang `/puzzles` giải 2×2×2, Pyraminx và Skewb: chọn khối, nhập hoặc tạo scramble ngẫu nhiên, bấm **Giải** để nhận lời giải ngắn của `cubing/search` (không theo phương pháp học) và xem lại trên mô hình 3D. `cubing/*` chỉ nạp khi bấm Giải. Namespace i18n `otherPuzzles.*` trong `client/src/lib/i18n/solver.ts`.
+
 ### Trang học thêm
 
 Trang `/study` là **một màn hình làm việc**, không phải một bảng tra cứu dài:
@@ -302,6 +307,16 @@ BUILT_IN_FORGE_API_KEY=
 ```
 
 Các biến này phục vụ storage proxy/tích hợp storage đã cấu hình. Không đưa key thật vào README, `.env.example` hoặc commit.
+
+### 5.4b. Nhắc ôn tập bằng Web Push (tùy chọn)
+
+```dotenv
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:you@example.com
+```
+
+Tạo cặp khoá một lần bằng `pnpm exec web-push generate-vapid-keys`, rồi đặt vào biến môi trường của host. Thiếu một trong ba biến thì server tự tắt tính năng (`push.config` trả `enabled: false` và công tắc trong Cài đặt bị khoá). `VAPID_PRIVATE_KEY` là secret: không commit, không đưa vào `.env.example`. Đổi khoá VAPID làm mọi đăng ký cũ mất hiệu lực; người dùng bật lại công tắc để đăng ký lại.
 
 ### 5.5. TRUST_PROXY
 
@@ -726,6 +741,8 @@ Giữ API Node stateless ở mức có thể, đặt pool kết nối MySQL có 
 Giới hạn tần suất gửi chat và state refresh ở server. Presence không cần ghi database ở mọi request nếu có thể gom nhịp; giữ MySQL làm nguồn sự thật cho membership, result và moderation. Đặt giới hạn `maxPlayers`, độ dài message và kích thước cloud payload như validation hiện có.
 
 ### Giai đoạn 2: giảm tải polling
+
+**Đã làm (một instance).** `GET /api/competition/events?code=ABC123` là luồng Server-Sent Events: event `ready` khi nối, `change` (`member | round | result | message | room`) mỗi khi phòng đổi, `closed` khi người xem bị loại. Sự kiện **không mang dữ liệu**, client chỉ làm mới `competition.state`, nên không lộ gì qua kênh này. Kênh cần đăng nhập và là thành viên chưa bị loại; mỗi tài khoản tối đa 6 kết nối. Khi kênh sống, polling hạ xuống 30 s làm dự phòng, mất kết nối thì quay lại 2,5 s. Bus ở `server/services/competitionEventBus.ts` chỉ phát trong một tiến trình; nhiều instance cần Redis Pub/Sub thay phần `publish/subscribe`.
 
 Khi polling bắt đầu chiếm nhiều request, chuyển notification state sang WebSocket hoặc SSE. Database vẫn lưu round/result/message; kênh realtime chỉ phát event như `round_started`, `result_submitted`, `member_joined` và `message_created`. Nếu chạy nhiều instance Node, dùng Redis Pub/Sub hoặc dịch vụ realtime managed để fan-out event; không giữ state phòng duy nhất trong RAM của một process.
 

@@ -58,9 +58,21 @@ describe("competition router", () => {
     vi.mocked(findCompetitionMember).mockResolvedValue({ id: 3, roomId: room.id, accountId: 1, role: "player", joinedAt: new Date() });
     vi.mocked(getCompetitionActiveRound).mockResolvedValue({ id: 22, roomId: room.id, sequence: 1, scramble: "R U R'", status: "active", startedAt: new Date(), completedAt: null });
     vi.mocked(findCompetitionResult).mockResolvedValue(null);
+    vi.mocked(listCompetitionResults).mockResolvedValue([]);
     vi.mocked(submitCompetitionResult).mockResolvedValue({ id: 5, roundId: 22, accountId: 1, elapsedMs: 10_000, inspectionMs: 0, penalty: "none", submittedAt: new Date() });
     await expect(appRouter.createCaller(ctx).competition.submit({ code: room.code, roundId: 22, elapsedMs: 10_000, inspectionMs: 0, penalty: "none" })).resolves.toEqual({ success: true });
     expect(submitCompetitionResult).toHaveBeenCalledWith(expect.objectContaining({ roundId: 22, accountId: 1 }));
+  });
+
+  it("gắn cờ nhưng vẫn nhận kết quả dài hơn thời gian lượt đã mở", async () => {
+    vi.mocked(findCompetitionRoomByCode).mockResolvedValue(room);
+    vi.mocked(findCompetitionMember).mockResolvedValue({ id: 3, roomId: room.id, accountId: 1, role: "player", joinedAt: new Date() });
+    vi.mocked(getCompetitionActiveRound).mockResolvedValue({ id: 22, roomId: room.id, sequence: 1, scramble: "R U R'", status: "active", startedAt: new Date(), completedAt: null });
+    vi.mocked(findCompetitionResult).mockResolvedValue(null);
+    vi.mocked(listCompetitionResults).mockResolvedValue([]);
+    vi.mocked(submitCompetitionResult).mockResolvedValue({ id: 5, roundId: 22, accountId: 1, elapsedMs: 90_000, inspectionMs: 0, penalty: "none", submittedAt: new Date() });
+    await expect(appRouter.createCaller(ctx).competition.submit({ code: room.code, roundId: 22, elapsedMs: 90_000, inspectionMs: 0, penalty: "none" })).resolves.toEqual({ success: true });
+    expect(submitCompetitionResult).toHaveBeenCalledWith(expect.objectContaining({ flags: "impossible_time" }));
   });
 
   it("gắn tin nhắn chat với thành viên và phòng hiện tại", async () => {
@@ -119,6 +131,21 @@ describe("competition router", () => {
     await expect(appRouter.createCaller(ctx).competition.spectate({ code: room.code })).resolves.toEqual({ code: room.code });
     expect(joinCompetitionRoom).toHaveBeenCalledWith(room.id, 1, "spectator");
     await expect(appRouter.createCaller(ctx).competition.submit({ code: room.code, roundId: 22, elapsedMs: 10_000, inspectionMs: 0, penalty: "none" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("chỉ chủ phòng và moderator thấy cờ kiểm tra kết quả", async () => {
+    const flagged = { roundSequence: 1, roundId: 22, accountId: 2, displayName: "Guest", avatarUrl: "", elapsedMs: 1_000, inspectionMs: 0, penalty: "none" as const, multiBlindAttempted: null, multiBlindSolved: null, multiBlindScore: null, integrityFlags: "too_fast", submittedAt: new Date() };
+    vi.mocked(findCompetitionRoomByCode).mockResolvedValue(room);
+    vi.mocked(listCompetitionMembers).mockResolvedValue([{ accountId: 1, displayName: "Host", avatarUrl: "", role: "player", joinedAt: new Date(), lastSeen: new Date() }, { accountId: 2, displayName: "Guest", avatarUrl: "", role: "player", joinedAt: new Date(), lastSeen: new Date() }]);
+    vi.mocked(getCompetitionActiveRound).mockResolvedValue(null);
+    vi.mocked(listCompetitionResults).mockResolvedValue([flagged]);
+    vi.mocked(listCompetitionMessages).mockResolvedValue([]);
+    vi.mocked(listCompetitionModerationLogs).mockResolvedValue([]);
+    vi.mocked(findCompetitionMember).mockResolvedValue({ id: 3, roomId: room.id, accountId: 1, role: "player", joinedAt: new Date(), lastSeen: new Date() });
+    await expect(appRouter.createCaller(ctx).competition.state({ code: room.code })).resolves.toMatchObject({ integrityFlags: [expect.objectContaining({ accountId: 2, flags: ["too_fast"] })] });
+    const guestCtx = { ...ctx, cfopAccount: { ...ctx.cfopAccount!, id: 2 } } as TrpcContext;
+    vi.mocked(findCompetitionMember).mockResolvedValue({ id: 4, roomId: room.id, accountId: 2, role: "player", joinedAt: new Date(), lastSeen: new Date() });
+    await expect(appRouter.createCaller(guestCtx).competition.state({ code: room.code })).resolves.toMatchObject({ integrityFlags: [] });
   });
 
   it("đếm spectator có heartbeat gần đây trong state phòng", async () => {

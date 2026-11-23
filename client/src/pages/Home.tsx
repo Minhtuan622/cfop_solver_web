@@ -41,6 +41,7 @@ import {
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { openingModeLabel } from "@/features/solver/lib/solverPresentation";
+import { OptimalComparisonCard } from "@/features/puzzle-solver";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
 import {
   analyzeBldInBrowser,
@@ -541,6 +542,7 @@ export default function Home() {
               onProfile={setBldProfile}
             />
           ) : result ? (
+            <>
             <CfopReport
               result={displayResult ?? result}
               setupRotation={setupRotation}
@@ -551,6 +553,11 @@ export default function Home() {
               onSelectPhase={phase => selectCursor(phase.end, "phase")}
               onSelectMove={moveIndex => selectCursor(moveIndex, "seek")}
             />
+            <OptimalComparisonCard
+              key={result.algorithm}
+              cfopSolution={result.algorithm}
+            />
+            </>
           ) : null}
         </SolverSolutionSidebar>
       </div>

@@ -140,6 +140,8 @@ const plugins = [
       // The app shell stays small; solver + diagrams load on demand below.
       globPatterns: ["**/*.{js,css,html}"],
       navigateFallback: "/index.html",
+      // Nhận Web Push nhắc ôn tập (xử lý trong client/public/push-sw.js).
+      importScripts: ["/push-sw.js"],
       navigateFallbackDenylist: [/^\/api\//],
       maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       runtimeCaching: [

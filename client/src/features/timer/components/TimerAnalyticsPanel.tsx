@@ -17,6 +17,7 @@ import { StatTile } from "@/components/ui/StudioUI";
 
 import { EventProgressCard } from "./EventProgressCard";
 import { EventWcaComparisonCard } from "./EventWcaComparisonCard";
+import { TimerInsightsPanel } from "./TimerInsightsPanel";
 
 import type { TimerAverages } from "../lib/useTimerMetrics";
 
@@ -202,6 +203,8 @@ export function TimerAnalyticsPanel({
                 )}
               </div>
             </section>
+
+            {!isMultiBlind && <TimerInsightsPanel entries={eventEntries} />}
 
             <section className="rounded-card bg-surface mt-6">
               <div className="p-5 sm:p-6">

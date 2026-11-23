@@ -4,4 +4,5 @@ export * from './components/AppearanceSettingsGroup';
 export * from './components/SettingsGroupTabs';
 export * from './components/SolverSettingsGroup';
 export * from './components/StudySettingsGroup';
+export * from './components/ReviewReminderSync';
 export * from './components/TimerSettingsGroup';

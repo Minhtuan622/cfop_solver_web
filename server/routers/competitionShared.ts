@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { compareCompetitionResults, competitionFormatScore, competitionRoundLimit, type CompetitionFormat } from "../services/competition";
 import { findCompetitionMember, findCompetitionRoomByCode, findLatestCompetitionModerationLog, getCompetitionActiveRound, listCompetitionMembers, listCompetitionMessages, listCompetitionModerationLogs, listCompetitionResults, listFinishedCompetitionRoomsForAccount, touchCompetitionMember } from "../db";
+import { parseIntegrityFlags } from "../services/competitionIntegrity";
 import { LATEST_MESSAGES_LIMIT } from "./competitionState";
 
 type CompetitionResultRow = Awaited<ReturnType<typeof listCompetitionResults>>[number];
@@ -30,8 +31,17 @@ export async function competitionRoomState(code: string, accountId: number, opti
   });
   const standings = [...players].filter((player) => player.lastResult).sort((left, right) => compareCompetitionResults(room.eventId, left.lastResult!, right.lastResult!)).map((player, index) => ({ ...player, rank: index + 1 }));
   const scrambleBundle = activeRound && Array.isArray(activeRound.scrambleBundle) ? activeRound.scrambleBundle.filter((value): value is string => typeof value === "string") : [];
+  const isStaff = room.hostAccountId === accountId || membership.role === "moderator";
+  // Cờ chỉ dành cho chủ phòng và moderator; người chơi không thấy cờ của mình hay của người khác.
+  const integrityFlags = isStaff
+    ? results.flatMap((result) => {
+        const flags = parseIntegrityFlags(result.integrityFlags);
+        return flags.length ? [{ accountId: result.accountId, displayName: result.displayName, roundSequence: result.roundSequence, elapsedMs: result.elapsedMs, penalty: result.penalty, flags }] : [];
+      })
+    : [];
+  const publicResults = results.map(({ integrityFlags: _flags, ...result }) => result);
   const onlineSpectators = members.filter((member) => member.role !== "player" && member.lastSeen.getTime() >= Date.now() - 20_000);
-  return { room, members, isHost: room.hostAccountId === accountId, isSpectator: membership.role !== "player", isModerator: membership.role === "moderator", onlineSpectatorCount: onlineSpectators.length, onlineSpectators, roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, ...(options.includeResults ? { results } : {}), messages, moderationLogs: room.hostAccountId === accountId || membership.role === "moderator" ? moderationLogs : [] };
+  return { room, members, isHost: room.hostAccountId === accountId, isSpectator: membership.role !== "player", isModerator: membership.role === "moderator", onlineSpectatorCount: onlineSpectators.length, onlineSpectators, roundLimit: competitionRoundLimit(room.format, room.eventId), activeRound: activeRound ? { id: activeRound.id, sequence: activeRound.sequence, scramble: activeRound.scramble, scrambleBundle, startedAt: activeRound.startedAt } : null, players, standings, ...(options.includeResults ? { results: publicResults } : {}), messages, moderationLogs: isStaff ? moderationLogs : [], integrityFlags };
 }
 
 export async function competitionHistory(accountId: number) {

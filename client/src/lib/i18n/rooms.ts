@@ -119,6 +119,16 @@ export const roomsWords: Dictionary = {
     "{actor} removed {target}. Reason: {reason}",
   ],
   "rooms.sidebar.moderationVerb": ["đã loại", "removed"],
+  "rooms.integrity.title": ["Cảnh báo kết quả", "Result warnings"],
+  "rooms.integrity.hint": [
+    "Chỉ chủ phòng và moderator thấy mục này. Cờ chỉ để tham khảo: kết quả vẫn được tính bình thường.",
+    "Only the host and moderators see this. Flags are advisory: results still count normally.",
+  ],
+  "rooms.integrity.none": ["Chưa có kết quả nào bị gắn cờ.", "No results have been flagged."],
+  "rooms.integrity.round": ["· lượt {round}: {result}", "· round {round}: {result}"],
+  "rooms.integrity.flag.impossible_time": ["Thời gian dài hơn thời gian lượt đã mở", "Time is longer than the round has been open"],
+  "rooms.integrity.flag.too_fast": ["Nhanh bất thường so với kỷ lục thế giới", "Unusually fast compared with the world record"],
+  "rooms.integrity.flag.repeated_time": ["Trùng đúng từng mili-giây với một kết quả trước", "Matches an earlier result to the millisecond"],
   "rooms.sidebar.noModeration": ["Chưa có thao tác kiểm duyệt.", "No moderation actions yet."],
   "rooms.sidebar.spectatorNote": [
     "Khán giả và moderator không tham gia chat để kênh trao đổi của người thi luôn gọn.",

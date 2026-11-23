@@ -92,6 +92,20 @@
       "when": 1792626807989,
       "tag": "0012_drop_manus_users_table",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1795438433298,
+      "tag": "0013_push_subscriptions",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1795439009341,
+      "tag": "0014_result_integrity_flags",
+      "breakpoints": true
     }
   ]
 }
