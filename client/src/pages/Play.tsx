@@ -9,26 +9,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-import {
-  ChevronDown,
-  Dices,
-  Grid,
-  Play,
-  RotateCcw,
-  Timer,
-  Trash2,
-} from "@/components/ui/Icon";
-import { PageHeader, Switch, StatTile, IconButton } from "@/components/ui/StudioUI";
-import { PlayKeyMap } from "@/features/play/components/PlayKeyMap";
+import { Grid, RotateCcw, Timer } from "@/components/ui/Icon";
+import { PageHeader } from "@/components/ui/StudioUI";
+import { PlayClearDialog } from "@/features/play/components/PlayClearDialog";
+import { PlayCubeOverlay } from "@/features/play/components/PlayCubeOverlay";
+import { PlayHistoryPanel } from "@/features/play/components/PlayHistoryPanel";
+import { PlayKeysPanel } from "@/features/play/components/PlayKeysPanel";
+import { PlayModeTabs } from "@/features/play/components/PlayModeTabs";
+import { PlayRacePanel } from "@/features/play/components/PlayRacePanel";
+import { useMediaQuery } from "@/features/play/lib/useMediaQuery";
+import type { PlayMode, RaceStatus } from "@/features/play/lib/playTypes";
 import { PlayMovePad } from "@/features/play/components/PlayMovePad";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/StudioDialog";
 import { buttonClass } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -48,14 +39,9 @@ import {
   clearPlayHistory,
   deletePlayHistory,
   formatPlayTime,
-  playEffectiveTime,
-  playStats,
   readPlayHistory,
   type PlayHistoryEntry,
 } from "@/features/play/lib/playHistory";
-
-type PlayMode = "free" | "race";
-type RaceStatus = "idle" | "inspection" | "armed" | "solving";
 
 export default function PlayPage() {
   const { t } = useLanguage();
@@ -89,16 +75,7 @@ export default function PlayPage() {
   );
   const [padOpen, setPadOpen] = useState(false);
   // Màn hình hẹp: khung khối thấp hơn để khối không bị phóng quá to và cắt.
-  const [narrowScreen, setNarrowScreen] = useState(
-    () => typeof window !== "undefined" && window.matchMedia?.("(max-width: 639px)").matches
-  );
-  useEffect(() => {
-    const query = window.matchMedia?.("(max-width: 639px)");
-    if (!query) return undefined;
-    const update = () => setNarrowScreen(query.matches);
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
+  const narrowScreen = useMediaQuery("(max-width: 639px)");
 
   const commitCube = (prev: string, next: string, token?: string) => {
     prevStateRef.current = prev;
@@ -330,10 +307,6 @@ export default function PlayPage() {
     resetCube(false);
   };
 
-  const stats = playStats(entries);
-  const bestText = stats.bestMs !== null ? formatPlayTime(stats.bestMs) : "—";
-  const ao5Text = stats.ao5Ms !== null ? formatPlayTime(stats.ao5Ms) : "—";
-
   const raceBusy = mode === "race" && status !== "idle";
 
   return (
@@ -357,39 +330,7 @@ export default function PlayPage() {
         <section className="col-span-12 xl:col-span-8">
           <div className="rounded-card bg-surface p-4 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div
-                role="tablist"
-                aria-label={t("play.modeLabel")}
-                className="inline-flex rounded-full bg-surface-2 p-1"
-              >
-                {(
-                  [
-                    { id: "free", label: t("play.modeFree") },
-                    { id: "race", label: t("play.modeRace") },
-                  ] as const
-                ).map(tab => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={mode === tab.id}
-                    onClick={event => {
-                      switchMode(tab.id);
-                      // Trả Space về cho khối: sau khi chọn chế độ, Space phải
-                      // xáo trộn chứ không bấm lại tab.
-                      event.currentTarget.blur();
-                    }}
-                    className={cn(
-                      "rounded-full px-4 py-1.5 text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-primary/20",
-                      mode === tab.id
-                        ? "bg-primary text-on-primary"
-                        : "text-muted hover:text-ink"
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+              <PlayModeTabs mode={mode} onChange={switchMode} />
               <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted">
                 <span className="rounded-full bg-surface-2 px-3 py-1.5">
                   {t("play.movesLabel", { count: moveCount })}
@@ -416,90 +357,25 @@ export default function PlayPage() {
                 orbitKeys
                 stageHeight={narrowScreen ? 300 : 420}
               />
-              <div
-                className="pointer-events-none absolute inset-0 grid place-items-center"
-                aria-live="polite"
-              >
-                {mode === "race" && status === "solving" ? (
-                  <p className="rounded-full bg-canvas/90 px-6 py-3 font-mono text-5xl font-bold tabular-nums text-ink sm:text-6xl">
-                    {formatPlayTime(elapsedMs)}
-                  </p>
-                ) : null}
-                {mode === "race" && status === "inspection" ? (
-                  <p
-                    className={cn(
-                      "rounded-full bg-canvas/90 px-6 py-3 font-mono text-6xl font-bold tabular-nums",
-                      inspectionLeft <= 3 ? "text-danger" : "text-ink"
-                    )}
-                  >
-                    {Math.ceil(inspectionLeft)}
-                  </p>
-                ) : null}
-                {mode === "race" && (status === "armed" || status === "idle") ? (
-                  <p className="max-w-xs rounded-full bg-canvas/90 px-6 py-3 text-center text-sm font-semibold text-ink">
-                    {status === "armed" ? t("play.readyHint") : t("play.startHint")}
-                  </p>
-                ) : null}
-              </div>
+              <PlayCubeOverlay
+                mode={mode}
+                status={status}
+                elapsedMs={elapsedMs}
+                inspectionLeft={inspectionLeft}
+              />
             </div>
 
             {mode === "race" ? (
-              <div className="mt-2 rounded-panel bg-surface-2 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-muted">
-                    {t("play.scramble")}
-                  </span>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {status === "idle" ? (
-                      <>
-                        <button
-                          type="button"
-                          className={buttonClass("secondary", "sm")}
-                          onClick={newScramble}
-                        >
-                          <Dices className="text-base" aria-hidden="true" />
-                          {t("play.newScramble")}
-                        </button>
-                        {/* Điện thoại không có phím Space: nút thay thế. */}
-                        <button
-                          type="button"
-                          className={buttonClass("primary", "sm")}
-                          onClick={event => {
-                            event.currentTarget.blur();
-                            onSpace();
-                          }}
-                        >
-                          <Play className="text-base" aria-hidden="true" />
-                          {t("play.startButton")}
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        className={buttonClass("danger", "sm")}
-                        onClick={event => {
-                          event.currentTarget.blur();
-                          onEscape();
-                        }}
-                      >
-                        {status === "solving" ? t("play.stopDnf") : t("play.cancelAttempt")}
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <p className="mb-0 mt-2 font-mono text-sm leading-relaxed text-ink">{scramble}</p>
-                {mode === "race" ? (
-                  <div className="mt-3">
-                    <Switch
-                      id="play-inspection"
-                      checked={inspectionEnabled}
-                      onChange={setInspectionEnabled}
-                      disabled={raceBusy}
-                      label={t("play.inspectionLabel")}
-                    />
-                  </div>
-                ) : null}
-              </div>
+              <PlayRacePanel
+                status={status}
+                scramble={scramble}
+                inspectionEnabled={inspectionEnabled}
+                onInspectionChange={setInspectionEnabled}
+                busy={raceBusy}
+                onNewScramble={newScramble}
+                onStart={onSpace}
+                onCancel={onEscape}
+              />
             ) : (
               <p className="mb-0 mt-2 text-center text-xs text-muted">{t("play.freeHint")}</p>
             )}
@@ -546,128 +422,22 @@ export default function PlayPage() {
 
         {/* ===== Lịch sử riêng + bộ phím ===== */}
         <aside className="col-span-12 flex flex-col gap-6 xl:col-span-4">
-          <div className="rounded-card bg-surface p-5 sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="mb-0 text-base font-semibold tracking-tight text-ink">
-                {t("play.historyTitle")}
-              </h2>
-              {entries.length > 0 ? (
-                <button
-                  type="button"
-                  className="rounded-full px-3 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger-soft focus-visible:ring-4 focus-visible:ring-primary/20"
-                  onClick={() => setClearOpen(true)}
-                >
-                  {t("play.clearAll")}
-                </button>
-              ) : null}
-            </div>
-            <p className="mb-0 mt-1 text-xs text-muted">{t("play.historyNote")}</p>
+          <PlayHistoryPanel
+            entries={entries}
+            onDelete={id => setEntries(deletePlayHistory(id))}
+            onClear={() => setClearOpen(true)}
+          />
 
-            <div className="mt-4 grid grid-cols-3 gap-2">
-              <StatTile compact label={t("play.best")} value={bestText} />
-              <StatTile compact label={t("play.ao5")} value={ao5Text} />
-              <StatTile compact label={t("play.solves")} value={String(stats.count)} />
-            </div>
-
-            {entries.length === 0 ? (
-              <p className="mb-0 mt-4 rounded-panel bg-surface-2 px-4 py-6 text-center text-sm text-muted">
-                {t("play.historyEmpty")}
-              </p>
-            ) : (
-              <ul className="mt-4 flex flex-col gap-1">
-                {entries.slice(0, 12).map(entry => {
-                  const effective = playEffectiveTime(entry);
-                  return (
-                    <li
-                      key={entry.id}
-                      className="group flex items-center gap-3 rounded-panel px-2 py-2 transition-colors hover:bg-surface-2"
-                    >
-                      <span className="font-mono text-sm font-semibold tabular-nums text-ink">
-                        {effective !== null ? formatPlayTime(effective) : "DNF"}
-                      </span>
-                      {entry.penalty !== "none" ? (
-                        <span
-                          className={cn(
-                            "rounded-full px-2 py-0.5 text-[10px] font-bold",
-                            entry.penalty === "+2"
-                              ? "bg-warning-soft text-ink"
-                              : "bg-danger-soft text-danger"
-                          )}
-                        >
-                          {entry.penalty}
-                        </span>
-                      ) : null}
-                      <span className="text-[11px] text-muted">
-                        {t("play.movesLabel", { count: entry.moves })}
-                      </span>
-                      <span className="ml-auto text-[11px] text-muted">
-                        {new Date(entry.createdAt).toLocaleDateString()}
-                      </span>
-                      <IconButton
-                        label={t("play.deleteSolve")}
-                        icon={<Trash2 className="text-base" />}
-                        onClick={() => setEntries(deletePlayHistory(entry.id))}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-danger-soft hover:text-danger"
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-
-          <div className="rounded-card bg-surface p-5 sm:p-6">
-            <button
-              type="button"
-              onClick={() => setKeysOpen(open => !open)}
-              aria-expanded={keysOpen}
-              className="flex w-full items-center justify-between gap-2 rounded-panel text-left text-base font-semibold tracking-tight text-ink focus-visible:ring-4 focus-visible:ring-primary/20"
-            >
-              {t("play.keysTitle")}
-              <ChevronDown
-                className={cn("text-lg text-muted transition-transform", keysOpen && "rotate-180")}
-                aria-hidden="true"
-              />
-            </button>
-            {keysOpen ? (
-              <div className="mt-4">
-                <PlayKeyMap />
-              </div>
-            ) : null}
-          </div>
+          <PlayKeysPanel open={keysOpen} onToggle={() => setKeysOpen(open => !open)} />
         </aside>
       </div>
 
-      {/* ===== Clear confirmation ===== */}
-      <Dialog open={clearOpen} onOpenChange={setClearOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("play.clearTitle")}</DialogTitle>
-            <DialogDescription>
-              {t("play.clearDetail", { count: entries.length })}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <button
-              type="button"
-              className={buttonClass("secondary", "md")}
-              onClick={() => setClearOpen(false)}
-            >
-              {t("play.cancel")}
-            </button>
-            <button
-              type="button"
-              className={buttonClass("dangerSolid", "md")}
-              onClick={() => {
-                setEntries(clearPlayHistory());
-                setClearOpen(false);
-              }}
-            >
-              {t("play.clearConfirm")}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <PlayClearDialog
+        open={clearOpen}
+        onOpenChange={setClearOpen}
+        count={entries.length}
+        onConfirm={() => setEntries(clearPlayHistory())}
+      />
     </div>
   );
 }
