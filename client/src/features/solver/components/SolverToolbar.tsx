@@ -51,7 +51,7 @@ export function SolverToolbar({
           ]}
         />
       </PillBar>
-      <PillBar variant="soft">
+      <PillBar>
         <PillGroup<SolverInputMode>
           tone="soft"
           label={t("home.inputLabel")}

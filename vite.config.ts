@@ -97,7 +97,7 @@ const plugins = [
       display: "standalone",
       orientation: "portrait",
       background_color: "#f8f7f3",
-      theme_color: "#0b7466",
+      theme_color: "#007f6c",
       icons: [
         {
           src: "/icon.svg",

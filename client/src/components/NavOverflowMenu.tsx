@@ -1,5 +1,6 @@
 import { Link } from "wouter";
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem, MENU_ITEM_CLASS } from "@/components/ui/Dropdown";
+import { Check } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { AccountNavItem } from "@/features/profile/lib/accountNavItems";
 import { cn } from "@/lib/utils";
@@ -40,13 +41,13 @@ export function NavOverflowMenu({
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={cn(
-                "flex items-center rounded-xl px-3 py-2 text-sm transition data-[highlighted]:bg-surface",
-                active ? "bg-primary-soft font-semibold text-primary" : "text-ink"
-              )}
+              className={cn(MENU_ITEM_CLASS, active && "font-semibold")}
               onClick={onNavigate}
             >
               {t(item.labelKey)}
+              {active ? (
+                <Check className="ml-auto shrink-0 text-primary" aria-hidden="true" />
+              ) : null}
             </Link>
           </DropdownItem>
         );

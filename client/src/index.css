@@ -15,13 +15,16 @@
   --surface: #fdfcfa;
   --surface-2: #f0eee8;
   --surface-3: #e7e4dc;
+  /* Nền menu thả xuống: trắng; mục đang rê nền xám ấm nhạt. */
+  --menu: #ffffff;
+  --menu-hover: #f0eee8;
   --ink: #1f2422;
   --muted: #5a605d;
   --line: #e7e4dc;
 
-  --primary: #0b7466;
-  --primary-hover: #085f54;
-  --primary-soft: #e1f1ec;
+  --primary: #007f6c;
+  --primary-hover: #006b5b;
+  --primary-soft: #eef8f5;
   --accent: #1d6fa5;
   --accent-soft: #e0eef8;
 
@@ -50,7 +53,7 @@
   --cube-stage-ink: #1f2422;
   --cube-stage-muted: #5a605d;
 
-  --chart-1: #0b7466;
+  --chart-1: #007f6c;
   --chart-2: #1d6fa5;
   --chart-3: #e11d48;
   --chart-4: #d97706;
@@ -79,12 +82,15 @@
   --surface: #1f1f1e;
   --surface-2: #2a2a28;
   --surface-3: #353532;
+  /* Tối: menu sáng hơn thẻ; mục đang rê sáng hơn menu. */
+  --menu: #383835;
+  --menu-hover: #474743;
   --ink: #ececea;
   --muted: #a9a9a4;
   --line: #353532;
 
-  --primary: #4fd1bc;
-  --primary-hover: #72dcca;
+  --primary: #55dcc4;
+  --primary-hover: #7be6d2;
   --primary-soft: #1a3a34;
   --accent: #7cc4f2;
   --accent-soft: #15334a;
@@ -99,7 +105,7 @@
   --info-soft: #17264b;
 
   /* Nền màu ở chế độ tối là màu sáng, nên chữ trên nền đó phải là chữ tối
-     để vẫn đạt WCAG AA (xanh ngọc sáng #4fd1bc với chữ trắng không đủ tương phản). */
+     để vẫn đạt WCAG AA (xanh ngọc sáng #55dcc4 với chữ trắng không đủ tương phản). */
   --on-primary: #05211d;
   --on-success: #0b1020;
   --on-danger: #0b1020;
@@ -111,7 +117,7 @@
   --cube-stage-ink: #ececea;
   --cube-stage-muted: #a9a9a4;
 
-  --chart-1: #4fd1bc;
+  --chart-1: #55dcc4;
   --chart-2: #7cc4f2;
   --chart-3: #fb7185;
   --chart-4: #fbbf24;
@@ -138,6 +144,8 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
+  --color-menu: var(--menu);
+  --color-menu-hover: var(--menu-hover);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);

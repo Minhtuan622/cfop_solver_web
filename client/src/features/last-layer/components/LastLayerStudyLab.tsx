@@ -39,7 +39,7 @@ import {
 import { StudyCasePanel } from "./StudyCasePanel";
 import { StudySchedulePanel } from "./StudySchedulePanel";
 import { StudyToolbar, type StudyLane } from "./StudyToolbar";
-import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownItem, MENU_ITEM_CLASS } from "@/components/ui/Dropdown";
 import {
   readLaneProgress,
   writeLaneProgress,
@@ -47,7 +47,7 @@ import {
 } from "../lib/studyLaneProgress";
 
 const BACKUP_ITEM_CLASS =
-  "flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition data-[highlighted]:bg-surface";
+  MENU_ITEM_CLASS;
 
 function download(name: string, value: unknown) {
   const url = URL.createObjectURL(

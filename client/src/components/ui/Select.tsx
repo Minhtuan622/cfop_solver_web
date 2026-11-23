@@ -5,7 +5,8 @@ import {
   type ReactNode,
 } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { ChevronDown } from "@/components/ui/Icon";
+import { Check, ChevronDown } from "@/components/ui/Icon";
+import { MENU_ITEM_CLASS } from "@/components/ui/Dropdown";
 import { cn } from "@/lib/utils";
 
 /**
@@ -121,7 +122,7 @@ export function Select({
             minWidth: "var(--radix-select-trigger-width)",
             maxHeight: "var(--radix-select-content-available-height)",
           }}
-          className="z-50 overflow-y-auto rounded-panel bg-surface-3 p-1.5"
+          className="z-50 overflow-y-auto rounded-panel bg-menu p-1.5"
         >
           <SelectPrimitive.Viewport>
             {options.map(option => (
@@ -130,15 +131,17 @@ export function Select({
                 value={toItemValue(option.value)}
                 disabled={option.disabled}
                 className={cn(
-                  "relative flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-ink transition-colors",
-                  "data-[highlighted]:bg-surface",
-                  "data-[state=checked]:font-semibold data-[state=checked]:text-primary",
-                  "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
+                  MENU_ITEM_CLASS,
+                  "relative justify-between data-[state=checked]:font-semibold"
                 )}
               >
                 <SelectPrimitive.ItemText>
                   {option.label}
                 </SelectPrimitive.ItemText>
+                {/* Mục đang chọn: chữ đậm + dấu ✓ màu nhấn (biểu tượng chỉ cần 3:1). */}
+                <SelectPrimitive.ItemIndicator className="shrink-0 text-primary">
+                  <Check aria-hidden="true" />
+                </SelectPrimitive.ItemIndicator>
               </SelectPrimitive.Item>
             ))}
           </SelectPrimitive.Viewport>

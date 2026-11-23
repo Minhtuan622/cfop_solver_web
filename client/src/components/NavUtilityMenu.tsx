@@ -1,7 +1,16 @@
 import { useEffect, useMemo } from "react";
 import { SIGN_IN_EVENT } from "@/lib/signInRequest";
 import { Link } from "wouter";
-import { Dropdown, DropdownItem, DropdownRadioGroup, DropdownRadioItem } from "@/components/ui/Dropdown";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownRadioGroup,
+  DropdownRadioItem,
+  MENU_ITEM_CHECKED_CLASS,
+  MENU_ITEM_CLASS,
+  MENU_LABEL_CLASS,
+  MenuCheck,
+} from "@/components/ui/Dropdown";
 import {
   BoxArrowRight,
   CircleHalf,
@@ -60,12 +69,6 @@ export function NavUtilityMenu() {
     [t],
   );
 
-  const itemClass =
-    "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition";
-  const baseChipClass = "bg-surface-2";
-  const highlight = "data-[highlighted]:bg-surface";
-  const checkedClass =
-    "data-[state=checked]:bg-primary-soft data-[state=checked]:font-semibold data-[state=checked]:text-primary data-[state=checked]:data-[highlighted]:bg-primary-soft";
 
   return (
     <>
@@ -75,7 +78,6 @@ export function NavUtilityMenu() {
         title={t("nav.utilities")}
         menuLabel={t("nav.utilities")}
         buttonClassName="bg-transparent px-2 hover:bg-surface-3"
-        menuClassName="flex flex-col gap-1 rounded-2xl p-2"
         button={
           session.account ? (
             session.account.avatarUrl ? (
@@ -103,13 +105,13 @@ export function NavUtilityMenu() {
           )
         }
       >
-        <p className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+        <p className={MENU_LABEL_CLASS}>
           {t("account.group")}
         </p>
         {session.account ? (
           <>
             <DropdownItem asChild>
-              <Link href="/profile" className={cn(itemClass, baseChipClass, highlight)}>
+              <Link href="/profile" className={MENU_ITEM_CLASS}>
                 <PersonCircle className="text-base" />
                 {t("account.profile")}
               </Link>
@@ -117,7 +119,7 @@ export function NavUtilityMenu() {
             <DropdownItem asChild disabled={session.logoutPending}>
               <button
                 type="button"
-                className={cn(itemClass, baseChipClass, highlight, "disabled:opacity-50")}
+                className={cn(MENU_ITEM_CLASS, "disabled:opacity-50")}
                 onClick={() => session.logout.mutate()}
               >
                 <BoxArrowRight className="text-base" />
@@ -130,7 +132,7 @@ export function NavUtilityMenu() {
             <DropdownItem asChild>
               <button
                 type="button"
-                className={cn(itemClass, baseChipClass, highlight)}
+                className={MENU_ITEM_CLASS}
                 onClick={() => session.show("login")}
               >
                 <PersonCircle className="text-base" />
@@ -140,7 +142,7 @@ export function NavUtilityMenu() {
             <DropdownItem asChild>
               <button
                 type="button"
-                className={cn(itemClass, baseChipClass, highlight)}
+                className={MENU_ITEM_CLASS}
                 onClick={() => session.show("register")}
               >
                 {t("account.register")}
@@ -148,7 +150,7 @@ export function NavUtilityMenu() {
             </DropdownItem>
           </>
         )}
-        <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+        <p className={MENU_LABEL_CLASS}>
           {t("language.label")}
         </p>
         <DropdownRadioGroup
@@ -159,14 +161,15 @@ export function NavUtilityMenu() {
             <DropdownRadioItem
               key={option.value}
               value={option.value}
-              className={cn(itemClass, baseChipClass, highlight, checkedClass)}
+              className={cn(MENU_ITEM_CLASS, MENU_ITEM_CHECKED_CLASS)}
             >
               <Translate className="text-base" />
               {option.label}
+              <MenuCheck />
             </DropdownRadioItem>
           ))}
         </DropdownRadioGroup>
-        <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+        <p className={MENU_LABEL_CLASS}>
           {t("theme.label")}
         </p>
         <DropdownRadioGroup
@@ -179,10 +182,11 @@ export function NavUtilityMenu() {
               <DropdownRadioItem
                 key={option.value}
                 value={option.value}
-                className={cn(itemClass, baseChipClass, highlight, checkedClass)}
+                className={cn(MENU_ITEM_CLASS, MENU_ITEM_CHECKED_CLASS)}
               >
                 <OptionIcon className="text-base" />
                 {themeLabels[option.value]}
+                <MenuCheck />
               </DropdownRadioItem>
             );
           })}

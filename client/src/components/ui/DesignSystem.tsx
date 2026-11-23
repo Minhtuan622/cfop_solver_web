@@ -192,7 +192,7 @@ export function PillGroup<T extends string>({
             "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium text-muted transition hover:text-ink focus-visible:ring-4 focus-visible:ring-primary/20",
             tone === "primary"
               ? "hover:bg-surface-2 aria-pressed:bg-primary aria-pressed:text-on-primary aria-pressed:hover:bg-primary"
-              : "hover:bg-surface-3 aria-pressed:bg-surface aria-pressed:font-semibold aria-pressed:text-ink aria-pressed:hover:bg-surface",
+              : "hover:bg-surface-2 aria-pressed:font-semibold aria-pressed:text-primary aria-pressed:hover:bg-transparent",
             size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm",
             fill && "flex-1"
           )}

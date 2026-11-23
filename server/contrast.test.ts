@@ -361,6 +361,32 @@ const PAIRS: Pair[] = [
     source: "Button.tsx variant link trên nền trang",
   },
 
+  /* Menu thả xuống (Dropdown, Select): nền --menu, mục đang rê --menu-hover. */
+  {
+    id: "menu/item",
+    label: "mục menu — chữ chính trên nền menu",
+    fg: { token: "ink" },
+    bg: { token: "menu" },
+    min: TEXT_MIN,
+    source: "Dropdown.tsx / Select.tsx (bg-menu text-ink)",
+  },
+  {
+    id: "menu/item-hover",
+    label: "mục menu đang rê — chữ chính trên nền menu-hover",
+    fg: { token: "ink" },
+    bg: { token: "menu-hover" },
+    min: TEXT_MIN,
+    source: "data-[highlighted]:bg-menu-hover",
+  },
+  {
+    id: "menu/check-hover",
+    label: "dấu ✓ của mục đang chọn trên nền menu-hover",
+    fg: { token: "primary" },
+    bg: { token: "menu-hover" },
+    min: NON_TEXT_MIN,
+    source: "Select.tsx ItemIndicator (text-primary)",
+  },
+
   /* Nhãn trên nền tô màu. */
   {
     id: "chip/primary",

@@ -105,14 +105,15 @@ export function CrossLengthStrip({
               : t("timer.crossLengthAria", { color, moves: String(moves) }) +
                 (isBest ? ` (${t("timer.crossBest")})` : "");
           return (
-            <li key={face} data-best={isBest || undefined}>
+            <li
+              key={face}
+              data-best={isBest || undefined}
+              className="flex flex-col items-center gap-1"
+            >
               <span
                 className={cn(
                   "flex h-9 w-9 items-center justify-center rounded-lg text-base font-bold tabular-nums",
-                  LIGHT_FACES.has(face) ? "text-[#1b1f27]" : "text-white",
-                  // Màu tốt nhất chỉ được tô viền, không thêm nhãn chữ.
-                  isBest &&
-                    "ring-2 ring-offset-2 ring-offset-surface ring-accent"
+                  LIGHT_FACES.has(face) ? "text-[#1b1f27]" : "text-white"
                 )}
                 style={{ backgroundColor: CUBE_COLORS[face] }}
                 title={label}
@@ -120,6 +121,12 @@ export function CrossLengthStrip({
               >
                 {moves ?? "·"}
               </span>
+              {/* Màu tốt nhất: một vạch màu nhấn dưới ô (không viền, không nhãn chữ).
+                  Ô khác giữ chỗ trống cùng cỡ để hàng không nhảy. */}
+              <span
+                aria-hidden="true"
+                className={cn("h-1 w-5 rounded-full", isBest ? "bg-accent" : "bg-transparent")}
+              />
             </li>
           );
         })}

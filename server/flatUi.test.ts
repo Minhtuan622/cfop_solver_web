@@ -121,6 +121,21 @@ describe("giao diện phẳng", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("không dùng ring làm viền trang trí (ring chỉ cho focus)", () => {
+    const offenders: string[] = [];
+    for (const item of classes) {
+      const decorative = item.text
+        .split(/\s+/)
+        .some(
+          token =>
+            /(^|:)ring(-|$)/.test(token) &&
+            !/(^|:|-)focus(-visible|-within)?:/.test(token)
+        );
+      if (decorative) offenders.push(`${item.file}:${item.line}`);
+    }
+    expect(offenders).toEqual([]);
+  });
+
   it("toast của sonner không vẽ đường viền", () => {
     const css = readFileSync(
       path.join(clientSrc, "index.css"),
