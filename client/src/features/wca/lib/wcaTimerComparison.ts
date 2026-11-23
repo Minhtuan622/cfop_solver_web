@@ -1,6 +1,6 @@
-import { effectiveTime, type SolveHistoryEntry } from "./solveHistory";
-import { bestRollingAverage } from "./timerRecords";
-import { DEFAULT_TIMER_EVENT, normalizeTimerEventId, type TimerEventId } from "./timerEvents";
+import { effectiveTime, type SolveHistoryEntry } from "@/lib/solveHistory";
+import { bestRollingAverage } from "@/lib/timerRecords";
+import { DEFAULT_TIMER_EVENT, normalizeTimerEventId, type TimerEventId } from "@/lib/timerEvents";
 
 export type WcaTimerComparisonRow = {
   key: "single" | "ao5";

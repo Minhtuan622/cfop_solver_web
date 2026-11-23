@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { SolveHistoryEntry } from "./solveHistory";
+import type { SolveHistoryEntry } from "@/lib/solveHistory";
 import { wcaTimerComparison } from "./wcaTimerComparison";
 
 function solve(id: string, elapsedMs: number, penalty: SolveHistoryEntry["penalty"] = "none"): SolveHistoryEntry {

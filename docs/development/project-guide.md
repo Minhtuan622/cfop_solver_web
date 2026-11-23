@@ -37,16 +37,18 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 
 | Feature | Phạm vi |
 |---|---|
-| `features/timer/` | Metric card của Timer. |
+| `features/timer/` | Metric card của Timer, phân tích phiên giải (`lib/timerAnalysis.ts`), smart cube và đồng hồ Bluetooth. |
 | `features/rooms/` | Lobby, danh sách thành viên, panel lượt thi, sidebar và hộp thoại xoá spectator. |
-| `features/profile/` | Điều khiển tài khoản, dropdown, hộp thoại đăng nhập/đăng ký, biểu đồ tiến bộ, cloud sync. |
+| `features/profile/` | Điều khiển tài khoản, dropdown, hộp thoại đăng nhập/đăng ký, biểu đồ tiến bộ, cloud sync, cắt ảnh đại diện (`AvatarCropDialog`, `lib/avatarCrop.ts`). |
 | `features/puzzle-3d/` | Canvas 3D, toán camera, framing theo puzzle, hình học Square-1/Clock. |
-| `features/solver/` | Thanh công cụ, panel nhập khối, panel lời giải, tuỳ chọn F2L, state gần đây và báo cáo CFOP của trang Giải Rubik. |
+| `features/solver/` | Thanh công cụ, panel nhập khối (kèm quét camera `CameraScanner` và tô màu `CubeStateEditor`), panel lời giải, tuỳ chọn F2L, state gần đây, báo cáo CFOP và nhãn/xuất kết quả (`lib/solverPresentation.ts`) của trang Giải Rubik. |
 | `features/settings/` | Nhóm cài đặt, panel theo nhóm và state tự lưu của trang Cài đặt. |
 | `features/competition/` | Bộ lọc bảng xếp hạng, lễ kỳ hoàn thành phòng, bảng xếp hạng toàn hệ thống. |
 | `features/bld/` | Catalog 3-Style, lộ trình học, bảng công thức BLD. |
 | `features/last-layer/` | Thanh công cụ Study, panel luyện case, panel lịch ôn, catalog Last Layer và preview 2D. |
-| `features/wca/` | Bộ lọc lịch giải WCA, danh sách theo tháng và dòng từng giải. |
+| `features/wca/` | Bộ lọc lịch giải WCA, danh sách theo tháng, dòng từng giải và so sánh thời gian Timer với thành tích WCA (`lib/wcaTimerComparison.ts`). |
+| `features/play/` | Bảng phím và logic khối của trang Chơi (`lib/playCube.ts`), lịch sử lượt chơi (`lib/playHistory.ts`). |
+| `features/twoByTwo/` | Lane 2×2 của trang Học thêm, kèm sơ đồ mặt 2×2 `CubeNet2x2`. |
 | `features/case-study/` | Khung dùng chung của các lane Học thêm: hook `useCaseStudyLane` (vòng SRS), bố cục `CaseStudyLaneShell`, thẻ case `CasePracticePanel`, khung 3D tải lười `LazyPuzzlePreview`. Bộ lưu tiến độ dùng chung nằm ở `client/src/lib/caseStudy.ts`. |
 
 **Quy tắc import.** Bên trong một feature dùng đường dẫn tương đối (`./X`, `../lib/X`); chỉ dùng barrel `@/features/<x>` khi import từ **bên ngoài** feature đó. Nhờ vậy không phát sinh cycle barrel↔member. Khi code shell chỉ cần persistence helper (cloud sync, Settings, Profile), import từ `@/features/bld/lib` hoặc `@/features/last-layer/lib` thay vì barrel đầy đủ — barrel component sẽ kéo toàn bộ Study UI vào entry chunk. Riêng đường dẫn 3D có ngoại lệ: import động của Three.js/Cubing phải trỏ **module path cụ thể**, không bao giờ trỏ barrel, để giữ nguyên ranh giới chunk — `e2e/lazy-3d-loading.spec.ts` khóa hành vi này.

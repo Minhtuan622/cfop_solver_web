@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { phaseTpsFromSolution, progressSeries, solutionEfficiency, splitSummary } from "./timerAnalysis";
-import type { SolveHistoryEntry } from "./solveHistory";
+import type { SolveHistoryEntry } from "@/lib/solveHistory";
 
 function entry(overrides: Partial<SolveHistoryEntry> = {}): SolveHistoryEntry {
   return { id: "solve", createdAt: 1, elapsedMs: 10_000, inspectionMs: 0, input: "R U", inputKind: "scramble", moves: 0, penalty: "none", solution: "", note: "", tags: [], phaseSplits: [], eventId: "333", ...overrides };

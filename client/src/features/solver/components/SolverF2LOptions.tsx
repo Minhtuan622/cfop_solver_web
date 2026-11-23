@@ -1,5 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { F2L_SLOTS } from "@/lib/solverPresentation";
+import { F2L_SLOTS } from "../lib/solverPresentation";
 import type { F2LSlot } from "@/lib/solverRuntime";
 import { SolverDetails } from "./SolverDetails";
 import { Button } from "@/components/ui/Button";

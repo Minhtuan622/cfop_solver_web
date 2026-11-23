@@ -16,7 +16,7 @@ import {
   phaseLessonUrl,
   phaseStudyNote,
   phaseCaseLabel,
-} from "@/lib/solverPresentation";
+} from "../lib/solverPresentation";
 import type { SolverResult } from "@/lib/solverRuntime";
 import { Button } from "@/components/ui/Button";
 

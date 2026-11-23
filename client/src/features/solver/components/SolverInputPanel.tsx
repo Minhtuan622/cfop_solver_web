@@ -1,8 +1,8 @@
 import { Camera, Dices, PencilSquare, Play } from "@/components/ui/Icon";
 import { PanelHeader, PillInput, Surface } from "@/components/ui/DesignSystem";
 import { Field, StatusFeedback } from "@/components/ui/StudioUI";
-import { CameraScanner } from "@/components/common/CameraScanner";
-import { CubeStateEditor } from "@/components/common/CubeStateEditor";
+import { CameraScanner } from "./CameraScanner";
+import { CubeStateEditor } from "./CubeStateEditor";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { CrossColor, CubeValidation } from "@/lib/solverRuntime";
 import { cn } from "@/lib/utils";

@@ -84,11 +84,11 @@ import {
   solutionEfficiency,
   splitSummary,
   TIMER_AVERAGE_SIZES,
-} from "@/lib/timerAnalysis";
+} from "@/features/timer/lib/timerAnalysis";
 import {
   wcaTimerComparison,
   type WcaTimerComparisonRow,
-} from "@/lib/wcaTimerComparison";
+} from "@/features/wca/lib/wcaTimerComparison";
 import { trpc } from "@/lib/trpc";
 import {
   readStoredValue,

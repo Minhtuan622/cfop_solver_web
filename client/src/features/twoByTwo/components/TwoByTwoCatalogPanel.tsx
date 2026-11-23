@@ -6,7 +6,7 @@
  */
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCallback, type KeyboardEvent } from "react";
-import { CubeNet2x2 } from "@/components/common/CubeNet2x2";
+import { CubeNet2x2 } from "./CubeNet2x2";
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import { CubeAlgorithmReplay } from "@/components/common/CubeAlgorithmReplay";
 import { invertAlgorithm } from "@/lib/fastCube";

@@ -12,7 +12,7 @@ import {
 import {
   AVATAR_CROP_FRAME,
   renderCroppedAvatar,
-} from "@/lib/avatarCrop";
+} from "../lib/avatarCrop";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 
