@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { filterProfileProgress, meetsAo5Goal, profileProgressByDay } from "./profileProgress";
-import type { SolveHistoryEntry } from "./solveHistory";
+import type { SolveHistoryEntry } from "@/lib/solveHistory";
 
 function solve(id: string, createdAt: number, elapsedMs: number): SolveHistoryEntry { return { id, createdAt, elapsedMs, inspectionMs: 0, input: "R U R'", inputKind: "scramble", moves: 3, penalty: "none", solution: "", note: "", tags: [], phaseSplits: [] }; }
 

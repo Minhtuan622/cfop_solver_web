@@ -12,7 +12,6 @@ import {
   FTO_2_LOOK_L3T_GROUPS,
   type Fto2LookL3tCaseRow,
   type Fto2LookL3tFamily,
-  type Fto2LookL3tGroup,
 } from "./l2tData";
 
 export type { Fto2LookL3tFamily, Fto2LookL3tGroup } from "./l2tData";

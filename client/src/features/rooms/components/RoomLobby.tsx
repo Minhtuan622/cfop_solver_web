@@ -21,7 +21,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { RoomSummary } from "../lib/roomTypes";
 import { Input } from "@/components/ui/FormControls";
 import { Select } from "@/components/ui/Select";
-import { Textarea } from "@/components/ui/FormControls";
 import { buttonClass } from "@/components/ui/Button";
 
 type Props = {

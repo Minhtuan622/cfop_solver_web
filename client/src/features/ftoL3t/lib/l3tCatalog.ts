@@ -12,7 +12,6 @@ import {
   FTO_L3T_GROUPS,
   type FtoL3tCaseRow,
   type FtoL3tFamily,
-  type FtoL3tGroup,
 } from "./l3tData";
 
 export type { FtoL3tFamily, FtoL3tGroup } from "./l3tData";

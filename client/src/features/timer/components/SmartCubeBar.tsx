@@ -6,7 +6,6 @@
 import { Bluetooth, Info } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
 import type { BluetoothTimerErrorKey } from "../lib/bluetoothTimer";
 import type { SmartCubeStatus } from "../useSmartCube";
 

@@ -47,6 +47,7 @@ Frontend được tổ chức theo hai lớp. `client/src/pages` giữ routing, 
 | `features/bld/` | Catalog 3-Style, lộ trình học, bảng công thức BLD. |
 | `features/last-layer/` | Thanh công cụ Study, panel luyện case, panel lịch ôn, catalog Last Layer và preview 2D. |
 | `features/wca/` | Bộ lọc lịch giải WCA, danh sách theo tháng và dòng từng giải. |
+| `features/case-study/` | Khung dùng chung của các lane Học thêm: hook `useCaseStudyLane` (vòng SRS), bố cục `CaseStudyLaneShell`, thẻ case `CasePracticePanel`, khung 3D tải lười `LazyPuzzlePreview`. Bộ lưu tiến độ dùng chung nằm ở `client/src/lib/caseStudy.ts`. |
 
 **Quy tắc import.** Bên trong một feature dùng đường dẫn tương đối (`./X`, `../lib/X`); chỉ dùng barrel `@/features/<x>` khi import từ **bên ngoài** feature đó. Nhờ vậy không phát sinh cycle barrel↔member. Khi code shell chỉ cần persistence helper (cloud sync, Settings, Profile), import từ `@/features/bld/lib` hoặc `@/features/last-layer/lib` thay vì barrel đầy đủ — barrel component sẽ kéo toàn bộ Study UI vào entry chunk. Riêng đường dẫn 3D có ngoại lệ: import động của Three.js/Cubing phải trỏ **module path cụ thể**, không bao giờ trỏ barrel, để giữ nguyên ranh giới chunk — `e2e/lazy-3d-loading.spec.ts` khóa hành vi này.
 

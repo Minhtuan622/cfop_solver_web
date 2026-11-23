@@ -79,18 +79,6 @@ export function listCfopCases(
   return rows;
 }
 
-export function cfopCaseCount(family: CfopFamily): number {
-  return family === "f2l"
-    ? F2L_4WAY_CASES.length
-    : family === "oll"
-      ? OLL_CASES.length
-      : family === "pll"
-        ? PLL_CASES.length
-        : family === "coll"
-          ? COLL_CASES.length
-          : OLLCP_CASES.length;
-}
-
 export const CFOP_COUNTS = {
   f2l: F2L_4WAY_CASES.length,
   oll: OLL_CASES.length,

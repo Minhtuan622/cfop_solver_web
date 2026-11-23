@@ -22,15 +22,6 @@ export type { SkewbFamily } from "./skewbData";
 
 export type SkewbCatalogCase = SkewbCaseRow & { state: string };
 
-export type ListSkewbCasesFilter = {
-  /** "all" (default), "sarah-intermediate" or "sarah-advanced". */
-  family?: "all" | SkewbFamily;
-  /** Substring match (case-insensitive) against id, name, group and algorithm. */
-  query?: string;
-  /** Maximum rows; clamped to [1, 1000]. */
-  limit?: number;
-};
-
 const withState = (row: SkewbCaseRow): SkewbCatalogCase => ({
   ...row,
   state: `skewb:${row.id}`,
@@ -41,7 +32,6 @@ const SARAH_INTERMEDIATE_CATALOG: readonly SkewbCatalogCase[] =
 const SARAH_ADVANCED_CATALOG: readonly SkewbCatalogCase[] =
   SARAH_ADVANCED_CASES_SOURCE.map(withState);
 
-export const SKEWB_SETS = ["sarah-intermediate", "sarah-advanced"] as const;
 export const SKEWB_CATALOGS: Record<
   SkewbFamily,
   readonly SkewbCatalogCase[]
@@ -59,26 +49,6 @@ export function skewbCatalogOf(
   family: SkewbFamily,
 ): readonly SkewbCatalogCase[] {
   return SKEWB_CATALOGS[family];
-}
-
-export function listSkewbCases(
-  filters: ListSkewbCasesFilter = {},
-): SkewbCatalogCase[] {
-  const family = filters.family ?? "all";
-  const needle = (filters.query ?? "").toUpperCase().trim();
-  const limit = Math.max(1, Math.min(filters.limit ?? 120, 1000));
-  const rows: SkewbCatalogCase[] = [];
-  const source = family === "all" ? SKEWB_CATALOG : SKEWB_CATALOGS[family];
-  for (const row of source) {
-    if (needle) {
-      const searchable =
-        `${row.id} ${row.name} ${row.group} ${row.algorithm}`.toUpperCase();
-      if (!searchable.includes(needle)) continue;
-    }
-    rows.push(row);
-    if (rows.length >= limit) break;
-  }
-  return rows;
 }
 
 export { SKEWB_COUNTS, SKEWB_GROUPS_BY_SET };

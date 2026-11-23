@@ -23,7 +23,6 @@ export type CfopCaseRow = {
   algorithm: string;
 };
 
-export const F2L_CASES: readonly CfopCaseRow[] = F2L_4ANGLES_ROWS;
 export const F2L_4WAY_CASES: readonly CfopCaseRow[] = F2L_4ANGLES_ROWS;
 export { COLL_CASES, OLLCP_CASES };
 

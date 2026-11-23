@@ -58,29 +58,6 @@ export function IconBox({
   );
 }
 
-/** A pill-shaped label above a page title. */
-export function EyebrowPill({
-  children,
-  icon,
-  className,
-}: {
-  children: ReactNode;
-  icon?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-2 rounded-full bg-surface-2 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-muted",
-        className
-      )}
-    >
-      {icon}
-      {children}
-    </span>
-  );
-}
-
 /** The title row of a panel: IconBox + heading, with optional actions on the right. */
 export function PanelHeader({
   icon,
@@ -134,12 +111,6 @@ export function PillBar({
     >
       {children}
     </div>
-  );
-}
-
-export function PillDivider() {
-  return (
-    <span className="mx-1 h-6 w-px self-center bg-line" aria-hidden="true" />
   );
 }
 

@@ -10,8 +10,6 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
-import { Select } from "@/components/ui/Select";
-import { Textarea } from "@/components/ui/FormControls";
 import { IconButton } from "@/components/ui/StudioUI";
 
 export type AuthMode = "login" | "register";

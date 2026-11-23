@@ -83,8 +83,8 @@ Mọi cặp đều **đạt** (ngưỡng: 4.5:1 cho chữ, 3:1 cho vòng focus /
 | 21 | `surface` trên `ink` (nút inverse) | Button `inverse` | 18.17 | 14.78 | 4.5 |
 | 22 | `primary` trên `surface` (nút link) | Button `link` | 6.18 | 5.51 | 4.5 |
 | 23 | `primary` trên `canvas` (nút link) | Button `link` trên nền trang | 5.68 | 6.08 | 4.5 |
-| 24 | `primary` trên `primary-soft` | IconBox / EyebrowPill | 5.35 | 4.67 | 4.5 |
-| 25 | `accent` trên `accent-soft` | IconBox / EyebrowPill | 4.66 | 7.80 | 4.5 |
+| 24 | `primary` trên `primary-soft` | IconBox | 5.35 | 4.67 | 4.5 |
+| 25 | `accent` trên `accent-soft` | IconBox | 4.66 | 7.80 | 4.5 |
 | 26 | `ink` trên `surface-3` (chữ trong ô nhập) | FormControls | 15.99 | 11.97 | 4.5 |
 | 27 | `placeholder` trên `surface-3` (chữ gợi ý) | FormControls | 5.37 | 5.69 | 4.5 |
 | 28 | `ink` trên `surface-2` (PillInput) | DesignSystem | 17.14 | 13.63 | 4.5 |

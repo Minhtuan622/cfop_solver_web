@@ -20,15 +20,6 @@ export type { SquareOneFamily } from "./squareOneData";
 
 export type SquareOneCatalogCase = SquareOneCaseRow & { state: string };
 
-export type ListSquareOneCasesFilter = {
-  /** "all" (default), or one of the six Square-1 sets. */
-  family?: "all" | SquareOneFamily;
-  /** Substring match (case-insensitive) against id, name, group and algorithm. */
-  query?: string;
-  /** Maximum rows; clamped to [1, 1000]. */
-  limit?: number;
-};
-
 const withState = (row: SquareOneCaseRow): SquareOneCatalogCase => ({
   ...row,
   state: `sq1:${row.id}`,
@@ -56,26 +47,6 @@ export function squareOneCatalogOf(
   family: SquareOneFamily,
 ): readonly SquareOneCatalogCase[] {
   return CATALOG_BY_FAMILY[family];
-}
-
-export function listSquareOneCases(
-  filters: ListSquareOneCasesFilter = {},
-): SquareOneCatalogCase[] {
-  const family = filters.family ?? "all";
-  const needle = (filters.query ?? "").toUpperCase().trim();
-  const limit = Math.max(1, Math.min(filters.limit ?? 120, 1000));
-  const rows: SquareOneCatalogCase[] = [];
-  const source = family === "all" ? SQ1_CATALOG : CATALOG_BY_FAMILY[family];
-  for (const row of source) {
-    if (needle) {
-      const searchable =
-        `${row.id} ${row.name} ${row.group} ${row.algorithm}`.toUpperCase();
-      if (!searchable.includes(needle)) continue;
-    }
-    rows.push(row);
-    if (rows.length >= limit) break;
-  }
-  return rows;
 }
 
 export { SQ1_FAMILIES, SQ1_COUNTS, SQUARE_ONE_GROUPS_BY_SET };
