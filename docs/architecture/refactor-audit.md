@@ -339,3 +339,18 @@ Hành vi, route, key lưu và locator không đổi; JSX chép nguyên văn.
 | `features/last-layer/components/CatalogExplorer.tsx` | 705 | 438 | `CatalogFocusPanel`, `CatalogBulkBar`, `CatalogCaseCard`, `CatalogGroupGrid`, `CatalogPreviewDialog`; kiểu dữ liệu ra `lib/catalogExplorerTypes.ts` (vẫn re-export từ `CatalogExplorer`). State và bộ lọc giữ trong `CatalogExplorer`. |
 
 **Cố ý chưa tách.** `components/ui/StudioUI.tsx` (587 dòng) là thư viện primitive gồm nhiều component nhỏ độc lập, không phải một file phình ra. `Puzzle3DCanvas.tsx` và `CubeGuide3D.tsx` là renderer Three.js. `server/routers/competition.ts` và `server/services/wcaApi.ts` đụng contract tRPC / rate limit nên cần một đợt riêng có test server theo từng procedure. Hai file dữ liệu (`directCaseCatalogData.ts`, `squareOneData.ts`) là bảng dữ liệu thuần.
+
+## Đợt 16: các file còn lại
+
+Hành vi, contract tRPC, rate limit, key lưu và ranh giới chunk 3D không đổi; thân hàm chép nguyên văn.
+
+| File | Trước → Sau | Tách ra |
+|---|---|---|
+| `server/routers/competition.ts` | 595 → 32 | 18 procedure chia 4 nhóm: `competitionStats` (bảng xếp hạng, lịch sử), `competitionRooms`, `competitionModeration`, `competitionRounds`; `competitionState.ts` giữ cache và limiter dùng chung. `competition.ts` ghép lại bằng `router({ ...nhóm })` và re-export các tên mà test import. Gỡ luôn vòng import `competitionShared ↔ competition`. |
+| `server/services/wcaApi.ts` | 511 → 8 | `wca/types.ts`, `wca/http.ts` (cache, hai limiter, `fetchWcaJson`, `WcaApiError`), `wca/queries.ts`; `wcaApi.ts` re-export (test vẫn bọc module này bằng `vi.mock`). |
+| `components/ui/StudioUI.tsx` | 587 → 8 | `StudioLayout`, `StudioFeedback`, `StudioStats`, `StudioForm`, `StudioButtons`, `StudioSkeleton`; `StudioUI.tsx` còn là barrel nên không import nào phải đổi. |
+| `features/puzzle-3d/components/Puzzle3DCanvas.tsx` | 710 → 412 | `lib/usePuzzleOrbitControls.ts` (kéo, chụm, quán tính, đặt lại góc nhìn), `lib/puzzleFitPoints.ts` (lấy điểm đỉnh để căn khung, chỉ import kiểu của Three.js), `lib/previewPlayer.ts` (kiểu player, lỗi tải module, nạp lại trang một lần; tên file cố ý không chứa "twisty" vì `e2e/timer-3d-retry.spec.ts` chặn mọi URL khớp `*twisty*`), `components/Puzzle3DErrorCard.tsx`. Vòng dựng cảnh và thử lại tự động giữ trong canvas. |
+| `features/puzzle-3d/components/CubeGuide3D.tsx` | 614 → 448 | `lib/cubeGuideScene.ts` (hình học dùng chung, `buildCubies`, căn Cross, `disposeObject`; import Three.js nên chỉ vào chunk tải lười của khối), `components/CubeGuide3DFallback.tsx` (hiển thị 2D khi không có WebGL). |
+| `features/squareOne/lib/squareOneData.ts` | 671 → 66 | 6 bộ trong `squareOneSets/` (cp, cs, csp, eo, ep, obl); 588 case giữ nguyên. |
+
+**Cố ý không tách.** `features/last-layer/lib/directCaseCatalogData.ts` (1696 dòng) là file **sinh tự động** từ `packages/solver/cfop/src/one_look_data.rs` bằng `scripts/export-last-layer-catalog.mjs` ("do not hand-edit"); chia nó cần đổi cả bộ sinh và dễ lệch nguồn Rust nên để nguyên. `lib/i18n/study.ts` (414 dòng) và `features/cfop/lib/cfopOLLCPData.ts` (358 dòng) là bảng dữ liệu thuần dưới 500 dòng.
