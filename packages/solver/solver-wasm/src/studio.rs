@@ -12,13 +12,12 @@ use cfop::{
 };
 use cube_core::{format_moves, parse_moves, simplify_moves, Cube, Move};
 use serde::{Deserialize, Serialize};
-use tsify_next::Tsify;
+use tsify::Tsify;
 
 /// Options of one solve request. Every field is optional; defaults match the
 /// Studio worker (cross color U, opening cross, last layer auto).
 #[derive(Clone, Debug, Default, Serialize, Deserialize, Tsify)]
 #[serde(rename_all = "camelCase", default)]
-#[tsify(from_wasm_abi)]
 pub struct SolveOptions {
     /// "U" | "R" | "F" | "D" | "L" | "B".
     pub cross_color: Option<String>,
@@ -26,10 +25,10 @@ pub struct SolveOptions {
     pub opening: Option<String>,
     /// "oll_pll" | "zbll" | "1lll" | "auto".
     pub last_layer: Option<String>,
-    /// Direct opening search depth (clamped to 4..=10, default 8).
+    /// Direct opening search depth (clamped to 4..=12, default 8).
     pub opening_depth: Option<u32>,
     pub opening_find_result: Option<bool>,
-    /// Node budget per direct opening attempt (clamped to 500..=50000).
+    /// Node budget per direct opening attempt (clamped to 500..=2000000).
     pub direct_node_budget: Option<u32>,
     /// "FR" | "FL" | "BL" | "BR".
     pub preferred_slot: Option<String>,
@@ -101,7 +100,6 @@ pub struct LastLayerTelemetry {
 
 /// The solve result document.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Tsify)]
-#[tsify(into_wasm_abi)]
 pub struct SolverResult {
     pub initial_state: String,
     pub final_state: String,
@@ -114,7 +112,6 @@ pub struct SolverResult {
 
 /// Structured error: a stable machine code plus a human-readable message.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Tsify)]
-#[tsify(into_wasm_abi)]
 pub struct SolverError {
     /// "invalid_input" | "invalid_option" | "search_limit" | "cancelled" | "internal".
     pub code: String,
@@ -248,9 +245,9 @@ pub fn cfop_options(
             ..shared(14)
         },
         opening,
-        opening_depth: o.opening_depth.unwrap_or(8).clamp(4, 10) as u8,
-        opening_node_budget: u64::from(o.direct_node_budget.unwrap_or(5_000).clamp(500, 50_000)),
-        opening_limits: shared(10),
+        opening_depth: o.opening_depth.unwrap_or(8).clamp(4, 12) as u8,
+        opening_node_budget: u64::from(o.direct_node_budget.unwrap_or(5_000).clamp(500, 2_000_000)),
+        opening_limits: shared(12),
         preferred_slot,
         excluded_slots,
         opening_find_result: o.opening_find_result.unwrap_or(false),

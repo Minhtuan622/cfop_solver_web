@@ -46,9 +46,9 @@ const solverSettingsSchema = z.object({
     .enum(["cross", "auto", "xcross", "xxcross", "xxxcross", "xxxxcross"])
     .prefault(DEFAULT_SOLVER_SETTINGS.opening)
     .catch(DEFAULT_SOLVER_SETTINGS.opening),
-  openingDepth: boundedInt(4, 10, DEFAULT_SOLVER_SETTINGS.openingDepth),
+  openingDepth: boundedInt(4, 12, DEFAULT_SOLVER_SETTINGS.openingDepth),
   openingFindResult: z.unknown().transform(value => Boolean(value)).prefault(false),
-  directNodeBudget: boundedInt(500, 50_000, DEFAULT_SOLVER_SETTINGS.directNodeBudget),
+  directNodeBudget: boundedInt(500, 2_000_000, DEFAULT_SOLVER_SETTINGS.directNodeBudget),
   lastLayer: z
     .enum(["auto", "oll_pll", "zbll", "1lll"])
     .prefault(DEFAULT_SOLVER_SETTINGS.lastLayer)

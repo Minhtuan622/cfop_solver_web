@@ -9,6 +9,7 @@ Tài liệu được tập trung trong thư mục này. Các file ở root chỉ
 - [Ghi chú license bên thứ ba](development/third-party-licenses.md)
 - [Bộ giải Rust/WebAssembly: kiểm chứng và benchmark](validation/rust-wasm-solver.md)
 - [Hướng dẫn đóng góp](../CONTRIBUTING.md)
+- [Hướng dẫn ngắn cho agent (AGENTS.md)](../AGENTS.md)
 
 ## Theo nhóm
 

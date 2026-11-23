@@ -49,3 +49,23 @@ updates:
     commit-message:
       prefix: "security"
 
+
+  # Bộ giải Rust (Cargo workspace riêng, không thuộc pnpm workspace).
+  - package-ecosystem: cargo
+    directory: "/packages/solver"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - rust
+
+  # Phiên bản các action trong .github/workflows.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - ci

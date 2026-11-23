@@ -15,3 +15,6 @@ serde = { version = "1", optional = true }
 [features]
 # Serialize Move as its notation and Cube as its 54-sticker string.
 serde = ["dep:serde"]
+
+[dev-dependencies]
+proptest = "1"

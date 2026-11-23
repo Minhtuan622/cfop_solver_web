@@ -52,13 +52,13 @@ export const settingsWords: Dictionary = {
   "settings.opening.xxxxcross": ["XXXXCross · Full F2L", "XXXXCross · Full F2L"],
   "settings.openingDepth": ["Độ sâu Direct Opening", "Direct Opening depth"],
   "settings.openingDepthHint": [
-    "Tăng depth khi muốn thử chuỗi opening dài hơn.",
-    "Increase depth to try longer opening sequences.",
+    "Tăng depth khi muốn thử chuỗi opening dài hơn. XXXCross thường cần 11–12 nước.",
+    "Increase depth to try longer opening sequences. XXXCross usually needs 11–12 moves.",
   ],
   "settings.nodeBudget": ["Node budget direct", "Node budget direct"],
   "settings.nodeBudgetHint": [
-    "Budget cao tìm kỹ hơn nhưng mất thời gian hơn; giữ hữu hạn để trình duyệt không bị treo.",
-    "Higher budget searches harder but takes longer; it remains finite to protect the browser.",
+    "Budget cao tìm kỹ hơn nhưng mất thời gian hơn; giữ hữu hạn để trình duyệt không bị treo. Ở độ sâu 12, XXXCross cần khoảng 1–2 triệu node.",
+    "Higher budget searches harder but takes longer; it remains finite to protect the browser. At depth 12, XXXCross needs about 1–2 million nodes.",
   ],
   "settings.directOnly": ["Ưu tiên direct đúng tier", "Prefer direct result at selected tier"],
   "settings.directOnlyHelp": [

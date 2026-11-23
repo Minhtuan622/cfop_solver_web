@@ -54,7 +54,7 @@ rustup target add wasm32-unknown-unknown
 cargo install wasm-pack --locked
 ```
 
-`wasm-opt` (the Binaryen package, e.g. `brew install binaryen` or `apt install binaryen`) is optional: with it the `.wasm` file is about 35% smaller.
+`wasm-opt` (Binaryen) is optional: with it the `.wasm` file is about 35% smaller. CI and Docker use release **version_133** from [GitHub](https://github.com/WebAssembly/binaryen/releases/tag/version_133); locally, use that release or newer (`brew install binaryen` on macOS is usually recent enough). Do not use the Debian bookworm `binaryen` package (version 108): it breaks the module and the solver fails to start.
 
 ```bash
 git clone https://github.com/Minhtuan622/cfop_solver_web.git

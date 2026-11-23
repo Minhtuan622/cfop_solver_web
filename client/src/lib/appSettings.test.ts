@@ -23,8 +23,8 @@ describe("solver settings opening find-result mode", () => {
   it("persists and bounds the direct node threshold", () => {
     writeSolverSettings({ ...DEFAULT_SOLVER_SETTINGS, directNodeBudget: 12500 });
     expect(readSolverSettings().directNodeBudget).toBe(12500);
-    localStorage.setItem("cfop-app-solver-settings-v1", JSON.stringify({ directNodeBudget: 999999 }));
-    expect(readSolverSettings().directNodeBudget).toBe(50000);
+    localStorage.setItem("cfop-app-solver-settings-v1", JSON.stringify({ directNodeBudget: 9999999 }));
+    expect(readSolverSettings().directNodeBudget).toBe(2000000);
     localStorage.setItem("cfop-app-solver-settings-v1", JSON.stringify({ directNodeBudget: 1 }));
     expect(readSolverSettings().directNodeBudget).toBe(500);
   });

@@ -1,13 +1,13 @@
 # Tính năng của CFOP Solver Studio
 
-Danh sách tính năng thực sự có trong mã nguồn. Danh sách đầy đủ kèm chi tiết
-nằm ở [FEATURES.md](../../FEATURES.md) ở thư mục gốc; trang này nằm trong
-`docs/planning/` nên chỉ ghi tóm tắt và các ghi chú còn giá trị.
+Danh sách tính năng thực sự có trong mã nguồn.
 
 ## Solver
 
 - Giải khối CFOP 3×3 (và 4×4, 5×5, 6×6, 7×7) theo chuỗi xáo trộn hoặc trạng
   thái 54 sticker.
+- Chọn màu cross và kiểu mở đầu: Cross, XCross, XXCross, XXXCross, XXXXCross
+  hoặc Tự động.
 - Báo cáo theo từng phase (Cross, F2L, OLL, PLL), kèm cube 2D/3D và thước đo thời
   gian.
 - Chạy hoàn toàn trong trình duyệt bằng bộ giải Rust biên dịch ra WebAssembly;
@@ -39,6 +39,7 @@ tiếp tục chịu trách nhiệm xác nhận tính hợp lệ cubie/parity.
 - Last Layer: nhận diện và luyện OLL/PLL với bộ dữ liệu 57 OLL và 21 PLL đã xác
   minh, hiển thị case ID và nhóm pattern, chạy timer theo case.
 - 3-Style BLD: ghi nhớ, drill và lịch sử ôn tập.
+- Theo dõi tiến độ ôn tập và streak hàng ngày.
 
 ## Tài khoản
 
@@ -66,3 +67,15 @@ tiếp tục chịu trách nhiệm xác nhận tính hợp lệ cubie/parity.
 
 - Giao diện sáng/tối, ngôn ngữ Việt/Anh, khóa bí mật (passkey) và các tuỳ
   chọn thiết bị.
+
+## Đã được gộp hoặc gỡ bỏ
+
+- Trang luyện tập OLL/PLL cũ đã được gộp vào phần Study, không còn là một trang riêng.
+- Trình xuất PDF bằng chứng solve không tồn tại.
+
+## Chạy mà không cần Database
+
+Ứng dụng chạy được phần lớn tính năng phía client (Solver, Timer, Study, xem
+scramble) mà không cần Database. Database chỉ cần cho tài khoản CFOP, đồng bộ
+cloud, phòng thi đấu và WCA OAuth. Xem thêm ở
+[hướng dẫn phát triển](../development/project-guide.md).

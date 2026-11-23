@@ -70,7 +70,7 @@ rustup target add wasm32-unknown-unknown
 cargo install wasm-pack --locked
 ```
 
-`wasm-opt` (gói Binaryen, ví dụ `brew install binaryen` hoặc `apt install binaryen`) là tùy chọn: có thì file `.wasm` nhỏ hơn khoảng 35%.
+`wasm-opt` (Binaryen) là tùy chọn: có thì file `.wasm` nhỏ hơn khoảng 35%. CI và Docker dùng bản phát hành **version_133** tải từ [GitHub](https://github.com/WebAssembly/binaryen/releases/tag/version_133); trên máy local nên dùng bản đó hoặc mới hơn (`brew install binaryen` trên macOS thường đủ mới). Đừng dùng gói `binaryen` của Debian bookworm (bản 108): nó làm hỏng module, bộ giải không khởi tạo được.
 
 ```bash
 git clone https://github.com/Minhtuan622/cfop_solver_web.git

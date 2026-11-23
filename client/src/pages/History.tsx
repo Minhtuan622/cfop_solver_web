@@ -73,7 +73,7 @@ import { buttonClass } from "@/components/ui/Button";
 const CHART_SOLVES = 30;
 const PAGE_SIZE = 50;
 const MENU_ITEM_CLASS =
-  "flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink outline-none transition data-[highlighted]:bg-surface";
+  "flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-ink transition data-[highlighted]:bg-surface";
 
 function average(values: number[]) {
   return values.length
