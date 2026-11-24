@@ -5,6 +5,7 @@
 export const GOOGLE_CLIENT_ID_ENV = "VITE_GOOGLE_CLIENT_ID";
 
 export type GoogleIdentity = {
+  subject: string;
   email: string;
   name: string;
   picture?: string;
@@ -31,7 +32,10 @@ export async function verifyGoogleIdToken(idToken: string): Promise<GoogleIdenti
     if (info.aud !== clientId || info.email_verified !== "true") return null;
     const email = typeof info.email === "string" ? info.email.trim().toLowerCase() : "";
     if (!email || !email.includes("@")) return null;
+    const subject = typeof info.sub === "string" ? info.sub : "";
+    if (!subject) return null;
     return {
+      subject,
       email,
       name: typeof info.name === "string" && info.name.trim() ? info.name.trim() : email.split("@")[0],
       picture: typeof info.picture === "string" ? info.picture : undefined,

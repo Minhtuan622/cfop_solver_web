@@ -1,5 +1,5 @@
 import { and, eq, gt, lt, ne } from "drizzle-orm";
-import { CfopAccount, cfopAccountCloudStates, cfopAccountSessions, cfopAccounts, cfopPasswordResetTokens, cfopWcaOauthStates } from "../../drizzle/schema";
+import { CfopAccount, cfopAccountCloudStates, cfopAccountIdentities, cfopAccountSessions, cfopAccounts, cfopPasswordResetTokens, cfopWcaOauthStates } from "../../drizzle/schema";
 import { requireDb, getDb } from "./core";
 import { cfopAccountPublicSelect, cfopAccountWcaSelect } from "./accountSelectors";
 
@@ -29,6 +29,37 @@ export async function createCfopAccount(values: { email: string; displayName: st
   const account = await findCfopAccountByEmail(values.email);
   if (!account) throw new Error("Account creation did not return a row");
   return account;
+}
+
+export type OAuthProvider = "google" | "facebook";
+
+export async function findCfopIdentity(provider: OAuthProvider, subject: string) {
+  const db = await requireDb();
+  return (await db.select().from(cfopAccountIdentities)
+    .where(and(eq(cfopAccountIdentities.provider, provider), eq(cfopAccountIdentities.providerSubject, subject)))
+    .limit(1))[0] ?? null;
+}
+
+export async function listCfopIdentities(accountId: number) {
+  const db = await requireDb();
+  return db.select({
+    provider: cfopAccountIdentities.provider,
+    email: cfopAccountIdentities.email,
+    createdAt: cfopAccountIdentities.createdAt,
+  }).from(cfopAccountIdentities).where(eq(cfopAccountIdentities.accountId, accountId));
+}
+
+export async function linkCfopIdentity(accountId: number, provider: OAuthProvider, subject: string, email: string) {
+  const db = await requireDb();
+  await db.insert(cfopAccountIdentities).values({ accountId, provider, providerSubject: subject, email });
+}
+
+export async function unlinkCfopIdentity(accountId: number, provider: OAuthProvider) {
+  const db = await requireDb();
+  await db.delete(cfopAccountIdentities).where(and(
+    eq(cfopAccountIdentities.accountId, accountId),
+    eq(cfopAccountIdentities.provider, provider),
+  ));
 }
 
 export async function markCfopAccountSignedIn(accountId: number) {

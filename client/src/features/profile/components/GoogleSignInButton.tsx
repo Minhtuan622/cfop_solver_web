@@ -40,10 +40,12 @@ export function GoogleSignInButton({
   enabled,
   pending,
   onCredential,
+  label,
 }: {
   enabled: boolean;
   pending: boolean;
   onCredential: (credential: string) => void;
+  label?: string;
 }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
@@ -79,7 +81,7 @@ export function GoogleSignInButton({
         className="w-full"
         onClick={() => void start()}
       >
-        {t("account.googleSignIn")}
+        {label ?? t("account.googleSignIn")}
       </Button>
       {!ready ? (
         <p className="mt-2 mb-0 text-xs text-muted">{t("account.googleUnconfigured")}</p>

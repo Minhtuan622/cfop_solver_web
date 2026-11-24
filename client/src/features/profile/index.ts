@@ -1,4 +1,5 @@
 export * from './components/CfopAuthDialog';
+export * from './components/AccountIdentitiesCard';
 export * from './components/ProfileProgressChart';
 export * from './components/CfopCloudSync';
 export * from './lib/accountNavItems';

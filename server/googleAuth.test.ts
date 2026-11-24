@@ -47,10 +47,12 @@ describe("verifyGoogleIdToken", () => {
       aud: "client-123",
       email_verified: "true",
       email: "USER@GMAIL.COM",
+      sub: "google-123",
       name: "Minh Tuan",
       picture: "https://example.com/avatar.png",
     })));
     expect(await verifyGoogleIdToken("abc.def-ghi")).toEqual({
+      subject: "google-123",
       email: "user@gmail.com",
       name: "Minh Tuan",
       picture: "https://example.com/avatar.png",

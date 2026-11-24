@@ -46,10 +46,12 @@ export function FacebookSignInButton({
   enabled,
   pending,
   onAccessToken,
+  label,
 }: {
   enabled: boolean;
   pending: boolean;
   onAccessToken: (accessToken: string) => void;
+  label?: string;
 }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
@@ -82,7 +84,7 @@ export function FacebookSignInButton({
         className="w-full"
         onClick={() => void start()}
       >
-        {t("account.facebookSignIn")}
+        {label ?? t("account.facebookSignIn")}
       </Button>
       {!ready ? (
         <p className="mt-2 mb-0 text-xs text-muted">{t("account.facebookUnconfigured")}</p>

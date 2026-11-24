@@ -54,6 +54,7 @@ describe("verifyFacebookAccessToken", () => {
           })
     ));
     expect(await verifyFacebookAccessToken("token")).toEqual({
+      subject: "1",
       email: "user@facebook.com",
       name: "Minh Tuan",
       picture: "https://example.com/avatar.png",

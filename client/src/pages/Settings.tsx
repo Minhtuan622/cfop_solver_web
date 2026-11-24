@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Check, RotateCcw } from "@/components/ui/Icon";
 import { PageHeader } from "@/components/ui/StudioUI";
+import { AccountIdentitiesCard } from "@/features/profile";
+import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import {
@@ -21,6 +23,10 @@ export default function Settings() {
     DEFAULT_SETTINGS_GROUP
   );
   const state = useSettingsState();
+  const { data: signedInAccount } = trpc.cfopAccount.me.useQuery(undefined, {
+    staleTime: 60_000,
+    retry: false,
+  });
 
   const saveLabel =
     state.saveState === "saving"
@@ -109,6 +115,7 @@ export default function Settings() {
           ))}
         </div>
       </div>
+      {signedInAccount ? <AccountIdentitiesCard /> : null}
     </div>
   );
 }

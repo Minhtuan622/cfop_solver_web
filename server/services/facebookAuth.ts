@@ -7,6 +7,7 @@ export const FACEBOOK_APP_ID_ENV = "VITE_FACEBOOK_APP_ID";
 export const FACEBOOK_APP_SECRET_ENV = "FACEBOOK_APP_SECRET";
 
 export type FacebookIdentity = {
+  subject: string;
   email: string;
   name: string;
   picture?: string;
@@ -43,6 +44,7 @@ export async function verifyFacebookAccessToken(accessToken: string): Promise<Fa
     if (!email || !email.includes("@")) return null;
     const picture = me.picture?.data?.url;
     return {
+      subject: debug.data.user_id,
       email,
       name: typeof me.name === "string" && me.name.trim() ? me.name.trim() : email.split("@")[0],
       picture: typeof picture === "string" ? picture : undefined,

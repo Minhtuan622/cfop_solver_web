@@ -5,7 +5,9 @@ import { configuredGoogleClientId, verifyGoogleIdToken } from "../services/googl
 import { configuredFacebookApp, verifyFacebookAccessToken } from "../services/facebookAuth";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, currentSessionTokenHash, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "../services/cfopAccountAuth";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../services/cfopPasswordResetMail";
-import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
+import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile, findCfopIdentity, linkCfopIdentity, unlinkCfopIdentity, listCfopIdentities, type OAuthProvider } from "../db";
+import type { GoogleIdentity } from "../services/googleAuth";
+import type { FacebookIdentity } from "../services/facebookAuth";
 import { cfopAccountProcedure, publicProcedure, rateLimitMiddleware, router } from "../_core/trpc";
 import { storagePut, isStorageEnabled } from "../services/storage";
 import { accountWcaRouter } from "./wca";
@@ -39,6 +41,21 @@ function validateAvatarBytes(data: string, contentType: "image/jpeg" | "image/pn
   return bytes;
 }
 
+async function resolveOAuthAccount(provider: OAuthProvider, identity: GoogleIdentity | FacebookIdentity) {
+  const linked = await findCfopIdentity(provider, identity.subject);
+  if (linked) return linked.accountId;
+  let account = await findCfopAccountByEmail(identity.email);
+  if (!account) {
+    account = await createCfopAccount({
+      email: identity.email,
+      displayName: identity.name.slice(0, 80),
+      passwordHash: await hashPassword(randomBytes(32).toString("base64url")),
+    });
+  }
+  await linkCfopIdentity(account.id, provider, identity.subject, identity.email);
+  return account.id;
+}
+
 export const accountRouter = router({
   me: publicProcedure.query(async ({ ctx }) => ctx.cfopAccount ? findCfopAccountPublicById(ctx.cfopAccount.id) : null),
   storageStatus: publicProcedure.query(() => ({ enabled: isStorageEnabled() })),
@@ -49,18 +66,10 @@ export const accountRouter = router({
     .mutation(async ({ ctx, input }) => {
       const identity = await verifyGoogleIdToken(input.idToken);
       if (!identity) throw new TRPCError({ code: "UNAUTHORIZED", message: "Không thể xác thực tài khoản Google." });
-      const email = normalizeEmail(identity.email);
-      let account = await findCfopAccountByEmail(email);
-      if (!account) {
-        account = await createCfopAccount({
-          email,
-          displayName: identity.name.slice(0, 80),
-          passwordHash: await hashPassword(randomBytes(32).toString("base64url")),
-        });
-      }
-      await markCfopAccountSignedIn(account.id);
-      await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
-      return findCfopAccountPublicById(account.id);
+      const accountId = await resolveOAuthAccount("google", { ...identity, email: normalizeEmail(identity.email) });
+      await markCfopAccountSignedIn(accountId);
+      await createCfopAccountBrowserSession(ctx.req, ctx.res, accountId);
+      return findCfopAccountPublicById(accountId);
     }),
   facebookConfigured: publicProcedure.query(() => {
     const { appId, appSecret } = configuredFacebookApp();
@@ -72,18 +81,10 @@ export const accountRouter = router({
     .mutation(async ({ ctx, input }) => {
       const identity = await verifyFacebookAccessToken(input.accessToken);
       if (!identity) throw new TRPCError({ code: "UNAUTHORIZED", message: "Không thể xác thực tài khoản Facebook." });
-      const email = normalizeEmail(identity.email);
-      let account = await findCfopAccountByEmail(email);
-      if (!account) {
-        account = await createCfopAccount({
-          email,
-          displayName: identity.name.slice(0, 80),
-          passwordHash: await hashPassword(randomBytes(32).toString("base64url")),
-        });
-      }
-      await markCfopAccountSignedIn(account.id);
-      await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
-      return findCfopAccountPublicById(account.id);
+      const accountId = await resolveOAuthAccount("facebook", { ...identity, email: normalizeEmail(identity.email) });
+      await markCfopAccountSignedIn(accountId);
+      await createCfopAccountBrowserSession(ctx.req, ctx.res, accountId);
+      return findCfopAccountPublicById(accountId);
     }),
   register: publicProcedure.input(credentialsInput.extend({ displayName: z.string().trim().min(2, "Tên hiển thị cần ít nhất 2 ký tự.").max(80) })).use(rateLimitMiddleware("register", (input) => emailSubject(input))).mutation(async ({ ctx, input }) => {
     const email = normalizeEmail(input.email);
@@ -101,6 +102,32 @@ export const accountRouter = router({
   }),
   logout: publicProcedure.mutation(async ({ ctx }) => { await clearCfopAccountBrowserSession(ctx.req, ctx.res); return { success: true } as const; }),
   profile: cfopAccountProcedure.query(async ({ ctx }) => findCfopAccountPublicById(ctx.cfopAccount.id)),
+  identities: cfopAccountProcedure.query(async ({ ctx }) => listCfopIdentities(ctx.cfopAccount.id)),
+  linkIdentity: cfopAccountProcedure
+    .input(z.object({ provider: z.enum(["google", "facebook"]), token: z.string().min(1).max(4096) }))
+    .use(rateLimitMiddleware("login", () => "link-identity"))
+    .mutation(async ({ ctx, input }) => {
+      const identity = input.provider === "google"
+        ? await verifyGoogleIdToken(input.token)
+        : await verifyFacebookAccessToken(input.token);
+      if (!identity) throw new TRPCError({ code: "UNAUTHORIZED", message: "Không thể xác thực tài khoản liên kết." });
+      const existing = await findCfopIdentity(input.provider, identity.subject);
+      if (existing && existing.accountId !== ctx.cfopAccount.id)
+        throw new TRPCError({ code: "CONFLICT", message: "Liên kết này đã thuộc tài khoản khác." });
+      if (!existing) await linkCfopIdentity(ctx.cfopAccount.id, input.provider, identity.subject, normalizeEmail(identity.email));
+      return listCfopIdentities(ctx.cfopAccount.id);
+    }),
+  unlinkIdentity: cfopAccountProcedure
+    .input(z.object({ provider: z.enum(["google", "facebook"]) }))
+    .mutation(async ({ ctx, input }) => {
+      const rows = await listCfopIdentities(ctx.cfopAccount.id);
+      if (!rows.some(row => row.provider === input.provider))
+        throw new TRPCError({ code: "NOT_FOUND", message: "Không tìm thấy liên kết này." });
+      if (rows.length <= 1)
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Không thể gỡ liên kết cuối cùng." });
+      await unlinkCfopIdentity(ctx.cfopAccount.id, input.provider);
+      return listCfopIdentities(ctx.cfopAccount.id);
+    }),
   updateProfile: cfopAccountProcedure.input(profileInput).mutation(async ({ ctx, input }) => { await updateCfopAccountProfile(ctx.cfopAccount.id, input); return findCfopAccountPublicById(ctx.cfopAccount.id); }),
   uploadAvatar: cfopAccountProcedure.input(avatarInput).mutation(async ({ ctx, input }) => {
     const bytes = validateAvatarBytes(input.data, input.contentType);

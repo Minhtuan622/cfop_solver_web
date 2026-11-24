@@ -14,6 +14,18 @@ export const cfopAccounts = mysqlTable("cfop_accounts", {
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
+export const cfopAccountIdentities = mysqlTable("cfop_account_identities", {
+  id: int("id").autoincrement().primaryKey(),
+  accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
+  provider: varchar("provider", { length: 16 }).notNull(),
+  providerSubject: varchar("providerSubject", { length: 191 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("cfop_account_identities_provider_subject_unique").on(table.provider, table.providerSubject),
+  index("cfop_account_identities_account_idx").on(table.accountId),
+]);
+
 export const cfopAccountSessions = mysqlTable("cfop_account_sessions", {
   id: int("id").autoincrement().primaryKey(),
   accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
