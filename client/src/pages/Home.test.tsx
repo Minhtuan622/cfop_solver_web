@@ -114,7 +114,7 @@ describe("the Rubik solver workspace", () => {
     render(<Home />);
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("button", { name: "3×3 CFOP" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("combobox", { name: "Loại khối" })).toHaveTextContent("3×3 CFOP");
     expect(screen.getByRole("button", { name: "Xáo trộn" })).toHaveAttribute("aria-pressed", "true");
   });
 
@@ -148,7 +148,8 @@ describe("the Rubik solver workspace", () => {
     mocks.bld.mockResolvedValue(bldResult());
     render(<Home />);
 
-    fireEvent.click(screen.getByRole("button", { name: "3×3 BLD" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "Loại khối" }));
+    fireEvent.click(screen.getByRole("option", { name: "3×3 BLD" }));
     fireEvent.click(
       screen.getByRole("button", { name: /TẠO MEMO 3-STYLE/ })
     );

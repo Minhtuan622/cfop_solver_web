@@ -12,10 +12,9 @@ test("chỉ tải Cubing khi mở Timer và Three.js khi event cần canvas 3D",
 
   await page.goto("/");
   await page.waitForTimeout(500);
-  // Trang chủ hiển thị mô hình 3D WebGL nên cần Three.js (lazy), nhưng
-  // không cần thư viện cubing.js (chỉ Timer mới nạp).
+  // Trang chủ hiển thị mô hình 3D bằng bộ vẽ chung với Timer (Three.js +
+  // cubing.js), cả hai nạp lười sau khi trang mở.
   await expect.poll(() => threeRequests.length, { timeout: 45_000 }).toBeGreaterThan(0);
-  expect(cubingRequests).toEqual([]);
 
   await page.goto("/timer");
   const eventPicker = page.getByLabel("Loại khối");

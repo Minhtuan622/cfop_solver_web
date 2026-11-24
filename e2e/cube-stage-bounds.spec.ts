@@ -40,10 +40,12 @@ function expectContained(
 }
 
 test("cube 3D nằm gọn trong stage khi xoay và zoom", async ({ page }) => {
-  await page.goto("/");
+  // Trang Giải dùng bộ vẽ 3D của Timer; khối `.interactive-cube-stage` (xoay, zoom
+  // bằng chuột) còn ở trang Rubik ảo.
+  await page.goto("/play");
 
   const stage = page.locator(".interactive-cube-stage").first();
-  await expect(stage).toBeVisible();
+  await expect(stage).toBeVisible({ timeout: 90_000 });
   await stage.scrollIntoViewIfNeeded();
 
   const initial = await cubeOverflow(page);

@@ -21,6 +21,7 @@ export function CubeAlgorithmReplay({
   algorithm,
   language,
   replayToken,
+  tempoScale,
 }: {
   eventId: TimerEventId;
   puzzle: PuzzleId;
@@ -31,6 +32,8 @@ export function CubeAlgorithmReplay({
   language: "vi" | "en";
   /** Bump to restart the animation (dialog "Xem lại" button). */
   replayToken?: number;
+  /** Nhân tốc độ phát nước đi (1 = mặc định của cubing.js). */
+  tempoScale?: number;
 }) {
   return (
     <Suspense
@@ -47,6 +50,7 @@ export function CubeAlgorithmReplay({
         language={language}
         animationAlg={algorithm}
         animationRunId={replayToken}
+        tempoScale={tempoScale}
       />
     </Suspense>
   );

@@ -47,6 +47,39 @@ function vitePluginOptionalAnalytics(
  * `VITE_SITE_URL` comes from the build environment, from `.env`/`.env.production`,
  * or falls back to `https://cfop-solver.studio/`.
  */
+/**
+ * Bộ giải Pyraminx/Skewb/Megaminx của cubing.js nạp worker bằng
+ * `import.meta.resolve("./search-worker-entry.js")` — tên **không có mã băm** —
+ * nên bản build cần đúng file đó. Vite chỉ ghi bản có băm, và request tới tên
+ * trơn trả 404 làm các bộ giải này báo "không tìm được lời giải" ở production
+ * (chạy dev thì không lỗi vì Vite phục vụ thẳng). Plugin phát thêm một bản
+ * sao tên trơn; nó import các chunk anh em bằng đường dẫn tương đối nên chạy
+ * y như bản có băm.
+ */
+export function cubingWorkerAliasPlugin(): Plugin {
+  return {
+    name: "cfop-cubing-worker-alias",
+    // `order: "post"`: Vite thay chỗ giữ `__VITE_PRELOAD__` trong code chunk ở
+    // chính bước generateBundle; phải chạy sau nó thì bản sao mới chạy được.
+    generateBundle: {
+      order: "post",
+      handler(_options, bundle) {
+        const entry = Object.values(bundle).find(
+          item =>
+            item.type === "chunk" &&
+            /^assets\/search-worker-entry-w\d+-[^/]+\.js$/.test(item.fileName)
+        );
+        if (!entry || entry.type !== "chunk") return;
+        this.emitFile({
+          type: "asset",
+          fileName: "assets/search-worker-entry.js",
+          source: entry.code,
+        });
+      },
+    },
+  };
+}
+
 export function siteUrlPlugin(): Plugin {
   const siteUrl =
     process.env.VITE_SITE_URL ?? environment.VITE_SITE_URL ?? "https://cfop-solver.studio/";
@@ -82,6 +115,7 @@ const plugins = [
   tailwindcss(),
   jsxLocPlugin(),
   siteUrlPlugin(),
+  cubingWorkerAliasPlugin(),
   VitePWA({
     registerType: "autoUpdate",
     injectRegister: "auto",
@@ -172,7 +206,7 @@ const plugins = [
 
 /** Các chunk của cubing.js chạy trong worker sinh scramble (xem `modulePreload`). */
 const CUBING_WORKER_CHUNK =
-  /(search-worker-entry|inside-[A-Z0-9]+|search-dynamic-|twips-)/;
+  /(search-worker-entry|inside-[A-Z0-9]+|search-dynamic-|twips-|chunk-[A-Z0-9]{8}|puzzle-geometry)/;
 
 export default defineConfig({
   plugins,
@@ -217,10 +251,10 @@ export default defineConfig({
         // Mã băm tên file được tính trước khi Vite ghi danh sách preload vào
         // chunk, nên sửa `modulePreload` ở trên không làm đổi tên các chunk
         // worker của cubing.js — trình duyệt sẽ giữ bản hỏng trong cache.
-        // Hậu tố "-w2" buộc tải bản mới; tăng số này nếu phải đổi lại.
+        // Hậu tố "-w3" buộc tải bản mới; tăng số này nếu phải đổi lại.
         chunkFileNames: chunk =>
           CUBING_WORKER_CHUNK.test(chunk.name)
-            ? "assets/[name]-w2-[hash].js"
+            ? "assets/[name]-w3-[hash].js"
             : "assets/[name]-[hash].js",
         manualChunks(id) {
           // Do not force recharts into a manual chunk: Rollup would then pull

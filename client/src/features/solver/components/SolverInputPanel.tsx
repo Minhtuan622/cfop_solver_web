@@ -48,6 +48,12 @@ export type SolverInputPanelProps = {
   /** The optional settings that only matter for a wider opening. */
   advancedOptions?: ReactNode;
   onResetDefaults?: () => void;
+  /** Ẩn quét camera (chỉ có nghĩa với 3×3). */
+  hideCamera?: boolean;
+  /** Bộ tô màu thay cho phần chọn màu cũ ở chế độ Trạng thái. */
+  statePainter?: ReactNode;
+  /** Gợi ý trong ô scramble khi không phải 3×3. */
+  scramblePlaceholder?: string;
 };
 
 /**
@@ -79,6 +85,9 @@ export function SolverInputPanel({
   onCameraState,
   advancedOptions,
   onResetDefaults,
+  hideCamera = false,
+  statePainter,
+  scramblePlaceholder,
 }: SolverInputPanelProps) {
   const { t } = useLanguage();
   const [cameraOpen, setCameraOpen] = useState(false);
@@ -116,7 +125,7 @@ export function SolverInputPanel({
                 type="text"
                 value={value}
                 onChange={event => onValueChange(event.target.value)}
-                placeholder={t("home.scramblePlaceholder")}
+                placeholder={scramblePlaceholder ?? t("home.scramblePlaceholder")}
                 spellCheck={false}
                 autoComplete="off"
                 className="md:h-full"
@@ -162,19 +171,23 @@ export function SolverInputPanel({
           </div>
         ) : (
           <>
-            <CubeStateEditor
-              state={value}
-              onChange={onStateEdit}
-              disabled={loading}
-              canUndo={canUndo}
-              canRedo={canRedo}
-              onUndo={onUndo}
-              onRedo={onRedo}
-              selectedColor={paintColor}
-              onSelectedColorChange={onPaintColorChange}
-              controlsOnly
-            />
-            <p className="text-sm text-muted mt-2">{t("home.paintHint")}</p>
+            {statePainter ?? (
+              <>
+                <CubeStateEditor
+                  state={value}
+                  onChange={onStateEdit}
+                  disabled={loading}
+                  canUndo={canUndo}
+                  canRedo={canRedo}
+                  onUndo={onUndo}
+                  onRedo={onRedo}
+                  selectedColor={paintColor}
+                  onSelectedColorChange={onPaintColorChange}
+                  controlsOnly
+                />
+                <p className="text-sm text-muted mt-2">{t("home.paintHint")}</p>
+              </>
+            )}
             <div className="mt-4">
               <StatusFeedback
                 tone={
@@ -218,16 +231,18 @@ export function SolverInputPanel({
                 {t("home.resetOptions")}
               </Button>
             ) : null}
-            <Button
-              variant="link"
-              size="sm"
-              className="p-0 no-underline"
-              type="button"
-              onClick={() => setCameraOpen(true)}
-            >
-              <Camera className="text-base mr-1" aria-hidden="true" />
-              {t("home.cameraScan")}
-            </Button>
+            {hideCamera ? null : (
+              <Button
+                variant="link"
+                size="sm"
+                className="p-0 no-underline"
+                type="button"
+                onClick={() => setCameraOpen(true)}
+              >
+                <Camera className="text-base mr-1" aria-hidden="true" />
+                {t("home.cameraScan")}
+              </Button>
+            )}
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-2 mt-3">

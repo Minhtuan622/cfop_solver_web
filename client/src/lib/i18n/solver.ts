@@ -2,20 +2,29 @@ import type { Dictionary } from "./index";
 
 /** The solver workspace: cube input, the move guide and the camera scanner. */
 export const solverWords: Dictionary = {
-  "optimal.title": ["So với lời giải ngắn nhất", "Compare with the shortest solution"],
-  "optimal.hint": [
-    "Tìm lời giải không theo CFOP cho đúng trạng thái này để xem CFOP dài hơn bao nhiêu lượt.",
-    "Find a non-CFOP solution for this exact state to see how many moves CFOP adds.",
+  "home.stagePlaceholder": [
+    "Khối 3D hiện ra khi có scramble hợp lệ hoặc sau khi giải xong.",
+    "The 3D cube appears once there is a valid scramble or after solving.",
   ],
-  "optimal.run": ["Tìm lời giải ngắn", "Find shortest solution"],
-  "optimal.searching": ["Đang tìm…", "Searching…"],
-  "optimal.shortest": ["NGẮN NHẤT", "SHORTEST"],
-  "optimal.difference": ["CFOP DÀI HƠN", "CFOP EXTRA"],
-  "optimal.frame": [
-    "Lời giải ngắn viết theo hướng ban đầu của khối (U trên, F trước) và đếm theo lượt mặt, không tính phép xoay cả khối.",
-    "The short solution uses the cube's original orientation (U up, F front) and counts face turns, not whole-cube rotations.",
+  "otherPuzzles.stagePlaceholder": ["Nhập scramble hợp lệ để xem khối.", "Enter a valid scramble to see the puzzle."],
+  "otherPuzzles.state.palette": ["Bảng màu", "Colour palette"],
+  "otherPuzzles.state.color": ["Màu mặt {face}", "Colour of face {face}"],
+  "otherPuzzles.state.undo": ["Hoàn tác", "Undo"],
+  "otherPuzzles.state.redo": ["Làm lại", "Redo"],
+  "otherPuzzles.state.reset": ["Về khối đã giải", "Reset to solved"],
+  "otherPuzzles.state.net": ["Lưới sticker của khối", "Sticker net of the puzzle"],
+  "otherPuzzles.state.hint": [
+    "Chọn màu rồi bấm vào từng ô để tô đúng trạng thái khối thật của bạn.",
+    "Pick a colour, then click each sticker to match your real puzzle.",
   ],
-  "optimal.error": ["Không tìm được lời giải ngắn. Hãy thử lại.", "Could not find a short solution. Try again."],
+  "otherPuzzles.state.counts": [
+    "Mỗi màu phải có đúng số ô như khối đã giải.",
+    "Each colour must appear exactly as many times as on a solved puzzle.",
+  ],
+  "otherPuzzles.error.invalid-state": [
+    "Trạng thái này không phải một khối hợp lệ. Kiểm tra lại các ô đã tô.",
+    "This is not a valid puzzle state. Check the stickers you painted.",
+  ],
   "otherPuzzles.eyebrow": ["Khối khác", "Other puzzles"],
   "otherPuzzles.title": ["Giải 2×2, Pyraminx và Skewb", "Solve 2×2, Pyraminx and Skewb"],
   "otherPuzzles.subtitle": [
@@ -26,6 +35,9 @@ export const solverWords: Dictionary = {
   "otherPuzzles.puzzle.222": ["2×2×2", "2×2×2"],
   "otherPuzzles.puzzle.pyram": ["Pyraminx", "Pyraminx"],
   "otherPuzzles.puzzle.skewb": ["Skewb", "Skewb"],
+  "otherPuzzles.puzzle.333fm": ["3×3 FM", "3×3 FM"],
+  "otherPuzzles.puzzle.333oh": ["3×3 OH", "3×3 OH"],
+  "otherPuzzles.puzzle.minx": ["Megaminx", "Megaminx"],
   "otherPuzzles.scramble": ["Scramble", "Scramble"],
   "otherPuzzles.scramblePlaceholder": ["Ví dụ: R U R' U' F2 …", "For example: R U R' U' F2 …"],
   "otherPuzzles.solve": ["Giải", "Solve"],
@@ -93,6 +105,7 @@ export const solverWords: Dictionary = {
   "home.inputLabel": ["Nguồn đầu vào", "Input source"],
   "home.tab.solve": ["3×3 CFOP", "3×3 CFOP"],
   "home.tab.bld": ["3×3 BLD", "3×3 BLD"],
+  "home.tab.fm": ["3×3 FM", "3×3 FM"],
   "home.hint": [
     "Nhập khối rồi bấm Tìm cách giải; các tùy chọn nâng cao là không bắt buộc.",
     "Enter the cube and choose Find a solution; advanced options are optional.",

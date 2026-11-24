@@ -22,6 +22,9 @@ export type PuzzlePlayer = HTMLElement & {
   ) => Promise<unknown>;
   play?: () => void;
   pause?: () => void;
+  /** Nhân tốc độ phát: 1 là mặc định của cubing.js (chậm, ~1 giây một nước). */
+  tempoScale?: number;
+  jumpToStart?: (options?: { flash: boolean }) => void;
 };
 
 export function startMountedTwistyPlayer(player: HTMLElement) {

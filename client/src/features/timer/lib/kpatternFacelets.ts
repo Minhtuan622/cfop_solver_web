@@ -23,7 +23,7 @@ const CENTER_LETTERS = ["U", "L", "F", "R", "B", "D"] as const;
  * stickers at each orbit position, in slot order (letter order of the
  * cubie's Reid name).
  */
-const CORNER_SLOTS = [
+export const CORNER_SLOTS = [
   [8, 20, 9], // UFR (U,F,R)
   [2, 11, 45], // URB (U,R,B)
   [0, 47, 36], // UBL (U,B,L)
@@ -33,7 +33,7 @@ const CORNER_SLOTS = [
   [33, 42, 53], // DLB (D,L,B)
   [35, 51, 17], // DBR (D,B,R)
 ] as const;
-const EDGE_SLOTS = [
+export const EDGE_SLOTS = [
   [7, 19], // UF (U,F)
   [5, 10], // UR (U,R)
   [1, 46], // UB (U,B)
@@ -47,7 +47,7 @@ const EDGE_SLOTS = [
   [48, 14], // BR (B,R)
   [50, 39], // BL (B,L)
 ] as const;
-const CENTER_SLOTS = [4, 40, 22, 13, 49, 31] as const; // U L F R B D
+export const CENTER_SLOTS = [4, 40, 22, 13, 49, 31] as const; // U L F R B D
 
 function rotateLeft(value: string, offset: number): string {
   return value.slice(offset) + value.slice(0, offset);

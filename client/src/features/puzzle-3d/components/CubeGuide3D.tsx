@@ -314,6 +314,11 @@ export function CubeGuide3D({
       layers.includes(Math.round(cubie.unit[axis]))
     );
     for (const cubie of moved) {
+      // Ô sáng (XCross, case Last Layer…) được đặt theo VỊ TRÍ, không đi theo
+      // mảnh: nếu để nguyên, lớp đang xoay mang màu sáng sang ô khác và sticker
+      // bị nhuộm xanh/vàng giữa chừng. Tắt phát sáng trong lúc xoay; bước dựng
+      // lại ở cuối nước đi đặt lại đúng ô.
+      for (const material of cubie.stickerMaterials) material.emissiveIntensity = 0;
       bundle.root.remove(cubie.group);
       cubie.group.position.set(
         cubie.unit.x * cell - (axis === "x" ? layers[0] * cell : 0),

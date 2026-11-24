@@ -13,7 +13,8 @@ test("tạo memo 3-Style và hiện báo cáo BLD", async ({ page }) => {
   page.on("pageerror", error => errors.push(String(error).slice(0, 200)));
 
   await page.goto("/");
-  await page.getByRole("button", { name: "3×3 BLD" }).click();
+  await page.getByLabel("Loại khối").click();
+  await page.getByRole("option", { name: "3×3 BLD" }).click();
   await page.locator("#home-scramble").fill("R U R' U'");
   await page.getByRole("button", { name: /TẠO MEMO 3-STYLE/ }).click();
 

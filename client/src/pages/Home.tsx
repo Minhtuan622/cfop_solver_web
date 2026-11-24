@@ -5,7 +5,6 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CubeNet, SOLVED_STATE } from "@/components/common/CubeNet";
-import { Cube3DGuide } from "@/components/common/Cube3DGuide";
 import { BldReport } from "@/features/bld";
 import {
   CfopReport,
@@ -41,7 +40,16 @@ import {
 import { simplePhase, useLanguage } from "@/contexts/LanguageContext";
 import { randomThreeByThreeScramble } from "@/lib/cubeScramble";
 import { openingModeLabel } from "@/features/solver/lib/solverPresentation";
-import { OptimalComparisonCard } from "@/features/puzzle-solver";
+import {
+  FaceletStatePainter,
+  OtherPuzzleSolver,
+  SolutionStage,
+  invertAlgorithm,
+  PuzzleKindPicker,
+  isCubeSolveMode,
+  type SolveChoice,
+  type OtherPuzzleId,
+} from "@/features/puzzle-solver";
 import { readBldProfile, writeBldProfile } from "@/features/bld";
 import {
   analyzeBldInBrowser,
@@ -60,6 +68,9 @@ export default function Home() {
   const { language, t } = useLanguage();
   const [mode, setMode] = useState<SolverInputMode>("scramble");
   const [solverKind, setSolverKind] = useState<SolverKind>("cfop");
+  const [puzzleKind, setPuzzleKind] = useState<"333" | Exclude<OtherPuzzleId, "333fm">>("333");
+  // Kiểu nhập của 2×2, Pyraminx, Skewb và 3×3 FM (3×3 CFOP/BLD có `mode` riêng).
+  const [otherMode, setOtherMode] = useState<SolverInputMode>("scramble");
   const {
     crossColor,
     setCrossColor,
@@ -314,6 +325,7 @@ export default function Home() {
     setPlaying(false);
     setError("");
   };
+  const usesOtherSolver = puzzleKind !== "333" || solverKind === "fm";
   const switchSolverKind = (next: SolverKind) => {
     if (next === solverKind) return;
     setSolverKind(next);
@@ -352,8 +364,18 @@ export default function Home() {
       ? bldResult.initial_state
       : wcaLettersToStudio(bldResult.initial_state)
     : undefined;
-  const stage =
-    solverKind === "bld" ? (bldDisplayState ?? currentState) : currentState;
+  // Khối 3D dựng từ lượt: sau khi giải, đảo lời giải để ra trạng thái bắt đầu
+  // (đúng cho cả nhập scramble lẫn nhập trạng thái); chưa giải thì chỉ xem
+  // trước được scramble.
+  const stageMoves = useMemo(
+    () => (result ? result.trace.map(step => step.move) : []),
+    [result]
+  );
+  const stageSetup = result
+    ? invertAlgorithm(stageMoves.join(" "))
+    : mode === "scramble"
+      ? savedScramble
+      : "";
   const solutionTitle =
     solverKind === "bld"
       ? bldResult
@@ -387,32 +409,53 @@ export default function Home() {
   return (
     <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6 lg:px-8 lg:px-6 pb-6 lg:pb-12">
       <section className="my-8">
-        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
+        <div className="flex flex-col gap-5">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl mb-2">
-              {solverKind === "bld"
+              {solverKind === "bld" && puzzleKind === "333"
                 ? t("home.title.bld")
                 : t("home.title.solve")}
             </h1>
             <p className="mb-0 text-muted">
-              {solverKind === "bld"
+              {puzzleKind !== "333"
+                ? t("home.description.solve")
+                : solverKind === "bld"
                 ? t("home.description.bld")
                 : mode === "state"
                   ? t("home.description.state")
                   : t("home.description.solve")}
             </p>
           </div>
-          <SolverToolbar
-            solverKind={solverKind}
-            onSolverKindChange={switchSolverKind}
-            mode={mode}
-            onModeChange={switchInputMode}
-            loading={loading}
-            status={solverStatus}
-          />
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <PuzzleKindPicker
+              value={puzzleKind === "333" ? solverKind : puzzleKind}
+              onChange={(next: SolveChoice) => {
+                if (isCubeSolveMode(next)) {
+                  setPuzzleKind("333");
+                  switchSolverKind(next);
+                } else setPuzzleKind(next);
+              }}
+            />
+            <SolverToolbar
+              hideKind
+              solverKind={solverKind}
+              onSolverKindChange={switchSolverKind}
+              mode={usesOtherSolver ? otherMode : mode}
+              onModeChange={usesOtherSolver ? setOtherMode : switchInputMode}
+              loading={loading}
+              status={solverStatus}
+            />
+          </div>
         </div>
       </section>
 
+      {usesOtherSolver ? (
+        <OtherPuzzleSolver
+          key={puzzleKind === "333" ? "333fm" : puzzleKind}
+          puzzle={puzzleKind === "333" ? "333fm" : puzzleKind}
+          mode={otherMode}
+        />
+      ) : (
       <div className="grid grid-cols-12 gap-6 items-start">
         <div className="col-span-12 xl:col-span-8 flex flex-col gap-6">
           <SolverInputPanel
@@ -432,6 +475,17 @@ export default function Home() {
               setSavedScramble(next);
               setBldResult(null);
             }}
+            statePainter={
+              <FaceletStatePainter
+                value={value}
+                onChange={applyStateEdit}
+                canUndo={stateHistory.current.past.length > 0}
+                canRedo={stateHistory.current.future.length > 0}
+                onUndo={undoStateEdit}
+                onRedo={redoStateEdit}
+                disabled={loading}
+              />
+            }
             onStateEdit={applyStateEdit}
             onUndo={undoStateEdit}
             onRedo={redoStateEdit}
@@ -455,6 +509,8 @@ export default function Home() {
             }
           />
 
+          {/* Chế độ Trạng thái: chỉ hiện khu vực khối sau khi đã giải. */}
+          {mode === "state" && !hasResult ? null : (
           <div>
             <SolverSolutionPanel
               view={cubeView}
@@ -495,35 +551,23 @@ export default function Home() {
                           : SOLVED_STATE
                         : orientForCross(currentState, crossColor)
                   }
-                  editable={mode === "state" && solverKind !== "bld"}
+                  editable={false}
                   selectedColor={paintColor}
                   onStateChange={applyStateEdit}
                   disabled={loading}
                 />
               ) : (
-                <Cube3DGuide
-                  state={stage}
-                  previousState={previousState}
-                  move={solverKind === "bld" ? undefined : currentStep?.move}
-                  step={cursor}
-                  crossColor={crossColor}
-                  alignCross={solverKind !== "bld"}
-                  xcrossSlots={activeXCrossSlots}
-                  lastLayerCase={activeLastLayerCase}
-                  transition={cubeMotion.kind}
-                  transitionDirection={cubeMotion.direction}
-                  transitionId={cubeMotion.id}
-                  phaseLabel={
-                    cubeMotion.phaseName
-                      ? simplePhase(cubeMotion.phaseName, language)
-                      : undefined
-                  }
-                  turnDurationMs={
-                    playing
-                      ? Math.max(120, Math.round(280 / playbackSpeed))
-                      : 340
-                  }
-                  surface="light"
+                <SolutionStage
+                  eventId="333"
+                  puzzle="3x3x3"
+                  setup={stageSetup}
+                  moves={stageMoves}
+                  cursor={solverKind === "bld" ? 0 : cursor}
+                  direction={cubeMotion.direction}
+                  motionId={cubeMotion.id}
+                  speed={playbackSpeed}
+                  language={language}
+                  placeholder={t("home.stagePlaceholder")}
                 />
               )}
             </SolverSolutionPanel>
@@ -531,6 +575,7 @@ export default function Home() {
               <LastLayerOutcomeBanner telemetry={lastLayerTelemetry} />
             ) : null}
           </div>
+          )}
         </div>
 
         <SolverSolutionSidebar>
@@ -553,14 +598,11 @@ export default function Home() {
               onSelectPhase={phase => selectCursor(phase.end, "phase")}
               onSelectMove={moveIndex => selectCursor(moveIndex, "seek")}
             />
-            <OptimalComparisonCard
-              key={result.algorithm}
-              cfopSolution={result.algorithm}
-            />
             </>
           ) : null}
         </SolverSolutionSidebar>
       </div>
+      )}
     </div>
   );
 }

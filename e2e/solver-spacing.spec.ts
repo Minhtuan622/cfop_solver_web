@@ -9,7 +9,8 @@ import { expect, test } from "@playwright/test";
  */
 test("panel nhập scramble không dính các khối", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "3×3 BLD" }).click();
+  await page.getByLabel("Loại khối").click();
+  await page.getByRole("option", { name: "3×3 BLD" }).click();
 
   const banner = page
     .locator("div.rounded-panel", { hasText: "BUFFER / UF (C)" })

@@ -16,7 +16,13 @@ export type CubeMotion = {
   phaseName?: string;
 };
 
-export function useSolverPlayback(result: SolverResult | null) {
+/** Bộ phát chỉ cần độ dài lời giải; `phases` có thì mới tính phase. */
+export type PlaybackSource = {
+  trace: readonly unknown[];
+  phases?: SolverResult["phases"];
+};
+
+export function useSolverPlayback(result: PlaybackSource | null) {
   const [cursor, setCursor] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -36,8 +42,9 @@ export function useSolverPlayback(result: SolverResult | null) {
       if (target === previous) return;
       const direction =
         target >= previous ? ("forward" as const) : ("backward" as const);
-      const fromPhase = phaseAt(result, previous)?.name;
-      const toPhase = phaseAt(result, target)?.name;
+      const solver = result && result.phases?.length ? (result as SolverResult) : null;
+      const fromPhase = phaseAt(solver, previous)?.name;
+      const toPhase = phaseAt(solver, target)?.name;
       const distance = Math.abs(target - previous);
       const kind: CubeMotionKind =
         intent === "reset" || target === 0
@@ -70,7 +77,9 @@ export function useSolverPlayback(result: SolverResult | null) {
         }
         updateCursor(next, "playback");
       },
-      Math.max(100, Math.round(360 / playbackSpeed))
+      // Một nước nửa vòng cần ~650ms ở tempo của khối 3D (xem SolutionStage);
+      // cách nhau ít hơn thì các nước đè lên nhau và khối nhảy cóc.
+      Math.max(100, Math.round(700 / playbackSpeed))
     );
     return () => window.clearInterval(id);
   }, [playbackSpeed, playing, result, updateCursor]);

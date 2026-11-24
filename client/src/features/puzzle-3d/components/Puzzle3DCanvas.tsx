@@ -39,6 +39,7 @@ export function Puzzle3DCanvas({
   focusFtoWhiteFace = false,
   focusFtoFace,
   nativeColors = false,
+  tempoScale = 1,
 }: {
   eventId: TimerEventId;
   puzzle: PuzzleId;
@@ -53,6 +54,8 @@ export function Puzzle3DCanvas({
    * màu studio (vàng U): dùng khi xem scramble đúng hướng cầm lúc tráo.
    */
   nativeColors?: boolean;
+  /** Nhân tốc độ phát nước đi (1 = mặc định của cubing.js). */
+  tempoScale?: number;
 }) {
   const isTwoD = isSideEvent2DPuzzle(puzzle);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -81,16 +84,29 @@ export function Puzzle3DCanvas({
   // lại cache hỏng trong module map của document, thử lại trong cùng document
   // vô ích; chỉ nạp lại trang mới xoá được.
   const moduleFailureRef = useRef(false);
+  // Player đang chạy và giá trị mới nhất của scramble/lời giải. Đổi scramble
+  // hay lời giải (bước kế tiếp của một lời giải) chỉ cập nhật player này,
+  // không dựng lại cả renderer: dựng lại làm khối nháy và tải lại sau mỗi nước.
+  const playerRef = useRef<PuzzlePlayer | null>(null);
+  const scrambleRef = useRef(scramble);
+  const animationAlgRef = useRef(animationAlg);
+  const tempoRef = useRef(tempoScale);
+  tempoRef.current = tempoScale;
+  scrambleRef.current = scramble;
+  animationAlgRef.current = animationAlg;
+  const hasScramble = Boolean(scramble.trim());
 
   useEffect(() => {
     const host = hostRef.current;
-    if (!host || !scramble.trim()) return;
+    if (!host || !hasScramble) return;
+    const scramble = scrambleRef.current;
+    const animationAlg = animationAlgRef.current;
     let disposed = false;
     let cleanup = () => undefined;
     let staging: HTMLDivElement | null = null;
     let player: PuzzlePlayer | null = null;
     let renderer: WebGLRenderer | null = null;
-    const buildKey = `${puzzle}|${scramble}|${animationRunId}|${focusFtoWhiteFace}|${focusFtoFace ?? ""}`;
+    const buildKey = `${puzzle}|${focusFtoWhiteFace}|${focusFtoFace ?? ""}`;
     if (attemptRef.current.key !== buildKey)
       attemptRef.current = { key: buildKey, attempt: 0 };
     moduleFailureRef.current = false;
@@ -114,6 +130,8 @@ export function Puzzle3DCanvas({
         player.experimentalSetupAlg = scramble;
         player.alg = animationAlg;
         player.visualization = "2D";
+        player.tempoScale = tempoRef.current;
+        playerRef.current = player;
         player.hintFacelets = "none";
         player.controlPanel = "none";
         player.backView = "none";
@@ -155,6 +173,8 @@ export function Puzzle3DCanvas({
       );
       player.alg = animationAlg;
       player.visualization = "3D";
+      player.tempoScale = tempoRef.current;
+      playerRef.current = player;
       player.hintFacelets = "none";
       player.controlPanel = "none";
       player.backView = "none";
@@ -328,20 +348,41 @@ export function Puzzle3DCanvas({
 
     return () => {
       disposed = true;
+      playerRef.current = null;
       window.removeEventListener("unhandledrejection", onUnhandledRejection);
       cleanup();
       host.replaceChildren();
     };
   }, [
     puzzle,
-    scramble,
-    animationAlg,
-    animationRunId,
+    hasScramble,
     focusFtoWhiteFace,
     focusFtoFace,
     nativeColors,
     retryTick,
   ]);
+
+  // Cập nhật tại chỗ khi chỉ scramble hoặc lời giải đổi (bước kế tiếp, xem lại).
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+    player.experimentalSetupAlg = isTwoD
+      ? scramble
+      : puzzlePreviewSetupAlgorithm(puzzle, scramble, focusFtoWhiteFace);
+    player.alg = animationAlg;
+    player.tempoScale = tempoScale;
+    // Về đầu lời giải mới trước khi phát: nếu không, player đang đứng ở cuối nước
+    // trước nên hiện trạng thái đích rồi mới nhảy về đầu và chạy lại.
+    player.jumpToStart?.({ flash: false });
+    renderRef.current?.();
+    if (animationAlg.trim()) player.play?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scramble, animationAlg, animationRunId]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (player) player.tempoScale = tempoScale;
+  }, [tempoScale]);
 
   const label = timerEventLabel(eventId, language);
   const modelLabel = isTwoD ? "2D" : "3D";

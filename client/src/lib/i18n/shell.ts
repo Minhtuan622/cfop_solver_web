@@ -14,7 +14,6 @@ export const shellWords: Dictionary = {
   "nav.rankings": ["Xếp hạng", "Rankings"],
   "nav.wca": ["Giải WCA", "WCA"],
   "nav.settings": ["Cài đặt", "Settings"],
-  "nav.puzzles": ["2×2 · Pyraminx · Skewb", "2×2 · Pyraminx · Skewb"],
   "nav.more": ["Thêm", "More"],
   "nav.moreLabel": ["Các mục khác", "More pages"],
   "nav.skip": ["Bỏ qua điều hướng", "Skip to navigation"],

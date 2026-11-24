@@ -2,7 +2,7 @@ import { BoxIcon, PencilSquare, Puzzle, Shuffle } from "@/components/ui/Icon";
 import { PillBar, PillGroup } from "@/components/ui/DesignSystem";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export type SolverKind = "cfop" | "bld";
+export type SolverKind = "cfop" | "bld" | "fm";
 export type SolverInputMode = "scramble" | "state";
 
 export type SolverToolbarProps = {
@@ -12,6 +12,8 @@ export type SolverToolbarProps = {
   onModeChange: (mode: SolverInputMode) => void;
   loading: boolean;
   status: string;
+  /** Ẩn nhóm chọn CFOP/BLD/FM (khi trang đã chọn chế độ ở dropdown). */
+  hideKind?: boolean;
 };
 
 /**
@@ -26,12 +28,14 @@ export function SolverToolbar({
   onModeChange,
   loading,
   status,
+  hideKind = false,
 }: SolverToolbarProps) {
   const { t } = useLanguage();
   return (
     // Hai nhóm tách riêng: chọn bộ giải (nút đặc màu nhấn) và chọn cách nhập
     // (kiểu nhạt), để không có hai nút xanh đặc tranh nhau trên một thanh.
     <div role="toolbar" className="flex flex-wrap items-center gap-2">
+      {hideKind ? null : (
       <PillBar>
         <PillGroup<SolverKind>
           label={t("home.modeLabel")}
@@ -48,9 +52,15 @@ export function SolverToolbar({
               label: t("home.tab.bld"),
               icon: <Puzzle aria-hidden="true" />,
             },
+            {
+              value: "fm",
+              label: t("home.tab.fm"),
+              icon: <Shuffle aria-hidden="true" />,
+            },
           ]}
         />
       </PillBar>
+      )}
       <PillBar>
         <PillGroup<SolverInputMode>
           tone="soft"

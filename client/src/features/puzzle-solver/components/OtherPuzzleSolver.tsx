@@ -1,69 +1,142 @@
 /**
- * Bộ giải riêng cho 2×2×2, Pyraminx và Skewb: nhập (hoặc tạo) scramble, bấm
- * Giải để nhận lời giải ngắn từ cubing.js, rồi xem lại bằng mô hình 3D.
+ * Phần thân trang Giải cho các khối ngoài 3×3 (2×2×2, Pyraminx, Skewb): dùng lại
+ * đúng các panel của trang Giải 3×3 (nhập scramble, sân khấu 3D có thanh phát,
+ * cột lời giải), chỉ khác bộ giải bên dưới là cubing/search.
  */
-import { useState } from "react";
-import { PillGroup } from "@/components/ui/DesignSystem";
-import { Textarea } from "@/components/ui/FormControls";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { StatTile } from "@/components/ui/StudioUI";
-import { CubeAlgorithmReplay } from "@/components/common/CubeAlgorithmReplay";
+import { SolutionStage } from "./SolutionStage";
+import { PuzzleStatePainter } from "./PuzzleStatePainter";
+import { PanelHeader, Surface } from "@/components/ui/DesignSystem";
+import { PencilSquare, Play } from "@/components/ui/Icon";
+import {
+  loadStateModel,
+  solveFromPainting,
+  solvedStatePainting,
+} from "../lib/stateSolve";
+import type { KPuzzleId, Painting, StateModel } from "../lib/puzzleState";
+import { SolverInputPanel } from "@/features/solver/components/SolverInputPanel";
+import { SolverSolutionPanel } from "@/features/solver/components/SolverSolutionPanel";
+import { SolverSolutionSidebar } from "@/features/solver/components/SolverSolutionSidebar";
+import { useSolverPlayback } from "@/features/solver/lib/useSolverPlayback";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { generateTimerScramble } from "@/lib/timerEvents";
+import { cn } from "@/lib/utils";
 import {
   OTHER_PUZZLES,
-  OTHER_PUZZLE_IDS,
   PuzzleSolveError,
   solveOtherPuzzle,
   type OtherPuzzleId,
   type PuzzleSolveResult,
 } from "../lib/puzzleSolve";
 
-export function OtherPuzzleSolver() {
+/** `puzzle` đổi thì cha đặt `key` mới để scramble và kết quả cũ bị bỏ. */
+export function OtherPuzzleSolver({
+  puzzle,
+  mode = "scramble",
+}: {
+  puzzle: OtherPuzzleId;
+  /** Nhập bằng scramble hoặc tô màu trạng thái. */
+  mode?: "scramble" | "state";
+}) {
   const { language, t } = useLanguage();
-  const [puzzle, setPuzzle] = useState<OtherPuzzleId>("222");
+  const info = OTHER_PUZZLES[puzzle];
   const [scramble, setScramble] = useState("");
   const [result, setResult] = useState<PuzzleSolveResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [solving, setSolving] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [replayToken, setReplayToken] = useState(0);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const info = OTHER_PUZZLES[puzzle];
+  const kpuzzleId = info.puzzle as KPuzzleId;
+  const [model, setModel] = useState<StateModel | null>(null);
+  const [painting, setPainting] = useState<Painting>({});
+  const [brush, setBrush] = useState("");
 
-  const choosePuzzle = (next: OtherPuzzleId) => {
-    setPuzzle(next);
-    // Scramble của khối này không dùng được cho khối khác.
-    setScramble("");
+  const moves = useMemo(
+    () => (result?.solution ? result.solution.split(" ") : []),
+    [result]
+  );
+  // Bộ phát chung của trang Giải chỉ cần độ dài lời giải.
+  const source = useMemo(
+    () => (result ? { trace: moves } : null),
+    [result, moves]
+  );
+  const playback = useSolverPlayback(source);
+
+  // Mở khối nào là có sẵn scramble của khối đó (như trang 3×3), khỏi bấm tạo.
+  useEffect(() => {
+    let cancelled = false;
+    void generateTimerScramble(info.scrambleEventId).then(next => {
+      if (!cancelled) setScramble(current => current || next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [info.scrambleEventId]);
+
+  // Vào chế độ tô màu thì tải mô hình sticker (nạp lười) và bắt đầu từ khối đã giải.
+  useEffect(() => {
+    if (mode !== "state" || model) return;
+    let cancelled = false;
+    void Promise.all([loadStateModel(kpuzzleId), solvedStatePainting(kpuzzleId)])
+      .then(([loaded, solved]) => {
+        if (cancelled) return;
+        setModel(loaded);
+        setPainting(solved);
+        setBrush(loaded.faces[0]?.name ?? "");
+      })
+      .catch(() => {
+        if (!cancelled) setError(t("otherPuzzles.error.solver-failed"));
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, kpuzzleId, model]);
+
+  const solveState = async () => {
+    setLoading(true);
+    setError("");
     setResult(null);
-    setError(null);
-  };
-
-  const randomScramble = async () => {
-    setGenerating(true);
-    setError(null);
+    playback.setPlaying(false);
+    playback.setCursor(0);
     try {
-      setScramble(await generateTimerScramble(info.eventId));
-      setResult(null);
+      const solved = await solveFromPainting(puzzle, painting);
+      setResult({
+        scramble: solved.setup,
+        solution: solved.solution,
+        moves: solved.solution ? solved.solution.split(" ").length : 0,
+      });
+    } catch (reason) {
+      const code =
+        reason instanceof PuzzleSolveError ? reason.code : "solver-failed";
+      setError(t(`otherPuzzles.error.${code}`));
     } finally {
-      setGenerating(false);
+      setLoading(false);
     }
   };
 
   const solve = async () => {
-    setSolving(true);
-    setError(null);
+    setLoading(true);
+    setError("");
     setResult(null);
+    playback.setPlaying(false);
+    playback.setCursor(0);
     try {
-      const solved = await solveOtherPuzzle(puzzle, scramble);
-      setResult(solved);
-      setReplayToken(token => token + 1);
+      setResult(await solveOtherPuzzle(puzzle, scramble));
     } catch (reason) {
-      const code = reason instanceof PuzzleSolveError ? reason.code : "solver-failed";
+      const code =
+        reason instanceof PuzzleSolveError ? reason.code : "solver-failed";
       setError(t(`otherPuzzles.error.${code}`));
     } finally {
-      setSolving(false);
+      setLoading(false);
     }
+  };
+
+  const randomScramble = async () => {
+    setError("");
+    setScramble(await generateTimerScramble(info.scrambleEventId));
+    setResult(null);
+    playback.setCursor(0);
   };
 
   const copy = async () => {
@@ -77,111 +150,184 @@ export function OtherPuzzleSolver() {
     }
   };
 
-  return (
-    <div className="grid grid-cols-12 gap-6">
-      <section className="col-span-12 xl:col-span-5 rounded-card bg-surface p-5 sm:p-6">
-        <PillGroup
-          label={t("otherPuzzles.puzzle")}
-          value={puzzle}
-          onChange={choosePuzzle}
-          options={OTHER_PUZZLE_IDS.map(id => ({
-            value: id,
-            label: t(OTHER_PUZZLES[id].labelKey),
-          }))}
-        />
-        <label
-          htmlFor="other-puzzle-scramble"
-          className="mt-5 mb-1 block text-sm font-medium text-ink"
-        >
-          {t("otherPuzzles.scramble")}
-        </label>
-        <Textarea
-          id="other-puzzle-scramble"
-          rows={3}
-          value={scramble}
-          placeholder={t("otherPuzzles.scramblePlaceholder")}
-          onChange={event => {
-            setScramble(event.target.value);
-            setResult(null);
-          }}
-        />
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button
-            variant="primary"
-            disabled={!scramble.trim() || generating || solving}
-            aria-busy={solving || undefined}
-            onClick={() => void solve()}
-          >
-            {solving ? t("otherPuzzles.solving") : t("otherPuzzles.solve")}
-          </Button>
-          <Button
-            variant="soft"
-            disabled={generating || solving}
-            onClick={() => void randomScramble()}
-          >
-            {generating ? t("otherPuzzles.generating") : t("otherPuzzles.random")}
-          </Button>
-        </div>
-        {error ? (
-          <p role="alert" className="mt-4 mb-0 text-sm text-danger">
-            {error}
-          </p>
-        ) : null}
-        <p className="mt-4 mb-0 text-xs text-muted">{t("otherPuzzles.note")}</p>
-      </section>
+  const cursor = playback.cursor;
+  const stepMove = cursor > 0 ? (moves[cursor - 1] ?? "") : "";
 
-      <section
-        className="col-span-12 xl:col-span-7 rounded-card bg-surface p-5 sm:p-6"
-        aria-live="polite"
-      >
-        {result ? (
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-12 gap-2">
-              <div className="col-span-6">
-                <StatTile label={t("otherPuzzles.moves")} value={String(result.moves)} />
-              </div>
-              <div className="col-span-6">
-                <StatTile label={t("otherPuzzles.puzzle")} value={t(info.labelKey)} />
-              </div>
+  return (
+    <div className="grid grid-cols-12 gap-6 items-start">
+      <div className="col-span-12 xl:col-span-8 flex flex-col gap-6">
+        {mode === "state" ? (
+          <Surface>
+            <PanelHeader
+              className="px-6 pt-6 pb-2"
+              icon={<PencilSquare />}
+              title={t("home.inputTitle.state")}
+            />
+            <div className="px-6 pb-6">
+              {model ? (
+                <PuzzleStatePainter
+                  kpuzzleId={kpuzzleId}
+                  model={model}
+                  painting={painting}
+                  onChange={next => {
+                    setPainting(next);
+                    setResult(null);
+                    playback.setCursor(0);
+                  }}
+                  brush={brush}
+                  onBrushChange={setBrush}
+                  onReset={() => {
+                    void solvedStatePainting(kpuzzleId).then(setPainting);
+                    setResult(null);
+                    playback.setCursor(0);
+                  }}
+                  disabled={loading}
+                />
+              ) : (
+                <p className="mb-0 text-sm text-muted">{t("common.loading")}</p>
+              )}
+              <Button
+                variant="primary"
+                className="mt-4 w-full px-6 py-3 text-base"
+                disabled={!model || loading}
+                aria-busy={loading || undefined}
+                onClick={() => void solveState()}
+              >
+                <Play className="text-lg mr-1" aria-hidden="true" />
+                {loading ? t("otherPuzzles.solving") : t("input.solve")}
+              </Button>
+              {error ? (
+                <p role="alert" className="mt-3 mb-0 text-sm text-danger">
+                  {error}
+                </p>
+              ) : null}
             </div>
-            <div>
-              <h2 className="mb-1 text-sm font-semibold tracking-tight">
-                {t("otherPuzzles.solution")}
-              </h2>
+          </Surface>
+        ) : (
+        <SolverInputPanel
+          solverKind="cfop"
+          mode="scramble"
+          value={scramble}
+          loading={loading}
+          status={t("otherPuzzles.solving")}
+          error={error}
+          stateValidation={null}
+          paintColor="U"
+          canUndo={false}
+          canRedo={false}
+          recentStates={[]}
+          hideCamera
+          scramblePlaceholder={t("otherPuzzles.scramblePlaceholder")}
+          onValueChange={next => {
+            setScramble(next);
+            setResult(null);
+            playback.setCursor(0);
+          }}
+          onStateEdit={() => undefined}
+          onUndo={() => undefined}
+          onRedo={() => undefined}
+          onPaintColorChange={() => undefined}
+          onRandomScramble={() => void randomScramble()}
+          onSolve={() => void solve()}
+          onCancel={() => undefined}
+          onSelectRecentState={() => undefined}
+          onRemoveRecentState={() => undefined}
+          onCameraState={() => undefined}
+        />
+        )}
+
+        {/* Chế độ Trạng thái: chỉ hiện khu vực khối sau khi đã giải. */}
+        {mode === "state" && !result ? null : (
+        <SolverSolutionPanel
+          view="3d"
+          onViewChange={() => undefined}
+          hideViewSwitch
+          title={t(info.labelKey)}
+          subtitle={t("otherPuzzles.note")}
+          eyebrow={
+            result
+              ? `${t("guide.step")} · ${String(cursor).padStart(2, "0")} / ${String(moves.length).padStart(2, "0")}`
+              : undefined
+          }
+          move={stepMove || null}
+          moveLabel={t("guide.step")}
+          turnCount={moves.length}
+          hasResult={Boolean(result?.solution)}
+          cursor={cursor}
+          playing={playback.playing}
+          playbackSpeed={playback.playbackSpeed}
+          onTogglePlay={() => {
+            if (!playback.playing && cursor >= moves.length)
+              playback.selectCursor(0, "reset");
+            playback.setPlaying(!playback.playing);
+          }}
+          onStep={delta => playback.selectCursor(cursor + delta, "step")}
+          onReset={() => playback.selectCursor(0, "reset")}
+          onSeek={next => playback.selectCursor(next, "seek")}
+          onPlaybackSpeedChange={playback.setPlaybackSpeed}
+        >
+          <SolutionStage
+            eventId={info.eventId}
+            puzzle={info.puzzle}
+            setup={result?.scramble ?? (mode === "scramble" ? scramble : "")}
+            moves={moves}
+            cursor={cursor}
+            direction={playback.cubeMotion.direction}
+            motionId={playback.cubeMotion.id}
+            speed={playback.playbackSpeed}
+            language={language}
+            placeholder={t("otherPuzzles.stagePlaceholder")}
+          />
+        </SolverSolutionPanel>
+        )}
+      </div>
+
+      <SolverSolutionSidebar>
+        {result ? (
+          <div className="flex flex-col gap-3">
+            <p className="mb-0 text-sm text-muted">
+              {t("otherPuzzles.moves")}:{" "}
+              <strong className="text-ink">{result.moves}</strong>
+            </p>
+            {moves.length ? (
+              <ol
+                data-testid="other-puzzle-solution"
+                className="m-0 flex list-none flex-wrap gap-1.5 p-0"
+              >
+                {moves.map((move, index) => (
+                  <li key={index}>
+                    <button
+                      type="button"
+                      aria-current={cursor === index + 1 || undefined}
+                      onClick={() => playback.selectCursor(index + 1, "seek")}
+                      className={cn(
+                        "rounded-full px-3 py-1.5 font-mono text-sm transition",
+                        cursor === index + 1
+                          ? "bg-primary text-on-primary"
+                          : "bg-surface-2 text-ink hover:bg-surface-3"
+                      )}
+                    >
+                      {move}
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            ) : (
               <p
                 data-testid="other-puzzle-solution"
-                className="mb-0 rounded-panel bg-surface-2 px-4 py-3 font-mono text-sm break-words"
+                className="mb-0 text-sm text-ink"
               >
-                {result.solution || t("otherPuzzles.alreadySolved")}
+                {t("otherPuzzles.alreadySolved")}
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button variant="soft" size="sm" onClick={() => void copy()}>
-                  {copied ? t("otherPuzzles.copied") : t("otherPuzzles.copy")}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setReplayToken(token => token + 1)}
-                >
-                  {t("otherPuzzles.replay")}
-                </Button>
-              </div>
-            </div>
-            <div className="h-80">
-              <CubeAlgorithmReplay
-                eventId={info.eventId}
-                puzzle={info.puzzle}
-                scramble={result.scramble}
-                algorithm={result.solution}
-                language={language}
-                replayToken={replayToken}
-              />
+            )}
+            <div>
+              <Button variant="soft" size="sm" onClick={() => void copy()}>
+                {copied ? t("otherPuzzles.copied") : t("otherPuzzles.copy")}
+              </Button>
             </div>
           </div>
-        ) : (
-          <p className="mb-0 text-sm text-muted">{t("otherPuzzles.empty")}</p>
-        )}
-      </section>
+        ) : undefined}
+      </SolverSolutionSidebar>
     </div>
   );
 }

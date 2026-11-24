@@ -14,7 +14,7 @@ CFOP Solver Studio là ứng dụng web hỗ trợ giải, luyện tập và thi
 | **Study** | Last Layer và 3-Style BLD, catalog công thức, SRS, drill, streak, learning path, profile học tập và tự kiểm tra bằng scramble. FTO Study không còn trong sản phẩm. |
 | **Profile / Account** | Đăng ký, đăng nhập, đổi mật khẩu, quên mật khẩu, avatar, mục tiêu cá nhân, đồng bộ Timer/Study và liên kết WCA. |
 | **Rooms** | Tạo/tham gia phòng, Best of 3/Ao5/Ao12, MBLD, chat, spectator, moderator, moderation log, rematch, lịch sử phòng và leaderboard. Cập nhật tức thì qua SSE; chủ phòng/moderator thấy cờ cảnh báo kết quả đáng ngờ. |
-| **Khối khác** | Trang `/puzzles` giải 2×2×2, Pyraminx, Skewb bằng `cubing/search`; trang Giải có thẻ so CFOP với lời giải ngắn nhất. |
+| **Khối khác** | Trang Giải có bộ chọn khối: 2×2×2, Pyraminx, Skewb, Megaminx, 3×3 OH và 3×3 FM giải bằng `cubing/search`; với 3×3 có thêm tab 3×3 FM tìm lời giải ngắn nhất. |
 | **WCA** | Lịch thi đấu, lọc quốc gia, hồ sơ WCA, OAuth WCA khi đủ cấu hình và so sánh thành tích. |
 
 ## 2. Stack công nghệ
@@ -195,9 +195,11 @@ Trang `/` là một **không gian làm việc** hai cột, không phải một c
 - **Báo cáo CFOP** nằm full-width dưới cả hai cột; số lượt và số chặng gộp vào header của chính báo cáo nên không còn thẻ số liệu trùng lặp.
 - Các khối gập dùng `<details>` native, không cần JS.
 
-### Trang khối khác
+### Giải khối khác trong trang Giải
 
-Trang `/puzzles` giải 2×2×2, Pyraminx và Skewb: chọn khối, nhập hoặc tạo scramble ngẫu nhiên, bấm **Giải** để nhận lời giải ngắn của `cubing/search` (không theo phương pháp học) và xem lại trên mô hình 3D. `cubing/*` chỉ nạp khi bấm Giải. Namespace i18n `otherPuzzles.*` trong `client/src/lib/i18n/solver.ts`.
+**Trạng thái tô màu (mọi khối, kể cả 3×3 CFOP/BLD).** Chế độ "Trạng thái cube" dùng một bộ tô màu chung: lưới sticker lấy từ SVG của cubing.js (2×2×2, 3×3×3: SVG vẽ tay vì `KPuzzle` viết tay, đánh thứ tự sticker ngược `pg` nên `orientSign = -1`; Pyraminx, Skewb, Megaminx: hình học `pg`, `orientSign = 1`). `lib/puzzleState.ts` đổi màu ↔ `KPattern`; `lib/faceletMap.ts` nối 3×3 với chuỗi 54 ký tự của bộ giải CFOP/BLD (`FaceletStatePainter`). Test `faceletMap.test.ts` đối chiếu với `kpatternToFacelets` thật. Megaminx dùng ký hiệu `R++`/`D--` nên `invertAlgorithm` có tuỳ chọn `fifthTurns`.
+
+Bộ chọn khối ở đầu trang Giải cho phép giải 2×2×2, Pyraminx và Skewb (chọn 3×3 thì giữ nguyên bộ giải CFOP): nhập hoặc tạo scramble ngẫu nhiên, bấm **Giải** để nhận lời giải ngắn của `cubing/search` (không theo phương pháp học) và xem lại trên mô hình 3D. `cubing/*` chỉ nạp khi bấm Giải. Namespace i18n `otherPuzzles.*` trong `client/src/lib/i18n/solver.ts`.
 
 ### Trang học thêm
 

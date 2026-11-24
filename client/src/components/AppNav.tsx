@@ -35,11 +35,6 @@ const primaryNavItems: AccountNavItem[] = [
 
 const overflowNavItems: AccountNavItem[] = [
   {
-    href: "/puzzles",
-    labelKey: "nav.puzzles",
-    active: (path: string) => path === "/puzzles",
-  },
-  {
     href: "/play",
     labelKey: "nav.play",
     active: (path: string) => path === "/play",

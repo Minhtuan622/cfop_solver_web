@@ -23,7 +23,6 @@ const ReviewReminderSync = lazy(() =>
   }))
 );
 const Home = lazy(() => import("./pages/Home"));
-const OtherPuzzles = lazy(() => import("./pages/OtherPuzzles"));
 const History = lazy(() => import("./pages/History"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Rooms = lazy(() => import("./pages/Rooms"));
@@ -61,7 +60,6 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/timer" component={TimerLab} />
         <Route path="/study" component={TimerLab} />
-        <Route path="/puzzles" component={OtherPuzzles} />
         <Route path="/play" component={Play} />
         <Route path="/settings" component={Settings} />
         <Route path="/history" component={History} />

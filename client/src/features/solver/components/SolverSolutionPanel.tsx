@@ -40,6 +40,8 @@ export type SolverSolutionPanelProps = {
   onPlaybackSpeedChange: (speed: number) => void;
   /** Status banner under the controls (e.g. "first steps are ready"). */
   footer?: ReactNode;
+  /** Ẩn nút chuyển 2D/3D (khối chỉ có mô hình 3D). */
+  hideViewSwitch?: boolean;
   /** The cube itself. */
   children: ReactNode;
 };
@@ -66,6 +68,7 @@ export function SolverSolutionPanel({
   onReset,
   onPlaybackSpeedChange,
   footer,
+  hideViewSwitch = false,
   children,
 }: SolverSolutionPanelProps) {
   const { t } = useLanguage();
@@ -90,6 +93,7 @@ export function SolverSolutionPanel({
             ) : null}
           </div>
         ) : null}
+        {hideViewSwitch ? null : (
         <PillBar
           variant="soft"
           className="absolute right-4 top-3 z-10 bg-surface"
@@ -113,6 +117,7 @@ export function SolverSolutionPanel({
             ]}
           />
         </PillBar>
+        )}
         <div className="pt-2">{children}</div>
       </div>
 
