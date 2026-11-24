@@ -48,65 +48,23 @@ export function CubeNet({
   compact = false,
   inspectCross = false,
   crossColor = "U",
-  editable = false,
-  selectedColor = "U",
-  onStateChange,
-  disabled = false,
   lastLayerOnly = false,
 }: {
   state: string;
   compact?: boolean;
   inspectCross?: boolean;
   crossColor?: string;
-  editable?: boolean;
-  selectedColor?: Face;
-  onStateChange?: (state: string) => void;
-  disabled?: boolean;
   lastLayerOnly?: boolean;
 }) {
   const safeState = state.length === 54 ? state : SOLVED_STATE;
-  const paint = (face: Face, stickerIndex: number) => {
-    if (!editable || disabled || stickerIndex === 4) return;
-    const position = FACE_OFFSET[face] + stickerIndex;
-    onStateChange?.(
-      `${safeState.slice(0, position)}${selectedColor}${safeState.slice(position + 1)}`
-    );
-  };
-  const fill = (face: Face) => {
-    if (!editable || disabled) return;
-    const stickers = safeState.split("");
-    for (let index = 0; index < 9; index += 1)
-      if (index !== 4) stickers[FACE_OFFSET[face] + index] = selectedColor;
-    onStateChange?.(stickers.join(""));
-  };
   return (
     <div
-      aria-label={
-        editable
-          ? "CubeNet 2D có thể tô sticker trực tiếp"
-          : "Trạng thái khối dạng CubeNet"
-      }
-      className={cn(
-        "cube-net",
-        compact && "cube-net--compact",
-        editable && "cube-net-editable"
-      )}
+      aria-label="Trạng thái khối dạng CubeNet"
+      className={cn("cube-net", compact && "cube-net--compact")}
     >
       {FACE_ORDER.map(face => (
         <div key={face} className={cn("cube-net-face", FACE_GRID[face])}>
-          {editable ? (
-            <button
-              type="button"
-              disabled={disabled}
-              onClick={() => fill(face)}
-              className="cube-net-face-label"
-              title="Tô cả mặt bằng màu đang chọn"
-            >
-              {face}
-            </button>
-          ) : (
-            <span className="cube-net-face-label">{face}</span>
-          )}
+          <span className="cube-net-face-label">{face}</span>
           <div className="cube-net-stickers">
             {Array.from({ length: 9 }, (_, index) => {
               const sticker = safeState[FACE_OFFSET[face] + index] ?? "U";
@@ -119,29 +77,13 @@ export function CubeNet({
               const stickerClass = cn(
                 "cube-sticker",
                 highlighted && "cube-sticker--highlight",
-                dimmed && "cube-sticker--dimmed",
-                editable && index !== 4 && "cube-sticker--editable",
-                editable && index === 4 && "cube-sticker--center"
+                dimmed && "cube-sticker--dimmed"
               );
               const style = dimmed
                 ? { background: DIMMED_STICKER }
                 : { background: CUBE_COLOR[sticker] ?? "#888" };
-              return editable ? (
-                <button
-                  type="button"
-                  key={index}
-                  disabled={disabled || index === 4 || dimmed}
-                  onClick={() => paint(face, index)}
-                  aria-label={`${face} sticker ${index + 1}: ${sticker}${index === 4 ? ", tâm khóa" : ""}`}
-                  className={stickerClass}
-                  style={style}
-                />
-              ) : (
-                <span
-                  key={index}
-                  className={stickerClass}
-                  style={style}
-                />
+              return (
+                <span key={index} className={stickerClass} style={style} />
               );
             })}
           </div>

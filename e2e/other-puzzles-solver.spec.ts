@@ -19,6 +19,7 @@ const CASES = [
   { name: "Pyraminx", scramble: "R U L' B' u" },
   { name: "Skewb", scramble: "R L' B R' L" },
   { name: "Megaminx", scramble: "R++ D-- R-- D++ U" },
+  { name: "Clock", scramble: "UR3+ DR2- DL5+ UL1- U4+ R3- D2+ L1+ ALL3+ y2 U2- R1+ D3- ALL1-" },
 ] as const;
 
 for (const { name, scramble } of CASES) {
@@ -89,3 +90,17 @@ for (const [id, name] of [["222", "2×2×2"], ["pyram", "Pyraminx"], ["skewb", "
     void id;
   });
 }
+
+test("Clock: nhập trạng thái bằng mặt số rồi giải", async ({ page }) => {
+  await signedOut(page);
+  await page.goto("/");
+  await page.getByLabel("Loại khối").click();
+  await page.getByRole("option", { name: "Clock" }).click();
+  await page.getByRole("button", { name: "Trạng thái" }).click();
+  // Một lượt UR1+ thật: mặt trước 1,2,4,5 +1 giờ, mặt sau 1 ô −1 giờ.
+  for (const dial of [2, 3, 5, 6]) await page.locator(`[data-dial="${dial - 1}"]`).click();
+  await page.locator('[data-dial="9"]').click({ button: "right" });
+  await page.getByRole("button", { name: "Tìm cách giải" }).click();
+  await expect(page.getByTestId("other-puzzle-solution")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});

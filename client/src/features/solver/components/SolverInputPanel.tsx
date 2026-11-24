@@ -2,7 +2,6 @@ import { Camera, Dices, PencilSquare, Play } from "@/components/ui/Icon";
 import { PanelHeader, PillInput, Surface } from "@/components/ui/DesignSystem";
 import { Field, StatusFeedback } from "@/components/ui/StudioUI";
 import { CameraScanner } from "./CameraScanner";
-import { CubeStateEditor } from "./CubeStateEditor";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { CrossColor, CubeValidation } from "@/lib/solverRuntime";
 import { cn } from "@/lib/utils";
@@ -30,15 +29,9 @@ export type SolverInputPanelProps = {
   status: string;
   error: string;
   stateValidation: CubeValidation | null;
-  paintColor: CrossColor;
-  canUndo: boolean;
-  canRedo: boolean;
   recentStates: RecentCubeState[];
   onValueChange: (value: string) => void;
   onStateEdit: (state: string) => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  onPaintColorChange: (color: CrossColor) => void;
   onRandomScramble: () => void;
   onSolve: () => void;
   onCancel: () => void;
@@ -68,15 +61,9 @@ export function SolverInputPanel({
   status,
   error,
   stateValidation,
-  paintColor,
-  canUndo,
-  canRedo,
   recentStates,
   onValueChange,
   onStateEdit,
-  onUndo,
-  onRedo,
-  onPaintColorChange,
   onRandomScramble,
   onSolve,
   onCancel,
@@ -171,23 +158,7 @@ export function SolverInputPanel({
           </div>
         ) : (
           <>
-            {statePainter ?? (
-              <>
-                <CubeStateEditor
-                  state={value}
-                  onChange={onStateEdit}
-                  disabled={loading}
-                  canUndo={canUndo}
-                  canRedo={canRedo}
-                  onUndo={onUndo}
-                  onRedo={onRedo}
-                  selectedColor={paintColor}
-                  onSelectedColorChange={onPaintColorChange}
-                  controlsOnly
-                />
-                <p className="text-sm text-muted mt-2">{t("home.paintHint")}</p>
-              </>
-            )}
+            {statePainter}
             <div className="mt-4">
               <StatusFeedback
                 tone={

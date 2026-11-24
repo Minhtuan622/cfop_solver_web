@@ -10,6 +10,12 @@ test("lane Roux: mở, thấy 42 case CMLL, chọn bộ LSE", async ({ page }) =
   await expect(page.getByText(/42 case CMLL/).first()).toBeVisible();
   await page.getByRole("button", { name: /^LSE/ }).click();
   await expect(page.getByText(/công thức LSE/).first()).toBeVisible();
+
+  // Danh mục: mở nhóm Pi, mỗi case có hình 2D nhìn từ trên xuống (id CMLL-Pi-…).
+  await page.getByRole("button", { name: /^CMLL/ }).click();
+  await page.getByText("Danh mục Roux").click();
+  await page.getByText("Pi", { exact: true }).first().click();
+  await expect(page.locator('svg[role="img"][aria-label^="CMLL-Pi"]').first()).toBeVisible({ timeout: 30_000 });
 });
 
 test("trang Giải: 3×3 Roux giải theo giai đoạn FB, SB, CMLL, LSE", async ({ page }) => {

@@ -43,12 +43,6 @@ export const ORBIT_LIMIT = 1.1;
 export const BODY = 0.66;
 export const CELL_3 = 0.7;
 export const CELL_2 = 0.95;
-const XROSS_STICKERS: Record<string, Partial<Record<string, number[]>>> = {
-  FR: { D: [2], F: [5, 8], R: [3, 6] },
-  FL: { D: [0], F: [3, 6], L: [5, 8] },
-  BL: { D: [6], B: [5, 8], L: [3, 6] },
-  BR: { D: [8], B: [3, 6], R: [5, 8] },
-};
 
 export function indexFor(face: string, x: number, y: number, z: number) {
   switch (face) {
@@ -90,47 +84,6 @@ export function parseMove(move: string) {
   return { axis: spec.axis, layers: spec.layers, angle };
 }
 
-export function highlightedIndexes(
-  xcrossSlots: string[] | undefined,
-  lastLayerCase: { family: string; id: string } | null | undefined,
-  specialStickers: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>> | undefined,
-  alignPerm: number[] | null = null
-) {
-  const highlight = new Map<string, { color: string; intensity: number }>();
-  const inverse = alignPerm ? invertPermutation(alignPerm) : null;
-  /** aligned-frame face/index → raw face/index used by the raw scene. */
-  const rawKey = (face: string, faceIndex: number) => {
-    if (!inverse) return `${face}:${faceIndex}`;
-    const rawPos = inverse[FACE_OFFSET[face] + faceIndex];
-    return `${faceOfPos(rawPos)}:${rawPos % 9}`;
-  };
-  if (xcrossSlots?.length) {
-    for (const slot of xcrossSlots) {
-      const slotMap = XROSS_STICKERS[slot];
-      if (!slotMap) continue;
-      for (const face of Object.keys(slotMap) as Array<"D" | "F" | "R" | "L" | "B">) {
-        for (const index of slotMap[face] ?? []) {
-          highlight.set(rawKey(face, index), { color: "#14b8a6", intensity: 0.75 });
-        }
-      }
-    }
-  }
-  if (lastLayerCase) {
-    for (const face of FACE_ORDER) {
-      for (let index = 0; index < 9; index += 1) {
-        highlight.set(rawKey(face, index), { color: "#fbbf24", intensity: 0.65 });
-      }
-    }
-  }
-  if (specialStickers) {
-    for (const face of Object.keys(specialStickers) as Array<"U" | "R" | "F" | "D" | "L" | "B">) {
-      for (const index of specialStickers[face] ?? []) {
-        highlight.set(rawKey(face, index), { color: "#fb7185", intensity: 0.7 });
-      }
-    }
-  }
-  return highlight;
-}
 
 /**
  * Whole-cube permutations that put the Cross on D — identical to the ones the
@@ -176,20 +129,3 @@ const ALIGN_PERM_KEY: Record<string, keyof typeof WHOLE_CUBE_PERM | null> = {
 };
 // z2 = z hai lần (cùng quy ước với bảng hoán vị ở trên).
 WHOLE_CUBE_PERM.z2 = WHOLE_CUBE_PERM.z.map(index => WHOLE_CUBE_PERM.z[index]);
-export function alignPermFor(crossColor: string) {
-  const key = ALIGN_PERM_KEY[crossColor] ?? null;
-  return key ? WHOLE_CUBE_PERM[key] : null;
-}
-function invertPermutation(perm: number[]) {
-  const inverse = new Array<number>(perm.length);
-  perm.forEach((target, source) => {
-    inverse[target] = source;
-  });
-  return inverse;
-}
-function faceOfPos(pos: number) {
-  return (
-    FACE_ORDER.find(face => pos >= FACE_OFFSET[face] && pos < FACE_OFFSET[face] + 9) ??
-    "D"
-  );
-}

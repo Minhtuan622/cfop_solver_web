@@ -7,6 +7,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { SolutionStage } from "./SolutionStage";
 import { PuzzleStatePainter } from "./PuzzleStatePainter";
+import { ClockDialEditor } from "./ClockDialEditor";
+import { CLOCK_DIAL_COUNT } from "../lib/clockEngine";
+import { invertClockAlgorithm } from "../lib/clockSolver";
 import { PanelHeader, Surface } from "@/components/ui/DesignSystem";
 import { PencilSquare, Play } from "@/components/ui/Icon";
 import {
@@ -50,6 +53,8 @@ export function OtherPuzzleSolver({
   const [model, setModel] = useState<StateModel | null>(null);
   const [painting, setPainting] = useState<Painting>({});
   const [brush, setBrush] = useState("");
+  const isClock = puzzle === "clock";
+  const [dials, setDials] = useState<number[]>(() => new Array(CLOCK_DIAL_COUNT).fill(0));
 
   const moves = useMemo(
     () => (result?.solution ? result.solution.split(" ") : []),
@@ -75,7 +80,7 @@ export function OtherPuzzleSolver({
 
   // Vào chế độ tô màu thì tải mô hình sticker (nạp lười) và bắt đầu từ khối đã giải.
   useEffect(() => {
-    if (mode !== "state" || model) return;
+    if (mode !== "state" || model || isClock) return;
     let cancelled = false;
     void Promise.all([loadStateModel(kpuzzleId), solvedStatePainting(kpuzzleId)])
       .then(([loaded, solved]) => {
@@ -100,6 +105,17 @@ export function OtherPuzzleSolver({
     playback.setPlaying(false);
     playback.setCursor(0);
     try {
+      if (isClock) {
+        const { solveClockDials } = await import("../lib/clockEngine");
+        const solution = await solveClockDials(dials);
+        if (solution === null) throw new PuzzleSolveError("invalid-state");
+        setResult({
+          scramble: invertClockAlgorithm(solution),
+          solution,
+          moves: solution ? solution.split(" ").length : 0,
+        });
+        return;
+      }
       const solved = await solveFromPainting(puzzle, painting);
       setResult({
         scramble: solved.setup,
@@ -165,7 +181,22 @@ export function OtherPuzzleSolver({
               title={t("home.inputTitle.state")}
             />
             <div className="px-6 pb-6">
-              {model ? (
+              {isClock ? (
+                <ClockDialEditor
+                  dials={dials}
+                  disabled={loading}
+                  onChange={next => {
+                    setDials(next);
+                    setResult(null);
+                    playback.setCursor(0);
+                  }}
+                  onReset={() => {
+                    setDials(new Array(CLOCK_DIAL_COUNT).fill(0));
+                    setResult(null);
+                    playback.setCursor(0);
+                  }}
+                />
+              ) : model ? (
                 <PuzzleStatePainter
                   kpuzzleId={kpuzzleId}
                   model={model}
@@ -190,7 +221,7 @@ export function OtherPuzzleSolver({
               <Button
                 variant="primary"
                 className="mt-4 w-full px-6 py-3 text-base"
-                disabled={!model || loading}
+                disabled={(!isClock && !model) || loading}
                 aria-busy={loading || undefined}
                 onClick={() => void solveState()}
               >
@@ -213,9 +244,6 @@ export function OtherPuzzleSolver({
           status={t("otherPuzzles.solving")}
           error={error}
           stateValidation={null}
-          paintColor="U"
-          canUndo={false}
-          canRedo={false}
           recentStates={[]}
           hideCamera
           scramblePlaceholder={t("otherPuzzles.scramblePlaceholder")}
@@ -225,9 +253,6 @@ export function OtherPuzzleSolver({
             playback.setCursor(0);
           }}
           onStateEdit={() => undefined}
-          onUndo={() => undefined}
-          onRedo={() => undefined}
-          onPaintColorChange={() => undefined}
           onRandomScramble={() => void randomScramble()}
           onSolve={() => void solve()}
           onCancel={() => undefined}

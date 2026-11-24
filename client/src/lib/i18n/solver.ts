@@ -42,6 +42,14 @@ export const solverWords: Dictionary = {
   "roux.phase.CMLL": ["CMLL (góc lớp trên)", "CMLL (last-layer corners)"],
   "roux.phase.LSE": ["LSE (sáu cạnh cuối)", "LSE (last six edges)"],
   "otherPuzzles.puzzle.minx": ["Megaminx", "Megaminx"],
+  "otherPuzzles.puzzle.clock": ["Clock", "Clock"],
+  "otherPuzzles.clock.front": ["Mặt trước", "Front"],
+  "otherPuzzles.clock.back": ["Mặt sau", "Back"],
+  "otherPuzzles.clock.dial": ["Mặt số {n}: {hour} giờ", "Dial {n}: {hour} o'clock"],
+  "otherPuzzles.clock.hint": [
+    "Bấm vào mặt số để tăng một giờ, Shift + bấm hoặc chuột phải để giảm.",
+    "Click a dial to add an hour; Shift + click or right-click to subtract.",
+  ],
   "otherPuzzles.scramble": ["Scramble", "Scramble"],
   "otherPuzzles.scramblePlaceholder": ["Ví dụ: R U R' U' F2 …", "For example: R U R' U' F2 …"],
   "otherPuzzles.solve": ["Giải", "Solve"],
@@ -171,10 +179,6 @@ export const solverWords: Dictionary = {
   "home.scramblePlaceholder": [
     "Nhập xáo trộn · R U R' U' …",
     "Enter scramble · R U R' U' …",
-  ],
-  "home.paintHint": [
-    "Tô trực tiếp trên CubeNet 2D lớn cạnh Cube 3D.",
-    "Paint directly on the large 2D cube net beside the 3D cube.",
   ],
   "home.waitingValidation": [
     "Đang chờ kiểm tra state.",

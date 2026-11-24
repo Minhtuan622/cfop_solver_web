@@ -22,9 +22,6 @@
   max-width: 33rem;
 }
 
-.cube-net-editable {
-  cursor: crosshair;
-}
 
 .cube-net-face {
   position: relative;
@@ -70,19 +67,8 @@
   padding: 0;
 }
 
-.cube-net-editable .cube-net-face-label {
-  color: var(--cube-stage-ink);
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
 
-.cube-net-editable .cube-net-face-label:hover:not(:disabled) {
-  color: var(--primary);
-}
 
-.cube-net-editable .cube-net-face-label:disabled {
-  opacity: 0.4;
-}
 
 /* Phong cách phẳng: ô màu bo tròn, tách nhau bằng khoảng trống — không viền,
    không bóng. */
@@ -160,17 +146,8 @@
   filter: brightness(1.15) saturate(1.25);
 }
 
-.cube-sticker--editable {
-  cursor: crosshair;
-}
 
-.cube-sticker--editable:hover:not(:disabled) {
-  filter: brightness(1.1);
-}
 
-.cube-sticker--editable:active:not(:disabled) {
-  filter: brightness(0.95);
-}
 
 .cube-sticker:disabled {
   cursor: not-allowed;
@@ -178,22 +155,7 @@
 }
 
 /* Cube editor grid (standalone editor panel) */
-.cube-editor-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 0.375rem;
-  border-radius: 0.75rem;
-  background: var(--canvas);
-  padding: 0.75rem;
-}
 
-.cube-editor-face-label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate(-50%, -50%);
-}
 
 /* ---- 3D Rubik scene (functional geometry, not page theme) ---- */
 .cube3d-stage {
@@ -487,9 +449,6 @@
     animation: none;
   }
   .cube3d-model:active:not(:disabled) {
-    transform: none;
-  }
-  .cube-sticker--editable:active:not(:disabled) {
     transform: none;
   }
 }

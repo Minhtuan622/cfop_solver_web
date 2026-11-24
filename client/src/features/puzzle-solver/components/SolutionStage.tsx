@@ -10,7 +10,7 @@ import type { TimerEventId } from "@/lib/timerEvents";
 
 /** Chuỗi lượt chỉ gồm ký hiệu WCA hợp lệ (để không đưa chữ đang gõ dở cho player). */
 const VALID_ALG =
-  /^(?:(?:[URFDLB]w?|[urfdlb]|[MESxyz]|\d[URFDLB]w|[A-Z]{2,3}v?|[URFDLB]v)(?:\+\+|--|\d?'?)(?:\s+|$))*$/;
+  /^(?:(?:(?:[URFDLB]w?|[urfdlb]|[MESxyz]|\d[URFDLB]w|[A-Z]{2,3}v?|[URFDLB]v)(?:\+\+|--|\d?'?)|(?:UR|DR|DL|UL|ALL|[URDL])\d{1,2}[+-])(?:\s+|$))*$/;
 
 export function isPlayableAlgorithm(text: string) {
   return VALID_ALG.test(text.trim() + " ") || !text.trim();

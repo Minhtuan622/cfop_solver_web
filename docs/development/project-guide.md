@@ -206,6 +206,8 @@ Trang `/` là một **không gian làm việc** hai cột, không phải một c
 
 Bộ chọn khối ở đầu trang Giải cho phép giải 2×2×2, Pyraminx và Skewb (chọn 3×3 thì giữ nguyên bộ giải CFOP): nhập hoặc tạo scramble ngẫu nhiên, bấm **Giải** để nhận lời giải ngắn của `cubing/search` (không theo phương pháp học) và xem lại trên mô hình 3D. `cubing/*` chỉ nạp khi bấm Giải. Namespace i18n `otherPuzzles.*` trong `client/src/lib/i18n/solver.ts`.
 
+**Clock.** `lib/clockSolver.ts` giải bằng đại số: mỗi lượt (UR, DR, DL, UL, U, R, D, L, ALL) là một véc-tơ cộng giờ lên 18 mặt số nên hệ phương trình tuyến tính modulo 12, giải bằng dạng Smith trên Z/3 và Z/4 rồi ghép CRT; cần mặt sau thì thêm `y2`. `lib/clockEngine.ts` đọc véc-tơ lượt và hoán vị `y2` từ KPuzzle của cubing.js và luôn áp lại lời giải để kiểm. Chế độ Trạng thái dùng `ClockDialEditor` (18 mặt số; thứ tự ô theo KPuzzle: 0–8 mặt trước, 9–17 mặt sau). Nhập tay thường ra trạng thái không có thật nên báo "trạng thái không hợp lệ". Khung phát dùng bản 2D của cubing.js. Megaminx dùng `solveMegaminx` (~150–165 lượt); gộp lượt/đổi hướng chỉ giảm ~0,5% nên không thêm tối ưu hậu kỳ.
+
 ### Trang học thêm
 
 Trang `/study` là **một màn hình làm việc**, không phải một bảng tra cứu dài:
@@ -398,6 +400,8 @@ pnpm drizzle-kit migrate
 Đây là lệnh nên dùng khi triển khai production: nó chỉ áp dụng các file SQL trong `drizzle/` (đã được review) lên database.
 
 Không dùng `pnpm db:push` trong deploy: script này chạy `drizzle-kit generate` trước, tức là vừa sinh lại SQL mới trong lúc deploy, vừa có thể ghi đè nội dung file migration đang track trong repository. `db:push` chỉ dành cho máy dev khi đang thử nghiệm schema.
+
+Migration `0013` (bảng `cfop_push_subscriptions`) và `0014` (cột `cfop_competition_results.flags`) chỉ **thêm** nên áp dụng an toàn trước khi deploy code mới. Thứ tự cho production: (1) backup; (2) `pnpm drizzle-kit migrate`; (3) đặt `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mục 5.4b; thiếu thì chỉ tắt nhắc ôn tập); (4) deploy code. Rollback: code cũ vẫn chạy với schema mới vì cả hai thay đổi chỉ thêm.
 
 Quy trình triển khai database:
 

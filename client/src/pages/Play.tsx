@@ -351,7 +351,6 @@ export default function PlayPage() {
                 transitionId={transitionId}
                 turnDurationMs={170}
                 surface="light"
-                alignCross={false}
                 initialOrbit={0.55}
                 initialPitch={0.3}
                 orbitKeys

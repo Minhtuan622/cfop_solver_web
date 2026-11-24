@@ -10,15 +10,12 @@ import {
   CELL_2,
   CELL_3,
   ORBIT_LIMIT,
-  alignPermFor,
-  highlightedIndexes,
   parseMove,
 } from "../lib/cubeGuideFacelets";
 import { IconButton } from "@/components/ui/StudioUI";
 import { CubeGuide3DFallback } from "./CubeGuide3DFallback";
 import {
   BASE_FOV,
-  alignQuaternionFor,
   buildCubies,
   disposeObject,
   type Cubie,
@@ -36,17 +33,9 @@ export type CubeGuide3DProps = {
   /** Thời lượng một nước, mặc định 340ms. */
   turnDurationMs?: number;
   dimension?: 2 | 3;
-  crossColor?: string;
-  xcrossSlots?: string[];
-  lastLayerCase?: { family: string; id: string } | null;
-  specialStickers?: Partial<
-    Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>
-  >;
   surface?: "dark" | "light";
   initialYaw?: number;
   initialPitch?: number;
-  /** Xoay scene để mặt Cross nằm trên D, không hoán vị facelet trong state. */
-  alignCross?: boolean;
   /** Mũi tên trái/phải/lên/xuống xoay góc nhìn (dùng cho chế độ chơi bằng bàn phím). */
   orbitKeys?: boolean;
   /** Chiều cao tối thiểu của khung khối (px), mặc định 288. */
@@ -60,11 +49,6 @@ export function CubeGuide3D({
   transition = "idle",
   turnDurationMs = 340,
   dimension = 3,
-  crossColor = "U",
-  alignCross = false,
-  xcrossSlots,
-  lastLayerCase = null,
-  specialStickers,
   surface = "dark",
   initialYaw = 0.55,
   initialPitch = 0.3,
@@ -111,14 +95,7 @@ export function CubeGuide3D({
 
   const buildFromState = (
     bundle: TrackedScene,
-    nextState: string,
-    opts: {
-      crossColor?: string;
-      alignCross?: boolean;
-      xcrossSlots?: string[];
-      lastLayerCase?: { family: string; id: string } | null;
-      specialStickers?: Partial<Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>>;
-    }
+    nextState: string
   ) => {
     cancelAnimation();
     const { root } = bundle;
@@ -130,13 +107,7 @@ export function CubeGuide3D({
     }
     cubiesRef.current = [];
 
-    const highlight = highlightedIndexes(
-      opts.xcrossSlots,
-      opts.lastLayerCase,
-      opts.specialStickers,
-      alignPermFor(opts.alignCross ? (opts.crossColor ?? "U") : "D")
-    );
-    cubiesRef.current = buildCubies(root, nextState, dimension, highlight);
+    cubiesRef.current = buildCubies(root, nextState, dimension);
     builtStateRef.current = nextState;
     bundle.resize();
   };
@@ -162,7 +133,6 @@ export function CubeGuide3D({
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(BASE_FOV, 1, 0.1, 50);
     const alignGroup = new THREE.Group();
-    alignGroup.quaternion.copy(alignQuaternionFor(alignCross ? crossColor : "D"));
     scene.add(alignGroup);
     const root = new THREE.Group();
     alignGroup.add(root);
@@ -193,13 +163,7 @@ export function CubeGuide3D({
     observer.observe(host);
     sceneRef.current = { renderer: activeRenderer, scene, camera, root, alignGroup, host, resize };
     builtStateRef.current = state;
-    buildFromState(sceneRef.current, state, {
-      crossColor,
-      alignCross,
-      xcrossSlots,
-      lastLayerCase,
-      specialStickers,
-    });
+    buildFromState(sceneRef.current, state);
 
     setStatus("ready");
     return () => {
@@ -213,17 +177,6 @@ export function CubeGuide3D({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dimension, surface]);
-
-  // Alignment (Cross → D) follows the current props without rebuilding the cube.
-  useEffect(() => {
-    const bundle = sceneRef.current;
-    if (!bundle) return;
-    bundle.alignGroup.quaternion.copy(
-      alignQuaternionFor(alignCross ? crossColor : "D")
-    );
-    bundle.resize();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alignCross, crossColor]);
 
   // Camera nudges from the arrow keys (play mode). Ignores events from form
   // fields so typing never orbits the cube behind the user's back.
@@ -271,13 +224,7 @@ export function CubeGuide3D({
     const isMove = transition === "move" && move && previousState && previousState !== state;
 
     const rebuild = () =>
-      buildFromState(bundle, state, {
-        crossColor,
-        alignCross,
-        xcrossSlots,
-        lastLayerCase,
-        specialStickers,
-      });
+      buildFromState(bundle, state);
 
     if (!isMove) {
       rebuild();
@@ -293,13 +240,7 @@ export function CubeGuide3D({
     // Guarantee the scene starts exactly at previousState; an interrupted
     // animation may have left it behind. Cheap when already up to date.
     if (builtStateRef.current !== previousState) {
-      buildFromState(bundle, previousState, {
-        crossColor,
-        alignCross,
-        xcrossSlots,
-        lastLayerCase,
-        specialStickers,
-      });
+      buildFromState(bundle, previousState);
     }
     const cell = dimension === 2 ? CELL_2 : CELL_3;
     const { axis, layers, angle } = parsed;

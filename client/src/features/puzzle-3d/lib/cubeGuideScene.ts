@@ -30,37 +30,8 @@ export type TrackedScene = {
   resize: () => void;
 };
 
-/**
- * Căn mặt Cross xuống D bằng một phép xoay cố định của TOÀN BỘ scene (alignGroup),
- * KHÔNG hoán vị facelet trong state.
- *
- * Trước đây state được hoán vị (x2/x'/z…) còn `move` giữ nguyên ký hiệu gốc,
- * nên layer mà animation xoay không trùng với layer thực sự bị xoay trong
- * state — cubie quay sai lớp và sticker nhảy loạn ở cuối mỗi bước.
- */
-const ALIGN_ROTATIONS: Record<string, { axis: "x" | "z"; angle: number } | null> = {
-  U: { axis: "z", angle: Math.PI }, // z2 — U ↔ D, xanh lá vẫn ở trước
-  D: null,
-  F: { axis: "x", angle: Math.PI / 2 }, // x — F → D
-  B: { axis: "x", angle: -Math.PI / 2 }, // x' — B → D
-  R: { axis: "z", angle: -Math.PI / 2 }, // z' — R → D
-  L: { axis: "z", angle: Math.PI / 2 }, // z — L → D
-};
-
 /** Góc nhìn dọc (độ) khi khung vuông hoặc rộng hơn cao. */
 export const BASE_FOV = 34;
-
-export function alignQuaternionFor(crossColor: string) {
-  const spec = ALIGN_ROTATIONS[crossColor] ?? null;
-  const quaternion = new THREE.Quaternion();
-  if (spec) {
-    quaternion.setFromAxisAngle(
-      spec.axis === "x" ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1),
-      spec.angle
-    );
-  }
-  return quaternion;
-}
 
 /** Giải phóng vật liệu của một nhóm đối tượng (hình học dùng chung nên KHÔNG dispose). */
 export function disposeObject(object: THREE.Object3D) {
@@ -76,14 +47,12 @@ export function disposeObject(object: THREE.Object3D) {
 }
 
 /**
- * Dựng 26 cubie (hoặc 8 với 2×2) theo `nextState` và gắn vào `root`. `highlight`
- * là kết quả của `highlightedIndexes` (khoá `mặt:chỉ số` → màu phát sáng).
+ * Dựng 26 cubie (hoặc 8 với 2×2) theo `nextState` và gắn vào `root`.
  */
 export function buildCubies(
   root: THREE.Group,
   nextState: string,
-  dimension: 2 | 3,
-  highlight: ReturnType<typeof import("./cubeGuideFacelets").highlightedIndexes>
+  dimension: 2 | 3
 ): Cubie[] {
   const cubies: Cubie[] = [];
   const cell = dimension === 2 ? CELL_2 : CELL_3;
@@ -112,15 +81,9 @@ export function buildCubies(
             (face === "L" && x === -1);
           if (!exposed) continue;
           const faceletIndex = indexFor(face, x, y, z);
-          const faceIndex = faceletIndex % 9;
           const letter = nextState[faceletIndex] ?? "?";
           const color = CUBE_COLORS[letter] ?? CUBE_FALLBACK_COLOR;
-          const highlightInfo = highlight.get(`${face}:${faceIndex}`);
-          const material = new THREE.MeshLambertMaterial({
-            color,
-            emissive: highlightInfo ? new THREE.Color(highlightInfo.color) : new THREE.Color("#000000"),
-            emissiveIntensity: highlightInfo?.intensity ?? 0,
-          });
+          const material = new THREE.MeshLambertMaterial({ color });
           const sticker = new THREE.Mesh(stickerGeometry, material);
           const offset = BODY / 2 + 0.026;
           switch (face) {

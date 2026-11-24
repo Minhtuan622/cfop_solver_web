@@ -1,7 +1,7 @@
 /**
  * Roux catalog drawer: the shared CatalogExplorer wired to the CMLL/LSE data.
- * There are no pre-drawn diagrams for this lane, so the icon preview is a
- * small emblem; the practice card shows the live 3D case.
+ * The icon preview is a top-down 2D view of the case (U face + top row of the
+ * sides) drawn from the case state; the practice card shows the live 3D case.
  */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -9,6 +9,7 @@ import {
   type CatalogExplorerPreviewProps,
 } from "@/features/last-layer/components/CatalogExplorer";
 import type { RouxCatalogCase } from "../lib/rouxCatalog";
+import { RouxTopView } from "./RouxTopView";
 
 /** Flat Roux mark: the two 1×2×3 blocks with the M slice between them. */
 export function RouxMark({ className }: { className?: string }) {
@@ -31,8 +32,13 @@ export function RouxMark({ className }: { className?: string }) {
   );
 }
 
-function RouxPreview(_props: CatalogExplorerPreviewProps) {
-  return <RouxMark className="w-full max-w-none" />;
+function RouxPreview({ algorithm, label }: CatalogExplorerPreviewProps) {
+  const mark = <RouxMark className="w-full max-w-none" />;
+  return algorithm ? (
+    <RouxTopView algorithm={algorithm} label={label} fallback={mark} />
+  ) : (
+    mark
+  );
 }
 
 export function RouxCatalogPanel({

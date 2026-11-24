@@ -8,7 +8,7 @@
 import type { TimerEventId } from "@/lib/timerEvents";
 import type { PuzzleId } from "@/features/puzzle-3d/lib/puzzleIds";
 
-export type OtherPuzzleId = "222" | "pyram" | "skewb" | "minx" | "333fm" | "333roux";
+export type OtherPuzzleId = "222" | "pyram" | "skewb" | "minx" | "clock" | "333fm" | "333roux";
 
 export type OtherPuzzleInfo = {
   eventId: TimerEventId;
@@ -26,12 +26,13 @@ export const OTHER_PUZZLES: Record<OtherPuzzleId, OtherPuzzleInfo> = {
   pyram: { eventId: "pyram", scrambleEventId: "pyram", inPicker: true, puzzle: "pyraminx", labelKey: "otherPuzzles.puzzle.pyram" },
   skewb: { eventId: "skewb", scrambleEventId: "skewb", inPicker: true, puzzle: "skewb", labelKey: "otherPuzzles.puzzle.skewb" },
   minx: { eventId: "minx", scrambleEventId: "minx", inPicker: true, puzzle: "megaminx", labelKey: "otherPuzzles.puzzle.minx" },
+  clock: { eventId: "clock", scrambleEventId: "clock", inPicker: true, puzzle: "clock", labelKey: "otherPuzzles.puzzle.clock" },
   "333roux": { eventId: "333", scrambleEventId: "333", inPicker: true, puzzle: "3x3x3", labelKey: "otherPuzzles.puzzle.333roux" },
   "333fm": { eventId: "333fm", scrambleEventId: "333", inPicker: false, puzzle: "3x3x3", labelKey: "otherPuzzles.puzzle.333fm" },
 };
 
 /** Thứ tự trong dropdown (không dựa vào thứ tự khoá object: "222" là khoá số nên luôn đứng đầu). */
-const PICKER_ORDER: OtherPuzzleId[] = ["333roux", "222", "pyram", "skewb", "minx", "333fm"];
+const PICKER_ORDER: OtherPuzzleId[] = ["333roux", "222", "pyram", "skewb", "minx", "clock", "333fm"];
 export const OTHER_PUZZLE_IDS = PICKER_ORDER.filter(id => OTHER_PUZZLES[id].inPicker);
 
 export const MAX_SCRAMBLE_LENGTH = 400;
@@ -98,6 +99,7 @@ export function pickSolver(search: SearchModule, puzzle: OtherPuzzleId): SolverF
     return search.experimentalSolve3x3x3IgnoringCenters;
   if (puzzle === "pyram") return search.solvePyraminx;
   if (puzzle === "minx") return search.solveMegaminx;
+  // Clock có bộ giải riêng (`clockEngine`), không đi qua đây.
   return search.solveSkewb;
 }
 
@@ -141,6 +143,18 @@ export const cubingEngine: SolveEngine = {
     }
   },
   async solve(puzzle, scramble) {
+    if (puzzle === "clock") {
+      const { dialsFromScramble, solveClockDials } = await import("./clockEngine");
+      let dials: number[];
+      try {
+        dials = await dialsFromScramble(scramble);
+      } catch (error) {
+        throw new PuzzleSolveError("invalid-scramble", String(error));
+      }
+      const solution = await solveClockDials(dials);
+      if (solution === null) throw new PuzzleSolveError("solver-failed");
+      return solution;
+    }
     const [{ Alg }, { puzzles }, search] = await Promise.all([
       import("cubing/alg"),
       import("cubing/puzzles"),

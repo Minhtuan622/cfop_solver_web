@@ -15,7 +15,6 @@ import {
   SolverSolutionPanel,
   SolverSolutionSidebar,
   SolverToolbar,
-  lastLayerCaseOf,
   openingOutcomeOf,
   phaseAt,
   readRecentStates,
@@ -27,7 +26,6 @@ import {
   useSolverPlayback,
   useSolverSettingsState,
   useStateValidation,
-  xcrossSlotsOf,
 } from "@/features/solver";
 import { stateFromScramble } from "@/lib/fastCube";
 import {
@@ -113,7 +111,6 @@ export default function Home() {
     language,
     incompleteMessage: t("home.incompleteState"),
   });
-  const [paintColor, setPaintColor] = useState<CrossColor>("U");
   const [recentStates, setRecentStates] = useState<RecentCubeState[]>(() =>
     readRecentStates()
   );
@@ -173,8 +170,6 @@ export default function Home() {
   const openingTelemetry = result?.opening;
   const lastLayerTelemetry = result?.last_layer;
   const openingOutcome = useMemo(() => openingOutcomeOf(result), [result]);
-  const activeXCrossSlots = xcrossSlotsOf(activePhase?.name);
-  const activeLastLayerCase = lastLayerCaseOf(activePhase);
 
   async function runSolver() {
     if (mode === "state" && !stateValidation?.valid) {
@@ -466,9 +461,6 @@ export default function Home() {
             status={solverStatus}
             error={error}
             stateValidation={stateValidation}
-            paintColor={paintColor}
-            canUndo={stateHistory.current.past.length > 0}
-            canRedo={stateHistory.current.future.length > 0}
             recentStates={recentStates}
             onValueChange={next => {
               setValue(next);
@@ -487,9 +479,6 @@ export default function Home() {
               />
             }
             onStateEdit={applyStateEdit}
-            onUndo={undoStateEdit}
-            onRedo={redoStateEdit}
-            onPaintColorChange={setPaintColor}
             onRandomScramble={randomScramble}
             onSolve={() => void runSolver()}
             onCancel={cancelSolver}
@@ -551,10 +540,6 @@ export default function Home() {
                           : SOLVED_STATE
                         : orientForCross(currentState, crossColor)
                   }
-                  editable={false}
-                  selectedColor={paintColor}
-                  onStateChange={applyStateEdit}
-                  disabled={loading}
                 />
               ) : (
                 <SolutionStage

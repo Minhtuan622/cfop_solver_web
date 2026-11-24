@@ -21,25 +21,6 @@ export function phaseAt(result: SolverResult | null, position: number): Phase | 
 
 const OPENING_PREFIXES = ["xxxxcross_", "xxxcross_", "xxcross_"] as const;
 
-/** Các slot F2L mà phase mở đầu (XCross..XXXXCross) đã giải cùng Cross. */
-export function xcrossSlotsOf(phaseName: string | undefined): string[] | undefined {
-  if (!phaseName) return undefined;
-  for (const prefix of OPENING_PREFIXES) {
-    if (phaseName.startsWith(prefix)) return phaseName.slice(prefix.length).split("_");
-  }
-  if (phaseName.startsWith("xcross_")) return [phaseName.slice("xcross_".length)];
-  return undefined;
-}
-
-/** Case ZBLL/1LLL của phase (để vẽ sơ đồ), nếu có. */
-export function lastLayerCaseOf(phase: Phase | null) {
-  return phase &&
-    (phase.name === "zbll" || phase.name === "1lll") &&
-    phase.case_id
-    ? { family: phase.name, id: phase.case_id }
-    : undefined;
-}
-
 export type OpeningOutcome =
   | { kind: "xxxxcross" | "xxxcross" | "xxcross"; slots: string[]; moves: number }
   | { kind: "xcross"; slot: string; moves: number }

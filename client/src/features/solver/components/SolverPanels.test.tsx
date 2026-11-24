@@ -58,15 +58,9 @@ describe("the solver input panel", () => {
         status=""
         error=""
         stateValidation={null}
-        paintColor="U"
-        canUndo={false}
-        canRedo={false}
         recentStates={[]}
         onValueChange={() => undefined}
         onStateEdit={() => undefined}
-        onUndo={() => undefined}
-        onRedo={() => undefined}
-        onPaintColorChange={() => undefined}
         onRandomScramble={() => undefined}
         onSolve={() => undefined}
         onCancel={() => undefined}
@@ -93,15 +87,9 @@ describe("the solver input panel", () => {
         status=""
         error=""
         stateValidation={null}
-        paintColor="U"
-        canUndo={false}
-        canRedo={false}
         recentStates={[]}
         onValueChange={() => undefined}
         onStateEdit={() => undefined}
-        onUndo={() => undefined}
-        onRedo={() => undefined}
-        onPaintColorChange={() => undefined}
         onRandomScramble={() => undefined}
         onSolve={onSolve}
         onCancel={() => undefined}

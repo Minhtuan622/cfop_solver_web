@@ -8,6 +8,9 @@ export default defineConfig({
   // Khởi động sẵn dev server (Vite biên dịch module khi được xin lần đầu).
   globalSetup: "./e2e/global-setup.ts",
   fullyParallel: false,
+  // Trang Giải và Timer vẽ WebGL phần mềm (CI không có GPU); quá nhiều worker cùng lúc
+  // làm test hợp lệ quá hạn. Hai worker ổn định mà vẫn đủ nhanh.
+  workers: 2,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: "list",

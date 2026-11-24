@@ -369,4 +369,6 @@ Thêm tính năng, không đổi key `localStorage`, ID event, format export hay
 | Giải 2×2 / Pyraminx / Skewb / Megaminx | Bộ chọn khối ở đầu trang Giải (`PuzzleKindPicker`: 3×3, 2×2, Pyraminx, Skewb; `features/puzzle-solver`), dùng `cubing/search` (`experimentalSolve2x2x2`, `solvePyraminx`, `solveSkewb`) nạp lười khi bấm Giải; xem lại bằng `CubeAlgorithmReplay`. |
 | Lời giải ngắn nhất (3×3 FM) | Tab **3×3 FM** cạnh CFOP/BLD của trang Giải: nhập hoặc tạo scramble, chạy `experimentalSolve3x3x3IgnoringCenters` (hai pha), xem lại trên khối 3D như các khối khác. Dùng chung `OtherPuzzleSolver` với 2×2/Pyraminx/Skewb. |
 
+**Đợt dọn sau đó.** Gỡ tính năng tô sáng XCross/lớp cuối và căn Cross trên khối 3D cũ (`highlightedIndexes`, `alignPermFor`, `alignQuaternionFor`, `CubeStateEditor`); khối cũ chỉ còn dùng ở `/play`. Thêm sơ đồ nhìn từ trên (`RouxTopView`) cho các case Roux, bộ giải Clock (`puzzle-solver/lib/clockSolver.ts`), `playwright.config.ts` dùng 2 worker và timeout dài hơn để E2E ổn định.
+
 **Giới hạn đã biết.** Bus SSE chỉ phát trong một tiến trình Node; chạy nhiều instance cần Redis Pub/Sub (xem project-guide §15), khi đó client vẫn nhận thay đổi nhờ polling dự phòng. Web Push chỉ gửi **một** thông báo cho mỗi đợt đến hạn và không gửi từ 22:00 đến 08:00 theo giờ trình duyệt.

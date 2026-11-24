@@ -14,21 +14,14 @@ const CubeGuide3D = lazy(() =>
 );
 
 /**
- * The display state keeps the raw facelets; the 3D renderer aligns the Cross
- * to D with a fixed whole-scene rotation (`alignCross`). Animations always
- * run in the same frame as the state, so moves rotate the layers the user
- * actually sees.
+ * Animations always run in the same frame as the state, so moves rotate the
+ * layers the user actually sees.
  */
 export function Cube3DGuide({
   state,
   previousState,
   move,
   dimension = 3,
-  crossColor = "U",
-  alignCross = false,
-  xcrossSlots,
-  lastLayerCase,
-  specialStickers,
   transition = "idle",
   phaseLabel,
   initialOrbit = 0.55,
@@ -43,13 +36,6 @@ export function Cube3DGuide({
   move?: string;
   step: number;
   dimension?: 2 | 3;
-  crossColor?: string;
-  alignCross?: boolean;
-  xcrossSlots?: string[];
-  lastLayerCase?: { family: string; id: string };
-  specialStickers?: Partial<
-    Record<"U" | "R" | "F" | "D" | "L" | "B", number[]>
-  >;
   transition?: "idle" | "move" | "seek" | "phase" | "reset";
   transitionDirection?: "forward" | "backward";
   transitionId?: number;
@@ -83,11 +69,6 @@ export function Cube3DGuide({
               transition={transition}
               turnDurationMs={turnDurationMs}
               dimension={dimension}
-              crossColor={crossColor}
-              alignCross={alignCross}
-              xcrossSlots={xcrossSlots}
-              lastLayerCase={lastLayerCase ?? null}
-              specialStickers={specialStickers}
               surface={surface}
               initialYaw={initialOrbit || 0.55}
               initialPitch={initialPitch || 0.3}

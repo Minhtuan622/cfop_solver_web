@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SolverResult } from "@/lib/solverRuntime";
-import { lastLayerCaseOf, openingOutcomeOf, phaseAt, xcrossSlotsOf } from "./solutionView";
+import { openingOutcomeOf, phaseAt } from "./solutionView";
 
 const phase = (name: string, start: number, end: number, caseId: string | null = null) => ({
   name,
@@ -25,22 +25,6 @@ describe("solutionView", () => {
     expect(phaseAt(solved, 7)?.name).toBe("xcross_FR");
     expect(phaseAt(solved, 8)?.name).toBe("f2l_FL");
     expect(phaseAt(solved, 15)?.name).toBe("f2l_FL");
-  });
-
-  it("đọc slot XCross..XXXXCross từ tên phase", () => {
-    expect(xcrossSlotsOf("xcross_FR")).toEqual(["FR"]);
-    expect(xcrossSlotsOf("xxcross_FR_FL")).toEqual(["FR", "FL"]);
-    expect(xcrossSlotsOf("xxxcross_FR_FL_BL")).toEqual(["FR", "FL", "BL"]);
-    expect(xcrossSlotsOf("xxxxcross_FR_FL_BL_BR")).toEqual(["FR", "FL", "BL", "BR"]);
-    expect(xcrossSlotsOf("cross")).toBeUndefined();
-    expect(xcrossSlotsOf(undefined)).toBeUndefined();
-  });
-
-  it("chỉ ZBLL/1LLL có case_id mới có case Last Layer", () => {
-    expect(lastLayerCaseOf(phase("zbll", 0, 1, "U-3"))).toEqual({ family: "zbll", id: "U-3" });
-    expect(lastLayerCaseOf(phase("1lll", 0, 1, null))).toBeUndefined();
-    expect(lastLayerCaseOf(phase("oll", 0, 1, "OLL-1"))).toBeUndefined();
-    expect(lastLayerCaseOf(null)).toBeUndefined();
   });
 
   it("tóm tắt bước mở đầu", () => {
