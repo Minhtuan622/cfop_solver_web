@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/Button";
 import {
@@ -21,6 +21,7 @@ import {
   type LastLayerCase,
   type SolveCases,
 } from "../lib/solveAnalysis";
+import { deriveMarks } from "../lib/solveMarks";
 import {
   compareWithSolver,
   type SolverComparison,
@@ -82,12 +83,19 @@ export function SolveAnalysisDialog({
     [entry]
   );
   const times = entry?.moveTimes;
+  const marks = useMemo(
+    () =>
+      entry && entry.inputKind === "scramble"
+        ? deriveMarks(entry.input, moves)
+        : null,
+    [entry, moves]
+  );
   const analysis = useMemo(
     () =>
       entry && times
-        ? analyzeSolve({ moves, moveTimes: times, phaseSplits: entry.phaseSplits })
+        ? analyzeSolve({ moves, moveTimes: times, phaseSplits: entry.phaseSplits, marks })
         : null,
-    [entry, moves, times]
+    [entry, moves, times, marks]
   );
 
   const [catalog, setCatalog] = useState<Catalog | null>(null);
@@ -219,6 +227,12 @@ export function SolveAnalysisDialog({
                     {analysis.tps ? `${analysis.tps.toFixed(2)} TPS` : "—"} ·{" "}
                     {t("analysis.recognitionTotal")} {seconds(analysis.recognitionMs)}
                   </p>
+                  <p className="mt-1 mb-0 text-sm text-muted">
+                    {t("analysis.crossFace")}: <strong className="text-ink">{analysis.face}</strong>
+                    {analysis.rotations ? (
+                      <> · {t("analysis.rotations")}: <strong className="text-ink">{analysis.rotations}</strong></>
+                    ) : null}
+                  </p>
                 </section>
 
                 <section className="rounded-card bg-surface p-5">
@@ -237,26 +251,50 @@ export function SolveAnalysisDialog({
                     </thead>
                     <tbody>
                       {analysis.phases.map(phase => (
-                        <tr key={phase.phase}>
-                          <td className="py-1">
-                            <button
-                              type="button"
-                              className="font-semibold underline-offset-2 hover:underline disabled:no-underline"
-                              disabled={phase.turns === 0}
-                              onClick={() => playback.selectCursor(phase.end, "phase")}
-                            >
-                              {phase.phase}
-                            </button>
-                          </td>
-                          <td className="py-1">{phase.turns}</td>
-                          <td className="py-1">
-                            {phase.recognitionMs === null ? "—" : seconds(phase.recognitionMs)}
-                          </td>
-                          <td className="py-1">
-                            {phase.turns ? seconds(phase.executionMs) : "—"}
-                          </td>
-                          <td className="py-1">{phase.tps ? phase.tps.toFixed(2) : "—"}</td>
-                        </tr>
+                        <Fragment key={phase.phase}>
+                          <tr>
+                            <td className="py-1">
+                              <button
+                                type="button"
+                                className="font-semibold underline-offset-2 hover:underline disabled:no-underline"
+                                disabled={phase.turns === 0}
+                                onClick={() => playback.selectCursor(phase.end, "phase")}
+                              >
+                                {phase.phase}
+                              </button>
+                            </td>
+                            <td className="py-1">{phase.turns}</td>
+                            <td className="py-1">
+                              {phase.recognitionMs === null ? "—" : seconds(phase.recognitionMs)}
+                            </td>
+                            <td className="py-1">
+                              {phase.turns ? seconds(phase.executionMs) : "—"}
+                            </td>
+                            <td className="py-1">{phase.tps ? phase.tps.toFixed(2) : "—"}</td>
+                          </tr>
+                          {phase.pairs?.map((pair, index) => (
+                            <tr key={`${phase.phase}-${index}`} className="text-muted">
+                              <td className="py-1 pl-4">
+                                <button
+                                  type="button"
+                                  className="underline-offset-2 hover:underline disabled:no-underline"
+                                  disabled={pair.turns === 0}
+                                  onClick={() => playback.selectCursor(pair.end, "phase")}
+                                >
+                                  {t("analysis.pair")} {index + 1}
+                                </button>
+                              </td>
+                              <td className="py-1">{pair.turns}</td>
+                              <td className="py-1">
+                                {pair.recognitionMs === null ? "—" : seconds(pair.recognitionMs)}
+                              </td>
+                              <td className="py-1">
+                                {pair.turns ? seconds(pair.executionMs) : "—"}
+                              </td>
+                              <td className="py-1">{pair.tps ? pair.tps.toFixed(2) : "—"}</td>
+                            </tr>
+                          ))}
+                        </Fragment>
                       ))}
                     </tbody>
                   </table>

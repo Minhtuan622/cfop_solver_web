@@ -24,6 +24,7 @@ import {
   HISTORY_PAGE_SIZE,
   HistoryEmptyState,
   HistoryFilters,
+  HistoryPhaseTrendChart,
   HistoryStatTiles,
   HistoryTransferMenu,
   HistoryTrendChart,
@@ -33,6 +34,7 @@ import {
   historyCsv,
   historyTags,
   historyTrend,
+  phaseTrend,
   useSolveEditor,
   validTimes,
   type HistoryFilter,
@@ -68,6 +70,7 @@ export default function History() {
   );
   const valid = useMemo(() => validTimes(filtered), [filtered]);
   const chart = useMemo(() => historyTrend(filtered), [filtered]);
+  const phaseChart = useMemo(() => phaseTrend(filtered), [filtered]);
   const [visibleCount, setVisibleCount] = useState(HISTORY_PAGE_SIZE);
   const visibleEntries = filtered.slice(0, visibleCount);
   const allSelected =
@@ -213,6 +216,8 @@ export default function History() {
           <HistoryStatTiles filtered={filtered} valid={valid} />
 
           <HistoryTrendChart chart={chart} />
+
+          <HistoryPhaseTrendChart rows={phaseChart} />
 
           <section className="rounded-card bg-surface p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">

@@ -23,6 +23,31 @@ const MIN_PLAUSIBLE_MS: Record<string, number> = {
   minx: 9_000,
 };
 
+const HARD_MIN_MS: Record<string, number> = {
+  "222": 250,
+  "333": 1_000,
+  "333oh": 2_000,
+  "333bf": 5_000,
+  "333mbf": 10_000,
+  "444": 5_000,
+  "444bf": 20_000,
+  "555": 12_000,
+  "555bf": 40_000,
+  "666": 25_000,
+  "777": 35_000,
+  pyram: 300,
+  skewb: 300,
+  minx: 8_000,
+  fto: 2_000,
+  sq1: 1_000,
+  clock: 800,
+};
+
+export function isBelowHardFloor(eventId: string, elapsedMs: number) {
+  const floor = HARD_MIN_MS[eventId];
+  return floor !== undefined && elapsedMs < floor;
+}
+
 export type IntegrityInput = {
   eventId: string;
   elapsedMs: number;

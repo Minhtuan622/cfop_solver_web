@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ROUND_TIME_TOLERANCE_MS,
   competitionIntegrityFlags,
+  isBelowHardFloor,
   parseIntegrityFlags,
   serializeIntegrityFlags,
 } from "./services/competitionIntegrity";
@@ -83,5 +84,41 @@ describe("integrity flag storage", () => {
     expect(parseIntegrityFlags("")).toEqual([]);
     expect(parseIntegrityFlags(null)).toEqual([]);
     expect(parseIntegrityFlags("too_fast,unknown")).toEqual(["too_fast"]);
+  });
+});
+
+describe("isBelowHardFloor", () => {
+  it("cho phép kết quả thật dưới 1 giây ở 2×2, Pyraminx và Skewb", () => {
+    expect(isBelowHardFloor("222", 430)).toBe(false);
+    expect(isBelowHardFloor("pyram", 730)).toBe(false);
+    expect(isBelowHardFloor("skewb", 750)).toBe(false);
+  });
+
+  it("chặn thời gian không thể có ở từng thể thức", () => {
+    expect(isBelowHardFloor("333", 900)).toBe(true);
+    expect(isBelowHardFloor("222", 100)).toBe(true);
+    expect(isBelowHardFloor("777", 20_000)).toBe(true);
+    expect(isBelowHardFloor("clock", 500)).toBe(true);
+  });
+
+  it("không đặt ngưỡng cứng cho thể thức chưa biết hoặc FMC", () => {
+    expect(isBelowHardFloor("333fm", 1)).toBe(false);
+    expect(isBelowHardFloor("unknown", 1)).toBe(false);
+  });
+
+  it("ngưỡng cứng luôn thấp hơn ngưỡng gắn cờ", () => {
+    for (const eventId of ["222", "333", "333oh", "444", "555", "666", "777", "pyram", "skewb", "minx", "sq1", "clock"]) {
+      const flagged = competitionIntegrityFlags({ ...base, eventId, elapsedMs: 1, now: START + 600_000 });
+      expect(flagged, eventId).toContain("too_fast");
+      // Giá trị nằm giữa hai ngưỡng thì chỉ bị gắn cờ, không bị chặn.
+      let between = 0;
+      for (let ms = 1; ms < 60_000; ms += 50) {
+        if (!isBelowHardFloor(eventId, ms) && competitionIntegrityFlags({ ...base, eventId, elapsedMs: ms, now: START + 600_000 }).includes("too_fast")) {
+          between = ms;
+          break;
+        }
+      }
+      expect(between, eventId).toBeGreaterThan(0);
+    }
   });
 });

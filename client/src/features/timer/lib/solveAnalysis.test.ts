@@ -11,10 +11,12 @@ import {
   analyzeSolve,
   identifySolveCases,
   isOrientedLastLayer,
+  isWholeCubeRotation,
   mergeTurns,
   stateAfter,
   type LastLayerCase,
 } from "./solveAnalysis";
+import { CROSS_FACES, deriveMarks, normalizeState } from "./solveMarks";
 
 beforeAll(() => {
   wasm.initSync({
@@ -53,10 +55,10 @@ function scrambleOf(seed: number) {
   return out.join(" ");
 }
 
-function recordedSolve(scramble: string) {
+function recordedSolve(scramble: string, face = "D") {
   const reply = handleWasmRequest(
     wasm,
-    { id: 1, command: "solve", kind: "scramble", value: scramble, crossColor: "D", lastLayer: "oll_pll" },
+    { id: 1, command: "solve", kind: "scramble", value: scramble, crossColor: face, lastLayer: "oll_pll" },
     () => undefined
   );
   if (reply.type !== undefined || !reply.ok) throw new Error("solver failed");
@@ -115,7 +117,10 @@ describe("analyzeSolve với lời giải của bộ giải", () => {
       const byPhase = (name: SplitPhase) => analysis!.phases.find(item => item.phase === name)!;
 
       const solverCount = (match: (name: string) => boolean) => {
-        const group = result.phases.filter(phase => match(phase.name)).flatMap(phase => phase.moves);
+        const group = result.phases
+          .filter(phase => match(phase.name))
+          .flatMap(phase => phase.moves)
+          .filter(move => !isWholeCubeRotation(move));
         return mergeTurns(group, group.map((_, index) => index)).length;
       };
       expect(byPhase("Cross").turns, scramble).toBe(solverCount(name => name === "cross"));
@@ -146,6 +151,72 @@ describe("analyzeSolve với lời giải của bộ giải", () => {
     }
     expect(comparedCases).toBeGreaterThan(10);
   }, 120_000);
+
+  it("mọi mặt cross: tách bốn cặp F2L, nhận diện OLL/PLL trong khung đã chuẩn hoá", () => {
+    let pairsChecked = 0;
+    for (let seed = 11; seed <= 13; seed += 1) {
+      const scramble = scrambleOf(seed);
+      for (const face of CROSS_FACES) {
+        const { result, moves, times, splits } = recordedSolve(scramble, face);
+        const marks = deriveMarks(scramble, moves);
+        expect(marks?.face, `${face} ${scramble}`).toBe(face);
+        const analysis = analyzeSolve({ moves, moveTimes: times, phaseSplits: splits, marks })!;
+        expect(analysis.face).toBe(face);
+        const f2l = analysis.phases.find(item => item.phase === "F2L")!;
+        expect(f2l.pairs, `${face} ${scramble}`).toHaveLength(4);
+        const pairTurns = f2l.pairs!.reduce((sum, pair) => sum + pair.turns, 0);
+        expect(pairTurns, `${face} ${scramble}`).toBeGreaterThanOrEqual(f2l.turns);
+        expect(f2l.pairs![0].start).toBe(marks!.cross);
+        expect(f2l.pairs![3].end).toBe(marks!.pairs[3]);
+        const first = f2l.pairs!.find(pair => pair.turns > 0);
+        if (first) expect(first.recognitionMs, `${face} ${scramble}`).toBe(700);
+        for (const pair of f2l.pairs!.slice(1))
+          if (pair.turns > 0 && pair !== first) expect(pair.recognitionMs).toBe(150);
+        pairsChecked += f2l.pairs!.filter(pair => pair.turns > 0).length;
+
+        const solverOll = result.phases.find(phase => phase.name === "oll");
+        const solverPll = result.phases.find(phase => phase.name === "pll");
+        const cases = identifySolveCases(scramble, moves, analysis, catalog, {
+          oll: solverOll?.case_id ? `OLL-${solverOll.case_id}` : undefined,
+          pll: solverPll?.case_id ? `PLL-${solverPll.case_id}` : undefined,
+        });
+        if (solverOll?.moves.length) {
+          const ollCase = cases.oll;
+          if (ollCase && typeof ollCase === "object") {
+            expect(
+              catalog.oll.some(item => item.id === ollCase.id),
+              `${face} ${scramble}: ${ollCase.id}`
+            ).toBe(true);
+          } else {
+            expect(ollCase, `${face} ${scramble}`).toBe("skip");
+          }
+        } else expect(cases.oll, `${face} ${scramble}`).toBe("skip");
+        if (solverPll?.moves.length && solverPll.case_id)
+          expect(cases.pll?.id, `${face} ${scramble}`).toBe(`PLL-${solverPll.case_id}`);
+      }
+    }
+    expect(pairsChecked).toBeGreaterThan(40);
+  }, 240_000);
+
+  it("tách nước xoay cả khối khỏi số lượt và TPS", () => {
+    expect(isWholeCubeRotation("x")).toBe(true);
+    expect(isWholeCubeRotation("y'")).toBe(true);
+    expect(isWholeCubeRotation("z2")).toBe(true);
+    expect(isWholeCubeRotation("R")).toBe(false);
+    const analysis = analyzeSolve({
+      moves: ["R", "x", "R", "U"],
+      moveTimes: [0, 100, 200, 300],
+      phaseSplits: [
+        { phase: "Cross", markedAtMs: 0, elapsedMs: 0 },
+        { phase: "F2L", markedAtMs: 300, elapsedMs: 300 },
+        { phase: "OLL", markedAtMs: 300, elapsedMs: 0 },
+        { phase: "PLL", markedAtMs: 300, elapsedMs: 0 },
+      ],
+    })!;
+    expect(analysis.rotations).toBe(1);
+    expect(analysis.totalTurns).toBe(3);
+    expect(analysis.phases.find(phase => phase.phase === "F2L")!.turns).toBe(3);
+  });
 
   it("báo quãng dừng dài nhất theo giai đoạn", () => {
     const analysis = analyzeSolve({

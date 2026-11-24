@@ -12,9 +12,6 @@ file; những ghi chú nghiên cứu cũ nằm trong `docs/archive/`.
       sử/Phòng thi, biểu đồ quá cao, ô số liệu xếp dọc, tương phản chữ trên
       nền tím. Vẫn cần người xem bằng mắt trên thiết bị thật, và ở kích thước
       điện thoại thật.)*
-- [ ] Ngưỡng thời gian tối thiểu theo từng thể thức trong phòng thi đấu:
-      hiện cố định 1.000 ms cho mọi thể thức, và vì thời gian do client tự báo
-      nên chưa ngăn được kết quả giả hợp lệ.
 
 ## Đã hoàn thành
 
@@ -32,3 +29,4 @@ file; những ghi chú nghiên cứu cũ nằm trong `docs/archive/`.
 - E1: Bộ giải viết lại bằng Rust/WebAssembly (`packages/solver`): Cross, F2L,
   OLL/PLL, XCross..XXXXCross, ZBLL/1LLL, BLD 3-Style; Docker đa tầng và CI
   cho Rust; gỡ runtime cũ (xem `docs/validation/rust-wasm-solver.md`)
+- Phòng thi: ngưỡng thời gian cứng theo từng thể thức (`HARD_MIN_MS` trong `server/services/competitionIntegrity.ts`), kết quả giữa ngưỡng cứng và ngưỡng gắn cờ chỉ bị gắn cờ `too_fast`

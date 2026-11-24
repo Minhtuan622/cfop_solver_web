@@ -15,6 +15,21 @@ export const historyWords: Dictionary = {
   "history.penalties": ["Phạt", "Penalties"],
   "history.trendTitle": ["Xu hướng 30 solve gần nhất", "Last 30-solve trend"],
   "history.timeLabel": ["Thời gian", "Time"],
+  "history.phaseTrendTitle": [
+    "Xu hướng nhận diện & thực hiện",
+    "Recognition & execution trend",
+  ],
+  "history.phaseTrendHint": [
+    "30 solve 3×3 gần nhất có nhịp từng nước, tách theo từng giai đoạn.",
+    "Last 30 timed 3×3 solves, split by phase.",
+  ],
+  "history.phaseTrendSelect": ["Giai đoạn", "Phase"],
+  "history.phaseTrendEmpty": [
+    "Chưa có solve 3×3 nào có nhịp từng nước.",
+    "No timed 3×3 solves yet.",
+  ],
+  "history.recognition": ["Nhận diện", "Recognition"],
+  "history.execution": ["Thực hiện", "Execution"],
   "history.manageTitle": ["Lượt giải", "Solves"],
   "history.transferMenu": ["Nhập / Xuất", "Import / Export"],
   "history.solveNumber": ["Lượt {number}", "Solve {number}"],

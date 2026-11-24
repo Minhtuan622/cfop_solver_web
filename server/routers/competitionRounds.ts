@@ -16,6 +16,7 @@ import { isTimerEventId, DEFAULT_TIMER_EVENT } from "../../shared/timerEvents";
 import { multiBlindResult } from "../../shared/multiBlind";
 import {
   competitionIntegrityFlags,
+  isBelowHardFloor,
   serializeIntegrityFlags,
 } from "../services/competitionIntegrity";
 import { publishCompetitionEvent } from "../services/competitionEventBus";
@@ -112,6 +113,11 @@ export const roundProcedures = {
         throw new TRPCError({
           code: "CONFLICT",
           message: "Bạn đã nộp kết quả cho lượt này.",
+        });
+      if (input.penalty !== "DNF" && isBelowHardFloor(room.eventId, input.elapsedMs))
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Thời gian giải quá ngắn để có thể thật.",
         });
       const isMultiBlind = room.eventId === "333mbf";
       if (isMultiBlind && !input.multiBlind)

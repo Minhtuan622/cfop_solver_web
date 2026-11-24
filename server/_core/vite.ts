@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import path from "path";
 import type { InlineConfig, ViteDevServer } from "vite";
 import { cacheControlForFile } from "./staticCache";
+import { injectSharePreview, readSharePreview } from "../services/sharePreview";
 
 export function isAssetPath(requestPath: string): boolean {
   return requestPath === "/assets" || requestPath.startsWith("/assets/");
@@ -46,6 +47,7 @@ export async function setupVite(app: Express, server: Server) {
       );
 
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      template = injectSharePreview(template, readSharePreview(clientTemplate));
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
@@ -86,6 +88,13 @@ export function serveStatic(app: Express) {
       res.status(404).json({ message: "Không tìm thấy." });
       return;
     }
-    res.sendFile(path.resolve(distPath, "index.html"));
+    const indexHtmlPath = path.resolve(distPath, "index.html");
+    if (!fs.existsSync(indexHtmlPath)) {
+      res.status(404).send("Chưa xây dựng ứng dụng, chạy pnpm build.");
+      return;
+    }
+    res.status(200).type("text/html").send(
+      injectSharePreview(fs.readFileSync(indexHtmlPath, "utf8"), readSharePreview())
+    );
   });
 }

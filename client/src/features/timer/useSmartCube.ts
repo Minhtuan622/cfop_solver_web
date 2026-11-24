@@ -6,6 +6,7 @@ import {
   patternFromAlg,
 } from "./lib/kpatternFacelets";
 import { detectCompletedPhases } from "./lib/phaseDetect";
+import { deriveMarks, marksToSplits } from "./lib/solveMarks";
 import type { SolvePhaseSplit } from "@/lib/solveHistory";
 import {
   BluetoothTimerError,
@@ -84,6 +85,8 @@ export function useSmartCube({
   const mountedRef = useRef(true);
   const currentRef = useRef<KPattern | null>(null);
   const targetRef = useRef<KPattern | null>(null);
+  const targetScrambleRef = useRef(targetScramble);
+  targetScrambleRef.current = targetScramble;
   const phaseRef = useRef<SmartCubePhase>("idle");
   const movesRef = useRef<string[]>([]);
   const moveAtRef = useRef<number[]>([]);
@@ -133,38 +136,52 @@ export function useSmartCube({
         const started = startedAtRef.current;
         const endAt = moveAtRef.current.at(-1) ?? performance.now();
         const start = started ?? endAt;
-        const marks = marksRef.current;
-        const crossMark =
-          marks.cross ?? marks.f2l ?? marks.oll ?? { at: start, moves: 0 };
-        const f2lMark =
-          marks.f2l ?? marks.oll ?? { at: endAt, moves: movesRef.current.length };
-        const ollMark =
-          marks.oll ?? { at: endAt, moves: movesRef.current.length };
-        const phaseSplits: SolvePhaseSplit[] = [
-          {
-            phase: "Cross",
-            markedAtMs: crossMark.at - start,
-            elapsedMs: crossMark.at - start,
-          },
-          {
-            phase: "F2L",
-            markedAtMs: f2lMark.at - start,
-            elapsedMs: f2lMark.at - crossMark.at,
-          },
-          {
-            phase: "OLL",
-            markedAtMs: ollMark.at - start,
-            elapsedMs: ollMark.at - f2lMark.at,
-          },
-          {
-            phase: "PLL",
-            markedAtMs: endAt - start,
-            elapsedMs: endAt - ollMark.at,
-          },
-        ];
+        const moveTimes = moveAtRef.current.map(at =>
+          Math.max(0, Math.round(at - start)),
+        );
+        const moves = [...movesRef.current];
+        // Smart cube báo nước theo khung cố định và có thể có xoay cả khối; tính
+        // lại mốc từ chính chuỗi nước để nhận đúng cả cross không ở D.
+        const derived = deriveMarks(targetScrambleRef.current, moves);
+        const phaseSplits: SolvePhaseSplit[] = derived
+          ? marksToSplits(derived, moveTimes)
+          : (() => {
+              const marks = marksRef.current;
+              const crossMark =
+                marks.cross ?? marks.f2l ?? marks.oll ?? { at: start, moves: 0 };
+              const f2lMark =
+                marks.f2l ?? marks.oll ?? {
+                  at: endAt,
+                  moves: moves.length,
+                };
+              const ollMark =
+                marks.oll ?? { at: endAt, moves: moves.length };
+              return [
+                {
+                  phase: "Cross",
+                  markedAtMs: crossMark.at - start,
+                  elapsedMs: crossMark.at - start,
+                },
+                {
+                  phase: "F2L",
+                  markedAtMs: f2lMark.at - start,
+                  elapsedMs: f2lMark.at - crossMark.at,
+                },
+                {
+                  phase: "OLL",
+                  markedAtMs: ollMark.at - start,
+                  elapsedMs: ollMark.at - f2lMark.at,
+                },
+                {
+                  phase: "PLL",
+                  markedAtMs: endAt - start,
+                  elapsedMs: endAt - ollMark.at,
+                },
+              ];
+            })();
         onSolveCompleteRef.current?.({
-          moves: [...movesRef.current],
-          moveTimes: moveAtRef.current.map(at => Math.max(0, Math.round(at - start))),
+          moves,
+          moveTimes,
           elapsedMs: endAt - start,
           phaseSplits,
         });

@@ -4,6 +4,7 @@ import {
   stateFromScramble,
 } from "@/lib/fastCube";
 import type { SolvePhaseSplit, SplitPhase } from "@/lib/solveHistory";
+import { normalizeState, type CrossFace, type SolveMarks } from "./solveMarks";
 
 export type TurnMove = {
   move: string;
@@ -54,6 +55,7 @@ export type PhaseAnalysis = {
   recognitionMs: number | null;
   executionMs: number;
   tps: number | null;
+  pairs?: PhaseAnalysis[];
 };
 
 export type SolvePause = {
@@ -64,22 +66,30 @@ export type SolvePause = {
 
 export type SolveAnalysis = {
   totalTurns: number;
+  rotations: number;
   totalMs: number;
   tps: number | null;
   phases: PhaseAnalysis[];
   recognitionMs: number;
   pauses: SolvePause[];
+  face: CrossFace;
 };
 
 export type AnalysisInput = {
   moves: readonly string[];
   moveTimes: readonly number[];
   phaseSplits: readonly SolvePhaseSplit[];
+  marks?: SolveMarks | null;
 };
 
 const PHASE_ORDER: SplitPhase[] = ["Cross", "F2L", "OLL", "PLL"];
 export const MIN_PAUSE_MS = 400;
 export const MAX_PAUSES = 5;
+
+/** Nước xoay cả khối (x/y/z) không phải một lượt giải. */
+export function isWholeCubeRotation(move: string) {
+  return /^[xyz](2|')?$/.test(move.trim());
+}
 
 function boundaryIndex(times: readonly number[], markedAtMs: number) {
   if (markedAtMs <= 0) return 0;
@@ -91,21 +101,73 @@ function boundaryIndex(times: readonly number[], markedAtMs: number) {
   return count;
 }
 
-export function analyzeSolve({ moves, moveTimes, phaseSplits }: AnalysisInput): SolveAnalysis | null {
+/**
+ * Đếm lượt đã gộp trong một đoạn, bỏ nước xoay cả khối. Hai nước cùng mặt nằm
+ * hai bên một nước xoay không được gộp vì "R" sau "x" là một tầng khác.
+ */
+function countTurns(moves: readonly string[], times: readonly number[], start: number, end: number) {
+  let total = 0;
+  let segment = start;
+  for (let index = start; index <= end; index += 1) {
+    if (index === end || isWholeCubeRotation(moves[index])) {
+      total += merge(moves, times, segment, index).length;
+      segment = index + 1;
+    }
+  }
+  return total;
+}
+
+function measure(
+  phase: SplitPhase,
+  moves: readonly string[],
+  times: readonly number[],
+  start: number,
+  end: number,
+  previousMark: number,
+  markedAt: number,
+  first: boolean
+): PhaseAnalysis {
+  if (start >= end) {
+    return { phase, turns: 0, start, end: start, recognitionMs: null, executionMs: 0, tps: null };
+  }
+  const turns = countTurns(moves, times, start, end);
+  const firstAt = times[start];
+  const execution = Math.max(0, markedAt - firstAt);
+  return {
+    phase,
+    turns,
+    start,
+    end,
+    recognitionMs: first ? null : Math.max(0, firstAt - previousMark),
+    executionMs: execution,
+    tps: execution > 0 && turns > 1 ? (turns - 1) / (execution / 1000) : null,
+  };
+}
+
+const markTime = (times: readonly number[], count: number) => (count <= 0 ? 0 : (times[count - 1] ?? 0));
+
+export function analyzeSolve({ moves, moveTimes, phaseSplits, marks }: AnalysisInput): SolveAnalysis | null {
   if (!moves.length || moves.length !== moveTimes.length) return null;
-  const splits = new Map(phaseSplits.map(split => [split.phase, split]));
   const total = moveTimes[moveTimes.length - 1] ?? 0;
 
-  const bounds: number[] = [0];
-  for (const phase of PHASE_ORDER) {
-    const split = splits.get(phase);
-    const end =
-      phase === "PLL" || !split
-        ? phase === "PLL"
+  let bounds: number[];
+  let pairBounds: number[] | null = null;
+  if (marks) {
+    bounds = [0, marks.cross, marks.pairs[3], marks.oll, moves.length];
+    pairBounds = [marks.cross, ...marks.pairs];
+  } else {
+    const splits = new Map(phaseSplits.map(split => [split.phase, split]));
+    bounds = [0];
+    for (const phase of PHASE_ORDER) {
+      const split = splits.get(phase);
+      const end =
+        phase === "PLL"
           ? moves.length
-          : bounds[bounds.length - 1]
-        : boundaryIndex(moveTimes, split.markedAtMs);
-    bounds.push(Math.max(end, bounds[bounds.length - 1]));
+          : split
+            ? boundaryIndex(moveTimes, split.markedAtMs)
+            : bounds[bounds.length - 1];
+      bounds.push(Math.max(end, bounds[bounds.length - 1]));
+    }
   }
 
   const phases: PhaseAnalysis[] = [];
@@ -114,35 +176,21 @@ export function analyzeSolve({ moves, moveTimes, phaseSplits }: AnalysisInput): 
   PHASE_ORDER.forEach((phase, index) => {
     const start = bounds[index];
     const end = bounds[index + 1];
-    const split = splits.get(phase);
-    const markedAt = phase === "PLL" ? total : split?.markedAtMs ?? previousMark;
-    const slice = merge(moves, moveTimes, start, end);
-    if (start === end) {
-      phases.push({
-        phase,
-        turns: 0,
-        start,
-        end,
-        recognitionMs: null,
-        executionMs: 0,
-        tps: null,
+    const markedAt = phase === "PLL" ? total : markTime(moveTimes, end);
+    const item = measure(phase, moves, moveTimes, start, end, previousMark, markedAt, index === 0);
+    if (phase === "F2L" && pairBounds) {
+      let pairPrevious = previousMark;
+      item.pairs = [1, 2, 3, 4].map(pair => {
+        const pairStart = pairBounds![pair - 1];
+        const pairEnd = pairBounds![pair];
+        const pairMark = markTime(moveTimes, pairEnd);
+        const result = measure("F2L", moves, moveTimes, pairStart, pairEnd, pairPrevious, pairMark, false);
+        pairPrevious = Math.max(pairPrevious, pairMark);
+        return result;
       });
-      previousMark = Math.max(previousMark, markedAt);
-      return;
     }
-    const firstAt = moveTimes[start];
-    const recognition = index === 0 ? null : Math.max(0, firstAt - previousMark);
-    const execution = Math.max(0, markedAt - firstAt);
-    if (recognition !== null) recognitionMs += recognition;
-    phases.push({
-      phase,
-      turns: slice.length,
-      start,
-      end,
-      recognitionMs: recognition,
-      executionMs: execution,
-      tps: execution > 0 && slice.length > 1 ? (slice.length - 1) / (execution / 1000) : null,
-    });
+    if (item.recognitionMs !== null) recognitionMs += item.recognitionMs;
+    phases.push(item);
     previousMark = Math.max(previousMark, markedAt);
   });
 
@@ -156,14 +204,17 @@ export function analyzeSolve({ moves, moveTimes, phaseSplits }: AnalysisInput): 
   }
   pauses.sort((left, right) => right.gapMs - left.gapMs);
 
-  const totalTurns = merge(moves, moveTimes, 0, moves.length).length;
+  const totalTurns = countTurns(moves, moveTimes, 0, moves.length);
+  const rotations = moves.filter(isWholeCubeRotation).length;
   return {
     totalTurns,
+    rotations,
     totalMs: total,
     tps: total > 0 && totalTurns > 1 ? (totalTurns - 1) / (total / 1000) : null,
     phases,
     recognitionMs,
     pauses: pauses.slice(0, MAX_PAUSES),
+    face: marks?.face ?? "D",
   };
 }
 
@@ -247,16 +298,23 @@ export function identifySolveCases(
   scramble: string,
   moves: readonly string[],
   analysis: SolveAnalysis,
-  catalog: { oll: readonly LastLayerCase[]; pll: readonly LastLayerCase[] }
+  catalog: { oll: readonly LastLayerCase[]; pll: readonly LastLayerCase[] },
+  fallbacks?: { oll?: string | null; pll?: string | null }
 ): SolveCases {
   const f2l = analysis.phases.find(item => item.phase === "F2L");
   const oll = analysis.phases.find(item => item.phase === "OLL");
   const pll = analysis.phases.find(item => item.phase === "PLL");
   if (!f2l || !oll || !pll) return { oll: null, pll: null };
+  const fallback = (id: string | null | undefined, family: "oll" | "pll") =>
+    id && catalog[family].some(item => item.id === id) ? { id, name: id, auf: 0 } : null;
   try {
     return {
-      oll: identifyOll(stateAfter(scramble, moves, f2l.end), catalog.oll),
-      pll: identifyPll(stateAfter(scramble, moves, oll.end), catalog.pll),
+      oll:
+        identifyOll(normalizeState(stateAfter(scramble, moves, f2l.end), analysis.face), catalog.oll) ??
+        fallback(fallbacks?.oll, "oll"),
+      pll:
+        identifyPll(normalizeState(stateAfter(scramble, moves, oll.end), analysis.face), catalog.pll) ??
+        fallback(fallbacks?.pll, "pll"),
     };
   } catch {
     return { oll: null, pll: null };

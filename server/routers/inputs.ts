@@ -4,7 +4,7 @@ import { DEFAULT_TIMER_EVENT, TIMER_EVENT_IDS } from "../../shared/timerEvents";
 export const MAX_CLOUD_TIMER_ENTRIES = 500;
 export const MAX_CLOUD_TIMER_TOMBSTONES = 100;
 
-export const MIN_ELAPSED_MS = 1_000;
+export const MIN_ELAPSED_MS = 250;
 
 export const passwordInput = z.string().min(10, "Mật khẩu cần ít nhất 10 ký tự.").max(128, "Mật khẩu quá dài.");
 export const credentialsInput = z.object({ email: z.string().trim().email("Email không hợp lệ.").max(320), password: passwordInput });
