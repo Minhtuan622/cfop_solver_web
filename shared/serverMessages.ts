@@ -3,6 +3,9 @@ export const serverMessageKeys: Record<string, string> = {
   "Dữ liệu không hợp lệ:": "common.error.invalidData",
   "Dữ liệu gửi lên quá lớn.": "common.error.payloadTooLarge",
   "Không tìm thấy.": "common.error.notFound",
+  "CFOP Solver Studio — Giải Rubik CFOP": "share.previewTitle",
+  "Giải khối Rubik 3x3 trực tuyến miễn phí theo phương pháp CFOP. Nhập scramble hoặc tô màu khối, xem hướng dẫn từng bước, bấm giờ, luyện tập và thi đấu.": "share.previewDescription",
+  "Chưa xây dựng ứng dụng, chạy pnpm build.": "common.error.appNotBuilt",
 
   "Email này đã có tài khoản CFOP.": "account.error.emailTaken",
   "Email hoặc mật khẩu không đúng.": "account.error.invalidCredentials",

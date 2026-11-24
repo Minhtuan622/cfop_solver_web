@@ -30,6 +30,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
 const WcaCompetitions = lazy(() => import("./pages/WcaCompetitions"));
 const Play = lazy(() => import("./pages/Play"));
+const About = lazy(() => import("./pages/About"));
 
 function RouteLoading() {
   const { t } = useLanguage();
@@ -58,6 +59,7 @@ function Router() {
         <Route path="/timer" component={TimerLab} />
         <Route path="/study" component={TimerLab} />
         <Route path="/play" component={Play} />
+        <Route path="/about" component={About} />
         <Route path="/settings" component={Settings} />
         <Route path="/history" component={History} />
         <Route path="/profile" component={Profile} />

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { AccountNavItem } from "@/features/profile/lib/accountNavItems";
-import { BoxSeam, X } from "@/components/ui/Icon";
+import { BoxSeam } from "@/components/ui/Icon";
+import { NavLanguageDropdown } from "@/components/NavLanguageDropdown";
+import { NavThemeDropdown } from "@/components/NavThemeDropdown";
 import { NavUtilityMenu } from "@/components/NavUtilityMenu";
 import { NavOverflowMenu } from "@/components/NavOverflowMenu";
 import { cn } from "@/lib/utils";
@@ -50,11 +52,21 @@ const overflowNavItems: AccountNavItem[] = [
     active: (path: string) => path === "/wca",
   },
   {
+    href: "/about",
+    labelKey: "nav.about",
+    active: (path: string) => path === "/about",
+  },
+  {
     href: "/settings",
     labelKey: "nav.settings",
     active: (path: string) => path === "/settings",
   },
 ];
+
+const primaryStyles = (active: boolean) =>
+  active
+    ? "bg-primary text-on-primary"
+    : "text-muted hover:bg-surface-2 hover:text-ink";
 
 export function AppNav() {
   const [location] = useLocation();
@@ -77,51 +89,27 @@ export function AppNav() {
   };
 
   return (
-    <header data-focus-hide className="sticky top-0 z-40 px-3 pt-3 sm:px-4 lg:px-6">
-      <div className="mx-auto flex w-full max-w-[88rem] flex-wrap items-center gap-2 rounded-card bg-surface px-3 py-2 sm:px-4">
+    <header data-focus-hide className="sticky top-0 z-40 px-3 pt-2 sm:px-5">
+      <div className="mx-auto flex w-full max-w-[88rem] items-center justify-between gap-3 rounded-card bg-surface px-3.5 py-2.5 sm:gap-4 sm:py-3">
         <Link
           href="/"
-          className="group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:ring-4 focus-visible:ring-primary/20"
+          className="flex min-w-0 items-center gap-2.5 rounded-full px-1 py-1.5"
           aria-label={t("nav.brandLabel")}
           onClick={closeMenus}
         >
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary text-on-primary">
-            <BoxSeam className="text-xl" />
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-primary text-on-primary">
+            <BoxSeam className="text-base" />
           </span>
           <span className="min-w-0">
             <span className="block truncate text-sm font-bold tracking-tight text-ink sm:text-base">
               {t("nav.brand")}
             </span>
-            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.24em] text-primary sm:block">
-              Studio
-            </span>
           </span>
         </Link>
 
-        <button
-          className="ml-auto grid h-10 w-10 place-items-center rounded-full text-ink transition hover:bg-surface-2 xl:hidden"
-          type="button"
-          aria-controls="cfopPrimaryNav"
-          aria-expanded={expanded}
-          aria-label={t("nav.toggle")}
-          onClick={() => setExpanded(value => !value)}
-        >
-          {expanded ? (
-            <X className="text-lg" />
-          ) : (
-            <Menu className="text-lg" strokeWidth={2.2} />
-          )}
-        </button>
-
-        <div
-          id="cfopPrimaryNav"
-          className={cn(
-            "order-last basis-full flex-col gap-2 xl:order-none xl:flex xl:flex-1 xl:basis-auto xl:flex-row xl:items-center xl:justify-end xl:gap-1",
-            expanded ? "mt-4 flex xl:mt-0" : "hidden xl:flex"
-          )}
-        >
+        <div className="flex flex-1 items-center justify-center">
           <nav
-            className="flex flex-col gap-1 xl:flex-row xl:items-center"
+            className="flex flex-wrap items-center justify-center gap-1"
             aria-label={t("nav.main")}
           >
             {primaryNavItems.map(item => {
@@ -132,10 +120,8 @@ export function AppNav() {
                   href={item.href}
                   onClick={closeMenus}
                   className={cn(
-                    "flex items-center rounded-full px-4 py-2.5 text-sm font-medium transition xl:py-2",
-                    active
-                      ? "bg-primary text-on-primary"
-                      : "text-muted hover:bg-surface-2 hover:text-ink"
+                    "rounded-full px-3.5 py-2 text-sm font-medium transition",
+                    primaryStyles(active)
                   )}
                   aria-current={active ? "page" : undefined}
                 >
@@ -149,9 +135,24 @@ export function AppNav() {
               onNavigate={closeMenus}
             />
           </nav>
-          <div className="mt-4 flex items-center gap-1 xl:mt-0 xl:ml-2">
-            <NavUtilityMenu />
-          </div>
+        </div>
+
+        <div className="flex items-center gap-1 sm:ml-auto">
+          <NavLanguageDropdown />
+          <NavThemeDropdown />
+          <NavUtilityMenu />
+          <button
+            className="hidden grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink transition hover:bg-surface-2 lg:hidden"
+            type="button"
+            aria-label={t("nav.toggle")}
+            onClick={() => setExpanded(value => !value)}
+          >
+            {expanded ? (
+              <X className="text-base" />
+            ) : (
+              <Menu className="text-base" strokeWidth={2.2} />
+            )}
+          </button>
         </div>
       </div>
     </header>

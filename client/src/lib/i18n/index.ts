@@ -1,3 +1,4 @@
+import { aboutWords } from "./about";
 import { competitionWords } from "./competition";
 import { commonWords } from "./common";
 import { historyWords } from "./history";
@@ -20,6 +21,7 @@ export type Translate = (key: string, params?: WordParams) => string;
 export const words: Dictionary = {
   ...commonWords,
   ...shellWords,
+  ...aboutWords,
   ...solverWords,
   ...studyWords,
   ...timerWords,

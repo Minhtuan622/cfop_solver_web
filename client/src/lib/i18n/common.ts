@@ -20,6 +20,7 @@ export const commonWords: Dictionary = {
     "The details you are sending are too large.",
   ],
   "common.error.notFound": ["Không tìm thấy.", "Not found."],
+  "common.error.appNotBuilt": ["Chưa xây dựng ứng dụng, chạy pnpm build.", "The app has not been built yet, run pnpm build."],
   "common.error.passwordTooShort": [
     "Mật khẩu cần ít nhất 10 ký tự.",
     "The password needs at least 10 characters.",

@@ -87,28 +87,40 @@ describe("AppNav", () => {
     ).toBeNull();
   });
 
-  it("gộp ngôn ngữ, giao diện và tài khoản vào một menu", async () => {
+  it("tách thẻ dropdown Tài khoản, Ngôn ngữ và Giao diện", async () => {
     const user = userEvent.setup();
     renderNav();
 
+    // Thẻ Tài khoản nằm trên thanh nav với nút "Tài khoản và tuỳ chọn" (mặc định).
+    const accountTrigger = screen.getByRole("button", {
+      name: "Tài khoản và tuỳ chọn",
+    });
+    expect(accountTrigger).toBeTruthy();
+    // Thẻ dropdown Ngôn ngữ và Giao diện cũng có tồn tại riêng.
     expect(
-      screen.getByRole("button", { name: "Tài khoản và tuỳ chọn" })
+      screen.getByRole("button", { name: /Ngôn ngữ/ })
     ).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Đổi ngôn ngữ" })).toBeNull();
-    expect(
-      screen.queryByRole("button", { name: /Đổi giao diện/ })
-    ).toBeNull();
+    expect(screen.getByRole("button", { name: /Giao diện/ })).toBeTruthy();
 
-    await user.click(
-      screen.getByRole("button", { name: "Tài khoản và tuỳ chọn" })
-    );
-
+    await user.click(accountTrigger);
     expect(screen.getByRole("menuitem", { name: "Đăng nhập" })).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: "Đăng ký" })).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: /Ngôn ngữ/ }));
     expect(screen.getByRole("menuitemradio", { name: "Tiếng Việt" })).toBeTruthy();
     expect(screen.getByRole("menuitemradio", { name: "English" })).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: /Giao diện/ }));
     expect(screen.getByRole("menuitemradio", { name: "Sáng" })).toBeTruthy();
     expect(screen.getByRole("menuitemradio", { name: "Tối" })).toBeTruthy();
     expect(screen.getByRole("menuitemradio", { name: "Hệ thống" })).toBeTruthy();
+  });
+
+  it("thẻ dropdown Tài khoản hiển thị Hồ sơ/Đăng xuất khi đã đăng nhập", async () => {
+    const user = userEvent.setup();
+    renderNav();
+    // Mặc định chưa đăng nhập → không hiện mục Hồ sơ/Đăng xuất.
+    expect(screen.queryByRole("menuitem", { name: "Hồ sơ" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "Đăng xuất" })).toBeNull();
   });
 });
