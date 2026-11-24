@@ -19,7 +19,6 @@ const CASES = [
   { name: "Pyraminx", scramble: "R U L' B' u" },
   { name: "Skewb", scramble: "R L' B R' L" },
   { name: "Megaminx", scramble: "R++ D-- R-- D++ U" },
-  { name: "3×3 OH", scramble: "R U R' U' F2 D L" },
 ] as const;
 
 for (const { name, scramble } of CASES) {
@@ -66,7 +65,7 @@ test("tab 3×3 FM tìm lời giải ngắn cho scramble có sẵn", async ({ pag
   await expect(solution).not.toHaveText("");
 });
 
-for (const [id, name] of [["222", "2×2×2"], ["pyram", "Pyraminx"], ["skewb", "Skewb"], ["minx", "Megaminx"], ["333oh", "3×3 OH"], ["333fm", "3×3 FM"]] as const) {
+for (const [id, name] of [["222", "2×2×2"], ["pyram", "Pyraminx"], ["skewb", "Skewb"], ["minx", "Megaminx"], ["333fm", "3×3 FM"]] as const) {
   test(`${name}: nhóm Xáo trộn / Trạng thái có mặt và tô màu giải được`, async ({ page }) => {
     await signedOut(page);
     await page.goto("/");

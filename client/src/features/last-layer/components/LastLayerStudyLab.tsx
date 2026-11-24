@@ -9,6 +9,7 @@ import { CfopStudyLab } from "@/features/cfop";
 import { TwoByTwoStudyLab } from "@/features/twoByTwo";
 import { PyraminxStudyLab } from "@/features/pyraminx";
 import { SkewbStudyLab } from "@/features/skewb";
+import { RouxStudyLab } from "@/features/roux";
 import { SquareOneStudyLab } from "@/features/squareOne";
 import { FourByFourParityStudyLab } from "@/features/fourByFourParity";
 import { FiveByFiveL2EStudyLab } from "@/features/fiveByFiveL2E";
@@ -70,6 +71,8 @@ export const studyLaneForQuery = (lane: string | null): StudyLane =>
           ? "pyraminx"
           : lane === "skewb"
             ? "skewb"
+            : lane === "roux"
+              ? "roux"
             : lane === "sq1" || lane === "square1" || lane === "square-1"
               ? "sq1"
               : lane === "4x4" || lane === "444" || lane === "parity"
@@ -127,6 +130,14 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     catalogCount: 0,
   });
   const [pyraminxStats, setPyraminxStats] = useState({
+    reviewedToday: 0,
+    dailyGoal: 10,
+    goalPercent: 0,
+    queueCount: 0,
+    masteredCount: 0,
+    catalogCount: 0,
+  });
+  const [rouxStats, setRouxStats] = useState({
     reviewedToday: 0,
     dailyGoal: 10,
     goalPercent: 0,
@@ -287,6 +298,7 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
     bld: bldStats,
     pyraminx: pyraminxStats,
     skewb: skewbStats,
+    roux: rouxStats,
     sq1: sq1Stats,
     parity: parityStats,
     l2e: l2eStats,
@@ -386,6 +398,8 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                   ? t("study.description.pyraminx")
                   : studyLane === "skewb"
                     ? t("study.description.skewb")
+                    : studyLane === "roux"
+                      ? t("study.description.roux")
                     : studyLane === "sq1"
                       ? t("study.description.sq1")
                       : studyLane === "parity"
@@ -528,6 +542,10 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
       ) : studyLane === "skewb" ? (
         <div className="mt-6">
           <SkewbStudyLab language={language} onStatsChange={setSkewbStats} />
+        </div>
+      ) : studyLane === "roux" ? (
+        <div className="mt-6">
+          <RouxStudyLab language={language} onStatsChange={setRouxStats} />
         </div>
       ) : studyLane === "sq1" ? (
         <div className="mt-6">

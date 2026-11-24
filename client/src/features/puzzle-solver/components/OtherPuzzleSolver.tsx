@@ -105,6 +105,7 @@ export function OtherPuzzleSolver({
         scramble: solved.setup,
         solution: solved.solution,
         moves: solved.solution ? solved.solution.split(" ").length : 0,
+        ...(solved.phases ? { phases: solved.phases } : {}),
       });
     } catch (reason) {
       const code =
@@ -290,28 +291,48 @@ export function OtherPuzzleSolver({
               <strong className="text-ink">{result.moves}</strong>
             </p>
             {moves.length ? (
-              <ol
-                data-testid="other-puzzle-solution"
-                className="m-0 flex list-none flex-wrap gap-1.5 p-0"
-              >
-                {moves.map((move, index) => (
-                  <li key={index}>
-                    <button
-                      type="button"
-                      aria-current={cursor === index + 1 || undefined}
-                      onClick={() => playback.selectCursor(index + 1, "seek")}
-                      className={cn(
-                        "rounded-full px-3 py-1.5 font-mono text-sm transition",
-                        cursor === index + 1
-                          ? "bg-primary text-on-primary"
-                          : "bg-surface-2 text-ink hover:bg-surface-3"
-                      )}
-                    >
-                      {move}
-                    </button>
-                  </li>
-                ))}
-              </ol>
+              <div data-testid="other-puzzle-solution" className="flex flex-col gap-4">
+                {(result.phases ?? [{ name: "", moves }]).map((phase, phaseIndex, list) => {
+                  const offset = list
+                    .slice(0, phaseIndex)
+                    .reduce((sum, item) => sum + item.moves.length, 0);
+                  if (!phase.moves.length) return null;
+                  return (
+                    <section key={phaseIndex}>
+                      {phase.name ? (
+                        <h3 className="mb-2 text-sm font-semibold tracking-tight">
+                          {t(`roux.phase.${phase.name}`)}{" "}
+                          <span className="font-normal text-muted">
+                            · {phase.moves.length}
+                          </span>
+                        </h3>
+                      ) : null}
+                      <ol className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+                        {phase.moves.map((move, index) => {
+                          const position = offset + index + 1;
+                          return (
+                            <li key={index}>
+                              <button
+                                type="button"
+                                aria-current={cursor === position || undefined}
+                                onClick={() => playback.selectCursor(position, "seek")}
+                                className={cn(
+                                  "rounded-full px-3 py-1.5 font-mono text-sm transition",
+                                  cursor === position
+                                    ? "bg-primary text-on-primary"
+                                    : "bg-surface-2 text-ink hover:bg-surface-3"
+                                )}
+                              >
+                                {move}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    </section>
+                  );
+                })}
+              </div>
             ) : (
               <p
                 data-testid="other-puzzle-solution"

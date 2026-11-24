@@ -14,7 +14,7 @@ CFOP Solver Studio là ứng dụng web hỗ trợ giải, luyện tập và thi
 | **Study** | Last Layer và 3-Style BLD, catalog công thức, SRS, drill, streak, learning path, profile học tập và tự kiểm tra bằng scramble. FTO Study không còn trong sản phẩm. |
 | **Profile / Account** | Đăng ký, đăng nhập, đổi mật khẩu, quên mật khẩu, avatar, mục tiêu cá nhân, đồng bộ Timer/Study và liên kết WCA. |
 | **Rooms** | Tạo/tham gia phòng, Best of 3/Ao5/Ao12, MBLD, chat, spectator, moderator, moderation log, rematch, lịch sử phòng và leaderboard. Cập nhật tức thì qua SSE; chủ phòng/moderator thấy cờ cảnh báo kết quả đáng ngờ. |
-| **Khối khác** | Trang Giải có bộ chọn khối: 2×2×2, Pyraminx, Skewb, Megaminx, 3×3 OH và 3×3 FM giải bằng `cubing/search`; với 3×3 có thêm tab 3×3 FM tìm lời giải ngắn nhất. |
+| **Khối khác** | Trang Giải có bộ chọn khối: 2×2×2, Pyraminx, Skewb, Megaminx và 3×3 FM giải bằng `cubing/search`; với 3×3 có thêm tab 3×3 FM tìm lời giải ngắn nhất. |
 | **WCA** | Lịch thi đấu, lọc quốc gia, hồ sơ WCA, OAuth WCA khi đủ cấu hình và so sánh thành tích. |
 
 ## 2. Stack công nghệ
@@ -194,6 +194,11 @@ Trang `/` là một **không gian làm việc** hai cột, không phải một c
 - **Cột phải — “Lời giải”**: khối cube 2D/3D và **khối phát lại chỉ hiện khi đã có lời giải** — trước đó có một dòng nhắc bấm nút.
 - **Báo cáo CFOP** nằm full-width dưới cả hai cột; số lượt và số chặng gộp vào header của chính báo cáo nên không còn thẻ số liệu trùng lặp.
 - Các khối gập dùng `<details>` native, không cần JS.
+
+### Roux (lane Học thêm và bộ giải)
+
+- **Lane Roux** (`features/roux`, `/study?lane=roux`): 42 case CMLL (O, H, Pi, U, T, Sune, Antisune, L) và 16 công thức LSE (EO, UL/UR, L4E). Dữ liệu ở `lib/rouxData.ts`, nguồn ghi trong đầu file; `rouxData.test.ts` chạy cubing.js thật kiểm từng công thức (chỉ đổi 4 góc U, giữ hai khối và tâm; 42 case phân biệt nhau). Chưa có EOLR/EOLRb vì nguồn không liệt kê công thức.
+- **Bộ giải Roux** (mục "3×3 Roux" trong dropdown trang Giải): `lib/rouxSolver.ts` giải từng giai đoạn — First Block (bảng khoảng cách đầy đủ, tối ưu), Second Block (⟨U,R,r,M⟩, tối ưu), CMLL (tra danh mục + AUF), LSE (BFS đầy đủ trên ⟨M,U⟩). Chạy trong Web Worker (`rouxWorker.ts`, dựng bảng vài giây lần đầu); lời giải trung bình ~40 nước. Test `rouxSolver.test.ts` giải 25 scramble ngẫu nhiên và kiểm khối về đúng trạng thái đã giải.
 
 ### Giải khối khác trong trang Giải
 

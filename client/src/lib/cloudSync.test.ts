@@ -57,6 +57,7 @@ describe("B3: cloud sync tombstones and merge", () => {
     expect(state.twoByTwo).toBeDefined();
     expect(state.pyraminx).toBeDefined();
     expect(state.skewb).toBeDefined();
+    expect(state.roux).toBeDefined();
     expect(state.sq1).toBeDefined();
     expect(state.parity).toBeDefined();
     expect(state.l2e).toBeDefined();

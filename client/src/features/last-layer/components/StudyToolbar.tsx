@@ -9,6 +9,7 @@ export type StudyLane =
   | "twoByTwo"
   | "pyraminx"
   | "skewb"
+  | "roux"
   | "sq1"
   | "parity"
   | "l2e"
@@ -40,6 +41,7 @@ const LANES: ReadonlyArray<{ id: StudyLane; labelKey: string }> = [
   { id: "twoByTwo", labelKey: "study.laneTwoByTwo" },
   { id: "pyraminx", labelKey: "study.lanePyraminx" },
   { id: "skewb", labelKey: "study.laneSkewb" },
+  { id: "roux", labelKey: "study.laneRoux" },
   { id: "sq1", labelKey: "study.laneSq1" },
   { id: "parity", labelKey: "study.laneParity" },
   { id: "l2e", labelKey: "study.laneL2E" },

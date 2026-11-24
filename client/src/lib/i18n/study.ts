@@ -65,6 +65,29 @@ export const studyWords: Dictionary = {
   "study.laneL2E": ["5×5 L2E", "5×5 L2E"],
   "study.laneL3T": ["FTO L3T", "FTO L3T"],
   "study.laneL3T2": ["FTO 2-Look", "FTO 2-Look"],
+  "study.laneRoux": ["Roux", "Roux"],
+  "study.description.roux": [
+    "Roux: 42 case CMLL và các bước LSE (EO, UL/UR, L4E), mỗi case có công thức đã kiểm chứng trên khối thật.",
+    "Roux: all 42 CMLL cases and the LSE steps (EO, UL/UR, L4E), each algorithm verified on a real cube.",
+  ],
+  "roux.caseLabel": ["Case Roux đang học", "Active Roux case"],
+  "roux.loading3d": ["Đang tải 3D…", "Loading 3D…"],
+  "roux.setLabel": ["Bộ công thức Roux", "Roux algorithm set"],
+  "roux.setCmll": ["CMLL · {count}", "CMLL · {count}"],
+  "roux.setLse": ["LSE · {count}", "LSE · {count}"],
+  "roux.laneSummaryCmll": [
+    "{count} case CMLL (O, H, Pi, U, T, Sune, Antisune, L)",
+    "{count} CMLL cases (O, H, Pi, U, T, Sune, Antisune, L)",
+  ],
+  "roux.laneSummaryLse": [
+    "{count} công thức LSE: EO, UL/UR và L4E (chỉ dùng M và U)",
+    "{count} LSE algorithms: EO, UL/UR and L4E (M and U only)",
+  ],
+  "roux.catalogTitle": ["Danh mục Roux", "Roux catalog"],
+  "roux.previewHint": [
+    "Chọn một case để xem khối 3D và công thức.",
+    "Pick a case to see the 3D cube and its algorithm.",
+  ],
   "cfop.laneSummary": [
     "F2L {f2l} (41 × 4 hướng) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} case",
     "F2L {f2l} (41 × 4-way) · OLL {oll} · PLL {pll} · COLL {coll} · OLLCP {ollcp} cases",

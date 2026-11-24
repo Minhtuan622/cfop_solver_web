@@ -17,7 +17,6 @@ const CASES: Array<[OtherPuzzleId, KPuzzleId, string]> = [
   ["pyram", "pyraminx", "R U L' B' u l'"],
   ["skewb", "skewb", "R L' B R' L D"],
   ["333fm", "3x3x3", "R U R' F2 D L B' U2 R"],
-  ["333oh", "3x3x3", "R U R' F2 D L B' U2 R"],
   ["minx", "megaminx", "R++ D-- R-- D++ U R++ D-- U'"],
 ];
 

@@ -9,6 +9,7 @@ import {
   normalizeScramble,
   pickSolver,
   type OtherPuzzleId,
+  type SolutionPhase,
 } from "./puzzleSolve";
 import {
   colorCountsMatch,
@@ -77,6 +78,8 @@ export async function solvedStatePainting(id: KPuzzleId): Promise<Painting> {
 }
 
 export type StateSolution = {
+  /** Có khi bộ giải chia lời giải theo giai đoạn (Roux). */
+  phases?: SolutionPhase[];
   /** Chuỗi lượt đưa khối đã giải về đúng trạng thái này (nghịch đảo lời giải). */
   setup: string;
   solution: string;
@@ -112,7 +115,19 @@ export async function solveFromPainting(
   );
   const pattern = new KPattern(kpuzzle, data as never);
 
-  const run = solver ?? ((value: unknown) => pickSolver(search, puzzle)(value as never).then(alg => alg.toString()));
+  let phases: SolutionPhase[] | undefined;
+  const run =
+    solver ??
+    (puzzle === "333roux"
+      ? async (value: unknown) => {
+          const { solveRouxPattern } = await import("@/features/roux/lib/rouxEngine");
+          const roux = await solveRouxPattern(
+            (value as { patternData: never }).patternData
+          );
+          phases = roux.phases;
+          return roux.moves.join(" ");
+        }
+      : (value: unknown) => pickSolver(search, puzzle)(value as never).then(alg => alg.toString()));
   let text: string;
   try {
     text = await Promise.race([
@@ -140,5 +155,9 @@ export async function solveFromPainting(
   if (mismatch) throw new PuzzleSolveError("invalid-state");
 
   const { invertAlgorithm } = await import("./puzzleSolve");
-  return { solution, setup: invertAlgorithm(solution, { fifthTurns: puzzle === "minx" }) };
+  return {
+    solution,
+    setup: invertAlgorithm(solution, { fifthTurns: puzzle === "minx" }),
+    ...(phases ? { phases } : {}),
+  };
 }

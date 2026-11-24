@@ -36,6 +36,8 @@ export const cloudStateInput = z.object({
   pyraminx: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }).optional(),
   // Optional (absent on old clients): Skewb lane progress.
   skewb: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }).optional(),
+  // Optional (absent on old clients): Roux lane progress.
+  roux: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }).optional(),
   // Optional (absent on old clients): Square-1 lane progress.
   sq1: z.object({ study: z.unknown(), masteredCaseKeys: z.array(z.string().max(120)).max(1800) }).optional(),
   // Optional (absent on old clients): 4×4 PLL parity lane progress.

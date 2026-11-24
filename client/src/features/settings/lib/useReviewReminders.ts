@@ -41,6 +41,7 @@ export function readCurrentReviewSchedule(now = Date.now()) {
     state.twoByTwo,
     state.pyraminx,
     state.skewb,
+    state.roux,
     state.sq1,
     state.parity,
     state.l2e,
