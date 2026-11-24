@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { configuredGoogleClientId, verifyGoogleIdToken } from "../services/googleAuth";
+import { configuredFacebookApp, verifyFacebookAccessToken } from "../services/facebookAuth";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, currentSessionTokenHash, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "../services/cfopAccountAuth";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../services/cfopPasswordResetMail";
 import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
@@ -48,6 +49,29 @@ export const accountRouter = router({
     .mutation(async ({ ctx, input }) => {
       const identity = await verifyGoogleIdToken(input.idToken);
       if (!identity) throw new TRPCError({ code: "UNAUTHORIZED", message: "Không thể xác thực tài khoản Google." });
+      const email = normalizeEmail(identity.email);
+      let account = await findCfopAccountByEmail(email);
+      if (!account) {
+        account = await createCfopAccount({
+          email,
+          displayName: identity.name.slice(0, 80),
+          passwordHash: await hashPassword(randomBytes(32).toString("base64url")),
+        });
+      }
+      await markCfopAccountSignedIn(account.id);
+      await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
+      return findCfopAccountPublicById(account.id);
+    }),
+  facebookConfigured: publicProcedure.query(() => {
+    const { appId, appSecret } = configuredFacebookApp();
+    return Boolean(appId && appSecret);
+  }),
+  facebookLogin: publicProcedure
+    .input(z.object({ accessToken: z.string().min(1).max(2048) }))
+    .use(rateLimitMiddleware("login", () => "facebook-access-token"))
+    .mutation(async ({ ctx, input }) => {
+      const identity = await verifyFacebookAccessToken(input.accessToken);
+      if (!identity) throw new TRPCError({ code: "UNAUTHORIZED", message: "Không thể xác thực tài khoản Facebook." });
       const email = normalizeEmail(identity.email);
       let account = await findCfopAccountByEmail(email);
       if (!account) {

@@ -116,6 +116,8 @@ export function NavUtilityMenu() {
         onClose={session.close}
         googleEnabled={session.googleEnabled}
         onGoogleCredential={session.signInWithGoogle}
+        facebookEnabled={session.facebookEnabled}
+        onFacebookToken={session.signInWithFacebook}
       />
     </>
   );

@@ -52,6 +52,12 @@ export const shellWords: Dictionary = {
     "Google sign-in is not configured (VITE_GOOGLE_CLIENT_ID).",
   ],
   "account.googleError": ["Không thể xác thực tài khoản Google.", "Could not verify your Google account."],
+  "account.facebookSignIn": ["Đăng nhập nhanh với Facebook", "Continue with Facebook"],
+  "account.facebookUnconfigured": [
+    "Chưa cấu hình đăng nhập Facebook (VITE_FACEBOOK_APP_ID, FACEBOOK_APP_SECRET).",
+    "Facebook sign-in is not configured (VITE_FACEBOOK_APP_ID, FACEBOOK_APP_SECRET).",
+  ],
+  "account.facebookError": ["Không thể xác thực tài khoản Facebook.", "Could not verify your Facebook account."],
   "account.dialog.loginTitle": ["Đăng nhập CFOP Solver", "Sign in to CFOP Solver"],
   "account.dialog.registerTitle": ["Tạo tài khoản CFOP Solver", "Create a CFOP Solver account"],
   "account.dialog.description": [

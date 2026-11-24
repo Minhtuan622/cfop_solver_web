@@ -8,7 +8,8 @@ export const serverMessageKeys: Record<string, string> = {
   "Chưa xây dựng ứng dụng, chạy pnpm build.": "common.error.appNotBuilt",
 
   "Email này đã có tài khoản CFOP.": "account.error.emailTaken",
-  "Không thể xác thực tài khoản Google.": "account.googleError",  "Email hoặc mật khẩu không đúng.": "account.error.invalidCredentials",
+  "Không thể xác thực tài khoản Google.": "account.googleError",
+  "Không thể xác thực tài khoản Facebook.": "account.facebookError",  "Email hoặc mật khẩu không đúng.": "account.error.invalidCredentials",
   "Mật khẩu hiện tại không đúng.": "profile.errorCurrentPassword",
   "Bạn đã thử quá nhiều lần. Vui lòng thử lại sau.": "account.error.rateLimited",
   "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.": "account.error.resetLinkInvalid",

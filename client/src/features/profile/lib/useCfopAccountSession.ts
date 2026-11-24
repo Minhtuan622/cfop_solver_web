@@ -22,6 +22,10 @@ export function useCfopAccountSession() {
     staleTime: 5 * 60_000,
     retry: false,
   });
+  const facebookConfigured = trpc.cfopAccount.facebookConfigured.useQuery(undefined, {
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
 
   const complete = async () => {
     await utils.cfopAccount.me.invalidate();
@@ -48,8 +52,16 @@ export function useCfopAccountSession() {
     setError("");
     googleLogin.mutate({ idToken: credential });
   };
+  const facebookLogin = trpc.cfopAccount.facebookLogin.useMutation({
+    onSuccess: complete,
+    onError: next => setError(errorMessage(next, t)),
+  });
+  const signInWithFacebook = (accessToken: string) => {
+    setError("");
+    facebookLogin.mutate({ accessToken });
+  };
 
-  const pending = register.isPending || login.isPending || googleLogin.isPending;
+  const pending = register.isPending || login.isPending || googleLogin.isPending || facebookLogin.isPending;
   const submit = (event: FormEvent) => {
     event.preventDefault();
     setError("");
@@ -69,7 +81,9 @@ export function useCfopAccountSession() {
   return {
     account: accountQuery.data,
     googleEnabled: Boolean(googleConfigured.data),
+    facebookEnabled: Boolean(facebookConfigured.data),
     signInWithGoogle,
+    signInWithFacebook,
     open,
     mode,
     email,

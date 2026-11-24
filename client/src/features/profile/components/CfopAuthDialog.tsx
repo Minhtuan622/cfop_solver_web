@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
 import { IconButton } from "@/components/ui/StudioUI";
 import { GoogleSignInButton } from "./GoogleSignInButton";
+import { FacebookSignInButton } from "./FacebookSignInButton";
 
 export type AuthMode = "login" | "register";
 
@@ -31,6 +32,8 @@ type Props = {
   onClose: () => void;
   googleEnabled?: boolean;
   onGoogleCredential?: (credential: string) => void;
+  facebookEnabled?: boolean;
+  onFacebookToken?: (accessToken: string) => void;
 };
 
 export function CfopAuthDialog({
@@ -49,6 +52,8 @@ export function CfopAuthDialog({
   onClose,
   googleEnabled = false,
   onGoogleCredential,
+  facebookEnabled = false,
+  onFacebookToken,
 }: Props) {
   const { t } = useLanguage();
   return (
@@ -156,6 +161,13 @@ export function CfopAuthDialog({
                 enabled={googleEnabled}
                 pending={pending}
                 onCredential={onGoogleCredential}
+              />
+            ) : null}
+            {onFacebookToken ? (
+              <FacebookSignInButton
+                enabled={facebookEnabled}
+                pending={pending}
+                onAccessToken={onFacebookToken}
               />
             ) : null}
             {error ? (
