@@ -10,6 +10,8 @@ import { formatTimerReadout } from "@/lib/solveHistory";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 import { invertAlgorithm } from "@/lib/fastCube";
 import { Button } from "@/components/ui/Button";
+import { CaseScrambleRow } from "@/features/case-study";
+import type { TimerEventId } from "@/lib/timerEvents";
 
 const Puzzle3DCanvas = lazy(async () => ({
   default: (await import("@/features/puzzle-3d/components/Puzzle3DCanvas"))
@@ -17,6 +19,8 @@ const Puzzle3DCanvas = lazy(async () => ({
 }));
 
 export type StudyCasePanelProps = {
+  /** Event của Timer khi mở scramble của case (BLD dùng `333bf`). */
+  scrambleEvent?: TimerEventId;
   /** A catalog case; CFOP cases also carry a short `name` for the header. */
   activeCase: LastLayerCatalogCase | null;
   loading: boolean;
@@ -57,6 +61,7 @@ export function StudyCasePanel({
   onGrade,
   onChooseNext,
   canChooseNext,
+  scrambleEvent = "333",
 }: StudyCasePanelProps) {
   const { t, language } = useLanguage();
 
@@ -225,6 +230,10 @@ export function StudyCasePanel({
                 {activeCase.algorithm}
               </pre>
             ) : null}
+            <CaseScrambleRow
+              eventId={scrambleEvent}
+              scramble={invertAlgorithm(activeCase.algorithm)}
+            />
           </div>
 
           <div className="col-span-12 lg:col-span-5">

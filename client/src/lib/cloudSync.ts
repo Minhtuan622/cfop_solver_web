@@ -53,12 +53,26 @@ const maxTimerEntries = MAX_CLOUD_TIMER_ENTRIES;
 /** Số tombstone tối đa gửi kèm (ngoài 500 lượt đang hiển thị). */
 export const MAX_CLOUD_TIMER_TOMBSTONES = MAX_SOLVE_TOMBSTONES;
 
+/**
+ * Số lượt gần nhất giữ nhịp từng nước (`moveTimes`) khi đồng bộ cloud: mỗi lượt
+ * ~0,5 KB, nên giới hạn để payload không vượt trần 1,5 MB của server.
+ */
+export const MAX_CLOUD_MOVE_TRACES = 200;
+
 /** Tối đa 500 lượt đang hiển thị (mới trước) và 100 tombstone (mới xoá trước). */
 function capTimerEntries(entries: SolveHistoryEntry[]) {
+  let traces = 0;
   const live = entries
     .filter(entry => !entry.deletedAt)
     .sort((left, right) => right.createdAt - left.createdAt)
-    .slice(0, maxTimerEntries);
+    .slice(0, maxTimerEntries)
+    .map(entry => {
+      if (!entry.moveTimes) return entry;
+      traces += 1;
+      if (traces <= MAX_CLOUD_MOVE_TRACES) return entry;
+      const { moveTimes: _dropped, ...rest } = entry;
+      return rest;
+    });
   const tombstones = entries
     .filter(entry => entry.deletedAt)
     .sort((left, right) => (right.deletedAt ?? 0) - (left.deletedAt ?? 0))

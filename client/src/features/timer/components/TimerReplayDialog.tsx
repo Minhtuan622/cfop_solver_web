@@ -31,6 +31,7 @@ export function TimerReplayDialog({
   replayRunId,
   onPlay,
   onClose,
+  onAnalyze,
 }: {
   replay: SolveHistoryEntry | null;
   replayText: string;
@@ -39,6 +40,8 @@ export function TimerReplayDialog({
   replayRunId: number;
   onPlay: () => void;
   onClose: () => void;
+  /** Mở phân tích sâu; chỉ có khi lượt giải có nhịp từng nước. */
+  onAnalyze?: (entry: SolveHistoryEntry) => void;
 }) {
   const { language, t } = useLanguage();
   return (
@@ -171,6 +174,17 @@ export function TimerReplayDialog({
                       <Play className="text-base mr-1" />
                       {t("timer.playSolution")}
                     </Button>
+                    {replay?.moveTimes && onAnalyze ? (
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        className="w-full mt-2"
+                        type="button"
+                        onClick={() => onAnalyze(replay)}
+                      >
+                        {t("analysis.open")}
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               </div>

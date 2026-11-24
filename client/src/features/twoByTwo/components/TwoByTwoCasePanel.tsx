@@ -36,6 +36,7 @@ export function TwoByTwoCasePanel({
       {...practice}
       activeCase={activeCase}
       caseLabel={t("twoByTwo.caseLabel")}
+      caseScramble={{ eventId: "222", scramble: invertAlgorithm(activeCase.algorithm) }}
       toolbarStart={
         <div
           className="inline-flex flex-wrap items-center gap-1 text-xs"

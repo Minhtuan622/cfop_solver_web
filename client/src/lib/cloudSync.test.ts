@@ -3,6 +3,7 @@ import {
   applyCfopCloudState,
   createCfopCloudState,
   MAX_CLOUD_TIMER_ENTRIES,
+  MAX_CLOUD_MOVE_TRACES,
   MAX_CLOUD_TIMER_TOMBSTONES,
   mergeCfopCloudStates,
   parseCfopCloudState,
@@ -344,5 +345,21 @@ describe("B3: cloud sync tombstones and merge", () => {
     expect(merged.timer.some(entry => entry.id === "live-0")).toBe(true);
     expect(merged.timer.some(entry => entry.id === "dead-0")).toBe(true);
     expect(merged.timer.some(entry => entry.id === `dead-${MAX_CLOUD_TIMER_TOMBSTONES + 19}`)).toBe(false);
+  });
+
+  it("chỉ giữ nhịp từng nước cho các solve gần nhất khi đồng bộ", () => {
+    const total = MAX_CLOUD_MOVE_TRACES + 25;
+    const entries = Array.from({ length: total }, (_, index) => ({
+      ...makeEntry(`s${index}`, 1_000 + index),
+      moveTimes: [0, 100, 200, 300],
+      solution: "R U R' U'",
+    }));
+    writeStoredValue("cfop-solve-history-v1", JSON.stringify(entries));
+    const state = createCfopCloudState();
+    const withTrace = state.timer.filter(entry => entry.moveTimes);
+    expect(withTrace).toHaveLength(MAX_CLOUD_MOVE_TRACES);
+    // Giữ nhịp của các solve mới nhất; solve cũ vẫn còn, chỉ mất nhịp.
+    expect(withTrace.every(entry => entry.createdAt >= 1_000 + 25)).toBe(true);
+    expect(state.timer).toHaveLength(total);
   });
 });

@@ -139,6 +139,20 @@ export function useCaseStudyLane<Case extends LastLayerCatalogCase, StudyRecord 
     // chooseNext intentionally omitted; it is stable enough for this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCase, ranked, family]);
+  // Mở từ liên kết có `?case=<id>` (vd. từ phân tích solve): chọn đúng case đó một lần.
+  const requestedCase = useRef(
+    typeof window === "undefined"
+      ? null
+      : new URLSearchParams(window.location.search).get("case")
+  );
+  useEffect(() => {
+    const id = requestedCase.current;
+    if (!id) return;
+    const found = catalog.find(item => item.id === id);
+    if (!found) return;
+    requestedCase.current = null;
+    selectCase(found);
+  }, [catalog, selectCase]);
   const toggleMastered = () => {
     if (!activeCase) return;
     const key = caseStudyKey(activeCase);

@@ -40,6 +40,8 @@ export type SmartCubePhase = "idle" | "ready" | "solving" | "completed";
 
 export type SmartCubeSolveResult = {
   moves: string[];
+  /** Thời điểm (ms) của từng nước, tính từ nước đầu tiên (nước đầu = 0). */
+  moveTimes: number[];
   elapsedMs: number;
   /** Auto-detected CFOP splits (Cross → F2L → OLL → PLL), empty for non-3×3. */
   phaseSplits: SolvePhaseSplit[];
@@ -103,6 +105,8 @@ export function useSmartCube({
   const targetRef = useRef<KPattern | null>(null);
   const phaseRef = useRef<SmartCubePhase>("idle");
   const movesRef = useRef<string[]>([]);
+  /** `performance.now()` lúc nhận từng nước, song song với `movesRef`. */
+  const moveAtRef = useRef<number[]>([]);
   const startedAtRef = useRef<number | null>(null);
   const marksRef = useRef<
     Partial<Record<"cross" | "f2l" | "oll", { at: number; moves: number }>>
@@ -129,6 +133,9 @@ export function useSmartCube({
   const evaluateProgress = useCallback(async () => {
     const current = currentRef.current;
     if (!current || !enabled) return;
+    // Số nước đã nhận tại thời điểm gọi: nước thứ `movesAtCall` là nước vừa
+    // làm khối rời trạng thái scramble (nếu đang chờ).
+    const movesAtCall = movesRef.current.length;
     const solved = await getSolvedPattern();
     const isSolved = current.isIdentical(solved);
     const isTarget = targetRef.current
@@ -148,7 +155,8 @@ export function useSmartCube({
       if (phaseRef.current === "solving" || phaseRef.current === "ready") {
         publishPhase("completed");
         const started = startedAtRef.current;
-        const endAt = performance.now();
+        // Giờ kết thúc là lúc nước cuối cùng được nhận, không phải lúc xử lý xong.
+        const endAt = moveAtRef.current.at(-1) ?? performance.now();
         const start = started ?? endAt;
         const marks = marksRef.current;
         const crossMark =
@@ -181,6 +189,7 @@ export function useSmartCube({
         ];
         onSolveCompleteRef.current?.({
           moves: [...movesRef.current],
+          moveTimes: moveAtRef.current.map(at => Math.max(0, Math.round(at - start))),
           elapsedMs: endAt - start,
           phaseSplits,
         });
@@ -191,6 +200,7 @@ export function useSmartCube({
       if (isTarget) {
         publishPhase("ready");
         movesRef.current = [];
+        moveAtRef.current = [];
         startedAtRef.current = null;
         setMoves([]);
         setTps(null);
@@ -199,8 +209,14 @@ export function useSmartCube({
     }
     if (phaseRef.current === "ready" && !isTarget) {
       publishPhase("solving");
-      startedAtRef.current = performance.now();
+      // Lời giải bắt đầu từ nước làm khối rời scramble: bỏ các nước thử trước đó
+      // (xoay rồi xoay lại) và lấy giờ của nước này làm mốc 0.
+      const first = Math.max(0, Math.min(movesAtCall, movesRef.current.length) - 1);
+      movesRef.current = movesRef.current.slice(first);
+      moveAtRef.current = moveAtRef.current.slice(first);
+      startedAtRef.current = moveAtRef.current[0] ?? performance.now();
       marksRef.current = {};
+      setMoves([...movesRef.current]);
     }
   }, [enabled, publishPhase]);
 
@@ -226,6 +242,7 @@ export function useSmartCube({
   useEffect(() => {
     targetRef.current = null;
     movesRef.current = [];
+    moveAtRef.current = [];
     startedAtRef.current = null;
     publishPhase("idle");
     setMoves([]);
@@ -325,11 +342,12 @@ export function useSmartCube({
         } catch {
           return; // unknown move encoding — drop it rather than corrupt state
         }
+        const now = performance.now();
         movesRef.current = [...movesRef.current, move.toString()];
+        moveAtRef.current = [...moveAtRef.current, now];
         if (currentRef.current && phaseRef.current === "solving") {
           const facelets = kpatternToFacelets(currentRef.current);
           const done = detectCompletedPhases(facelets);
-          const now = performance.now();
           if (!marksRef.current.cross && done.cross)
             marksRef.current.cross = { at: now, moves: movesRef.current.length };
           if (!marksRef.current.f2l && done.f2l)
@@ -369,6 +387,7 @@ export function useSmartCube({
     setTps(null);
     publishPhase("idle");
     movesRef.current = [];
+    moveAtRef.current = [];
     startedAtRef.current = null;
     setStatus(current =>
       current === "unsupported" ? current : "idle",

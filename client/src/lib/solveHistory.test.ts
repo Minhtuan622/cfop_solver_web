@@ -7,6 +7,7 @@ import {
   exportSolveHistory,
   importSolveHistory,
   readSolveHistory,
+  updateSolveHistory,
 } from "./solveHistory";
 
 const KEY = "cfop-solve-history-v1";
@@ -290,5 +291,39 @@ describe("solveHistory: import/export", () => {
       validEntry({ source: "telepathy" }),
     ]);
     expect(imported[0]?.source).toBeUndefined();
+  });
+
+  it("giữ thời điểm từng nước của solve smart cube và bỏ khi không khớp lời giải", () => {
+    const saved = addSolveHistory({
+      elapsedMs: 4_000,
+      inspectionMs: 0,
+      input: solvedScramble,
+      inputKind: "scramble",
+      moves: 3,
+      source: "smartcube",
+      solution: "R U R'",
+      moveTimes: [0, 180, 420.4],
+    });
+    expect(saved.moveTimes).toEqual([0, 180, 420]);
+    expect(readSolveHistory()[0]?.moveTimes).toEqual([0, 180, 420]);
+
+    // Sửa lời giải (số nước đổi) thì nhịp cũ không còn đúng: bị bỏ.
+    const [edited] = updateSolveHistory(saved.id, { solution: "R U" });
+    expect(edited.moveTimes).toBeUndefined();
+  });
+
+  it("từ chối nhịp không hợp lệ (giảm dần, âm, không phải số, quá dài)", () => {
+    const bad = [
+      [0, 200, 100],
+      [0, -5, 10],
+      [0, "x", 10],
+      Array.from({ length: 401 }, (_, index) => index),
+    ];
+    for (const moveTimes of bad) {
+      const [entry] = importSolveHistory([
+        validEntry({ solution: "R U R'", moveTimes }),
+      ]);
+      expect(entry?.moveTimes).toBeUndefined();
+    }
   });
 });

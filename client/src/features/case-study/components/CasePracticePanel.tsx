@@ -14,6 +14,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { formatTimerReadout } from "@/lib/solveHistory";
 import { Button } from "@/components/ui/Button";
 import type { CaseStudyGrade } from "@/lib/caseStudy";
+import { CaseScrambleRow, type CasePractice } from "./CaseScrambleRow";
 
 /** Props mà lane nhận từ `useCaseStudyLane` và chuyển thẳng xuống thẻ case. */
 export type CasePracticeProps<Case> = {
@@ -42,6 +43,8 @@ export type CasePracticePanelProps<Case extends { name: string; algorithm: strin
     previewFooter?: ReactNode;
     /** Điều khiển đặt bên trái dòng "Xem · nhớ lại · bấm giờ" (vd. nút 2D/3D). */
     toolbarStart?: ReactNode;
+    /** Scramble thật của case (đưa khối đã giải về case); bỏ trống nếu lane không dựng được. */
+    caseScramble?: CasePractice;
   };
 
 /** Trạng thái khi hàng đợi chưa có case nào. */
@@ -77,6 +80,7 @@ export function CasePracticePanel<Case extends { name: string; algorithm: string
   preview,
   previewFooter,
   toolbarStart,
+  caseScramble,
 }: CasePracticePanelProps<Case>) {
   const { t } = useLanguage();
 
@@ -172,6 +176,7 @@ export function CasePracticePanel<Case extends { name: string; algorithm: string
                 {activeCase.algorithm}
               </pre>
             ) : null}
+            {caseScramble ? <CaseScrambleRow {...caseScramble} /> : null}
           </div>
 
           <div className="col-span-12 lg:col-span-5">

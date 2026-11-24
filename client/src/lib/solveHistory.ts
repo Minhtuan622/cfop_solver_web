@@ -25,6 +25,12 @@ export type SolveHistoryEntry = {
   moves: number;
   penalty: SolvePenalty;
   solution: string;
+  /**
+   * Thời điểm (ms, tính từ nước đầu tiên) của từng nước trong `solution`, ghi bởi
+   * smart cube. Có thì mới phân tích sâu và phát lại đúng nhịp được; cùng độ dài
+   * với số nước của `solution`, nếu lệch (vd. đã sửa lời giải) thì bị bỏ.
+   */
+  moveTimes?: number[];
   note: string;
   tags: string[];
   phaseSplits: SolvePhaseSplit[];
@@ -101,6 +107,24 @@ const phaseSplitsSchema = z
   })
   .catch(() => [] as SolvePhaseSplit[]);
 
+/** Tối đa số nước một lượt giải có thể có; lớn hơn thì coi là dữ liệu hỏng. */
+export const MAX_RECORDED_MOVES = 400;
+const moveTimesSchema = z
+  .array(z.unknown())
+  .transform(items => {
+    const times: number[] = [];
+    for (const raw of items) {
+      if (typeof raw !== "number" || !Number.isFinite(raw) || raw < 0) return undefined;
+      const value = Math.round(raw);
+      if (times.length && value < times[times.length - 1]) return undefined;
+      times.push(value);
+      if (times.length > MAX_RECORDED_MOVES) return undefined;
+    }
+    return times.length ? times : undefined;
+  })
+  .optional()
+  .catch(undefined);
+
 const multiBlindSchema = z
   .object({
     attempted: finiteNumber().int().min(2),
@@ -134,6 +158,7 @@ const solveHistoryEntrySchema = z.object({
   moves: nonNegativeNumber().transform(value => Math.round(value)).catch(0),
   penalty: z.enum(["none", "+2", "DNF"]).catch("none"),
   solution: z.string().catch(""),
+  moveTimes: moveTimesSchema,
   note: z.string().transform(value => value.slice(0, 500)).catch(""),
   tags: tagsSchema,
   phaseSplits: phaseSplitsSchema,
@@ -163,7 +188,13 @@ function normalize(item: Imported): SolveHistoryEntry {
     phaseSplits: [],
   };
   try {
-    return solveHistoryEntrySchema.parse(item);
+    const parsed = solveHistoryEntrySchema.parse(item);
+    // Thời điểm nước đi chỉ có nghĩa khi khớp từng nước của lời giải.
+    if (parsed.moveTimes) {
+      const count = parsed.solution.trim().split(/\s+/).filter(Boolean).length;
+      if (count !== parsed.moveTimes.length) delete parsed.moveTimes;
+    }
+    return parsed;
   } catch {
     // A malformed entry degrades to a blank placeholder instead of taking
     // down the whole history read.
@@ -199,10 +230,10 @@ export function readSolveHistory(): SolveHistoryEntry[] {
 }
 const liveEntries = (entries: SolveHistoryEntry[]) =>
   entries.filter((entry) => !entry.deletedAt);
-export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags" | "phaseSplits"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry {
+export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "moveTimes"> & Partial<Pick<SolveHistoryEntry, "penalty" | "solution" | "moveTimes" | "note" | "tags" | "phaseSplits">>): SolveHistoryEntry {
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readStoredSolveHistory()]); return item;
 }
-export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readStoredSolveHistory().map((entry) => entry.id === id && !entry.deletedAt ? normalize({ ...entry, ...patch }) : entry); write(next); return liveEntries(next); }
+export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "moveTimes" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readStoredSolveHistory().map((entry) => entry.id === id && !entry.deletedAt ? normalize({ ...entry, ...patch }) : entry); write(next); return liveEntries(next); }
 /**
  * Xoá mềm: ghi tombstone (`deletedAt`) vào bộ nhớ nhưng chỉ trả về các lượt
  * còn hiển thị, giống `readSolveHistory`, để màn hình bỏ ngay lượt vừa xoá.

@@ -23,6 +23,7 @@ export function MetricDetailCard({
   onCopy,
   onExpand,
   onReplay,
+  onAnalyze,
 }: {
   entry: SolveHistoryEntry;
   exclusion?: "best" | "worst";
@@ -31,6 +32,8 @@ export function MetricDetailCard({
   onCopy: (entry: SolveHistoryEntry) => void;
   onExpand: (entry: SolveHistoryEntry) => void;
   onReplay: (entry: SolveHistoryEntry) => void;
+  /** Mở phân tích sâu; chỉ hiện với solve smart cube có nhịp từng nước. */
+  onAnalyze?: (entry: SolveHistoryEntry) => void;
 }) {
   const { language, t } = useLanguage();
   const isThreeByThree = isThreeByThreeEvent(
@@ -142,6 +145,16 @@ export function MetricDetailCard({
                   : t("timer.replayOnlyThree")}
               </span>
             )}
+            {entry.moveTimes && onAnalyze ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                type="button"
+                onClick={() => onAnalyze(entry)}
+              >
+                {t("analysis.open")}
+              </Button>
+            ) : null}
             <IconButton
               label={t("timer.shareSolveImage")}
               icon={<ImageDown className="text-lg" />}

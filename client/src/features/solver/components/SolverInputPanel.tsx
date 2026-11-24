@@ -43,6 +43,8 @@ export type SolverInputPanelProps = {
   onResetDefaults?: () => void;
   /** Ẩn quét camera (chỉ có nghĩa với 3×3). */
   hideCamera?: boolean;
+  /** Nút phụ cạnh "Quét camera" ở chế độ Trạng thái (vd. đọc từ smart cube). */
+  stateExtras?: ReactNode;
   /** Bộ tô màu thay cho phần chọn màu cũ ở chế độ Trạng thái. */
   statePainter?: ReactNode;
   /** Gợi ý trong ô scramble khi không phải 3×3. */
@@ -73,6 +75,7 @@ export function SolverInputPanel({
   advancedOptions,
   onResetDefaults,
   hideCamera = false,
+  stateExtras,
   statePainter,
   scramblePlaceholder,
 }: SolverInputPanelProps) {
@@ -228,6 +231,7 @@ export function SolverInputPanel({
               <Camera className="text-base mr-1" aria-hidden="true" />
               {t("home.cameraScan")}
             </Button>
+            {stateExtras}
           </div>
         )}
 

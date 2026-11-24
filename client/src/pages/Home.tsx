@@ -28,6 +28,7 @@ import {
   useStateValidation,
 } from "@/features/solver";
 import { stateFromScramble } from "@/lib/fastCube";
+import { SmartCubeStateButton } from "@/features/timer";
 import {
   heldNotationResult,
   orientForCross,
@@ -44,6 +45,9 @@ import {
   SolutionStage,
   invertAlgorithm,
   PuzzleKindPicker,
+  ShareLinkButton,
+  buildShareUrl,
+  parseShareParams,
   isCubeSolveMode,
   type SolveChoice,
   type OtherPuzzleId,
@@ -64,9 +68,25 @@ import {
 
 export default function Home() {
   const { language, t } = useLanguage();
-  const [mode, setMode] = useState<SolverInputMode>("scramble");
-  const [solverKind, setSolverKind] = useState<SolverKind>("cfop");
-  const [puzzleKind, setPuzzleKind] = useState<"333" | Exclude<OtherPuzzleId, "333fm">>("333");
+  // Link chia sẻ (?k=…&s=… hoặc &f=…): điền sẵn đầu vào và tự giải một lần.
+  const [shared] = useState(() => parseShareParams(window.location.search));
+  const sharedThreeByThree =
+    shared && (shared.kind === "cfop" || shared.kind === "bld")
+      ? shared
+      : null;
+  const [mode, setMode] = useState<SolverInputMode>(
+    sharedThreeByThree?.facelets ? "state" : "scramble"
+  );
+  const [solverKind, setSolverKind] = useState<SolverKind>(
+    shared?.kind === "fm" ? "fm" : ((sharedThreeByThree?.kind as SolverKind | undefined) ?? "cfop")
+  );
+  const [puzzleKind, setPuzzleKind] = useState<"333" | Exclude<OtherPuzzleId, "333fm">>(
+    shared && !sharedThreeByThree && shared.kind !== "fm"
+      ? (shared.kind as Exclude<OtherPuzzleId, "333fm">)
+      : "333"
+  );
+  const [otherShare, setOtherShare] = useState<string | null>(null);
+  const autoSolveShared = useRef(Boolean(shared));
   // Kiểu nhập của 2×2, Pyraminx, Skewb và 3×3 FM (3×3 CFOP/BLD có `mode` riêng).
   const [otherMode, setOtherMode] = useState<SolverInputMode>("scramble");
   const {
@@ -83,10 +103,12 @@ export default function Home() {
     setExcludedSlots,
     resetDefaults,
   } = useSolverSettingsState();
-  const [initialScramble] = useState(() => randomThreeByThreeScramble());
-  const [value, setValue] = useState(initialScramble);
+  const [initialScramble] = useState(
+    () => sharedThreeByThree?.scramble ?? randomThreeByThreeScramble()
+  );
+  const [value, setValue] = useState(sharedThreeByThree?.facelets ?? initialScramble);
   const [savedScramble, setSavedScramble] = useState(initialScramble);
-  const [savedState, setSavedState] = useState(SOLVED_STATE);
+  const [savedState, setSavedState] = useState(sharedThreeByThree?.facelets ?? SOLVED_STATE);
   const [result, setResult] = useState<SolverResult | null>(null);
   const [bldResult, setBldResult] = useState<BldResult | null>(null);
   const [bldProfile, setBldProfile] = useState(() => readBldProfile());
@@ -236,6 +258,41 @@ export default function Home() {
       setSolverStatus("");
     }
   }
+
+  // Mở từ link chia sẻ 3×3: giải ngay khi đầu vào đã sẵn sàng (trạng thái thì chờ kiểm hợp lệ).
+  const usesOtherSolverNow = puzzleKind !== "333" || solverKind === "fm";
+  useEffect(() => {
+    if (!autoSolveShared.current) return;
+    if (usesOtherSolverNow) {
+      autoSolveShared.current = false;
+      return;
+    }
+    if (mode === "state") {
+      if (!stateValidation) return;
+      if (!stateValidation.valid) {
+        autoSolveShared.current = false;
+        return;
+      }
+    }
+    autoSolveShared.current = false;
+    void runSolver();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, stateValidation, usesOtherSolverNow]);
+
+  const shareUrl = useMemo(() => {
+    const origin = typeof window === "undefined" ? "" : window.location.origin;
+    if (puzzleKind !== "333" || solverKind === "fm") {
+      const kind = puzzleKind === "333" ? "fm" : puzzleKind;
+      return otherShare ? buildShareUrl(origin, { kind, scramble: otherShare }) : null;
+    }
+    if (mode === "state")
+      return stateValidation?.valid
+        ? buildShareUrl(origin, { kind: solverKind, facelets: value.trim() })
+        : null;
+    return value.trim()
+      ? buildShareUrl(origin, { kind: solverKind, scramble: value.trim() })
+      : null;
+  }, [mode, otherShare, puzzleKind, solverKind, stateValidation, value]);
 
   const cancelSolver = () => {
     cancelSolverInBrowser();
@@ -440,6 +497,7 @@ export default function Home() {
               loading={loading}
               status={solverStatus}
             />
+            <ShareLinkButton url={shareUrl} />
           </div>
         </div>
       </section>
@@ -449,6 +507,9 @@ export default function Home() {
           key={puzzleKind === "333" ? "333fm" : puzzleKind}
           puzzle={puzzleKind === "333" ? "333fm" : puzzleKind}
           mode={otherMode}
+          initialScramble={shared?.scramble ?? ""}
+          autoSolve={Boolean(shared?.scramble)}
+          onShareScramble={setOtherShare}
         />
       ) : (
       <div className="grid grid-cols-12 gap-6 items-start">
@@ -485,6 +546,9 @@ export default function Home() {
             onSelectRecentState={loadRecentState}
             onRemoveRecentState={removeRecentState}
             onCameraState={applyCameraState}
+            stateExtras={
+              <SmartCubeStateButton disabled={loading} onState={applyCameraState} />
+            }
             onResetDefaults={resetDefaults}
             advancedOptions={
               opening !== "cross" && opening !== "xxxxcross" ? (

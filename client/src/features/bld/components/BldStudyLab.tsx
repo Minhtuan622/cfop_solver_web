@@ -263,6 +263,7 @@ export function BldStudyLab({
       <div className="mt-4 grid grid-cols-12 gap-6">
         <div className="col-span-12 xl:col-span-8">
           <StudyCasePanel
+            scrambleEvent="333bf"
             activeCase={activeCase}
             loading={loading}
             mastered={activeMastered}

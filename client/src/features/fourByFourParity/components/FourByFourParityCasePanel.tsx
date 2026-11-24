@@ -27,6 +27,7 @@ export function FourByFourParityCasePanel({ language, ...practice }: FourByFourP
       {...practice}
       activeCase={activeCase}
       caseLabel={t("parity.caseLabel")}
+      caseScramble={{ eventId: "444", scramble: fourByFourParityScrambleOf(activeCase.algorithm) }}
       preview={
         <LazyPuzzlePreview
           eventId="444"

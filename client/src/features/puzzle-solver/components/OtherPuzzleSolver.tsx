@@ -3,7 +3,7 @@
  * đúng các panel của trang Giải 3×3 (nhập scramble, sân khấu 3D có thanh phát,
  * cột lời giải), chỉ khác bộ giải bên dưới là cubing/search.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { SolutionStage } from "./SolutionStage";
 import { PuzzleStatePainter } from "./PuzzleStatePainter";
@@ -37,14 +37,23 @@ import {
 export function OtherPuzzleSolver({
   puzzle,
   mode = "scramble",
+  initialScramble = "",
+  autoSolve = false,
+  onShareScramble,
 }: {
   puzzle: OtherPuzzleId;
+  /** Scramble điền sẵn (từ link chia sẻ). */
+  initialScramble?: string;
+  /** Tự giải một lần khi mở (từ link chia sẻ). */
+  autoSolve?: boolean;
+  /** Báo scramble có thể chia sẻ (hoặc `null` nếu chưa có). */
+  onShareScramble?: (scramble: string | null) => void;
   /** Nhập bằng scramble hoặc tô màu trạng thái. */
   mode?: "scramble" | "state";
 }) {
   const { language, t } = useLanguage();
   const info = OTHER_PUZZLES[puzzle];
-  const [scramble, setScramble] = useState("");
+  const [scramble, setScramble] = useState(initialScramble);
   const [result, setResult] = useState<PuzzleSolveResult | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -77,6 +86,22 @@ export function OtherPuzzleSolver({
       cancelled = true;
     };
   }, [info.scrambleEventId]);
+
+  // Chia sẻ: scramble đang nhập, hoặc (chế độ Trạng thái) scramble dựng lại từ lời giải.
+  const shareScramble =
+    mode === "state" ? (result?.scramble ?? null) : scramble.trim() || null;
+  useEffect(() => {
+    onShareScramble?.(shareScramble);
+  }, [onShareScramble, shareScramble]);
+
+  // Mở từ link chia sẻ: giải ngay một lần khi đã có scramble.
+  const autoSolveRef = useRef(autoSolve);
+  useEffect(() => {
+    if (!autoSolveRef.current || mode !== "scramble" || !scramble.trim()) return;
+    autoSolveRef.current = false;
+    void solve();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scramble, mode]);
 
   // Vào chế độ tô màu thì tải mô hình sticker (nạp lười) và bắt đầu từ khối đã giải.
   useEffect(() => {

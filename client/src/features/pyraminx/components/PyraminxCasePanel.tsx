@@ -27,6 +27,7 @@ export function PyraminxCasePanel({ language, ...practice }: PyraminxCasePanelPr
       {...practice}
       activeCase={activeCase}
       caseLabel={t("pyraminx.caseLabel")}
+      caseScramble={{ eventId: "pyram", scramble: invertPyraminxAlgorithm(activeCase.algorithm) }}
       preview={
         <LazyPuzzlePreview
           eventId="pyram"

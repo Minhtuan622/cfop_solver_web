@@ -27,6 +27,7 @@ export function SquareOneCasePanel({ language, ...practice }: SquareOneCasePanel
       {...practice}
       activeCase={activeCase}
       caseLabel={t("sq1.caseLabel")}
+      caseScramble={{ eventId: "sq1", scramble: invertSquareOneAlgorithm(activeCase.algorithm) }}
       preview={
         <LazyPuzzlePreview
           eventId="sq1"

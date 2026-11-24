@@ -434,4 +434,15 @@ export const studyWords: Dictionary = {
   ],
   "study.bulkUnmark": ["Bỏ đánh dấu ({count})", "Unmark ({count})"],
   "study.bulkDone": ["Xong", "Done"],
+  "caseScramble.title": ["Scramble để cầm khối luyện", "Scramble to practise by hand"],
+  "caseScramble.hint": [
+    "Bắt đầu từ khối đã giải, cầm trắng U và xanh lá F (hoặc hướng chuẩn của khối), thực hiện chuỗi này rồi giải case.",
+    "Start from a solved puzzle in the standard orientation (white on top, green in front for 3×3), apply this sequence, then solve the case.",
+  ],
+  "caseScramble.copy": ["Sao chép scramble", "Copy scramble"],
+  "caseScramble.copied": ["Đã sao chép", "Copied"],
+  "caseScramble.manual": ["Sao chép scramble này:", "Copy this scramble:"],
+  "caseScramble.openTimer": ["Mở trong Timer", "Open in Timer"],
+  "caseScramble.auf": ["AUF ngẫu nhiên", "Random AUF"],
+  "caseScramble.aufAgain": ["AUF khác", "Another AUF"],
 };

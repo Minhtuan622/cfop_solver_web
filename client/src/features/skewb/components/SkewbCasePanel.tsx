@@ -27,6 +27,7 @@ export function SkewbCasePanel({ language, ...practice }: SkewbCasePanelProps) {
       {...practice}
       activeCase={activeCase}
       caseLabel={t("skewb.caseLabel")}
+      caseScramble={{ eventId: "skewb", scramble: invertAlgorithm(activeCase.algorithm) }}
       preview={
         <LazyPuzzlePreview
           eventId="skewb"

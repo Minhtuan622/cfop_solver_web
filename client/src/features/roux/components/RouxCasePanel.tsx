@@ -26,6 +26,7 @@ export function RouxCasePanel({ language, ...practice }: RouxCasePanelProps) {
       {...practice}
       activeCase={activeCase}
       caseLabel={t("roux.caseLabel")}
+      caseScramble={{ eventId: "333", scramble: invertAlgorithm(activeCase.algorithm) }}
       preview={
         <LazyPuzzlePreview
           eventId="333"

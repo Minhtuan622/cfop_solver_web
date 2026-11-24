@@ -29,6 +29,7 @@ export function TimerMetricDialog({
   onClose,
   onExpandCube,
   onReplay,
+  onAnalyze,
 }: {
   selectedMetric: TimerMetricKey | null;
   selectedMetricDetail: ReturnType<typeof metricEvidence> | null;
@@ -37,6 +38,7 @@ export function TimerMetricDialog({
   onClose: () => void;
   onExpandCube: (entry: SolveHistoryEntry) => void;
   onReplay: (entry: SolveHistoryEntry) => void;
+  onAnalyze?: (entry: SolveHistoryEntry) => void;
 }) {
   const { language, t } = useLanguage();
   const [copiedScrambleId, setCopiedScrambleId] = useState<string | null>(null);
@@ -173,6 +175,7 @@ export function TimerMetricDialog({
                   onCopy={copyMetricScramble}
                   onExpand={onExpandCube}
                   onReplay={onReplay}
+                  onAnalyze={onAnalyze}
                 />
               ))}
             </div>

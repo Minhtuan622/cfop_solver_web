@@ -120,6 +120,25 @@ describe("useSmartCube", () => {
     expect(result.current.phase).toBe("completed");
   });
 
+  it("ghi thời điểm từng nước, nước đầu là mốc 0", async () => {
+    const { result, cube, onSolveComplete } = await setup(SOLVED_4, atScramble(SOLVED_4));
+    expect(result.current.phase).toBe("ready");
+
+    for (const move of ["U", "R", "U'", "R'"]) {
+      await new Promise(resolve => setTimeout(resolve, 15));
+      act(() => cube.emit(move));
+    }
+    await waitFor(() => expect(onSolveComplete).toHaveBeenCalledTimes(1));
+    const solve = onSolveComplete.mock.calls[0][0];
+    expect(solve.moves).toEqual(["U", "R", "U'", "R'"]);
+    expect(solve.moveTimes).toHaveLength(4);
+    expect(solve.moveTimes[0]).toBe(0);
+    for (let index = 1; index < 4; index += 1)
+      expect(solve.moveTimes[index]).toBeGreaterThan(solve.moveTimes[index - 1]);
+    // Thời gian giải = từ nước đầu tới nước cuối.
+    expect(Math.round(solve.elapsedMs)).toBe(solve.moveTimes[3]);
+  });
+
   it("arms only after the cube reaches the scramble (mid-scramble connect)", async () => {
     const kpuzzle = await kpuzzlePromise;
     const solved = kpuzzle.defaultPattern();

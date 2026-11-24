@@ -8,8 +8,10 @@ import {
   Dices,
   Timer,
 } from "@/components/ui/Icon";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import {
+  lazy,
+  Suspense,
   useEffect,
   useMemo,
   useRef,
@@ -42,6 +44,7 @@ import {
   timerPreviewPuzzleId,
   type TimerEventId,
 } from "@/lib/timerEvents";
+import { parseTimerLink } from "@/lib/timerLink";
 import { multiBlindResult } from "@/lib/multiBlind";
 import { phaseTpsFromSolution, solutionEfficiency } from "@/features/timer/lib/timerAnalysis";
 import { wcaTimerComparison } from "@/features/wca/lib/wcaTimerComparison";
@@ -80,6 +83,12 @@ import { Select } from "@/components/ui/Select";
 import type { TimerWcaRecord } from "@/features/timer/lib/timerLabTypes";
 import { MultiBlindResultCard, MultiBlindScrambleList } from "@/features/timer/components/MultiBlindCards";
 
+// Phân tích sâu kéo theo bộ phát 3D và danh mục case: chỉ nạp khi mở hộp thoại.
+const SolveAnalysisDialog = lazy(async () => ({
+  default: (await import("@/features/timer/components/SolveAnalysisDialog"))
+    .SolveAnalysisDialog,
+}));
+
 export default function TimerLab() {
   const { language, t } = useLanguage();
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, {
@@ -91,10 +100,21 @@ export default function TimerLab() {
     staleTime: 10 * 60 * 1000,
     retry: false,
   });
-  const [eventId, setEventId] = useState<TimerEventId>(() =>
-    normalizeTimerEventId(readStoredValue("cfop-timer-event"))
+  // Mở từ Học thêm (`/timer?event=…&scramble=…`): dùng đúng scramble của case.
+  const timerLinkSearch = useSearch();
+  const [timerLink] = useState(() =>
+    window.location.pathname.startsWith("/timer")
+      ? parseTimerLink(window.location.search)
+      : null
   );
-  const [scramble, setScramble] = useState(randomThreeByThreeScramble);
+  const [eventId, setEventId] = useState<TimerEventId>(
+    () =>
+      timerLink?.eventId ??
+      normalizeTimerEventId(readStoredValue("cfop-timer-event"))
+  );
+  const [scramble, setScramble] = useState(
+    () => timerLink?.scramble ?? randomThreeByThreeScramble()
+  );
   const [scrambleLoading, setScrambleLoading] = useState(false);
   const [scrambleError, setScrambleError] = useState("");
   const [entries, setEntries] = useState<SolveHistoryEntry[]>(() =>
@@ -131,6 +151,7 @@ export default function TimerLab() {
   const [tagFilter, setTagFilter] = useState("all");
   const [noteQuery, setNoteQuery] = useState("");
   const [replay, setReplay] = useState<SolveHistoryEntry | null>(null);
+  const [analysisEntry, setAnalysisEntry] = useState<SolveHistoryEntry | null>(null);
   const [replayRunId, setReplayRunId] = useState(0);
   const [location] = useLocation();
   const labTab: "timer" | "study" =
@@ -313,7 +334,7 @@ export default function TimerLab() {
   const smartCube = useSmartCube({
     enabled: isThreeByThree && !isMultiBlind,
     targetScramble: scramble,
-    onSolveComplete: ({ elapsedMs, moves, phaseSplits }) => {
+    onSolveComplete: ({ elapsedMs, moves, moveTimes, phaseSplits }) => {
       const stop = bleSolveRef.current;
       const finalMs =
         stop && Date.now() - stop.at < 5_000 ? stop.ms : elapsedMs;
@@ -324,6 +345,9 @@ export default function TimerLab() {
           automaticPenalty: "none",
           phaseSplits: phaseSplits ?? [],
           moves: moves?.length ?? 0,
+          // Chuỗi nước và nhịp từng nước để phân tích sâu và phát lại.
+          solution: moves?.join(" ") ?? "",
+          moveTimes,
         },
         "smartcube"
       );
@@ -332,7 +356,11 @@ export default function TimerLab() {
   const smartCubeActive =
     isThreeByThree && !isMultiBlind && smartCube.status === "connected";
   const recordSolve = (
-    completion: TimerCompletion & { moves?: number },
+    completion: TimerCompletion & {
+      moves?: number;
+      solution?: string;
+      moveTimes?: number[];
+    },
     source: SolveSource = "manual"
   ) => {
     if (isMultiBlind) {
@@ -349,6 +377,9 @@ export default function TimerLab() {
       input: scramble,
       inputKind: "scramble",
       moves: completion.moves ?? 0,
+      ...(completion.solution
+        ? { solution: completion.solution, moveTimes: completion.moveTimes }
+        : {}),
       tags: [],
       eventId,
       source,
@@ -391,8 +422,32 @@ export default function TimerLab() {
     void nextScramble(false);
   };
   useEffect(() => {
-    void nextScramble(false);
+    if (!timerLink) void nextScramble(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // Chuyển từ trang Học thêm sang Timer giữ nguyên component này (cùng một
+  // route con), nên link đến sau khi đã mount cũng phải được áp dụng.
+  const appliedLink = useRef(timerLink ? `${timerLink.eventId}|${timerLink.scramble}` : "");
+  useEffect(() => {
+    if (labTab !== "timer") return;
+    const link = parseTimerLink(timerLinkSearch);
+    if (!link) return;
+    const key = `${link.eventId}|${link.scramble}`;
+    if (appliedLink.current === key) return;
+    appliedLink.current = key;
+    scrambleRequest.current += 1;
+    setEventId(link.eventId);
+    setScramble(link.scramble);
+    setScrambleLoading(false);
+    setScrambleError("");
+    setPendingMultiBlind(null);
+    setMultiBlindScrambles([]);
+    setSelectedMetric(null);
+    setLatestRecorded(null);
+    setTimerVersion(value => value + 1);
+    setSaved(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timerLinkSearch, labTab]);
   const openReplay = (entry: SolveHistoryEntry) => {
     const validation = validateRecordedSolution(
       initialStateFor(entry),
@@ -623,6 +678,18 @@ export default function TimerLab() {
                       {t("timer.saved")}
                     </div>
                   )}
+                  {saved && latestRecorded?.moveTimes ? (
+                    <div className="mt-3 flex justify-end">
+                      <Button
+                        variant="soft"
+                        size="sm"
+                        type="button"
+                        onClick={() => setAnalysisEntry(latestRecorded)}
+                      >
+                        {t("analysis.open")}
+                      </Button>
+                    </div>
+                  ) : null}
                   {isThreeByThree &&
                     !isMultiBlind &&
                     saved &&
@@ -713,6 +780,7 @@ export default function TimerLab() {
               onClose={() => setSelectedMetric(null)}
               onExpandCube={setExpandedMetricCube}
               onReplay={openReplay}
+              onAnalyze={setAnalysisEntry}
             />
             <TimerCubeNetDialog
               entry={expandedMetricCube}
@@ -728,7 +796,19 @@ export default function TimerLab() {
               replayRunId={replayRunId}
               onPlay={() => setReplayRunId(value => value + 1)}
               onClose={() => setReplay(null)}
+              onAnalyze={entry => {
+                setReplay(null);
+                setAnalysisEntry(entry);
+              }}
             />
+            {analysisEntry ? (
+              <Suspense fallback={null}>
+                <SolveAnalysisDialog
+                  entry={analysisEntry}
+                  onClose={() => setAnalysisEntry(null)}
+                />
+              </Suspense>
+            ) : null}
           </>
         )}
       </div>

@@ -22,7 +22,18 @@ export type PlaybackSource = {
   phases?: SolverResult["phases"];
 };
 
-export function useSolverPlayback(result: PlaybackSource | null) {
+export type PlaybackOptions = {
+  /**
+   * Chờ bao lâu (ms) trước khi sang nước kế tiếp, tính từ vị trí hiện tại. Có thì
+   * bộ phát đi theo nhịp riêng (vd. nhịp thật của một lượt smart cube) thay vì
+   * một nhịp đều.
+   */
+  delayFor?: (cursor: number, speed: number) => number;
+};
+
+export function useSolverPlayback(result: PlaybackSource | null, options: PlaybackOptions = {}) {
+  const delayForRef = useRef(options.delayFor);
+  delayForRef.current = options.delayFor;
   const [cursor, setCursor] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -68,6 +79,21 @@ export function useSolverPlayback(result: PlaybackSource | null) {
 
   useEffect(() => {
     if (!playing || !result) return;
+    if (delayForRef.current) {
+      // Nhịp riêng: hẹn từng nước một, mỗi lần chờ theo vị trí hiện tại.
+      let timer = 0;
+      const step = () => {
+        const next = cursorRef.current + 1;
+        if (next > result.trace.length) {
+          setPlaying(false);
+          return;
+        }
+        updateCursor(next, "playback");
+        timer = window.setTimeout(step, delayForRef.current!(next, playbackSpeed));
+      };
+      timer = window.setTimeout(step, delayForRef.current(cursorRef.current, playbackSpeed));
+      return () => window.clearTimeout(timer);
+    }
     const id = window.setInterval(
       () => {
         const next = cursorRef.current + 1;

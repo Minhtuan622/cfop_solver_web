@@ -27,6 +27,7 @@ export function FiveByFiveL2ECasePanel({ language, ...practice }: FiveByFiveL2EC
       {...practice}
       activeCase={activeCase}
       caseLabel={t("l2e.caseLabel")}
+      caseScramble={{ eventId: "555", scramble: fiveByFiveL2EScrambleOf(activeCase.algorithm) }}
       preview={
         <LazyPuzzlePreview
           eventId="555"
