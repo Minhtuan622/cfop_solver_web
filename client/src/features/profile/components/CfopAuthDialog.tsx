@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
 import { IconButton } from "@/components/ui/StudioUI";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 
 export type AuthMode = "login" | "register";
 
@@ -28,6 +29,8 @@ type Props = {
   onDisplayNameChange: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
   onClose: () => void;
+  googleEnabled?: boolean;
+  onGoogleCredential?: (credential: string) => void;
 };
 
 export function CfopAuthDialog({
@@ -44,6 +47,8 @@ export function CfopAuthDialog({
   onDisplayNameChange,
   onSubmit,
   onClose,
+  googleEnabled = false,
+  onGoogleCredential,
 }: Props) {
   const { t } = useLanguage();
   return (
@@ -145,6 +150,13 @@ export function CfopAuthDialog({
               <p className="text-sm text-muted mt-2 mb-0">
                 {t("account.dialog.passwordHint")}
               </p>
+            ) : null}
+            {onGoogleCredential ? (
+              <GoogleSignInButton
+                enabled={googleEnabled}
+                pending={pending}
+                onCredential={onGoogleCredential}
+              />
             ) : null}
             {error ? (
               <div

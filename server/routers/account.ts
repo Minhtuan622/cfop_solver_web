@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
+import { configuredGoogleClientId, verifyGoogleIdToken } from "../services/googleAuth";
 import { clearCfopAccountBrowserSession, createCfopAccountBrowserSession, currentSessionTokenHash, hashPassword, hashSessionToken, normalizeEmail, verifyPassword } from "../services/cfopAccountAuth";
 import { passwordResetEmailConfigured, sendCfopPasswordResetEmail } from "../services/cfopPasswordResetMail";
 import { createCfopAccount, createCfopPasswordResetToken, consumeCfopPasswordResetToken, findCfopAccountByEmail, findCfopAccountPublicById, getCfopAccountCloudState, markCfopAccountSignedIn, saveCfopAccountCloudState, updateCfopAccountAvatar, updateCfopAccountPassword, updateCfopAccountProfile } from "../db";
@@ -40,6 +41,26 @@ function validateAvatarBytes(data: string, contentType: "image/jpeg" | "image/pn
 export const accountRouter = router({
   me: publicProcedure.query(async ({ ctx }) => ctx.cfopAccount ? findCfopAccountPublicById(ctx.cfopAccount.id) : null),
   storageStatus: publicProcedure.query(() => ({ enabled: isStorageEnabled() })),
+  googleConfigured: publicProcedure.query(() => Boolean(configuredGoogleClientId())),
+  googleLogin: publicProcedure
+    .input(z.object({ idToken: z.string().min(1).max(4096) }))
+    .use(rateLimitMiddleware("login", () => "google-id-token"))
+    .mutation(async ({ ctx, input }) => {
+      const identity = await verifyGoogleIdToken(input.idToken);
+      if (!identity) throw new TRPCError({ code: "UNAUTHORIZED", message: "Không thể xác thực tài khoản Google." });
+      const email = normalizeEmail(identity.email);
+      let account = await findCfopAccountByEmail(email);
+      if (!account) {
+        account = await createCfopAccount({
+          email,
+          displayName: identity.name.slice(0, 80),
+          passwordHash: await hashPassword(randomBytes(32).toString("base64url")),
+        });
+      }
+      await markCfopAccountSignedIn(account.id);
+      await createCfopAccountBrowserSession(ctx.req, ctx.res, account.id);
+      return findCfopAccountPublicById(account.id);
+    }),
   register: publicProcedure.input(credentialsInput.extend({ displayName: z.string().trim().min(2, "Tên hiển thị cần ít nhất 2 ký tự.").max(80) })).use(rateLimitMiddleware("register", (input) => emailSubject(input))).mutation(async ({ ctx, input }) => {
     const email = normalizeEmail(input.email);
     if (await findCfopAccountByEmail(email)) throw new TRPCError({ code: "CONFLICT", message: "Email này đã có tài khoản CFOP." });

@@ -8,6 +8,8 @@ vi.mock("@/lib/trpc", () => ({
     useUtils: () => ({ cfopAccount: { me: { invalidate: vi.fn() } } }),
     cfopAccount: {
       me: { useQuery: () => ({ data: null }) },
+      googleConfigured: { useQuery: () => ({ data: false }) },
+      googleLogin: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
       register: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
       login: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
       logout: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },

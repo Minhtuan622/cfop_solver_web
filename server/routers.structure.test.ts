@@ -14,6 +14,8 @@ describe("domain router composition", () => {
       "changePassword",
       "cloudState.get",
       "cloudState.save",
+      "googleConfigured",
+      "googleLogin",
       "login",
       "logout",
       "me",

@@ -114,6 +114,8 @@ export function NavUtilityMenu() {
         onDisplayNameChange={session.setDisplayName}
         onSubmit={session.submit}
         onClose={session.close}
+        googleEnabled={session.googleEnabled}
+        onGoogleCredential={session.signInWithGoogle}
       />
     </>
   );

@@ -46,6 +46,12 @@ export const shellWords: Dictionary = {
   "account.logout": ["Đăng xuất", "Sign out"],
   "account.avatarAlt": ["Ảnh đại diện của {name}", "Avatar of {name}"],
   "account.initialsLabel": ["Chữ cái đầu của {name}", "Initials of {name}"],
+  "account.googleSignIn": ["Đăng nhập nhanh với Google", "Continue with Google"],
+  "account.googleUnconfigured": [
+    "Chưa cấu hình đăng nhập Google (VITE_GOOGLE_CLIENT_ID).",
+    "Google sign-in is not configured (VITE_GOOGLE_CLIENT_ID).",
+  ],
+  "account.googleError": ["Không thể xác thực tài khoản Google.", "Could not verify your Google account."],
   "account.dialog.loginTitle": ["Đăng nhập CFOP Solver", "Sign in to CFOP Solver"],
   "account.dialog.registerTitle": ["Tạo tài khoản CFOP Solver", "Create a CFOP Solver account"],
   "account.dialog.description": [

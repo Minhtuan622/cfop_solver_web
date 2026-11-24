@@ -18,6 +18,10 @@ export function useCfopAccountSession() {
     staleTime: 60_000,
     retry: false,
   });
+  const googleConfigured = trpc.cfopAccount.googleConfigured.useQuery(undefined, {
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
 
   const complete = async () => {
     await utils.cfopAccount.me.invalidate();
@@ -36,8 +40,16 @@ export function useCfopAccountSession() {
   const logout = trpc.cfopAccount.logout.useMutation({
     onSuccess: () => void utils.cfopAccount.me.invalidate(),
   });
+  const googleLogin = trpc.cfopAccount.googleLogin.useMutation({
+    onSuccess: complete,
+    onError: next => setError(errorMessage(next, t)),
+  });
+  const signInWithGoogle = (credential: string) => {
+    setError("");
+    googleLogin.mutate({ idToken: credential });
+  };
 
-  const pending = register.isPending || login.isPending;
+  const pending = register.isPending || login.isPending || googleLogin.isPending;
   const submit = (event: FormEvent) => {
     event.preventDefault();
     setError("");
@@ -56,6 +68,8 @@ export function useCfopAccountSession() {
 
   return {
     account: accountQuery.data,
+    googleEnabled: Boolean(googleConfigured.data),
+    signInWithGoogle,
     open,
     mode,
     email,
