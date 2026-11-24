@@ -734,7 +734,6 @@ cfop_solver_web/
 ├── package.json
 ├── pnpm-lock.yaml
 ├── docs/architecture/refactor-audit.md # Ranh giới và lịch sử refactor
-├── docs/archive/planning-TODO.md # Checklist thay đổi đã hoàn thành
 ├── TODO.md                  # Danh sách việc còn mở
 └── README.md                  # Entry point; tài liệu chi tiết nằm trong docs/
 ```
