@@ -16,6 +16,8 @@ export const shellWords: Dictionary = {
   "nav.more": ["Thêm", "More"],
   "nav.moreLabel": ["Các mục khác", "More pages"],
   "nav.about": ["Giới thiệu", "About"],
+  "nav.aboutUs": ["Về chúng tôi", "About us"],
+  "nav.support": ["Ủng hộ", "Support"],
   "share.previewTitle": ["CFOP Solver Studio — Giải Rubik CFOP", "CFOP Solver Studio — Rubik Solver"],
   "share.previewDescription": [
     "Giải khối Rubik 3x3 trực tuyến miễn phí theo phương pháp CFOP. Nhập scramble hoặc tô màu khối, xem hướng dẫn từng bước, bấm giờ, luyện tập và thi đấu.",

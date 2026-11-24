@@ -57,6 +57,16 @@ const overflowNavItems: AccountNavItem[] = [
     active: (path: string) => path === "/about",
   },
   {
+    href: "/about-us",
+    labelKey: "nav.aboutUs",
+    active: (path: string) => path === "/about-us",
+  },
+  {
+    href: "/support",
+    labelKey: "nav.support",
+    active: (path: string) => path === "/support",
+  },
+  {
     href: "/settings",
     labelKey: "nav.settings",
     active: (path: string) => path === "/settings",
