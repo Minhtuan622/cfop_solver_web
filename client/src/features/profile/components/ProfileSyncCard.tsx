@@ -2,7 +2,6 @@ import { CheckCircleFill } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/** Thẻ đồng bộ cloud: trạng thái, lần lưu gần nhất và nút đồng bộ ngay. */
 export function ProfileSyncCard({
   connected,
   updatedAt,

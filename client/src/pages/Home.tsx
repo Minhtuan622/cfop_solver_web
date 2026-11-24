@@ -1,8 +1,3 @@
-/**
- * Trang giải Rubik — phong cách mềm mại, tối giản: không viền, không bóng,
- * chỉ hiệu ứng hover cơ bản. Hai cột: nhập scramble + khối 3D bên trái, lời
- * giải từng bước bên phải.
- */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CubeNet, SOLVED_STATE } from "@/components/common/CubeNet";
 import { BldReport } from "@/features/bld";
@@ -68,7 +63,6 @@ import {
 
 export default function Home() {
   const { language, t } = useLanguage();
-  // Link chia sẻ (?k=…&s=… hoặc &f=…): điền sẵn đầu vào và tự giải một lần.
   const [shared] = useState(() => parseShareParams(window.location.search));
   const sharedThreeByThree =
     shared && (shared.kind === "cfop" || shared.kind === "bld")
@@ -87,7 +81,6 @@ export default function Home() {
   );
   const [otherShare, setOtherShare] = useState<string | null>(null);
   const autoSolveShared = useRef(Boolean(shared));
-  // Kiểu nhập của 2×2, Pyraminx, Skewb và 3×3 FM (3×3 CFOP/BLD có `mode` riêng).
   const [otherMode, setOtherMode] = useState<SolverInputMode>("scramble");
   const {
     crossColor,
@@ -152,8 +145,6 @@ export default function Home() {
     if (mode === "state") return stateValidation?.valid ? value : SOLVED_STATE;
     try {
       if (!value.trim()) return SOLVED_STATE;
-      // CFOP: khối thật khi tráo theo chuẩn WCA (trắng U, xanh lá F).
-      // BLD: giữ trắng U, xanh lá F (người giải mù không lật khối).
       return solverKind === "bld"
         ? wcaLettersToStudio(stateFromScramble(value))
         : scrambledState(value);
@@ -174,8 +165,6 @@ export default function Home() {
       : result.trace[cursor - 2]?.state;
   }, [cursor, result]);
   const currentStep = result?.trace[cursor - 1];
-  // Lời giải viết theo hướng đang cầm (màu cross ở D) và phép xoay ghi ở đầu;
-  // khối 3D vẫn chạy bằng các lượt gốc của bộ giải (`result`).
   const solvedFrom = useRef<"scramble" | "state">("scramble");
   const displayResult = useMemo(
     () => (result ? heldNotationResult(result, crossColor) : null),
@@ -183,7 +172,6 @@ export default function Home() {
   );
   const setupRotation = useMemo(
     () => solutionSetupRotation(crossColor, solvedFrom.current),
-    // `result` đổi sau mỗi lần giải, khi `solvedFrom` đã được cập nhật.
     [crossColor, result]
   );
   const currentStepLabel = displayResult?.trace[cursor - 1]?.move;
@@ -203,9 +191,6 @@ export default function Home() {
     setError("");
     setSolverStatus(t("home.preparing"));
     try {
-      // Nhường một khung hình để hiện trạng thái "đang chuẩn bị". Tab nằm nền
-      // không chạy requestAnimationFrame, nên có hẹn giờ dự phòng: nếu không,
-      // bấm giải rồi chuyển tab thì bộ giải chỉ chạy khi quay lại.
       await new Promise<void>(resolve => {
         window.requestAnimationFrame(() => resolve());
         window.setTimeout(resolve, 50);
@@ -222,8 +207,6 @@ export default function Home() {
       setSolverStatus(
         t("home.searching", { opening: openingModeLabel(opening, language) })
       );
-      // Scramble được đổi thành trạng thái thật (tráo cầm trắng U, xanh lá F)
-      // ngay trong trang, để bộ giải và hình hiển thị cùng một khối.
       solvedFrom.current = mode === "state" ? "state" : "scramble";
       const next = await solveInBrowser(
         "state",
@@ -259,7 +242,6 @@ export default function Home() {
     }
   }
 
-  // Mở từ link chia sẻ 3×3: giải ngay khi đầu vào đã sẵn sàng (trạng thái thì chờ kiểm hợp lệ).
   const usesOtherSolverNow = puzzleKind !== "333" || solverKind === "fm";
   useEffect(() => {
     if (!autoSolveShared.current) return;
@@ -409,16 +391,11 @@ export default function Home() {
   };
 
   const hasResult = Boolean(result);
-  // BLD: memo tính theo khung WCA (U = mặt trên = trắng); chỉ đổi màu để vẽ
-  // khối đúng như cầm trắng U, xanh lá F khi tráo.
   const bldDisplayState = bldResult
     ? mode === "state"
       ? bldResult.initial_state
       : wcaLettersToStudio(bldResult.initial_state)
     : undefined;
-  // Khối 3D dựng từ lượt: sau khi giải, đảo lời giải để ra trạng thái bắt đầu
-  // (đúng cho cả nhập scramble lẫn nhập trạng thái); chưa giải thì chỉ xem
-  // trước được scramble.
   const stageMoves = useMemo(
     () => (result ? result.trace.map(step => step.move) : []),
     [result]
@@ -562,7 +539,6 @@ export default function Home() {
             }
           />
 
-          {/* Chế độ Trạng thái: chỉ hiện khu vực khối sau khi đã giải. */}
           {mode === "state" && !hasResult ? null : (
           <div>
             <SolverSolutionPanel

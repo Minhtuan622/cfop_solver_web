@@ -1,4 +1,3 @@
-/** Xưởng Cơ Khí Tốc Độ — move pad dùng mono telemetry, chip vuông và mint chỉ cho hành động hợp lệ. */
 import { useState } from "react";
 import { RotateCcw, Undo2, X } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/StudioUI";

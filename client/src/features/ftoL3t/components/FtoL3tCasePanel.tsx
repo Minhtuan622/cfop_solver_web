@@ -1,9 +1,3 @@
-/**
- * FTO L3T practice card: the case preview (static diagram from the 3-Look
- * L3T sheet — the algorithms use `{…}` regrips that cubing.js's FTO KPuzzle
- * cannot parse, so a live 3D replay would show the wrong state), the recall
- * drill and the Again/Hard/Good/Easy self-grade. Mirrors the other lanes.
- */
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import {
   CasePracticeEmpty,

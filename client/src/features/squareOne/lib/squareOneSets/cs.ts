@@ -1,6 +1,5 @@
 import type { SquareOneCaseRow } from "../squareOneData";
 
-/** SQ1-Cube-Shape — 169 cases. */
 export const CS_CASES_SOURCE: readonly SquareOneCaseRow[] = [
   { id: "CS-Kite-Kite", family: "cs", group: "1 Slash", name: "Kite / Kite", algorithm: "/" },
   { id: "CS-Barrel-Barrel", family: "cs", group: "2 Slashes", name: "Barrel / Barrel", algorithm: "/ (3,3) /" },

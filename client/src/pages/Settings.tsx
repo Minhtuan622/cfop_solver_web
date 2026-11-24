@@ -1,4 +1,3 @@
-/** The settings shell: a short list of groups, one group open at a time. */
 import { useState } from "react";
 import { Check, RotateCcw } from "@/components/ui/Icon";
 import { PageHeader } from "@/components/ui/StudioUI";

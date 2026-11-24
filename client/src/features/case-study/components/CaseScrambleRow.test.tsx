@@ -42,7 +42,6 @@ describe("CaseScrambleRow", () => {
     expect(screen.getByTestId("case-scramble-text").textContent).toBe("R U R' U'");
     fireEvent.click(screen.getByRole("button", { name: "Mở trong Timer" }));
     expect(navigate).toHaveBeenCalledWith("/timer?event=222&scramble=R+U+R%27+U%27");
-    // 2×2 không có AUF ngẫu nhiên.
     expect(screen.queryByRole("button", { name: "AUF ngẫu nhiên" })).toBeNull();
   });
 

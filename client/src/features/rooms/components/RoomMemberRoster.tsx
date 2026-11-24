@@ -13,7 +13,6 @@ type Props = {
   revoke: (accountId: number) => void;
   remove: (member: RemovalTarget) => void;
   notice: string | null;
-  /** True while a moderation action is still running. */
   moderationPending: boolean;
 };
 

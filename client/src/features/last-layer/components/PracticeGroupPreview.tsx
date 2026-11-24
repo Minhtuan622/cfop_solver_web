@@ -1,9 +1,3 @@
-/**
- * Flat last-layer preview — the U face with the four side faces' top rows
- * around it, like the classic ZBLL/OLL/PLL diagram: the whole third layer is
- * visible, not just the U face. Shares the cube net's visual language (deep
- * ink stage, flat coloured stickers, no borders or shadows).
- */
 import { CUBE_COLOR } from "@/components/common/CubeNet";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { KeyboardEvent } from "react";
@@ -31,9 +25,6 @@ export function PracticeGroupPreview({
 }: Props) {
   const { t } = useLanguage();
   const safe = state.length === 54 ? state : SOLVED;
-  // Cross of the last layer: B top row above, L / U / R rows in the middle,
-  // F top row below. U = indices 0..8, R = 9..11, F = 18..20, L = 36..38,
-  // B = 45..47 (same order the cube net uses).
   const cells: Array<string | null> = [
     null, safe[45], safe[46], safe[47], null,
     safe[36], safe[0], safe[1], safe[2], safe[9],

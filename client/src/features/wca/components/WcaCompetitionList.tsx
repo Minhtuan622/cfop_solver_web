@@ -3,11 +3,6 @@ import type { Language } from "@/lib/i18n";
 import { monthLabel, type MonthGroup } from "../lib/wcaCalendar";
 import { WcaCompetitionRow } from "./WcaCompetitionRow";
 
-/**
- * The calendar itself: one section per month, each holding the competitions
- * that start in it. Competitions render as a grid of cards so the width is
- * used evenly instead of a one-sided list.
- */
 export function WcaCompetitionList({
   groups,
   language,

@@ -1,9 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
 
-/**
- * Link chia sẻ của trang Giải: `?k=<khối>&s=<scramble>` (hoặc `&f=<54 ký tự>`)
- * điền sẵn đầu vào và tự giải một lần; nút "Chia sẻ link" dựng lại đúng link đó.
- */
 async function signedOut(page: Page) {
   await page.route("**/api/trpc/cfopAccount.me**", route =>
     route.fulfill({

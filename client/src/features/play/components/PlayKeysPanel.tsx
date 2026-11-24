@@ -3,7 +3,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { PlayKeyMap } from "./PlayKeyMap";
 
-/** Thẻ gập chứa bảng phím của trang Chơi. */
 export function PlayKeysPanel({
   open,
   onToggle,

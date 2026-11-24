@@ -1,9 +1,3 @@
-/**
- * The 3-Style BLD lane of /study: every case from the BLDDB catalog (edge,
- * corner and special — parity, flip, twist) with the same SRS practice loop
- * as the other lanes — time the recall, grade Again/Hard/Good/Easy, and let
- * the queue re-surface the ones you keep missing.
- */
 import { Download, FileUp } from "@/components/ui/Icon";
 import { StatusFeedback } from "@/components/ui/StudioUI";
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
@@ -47,7 +41,6 @@ export function BldStudyLab({
   onStatsChange,
 }: {
   language: "vi" | "en";
-  /** Reports live SRS stats so the surrounding toolbar can show them. */
   onStatsChange?: (stats: {
     reviewedToday: number;
     dailyGoal: number;
@@ -148,7 +141,6 @@ export function BldStudyLab({
   };
   useEffect(() => {
     if (!activeCase && catalog.length) chooseNext();
-    // chooseNext intentionally omitted; it is stable enough for this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCase, catalog.length]);
   const toggleMastered = () => {

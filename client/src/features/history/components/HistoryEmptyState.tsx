@@ -4,7 +4,6 @@ import { buttonClass } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/** Trạng thái khi chưa có lượt giải nào: mở Timer hoặc nhập lịch sử cũ. */
 export function HistoryEmptyState({
   onImportCstimer,
   onImportJson,

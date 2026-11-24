@@ -1,12 +1,3 @@
-/**
- * Keeps the shared catalogue in step with the sentences the server writes.
- *
- * The server answers in Vietnamese, so every sentence it can send has to be
- * listed in `shared/serverMessages.ts`; a sentence that is missing would reach
- * an English visitor as untranslatable Vietnamese, or as raw internals. This
- * test reads the server sources and fails when a sentence is missing, so the
- * two never drift apart.
- */
 import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
@@ -14,14 +5,8 @@ import { serverMessageKeys } from "@shared/serverMessages";
 
 const serverRoot = path.resolve(import.meta.dirname);
 
-/** Vietnamese letters, the mark that tells interface wording from code. */
 const VIETNAMESE = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừừửữựỳýỷỹịđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ]/;
 
-/**
- * Text the server writes that is not wording of the interface: the subject and
- * the body of the reset email, and the name of a rematch room. None of them
- * reaches a button, a banner or an error.
- */
 const NOT_INTERFACE_TEXT = ["Đặt lại mật khẩu CFOP Solver Studio", "Chào ${", "${source.name}"];
 
 function serverFiles(directory: string): string[] {
@@ -34,7 +19,6 @@ function serverFiles(directory: string): string[] {
   });
 }
 
-/** Every quoted sentence of a source file that carries a Vietnamese letter. */
 function sentences(source: string): string[] {
   const found: string[] = [];
   const pattern = /(["'`])([^"'`\n]*?)\1/g;
@@ -53,8 +37,6 @@ describe("the server wording catalogue", () => {
       for (const sentence of sentences(readFileSync(file, "utf8"))) {
         if (NOT_INTERFACE_TEXT.some(marker => sentence.startsWith(marker))) continue;
         if (Object.prototype.hasOwnProperty.call(serverMessageKeys, sentence)) continue;
-        // A sentence with a dynamic tail keeps the known prefix and adds the
-        // text a person wrote, so the prefix is what the catalogue holds.
         const prefix = sentence.split("${")[0].trim();
         if (prefix && Object.prototype.hasOwnProperty.call(serverMessageKeys, prefix)) continue;
         missing.push(`${path.relative(serverRoot, file)}: ${sentence}`);

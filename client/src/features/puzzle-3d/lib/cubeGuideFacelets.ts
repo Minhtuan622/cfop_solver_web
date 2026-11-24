@@ -1,8 +1,3 @@
-/**
- * Phần thuần của renderer khối 3D (`CubeGuide3D`): thứ tự và vị trí facelet,
- * đọc lệnh xoay tầng, chọn sticker cần tô sáng và hoán vị căn mặt Cross về D.
- * Module này không import Three.js để không kéo Three.js vào chunk tải sớm.
- */
 export const FACE_ORDER: Array<"U" | "R" | "F" | "D" | "L" | "B"> = [
   "U",
   "R",
@@ -56,7 +51,7 @@ export function indexFor(face: string, x: number, y: number, z: number) {
       return FACE_OFFSET.B + (1 - y) * 3 + (1 - x);
     case "R":
       return FACE_OFFSET.R + (1 - y) * 3 + (1 - z);
-    default: // L
+    default:
       return FACE_OFFSET.L + (1 - y) * 3 + (z + 1);
   }
 }
@@ -71,9 +66,8 @@ export function parseMove(move: string) {
   if (match[1].toLowerCase() === "x" || match[1].toLowerCase() === "y" || match[1].toLowerCase() === "z") {
     const lower = match[1].toLowerCase();
     if (base === lower) {
-      // x / y / z — whole-cube rotation, follow the sign table.
       const axis = lower as "x" | "y" | "z";
-      const sign = match[1] === lower ? -1 : 1; // lowercase = inverse of uppercase in this scheme
+      const sign = match[1] === lower ? -1 : 1;
       const angle = (suffix === "2" ? Math.PI : (Math.PI / 2) * sign * (suffix === "'" ? -1 : 1)) as number;
       return { axis, layers: [-1, 0, 1], angle };
     }
@@ -85,12 +79,6 @@ export function parseMove(move: string) {
 }
 
 
-/**
- * Whole-cube permutations that put the Cross on D — identical to the ones the
- * wrapper used to bake into the state before the 2026-11 animation fix. Kept
- * inside the renderer to translate highlight targets from the aligned frame to
- * the raw frame the scene is built from.
- */
 const WHOLE_CUBE_PERM: Record<string, number[]> = {
   x: [
     53, 52, 51, 50, 49, 48, 47, 46, 45, 11, 14, 17, 10, 13, 16, 9, 12, 15, 0, 1,
@@ -121,11 +109,9 @@ const WHOLE_CUBE_PERM: Record<string, number[]> = {
 const ALIGN_PERM_KEY: Record<string, keyof typeof WHOLE_CUBE_PERM | null> = {
   U: "z2",
   D: null,
-  // Cùng phép xoay với bộ giải Rust (`CROSS_ROTATIONS`): đưa mặt cross về D.
   F: "x'",
   B: "x",
   R: "z",
   L: "z'",
 };
-// z2 = z hai lần (cùng quy ước với bảng hoán vị ở trên).
 WHOLE_CUBE_PERM.z2 = WHOLE_CUBE_PERM.z.map(index => WHOLE_CUBE_PERM.z[index]);

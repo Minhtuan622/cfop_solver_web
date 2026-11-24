@@ -9,7 +9,6 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { HistoryTrendPoint } from "../lib/historyView";
 
-/** Biểu đồ thời gian từng lượt và ao5 của 30 lượt gần nhất. */
 export function HistoryTrendChart({ chart }: { chart: HistoryTrendPoint[] }) {
   const { t } = useLanguage();
   return (

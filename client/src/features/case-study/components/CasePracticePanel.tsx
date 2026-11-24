@@ -1,9 +1,3 @@
-/**
- * Thẻ luyện một case của các lane Học thêm (2×2, Skewb, Pyraminx, Square-1,
- * FTO, 5×5 L2E, 4×4 Parity): tiêu đề case, khung xem case do lane truyền vào,
- * nút hiện/ẩn thuật toán và đánh dấu đã thuộc, đồng hồ nhớ lại và bốn nút tự
- * chấm Again/Hard/Good/Easy.
- */
 import type { ReactNode } from "react";
 import { Check, Dices, Eye, EyeOff } from "@/components/ui/Icon";
 import {
@@ -16,7 +10,6 @@ import { Button } from "@/components/ui/Button";
 import type { CaseStudyGrade } from "@/lib/caseStudy";
 import { CaseScrambleRow, type CasePractice } from "./CaseScrambleRow";
 
-/** Props mà lane nhận từ `useCaseStudyLane` và chuyển thẳng xuống thẻ case. */
 export type CasePracticeProps<Case> = {
   activeCase: Case | null;
   mastered: boolean;
@@ -25,7 +18,6 @@ export type CasePracticeProps<Case> = {
   onToggleMastered: () => void;
   lastElapsed: number | null;
   onTimerComplete: (completion: TimerCompletion) => void;
-  /** Bumped to restart the timer after every grade. */
   timerVersion: number;
   onGrade: (grade: CaseStudyGrade) => void;
   onChooseNext: () => void;
@@ -35,19 +27,13 @@ export type CasePracticeProps<Case> = {
 export type CasePracticePanelProps<Case extends { name: string; algorithm: string }> =
   Omit<CasePracticeProps<Case>, "activeCase"> & {
     activeCase: Case;
-    /** Nhãn nhỏ phía trên tên case, ví dụ "Case Skewb". */
     caseLabel: string;
-    /** Khung xem case (3D, sơ đồ 2D…). */
     preview: ReactNode;
-    /** Nội dung ngay dưới khung xem (gợi ý cầm khối, nguồn sơ đồ…). */
     previewFooter?: ReactNode;
-    /** Điều khiển đặt bên trái dòng "Xem · nhớ lại · bấm giờ" (vd. nút 2D/3D). */
     toolbarStart?: ReactNode;
-    /** Scramble thật của case (đưa khối đã giải về case); bỏ trống nếu lane không dựng được. */
     caseScramble?: CasePractice;
   };
 
-/** Trạng thái khi hàng đợi chưa có case nào. */
 export function CasePracticeEmpty() {
   const { t } = useLanguage();
   return (

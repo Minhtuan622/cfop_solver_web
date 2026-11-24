@@ -39,7 +39,6 @@ describe("the address of a redirect behind a proxy", () => {
       return server;
     };
 
-    // The callback the WCA flow returns to, simplified to its shape.
     const callback = (req: express.Request, res: express.Response) => {
       const origin = new URL(req.originalUrl, `${req.protocol}://${req.get("host")}`).origin;
       res.json({ redirect: `${origin}/profile?wca=linked`, secure: req.secure });

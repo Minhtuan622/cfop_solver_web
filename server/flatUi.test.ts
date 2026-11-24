@@ -2,49 +2,19 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
-/**
- * Regression test: giao diện phẳng — không đổ bóng và không có bất kỳ đường
- * viền nào (cả viền bao quanh lẫn đường kẻ phân cách bên trong).
- *
- * Yêu cầu của sản phẩm: các khối tách nhau chỉ bằng nền và khoảng cách.
- * Đường viền duy nhất được giữ lại là vòng focus bàn phím (`outline` đặc từ
- * `:focus-visible` + `ring-*`) — chỉ dẫn tiếp cận — và viền sticker trong
- * `cube.css` (hình học của khối Rubik, không nằm trong phạm vi quét class TSX
- * ở dưới). Class `outline-none` bị cấm vì nó xoá outline focus.
- *
- * Cùng tinh thần đó, khoảng cách giữa các khối chỉ dùng scale Tailwind
- * (`gap-4`, `py-3`…) — không "gán cứng" bằng giá trị tuỳ ý (`px-[37px]`) —
- * và một khối không được vừa có margin-top vừa có padding-top (đệm đôi,
- * từng là chỗ trống cho đường kẻ đã bị xoá).
- */
-
 const root = path.resolve(import.meta.dirname, "..");
 const clientSrc = path.join(root, "client", "src");
 
-/**
- * Mọi dạng viền bằng class `border*`:
- * - `border` (độ dày cả 4 cạnh)
- * - `border-b`, `border-t`, `border-l`, `border-r`, `border-x`, `border-y`,
- *   `border-s`, `border-e` (đường kẻ một cạnh)
- * - `last:border-0` và các biến thể `last:border-*`
- */
 const BORDER_CLASS =
   /(^|\s)(border(\s|$)|border-[btrlxyse](\s|$)|last:border-[\w-]+)/;
 
-/** Mọi đường kẻ phân cách sinh bằng `divide-*`. */
 const DIVIDE_CLASS = /(^|\s)divide-/;
 
-/**
- * Khoảng cách "gán cứng" bằng giá trị tuỳ ý: `mt-[10px]`, `gap-[4px]`,
- * `px-[37px]`… Kích thước (`w-[34rem]`, `text-[11px]`) không thuộc nhóm này.
- */
 const ARBITRARY_SPACING =
   /(?:^|[\s"'`:])(?:[a-z]{2,8}:)?(?:gap-x|gap-y|space-x|space-y|mx|my|mt|mr|mb|ml|px|py|pt|pr|pb|pl|gap|m|p)-\[/;
 
-/** Một token margin-top khác 0 (`mt-4`, `sm:mt-3`…). */
 const MARGIN_TOP = /(?:^|[\s"'`])(?:[a-z]{2,8}:)?mt-[1-9]\d*(?:\.\d+)?(?=$|[\s"`])/;
 
-/** Một token padding-top khác 0 (`pt-4`, `xl:pt-3`…). */
 const PADDING_TOP = /(?:^|[\s"'`])(?:[a-z]{2,8}:)?pt-[1-9]\d*(?:\.\d+)?(?=$|[\s"`])/;
 
 function sourceFiles(dir: string, acc: string[] = []): string[] {
@@ -56,7 +26,6 @@ function sourceFiles(dir: string, acc: string[] = []): string[] {
   return acc;
 }
 
-/** Mọi chuỗi class dùng trong thuộc tính `className`. */
 function classStrings(): { file: string; line: number; text: string }[] {
   const found: { file: string; line: number; text: string }[] = [];
   for (const file of sourceFiles(clientSrc)) {
@@ -74,11 +43,6 @@ function classStrings(): { file: string; line: number; text: string }[] {
   return found;
 }
 
-/**
- * Mọi chuỗi literals trong TSX/TS của client (kể cả class nằm trong `cn(…)`
- * hoặc ternary — dạng `className={cn("…", x ? "mt-4" : "…")}` thoát khỏi
- * phép quét `className=` bên trên).
- */
 function stringLiterals(): { file: string; line: number; text: string }[] {
   const found: { file: string; line: number; text: string }[] = [];
   for (const file of sourceFiles(clientSrc)) {

@@ -10,10 +10,8 @@ import {
 } from "@/lib/cloudSync";
 import { trpc } from "@/lib/trpc";
 
-/** Số lần thử lại tối đa khi hai thiết bị liên tục ghi cùng lúc. */
 const MAX_CONFLICT_RETRIES = 3;
 
-/** Keeps only Timer/Study state in the account cloud snapshot; settings stay device-local. */
 export function CfopCloudSync() {
   const { t } = useLanguage();
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, {
@@ -25,10 +23,6 @@ export function CfopCloudSync() {
     enabled: Boolean(accountId),
     retry: false,
   });
-  /**
-   * Revision của dòng cloud state mà máy này đã đọc. `null` nghĩa là chưa
-   * đọc được (tài khoản chưa có dữ liệu cloud) — máy chủ coi như revision 0.
-   */
   const revisionRef = useRef<number | null>(null);
   const conflictAttemptsRef = useRef(0);
   const [readyAccountId, setReadyAccountId] = useState<number | null>(null);
@@ -40,7 +34,6 @@ export function CfopCloudSync() {
     },
     onError: async error => {
       const code = (error as { data?: { code?: string } }).data?.code;
-      // Client quá cũ (tab mở từ trước khi triển khai): yêu cầu tải lại.
       if (code === "PRECONDITION_FAILED") {
         toast.error(t("profile.syncReloadRequired"));
         return;
@@ -49,8 +42,6 @@ export function CfopCloudSync() {
         toast.error(t("profile.syncFailed"));
         return;
       }
-      // Hai thiết bị cùng ghi: đọc bản mới từ máy chủ, gộp với dữ liệu cục
-      // bộ rồi lưu lại. Số lần thử có giới hạn để không lặp vô hạn.
       if (conflictAttemptsRef.current >= MAX_CONFLICT_RETRIES) {
         conflictAttemptsRef.current = 0;
         toast.error(t("profile.syncConflict"));

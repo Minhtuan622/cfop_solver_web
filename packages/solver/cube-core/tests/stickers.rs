@@ -56,7 +56,6 @@ fn rejects_bad_length_and_colors() {
 
 #[test]
 fn rejects_twisted_corner() {
-    // Rotate the three stickers of the URF corner (8, 9, 20).
     let s = scrambled();
     let mut v: Vec<char> = s.chars().collect();
     let t = v[8];
@@ -72,7 +71,7 @@ fn rejects_twisted_corner() {
 
 #[test]
 fn rejects_flipped_edge() {
-    let s = swap(&scrambled(), 5, 10); // UR edge
+    let s = swap(&scrambled(), 5, 10);
     assert!(matches!(
         Cube::from_stickers(&s),
         Err(StateError::EdgeFlip { .. })
@@ -81,14 +80,12 @@ fn rejects_flipped_edge() {
 
 #[test]
 fn rejects_parity() {
-    // Swap the UR and UF edges completely (both stickers).
     let s = swap(&swap(SOLVED_STICKERS, 5, 7), 10, 19);
     assert_eq!(Cube::from_stickers(&s), Err(StateError::Parity));
 }
 
 #[test]
 fn rejects_mirrored_centers() {
-    // Swapping two opposite centers gives a mirror image: not a rotation.
     let s = swap(SOLVED_STICKERS, 4, 31);
     assert!(Cube::from_stickers(&s).is_err());
     let s = swap(SOLVED_STICKERS, 13, 40);
@@ -97,9 +94,7 @@ fn rejects_mirrored_centers() {
 
 #[test]
 fn rejects_impossible_pieces() {
-    // Put an R sticker where the U sticker of URF is and vice versa on an edge
-    // so that a corner shows two opposite colors.
-    let s = swap(SOLVED_STICKERS, 8, 27); // U(corner) <-> D(corner) -> URF now D R F..
+    let s = swap(SOLVED_STICKERS, 8, 27);
     assert!(Cube::from_stickers(&s).is_err());
 }
 

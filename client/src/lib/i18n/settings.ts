@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** The settings page: solver defaults, timer preferences and study options. */
 export const settingsWords: Dictionary = {
   "settings.title": ["Cài đặt", "Settings"],
   "settings.subtitle": [

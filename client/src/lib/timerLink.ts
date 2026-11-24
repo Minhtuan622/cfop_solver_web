@@ -1,12 +1,6 @@
-/**
- * Link mở Timer với một event và scramble có sẵn (`/timer?event=333&scramble=…`),
- * dùng khi luyện một case trong Học thêm. Giá trị trên URL là dữ liệu từ bên
- * ngoài nên luôn bị kiểm tra trước khi dùng.
- */
 import { isTimerEventId, type TimerEventId } from "@/lib/timerEvents";
 
 export const MAX_TIMER_LINK_SCRAMBLE = 600;
-// Chữ, số, dấu nháy, +, -, ngoặc, phẩy, gạch chéo (Square-1) và `{}` của FTO.
 const SAFE_SCRAMBLE = /^[A-Za-z0-9'+\-(),/{}\s]+$/;
 
 export type TimerLink = { eventId: TimerEventId; scramble: string };

@@ -1,14 +1,3 @@
-/**
- * useSmartCube — pairs a Bluetooth smart cube and tracks solves end-to-end.
- *
- * Flow: connect → seed the cube's *current* physical state (mid-scramble
- * connects work) → track every move event → watch the cube reach the target
- * scramble (arm) → first move starts the clock → solved stops it and fires
- * `onSolveComplete` once.
- *
- * Detection is only enabled for 3×3×3 (the physical puzzle). Other events
- * see "connected" with live state/moves, but no auto start/stop.
- */
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { KPattern } from "cubing/kpuzzle";
 import {
@@ -40,17 +29,13 @@ export type SmartCubePhase = "idle" | "ready" | "solving" | "completed";
 
 export type SmartCubeSolveResult = {
   moves: string[];
-  /** Thời điểm (ms) của từng nước, tính từ nước đầu tiên (nước đầu = 0). */
   moveTimes: number[];
   elapsedMs: number;
-  /** Auto-detected CFOP splits (Cross → F2L → OLL → PLL), empty for non-3×3. */
   phaseSplits: SolvePhaseSplit[];
 };
 
 export type SmartCubeOptions = {
-  /** Master switch — false disables auto detection (kept manual). */
   enabled: boolean;
-  /** Current scramble; the cube must reach this exact state before arming. */
   targetScramble: string;
   onSolveComplete?: (result: SmartCubeSolveResult) => void;
 };
@@ -60,14 +45,10 @@ export type SmartCube = {
   cubeName: string | null;
   batteryPercent: number | null;
   errorKey: BluetoothTimerErrorKey | null;
-  /** Detection lifecycle: idle → ready (matches scramble) → solving → completed. */
   phase: SmartCubePhase;
-  /** Live facelet string for the net view, or null before the first read. */
   state: string | null;
   moves: string[];
-  /** Seconds-based TPS since the first move (null while idle/ready). */
   tps: number | null;
-  /** Number of moves in the current (or just finished) solve. */
   movesCount: number;
   connect: () => Promise<void>;
   disconnect: () => void;
@@ -77,7 +58,7 @@ async function targetPatternOf(scramble: string): Promise<KPattern | null> {
   try {
     return await patternFromAlg(scramble);
   } catch {
-    return null; // unparseable scramble — detection stays off
+    return null;
   }
 }
 
@@ -105,7 +86,6 @@ export function useSmartCube({
   const targetRef = useRef<KPattern | null>(null);
   const phaseRef = useRef<SmartCubePhase>("idle");
   const movesRef = useRef<string[]>([]);
-  /** `performance.now()` lúc nhận từng nước, song song với `movesRef`. */
   const moveAtRef = useRef<number[]>([]);
   const startedAtRef = useRef<number | null>(null);
   const marksRef = useRef<
@@ -133,8 +113,6 @@ export function useSmartCube({
   const evaluateProgress = useCallback(async () => {
     const current = currentRef.current;
     if (!current || !enabled) return;
-    // Số nước đã nhận tại thời điểm gọi: nước thứ `movesAtCall` là nước vừa
-    // làm khối rời trạng thái scramble (nếu đang chờ).
     const movesAtCall = movesRef.current.length;
     const solved = await getSolvedPattern();
     const isSolved = current.isIdentical(solved);
@@ -143,8 +121,6 @@ export function useSmartCube({
       : false;
 
     if (phaseRef.current === "completed") {
-      // Leave the completed state once the cube moves away from solved —
-      // otherwise a re-scramble would keep the UI "done" forever.
       if (!isSolved) {
         marksRef.current = {};
         publishPhase("idle");
@@ -155,7 +131,6 @@ export function useSmartCube({
       if (phaseRef.current === "solving" || phaseRef.current === "ready") {
         publishPhase("completed");
         const started = startedAtRef.current;
-        // Giờ kết thúc là lúc nước cuối cùng được nhận, không phải lúc xử lý xong.
         const endAt = moveAtRef.current.at(-1) ?? performance.now();
         const start = started ?? endAt;
         const marks = marksRef.current;
@@ -209,8 +184,6 @@ export function useSmartCube({
     }
     if (phaseRef.current === "ready" && !isTarget) {
       publishPhase("solving");
-      // Lời giải bắt đầu từ nước làm khối rời scramble: bỏ các nước thử trước đó
-      // (xoay rồi xoay lại) và lấy giờ của nước này làm mốc 0.
       const first = Math.max(0, Math.min(movesAtCall, movesRef.current.length) - 1);
       movesRef.current = movesRef.current.slice(first);
       moveAtRef.current = moveAtRef.current.slice(first);
@@ -220,8 +193,6 @@ export function useSmartCube({
     }
   }, [enabled, publishPhase]);
 
-  // Tear the cube down on unmount; a cube that finishes pairing afterwards
-  // is stopped immediately and never reports progress.
   useEffect(
     () => () => {
       mountedRef.current = false;
@@ -231,14 +202,11 @@ export function useSmartCube({
         cube?.stopTrackingMoves?.();
         cube?.disconnect();
       } catch {
-        /* already gone */
       }
     },
     [],
   );
 
-  // Recompute the target pattern whenever the scramble (or the enabled
-  // flag) changes.
   useEffect(() => {
     targetRef.current = null;
     movesRef.current = [];
@@ -253,7 +221,6 @@ export function useSmartCube({
       const pattern = enabled ? await targetPatternOf(targetScramble) : null;
       if (stale || !mountedRef.current) return;
       targetRef.current = pattern;
-      // If the cube is connected and already at the target, arm now.
       void evaluateProgress();
     })();
 
@@ -276,16 +243,12 @@ export function useSmartCube({
           cube.stopTrackingMoves?.();
           cube.disconnect();
         } catch {
-          /* already gone */
         }
         return;
       }
 
       cubeRef.current = cube;
 
-      // Seed the cube's *current* physical state (mid-scramble connects
-      // work). The read can fail transiently — retry a couple of times; if
-      // the cube still can't be read, stop rather than pretend solved.
       let current: KPattern | null = null;
       for (let attempt = 0; attempt < 3 && !current; attempt += 1) {
         try {
@@ -304,7 +267,6 @@ export function useSmartCube({
           deadCube?.stopTrackingMoves?.();
           deadCube?.disconnect();
         } catch {
-          /* already gone */
         }
         setCubeName(null);
         setStatus("error");
@@ -314,7 +276,6 @@ export function useSmartCube({
       currentRef.current = current;
       setState(kpatternToFacelets(current));
 
-      // Battery (best effort).
       try {
         const raw = await cube.getBattery?.();
         setBatteryPercent(
@@ -332,7 +293,6 @@ export function useSmartCube({
       cube.addAlgLeafListener(event => {
         if (!mountedRef.current) return;
         const move = event.latestAlgLeaf as { quantum?: unknown };
-        // Only Move nodes carry a `quantum`; comments/other leaves don't.
         if (!move || typeof move !== "object" || move.quantum === undefined)
           return;
         try {
@@ -340,7 +300,7 @@ export function useSmartCube({
             ? currentRef.current.applyMove(move as never)
             : null;
         } catch {
-          return; // unknown move encoding — drop it rather than corrupt state
+          return;
         }
         const now = performance.now();
         movesRef.current = [...movesRef.current, move.toString()];
@@ -377,7 +337,6 @@ export function useSmartCube({
       cube?.stopTrackingMoves?.();
       cube?.disconnect();
     } catch {
-      /* already gone */
     }
     currentRef.current = null;
     setCubeName(null);

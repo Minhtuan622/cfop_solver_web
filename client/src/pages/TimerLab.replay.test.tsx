@@ -28,8 +28,6 @@ const replayFixture: SolveHistoryEntry = {
   inputKind: "scramble",
   moves: 2,
   penalty: "none",
-  // Tráo "R U" khi cầm trắng U, xanh lá F, rồi lật trắng xuống D: lời giải
-  // theo hướng đang cầm là D' L' (lượt R của scramble xoay mặt đỏ, nay ở L).
   solution: "D' L'",
   note: "Fixture replay only",
   tags: ["test"],
@@ -62,18 +60,14 @@ describe("Timer replay với solution đã lưu", () => {
 
     expect(await screen.findByText("PHÁT LẠI SOLUTION THỰC TẾ")).toBeInTheDocument();
     expect(screen.getByText("D' L'")).toBeInTheDocument();
-    // Không còn step-by-step: chỉ còn MOVES và TPS.
     const replayDialog = screen.getByRole("dialog", { name: "PHÁT LẠI SOLUTION THỰC TẾ" });
     expect(within(replayDialog).getByText("MOVES")).toBeInTheDocument();
     expect(within(replayDialog).getByText(/TPS 0\.50/)).toBeInTheDocument();
     expect(screen.queryByText(/0 \/ 2/)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Nước trước" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Nước sau" })).not.toBeInTheDocument();
-    // Khối 3D dùng chung PuzzleScramblePreview (ở đây là mock).
     expect(screen.getAllByTestId("puzzle-preview").at(-1)).toHaveTextContent("333 preview");
 
-    // Nút Phát solution trong dialog chạy lại toàn bộ chuỗi. Radix ẩn nội
-    // dung ngoài hộp thoại khỏi accessibility tree, nên truy vấn trong dialog.
     const replayPlay = within(replayDialog).getByRole("button", {
       name: "Phát solution",
     });
@@ -86,7 +80,6 @@ describe("Timer replay với solution đã lưu", () => {
     render(<LanguageProvider><TimerLab /></LanguageProvider>);
 
     const eventSelect = screen.getByLabelText("Loại khối");
-    // Dropdown tự vẽ: bấm để mở danh sách rồi chọn mục.
     fireEvent.click(eventSelect);
     fireEvent.click(screen.getByRole("option", { name: "Pyraminx" }));
 
@@ -94,7 +87,6 @@ describe("Timer replay với solution đã lưu", () => {
     expect(screen.getAllByText("Pyraminx").length).toBeGreaterThan(0);
     expect(screen.getByTestId("puzzle-preview")).toHaveTextContent("pyram preview");
     expect(screen.queryByText(/Các công cụ CFOP\/3D chỉ áp dụng cho 3×3/i)).not.toBeInTheDocument();
-    // Danh sách solve gần đây đã chuyển sang trang Lịch sử: chỉ còn nút mở.
     expect(screen.getByRole("link", { name: "Mở History" })).toHaveAttribute("href", "/history");
     expect(screen.getByText("Liên kết WCA ID")).toBeInTheDocument();
 
@@ -127,7 +119,6 @@ describe("Timer replay với solution đã lưu", () => {
     fireEvent.change(screen.getByLabelText("Số khối giải đúng Multi-Blind"), { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: "Lưu điểm Multi-Blind" }));
     expect(await screen.findByText("Đã lưu lượt vào nhật ký.")).toBeInTheDocument();
-    // Lượt Multi-Blind được ghi vào nhật ký (trang Lịch sử đọc từ đây).
     const saved = JSON.parse(localStorage.getItem("cfop-solve-history-v1") ?? "[]");
     expect(saved[0]).toMatchObject({ eventId: "333mbf" });
   });

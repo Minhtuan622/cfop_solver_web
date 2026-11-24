@@ -1,11 +1,3 @@
-/**
- * Roux catalog for the /study Roux lane.
- *
- * Like the Skewb lane, the case preview is 3D-only: `Puzzle3DCanvas` applies
- * the inverted algorithm to a solved cube, so every shown case is solved by its
- * own algorithm. `CatalogExplorer` still needs a `state` string per case; it
- * carries a deterministic sentinel (`"roux:<id>"`) the icon preview ignores.
- */
 import {
   CMLL_CASES_SOURCE,
   LSE_CASES_SOURCE,
@@ -29,7 +21,6 @@ export const ROUX_CATALOGS: Record<RouxFamily, readonly RouxCatalogCase[]> = {
   lse: LSE_CASES_SOURCE.map(withState),
 };
 
-/** CMLL first, then LSE. */
 export const ROUX_CATALOG: readonly RouxCatalogCase[] = [
   ...ROUX_CATALOGS.cmll,
   ...ROUX_CATALOGS.lse,

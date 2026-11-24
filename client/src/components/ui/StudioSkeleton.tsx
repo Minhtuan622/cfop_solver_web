@@ -1,4 +1,3 @@
-/** Khung chờ khi đang tải: thẻ, danh sách và bảng. */
 import { cn } from "@/lib/utils";
 
 export function SkeletonCard({

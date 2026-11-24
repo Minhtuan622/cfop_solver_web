@@ -1,13 +1,3 @@
-/**
- * 3×3 COLL — 40 corner-oriented + corner-permuted Last Layer cases.
- * Source: https://cubingapp.com/algorithms/COLL (extracted 2026-11-17, one
- * canonical algorithm per case — the first variant published on the page).
- * 7 subsets: AS 6 · H 4 · L 6 · Pi 6 · Sune 6 · T 6 · U 6.
- *
- * Case states are NOT embedded: `cfopCaseState()` derives the pre-image from
- * the algorithm (inverse applied to solved), so every case is guaranteed to
- * be solved by its own algorithm.
- */
 import type { CfopCaseRow } from "./cfopCatalogData";
 
 export const COLL_CASES: readonly CfopCaseRow[] = [

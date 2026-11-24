@@ -29,7 +29,6 @@ fn f2l_2000_random_scrambles() {
             r.substeps.iter().map(|s| s.moves.len()).sum::<usize>(),
             r.moves.len()
         );
-        // Cross stays intact after every pair.
         for step in &r.substeps {
             assert!(cross_solved(&step.state, Face::D), "#{i}: {}", step.name);
         }
@@ -58,8 +57,6 @@ fn fixed_order_and_other_colors() {
                 slot_order: SlotOrder::Fixed([2, 0, 3, 1]),
                 ..Default::default()
             };
-            // A pair can already be solved right after the cross; only the
-            // unsolved ones get a substep.
             let unsolved = (0..4).filter(|&j| !slot_solved(&c, color, j)).count();
             let r = solve_f2l_with(&c, &opts).unwrap();
             assert!(cross_solved(&r.state, color) && f2l_done(&r.state, color));
@@ -73,14 +70,12 @@ fn edge_cases() {
     let r = solve_f2l(&Cube::SOLVED).unwrap();
     assert!(r.moves.is_empty() && r.substeps.is_empty());
 
-    // One move off: U keeps cross and pairs, R breaks two pairs.
     let r = solve_f2l(&Cube::from_moves(&parse_moves("U").unwrap())).unwrap();
     assert!(r.moves.is_empty());
     let c = Cube::from_moves(&parse_moves("R U R'").unwrap());
     let r = solve_f2l(&c).unwrap();
     assert!(r.moves.len() <= 3 && f2l_done(&r.state, Face::D));
 
-    // Long scramble.
     let mut rng = Rng::new(8);
     let cube = Cube::from_moves(&rng.scramble(300));
     let c = cube.apply_moves(&solve_cross(&cube).unwrap());

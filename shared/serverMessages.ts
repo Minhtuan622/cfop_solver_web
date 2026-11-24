@@ -1,23 +1,9 @@
-/**
- * Every sentence the server can send to the client, mapped to the key that
- * holds the same wording in the bilingual dictionary.
- *
- * The server writes in Vietnamese, so without this table an English visitor
- * would read Vietnamese every time an action failed. The client looks the
- * message up here and shows the sentence in the language of the interface; a
- * message that is not listed is never shown raw.
- *
- * `server/serverMessages.test.ts` reads the server sources and fails when a
- * sentence is missing from this table, so the two never drift apart.
- */
 export const serverMessageKeys: Record<string, string> = {
-  // Lỗi chung
   "Có lỗi xảy ra, vui lòng thử lại.": "common.error.internal",
   "Dữ liệu không hợp lệ:": "common.error.invalidData",
   "Dữ liệu gửi lên quá lớn.": "common.error.payloadTooLarge",
   "Không tìm thấy.": "common.error.notFound",
 
-  // Tài khoản
   "Email này đã có tài khoản CFOP.": "account.error.emailTaken",
   "Email hoặc mật khẩu không đúng.": "account.error.invalidCredentials",
   "Mật khẩu hiện tại không đúng.": "profile.errorCurrentPassword",
@@ -25,13 +11,11 @@ export const serverMessageKeys: Record<string, string> = {
   "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.": "account.error.resetLinkInvalid",
   "CFOP_ACCOUNT_REQUIRED": "account.error.required",
 
-  // Hồ sơ
   "Ảnh đại diện không đúng định dạng.": "profile.errorAvatarFormat",
   "Ảnh đại diện phải nhỏ hơn 2 MB.": "profile.errorAvatarTooLarge",
   "Nội dung ảnh không khớp định dạng đã chọn.": "profile.errorAvatarMismatch",
   "Dữ liệu đồng bộ quá lớn. Hãy xuất backup cục bộ trước.": "profile.errorSyncTooLarge",
 
-  // Kiểm tra dữ liệu
   "Mật khẩu cần ít nhất 10 ký tự.": "common.error.passwordTooShort",
   "Mật khẩu quá dài.": "common.error.passwordTooLong",
   "Email không hợp lệ.": "common.error.emailInvalid",
@@ -48,13 +32,11 @@ export const serverMessageKeys: Record<string, string> = {
   "Ngày kết thúc phải sau ngày bắt đầu.": "common.error.dateRange",
   "Thời gian giải quá ngắn để có thể thật.": "common.error.solveTooFast",
   "Thời gian giải không thể ngắn hơn thời gian quan sát.": "common.error.solveTooShort",
-  // Phòng thi đấu
   "Bạn tra lịch sử quá thường xuyên. Vui lòng thử lại sau.": "competition.error.historyRateLimited",
   "Bạn tạo phòng quá nhiều trong một giờ. Vui lòng thử lại sau.": "competition.error.roomCreateRateLimited",
   "Phòng đã đủ khán giả.": "competition.error.roomFullSpectators",
   "Bạn gửi tin nhắn quá nhanh. Vui lòng chờ một chút rồi gửi lại.": "competition.error.chatRateLimited",
 
-  // Phòng thi đấu
   "Không tìm thấy phòng thi đấu này.": "rooms.error.roomMissing",
   "Bạn chưa tham gia phòng này.": "rooms.error.notMember",
   "Bạn đã bị quản trị viên loại khỏi phòng.": "rooms.error.removed",
@@ -89,7 +71,6 @@ export const serverMessageKeys: Record<string, string> = {
   "Không thể tạo phòng Đấu lại. Hãy thử lại.": "rooms.error.rematchFailed",
   "[system] Moderator đã loại một người xem khỏi phòng.": "rooms.error.systemRemoved",
 
-  // WCA
   "Không thể xử lý dữ liệu WCA.": "wca.errorData",
   "Không tìm thấy WCA ID hoặc dữ liệu WCA.": "wca.errorNotFound",
   "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau.": "wca.errorUnavailable",
@@ -102,18 +83,15 @@ export const serverMessageKeys: Record<string, string> = {
   "Phiên tài khoản CFOP không khớp với yêu cầu liên kết WCA.": "wca.errorOAuthAccountMismatch",
   "Không thể xác minh tài khoản WCA. Hãy thử liên kết lại.": "wca.errorOAuthLinkFailed",
 
-  // Đồng bộ đám mây
   "Trạng thái đám mây đã được cập nhật ở thiết bị khác. Hãy tải lại và đồng bộ lại.": "cloud.errorConflict",
   "Ứng dụng đã được cập nhật. Hãy tải lại trang để đồng bộ dữ liệu.": "profile.syncReloadRequired",
   "Tính năng tải ảnh chưa được cấu hình trên máy chủ.": "cloud.errorStorageNotConfigured",
 
-  // WCA rate limiting and calendar
   "Yêu cầu WCA quá nhiều. Hãy thử lại sau.": "wca.errorRateLimited",
   "Dịch vụ WCA đang bận. Hãy thử lại sau.": "wca.errorBusy",
   "Khoảng ngày quá dài. Tối đa 366 ngày.": "wca.errorDateRangeTooLong",
   "Mã WCA này đã được liên kết với tài khoản khác.": "wca.errorWcaIdTaken",
 
-  // Nhắc ôn tập (Web Push)
   "Thông báo ôn tập chưa được bật trên máy chủ.": "push.errorNotConfigured",
   "Địa chỉ nhận thông báo không hợp lệ.": "push.errorEndpoint",
   "Bạn đã bật thông báo trên quá nhiều trình duyệt.": "push.errorTooMany",

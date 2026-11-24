@@ -10,7 +10,6 @@ describe("cubeColors", () => {
   });
 
   it("hiển thị như khi giải thật: U vàng, D trắng, L đỏ, R cam", () => {
-    // CFOP chéo trắng: khối luôn được đặt ở hướng z2 (yellow up).
     expect(CUBE_COLORS.U).toBe("#ffd500");
     expect(CUBE_COLORS.D).toBe("#f2f2f2");
     expect(CUBE_COLORS.L).toBe("#b71234");

@@ -56,13 +56,11 @@ function makeContext(address = "203.0.113.7") {
   return {
     cfopAccount: null,
     user: null,
-    // The proxy sits on a private address, so the forwarded header is trusted.
     req: { headers, socket: { remoteAddress: "10.0.0.1" } },
     res: { setHeader: vi.fn() },
   } as unknown as TrpcContext;
 }
 
-/** Reads the last value a header was set to, since the middleware may set it twice. */
 function headerOf(context: TrpcContext, name: string) {
   const setHeader = (
     context.res as unknown as { setHeader: ReturnType<typeof vi.fn> }
@@ -77,9 +75,6 @@ const credentials = {
 };
 
 describe("auth rate limiting", () => {
-  // Kịch bản deploy thật: máy chủ đứng sau reverse proxy nên tin
-  // X-Forwarded-For (TRUST_PROXY=1). Khi chưa bật, header do client tự viết
-  // không được tách hạn mức.
   const originalTrustProxy = process.env.TRUST_PROXY;
 
   beforeAll(() => {
@@ -165,7 +160,6 @@ describe("auth rate limiting", () => {
       displayName: "Cuber",
     };
 
-    // The account bucket allows 5 registrations for this email.
     for (let attempt = 0; attempt < 5; attempt += 1) {
       await expect(caller.cfopAccount.register(input)).rejects.toMatchObject({
         code: "CONFLICT",
@@ -198,7 +192,6 @@ describe("auth rate limiting", () => {
       newPassword: "correct-horse-battery",
     };
 
-    // A reset carries no email, so only the address bucket applies: 20 attempts.
     for (let attempt = 0; attempt < 20; attempt += 1) {
       await expect(
         caller.cfopAccount.resetPassword(input)
@@ -275,8 +268,6 @@ describe("auth rate limiting", () => {
       })
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
 
-    // The account bucket allows 10 attempts, the address bucket 60, so the
-    // account budget is the one a caller runs out of first.
     expect(headerOf(context, "X-RateLimit-Limit")).toBe("10");
     expect(headerOf(context, "X-RateLimit-Remaining")).toBe("9");
   });

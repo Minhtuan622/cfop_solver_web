@@ -1,11 +1,3 @@
-//! One-look OLL (57 cases) and PLL (21 cases) with AUF.
-//!
-//! Recognition is state based: each algorithm `A` is fingerprinted by the
-//! state `A^-1` produces from solved, combined with every pre-AUF (and for
-//! PLL every post-AUF). A cube is solved by `pre-AUF, A, post-AUF` such that
-//! `X * pre * A * post` reaches the stage goal. The result is always replayed
-//! and checked before it is returned.
-
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
@@ -16,10 +8,8 @@ use crate::ll_data::{OLL_ALGORITHMS, PLL_ALGORITHMS};
 use crate::stages::{canonical_cube, Face, StageResult};
 use crate::tables::{tables, Frame};
 
-/// A last-layer case and its algorithm.
 #[derive(Clone, Debug)]
 pub struct LlCase {
-    /// "OLL 21", "PLL Ua", ...
     pub name: String,
     pub group: &'static str,
     pub algorithm: Vec<Move>,
@@ -39,7 +29,6 @@ struct LlTables {
     pll_index: HashMap<u16, Vec<Entry>>,
 }
 
-/// Case index used for "nothing to do except AUF".
 const SKIP: usize = usize::MAX;
 
 fn u_turn(k: u8) -> Option<Move> {
@@ -129,17 +118,14 @@ fn ll_tables() -> &'static LlTables {
     })
 }
 
-/// The 57 OLL cases, in database order.
 pub fn oll_cases() -> &'static [LlCase] {
     &ll_tables().oll
 }
 
-/// The 21 PLL cases, in database order.
 pub fn pll_cases() -> &'static [LlCase] {
     &ll_tables().pll
 }
 
-/// In the canonical frame (cross on D): first two layers solved.
 fn f2l_done(c: &Cube) -> bool {
     (4..8).all(|i| c.corner_perm()[i] as usize == i && c.corner_ori()[i] == 0)
         && (4..12).all(|i| c.edge_perm()[i] as usize == i && c.edge_ori()[i] == 0)
@@ -222,8 +208,6 @@ fn solve_ll(cube: &Cube, color: Face, ll: LlStage<'_>) -> Result<StageResult, Er
     })
 }
 
-/// Orient the last layer with one algorithm (plus pre-AUF).
-/// Requires Cross and F2L of `cross_color` solved.
 pub fn solve_oll(cube: &Cube, cross_color: Face) -> Result<StageResult, Error> {
     let t = ll_tables();
     let ll = LlStage {
@@ -237,8 +221,6 @@ pub fn solve_oll(cube: &Cube, cross_color: Face) -> Result<StageResult, Error> {
     solve_ll(cube, cross_color, ll)
 }
 
-/// Permute the last layer with one algorithm plus pre- and post-AUF.
-/// Requires everything but the last-layer permutation solved.
 pub fn solve_pll(cube: &Cube, cross_color: Face) -> Result<StageResult, Error> {
     let t = ll_tables();
     let ll = LlStage {
@@ -252,22 +234,12 @@ pub fn solve_pll(cube: &Cube, cross_color: Face) -> Result<StageResult, Error> {
     solve_ll(cube, cross_color, ll)
 }
 
-/// Touch the tables so later calls are fast.
 pub(crate) fn warm_up() {
     let _ = ll_tables();
     let _ = tables();
     let _ = zbll_table();
     let _ = one_lll_table();
 }
-
-// ---------------------------------------------------------------------------
-// Direct one-look last layer (ZBLL, 1LLL).
-//
-// A case is identified by the full last-layer state (permutation and
-// orientation of the four U corners and edges) that the inverse of its
-// algorithm produces from solved, combined with each pre-AUF. Solving is
-// `pre-AUF^-1, algorithm`; no post-AUF (the catalog algorithms already end
-// solved), and each candidate is replayed before it is accepted.
 
 use crate::one_look_data::{ONE_LLL_CASES, ZBLL_CASES};
 
@@ -315,12 +287,10 @@ fn one_lll_table() -> &'static DirectTable {
     T.get_or_init(|| build_direct(&ONE_LLL_CASES, "1LLL"))
 }
 
-/// The shipped ZBLL cases.
 pub fn zbll_cases() -> &'static [LlCase] {
     &zbll_table().cases
 }
 
-/// The shipped 1LLL cases.
 pub fn one_lll_cases() -> &'static [LlCase] {
     &one_lll_table().cases
 }
@@ -369,13 +339,10 @@ fn solve_direct(
     Ok(None)
 }
 
-/// Solve the whole last layer with one shipped ZBLL algorithm. Returns
-/// `Ok(None)` when the U edges are not oriented or the case is not shipped.
 pub fn solve_zbll(cube: &Cube, cross_color: Face) -> Result<Option<StageResult>, Error> {
     solve_direct(cube, cross_color, "ZBLL", zbll_table(), true)
 }
 
-/// Solve the whole last layer with one shipped 1LLL algorithm, if covered.
 pub fn solve_1lll(cube: &Cube, cross_color: Face) -> Result<Option<StageResult>, Error> {
     solve_direct(cube, cross_color, "1LLL", one_lll_table(), false)
 }

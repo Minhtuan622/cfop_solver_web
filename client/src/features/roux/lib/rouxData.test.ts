@@ -1,5 +1,4 @@
 // @vitest-environment node
-// Chạy cubing.js thật: kiểm chứng từng công thức Roux trên khối đã giải.
 import { describe, expect, it } from "vitest";
 import { CMLL_CASES_SOURCE, LSE_CASES_SOURCE, ROUX_COUNTS } from "./rouxData";
 
@@ -12,7 +11,6 @@ async function after(algorithm: string, inverse: boolean) {
   return kpuzzle.defaultPattern().applyAlg(inverse ? alg.invert() : alg).patternData as unknown as PatternData;
 }
 
-/** Vị trí Reid: góc U = 0–3, góc D = 4–7; cạnh LSE = UF UR UB UL (0–3), DF (4), DB (6). */
 const LSE_EDGES = new Set([0, 1, 2, 3, 4, 6]);
 
 describe("danh mục Roux", () => {
@@ -28,20 +26,16 @@ describe("danh mục Roux", () => {
     async (_name, row) => {
       const state = await after(row.algorithm, true);
       const solved = await after("", false);
-      // 4 góc D (khối F2B) nguyên vẹn.
       for (let slot = 4; slot < 8; slot += 1) {
         expect(state.CORNERS.pieces[slot]).toBe(solved.CORNERS.pieces[slot]);
         expect(state.CORNERS.orientation[slot]).toBe(0);
       }
-      // Cạnh của hai khối (DR, DL, FR, FL, BR, BL) nguyên vẹn.
       for (let slot = 0; slot < 12; slot += 1) {
         if (LSE_EDGES.has(slot)) continue;
         expect(state.EDGES.pieces[slot]).toBe(slot);
         expect(state.EDGES.orientation[slot]).toBe(0);
       }
-      // Tâm không đổi.
       expect(state.CENTERS.pieces).toEqual(solved.CENTERS.pieces);
-      // Và case thật sự cần giải: bốn góc U chưa về đúng.
       const solvedCorners = state.CORNERS.pieces.slice(0, 4).every(
         (piece, slot) => piece === slot && state.CORNERS.orientation[slot] === 0
       );
@@ -53,7 +47,6 @@ describe("danh mục Roux", () => {
     const seen = new Set<string>();
     for (const row of CMLL_CASES_SOURCE) {
       const state = await after(row.algorithm, true);
-      // Chuẩn hoá theo 4 phép xoay U của lớp trên: lấy dạng nhỏ nhất.
       const forms: string[] = [];
       for (let turn = 0; turn < 4; turn += 1) {
         const rotated = await after(`${"U ".repeat(turn)}${row.algorithm}`, true);
@@ -71,7 +64,6 @@ describe("danh mục Roux", () => {
       expect(row.algorithm.replace(/[MUE2' ()]/g, "")).toBe("");
       const state = await after(row.algorithm, true);
       const solved = await after("", false);
-      // U xoay lớp góc trên nên chỉ so góc D (khối F2B); các góc U có thể đổi chỗ.
       for (let slot = 4; slot < 8; slot += 1) {
         expect(state.CORNERS.pieces[slot]).toBe(solved.CORNERS.pieces[slot]);
         expect(state.CORNERS.orientation[slot]).toBe(0);

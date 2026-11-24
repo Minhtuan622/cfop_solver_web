@@ -1,11 +1,3 @@
-/**
- * SRS study state for the CFOP study lane (F2L / OLL / PLL cases).
- *
- * Mirrors the Last Layer study engine (same spaced repetition ladder in
- * `lib/spacedRepetition.ts`) but with its own storage keys and the CFOP
- * case families, so the two lanes never share progress. Records degrade
- * gracefully via zod, like the other persisted state in the app.
- */
 import {
   caseStudyKey,
   createCaseStudyStore,

@@ -28,7 +28,6 @@ describe("isWebBluetoothSupported", () => {
       window.navigator,
       "bluetooth",
     );
-    // jsdom has no bluetooth by default
     expect(isWebBluetoothSupported()).toBe(false);
     if (original) Object.defineProperty(window.navigator, "bluetooth", original);
   });

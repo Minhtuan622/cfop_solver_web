@@ -1,11 +1,3 @@
-/**
- * FTO L3T catalog for the /study FTO L3T lane.
- *
- * Mirrors the other study catalogs: rows carry a sentinel `state`
- * (`"l3t:<id>"`) that the icon preview ignores — the case preview is the
- * 3D twisty-player rendering of the inverted algorithm applied to the
- * solved puzzle. The catalog is grouped by phase (PF / TL / LT).
- */
 import {
   FTO_L3T_CASES,
   FTO_L3T_COUNTS,
@@ -19,11 +11,8 @@ export type { FtoL3tFamily, FtoL3tGroup } from "./l3tData";
 export type FtoL3tCatalogCase = FtoL3tCaseRow & { state: string };
 
 export type ListFtoL3tCasesFilter = {
-  /** "all" (default) or "l3t". */
   family?: "all" | FtoL3tFamily;
-  /** Substring match (case-insensitive) against id, name, group and algorithm. */
   query?: string;
-  /** Maximum rows; clamped to [1, 1000]. */
   limit?: number;
 };
 

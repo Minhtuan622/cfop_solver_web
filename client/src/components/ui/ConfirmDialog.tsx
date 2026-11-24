@@ -14,20 +14,13 @@ type Props = {
   open: boolean;
   title: string;
   description?: string;
-  /** The label of the button that carries the action out. */
   confirmLabel: string;
-  /** `danger` for the actions that cannot be undone. */
   tone?: "primary" | "danger";
   pending?: boolean;
   onConfirm: () => void;
   onClose: () => void;
 };
 
-/**
- * Asks for a confirmation before an action that cannot be undone. It replaces
- * the native `window.confirm`, so the prompt looks like the rest of the app
- * and keeps the keyboard focus inside the dialog.
- */
 export function ConfirmDialog({
   open,
   title,

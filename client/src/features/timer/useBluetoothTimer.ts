@@ -1,12 +1,3 @@
-/**
- * useBluetoothTimer — pairs a GAN Timer and tracks the connection lifecycle.
- *
- * Deliberately separate from the per-tick display state: `update` events
- * (which arrive many times per second) never re-render the host page. The
- * live readout is owned by `BluetoothTimerHero`, which subscribes to the
- * timer directly. This hook only manages: unsupported → idle → connecting →
- * connected / error, device-initiated disconnects, and teardown on unmount.
- */
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   BluetoothTimerError,
@@ -17,19 +8,17 @@ import {
 } from "./lib/bluetoothTimer";
 
 export type BluetoothTimerStatus =
-  | "unsupported" // browser cannot use Web Bluetooth at all
-  | "idle" // supported, not connected
-  | "connecting" // pairing in progress
-  | "connected" // polling a timer
-  | "error"; // pairing failed — see errorKey
+  | "unsupported"
+  | "idle"
+  | "connecting"
+  | "connected"
+  | "error";
 
 export type BluetoothTimer = {
   status: BluetoothTimerStatus;
   deviceName: string | null;
   errorKey: BluetoothTimerErrorKey | null;
-  /** The device dropped the connection on its own since the last connect. */
   lostConnection: boolean;
-  /** The live timer handle, or null when not connected. */
   timer: GanTimerHandle | null;
   connect: () => Promise<void>;
   disconnect: () => void;
@@ -41,7 +30,6 @@ function teardown(timer: GanTimerHandle | null) {
     timer.stopPolling();
     timer.disconnect();
   } catch {
-    /* The device may already be gone — nothing to tear down. */
   }
 }
 
@@ -66,8 +54,6 @@ export function useBluetoothTimer(): BluetoothTimer {
     );
   }, []);
 
-  // Tear the timer down when the host page unmounts — and remember that
-  // pairing finished after unmount must not install a live timer.
   useEffect(
     () => () => {
       mountedRef.current = false;
@@ -77,7 +63,6 @@ export function useBluetoothTimer(): BluetoothTimer {
     [],
   );
 
-  // Device-initiated disconnects: surface them as "lost connection".
   useEffect(() => {
     if (status !== "connected") return;
     const timer = timerRef.current;
@@ -103,8 +88,6 @@ export function useBluetoothTimer(): BluetoothTimer {
     setLostConnection(false);
     try {
       const timer = await connectGanTimer();
-      // The pairing chooser can still be open while the host page unmounts.
-      // A timer that resolves now must not linger with polling active.
       if (!mountedRef.current) {
         teardown(timer);
         return;

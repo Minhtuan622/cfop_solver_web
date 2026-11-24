@@ -5,12 +5,6 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const root = new URL("..", import.meta.url).pathname;
 
-/**
- * A local database install used to write NODE_ENV and PORT into .env.local,
- * and the server used to read that file with override turned on, so
- * `PORT=3200 pnpm start` still listened on 3000. These tests keep the
- * precedence rule: what the command line sets wins.
- */
 describe("the environment a server process reads", () => {
   it("reads .env.local without overriding the host environment", () => {
     const source = readFileSync(new URL("../server/_core/index.ts", import.meta.url), "utf8");
@@ -35,7 +29,6 @@ describe("the container image", () => {
     expect(stages).toHaveLength(3);
     expect(dockerfile).toContain("AS solver");
     expect(dockerfile).toContain("AS build");
-    // Only the WASM package travels from the Rust stage to the Node stage.
     expect(dockerfile).toContain("COPY --from=solver /app/packages/solver/solver-wasm/pkg");
     expect(dockerfile).toContain("wasm32-unknown-unknown");
   });
@@ -59,7 +52,6 @@ describe("the container image", () => {
     expect(dockerignore).toMatch(/^\.git$/m);
     expect(dockerignore).toMatch(/^dist$/m);
     expect(dockerignore).toMatch(/\.env/);
-    // The template of the environment stays, as documentation.
     expect(dockerignore).toContain("!.env.example");
   });
 
@@ -71,10 +63,6 @@ describe("the container image", () => {
 
 const distReady = existsSync(path.join(root, "dist", "public", "index.html"));
 
-/**
- * The full proof of precedence: with .env.local present, a production server
- * must still follow the PORT the command line gave it.
- */
 describe.skipIf(!distReady)("the spawned production server", () => {
   let log = "";
   let child: ReturnType<typeof execFile> | null = null;
@@ -93,8 +81,6 @@ describe.skipIf(!distReady)("the spawned production server", () => {
         [path.join(root, "node_modules", "tsx", "dist", "cli.mjs"), "server/_core/index.ts"],
         { cwd: root, env: { ...process.env, NODE_ENV: "production", PORT: "3200" } },
         (error) => {
-          // A deliberate kill prints a nonzero code; only failures before
-          // the server started matter.
           if (log.includes("Server running on"))
             finish(log.includes("http://localhost:3200/") ? undefined : new Error(`server took a different port: ${log}`));
           else if (error) finish(error);
@@ -126,8 +112,6 @@ describe.skipIf(!distReady)("the spawned production server", () => {
   });
 
   it("kept the environment set on the command line over .env.local", () => {
-    // The local .env.local may carry its own PORT=3000 from an older setup
-    // script; the server logged 3200, which is the rule being tested.
     expect(log).not.toContain("Server running on http://localhost:3000/");
   });
 

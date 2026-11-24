@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** Navigation, footer, theme switcher, account menu and the fallback pages. */
 export const shellWords: Dictionary = {
   "nav.brand": ["Giải Rubik", "Rubik Solver"],
   "nav.brandLabel": ["Giải Rubik — Trang chủ", "Rubik Solver — Home"],

@@ -1,4 +1,3 @@
-// Offline rebuild of the HCubist FTO model (regular octahedron, corner in front).
 const sqrt3 = Math.sqrt(3);
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];

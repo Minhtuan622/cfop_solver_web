@@ -60,8 +60,6 @@ describe("timer events", () => {
   it("always returns a usable scramble for 3×3 modes", async () => {
     const scramble = await generateTimerScramble("333");
     expect(scramble.trim()).not.toBe("");
-    // cubing.js writes a random-state scramble of 17 to 21 moves; the local
-    // fallback writes 20. Anything shorter would not scramble the cube.
     expect(scramble.split(/\s+/).length).toBeGreaterThanOrEqual(17);
   });
 

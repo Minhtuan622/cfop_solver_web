@@ -17,7 +17,6 @@ const MAX_ITEMS = 800;
 const MAX_DRILL_ATTEMPTS = 600;
 const MAX_REVIEW_DAYS = 1600;
 
-/** A finite number clamped to [min, max]; invalid input falls back. */
 const bounded = (fallback: number, min: number, max: number) =>
   z.number().finite().transform(value => Math.min(max, Math.max(min, value))).prefault(fallback).catch(fallback);
 const boundedInt = (fallback: number, min: number, max: number) =>
@@ -87,7 +86,6 @@ const reviewDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 function normalizeReviewDays(raw: unknown) { return Array.from(new Set((Array.isArray(raw) ? raw : []).filter(value => reviewDateSchema.safeParse(value).success).sort())).slice(-MAX_REVIEW_DAYS); }
 function legacyReviewDays(records: Record<string, BldMemoRecord>) { return Array.from(new Set(Object.values(records).filter((record) => record.lastReviewedAt > 0).map((record) => reviewDay(record.lastReviewedAt)))).sort().slice(-MAX_REVIEW_DAYS); }
 
-/** Build the profile from its loose storage/backup shape; both read paths use it. */
 function assembleProfile(raw: Partial<BldProfile> & Record<string, unknown>): BldProfile {
   const preferredAlgorithms = Object.fromEntries(Object.entries(raw.preferredAlgorithms ?? {}).map(([key, value]) => [key.slice(0, 180), normalizePreferred(value)]).filter((entry): entry is [string, BldPreferredAlgorithm] => Boolean(entry[1])).slice(0, MAX_ITEMS));
   const memoRecords = Object.fromEntries(Object.values(raw.memoRecords ?? {}).map(normalizeRecord).filter((item): item is BldMemoRecord => Boolean(item)).slice(0, MAX_ITEMS).map((item) => [item.key, item]));
@@ -106,5 +104,4 @@ export function gradeMemo(profile: BldProfile, item: Pick<BldMemoRecord, "key" |
 export function reviewStreak(profile: BldProfile, now = Date.now()) { const reviewDays = new Set(profile.reviewDays); const cursor = new Date(now); cursor.setHours(0, 0, 0, 0); let current = 0; while (reviewDays.has(reviewDay(cursor.getTime()))) { current += 1; cursor.setDate(cursor.getDate() - 1); } let longest = 0; let run = 0; const sorted = Array.from(reviewDays).sort(); for (const day of sorted) { const date = new Date(`${day}T00:00:00`); const previous = new Date(date); previous.setDate(previous.getDate() - 1); run = reviewDays.has(reviewDay(previous.getTime())) ? run + 1 : 1; longest = Math.max(longest, run); } return { current, longest, reviewedToday: reviewDays.has(reviewDay(now)) }; }
 export function dueMemoRecords(profile: BldProfile, now = Date.now()) { return Object.values(profile.memoRecords).filter((record) => !record.dueAt || record.dueAt <= now || record.lastGrade === "again").sort((left, right) => left.dueAt - right.dueAt || right.lapses - left.lapses); }
 
-/** Counts the memo records that were already reviewed today. */
 export function reviewedToday(profile: BldProfile) { const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); return Object.values(profile.memoRecords).filter((record) => record.lastReviewedAt >= start).length; }

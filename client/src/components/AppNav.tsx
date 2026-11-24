@@ -1,4 +1,3 @@
-/** The glassy top bar: a short list of daily routes plus one overflow menu. */
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu } from "lucide-react";
@@ -9,11 +8,6 @@ import { NavUtilityMenu } from "@/components/NavUtilityMenu";
 import { NavOverflowMenu } from "@/components/NavOverflowMenu";
 import { cn } from "@/lib/utils";
 
-/**
- * Only the four routes a cuber opens every day stay on the bar itself. The
- * rest wait behind one "More" menu, so the bar never turns into a wall of
- * links — and no page is hidden away from the navbar.
- */
 const primaryNavItems: AccountNavItem[] = [
   { href: "/", labelKey: "nav.solve", active: (path: string) => path === "/" },
   {

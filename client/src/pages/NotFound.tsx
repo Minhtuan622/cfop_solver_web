@@ -1,4 +1,3 @@
-/** Tailwind-native fallback page: concise, responsive, and consistent with the application shell. */
 import { AlertCircle, Home } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";

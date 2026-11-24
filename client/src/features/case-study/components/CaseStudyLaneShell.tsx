@@ -1,9 +1,3 @@
-/**
- * Bố cục chung của một lane Học thêm: nút chọn bộ (nếu lane có nhiều bộ), câu
- * tóm tắt, nút nhập/xuất backup, thẻ luyện case, lịch ôn tuần và catalog.
- * Lane truyền vào phần riêng (thẻ case, catalog, nhãn); state lấy từ
- * `useCaseStudyLane`.
- */
 import type { ReactNode } from "react";
 import { Download, FileUp } from "@/components/ui/Icon";
 import { StatusFeedback } from "@/components/ui/StudioUI";
@@ -24,7 +18,6 @@ function download(name: string, value: unknown) {
 }
 
 export type CaseStudySetPicker<Family extends string> = {
-  /** Accessible name của nhóm nút chọn bộ. */
   label: string;
   options: readonly { value: Family; label: string }[];
   value: Family;
@@ -53,12 +46,9 @@ export function CaseStudyLaneShell<Family extends string>({
     | "celebrated"
     | "dismissCelebration"
   >;
-  /** Nút chọn bộ; bỏ trống khi lane chỉ có một bộ. */
   setPicker?: CaseStudySetPicker<Family>;
   summary: ReactNode;
-  /** Tên file khi xuất backup, ví dụ `cfop-skewb-study-backup.json`. */
   backupFileName: string;
-  /** Dữ liệu backup (từ `export…Study`). */
   exportBackup: () => unknown;
   casePanel: ReactNode;
   catalogPanel: ReactNode;

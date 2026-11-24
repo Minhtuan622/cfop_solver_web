@@ -1,4 +1,3 @@
-/** Browser-only persistence with graceful fallbacks for private mode and SSR-like tooling. */
 export function readStoredValue(key: string): string | null {
   try {
     return typeof window === "undefined" ? null : window.localStorage.getItem(key);

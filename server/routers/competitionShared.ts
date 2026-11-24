@@ -32,7 +32,6 @@ export async function competitionRoomState(code: string, accountId: number, opti
   const standings = [...players].filter((player) => player.lastResult).sort((left, right) => compareCompetitionResults(room.eventId, left.lastResult!, right.lastResult!)).map((player, index) => ({ ...player, rank: index + 1 }));
   const scrambleBundle = activeRound && Array.isArray(activeRound.scrambleBundle) ? activeRound.scrambleBundle.filter((value): value is string => typeof value === "string") : [];
   const isStaff = room.hostAccountId === accountId || membership.role === "moderator";
-  // Cờ chỉ dành cho chủ phòng và moderator; người chơi không thấy cờ của mình hay của người khác.
   const integrityFlags = isStaff
     ? results.flatMap((result) => {
         const flags = parseIntegrityFlags(result.integrityFlags);

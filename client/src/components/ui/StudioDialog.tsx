@@ -2,22 +2,6 @@ import { type ReactNode, useRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cn } from "@/lib/utils";
 
-/**
- * Hộp thoại modal dựa trên Radix Dialog.
- *
- * Component cũ tự dựng toàn bộ (portal, focus trap, khóa cuộn nền, Escape,
- * trả focus). Giờ do Radix đảm nhiệm; component này chỉ giữ lại phần trình
- * bày (tấm nền, vị trí, khung bề rộng) và API dùng chung của app:
- *
- * - `Dialog` + `DialogTitle`/`DialogDescription`: Radix tự nối `aria-labelledby`
- *   và `aria-describedby`
- * - focus chuyển vào hộp thoại khi mở và quay lại phần tử đã mở
- * - Escape hoặc bấm nền để đóng
- *
- * Tấm nền là `Dialog.Overlay`; `Dialog.Content` chính là tấm panel (nhỏ hơn
- * màn hình), nên bấm vào phần bên ngoài panel được Radix nhận là "ô outside"
- * và tự đóng hộp thoại.
- */
 type DialogShellProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -31,10 +15,6 @@ export function Dialog({
   children,
   dialogClassName,
 }: DialogShellProps) {
-  // Call sites open the dialog with a plain button (not Dialog.Trigger), so
-  // Radix cannot know what to restore focus to. Capture the element that had
-  // focus BEFORE Radix moves it into the content — this runs at render time,
-  // ahead of any effect.
   const restoreFocusRef = useRef<HTMLElement | null>(null);
   const wasOpenRef = useRef(open);
   if (open !== wasOpenRef.current) {
@@ -81,8 +61,6 @@ export function DialogContent({
   children: ReactNode;
   className?: string;
 }) {
-  // `min-h-0` lets the content shrink below its natural size so the body can
-  // scroll instead of the dialog clipping what does not fit on screen.
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
       {children}

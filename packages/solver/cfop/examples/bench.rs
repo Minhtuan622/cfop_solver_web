@@ -1,6 +1,3 @@
-//! Benchmark: `cargo run --release -p cfop --example bench [N]`.
-//! Reports pruning-table size/build time and p50/p95/max for Cross and F2L.
-
 use std::time::{Duration, Instant};
 
 use cfop::{solve_cross, solve_f2l, table_stats};

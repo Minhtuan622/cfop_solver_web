@@ -1,23 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-/**
- * E2E: tab "Học thêm" có lane 2×2 CLL.
- * Kiểm tra lane mở được, drawer danh mục gom nhóm, preview dialog,
- * tìm-kiếm/chọn case và chuyển bộ CLL/PBL.
- */
 test("lane 2×2 trong tab Học thêm: mở, nhóm, chọn case (CLL + PBL)", async ({ page }) => {
   await page.goto("/study?lane=2x2");
 
   await expect(page.getByRole("button", { name: /^2×2(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/40 CLL case/)).toBeVisible();
 
-  // Drawer danh mục: nhóm Sune có đủ 6 case
   await page.getByText("Danh mục 2×2").click();
   await page.getByText("Sune", { exact: true }).first().click();
   await expect(page.getByText("CLL Sune 1")).toBeVisible();
   await expect(page.getByRole("button", { name: "Học case này" }).first()).toBeVisible();
 
-  // Quay lại lưới nhóm, mở AS, xem preview rồi chọn CLL Antisune 1
   await page.getByRole("button", { name: "Tất cả nhóm" }).click();
   await page.getByText("AS", { exact: true }).first().click();
   await expect(page.locator("strong", { hasText: "CLL Antisune 1" })).toBeVisible();
@@ -26,14 +19,11 @@ test("lane 2×2 trong tab Học thêm: mở, nhóm, chọn case (CLL + PBL)", as
   await page.getByRole("dialog").getByRole("button", { name: "Học case này" }).click();
   await expect(page.getByRole("heading", { name: "CLL Antisune 1" })).toBeVisible();
 
-  // Công thức ẩn, hiện khi bấm
   await page.getByRole("button", { name: /Xem công thức|Show algorithm/i }).click();
   await expect(page.locator("pre")).toContainText("U R U2 R' U' R U' R'");
 
-  // Toggle 2D/3D không crash
   await page.getByRole("button", { name: /3D/, exact: true }).click();
 
-  // Đổi sang PBL: nhóm Adj/Diag, chọn PBL Diag 2
   await page.getByRole("button", { name: /PBL · 6/, exact: true }).click();
   await expect(page.getByText("Adj", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Diag", { exact: true }).first()).toBeVisible();

@@ -1,8 +1,3 @@
-/**
- * Scramble thật của một case để cầm khối luyện: chuỗi lượt đưa khối ĐÃ GIẢI về
- * đúng case (nghịch đảo thuật toán). Có thể thêm AUF ngẫu nhiên (chỉ 3×3), sao
- * chép, hoặc mở thẳng trong Timer để bấm giờ và ghi vào lịch sử.
- */
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/Button";
@@ -13,7 +8,6 @@ import { buildTimerPath } from "@/lib/timerLink";
 
 const AUF = ["", "U ", "U2 ", "U' "] as const;
 
-/** Thêm một AUF ngẫu nhiên trước và một sau chuỗi lượt (có thể là không có). */
 export function withRandomAuf(scramble: string, random: () => number = Math.random) {
   const pre = AUF[Math.floor(random() * AUF.length)];
   const post = AUF[Math.floor(random() * AUF.length)];
@@ -22,7 +16,6 @@ export function withRandomAuf(scramble: string, random: () => number = Math.rand
 
 export type CasePractice = {
   eventId: TimerEventId;
-  /** Chuỗi lượt đưa khối đã giải về case. */
   scramble: string;
 };
 
@@ -33,7 +26,6 @@ export function CaseScrambleRow({ eventId, scramble }: CasePractice) {
   const [roll, setRoll] = useState(0);
   const [copied, setCopied] = useState(false);
   const canAuf = eventId === "333";
-  // `roll` chỉ để bắt useMemo tính lại khi bấm "AUF khác".
   const text = useMemo(
     () => (auf && canAuf ? withRandomAuf(scramble) : scramble),
     // eslint-disable-next-line react-hooks/exhaustive-deps

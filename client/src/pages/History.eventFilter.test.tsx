@@ -34,7 +34,6 @@ describe("History theo loại Rubik", () => {
     expect(screen.getByText("3×3×3")).toBeTruthy();
     expect(screen.getByText("FTO")).toBeTruthy();
 
-    // Dropdown tự vẽ: bấm để mở danh sách rồi chọn mục FTO.
     fireEvent.click(screen.getByLabelText("Loại khối"));
     fireEvent.click(screen.getByRole("option", { name: "FTO" }));
     expect(screen.queryByText("R U R' U'")) .toBeNull();
@@ -43,7 +42,6 @@ describe("History theo loại Rubik", () => {
 
   it("only shows the solution editor for the exact 3×3×3 event, including in All mode", () => {
     render(<History />);
-    // Dropdown tự vẽ: bấm để mở danh sách rồi chọn "Mọi loại Rubik".
     fireEvent.click(screen.getByLabelText("Loại khối"));
     fireEvent.click(screen.getByRole("option", { name: "Mọi loại Rubik" }));
 

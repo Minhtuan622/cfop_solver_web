@@ -5,10 +5,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { AccountNavItem } from "@/features/profile/lib/accountNavItems";
 import { cn } from "@/lib/utils";
 
-/**
- * The routes that do not fit on the bar itself wait behind this one menu, so
- * the navbar stays short without hiding a page away.
- */
 export function NavOverflowMenu({
   items,
   path,

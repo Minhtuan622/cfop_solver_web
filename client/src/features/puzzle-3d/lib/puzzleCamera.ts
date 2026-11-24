@@ -5,7 +5,6 @@ export type PointerPoint = { x: number; y: number };
 export type ProjectedPoint = { x: number; y: number; z: number };
 
 export const CAMERA_LIMITS = { min: 2.8, max: 13, pitch: 1.1 };
-/** Leave a small margin around the puzzle instead of touching the stage edge. */
 export const CAMERA_FILL = 0.9;
 const FTO_HORIZONTAL_YAW_LIMIT = 1.35;
 
@@ -15,11 +14,6 @@ export function clampDistance(distance: number) {
   return clamp(distance, CAMERA_LIMITS.min, CAMERA_LIMITS.max);
 }
 
-/**
- * Pull the camera as close as possible while keeping every puzzle vertex on
- * screen. Points are in camera space (the orbit rotation already applied), so
- * the depth-aware term stops near corners from crossing the frame edge.
- */
 export function fitDistanceForPoints(
   points: readonly ProjectedPoint[],
   fov: number,
@@ -49,7 +43,6 @@ export function orbitFromDrag(start: PuzzleOrbit, deltaX: number, deltaY: number
   };
 }
 
-/** Keep drag direction intuitive even though the FTO model is rolled to show its white face on the left. */
 export function orbitFromPuzzleDrag(puzzle: PuzzleId, start: PuzzleOrbit, deltaX: number, deltaY: number): PuzzleOrbit {
   if (puzzle === "fto") return {
     ...start,

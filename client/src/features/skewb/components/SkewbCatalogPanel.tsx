@@ -1,9 +1,3 @@
-/**
- * Skewb catalog drawer: the shared CatalogExplorer wired to the Sarah
- * Intermediate/Advanced data and the self-drawn case diagrams (generated
- * from the catalog algs with cubing.js — see scripts/generate-skewb-diagrams.mts).
- * The practice card itself shows the live 3D case.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   CatalogExplorer,
@@ -12,7 +6,6 @@ import {
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import type { SkewbCatalogCase } from "../lib/skewbCatalog";
 
-/** Flat skewb mark (used when a case has no diagram). */
 export function SkewbMark({ className }: { className?: string }) {
   return (
     <svg

@@ -1,6 +1,5 @@
 import type { SquareOneCaseRow } from "../squareOneData";
 
-/** SQ1-OBL — 185 cases. */
 export const OBL_CASES_SOURCE: readonly SquareOneCaseRow[] = [
   { id: "OBL-Left-Kite-Left-Kite", family: "obl", group: "1 Slash", name: "Left Kite / Left Kite", algorithm: "(0,-1) / (0,1)" },
   { id: "OBL-Right-Kite-Right-Kite", family: "obl", group: "1 Slash", name: "Right Kite / Right Kite", algorithm: "(1,0) / (-1,0)" },

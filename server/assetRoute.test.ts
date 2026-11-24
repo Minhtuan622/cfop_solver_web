@@ -6,16 +6,6 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { isAssetPath, serveStatic } from "./_core/vite";
 
-/**
- * Đường dẫn /assets/ không có file phải trả 404 chứ không rơi vào
- * index.html của SPA.
- *
- * Worker và file `.wasm` của bộ giải nằm dưới /assets/. Nếu một URL cũ (tab
- * mở từ bản deploy trước) nhận HTML với HTTP 200, trình duyệt sẽ cố chạy
- * HTML như module JavaScript/WebAssembly và báo lỗi khó hiểu thay vì
- * "không tìm thấy".
- */
-
 const root = path.resolve(import.meta.dirname, "..");
 
 describe("đường dẫn /assets", () => {
@@ -34,8 +24,6 @@ describe("đường dẫn /assets", () => {
   });
 
   it("cả hai đường gọi trả về index.html đều chặn /assets", () => {
-    // serveStatic (production) và setupVite (development) đều có phần fallback
-    // về index.html; cả hai phải trả 404 cho /assets.
     const source = readFileSync(path.join(root, "server", "_core", "vite.ts"), "utf8");
     const guards = source.match(/isAssetPath\(req\.originalUrl\.split\("\?"\)\[0\]\)/g) ?? [];
     expect(guards.length).toBe(2);

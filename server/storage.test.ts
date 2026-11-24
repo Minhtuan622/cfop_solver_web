@@ -65,7 +65,7 @@ describe("B5: avatar storage friendly errors", () => {
         data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
         contentType: "image/png",
       });
-      expect(true).toBe(false); // should not reach here
+      expect(true).toBe(false);
     } catch (error) {
       const trpcErr = error as TRPCError;
       expect(trpcErr.code).toBe("PRECONDITION_FAILED");

@@ -1,15 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-/**
- * Kịch bản e2e: card trên trang Học thêm không được tràn qua footer.
- *
- * Lỗi thật: các card giai đoạn trong BldStudyLab dùng `h-full` dù không phải
- * con đầu tiên của cột — `h-full` giải ra **chiều cao cả cột** (cột bị grid
- * kéo giãn) thay vì phần còn lại, nên card "01 · Định hướng" tràn qua footer
- * xuống đáy trang, kéo scrollHeight lên ~375px và để lại một cột trắng lớn
- * dưới footer (đo thật trên /study?lane=bld, 1920px).
- */
-
 async function cardsBeyondFooter(page: import("@playwright/test").Page) {
   return page.evaluate(() => {
     const footer = document.querySelector("footer");
@@ -46,7 +36,6 @@ test("/study?lane=bld không có card tràn qua footer", async ({ page }) => {
 
 test("/study card Lịch ôn ôm nội dung, không bị kéo giãn đáy trống", async ({ page }) => {
   await page.goto("/study");
-  // Chờ card Lịch ôn hiện ra thay vì chờ cứng một khoảng thời gian.
   await page.locator("main aside.rounded-card").first().waitFor();
 
   const slack = await page.evaluate(() => {
@@ -54,9 +43,6 @@ test("/study card Lịch ôn ôm nội dung, không bị kéo giãn đáy trốn
     if (!aside) return null;
     const inner = aside.firstElementChild as HTMLElement | null;
     if (!inner) return null;
-    // Card không có padding riêng nên chiều cao card phải bằng khối nội dung
-    // bên trong. Khi còn `h-full` (kéo giãn theo card "Case đang học"), lệch
-    // là ~330px trên màn 1920.
     return Math.round(aside.clientHeight - inner.clientHeight);
   });
   expect(slack).not.toBeNull();

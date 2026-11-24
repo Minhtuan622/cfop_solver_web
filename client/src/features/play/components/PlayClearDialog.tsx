@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/StudioDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/** Hộp thoại xác nhận xoá toàn bộ lịch sử của trang Chơi. */
 export function PlayClearDialog({
   open,
   onOpenChange,
@@ -18,7 +17,6 @@ export function PlayClearDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Số lượt sẽ bị xoá (hiện trong lời nhắc). */
   count: number;
   onConfirm: () => void;
 }) {

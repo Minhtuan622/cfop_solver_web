@@ -1,7 +1,3 @@
-/**
- * Kiểm tra trạng thái 54 ô đang nhập (chế độ "trạng thái") bằng worker của bộ
- * giải, trễ 280 ms sau lần gõ cuối. Chế độ scramble không cần kiểm.
- */
 import { useEffect, useState } from "react";
 import { validateStateInBrowser, type CubeValidation } from "@/lib/solverRuntime";
 
@@ -11,11 +7,9 @@ export function useStateValidation({
   language,
   incompleteMessage,
 }: {
-  /** Chỉ kiểm khi đang ở chế độ nhập trạng thái. */
   enabled: boolean;
   value: string;
   language: string;
-  /** Thông báo khi chưa đủ 54 ô. */
   incompleteMessage: string;
 }) {
   const [stateValidation, setStateValidation] = useState<CubeValidation | null>(
@@ -51,7 +45,6 @@ export function useStateValidation({
       active = false;
       window.clearTimeout(timer);
     };
-    // Như bản gốc: chạy lại khi đổi ngôn ngữ, chế độ hoặc giá trị.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, enabled, value]);
 

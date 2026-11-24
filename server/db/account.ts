@@ -63,7 +63,6 @@ export async function updateCfopAccountAvatar(accountId: number, avatarUrl: stri
 export async function updateCfopAccountPassword(accountId: number, passwordHash: string, keepTokenHash?: string | null) {
   const db = await requireDb();
   await db.update(cfopAccounts).set({ passwordHash, updatedAt: new Date() }).where(eq(cfopAccounts.id, accountId));
-  // Đổi mật khẩu thu hồi mọi session khác, giữ session hiện tại nếu có.
   if (keepTokenHash) {
     await revokeOtherCfopAccountSessions(accountId, keepTokenHash);
   } else {
@@ -71,15 +70,12 @@ export async function updateCfopAccountPassword(accountId: number, passwordHash:
   }
 }
 
-/** Tối đa số session đang hoạt động cùng lúc cho một tài khoản. */
 export const MAX_SESSIONS_PER_ACCOUNT = 10;
 
 export async function createCfopAccountSession(accountId: number, tokenHash: string, expiresAt: Date) {
   const db = await requireDb();
   const now = new Date();
-  // Dọn phiên hết hạn của tài khoản này mỗi khi tạo phiên mới.
   await db.delete(cfopAccountSessions).where(and(eq(cfopAccountSessions.accountId, accountId), lt(cfopAccountSessions.expiresAt, now)));
-  // Giữ tối đa MAX_SESSIONS_PER_ACCOUNT phiên: nếu đã đầy, xoá phiên cũ nhất trước khi tạo mới.
   const sessions = await db.select().from(cfopAccountSessions).where(eq(cfopAccountSessions.accountId, accountId)).orderBy(cfopAccountSessions.createdAt);
   while (sessions.length >= MAX_SESSIONS_PER_ACCOUNT) {
     await db.delete(cfopAccountSessions).where(eq(cfopAccountSessions.id, sessions[0]!.id));
@@ -88,13 +84,11 @@ export async function createCfopAccountSession(accountId: number, tokenHash: str
   await db.insert(cfopAccountSessions).values({ accountId, tokenHash, expiresAt, lastSeenAt: new Date() });
 }
 
-/** Thu hồi mọi session của tài khoản, giữ lại session có tokenHash angegeben. */
 export async function revokeOtherCfopAccountSessions(accountId: number, keepTokenHash: string) {
   const db = await requireDb();
   await db.delete(cfopAccountSessions).where(and(eq(cfopAccountSessions.accountId, accountId), ne(cfopAccountSessions.tokenHash, keepTokenHash)));
 }
 
-/** Thu hồi session, token đặt lại mật khẩu và trạng thái OAuth đã hết hạn trên toàn hệ thống. */
 export async function cleanExpiredAuthData() {
   const now = new Date();
   const db = await requireDb();
@@ -124,12 +118,6 @@ export async function getCfopAccountCloudState(accountId: number) {
   return (await db.select().from(cfopAccountCloudStates).where(eq(cfopAccountCloudStates.accountId, accountId)).limit(1))[0] ?? null;
 }
 
-/**
- * Lỗi xung đột đồng bộ: dòng cloud state đã bị thiết bị khác ghi đè.
- *
- * Mã lỗi và HTTP status được đặt tường minh để tầng router đổi thành
- * TRPCError CONFLICT.
- */
 function cloudStateConflict() {
   const error = new Error("Cloud state revision conflict") as Error & {
     code?: string;
@@ -140,30 +128,14 @@ function cloudStateConflict() {
   return error;
 }
 
-/**
- * Ghi một dòng cloud state với kiểm soát phiên bản lạc quan.
- *
- * `expectedRevision` là **revision của dòng** mà client đã đọc (không phải
- * `schemaVersion` của payload — đó là hai khái niệm khác nhau):
- * - `schemaVersion`: định dạng của payload (1 hoặc 2), nằm trong JSON.
- * - `revision`: bộ đếm tăng dần của dòng trong database, mỗi lần ghi thành
- *   công tăng một đơn vị.
- *
- * Trước đây cột `version` của dòng lại được tính bằng `payload.version + 1`,
- * nên nó luôn bằng 3 và client cũ không bao giờ bị phát hiện.
- */
 export async function saveCfopAccountCloudState(accountId: number, payload: unknown, expectedRevision?: number | null) {
   const db = await requireDb();
   const current = await getCfopAccountCloudState(accountId);
   const storedRevision = current?.version ?? 0;
-  // Client chưa từng đọc (null) hoặc đọc lúc dòng còn trống (0) được coi
-  // như revision 0: lần lưu đầu tiên của tài khoản vẫn thành công.
   const expected = expectedRevision ?? 0;
   if (expected !== storedRevision) throw cloudStateConflict();
   const updatedAt = new Date();
   if (current) {
-    // Ghi có điều kiện: chỉ ghi khi revision của dòng chưa đổi. Nếu thiết bị
-    // khác ghi đúng lúc này thì không có dòng nào bị ảnh hưởng.
     const [header] = await db
       .update(cfopAccountCloudStates)
       .set({ payload, version: storedRevision + 1, updatedAt })
@@ -173,8 +145,6 @@ export async function saveCfopAccountCloudState(accountId: number, payload: unkn
     try {
       await db.insert(cfopAccountCloudStates).values({ accountId, payload, version: 1, updatedAt });
     } catch (error) {
-      // Hai thiết bị cùng tạo dòng đầu tiên: một người thắng, người kia
-      // phải đọc lại rồi gộp.
       if ((error as { code?: string }).code === "ER_DUP_ENTRY") throw cloudStateConflict();
       throw error;
     }
@@ -198,7 +168,6 @@ export async function consumeCfopPasswordResetToken(tokenHash: string, passwordH
   const reset = await findCfopPasswordResetToken(tokenHash);
   if (!reset) return null;
   await db.update(cfopAccounts).set({ passwordHash, updatedAt: new Date() }).where(eq(cfopAccounts.id, reset.accountId));
-  // Đặt lại mật khẩu thu hồi mọi session của tài khoản; router sẽ tạo phiên mới sau.
   await db.delete(cfopAccountSessions).where(eq(cfopAccountSessions.accountId, reset.accountId));
   await db.delete(cfopPasswordResetTokens).where(eq(cfopPasswordResetTokens.id, reset.id));
   return findCfopAccountById(reset.accountId);

@@ -45,12 +45,9 @@ describe("CompetitionLeaderboard", () => {
     render(<CompetitionLeaderboard />);
 
     expect(screen.getByRole("heading", { name: "Xếp hạng" })).toBeInTheDocument();
-    // Top 3 là các thẻ liên kết: tên người chơi nằm trong thẻ, dẫn tới lịch sử.
     const podium = screen.getByRole("list", { name: "Ba người dẫn đầu" });
     expect(within(podium).getByText("An")).toBeInTheDocument();
     expect(within(podium).getByText("An").closest("a")).toHaveAttribute("href", "/competition/player/42");
-    // Dropdown tự vẽ: nhãn của nút là lựa chọn đang chọn, không còn .value
-    // như `<select>` gốc.
     expect(screen.getByLabelText("Bộ môn")).toHaveTextContent("Mọi bộ môn");
     fireEvent.click(screen.getByLabelText("Bộ môn"));
     fireEvent.click(screen.getByRole("option", { name: "3×3×3" }));

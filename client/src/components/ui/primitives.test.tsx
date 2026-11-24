@@ -5,18 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardBody, cardClass } from "@/components/ui/Card";
 import { Input, Textarea } from "@/components/ui/FormControls";
 
-// Dự án không bật `globals` cho Vitest nên Testing Library không tự dọn DOM
-// giữa các test; dọn ở đây để mỗi test chỉ thấy phần tử của mình.
 afterEach(cleanup);
-
-/**
- * Regression test cho bộ thành phần dùng chung.
- *
- * Lỗi thật trước đây: mỗi nơi tự viết chuỗi class của nút và của ô nhập,
- * nên cùng một kiểu giao diện xuất hiện ở nhiều dạng. Test ở đây giữ cho
- * primitive là nguồn duy nhất: đổi kiểu ở primitive thì mọi trang đều đổi
- * theo, và không trang nào tự thêm class chồng lên nữa.
- */
 
 describe("Button", () => {
   it("có nhãn rõ ràng và bấm được", async () => {
@@ -66,8 +55,6 @@ describe("Button", () => {
   });
 
   it("nút nhỏ giữ khoảng đệm của nút thường, chỉ nhỏ cỡ chữ", () => {
-    // Thực tế trước đây: nút ghi cả `px-4 py-2` lẫn `px-3 py-1.5`, mà
-    // Tailwind sinh CSS theo thứ tự cố định nên `px-4` thắng.
     render(<Button size="sm">Nút</Button>);
     const button = screen.getByRole("button", { name: "Nút" });
     expect(button.className).toContain("px-4");
@@ -98,7 +85,6 @@ describe("Card", () => {
     const card = container.firstElementChild as HTMLElement;
     expect(card.className).toContain("rounded-card");
     expect(card.className).toContain("bg-surface");
-    // Giao diện phẳng: không đổ bóng, không viền bao quanh.
     expect(card.className).not.toContain("shadow");
     expect(card.className).not.toContain("border");
   });
@@ -128,7 +114,6 @@ describe("ô nhập", () => {
     const input = screen.getByLabelText("Tên") as HTMLInputElement;
     expect(input.value).toBe("abc");
     expect(input.className).toContain("rounded-field");
-    // Phong cách không viền: focus đổi nền đậm hơn một bậc, không có vòng ring.
     expect(input.className).toContain("focus:bg-surface-3");
     expect(input.className).not.toContain("ring");
   });

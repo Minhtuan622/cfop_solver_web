@@ -1,22 +1,3 @@
-/**
- * Generates the diagram for the 17 TCP "(2)" inverse-hold cases.
- *
- * The other 36 FTO case diagrams (the PF/TL/LT sets and the 18 base TCP
- * cases) are vendored CubeRoot artwork with attribution — see README.
- * The TCP "(2)" inverses are HCubist-only positions that CubeRoot does not
- * render, so they are drawn here from the sheet's own `caseState` instead.
- *
- * The FTO model (regular octahedron, faces at s·p = 1) is rebuilt offline in
- * `fto-model.mts` from the HCubist/Bencisco definition — no HCubist code is
- * embedded and this script runs fully offline.
- *
- * The camera reproduces the orientation CubeRoot uses for the vendored art:
- * the B face (green) lies flat on top and the U face (yellow) faces the
- * viewer dead-on, slightly above eye level so the lower tips peek out.
- *
- * Output: client/public/diagrams/fto2LookL3t/TCP-{A,B,C}*-2.svg
- * Run:    pnpm exec tsx --tsconfig tsconfig.json scripts/generate-fto-diagrams.mts
- */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,17 +6,15 @@ import { FTO_2_LOOK_L3T_CASES } from "../client/src/features/fto2LookL3t/lib/l2t
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-// Same palette as the vendored CubeRoot artwork so the generated TCP (2)
-// diagrams sit well next to the 36 vendored cases.
 const COLORS = [
-  "#deff26", // 0 yellow (U)
-  "#2997fd", // 1 blue   (F)
-  "#666666", // 2 grey   (R)
-  "#ff9900", // 3 orange (L)
-  "#0fcc09", // 4 green  (B)
-  "#8830e3", // 5 purple (BL)
-  "#d80f0f", // 6 red    (BR)
-  "#ffffff", // 7 white  (D)
+  "#deff26",
+  "#2997fd",
+  "#666666",
+  "#ff9900",
+  "#0fcc09",
+  "#8830e3",
+  "#d80f0f",
+  "#ffffff",
 ];
 
 const { stickers, N } = buildFto();
@@ -61,8 +40,6 @@ const rodrigues = (v: number[], k: number[], angle: number) => {
   ];
 };
 
-// Rotate the puzzle so the B face is flat on top, then yaw until the U face
-// points straight at the viewer — CubeRoot's exact hold for the vendored art.
 const axisB = cross(N.B, [0, 1, 0]);
 const angleB = Math.acos(dot(N.B, [0, 1, 0]));
 const up = (v: number[]) => rodrigues(v, norm(axisB), angleB);
@@ -74,7 +51,6 @@ const xCam = norm(cross([0, 1, 0], eye));
 const yCam = cross(eye, xCam);
 const project = (p: number[]) => [dot(p, xCam), dot(p, yCam)] as const;
 
-// Match the vendored CubeRoot canvas so every card shows the same framing.
 const VIEW_W = 279.92;
 const VIEW_H = 301.94;
 const MARGIN = 8;
@@ -103,9 +79,6 @@ const render = (caseId: string, label: string, st: string) => {
   const t = (p: readonly [number, number]) =>
     [(((p[0] - midX) * scale) + VIEW_W / 2).toFixed(2), ((VIEW_H / 2) - ((p[1] - midY) * scale)).toFixed(2)].join(",");
 
-  // Opaque black base pass: the union of the visible faces of a convex body
-  // is exactly its silhouette, so this yields the smooth octahedron outline
-  // with no halo spikes.
   const body = cells
     .map((c) => `<path d="M${c.pts.map((p) => t(p).replace(",", " ")).join("L")}Z" fill="#000000"/>`)
     .join("");
@@ -123,8 +96,6 @@ const render = (caseId: string, label: string, st: string) => {
   return `<svg viewBox="0 0 ${VIEW_W} ${VIEW_H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${label} case, FTO"><!-- TCP "(2)" inverse-hold variant, drawn from the HCubist/Bencisco case state (scripts/generate-fto-diagrams.mts). Not CubeRoot artwork. -->${body}${stickersSvg}</svg>\n`;
 };
 
-// Only the TCP "(2)" inverse-hold variants are drawn by this script; every
-// other FTO diagram in the repo is vendored CubeRoot artwork with attribution.
 const isInverseVariant = (row: { id: string }) => /^TCP-[ABC]\d+-2$/.test(row.id);
 
 for (const row of FTO_2_LOOK_L3T_CASES) {

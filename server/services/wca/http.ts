@@ -6,31 +6,17 @@ type CacheEntry<T> = { expiresAt: number; value?: T; pending?: Promise<T> };
 const memoryCache = new Map<string, CacheEntry<unknown>>();
 export const MAX_CACHE_ENTRIES = 200;
 
-/**
- * Khóa của người gọi: địa chỉ client đã được chuẩn hoá (xem `clientAddress`).
- *
- * Hạn mức tính theo khóa này chứ không theo đường dẫn, vì đường dẫn WCA có
- * tham số ngày: tính theo đường dẫn thì chỉ cần đổi ngày là qua mặt.
- */
 export type WcaCallerKey = string;
 
-/** Hạn mức của từng người gọi. */
 export const WCA_CALLER_RATE_LIMIT: RateLimitRule = {
   limit: 30,
   windowMs: 60 * 1000,
 };
-/** Hạn mứn toàn cục: tổng số yêu cầu gửi tới WCA mỗi phút, để bảo vệ WCA. */
 export const WCA_GLOBAL_RATE_LIMIT: RateLimitRule = {
   limit: 120,
   windowMs: 60 * 1000,
 };
 
-/**
- * Bộ đếm hạn mức gọi WCA.
- *
- * Dùng `RateLimiter` dùng chung nên bảng đếm có kích thước tối đa và các mục
- * hết hạn được dọn khi bảng đầy, thay vì một `Map` phình ra vô hạn.
- */
 const wcaCallerLimiter = new RateLimiter();
 const wcaGlobalLimiter = new RateLimiter();
 
@@ -47,18 +33,15 @@ function pruneCache() {
   }
 }
 
-/** Xoá bộ đếm hạn mức (dùng khi test và khi cần nạp lại). */
 export function clearWcaRateLimits() {
   wcaCallerLimiter.reset();
   wcaGlobalLimiter.reset();
 }
 
-/** Số mục đang theo dõi trong bảng đếm (dùng cho kiểm thử). */
 export function wcaRateLimitBuckets() {
   return { caller: wcaCallerLimiter.size(), global: wcaGlobalLimiter.size() };
 }
 
-/** GET một đường dẫn của WCA: có cache, gộp yêu cầu đang chạy và giới hạn tần suất theo người gọi. */
 export async function fetchWcaJson<T>(
   path: string,
   cacheTtlMs: number,
@@ -73,7 +56,6 @@ export async function fetchWcaJson<T>(
   }
   if (cached?.pending) return cached.pending;
 
-  // Chỉ tính hạn mức khi thực sự gọi ra WCA: bản trong bộ nhớ đệm thì không.
   if (!wcaCallerLimiter.consume(caller, WCA_CALLER_RATE_LIMIT).allowed) {
     throw new WcaApiError(
       "RATE_LIMITED",
@@ -129,11 +111,6 @@ export async function fetchWcaJson<T>(
 }
 
 export class WcaApiError extends Error {
-  /**
-   * `RATE_LIMITED` tách riêng khỏi `UNAVAILABLE`: hết hạn mức là lỗi của
-   * phía người gọi (429, thử lại sau là được) còn WCA không phản hồi là lỗi
-   * dịch vụ (503). Gộp chung khiến người dùng không phân biệt được.
-   */
   constructor(
     public readonly kind: "NOT_FOUND" | "UNAVAILABLE" | "RATE_LIMITED",
     message: string

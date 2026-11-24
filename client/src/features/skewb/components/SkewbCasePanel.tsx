@@ -1,8 +1,3 @@
-/**
- * Skewb practice card: the case preview (3D-only — the Skewb has no
- * 2D net in this app), the recall drill and the Again/Hard/Good/Easy
- * self-grade. Mirrors the Pyraminx case panel.
- */
 import { invertAlgorithm } from "@/lib/fastCube";
 import {
   CasePracticeEmpty,

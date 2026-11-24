@@ -72,11 +72,6 @@ import { cn } from "@/lib/utils";
 
 type Glyph = ComponentType<LucideProps>;
 
-/**
- * The icon set is lucide-backed. Wrapping each glyph keeps the historical
- * export names used across the app while giving every icon the same sizing
- * and alignment defaults.
- */
 function icon(Glyph: Glyph) {
   return function Icon({ className, size = "1em", strokeWidth = 2.15, ...props }: LucideProps) {
     return (

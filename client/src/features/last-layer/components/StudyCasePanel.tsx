@@ -19,9 +19,7 @@ const Puzzle3DCanvas = lazy(async () => ({
 }));
 
 export type StudyCasePanelProps = {
-  /** Event của Timer khi mở scramble của case (BLD dùng `333bf`). */
   scrambleEvent?: TimerEventId;
-  /** A catalog case; CFOP cases also carry a short `name` for the header. */
   activeCase: LastLayerCatalogCase | null;
   loading: boolean;
   mastered: boolean;
@@ -30,22 +28,14 @@ export type StudyCasePanelProps = {
   showAlgorithm: boolean;
   onToggleAlgorithm: () => void;
   onToggleMastered: () => void;
-  /** The time of the drill that just finished, in milliseconds. */
   lastElapsed: number | null;
   onTimerComplete: (completion: TimerCompletion) => void;
-  /** Bumped to restart the timer after every grade. */
   timerVersion: number;
   onGrade: (grade: "again" | "hard" | "good" | "easy") => void;
-  /** Pull the next case out of the priority queue. */
   onChooseNext: () => void;
-  /** Whether there is anything left to pull. */
   canChooseNext: boolean;
 };
 
-/**
- * The practice card: the case itself on the left, the recall drill and its
- * self-grade on the right.
- */
 export function StudyCasePanel({
   activeCase,
   loading,

@@ -1,13 +1,3 @@
-/**
- * Auto-detect CFOP phase completion from a facelet string in URFDLB order
- * (the format `kpatternToFacelets` produces). Pure and cheap — called on
- * every move the smart cube reports.
- *
- *   Cross — the four D-face edges are in place and oriented
- *   F2L   — Cross + the D face is uniform + the four middle-layer edges
- *           match their side centers
- *   OLL   — the whole U face shows the U colour
- */
 export type PhaseDetection = {
   cross: boolean;
   f2l: boolean;

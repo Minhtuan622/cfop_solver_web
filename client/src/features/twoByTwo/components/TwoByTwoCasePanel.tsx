@@ -1,8 +1,3 @@
-/**
- * 2×2 CLL practice card: the case preview (2D net, optional 3D), the recall
- * drill and the Again/Hard/Good/Easy self-grade. Mirrors StudyCasePanel but
- * for 2×2×2 (no F2L, no yellow-last-layer highlight quirks).
- */
 import { CubeNet2x2 } from "./CubeNet2x2";
 import { invertAlgorithm } from "@/lib/fastCube";
 import {

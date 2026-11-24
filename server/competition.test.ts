@@ -17,9 +17,6 @@ describe("competition helpers", () => {
     expect(fourBlind).toMatch(/[URFDLB]/);
     expect(fiveBlind).toMatch(/[URFDLB]/);
     expect(fto).toMatch(/[URFDLB]/);
-    // Sinh scramble 4×4/5×5/FTO bằng Cubing.js tốn khoảng 2 giây, nhưng lên
-    // tới hàng chục giây khi máy đang chạy song song việc khác (ví dụ CI vừa
-    // cài dependency xong). Timeout 20 giây khiến test chập chờn.
   }, 60_000);
 
   it("tạo bundle MBLD và xếp theo score, thời gian, rồi unsolved", async () => {

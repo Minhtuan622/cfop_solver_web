@@ -1,22 +1,3 @@
-/**
- * csTimer interop — parse files exported by csTimer (File → Export →
- * Export as file) and rebuild the same shape for our solve history.
- *
- * Format (as produced by csTimer):
- *   {
- *     "session1": [Solve, …], "session2": [Solve, …], …,
- *     "properties": {
- *       "sessionData": "{\"1\": {name, opt: {scrType?}, rank, date, stat}, …}",
- *       "sessionN": N, "session": 3, …
- *     }
- *   }
- * Solve = [ [flag, timeMs], scramble, comment, startedAtUnixSeconds ]
- * flag: 0 = OK, 2000 = +2, -1 = DNF.
- *
- * WCA 3×3×3 sessions carry no `scrType`; other events use ids like
- * "444wca", "333oh", "pyram". The mapping here is deliberately tolerant:
- * unknown scrTypes skip their session rather than mis-file their solves.
- */
 import { TIMER_EVENTS, type TimerEventId } from "./timerEvents";
 
 export type CstimerRawEntry = {
@@ -30,11 +11,8 @@ export type CstimerRawEntry = {
 
 export type CstimerParseResult = {
   entries: CstimerRawEntry[];
-  /** Sessions whose solves were imported. */
   sessions: number;
-  /** Sessions skipped because their scramble type is unknown. */
   skippedSessions: number;
-  /** Malformed solves skipped (wrong shape/flag/values). */
   invalidSolves: number;
 };
 
@@ -49,52 +27,46 @@ export type CstimerInputEntry = {
   multiBlindScrambles?: string[] | undefined;
 };
 
-/**
- * csTimer's registered scramble IDs, from its own scramble list
- * (src/lang/en-us.js, scrdata). Legacy aliases are kept for tolerant import.
- * Order matters: more specific prefixes must come before their prefixes.
- */
 const SCRAMBLE_TYPE_TO_EVENT: Array<{ prefix: string; eventId: TimerEventId }> =
   [
-    { prefix: "333mbf", eventId: "333mbf" }, // legacy alias
+    { prefix: "333mbf", eventId: "333mbf" },
     { prefix: "r3ni", eventId: "333mbf" },
-    { prefix: "333bf", eventId: "333bf" }, // legacy alias
+    { prefix: "333bf", eventId: "333bf" },
     { prefix: "333ni", eventId: "333bf" },
     { prefix: "333oh", eventId: "333oh" },
     { prefix: "333fm", eventId: "333fm" },
     { prefix: "333", eventId: "333" },
     { prefix: "222so", eventId: "222" },
-    { prefix: "222", eventId: "222" }, // legacy alias
+    { prefix: "222", eventId: "222" },
     { prefix: "444bld", eventId: "444bf" },
-    { prefix: "444bf", eventId: "444bf" }, // legacy alias
+    { prefix: "444bf", eventId: "444bf" },
     { prefix: "555bld", eventId: "555bf" },
-    { prefix: "555bf", eventId: "555bf" }, // legacy alias
+    { prefix: "555bf", eventId: "555bf" },
     { prefix: "444wca", eventId: "444" },
-    { prefix: "444", eventId: "444" }, // legacy alias
+    { prefix: "444", eventId: "444" },
     { prefix: "555wca", eventId: "555" },
     { prefix: "555", eventId: "555" },
     { prefix: "666wca", eventId: "666" },
     { prefix: "666", eventId: "666" },
     { prefix: "777wca", eventId: "777" },
     { prefix: "777", eventId: "777" },
-    { prefix: "pyraminx", eventId: "pyram" }, // legacy alias
+    { prefix: "pyraminx", eventId: "pyram" },
     { prefix: "pyrso", eventId: "pyram" },
-    { prefix: "pyram", eventId: "pyram" }, // legacy alias
+    { prefix: "pyram", eventId: "pyram" },
     { prefix: "skbso", eventId: "skewb" },
-    { prefix: "skewb", eventId: "skewb" }, // legacy alias
-    { prefix: "megaminx", eventId: "minx" }, // legacy alias
+    { prefix: "skewb", eventId: "skewb" },
+    { prefix: "megaminx", eventId: "minx" },
     { prefix: "mgmp", eventId: "minx" },
-    { prefix: "minx", eventId: "minx" }, // legacy alias
+    { prefix: "minx", eventId: "minx" },
     { prefix: "ftoso", eventId: "fto" },
-    { prefix: "fto", eventId: "fto" }, // legacy alias
-    { prefix: "square1", eventId: "sq1" }, // legacy alias
+    { prefix: "fto", eventId: "fto" },
+    { prefix: "square1", eventId: "sq1" },
     { prefix: "sqrs", eventId: "sq1" },
-    { prefix: "sq1", eventId: "sq1" }, // legacy alias
+    { prefix: "sq1", eventId: "sq1" },
     { prefix: "clkwca", eventId: "clock" },
-    { prefix: "clock", eventId: "clock" }, // legacy alias
+    { prefix: "clock", eventId: "clock" },
   ];
 
-/** Normalize a cstimer scramble type to a known timer event, or null. */
 export function eventForScrambleType(value: unknown): TimerEventId | null {
   if (typeof value !== "string") return "333";
   const normalized = value.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -105,7 +77,6 @@ export function eventForScrambleType(value: unknown): TimerEventId | null {
   return match ? match.eventId : null;
 }
 
-/** csTimer's registered scramble IDs (the same IDs csTimer itself registers). */
 const EVENT_TO_SCR_TYPE: Partial<Record<TimerEventId, string>> = {
   "222": "222so",
   "333oh": "333oh",
@@ -131,18 +102,12 @@ function toNumber(value: unknown): number | null {
   return Number.isFinite(num) ? num : null;
 }
 
-/**
- * Parse a csTimer export payload (already JSON.parsed). Throws when the
- * payload is not a plausible csTimer file — callers should catch and show
- * the localized failure message.
- */
 export function parseCstimerExport(payload: unknown): CstimerParseResult {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     throw new Error("Not a csTimer export object");
   }
   const record = payload as Record<string, unknown>;
 
-  // Session metadata: properties.sessionData is a JSON-encoded string.
   let sessionData: Record<string, unknown> = {};
   const properties = record.properties;
   if (properties && typeof properties === "object") {
@@ -154,7 +119,6 @@ export function parseCstimerExport(payload: unknown): CstimerParseResult {
           sessionData = parsed as Record<string, unknown>;
         }
       } catch {
-        // Older/partial exports sometimes skip metadata — sessions still import.
       }
     } else if (raw && typeof raw === "object") {
       sessionData = raw as Record<string, unknown>;
@@ -235,13 +199,12 @@ export function parseCstimerExport(payload: unknown): CstimerParseResult {
   return { entries, sessions, skippedSessions, invalidSolves };
 }
 
-/** Rebuild a csTimer export file from our entries. */
 export function buildCstimerExport(
   entries: readonly CstimerInputEntry[],
 ): Record<string, unknown> {
   const byEvent = new Map<TimerEventId, CstimerInputEntry[]>();
   for (const entry of entries) {
-    if (entry.inputKind === "state") continue; // raw 6-face states don't map to a cstimer scramble
+    if (entry.inputKind === "state") continue;
     if (entry.eventId === "333mbf" && Array.isArray(entry.multiBlindScrambles) && entry.multiBlindScrambles.length === 0)
       continue;
     const eventId = eventForInputEventId(entry.eventId);

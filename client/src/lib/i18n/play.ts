@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** The virtual keyboard-driven cube page (/play). */
 export const playWords: Dictionary = {
   "play.eyebrow": ["Rubik ảo", "Virtual cube"],
   "play.title": ["Rubik ảo", "Virtual cube"],

@@ -22,7 +22,6 @@ import {
 } from "./CompetitionLeaderboardFilters";
 import { LeaderboardTable } from "./LeaderboardTable";
 
-/** Trang bảng xếp hạng thi đấu: bộ lọc, bục top 3, danh sách và các phòng gần đây. */
 export function LeaderboardHome() {
   const { language, t } = useLanguage();
   const [period, setPeriod] = useState<CompetitionPeriod>("week");

@@ -22,7 +22,6 @@ import type { SolveHistoryEntry } from "@/lib/solveHistory";
 import { normalizeTimerEventId } from "@/lib/timerEvents";
 import type { phaseTpsFromSolution } from "../lib/timerAnalysis";
 
-/** Hộp thoại phát lại lời giải đã ghi: khối 3D, số lượt, TPS và split theo phase. */
 export function TimerReplayDialog({
   replay,
   replayText,
@@ -40,7 +39,6 @@ export function TimerReplayDialog({
   replayRunId: number;
   onPlay: () => void;
   onClose: () => void;
-  /** Mở phân tích sâu; chỉ có khi lượt giải có nhịp từng nước. */
   onAnalyze?: (entry: SolveHistoryEntry) => void;
 }) {
   const { language, t } = useLanguage();

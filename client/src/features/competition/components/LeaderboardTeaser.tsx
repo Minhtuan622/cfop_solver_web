@@ -1,7 +1,3 @@
-/**
- * Dải gọn "Top 3 tuần này" cho trang Thi đấu: thay cho bảng xếp hạng đầy đủ
- * (đã có ở trang Xếp hạng), kèm liên kết sang đó.
- */
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";

@@ -1,8 +1,3 @@
-/**
- * SmartCubeBar — a slim strip above the timer: connect/disconnect a
- * Bluetooth smart cube, show pairing state and battery, and surface why
- * connecting is unavailable (no Web Bluetooth / insecure context).
- */
 import { Bluetooth, Info } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";

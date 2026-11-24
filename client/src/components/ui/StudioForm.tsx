@@ -1,10 +1,8 @@
-/** Điều khiển biểu mẫu: ô có nhãn và công tắc. */
 import {
   type ReactNode,
 } from "react";
 import { cn } from "@/lib/utils";
 
-/** Label + control + optional hint or error, so every control has a visible name. */
 export function Field({
   id,
   label,
@@ -21,7 +19,6 @@ export function Field({
   error?: ReactNode;
   required?: boolean;
   className?: string;
-  /** Ghi đè kiểu chữ của nhãn (mặc định: `mb-1.5 block text-sm font-medium text-ink`). */
   labelClassName?: string;
   children: ReactNode;
 }) {
@@ -54,7 +51,6 @@ export function Field({
   );
 }
 
-/** A switch that turns one preference on or off, with its explanation beside it. */
 export function Switch({
   id,
   checked,
@@ -71,7 +67,6 @@ export function Switch({
   disabled?: boolean;
 }) {
   return (
-    // Tên + mô tả bên trái, công tắc bên phải (giống một hàng cài đặt).
     <div className="flex items-center justify-between gap-4">
       <label
         className="relative order-2 inline-flex h-6 w-11 shrink-0 cursor-pointer items-center"

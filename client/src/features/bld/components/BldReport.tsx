@@ -1,4 +1,3 @@
-/** Tailwind-native BLD report; specialized logic is retained while presentation uses cards and standard forms. */
 import { ExternalLink, Link2, ShieldCheck } from "@/components/ui/Icon";
 import { SkeletonList, StatTile } from "@/components/ui/StudioUI";
 import { useMemo, useState } from "react";

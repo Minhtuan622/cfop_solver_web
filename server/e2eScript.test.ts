@@ -2,16 +2,6 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-/**
- * Regression test cho D4 (`test:e2e` phải dùng Chromium do Playwright quản lý).
- *
- * Lỗi thật: một lần merge PR của Dependabot (nhánh được tạo từ `main` cũ)
- * đã khôi phục lại đường dẫn Chromium hệ thống cứng `/usr/bin/chromium`.
- * Đường dẫn đó không tồn tại trên `ubuntu-latest` của GitHub Actions (Chromium
- * của Playwright nằm trong `~/.cache/ms-playwright/...`), khiến bước e2e trong
- * CI luôn fail. Test này chặn việc đường dẫn hệ thống bị hardcode lại.
- */
-
 const root = path.resolve(import.meta.dirname, "..");
 
 function readJson<T>(relativePath: string): T {
@@ -68,9 +58,6 @@ describe("CI workflow", () => {
   });
 
   it("tải Chromium không phụ thuộc vào apt", () => {
-    // `playwright install --with-deps` chạy apt trước khi tải browser: một
-    // lần DNS hỏng tới mirror Ubuntu đã làm cả step fail dù browser chưa
-    // kịp tải. Việc cài gói hệ thống phải là bước riêng, không chặn browser.
     expect(workflow).not.toContain("playwright install --with-deps");
     expect(workflow).toContain("pnpm exec playwright install chromium");
   });
@@ -82,8 +69,6 @@ describe("CI workflow", () => {
   });
 
   it("giới hạn thời gian bước cài gói hệ thống", () => {
-    // Một lần apt chạy với mirror chết mất mười phút: không có chặn thời
-    // gian, bước này ăn hết budget của job và kéo cả pipeline xuống.
     expect(workflow).toMatch(
       /name: Install Chromium system packages \(best effort\)[\s\S]{0,120}timeout-minutes: \d+/
     );
@@ -100,8 +85,6 @@ describe("CI workflow", () => {
 
 describe("tsconfig covers the e2e suite", () => {
   it("include e2e/**/* để lỗi cú pháp trong spec bị `pnpm check` bắt", () => {
-    // Nếu thư mục e2e không nằm trong tsconfig, một spec sai cú pháp vẫn
-    // pass typecheck và chỉ lộ ra khi Playwright chạy trên CI.
     const tsconfig = JSON.parse(
       readFileSync(path.join(root, "tsconfig.json"), "utf8")
     ) as { include?: string[] };

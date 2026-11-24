@@ -1,10 +1,3 @@
-/**
- * SRS study state for the 2×2 lane (both CLL and PBL).
- *
- * Mirrors the CFOP study engine (same spaced-repetition ladder from
- * `lib/spacedRepetition.ts`) with its own storage keys, so 2×2 progress never
- * mixes with 3×3 CFOP progress. Records degrade gracefully via zod.
- */
 import {
   caseStudyKey,
   createCaseStudyStore,

@@ -1,8 +1,3 @@
-/**
- * Bộ tô màu mới cho trạng thái 3×3 của trang Giải (CFOP và BLD): cùng giao diện
- * với các khối khác, nhưng đọc/ghi chuỗi trạng thái 54 ký tự để nối với bộ giải,
- * kiểm tra hợp lệ, quét camera, dán chuỗi và trạng thái gần đây như cũ.
- */
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,7 +15,6 @@ export function FaceletStatePainter({
   onRedo,
   disabled = false,
 }: {
-  /** Chuỗi trạng thái 54 ký tự (URFDLB). */
   value: string;
   onChange: (state: string) => void;
   canUndo: boolean;
@@ -43,7 +37,6 @@ export function FaceletStatePainter({
     };
   }, []);
 
-  // Ctrl/Cmd+Z hoàn tác, Ctrl+Y hoặc Ctrl+Shift+Z làm lại (như bộ tô cũ).
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey) || event.altKey || disabled) return;

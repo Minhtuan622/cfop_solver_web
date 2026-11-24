@@ -7,7 +7,6 @@ function sameAxis(left?: string, right?: string) {
     && (left === "R" || left === "L") === (right === "R" || right === "L");
 }
 
-/** Generates a valid provisional 3×3 scramble while native event scrambles load. */
 export function randomThreeByThreeScramble(length = 20) {
   const moves: string[] = [];
   while (moves.length < length) {

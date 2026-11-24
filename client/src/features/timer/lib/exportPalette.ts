@@ -1,11 +1,5 @@
 import { cssToken } from "@/lib/cssTokens";
 
-/**
- * The colours of the exported timer record sheet.
- *
- * The sheet is painted on a canvas, so the tokens are resolved at paint time
- * instead of being referenced with `var(--token)` like the DOM would.
- */
 export type ExportPalette = {
   paper: string;
   onAccent: string;
@@ -22,7 +16,6 @@ export type ExportPalette = {
   worstInk: string;
 };
 
-/** Reads the export sheet palette from the document tokens. */
 export function exportPalette(): ExportPalette {
   return {
     paper: cssToken("--cfop-export-paper", "#f4f0e8"),

@@ -48,7 +48,6 @@ describe("historyView", () => {
   });
 
   it("vẽ tối đa 30 lượt theo thứ tự thời gian, ao5 từ lượt thứ năm, DNF đứt đường", () => {
-    // Mới nhất trước: s0 = 40 s, s1 = 39 s… Theo thứ tự thời gian, 30 lượt cuối là 11 s → 40 s.
     const entries = Array.from({ length: 40 }, (_, index) => solve(`s${index}`, (40 - index) * 1000));
     const chart = historyTrend(entries);
     expect(chart).toHaveLength(30);

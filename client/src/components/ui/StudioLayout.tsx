@@ -1,4 +1,3 @@
-/** Bố cục trang: chuyển cảnh khi tải, nhãn nhỏ, tiêu đề trang và thẻ mục. */
 import {
   useEffect,
   useState,

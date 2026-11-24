@@ -1,11 +1,3 @@
-/**
- * Query and derive the CFOP case catalog for the /study lane.
- *
- * The pre-image (case) states are computed from the algorithms at call time
- * via `applyFastMoves(SOLVED_FAST_STATE, invertAlgorithm(alg))` and memoized,
- * so the embedded data only carries (id, family, group, name, algorithm) and
- * every shown case is guaranteed to be solved by its own algorithm.
- */
 import { applyFastMoves, invertAlgorithm, SOLVED_FAST_STATE } from "@/lib/fastCube";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 import {
@@ -25,15 +17,12 @@ export type CfopCatalogCase = LastLayerCatalogCase & { name: string };
 
 export type ListCfopCasesFilter = {
   family?: "all" | CfopFamily;
-  /** Substring match (case-insensitive) against id, group, name and algorithm. */
   query?: string;
-  /** Maximum rows to return; clamped to [1, 1000]. */
   limit?: number;
 };
 
 const stateCache = new Map<string, string>();
 
-/** The 54-sticker pre-image the shown case starts from (memoized per case). */
 export function cfopCaseState(row: { algorithm: string }): string {
   const cached = stateCache.get(row.algorithm);
   if (cached) return cached;
@@ -56,7 +45,6 @@ function toCatalogCase(row: (typeof CFOP_CASES)[number]): CfopCatalogCase {
   };
 }
 
-/** All CFOP cases as rich catalog rows (f2l → oll → pll). */
 export const CFOP_CATALOG: readonly CfopCatalogCase[] = CFOP_CASES.map(toCatalogCase);
 
 export function listCfopCases(

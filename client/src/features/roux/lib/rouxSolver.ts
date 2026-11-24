@@ -1,19 +1,5 @@
-/**
- * Bộ giải 3×3 theo phương pháp Roux, từng giai đoạn:
- *
- * 1. First Block (FB): khối 1×2×3 bên trái, tìm tối ưu (bảng khoảng cách đầy
- *    đủ cho 3 cạnh + 2 góc của khối, dùng mọi mặt).
- * 2. Second Block (SB): khối 1×2×3 bên phải, tìm tối ưu với bộ lượt
- *    ⟨U, R, r, M⟩ (không phá khối trái).
- * 3. CMLL: tra danh mục 42 công thức (cộng AUF trước/sau), chọn ngắn nhất.
- * 4. LSE: sáu cạnh cuối + tâm bằng BFS đầy đủ trên ⟨M, U⟩ (tối ưu).
- *
- * Không phụ thuộc cubing.js: nhận dữ liệu lượt (hoán vị + độ lệch hướng của
- * từng lượt) đã đọc từ KPuzzle, nên chạy được cả trong kiểm thử Node.
- */
 import { CMLL_CASES_SOURCE } from "./rouxData";
 
-/** Một lượt một phần tư vòng: `new[i] = old[perm[i]]`, hướng cộng `delta[i]`. */
 export type OrbitMove = { permutation: number[]; orientationDelta: number[] };
 export type QuarterMove = {
   CORNERS: OrbitMove;
@@ -22,7 +8,6 @@ export type QuarterMove = {
 };
 export type QuarterMoves = Record<string, QuarterMove>;
 
-/** Trạng thái khối: `x[vị trí] = mảnh`, hướng của mảnh đang ở vị trí đó. */
 export type CubeState = {
   cp: number[];
   co: number[];
@@ -75,7 +60,6 @@ export function applyQuarter(state: CubeState, move: QuarterMove): CubeState {
   return { cp, co, ep, eo, cen };
 }
 
-/** Một lượt kèm số lần (1, 2 hoặc 3 = lượt ngược) — dựng bảng cho cả ba. */
 function powerMoves(quarter: QuarterMove): [QuarterMove, QuarterMove, QuarterMove] {
   const base = solvedState();
   const once = applyQuarter(base, quarter);
@@ -89,7 +73,6 @@ function powerMoves(quarter: QuarterMove): [QuarterMove, QuarterMove, QuarterMov
   return [toMove(once), toMove(twice), toMove(thrice)];
 }
 
-/** Từ lượt gốc (chiều kim đồng hồ) tạo bảng cho `X`, `X2`, `X'`. */
 export function buildMoveTables(quarters: QuarterMoves): Record<string, QuarterMove> {
   const tables: Record<string, QuarterMove> = {};
   for (const [name, quarter] of Object.entries(quarters)) {
@@ -101,7 +84,6 @@ export function buildMoveTables(quarters: QuarterMoves): Record<string, QuarterM
   return tables;
 }
 
-/** Tách chuỗi lượt (bỏ ngoặc) thành các token. */
 export function tokenize(algorithm: string) {
   return algorithm.replace(/[()]/g, " ").split(/\s+/).filter(Boolean);
 }
@@ -122,13 +104,11 @@ export function isSolved(state: CubeState) {
   return ok(state.cp) && zero(state.co) && ok(state.ep) && zero(state.eo) && ok(state.cen);
 }
 
-/** Cạnh/góc theo số Reid trong KPuzzle của cubing.js. */
-const FB = { edges: [7, 9, 11], corners: [5, 6] }; // DL FL BL · DFL DBL
-const SB = { edges: [5, 8, 10], corners: [4, 7] }; // DR FR BR · DFR DBR
+const FB = { edges: [7, 9, 11], corners: [5, 6] };
+const SB = { edges: [5, 8, 10], corners: [4, 7] };
 
 type Tracked = { edges: number[]; corners: number[] };
 
-/** Chỉ số của trạng thái con (vị trí + hướng các mảnh được theo dõi). */
 function trackedIndex(state: CubeState, tracked: Tracked) {
   let index = 0;
   for (const piece of tracked.edges) {
@@ -146,10 +126,6 @@ function trackedSize(tracked: Tracked) {
   return 24 ** (tracked.edges.length + tracked.corners.length);
 }
 
-/**
- * Bảng chuyển trạng thái con theo từng lượt: với mỗi chữ số (vị trí × hướng)
- * của cạnh/góc, chữ số sau lượt. Tính một lần cho mỗi bộ lượt.
- */
 function buildTransitions(tables: Record<string, QuarterMove>, moveNames: string[]) {
   const digitTable = (orbit: "EDGES" | "CORNERS", count: number, modulus: number) =>
     moveNames.map(name => {
@@ -168,7 +144,6 @@ function buildTransitions(tables: Record<string, QuarterMove>, moveNames: string
 
 type Transitions = ReturnType<typeof buildTransitions>;
 
-/** Chỉ số sau một lượt, tính trực tiếp trên chỉ số (không dựng lại khối). */
 function stepIndex(
   index: number,
   edgeCount: number,
@@ -197,7 +172,6 @@ type DistanceTable = {
   distance: Uint8Array;
 };
 
-/** BFS đầy đủ từ trạng thái đã giải của khối con: khoảng cách chính xác. */
 function buildDistanceTable(
   tables: Record<string, QuarterMove>,
   tracked: Tracked,
@@ -228,7 +202,6 @@ function buildDistanceTable(
   return { tracked, moveNames, transitions, distance };
 }
 
-/** Đi theo bảng khoảng cách: mỗi bước chọn lượt làm khoảng cách giảm 1. */
 function descend(
   state: CubeState,
   tables: Record<string, QuarterMove>,
@@ -257,7 +230,6 @@ function descend(
 const FACE_MOVES = ["U", "D", "L", "R", "F", "B"].flatMap(face => [face, `${face}2`, `${face}'`]);
 const SB_MOVES = ["U", "R", "r", "M"].flatMap(face => [face, `${face}2`, `${face}'`]);
 
-/** Các góc U (0–3) về đúng chỗ, hướng 0, nếu chỉ lệch một phép xoay U. */
 function cornersSolvedUpToAuf(state: CubeState) {
   for (let turn = 0; turn < 4; turn += 1) {
     if (state.cp.slice(0, 4).every((piece, slot) => piece === (slot + turn) % 4) && state.co.slice(0, 4).every(value => value === 0))
@@ -269,7 +241,7 @@ function cornersSolvedUpToAuf(state: CubeState) {
 type LseTable = { distance: Map<string, number>; keyOf: (state: CubeState) => string };
 
 const LSE_EDGE_SLOTS = [0, 1, 2, 3, 4, 6];
-const LSE_CENTER_SLOTS = [0, 2, 5, 4]; // U F D B
+const LSE_CENTER_SLOTS = [0, 2, 5, 4];
 
 function lseKey(state: CubeState) {
   return [
@@ -310,7 +282,6 @@ export type RouxSolverContext = {
   lse: LseTable;
 };
 
-/** Dựng ba bảng tìm kiếm (mất vài giây, chỉ làm một lần). */
 export function createRouxSolver(quarters: QuarterMoves): RouxSolverContext {
   const tables = buildMoveTables(quarters);
   return {
@@ -321,7 +292,6 @@ export function createRouxSolver(quarters: QuarterMoves): RouxSolverContext {
   };
 }
 
-/** Tìm AUF trước, công thức CMLL, AUF sau ngắn nhất làm bốn góc U về chỗ. */
 function solveCmll(context: RouxSolverContext, state: CubeState) {
   const { tables } = context;
   const aufs = ["", "U", "U2", "U'"];
@@ -329,7 +299,6 @@ function solveCmll(context: RouxSolverContext, state: CubeState) {
   const consider = (prefix: string, algorithm: string) => {
     const tokens = tokenize(`${prefix} ${algorithm}`);
     const after = applyAlgorithm(state, tables, tokens.join(" "));
-    // AUF sau: thử bốn phép xoay U, lấy phép làm bốn góc về đúng chỗ.
     for (const post of aufs) {
       const finished = post ? applyAlgorithm(after, tables, post) : after;
       if (cornersSolvedUpToAuf(finished) !== 0) continue;
@@ -346,7 +315,6 @@ function solveCmll(context: RouxSolverContext, state: CubeState) {
   return best as { moves: string[]; state: CubeState };
 }
 
-/** Gộp các lượt cùng mặt liền nhau (U U' → bỏ, U U → U2) cho lời giải gọn. */
 export function simplify(moves: string[]) {
   const out: string[] = [];
   const amount = (token: string) => (token.endsWith("2") ? 2 : token.endsWith("'") ? 3 : 1);
@@ -388,7 +356,6 @@ function solveLse(context: RouxSolverContext, state: CubeState) {
   return { moves, state: current };
 }
 
-/** Giải Roux đầy đủ từ một trạng thái khối. */
 export function solveRoux(context: RouxSolverContext, start: CubeState): RouxSolution {
   const { tables } = context;
   const first = descend(start, tables, context.fb);

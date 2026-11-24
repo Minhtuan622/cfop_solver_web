@@ -1,13 +1,3 @@
-/**
- * Kiểm tra bản phát hành có đủ bộ giải sau khi build.
- *
- *   node scripts/verify-solver-dist.mjs
- *
- * `dist/public/assets` phải có đúng một file `solver_wasm_bg-*.wasm` hợp lệ
- * (bắt đầu bằng magic `\0asm`) và chunk worker `solverWorker-*.js`. Thiếu
- * một trong hai thì bộ giải không chạy được, nên build thất bại ngay thay vì
- * lỗi lúc người dùng bấm giải.
- */
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 

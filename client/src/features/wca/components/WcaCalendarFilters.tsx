@@ -19,12 +19,6 @@ export type WcaCalendarFiltersProps = {
   onReset?: () => void;
 };
 
-/**
- * The filter toolbar: a single line of controls, nothing else. The period is
- * chosen by year and month instead of a raw date range, which is how a
- * competition calendar is actually browsed. Every control carries an
- * accessible name, but no visible labels — the row stays compact.
- */
 export function WcaCalendarFilters({
   year,
   month,
@@ -63,8 +57,6 @@ export function WcaCalendarFilters({
       className="mt-4 rounded-card bg-surface p-3"
       aria-label={t("wca.filters")}
     >
-      {/* Điện thoại: ô tìm một hàng, các bộ lọc xếp lưới 2 cột cho thẳng mép.
-          Màn rộng: tất cả trên một hàng. */}
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative min-w-0 sm:min-w-48 sm:flex-1">
           <Search

@@ -1,7 +1,3 @@
-/**
- * Roux practice card: the 3D case preview, the recall drill and the
- * Again/Hard/Good/Easy self-grade. Mirrors the Skewb case panel.
- */
 import { invertAlgorithm } from "@/lib/fastCube";
 import {
   CasePracticeEmpty,

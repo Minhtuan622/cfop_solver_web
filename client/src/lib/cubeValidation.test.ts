@@ -46,7 +46,7 @@ describe("cubeValidation: facelet checks", () => {
 
   it("rejects a center mismatch", () => {
     const chars = solved.split("");
-    [chars[4], chars[13]] = [chars[13]!, chars[4]!]; // U center <-> R center
+    [chars[4], chars[13]] = [chars[13]!, chars[4]!];
     expect(validateCubeState(chars.join("")).message).toMatch(/Center mismatch/);
   });
 });
@@ -62,7 +62,6 @@ describe("cubeValidation: cubie checks", () => {
 
   it("rejects a parity mismatch (two swapped corners)", () => {
     const chars = solved.split("");
-    // swap the UFR and UFL corner cubies in full (3 facelets each)
     for (const [a, b] of [
       [8, 6],
       [9, 18],

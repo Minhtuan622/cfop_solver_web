@@ -3,10 +3,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/FormControls";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/**
- * Đổi mật khẩu. `onSubmit` trả về Promise đạt khi đổi thành công; lúc đó hai
- * ô mật khẩu được xoá trắng.
- */
 export function ProfilePasswordForm({
   pending,
   onSubmit,

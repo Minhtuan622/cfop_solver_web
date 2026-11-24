@@ -2,10 +2,6 @@ import type { ReactNode } from "react";
 import { Select } from "@/components/ui/Select";
 import { CORNER_POSITIONS, EDGE_POSITIONS } from "../lib/bldExecution";
 
-/**
- * Khối parity của báo cáo BLD: chọn cặp cạnh và cặp góc tích hợp, rồi hiện
- * dòng thuật toán (`children`) hoặc thông báo khi cặp không có exact key.
- */
 export function BldParityPicker({
   vi,
   parityEdges,
@@ -19,7 +15,6 @@ export function BldParityPicker({
   parityCorners: [string, string];
   onParityEdgesChange: (pair: [string, string]) => void;
   onParityCornersChange: (pair: [string, string]) => void;
-  /** Dòng thuật toán parity; bỏ trống khi cặp chọn không tạo được key. */
   children?: ReactNode;
 }) {
   return (

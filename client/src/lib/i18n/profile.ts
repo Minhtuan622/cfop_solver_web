@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** The profile page, the account dialogs and the avatar cropper. */
 export const profileWords: Dictionary = {
   "profile.loading": ["Đang tải hồ sơ tài khoản", "Loading your profile"],
   "profile.guestTitle": ["Hồ sơ CFOP", "CFOP profile"],

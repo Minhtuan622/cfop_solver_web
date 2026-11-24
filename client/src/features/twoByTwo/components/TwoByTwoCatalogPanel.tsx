@@ -1,9 +1,3 @@
-/**
- * 2×2 catalog drawer: the shared CatalogExplorer wired to the 2×2 CLL/PBL/EG
- * data and the generated flat case diagrams from /diagrams/twoByTwo — the
- * same style as the other redesigned lanes. The inline cube-net preview is
- * kept as the fallback for a missing or broken diagram.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCallback, type KeyboardEvent } from "react";
 import { CubeNet2x2 } from "./CubeNet2x2";

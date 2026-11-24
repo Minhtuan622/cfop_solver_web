@@ -1,5 +1,3 @@
-//! The 3-Style tracer reproduces the frozen reference output exactly.
-
 use cube_core::Cube;
 use solver_wasm::analyze_3style;
 

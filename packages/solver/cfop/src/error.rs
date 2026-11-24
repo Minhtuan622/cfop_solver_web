@@ -1,36 +1,33 @@
-//! Solver errors.
-
 use std::fmt;
 
 use cube_core::StateError;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Error {
-    /// The input cube is not a reachable state.
     InvalidState(StateError),
-    /// Solvers work in the fixed reference orientation (U center on top,
-    /// F center in front).
     CentersNotHome,
-    /// A stage needs an earlier stage to be complete (e.g. F2L needs Cross).
     PreconditionFailed {
         stage: &'static str,
         reason: &'static str,
     },
-    /// No solution within `max_depth` moves.
-    DepthExceeded { stage: &'static str, max_depth: u8 },
-    /// The time budget ran out.
+    DepthExceeded {
+        stage: &'static str,
+        max_depth: u8,
+    },
     Timeout {
         stage: &'static str,
         timeout_ms: u64,
     },
-    /// The node budget ran out.
-    NodeLimit { stage: &'static str, max_nodes: u64 },
-    /// The progress hook asked to stop.
-    Cancelled { stage: &'static str },
+    NodeLimit {
+        stage: &'static str,
+        max_nodes: u64,
+    },
+    Cancelled {
+        stage: &'static str,
+    },
 }
 
 impl Error {
-    /// Stable machine-readable code (for the WASM boundary later).
     pub fn code(&self) -> &'static str {
         match self {
             Error::InvalidState(_) => "invalid_state",

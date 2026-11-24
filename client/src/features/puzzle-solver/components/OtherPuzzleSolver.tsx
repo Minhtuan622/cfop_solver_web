@@ -1,8 +1,3 @@
-/**
- * Phần thân trang Giải cho các khối ngoài 3×3 (2×2×2, Pyraminx, Skewb): dùng lại
- * đúng các panel của trang Giải 3×3 (nhập scramble, sân khấu 3D có thanh phát,
- * cột lời giải), chỉ khác bộ giải bên dưới là cubing/search.
- */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { SolutionStage } from "./SolutionStage";
@@ -33,7 +28,6 @@ import {
   type PuzzleSolveResult,
 } from "../lib/puzzleSolve";
 
-/** `puzzle` đổi thì cha đặt `key` mới để scramble và kết quả cũ bị bỏ. */
 export function OtherPuzzleSolver({
   puzzle,
   mode = "scramble",
@@ -42,13 +36,9 @@ export function OtherPuzzleSolver({
   onShareScramble,
 }: {
   puzzle: OtherPuzzleId;
-  /** Scramble điền sẵn (từ link chia sẻ). */
   initialScramble?: string;
-  /** Tự giải một lần khi mở (từ link chia sẻ). */
   autoSolve?: boolean;
-  /** Báo scramble có thể chia sẻ (hoặc `null` nếu chưa có). */
   onShareScramble?: (scramble: string | null) => void;
-  /** Nhập bằng scramble hoặc tô màu trạng thái. */
   mode?: "scramble" | "state";
 }) {
   const { language, t } = useLanguage();
@@ -69,14 +59,12 @@ export function OtherPuzzleSolver({
     () => (result?.solution ? result.solution.split(" ") : []),
     [result]
   );
-  // Bộ phát chung của trang Giải chỉ cần độ dài lời giải.
   const source = useMemo(
     () => (result ? { trace: moves } : null),
     [result, moves]
   );
   const playback = useSolverPlayback(source);
 
-  // Mở khối nào là có sẵn scramble của khối đó (như trang 3×3), khỏi bấm tạo.
   useEffect(() => {
     let cancelled = false;
     void generateTimerScramble(info.scrambleEventId).then(next => {
@@ -87,14 +75,12 @@ export function OtherPuzzleSolver({
     };
   }, [info.scrambleEventId]);
 
-  // Chia sẻ: scramble đang nhập, hoặc (chế độ Trạng thái) scramble dựng lại từ lời giải.
   const shareScramble =
     mode === "state" ? (result?.scramble ?? null) : scramble.trim() || null;
   useEffect(() => {
     onShareScramble?.(shareScramble);
   }, [onShareScramble, shareScramble]);
 
-  // Mở từ link chia sẻ: giải ngay một lần khi đã có scramble.
   const autoSolveRef = useRef(autoSolve);
   useEffect(() => {
     if (!autoSolveRef.current || mode !== "scramble" || !scramble.trim()) return;
@@ -103,7 +89,6 @@ export function OtherPuzzleSolver({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scramble, mode]);
 
-  // Vào chế độ tô màu thì tải mô hình sticker (nạp lười) và bắt đầu từ khối đã giải.
   useEffect(() => {
     if (mode !== "state" || model || isClock) return;
     let cancelled = false;
@@ -188,7 +173,6 @@ export function OtherPuzzleSolver({
       setCopied(true);
       setTimeout(() => setCopied(false), 1_500);
     } catch {
-      /* Trình duyệt chặn clipboard: người dùng vẫn chọn chữ được. */
     }
   };
 
@@ -287,7 +271,6 @@ export function OtherPuzzleSolver({
         />
         )}
 
-        {/* Chế độ Trạng thái: chỉ hiện khu vực khối sau khi đã giải. */}
         {mode === "state" && !result ? null : (
         <SolverSolutionPanel
           view="3d"

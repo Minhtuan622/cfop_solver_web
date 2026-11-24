@@ -12,15 +12,9 @@ export type SolverToolbarProps = {
   onModeChange: (mode: SolverInputMode) => void;
   loading: boolean;
   status: string;
-  /** Ẩn nhóm chọn CFOP/BLD/FM (khi trang đã chọn chế độ ở dropdown). */
   hideKind?: boolean;
 };
 
-/**
- * Two pill bars: which solver (CFOP / BLD), then which input (scramble / cube state).
- * The engine status stays in a screen-reader-only live region; the visible
- * status lives in the green banner under the cube.
- */
 export function SolverToolbar({
   solverKind,
   onSolverKindChange,
@@ -32,8 +26,6 @@ export function SolverToolbar({
 }: SolverToolbarProps) {
   const { t } = useLanguage();
   return (
-    // Hai nhóm tách riêng: chọn bộ giải (nút đặc màu nhấn) và chọn cách nhập
-    // (kiểu nhạt), để không có hai nút xanh đặc tranh nhau trên một thanh.
     <div role="toolbar" className="flex flex-wrap items-center gap-2">
       {hideKind ? null : (
       <PillBar>

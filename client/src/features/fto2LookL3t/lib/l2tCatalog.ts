@@ -1,11 +1,3 @@
-/**
- * FTO 2-Look L3T catalog for the /study FTO 2-Look L3T lane.
- *
- * Mirrors the other study catalogs: rows carry a sentinel `state`
- * (`"l3t2:<id>"`) that the icon preview ignores — the case preview is the
- * static case diagram extracted from the 2-Look L3T sheet. The catalog is
- * grouped by family (PF / TCP A / TCP B / TCP C).
- */
 import {
   FTO_2_LOOK_L3T_CASES,
   FTO_2_LOOK_L3T_COUNTS,
@@ -19,11 +11,8 @@ export type { Fto2LookL3tFamily, Fto2LookL3tGroup } from "./l2tData";
 export type Fto2LookL3tCatalogCase = Fto2LookL3tCaseRow & { state: string };
 
 export type ListFto2LookL3tCasesFilter = {
-  /** "all" (default) or "l3t2". */
   family?: "all" | Fto2LookL3tFamily;
-  /** Substring match (case-insensitive) against id, name, group and algorithm. */
   query?: string;
-  /** Maximum rows; clamped to [1, 1000]. */
   limit?: number;
 };
 

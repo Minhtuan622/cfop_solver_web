@@ -1,10 +1,3 @@
-/**
- * SRS study state for the 5×5 L2E lane (Last Two Edges algorithms).
- *
- * Mirrors the 2×2 / CFOP / 4×4 parity study engines (same spaced-repetition
- * ladder from `lib/spacedRepetition.ts`) with its own storage keys. Records
- * degrade gracefully via zod.
- */
 import {
   caseStudyKey,
   createCaseStudyStore,

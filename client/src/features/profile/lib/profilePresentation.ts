@@ -1,7 +1,6 @@
 import { formatSolveTime } from "@/lib/solveHistory";
 import type { Language, Translate } from "@/lib/i18n";
 
-/** The wording of a failed account action; it lives with the other API helpers. */
 export { errorMessage } from "@/lib/apiError";
 export { wcaEventName } from "@/lib/wcaEvents";
 

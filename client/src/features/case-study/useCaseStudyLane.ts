@@ -1,11 +1,3 @@
-/**
- * Vòng luyện SRS dùng chung của các lane Học thêm: giữ trạng thái học và danh
- * sách case đã thuộc (tự ghi vào localStorage), xếp hàng ôn, chọn case kế tiếp,
- * chấm điểm, nhập backup và báo số liệu cho thanh công cụ bên ngoài.
- *
- * Lane giữ state chọn bộ (family) và catalog của mình rồi truyền vào; hook này
- * không biết gì về puzzle cụ thể.
- */
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import type { TimerCompletion } from "@/components/common/SolveTimer";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -22,7 +14,6 @@ import {
 } from "@/lib/caseStudy";
 import type { CasePracticeProps } from "./components/CasePracticePanel";
 
-/** Số liệu SRS trực tiếp mà lane báo cho thanh công cụ của trang Học thêm. */
 export type CaseStudyLaneStats = {
   reviewedToday: number;
   dailyGoal: number;
@@ -32,7 +23,6 @@ export type CaseStudyLaneStats = {
   catalogCount: number;
 };
 
-/** Các hàm lưu trữ của một lane (xem `createCaseStudyStore`). */
 export type CaseStudyLaneStore<StudyRecord extends CaseStudyRecord> = {
   read: () => CaseStudyState<StudyRecord["family"]>;
   write: (state: CaseStudyState<StudyRecord["family"]>) => void;
@@ -44,12 +34,7 @@ export type CaseStudyLaneStore<StudyRecord extends CaseStudyRecord> = {
 
 export type UseCaseStudyLaneOptions<Case extends LastLayerCatalogCase, StudyRecord extends CaseStudyRecord> = {
   store: CaseStudyLaneStore<StudyRecord>;
-  /** Các case của bộ đang chọn. Phải giữ cùng tham chiếu giữa các lần render. */
   catalog: Case[];
-  /**
-   * Bộ đang chọn khi lane có nhiều bộ: số case đã thuộc chỉ đếm trong bộ này.
-   * Bỏ trống khi lane chỉ có một bộ (đếm mọi case đã thuộc).
-   */
   family?: string;
   onStatsChange?: (stats: CaseStudyLaneStats) => void;
 };
@@ -122,7 +107,6 @@ export function useCaseStudyLane<Case extends LastLayerCatalogCase, StudyRecord 
     setShowAlgorithm(false);
     setTimerVersion(value => value + 1);
   }, []);
-  /** Bỏ case đang luyện (vd. khi đổi bộ); case kế tiếp được chọn lại tự động. */
   const resetActiveCase = () => {
     setActiveCase(null);
     setLastElapsed(null);
@@ -136,10 +120,8 @@ export function useCaseStudyLane<Case extends LastLayerCatalogCase, StudyRecord 
   };
   useEffect(() => {
     if (!activeCase) chooseNext();
-    // chooseNext intentionally omitted; it is stable enough for this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCase, ranked, family]);
-  // Mở từ liên kết có `?case=<id>` (vd. từ phân tích solve): chọn đúng case đó một lần.
   const requestedCase = useRef(
     typeof window === "undefined"
       ? null

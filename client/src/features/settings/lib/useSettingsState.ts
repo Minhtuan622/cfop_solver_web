@@ -4,16 +4,10 @@ import { readLastLayerStudy, writeLastLayerStudy } from "@/features/last-layer/l
 import { DEFAULT_SOLVER_SETTINGS, HIDE_RUNNING_TIME_KEY, readSolverSettings, writeSolverSettings, type SolverSettings } from "@/lib/appSettings";
 import { readStoredValue, writeStoredValue } from "@/lib/browserStorage";
 
-/** The F2L slots the solver can prefer or leave out. */
 export type F2LSlot = NonNullable<SolverSettings["preferredSlot"]>;
 
-/** What the page tells the visitor about its own saving. */
 export type SettingsSaveState = "idle" | "saving" | "saved";
 
-/**
- * Owns every value of the settings page and writes it back as it changes, so
- * the page itself only has to lay the groups out.
- */
 export function useSettingsState() {
   const { language } = useLanguage();
   const [solver, setSolver] = useState<SolverSettings>(readSolverSettings);

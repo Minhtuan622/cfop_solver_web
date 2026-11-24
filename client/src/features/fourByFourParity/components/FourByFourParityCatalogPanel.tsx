@@ -1,8 +1,3 @@
-/**
- * 4×4 Parity catalog drawer: the shared CatalogExplorer wired to the PLL
- * parity algorithms and the extracted cubingapp.com case diagrams. The
- * practice card itself shows the live 3D case.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   CatalogExplorer,
@@ -16,7 +11,6 @@ import {
 } from "../lib/fourByFourParityAlg";
 import type { FourByFourParityCatalogCase } from "../lib/fourByFourParityCatalog";
 
-/** Flat 4×4 grid mark (used when a case has no diagram). */
 export function FourByFourMark({ className }: { className?: string }) {
   const cells: Array<{ x: number; y: number; fill: string }> = [];
   for (let row = 0; row < 4; row += 1) {

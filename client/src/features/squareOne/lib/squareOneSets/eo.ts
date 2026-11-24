@@ -1,6 +1,5 @@
 import type { SquareOneCaseRow } from "../squareOneData";
 
-/** SQ1-EO — 7 cases. */
 export const EO_CASES_SOURCE: readonly SquareOneCaseRow[] = [
   { id: "EO-1-1", family: "eo", group: "EO Algs", name: "1 / 1", algorithm: "(1,0) / (3,0) / (3,0) / (-1,-1) / (-2,1) / (-3,0) / (-1,0)" },
   { id: "EO-Opp-Opp", family: "eo", group: "EO Algs", name: "Opp / Opp", algorithm: "(1,0) / (-1,-1) / (0,1)" },

@@ -1,13 +1,3 @@
-/**
- * Kiểm kê class nào trong mã nguồn KHÔNG tồn tại trong Tailwind.
- *
- * Cách làm chắc chắn: build production, đọc CSS sinh ra, lấy tập class mà
- * Tailwind thực sự sinh (đã bỏ variant), rồi so với các class dùng trong
- * source. Class nào không có trong CSS là class chết: hoặc sót từ Bootstrap,
- * hoặc sai tên.
- *
- *   pnpm build && node scripts/audit-tailwind-classes.mjs
- */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { baseName, classNamesOf } from "./lib/class-names.mjs";
@@ -23,18 +13,15 @@ if (!existsSync(cssDir)) {
   process.exit(1);
 }
 
-/** Class Tailwind thực sự sinh ra. */
 const generated = new Set();
 for (const file of readdirSync(cssDir)) {
   if (!file.endsWith(".css")) continue;
   const css = readFileSync(path.join(cssDir, file), "utf8");
-  // Class có ký tự đặc biệt được CSS escape: .xl\:col-span-3, .w-\[26rem\]
   for (const match of css.matchAll(/\.((?:\\.|[A-Za-z0-9_-])+)/g)) {
     generated.add(baseName(match[1].replace(/\\(.)/g, "$1")));
   }
 }
 
-/** Class do chính dự án định nghĩa trong CSS của nó (không phải Tailwind). */
 const custom = new Set();
 for (const cssFile of ["client/src/index.css", "client/src/styles/cube.css"]) {
   const css = readFileSync(path.join(root, cssFile), "utf8");
@@ -66,13 +53,10 @@ for (const file of sourceFiles(path.join(root, "client", "src"))) {
   }
 }
 
-/** Class sinh động (`cube3d-layer-${face}`) chỉ có tiền tố trong source. */
 const dynamic = [...usage.entries()].filter(([name]) => name.endsWith("-"));
 
 const missing = [...usage.entries()]
   .filter(([name]) => !generated.has(name) && !custom.has(name))
-  // Class động chỉ được chấp nhận nếu có class nào trong CSS bắt đầu bằng
-  // tiền tố đó (ví dụ `cube3d-layer-` -> `.cube3d-layer-r`).
   .filter(([name]) => {
     if (!name.endsWith("-")) return true;
     for (const known of generated) if (known.startsWith(name)) return false;

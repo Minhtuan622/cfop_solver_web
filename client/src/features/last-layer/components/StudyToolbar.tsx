@@ -19,18 +19,13 @@ export type StudyLane =
 export type StudyToolbarProps = {
   lane: StudyLane;
   onLaneChange: (lane: StudyLane) => void;
-  /** Cases reviewed today, against the daily goal. */
   reviewedToday: number;
   dailyGoal: number;
   goalPercent: number;
-  /** Unused legacy prop, kept so callers don't break. */
   hint?: string;
-  /** Cases waiting in the priority queue. */
   queueCount: number;
-  /** Cases already marked as mastered, out of the whole catalog. */
   masteredCount: number;
   catalogCount: number;
-  /** Tiến độ gần nhất của mọi chủ đề, cho lưới chọn chủ đề. */
   progress?: LaneProgressMap;
 };
 
@@ -49,11 +44,6 @@ const LANES: ReadonlyArray<{ id: StudyLane; labelKey: string }> = [
   { id: "l3t2", labelKey: "study.laneL3T2" },
 ];
 
-/**
- * Lưới chủ đề: mỗi ô là một chủ đề với tiến độ "đã thuộc / tổng" và một thanh
- * mảnh; ô đang học được tô màu nhạt. Bên dưới là số liệu hôm nay của chủ đề
- * đang mở. Phẳng: không viền, không bóng, chỉ đổi nền khi hover.
- */
 export function StudyToolbar({
   lane,
   onLaneChange,
@@ -70,8 +60,6 @@ export function StudyToolbar({
   return (
     <div>
       <div
-        // Điện thoại: một hàng cuộn ngang để phần học không bị đẩy xuống xa;
-        // màn hình vừa trở lên: lưới.
         className="scroll-fade-x -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:[mask-image:none] sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6"
         role="group"
         aria-label={t("study.laneLabel")}

@@ -63,7 +63,6 @@ export async function listCompetitionResults(roomId: number) {
   const db = await requireDb(); return db.select(competitionResultSelect).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(eq(cfopCompetitionRounds.roomId, roomId)).orderBy(asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));
 }
 
-/** Lấy kết quả của nhiều phòng cùng lúc để tránh truy vấn N+1 trong playerHistory. */
 export async function listCompetitionResultsForRooms(roomIds: number[]) {
   if (roomIds.length === 0) return [];
   const db = await requireDb(); return db.select({ ...competitionResultSelect, roomId: cfopCompetitionRooms.id }).from(cfopCompetitionResults).innerJoin(cfopCompetitionRounds, eq(cfopCompetitionResults.roundId, cfopCompetitionRounds.id)).innerJoin(cfopCompetitionRooms, eq(cfopCompetitionRounds.roomId, cfopCompetitionRooms.id)).innerJoin(cfopAccounts, eq(cfopCompetitionResults.accountId, cfopAccounts.id)).where(inArray(cfopCompetitionRooms.id, roomIds)).orderBy(asc(cfopCompetitionRounds.sequence), asc(cfopCompetitionResults.submittedAt));

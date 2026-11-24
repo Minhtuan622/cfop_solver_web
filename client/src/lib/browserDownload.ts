@@ -1,4 +1,3 @@
-/** Browser-only download helpers shared by the Studio, Timer and History exports. */
 export function downloadFile(name: string, type: string, value: BlobPart) {
   const url = URL.createObjectURL(new Blob([value], { type }));
   const link = document.createElement("a");

@@ -1,19 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
-/**
- * Regression test cho A3: hạn mức xem lịch sử người chơi phải tính theo
- * địa chỉ client thật, không phải địa chỉ socket của reverse proxy.
- *
- * Lỗi thật: `competition.playerHistory` lấy `req.socket.remoteAddress` làm
- * khóa. Sau một reverse proxy mọi người dùng có cùng địa chỉ socket nên
- * dùng chung một hạn mức 30 lần/giờ; và bộ đếm còn bị mượn từ
- * `roomCreateLimiter`.
- *
- * Ngoài ra `clientAddress` phải tôn trọng `TRUST_PROXY`: khi chưa bật thì
- * header `X-Forwarded-For` do client tự viết không được tách hạn mức.
- */
-
 vi.mock("./db", () => ({
   listCompetitionResultsForRooms: vi.fn(async () => []),
   listFinishedCompetitionResultsBetween: vi.fn(async () => []),
@@ -54,7 +41,6 @@ vi.mock("./db", () => ({
 import { appRouter } from "./routers";
 import { playerHistoryLimiter } from "./routers/competition";
 
-/** Số lần tra lịch sử được phép trong một giờ cho mỗi địa chỉ. */
 const PLAYER_HISTORY_LIMIT = 30;
 
 function makeContext(forwardedFor: string, socketAddress = "10.0.0.1") {
@@ -86,7 +72,6 @@ describe("A3: hạn mức playerHistory theo địa chỉ client", () => {
     process.env.TRUST_PROXY = "1";
     const caller = appRouter.createCaller(makeContext("203.0.113.7"));
 
-    // Hết hạn mức của địa chỉ này.
     for (let attempt = 0; attempt < PLAYER_HISTORY_LIMIT; attempt += 1) {
       await caller.competition.playerHistory({ accountId: 1 });
     }
@@ -96,7 +81,6 @@ describe("A3: hạn mức playerHistory theo địa chỉ client", () => {
       code: "TOO_MANY_REQUESTS",
     });
 
-    // Địa chỉ khác vẫn còn hạn mức riêng.
     const other = appRouter.createCaller(makeContext("198.51.100.9"));
     await expect(
       other.competition.playerHistory({ accountId: 1 })
@@ -111,7 +95,6 @@ describe("A3: hạn mức playerHistory theo địa chỉ client", () => {
       await caller.competition.playerHistory({ accountId: 1 });
     }
 
-    // Đổi header sang một địa chỉ khác vẫn bị chặn: header do client tự viết.
     const forged = appRouter.createCaller(makeContext("198.51.100.9"));
     await expect(
       forged.competition.playerHistory({ accountId: 1 })
@@ -133,7 +116,6 @@ describe("A3: hạn mức playerHistory theo địa chỉ client", () => {
       code: "TOO_MANY_REQUESTS",
     });
 
-    // Bảng đếm của playerHistory đã đầy, nhưng limiter tạo phòng vẫn trống.
     const { roomCreateLimiter } = await import("./routers/competition");
     expect(roomCreateLimiter.size()).toBe(0);
     expect(playerHistoryLimiter.size()).toBeGreaterThan(0);

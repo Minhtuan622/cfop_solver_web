@@ -1,10 +1,3 @@
-/**
- * Số move cross tối ưu cho từng màu đáy của scramble hiện tại.
- *
- * Mỗi ô tô đúng màu tâm, ghi số move (HTM) để xếp xong cross màu đó; ô ít
- * move nhất có nhãn "tốt nhất". Số đọc thẳng từ bảng tra cross của bộ giải
- * Rust (BFS đầy đủ), nên là giá trị tối ưu chứ không phải ước lượng.
- */
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
@@ -14,7 +7,6 @@ import { cn } from "@/lib/utils";
 
 type FaceLetter = keyof CrossLengths;
 
-/** Trắng, vàng trước (hai màu cross phổ biến nhất), rồi bốn màu bên. */
 const DISPLAY_ORDER: FaceLetter[] = ["D", "U", "F", "B", "R", "L"];
 
 const COLOR_NAME_KEY: Record<FaceLetter, string> = {
@@ -26,7 +18,6 @@ const COLOR_NAME_KEY: Record<FaceLetter, string> = {
   B: "settings.color.blue",
 };
 
-/** Mặt sáng (trắng, vàng) cần chữ tối để đọc được. */
 const LIGHT_FACES = new Set<FaceLetter>(["U", "D"]);
 
 type State =
@@ -34,7 +25,6 @@ type State =
   | { status: "ready"; lengths: CrossLengths }
   | { status: "error" };
 
-/** Lấy số move cross của `scramble`; bỏ qua kết quả của scramble cũ. */
 export function useCrossLengths(scramble: string, enabled: boolean): State {
   const [state, setState] = useState<State>({ status: "loading" });
   useEffect(() => {
@@ -43,7 +33,6 @@ export function useCrossLengths(scramble: string, enabled: boolean): State {
     setState({ status: "loading" });
     let state: string;
     try {
-      // Trạng thái thật khi tráo theo chuẩn WCA (trắng U, xanh lá F).
       state = scrambledState(scramble);
     } catch {
       setState({ status: "error" });
@@ -73,7 +62,6 @@ export function CrossLengthStrip({
 }) {
   const { t } = useLanguage();
   const state = useCrossLengths(scramble, true);
-  // Scramble có xoay khối (vd. BLD với lượt wide) không cho số có nghĩa: ẩn đi.
   if (state.status === "error") return null;
   const lengths = state.status === "ready" ? state.lengths : null;
   const best = lengths
@@ -90,8 +78,6 @@ export function CrossLengthStrip({
       <span className="text-sm font-medium text-muted">
         {t("timer.crossLengths")}
       </span>
-      {/* Chỉ danh sách số là đang tính: `aria-busy` làm mờ phần tử (index.css),
-          nên đặt ở đây để nhãn bên cạnh giữ đủ tương phản trong lúc chờ. */}
       <ul
         className="flex flex-wrap items-center gap-2"
         aria-label={t("timer.crossLengths")}
@@ -123,8 +109,6 @@ export function CrossLengthStrip({
               >
                 {moves ?? "·"}
               </span>
-              {/* Màu tốt nhất: một vạch màu nhấn dưới ô (không viền, không nhãn chữ).
-                  Ô khác giữ chỗ trống cùng cỡ để hàng không nhảy. */}
               <span
                 aria-hidden="true"
                 className={cn("h-1 w-5 rounded-full", isBest ? "bg-accent" : "bg-transparent")}

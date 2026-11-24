@@ -2,13 +2,8 @@ import { useEffect } from "react";
 import { CFOP_CLOUD_SYNC_EVENT } from "@/lib/cloudSyncSignal";
 import { useReviewReminders } from "../lib/useReviewReminders";
 
-/** Thời gian chờ để gom nhiều thay đổi học liên tiếp thành một lần báo lịch. */
 const SYNC_DEBOUNCE_MS = 5_000;
 
-/**
- * Chạy nền: khi đã bật nhắc ôn tập thì báo lịch ôn tập cho server lúc mở app và
- * sau mỗi thay đổi dữ liệu học. Không vẽ gì ra giao diện.
- */
 export function ReviewReminderSync() {
   const { subscribed, syncSchedule } = useReviewReminders();
 

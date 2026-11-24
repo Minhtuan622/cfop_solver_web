@@ -1,17 +1,3 @@
-/**
- * Bộ lưu tiến độ học (SRS) dùng chung cho mọi lane của trang Học thêm.
- *
- * Mỗi lane (Last Layer, CFOP, BLD, 2×2, Skewb, Pyraminx, Square-1, FTO, 5×5 L2E,
- * 4×4 Parity) có key localStorage, tên schema export, danh sách family và giới
- * hạn riêng, nhưng cùng một thang ôn từ `spacedRepetition.ts`, cùng cách chuẩn
- * hoá bản ghi bằng zod và cùng thuật toán xếp hàng ôn. Lane khai báo tham số qua
- * `createCaseStudyStore`; các hàm không phụ thuộc tham số được export thẳng.
- *
- * Định dạng ghi (`{ schema, version: 1, records, dailyGoal }`) và định dạng
- * export (`{ schema, version: 1, exportedAt, study, masteredCaseKeys }`) là dữ
- * liệu người dùng đã lưu: không đổi nếu không có migration.
- * `caseStudy.contract.test.ts` chốt hợp đồng này cho từng lane.
- */
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 
 import { z } from "zod";
@@ -44,19 +30,12 @@ export type CaseStudyState<Family extends string = string> = {
 export type CaseStudyWeeklyReviewDay = { date: Date; dueCount: number; overdueCount: number; isToday: boolean };
 
 export type CaseStudyConfig<Families extends readonly [string, ...string[]]> = {
-  /** Key localStorage của trạng thái học, ví dụ `cfop-skewb-study-v1`. */
   storageKey: string;
-  /** Key localStorage của danh sách case đã thuộc. */
   masteredStorageKey: string;
-  /** Tên schema trong dữ liệu ghi và file export, ví dụ `cfop-skewb-study`. */
   schema: string;
-  /** Các family hợp lệ; bản ghi có family khác bị bỏ khi đọc. */
   families: Families;
-  /** dailyGoal khi chưa có hoặc giá trị lưu không hợp lệ. */
   defaultDailyGoal: number;
-  /** Số bản ghi tối đa được đọc/ghi (mặc định 2000). */
   maxRecords?: number;
-  /** Số case đã thuộc tối đa được giữ, lấy từ cuối danh sách (mặc định 1800). */
   maxMasteredKeys?: number;
 };
 
@@ -64,7 +43,6 @@ export function caseStudyKey(item: Pick<LastLayerCatalogCase, "family" | "id">) 
   return `${item.family}:${item.id}`;
 }
 
-/** A finite number clamped to [min, max]; invalid input falls back. */
 const boundedNumber = (fallback: number, min: number, max: number) =>
   z.number().finite().transform(value => Math.min(max, Math.max(min, value))).prefault(fallback).catch(fallback);
 const boundedInt = (fallback: number, min: number, max: number) =>
@@ -82,7 +60,6 @@ export function createCaseStudyStore<const Families extends readonly [string, ..
   const maxRecords = config.maxRecords ?? 2000;
   const maxMasteredKeys = config.maxMasteredKeys ?? 1800;
 
-  /** Plain-number daily goal normalizer (not a schema factory). */
   const boundedDailyGoal = (value: unknown) =>
     typeof value === "number" && Number.isFinite(value)
       ? Math.min(200, Math.max(1, Math.round(value)))

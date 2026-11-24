@@ -1,15 +1,3 @@
-/**
- * Trạng thái tô màu của các khối (2×2×2, 3×3×3, Pyraminx, Skewb) và phép đổi
- * qua lại với `KPattern` của cubing.js để đưa cho bộ giải.
- *
- * Mọi khối dùng chung một mô hình sinh từ hình học của chính cubing.js
- * (`puzzles[x].pg()`): mỗi sticker có id `ORBIT-l{vị trí}-o{hướng}` và một mặt.
- * Nhờ vậy không phải tự viết bố cục sticker cho từng khối. Quy ước hướng đã
- * đối chiếu với các lượt quay của cubing.js: ở vị trí `s` đang có mảnh
- * `pieces[s]` với hướng `d`, sticker thứ `k` mang màu ban đầu của sticker
- * `(k + d) mod m` của mảnh đó.
- */
-
 export type KPuzzleId = "2x2x2" | "3x3x3" | "pyraminx" | "skewb" | "megaminx";
 
 export type StateSticker = {
@@ -17,9 +5,7 @@ export type StateSticker = {
   orbit: string;
   slot: number;
   k: number;
-  /** Mặt của sticker lúc đã giải (cũng là "màu" của nó). */
   face: string;
-  /** Màu tô mặc định của cubing.js cho mặt này. */
   fill: string;
   points: string;
 };
@@ -29,20 +15,12 @@ export type StateOrbit = { name: string; numPieces: number; numOrientations: num
 export type StateModel = {
   viewBox: string;
   stickers: StateSticker[];
-  /** Các mặt theo thứ tự xuất hiện, kèm màu mặc định. */
   faces: Array<{ name: string; fill: string }>;
   orbits: StateOrbit[];
-  /** id → các id cùng phải đổi màu một lúc (ô tâm chia nhiều tam giác). */
   groups: Record<string, string[]>;
-  /**
-   * Chiều xoay của `orientation` so với thứ tự sticker trong mảnh: sticker `k` ở
-   * vị trí mang màu của sticker `(k + sign·d) mod m`. Khối KPuzzle viết tay
-   * (2×2×2, 3×3×3) đánh thứ tự sticker ngược với hình học `pg`.
-   */
   orientSign: 1 | -1;
 };
 
-/** Màu từng sticker: id → tên mặt. */
 export type Painting = Record<string, string>;
 
 export type PatternData = Record<
@@ -55,7 +33,6 @@ export type PaintingProblem =
   | { code: "duplicate-piece"; orbit: string; piece: number }
   | { code: "twist"; orbit: string };
 
-/** Phân tích SVG mà `PuzzleGeometry.generatesvg` trả về. */
 export function parseStateSvg(svg: string, orbits: StateOrbit[]): StateModel {
   const viewBox = /viewBox="([^"]+)"/.exec(svg)?.[1] ?? "0 0 800 500";
   const stickers: StateSticker[] = [];
@@ -76,7 +53,6 @@ export function parseStateSvg(svg: string, orbits: StateOrbit[]): StateModel {
   return finishModel(viewBox, stickers, faces, orbits, 1);
 }
 
-/** Tên mặt theo màu trong SVG vẽ tay của cubing.js (2×2×2 và 3×3×3). */
 const HAND_FACES: Record<string, string> = {
   white: "U",
   yellow: "D",
@@ -88,14 +64,7 @@ const HAND_FACES: Record<string, string> = {
 
 const numbers = (text: string) => (text.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
 
-/**
- * Phân tích SVG vẽ tay của cubing.js (`puzzles[x].svg()`). Với 2×2×2 và 3×3×3,
- * `KPuzzle` được viết tay và id sticker trong SVG này là quy ước đánh số thật
- * của nó (twisty tô màu bằng chính các id đó); hình học `pg` cho cùng số mảnh
- * nhưng có thể lệch một phép xoay cả khối, nên không dùng cho hai khối này.
- */
 export function parseHandSvg(svg: string, orbits: StateOrbit[]): StateModel {
-  // Hình dạng sticker: <g id="sticker…" transform="scale(a, b)"> <rect/> hoặc <path d="m …"/>
   const shapes = new Map<string, Array<[number, number]>>();
   const shapeRe = /<g id="(sticker[\w-]*)"([^>]*)>([\s\S]*?)<\/g>/g;
   for (let shape = shapeRe.exec(svg); shape; shape = shapeRe.exec(svg)) {
@@ -165,8 +134,6 @@ function finishModel(
   orbits: StateOrbit[],
   orientSign: 1 | -1
 ): StateModel {
-  // Sticker của cùng một mảnh mà cùng màu (tâm Skewb/3×3, chia 4 tam giác) là
-  // một ô vật lý: tô một tam giác thì cả mảnh đổi.
   const byPiece = new Map<string, StateSticker[]>();
   for (const sticker of stickers) {
     const key = `${sticker.orbit}-l${sticker.slot}`;
@@ -191,7 +158,6 @@ function solvedFace(model: StateModel) {
   return (orbit: string, piece: number, k: number) => lookup.get(`${orbit}-l${piece}-o${k}`);
 }
 
-/** Pattern (từ cubing.js) → màu từng sticker. */
 export function patternToPainting(model: StateModel, data: PatternData): Painting {
   const solved = solvedFace(model);
   const painting: Painting = {};
@@ -208,10 +174,6 @@ export function patternToPainting(model: StateModel, data: PatternData): Paintin
   return painting;
 }
 
-/**
- * Màu từng sticker → dữ liệu pattern. Với mảnh mà mọi sticker cùng màu (tâm) thì
- * hướng không xác định được và lấy 0.
- */
 export function paintingToPatternData(
   model: StateModel,
   painting: Painting
@@ -236,7 +198,6 @@ export function paintingToPatternData(
         }
       }
       if (!found) {
-        // Phân biệt "không có mảnh nào khớp màu" với "mảnh đó đã dùng rồi".
         const anyMatch = Array.from({ length: orbit.numPieces }, (_, piece) => piece).some(
           piece =>
             Array.from({ length: m }, (_, d) => d).some(d =>
@@ -263,7 +224,6 @@ export function paintingToPatternData(
   return { ok: true, data };
 }
 
-/** Số sticker mỗi màu phải bằng lúc đã giải (kiểm nhanh trước khi dựng pattern). */
 export function colorCountsMatch(model: StateModel, painting: Painting) {
   const count = (source: (sticker: StateSticker) => string | undefined) => {
     const map = new Map<string, number>();

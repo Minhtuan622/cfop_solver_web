@@ -1,8 +1,3 @@
-/**
- * The 2×2 CLL lane of /study: 40 cases across Antisune, H, L, Pi, Sune, T and
- * U subsets, with the same SRS practice loop as the other lanes — time the
- * recall, grade Again/Hard/Good/Easy, and let the queue resurface weak cases.
- */
 import { useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -42,7 +37,6 @@ export function TwoByTwoStudyLab({
   onStatsChange,
 }: {
   language: "vi" | "en";
-  /** Reports live SRS stats so the surrounding toolbar can show them. */
   onStatsChange?: (stats: CaseStudyLaneStats) => void;
 }) {
   const { t } = useLanguage();

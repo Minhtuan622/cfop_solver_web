@@ -1,11 +1,3 @@
-//! Direct openings: Cross plus 1..=4 F2L pairs (XCross .. XXXXCross).
-//!
-//! Invariant: an opening is reported only when ONE direct sequence from the
-//! input state reaches the Cross and every target slot at the same time;
-//! it is never assembled from a Cross followed by separate pairs. Each slot
-//! set is a bounded IDA* search whose heuristic is the maximum, over the
-//! target slots, of the Cross+edge and Cross+corner pruning tables.
-
 use cube_core::Cube;
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +6,6 @@ use crate::limits::{Budget, Limits};
 use crate::search::{ida_star, State};
 use crate::stages::{canonical, slot_h, to_actual, Face, StageResult, SLOT_NAMES};
 
-/// Opening tier.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Opening {
@@ -26,7 +17,6 @@ pub enum Opening {
 }
 
 impl Opening {
-    /// Number of F2L pairs solved together with the Cross.
     pub const fn slots(self) -> usize {
         match self {
             Opening::Cross => 0,
@@ -47,7 +37,6 @@ impl Opening {
         }
     }
 
-    /// Lowercase identifier ("xcross", ...).
     pub const fn id(self) -> &'static str {
         match self {
             Opening::Cross => "cross",
@@ -62,33 +51,25 @@ impl Opening {
 #[derive(Clone, Debug)]
 pub struct OpeningOptions {
     pub cross_color: Face,
-    /// XCross .. XXXXCross (Cross is handled by `solve_cross`).
     pub tier: Opening,
     pub max_depth: u8,
-    /// Node budget for each slot-set attempt.
     pub node_budget: u64,
-    /// Slot (0..4) that must be part of the result.
     pub preferred_slot: Option<usize>,
-    /// Slots (0..4) that must not be used.
     pub excluded_slots: Vec<usize>,
-    /// Timeout / clock / progress for the whole opening.
     pub limits: Limits,
 }
 
-/// One bounded search over a slot set.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OpeningAttempt {
     pub slots: Vec<String>,
     pub nodes: u64,
     pub budget: u64,
     pub depth: u8,
-    /// "solved", "budget" (node budget ran out) or "no_solution".
     pub status: String,
 }
 
 #[derive(Clone, Debug)]
 pub struct OpeningResult {
-    /// The solved slots (0..4) and the stage, if a solution was found.
     pub solution: Option<(Vec<usize>, StageResult)>,
     pub attempts: Vec<OpeningAttempt>,
 }
@@ -107,9 +88,6 @@ fn combinations(items: &[usize], k: usize) -> Vec<Vec<usize>> {
     out
 }
 
-/// Search a direct opening of the requested tier. Hard errors (invalid
-/// cube, timeout, cancellation) are returned as `Err`; an exhausted node
-/// budget or depth only yields `solution: None` plus the attempt log.
 pub fn solve_opening(cube: &Cube, opts: &OpeningOptions) -> Result<OpeningResult, Error> {
     let (s, frame) = canonical(cube, opts.cross_color)?;
     let k = opts.tier.slots();
@@ -126,7 +104,6 @@ pub fn solve_opening(cube: &Cube, opts: &OpeningOptions) -> Result<OpeningResult
     let mut sets = combinations(&allowed, k);
     if let Some(p) = opts.preferred_slot {
         if k == 1 {
-            // XCross: try the preferred slot first and keep it if it works.
             sets.sort_by_key(|set| set[0] != p);
         } else {
             sets.retain(|set| set.contains(&p));

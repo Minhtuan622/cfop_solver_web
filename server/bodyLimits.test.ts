@@ -31,7 +31,6 @@ describe("the body parser of the API", () => {
   beforeAll(() => {
     const app = express();
     applyBodyLimits(app);
-    // A stand-in for a tRPC procedure: the parsed body ends the request.
     app.post("/api/trpc/cfopAccount.login", (_req, res) => {
       res.json({ ok: true });
     });

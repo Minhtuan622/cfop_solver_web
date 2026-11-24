@@ -1,4 +1,3 @@
-/** Thẻ biểu đồ tiến bộ theo loại khối của trang Bấm giờ. */
 import {
   Line,
   LineChart,

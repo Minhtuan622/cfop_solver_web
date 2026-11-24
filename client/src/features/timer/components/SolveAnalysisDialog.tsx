@@ -1,8 +1,3 @@
-/**
- * Phân tích một lượt giải bằng smart cube: bảng nhận diện / thực hiện theo giai
- * đoạn, quãng dừng dài nhất, case OLL / PLL đã gặp (nối sang Học thêm), so với
- * bộ giải và phát lại đúng nhịp thật của từng nước.
- */
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/Button";
@@ -33,7 +28,6 @@ import {
 
 const seconds = (ms: number) => `${(ms / 1000).toFixed(2)}s`;
 const PHASES: SplitPhase[] = ["Cross", "F2L", "OLL", "PLL"];
-/** Một nước 3D cần ~100 ms để thấy rõ; nghỉ quá dài thì rút lại cho đỡ chờ. */
 const MIN_STEP_MS = 110;
 const MAX_STEP_MS = 2_500;
 const FIRST_STEP_MS = 500;
@@ -96,7 +90,6 @@ export function SolveAnalysisDialog({
     [entry, moves, times]
   );
 
-  // Danh mục case chỉ nạp khi mở hộp thoại (không nằm trong chunk đầu của Timer).
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   useEffect(() => {
     if (!entry) return;
@@ -135,7 +128,6 @@ export function SolveAnalysisDialog({
     }
   };
 
-  // Phát lại đúng nhịp: chờ giữa hai nước bằng đúng khoảng cách lúc giải.
   const source = useMemo(
     () => (entry && times ? { trace: moves } : null),
     [entry, times, moves]
@@ -153,7 +145,6 @@ export function SolveAnalysisDialog({
   useEffect(() => {
     playback.setPlaying(false);
     playback.setCursor(0);
-    // Chỉ khi đổi lượt giải.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry]);
   const cursor = playback.cursor;

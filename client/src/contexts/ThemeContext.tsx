@@ -2,9 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { DARK_SCHEME_QUERY, applyTheme, readTheme, resolveTheme, saveTheme, type ResolvedTheme, type Theme } from "@/lib/theme";
 
 type ThemeContextValue = {
-  /** The mode the visitor chose: "light", "dark" or "system". */
   theme: Theme;
-  /** The palette currently shown. */
   resolved: ResolvedTheme;
   setTheme: (theme: Theme) => void;
 };

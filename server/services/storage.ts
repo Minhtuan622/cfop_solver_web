@@ -1,7 +1,3 @@
-// Preconfigured storage helpers for Manus WebDev templates
-// Uploads via Forge Server presigned URL to S3 (PUT direct).
-// Downloads return /manus-storage/{key} paths served via 307 redirect.
-
 import { ENV } from "../_core/env";
 
 function getForgeConfig() {
@@ -44,7 +40,6 @@ export async function storagePut(
   const { forgeUrl: forgeUrlBase, forgeKey } = config;
   const key = appendHashSuffix(normalizeKey(relKey));
 
-  // 1. Get presigned PUT URL from Forge
   const presignUrl = new URL("v1/storage/presign/put", forgeUrlBase + "/");
   presignUrl.searchParams.set("path", key);
 
@@ -60,7 +55,6 @@ export async function storagePut(
   const { url: s3Url } = (await presignResp.json()) as { url: string };
   if (!s3Url) throw new Error("Forge returned empty presign URL");
 
-  // 2. PUT file directly to S3
   const blob =
     typeof data === "string"
       ? new Blob([data], { type: contentType })

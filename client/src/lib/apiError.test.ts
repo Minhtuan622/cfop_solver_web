@@ -5,7 +5,6 @@ import { translate } from "@/lib/i18n";
 const vi = (key: string, params?: Record<string, string | number>) => translate("vi", key, params);
 const en = (key: string, params?: Record<string, string | number>) => translate("en", key, params);
 
-/** A tRPC failure, shaped the way the client receives it. */
 function failure(message: string, data?: { code?: string; httpStatus?: number }) {
   return Object.assign(new Error(message), { data });
 }

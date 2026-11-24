@@ -1,11 +1,3 @@
-/**
- * Pyraminx catalog drawer: the shared CatalogExplorer wired to the Pyraminx
- * data and the case diagrams vendored from CubeRoot
- * (cuberoot.me/alg/pyraminx) — there is no 2D net for the Pyraminx, so
- * the tiles show the same diagrams the site shows. Two cases without a
- * CubeRoot counterpart (L4E-DEF-1, L4E-DEF-4) keep the cubingapp.com art.
- * The practice card itself shows the live 3D case.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   CatalogExplorer,
@@ -14,7 +6,6 @@ import {
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import type { PyraminxCatalogCase } from "../lib/pyraminxCatalog";
 
-/** Flat three-face pyraminx mark (used when a case has no diagram). */
 export function PyraminxMark({ className }: { className?: string }) {
   return (
     <svg

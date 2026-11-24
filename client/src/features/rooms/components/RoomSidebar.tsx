@@ -39,14 +39,12 @@ type Props = {
   onChatChange: (value: string) => void;
   onSend: () => void;
   sendPending: boolean;
-  /** True while a moderator grant or revoke is still running. */
   moderationPending: boolean;
   onGrantModerator: (accountId: number) => void;
   onRevokeModerator: (accountId: number) => void;
   onRemoveSpectator: (target: RemovalTarget) => void;
 };
 
-/** The right-hand column: standings, members, moderation log and chat. */
 export function RoomSidebar({
   eventId,
   format,

@@ -18,7 +18,6 @@ describe("twoByTwoCube", () => {
   it("solved state round-trips through any move and its inverse", () => {
     for (const alg of cases) {
       const after = applyTwoByTwoMoves(TWO_BY_TWO_SOLVED, alg);
-      // applying the inverse brings back the solved cube
       const inverse = alg
         .split(/\s+/)
         .reverse()
@@ -40,8 +39,6 @@ describe("twoByTwoCube", () => {
   });
 
   it("case states keep the U-layer stickers on the U face for OLL algs without y/x", () => {
-    // not required for CLL, but sanity: apply alg to solved gives all-matching U? no —
-    // just check legality (all 6 colors present, 4 of each)
     for (const alg of ["U R U2 R' U' R U' R'"]) {
       const state = twoByTwoCaseState(alg);
       for (const color of "URFDLB") {

@@ -1,13 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-/**
- * Kịch bản e2e: Square-1 và Clock tạm thời chỉ hiển thị mô hình 2D.
- *
- * cubing.js không có mô hình 3D cho hai event này (chỉ kpuzzle + SVG), nên
- * chúng dùng `<twisty-player visualization="2D">` của thư viện thay vì model
- * Three.js tự dựng. Bài test xác nhận preview không tạo canvas 3D mà dựng
- * đúng player 2D của cubing.js, kèm trạng thái sau scramble.
- */
 test("Square-1 và Clock chỉ hiển thị mô hình 2D, không có canvas 3D", async ({
   page,
 }) => {
@@ -28,7 +20,6 @@ test("Square-1 và Clock chỉ hiển thị mô hình 2D, không có canvas 3D",
     await expect(player).toHaveCount(1);
     await expect(host.locator("canvas")).toHaveCount(0);
 
-    // 2D phải render được trạng thái (SVG hiển thị được), không phải khung rỗng.
     await expect
       .poll(
         async () =>

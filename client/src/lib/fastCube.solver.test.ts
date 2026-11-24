@@ -1,8 +1,3 @@
-/**
- * Bảng nước đi của `fastCube.ts` (xem trước scramble ngay trong trang) phải
- * khớp từng sticker với bộ giải thật (`packages/solver`, bản build
- * WebAssembly), cho mọi loại nước: mặt, slice, xoay cả khối và wide.
- */
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -20,7 +15,6 @@ beforeAll(() => {
 const FAMILIES = "U R F D L B M E S x y z u r f d l b".split(" ");
 const SUFFIXES = ["", "'", "2"];
 
-/** SplitMix64 rút gọn về 32 bit: đề ngẫu nhiên nhưng cố định. */
 function rng(seed: number) {
   let state = seed >>> 0;
   return () => {

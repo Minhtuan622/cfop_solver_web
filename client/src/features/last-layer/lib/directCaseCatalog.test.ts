@@ -33,7 +33,6 @@ describe("directCaseCatalog", () => {
   it("clamps the limit to [1, 2000]", () => {
     expect(listLastLayerDirectCases({ limit: 0 })).toHaveLength(1);
     expect(listLastLayerDirectCases({ limit: 10 })).toHaveLength(10);
-    // the clamp allows 2000, but the catalog only holds 1682 rows
     expect(listLastLayerDirectCases({ limit: 5000 })).toHaveLength(
       ZBLL_DIRECT_CASES.length + ONE_LLL_DIRECT_CASES.length
     );

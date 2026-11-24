@@ -9,15 +9,6 @@ import {
   fetchBldCatalogFile,
 } from "./bldCatalogSource";
 
-/**
- * Regression test cho C3 (BLDDB: pin commit SHA + cache offline).
- *
- * Lỗi thật: catalog thuật toán được tải từ nhánh `main`/`v2` của BLDDB —
- * một nhánh chuyển động. Một lần cập nhật upstream có thể đổi hoặc xoá
- * thuật toán mà app đã phân giải, và mỗi lần mở app lại tải lại ~13 MB.
- */
-
-/** Cache API giả đủ dùng cho test. */
 class FakeCache {
   readonly store = new Map<string, unknown>();
 

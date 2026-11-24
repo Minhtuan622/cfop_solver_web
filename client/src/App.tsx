@@ -9,14 +9,11 @@ import { SkeletonCard } from "./components/ui/StudioUI";
 import { AppToaster } from "./components/ui/AppToaster";
 import { useLanguage } from "./contexts/LanguageContext";
 import { CompetitionOutcomeCelebration } from "./features/competition/components/CompetitionOutcomeCelebration";
-// Account sync is background work: keep its storage helpers out of the entry
-// chunk so the first screen does not wait for solve history and SRS code.
 const CfopCloudSync = lazy(() =>
   import("./features/profile/components/CfopCloudSync").then(module => ({
     default: module.CfopCloudSync,
   }))
 );
-// Nhắc ôn tập chạy nền, chỉ nạp sau màn hình đầu tiên như CfopCloudSync.
 const ReviewReminderSync = lazy(() =>
   import("./features/settings/components/ReviewReminderSync").then(module => ({
     default: module.ReviewReminderSync,

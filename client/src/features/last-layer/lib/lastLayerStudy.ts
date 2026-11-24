@@ -1,8 +1,3 @@
-/**
- * SRS study state for the Last Layer lane (ZBLL and 1LLL).
- *
- * Built on the shared `lib/caseStudy.ts` engine with its own storage keys.
- */
 import {
   caseStudyKey,
   createCaseStudyStore,

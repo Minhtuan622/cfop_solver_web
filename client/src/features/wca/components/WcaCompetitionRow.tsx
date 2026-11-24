@@ -12,12 +12,6 @@ import {
   type WcaCompetition,
 } from "../lib/wcaCalendar";
 
-/**
- * One competition of the calendar as a compact card: the date stands out in a
- * soft tile on the left; the name (link to the competition page), the place
- * and venue, and the events sit on the right. The website link is a small
- * icon next to the name.
- */
 export function WcaCompetitionRow({
   competition,
   language,
@@ -48,7 +42,6 @@ export function WcaCompetitionRow({
 
   return (
     <li className="flex h-full gap-3 rounded-2xl bg-surface p-3 sm:p-4">
-      {/* Ngày nổi bật bên trái, thông tin gọn bên phải. */}
       <div className="flex w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-surface-2 px-1 py-2 text-center">
         <span className="text-lg font-bold leading-none tabular-nums text-ink">
           {range.days}

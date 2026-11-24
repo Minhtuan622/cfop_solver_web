@@ -1,13 +1,3 @@
-/** Xưởng Cơ Khí Tốc Độ — typed bridge to the non-blocking CFOP solver worker.
- *
- * Một worker WebAssembly duy nhất (`solverWorker.ts`, bộ giải Rust trong
- * `packages/solver`) đảm nhiệm solve và bld (tốn CPU) — xem
- * `lib/solverEngine.ts`. Việc kiểm tra hợp lệ trạng thái (`validateStateInBrowser`)
- * chạy thuần JavaScript trong trang (`lib/cubeValidation.ts`), còn duyệt danh
- * mục case 1LLL/ZBLL (`listLastLayerCasesInBrowser`) đọc từ dữ liệu đã được
- * nhúng sẵn (`features/last-layer/lib/directCaseCatalog.ts`) — không cần
- * worker.
- */
 import { validateCubeState } from "./cubeValidation";
 import {
   WasmSolverEngine,
@@ -119,7 +109,6 @@ export type { CrossLengths, SolverEngine, SolverProgress } from "./solverEngine"
 
 let engine: SolverEngine | null = null;
 
-/** Engine của trang (tạo lười, một lần). */
 export function getSolverEngine(): SolverEngine {
   engine ??= new WasmSolverEngine();
   return engine;
@@ -169,7 +158,6 @@ export function analyzeBldInBrowser(
   return getSolverEngine().analyzeBld(kind, value);
 }
 
-/** Số move cross tối ưu cho cả 6 màu (đọc thẳng từ bảng tra, không tìm kiếm). */
 export function crossLengthsInBrowser(
   kind: "scramble" | "state",
   value: string
@@ -180,7 +168,6 @@ export function crossLengthsInBrowser(
 export async function validateStateInBrowser(
   value: string
 ): Promise<CubeValidation> {
-  // Thuần JavaScript trong trang (lib/cubeValidation.ts) — không cần worker.
   return validateCubeState(value);
 }
 
@@ -192,7 +179,6 @@ export async function listLastLayerCasesInBrowser(
     limit?: number;
   } = {}
 ): Promise<LastLayerCatalogCase[]> {
-  // Tải lười để ~230 KB dữ liệu catalog chỉ được tải khi mở Last Layer Study.
   const { listLastLayerDirectCases } = await import(
     "@/features/last-layer/lib/directCaseCatalog"
   );

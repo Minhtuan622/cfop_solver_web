@@ -4,13 +4,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { errorMessage } from "@/lib/apiError";
 import type { AuthMode } from "../components/CfopAuthDialog";
 
-/**
- * Trạng thái tài khoản dùng chung: truy vấn hồ sơ, các thao tác đăng nhập /
- * đăng ký / đăng xuất và hộp thoại tài khoản.
- *
- * Tách ra khỏi `CfopAccountControl` để thanh điều hướng gom tài khoản, ngôn ngữ
- * và giao diện vào cùng một menu mà vẫn giữ được một nguồn sự thật.
- */
 export function useCfopAccountSession() {
   const { t } = useLanguage();
   const utils = trpc.useUtils();

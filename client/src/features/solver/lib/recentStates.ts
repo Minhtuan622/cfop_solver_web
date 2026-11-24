@@ -1,7 +1,6 @@
 import type { Language } from "@/lib/i18n";
 import type { CrossColor } from "@/lib/solverRuntime";
 
-/** A cube state the visitor painted earlier and can bring back in one click. */
 export type RecentCubeState = {
   id: string;
   state: string;
@@ -19,7 +18,6 @@ function isRecentState(value: unknown): value is RecentCubeState {
   return typeof item.state === "string" && item.state.length === 54;
 }
 
-/** The states kept in the browser, newest first. */
 export function readRecentStates(): RecentCubeState[] {
   try {
     const stored = JSON.parse(localStorage.getItem(RECENT_STATE_KEY) ?? "[]");
@@ -33,7 +31,6 @@ export function writeRecentStates(states: RecentCubeState[]) {
   localStorage.setItem(RECENT_STATE_KEY, JSON.stringify(states));
 }
 
-/** The short label a saved state carries in the list. */
 export function recentStateLabel(language: Language, savedAt: Date) {
   return `State · ${new Intl.DateTimeFormat(language === "vi" ? "vi-VN" : "en-US", {
     day: "2-digit",
@@ -43,7 +40,6 @@ export function recentStateLabel(language: Language, savedAt: Date) {
   }).format(savedAt)}`;
 }
 
-/** Puts a state at the front of the list, without repeating itself. */
 export function rememberRecentState(states: RecentCubeState[], state: string, crossColor: CrossColor, language: Language): RecentCubeState[] {
   if (state.length !== 54) return states;
   const now = new Date();

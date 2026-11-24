@@ -1,6 +1,5 @@
 ﻿import type { Dictionary } from "./index";
 
-/** The study lane: Last Layer SRS drills and the 3-Style BLD learning path. */
 export const studyWords: Dictionary = {
   "study.eyebrow": ["Học tập", "Study"],
   "study.title": ["Học thêm", "Study"],

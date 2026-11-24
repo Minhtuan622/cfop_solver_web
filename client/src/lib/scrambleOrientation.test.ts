@@ -12,17 +12,14 @@ import {
   wcaLettersToStudio,
 } from "./scrambleOrientation";
 
-/** Ô giữa của mặt `face` (URFDLB, 9 ô mỗi mặt). */
 const center = (state: string, faceIndex: number) => state[faceIndex * 9 + 4];
 const FACES = ["U", "R", "F", "D", "L", "B"] as const;
 
 describe("scrambledState", () => {
   it("lượt U của scramble xoay mặt trắng (D trong khung studio)", () => {
     const state = scrambledState("U");
-    // Mặt trắng chỉ tự xoay nên vẫn toàn màu trắng; tầng trên (vàng) không đổi.
     expect(state.slice(27, 36)).toBe("DDDDDDDDD");
     expect(state.slice(0, 9)).toBe("UUUUUUUUU");
-    // Tầng dưới của mặt F (xanh lá) giờ mang màu của mặt bên khác.
     expect(state.slice(24, 27)).not.toBe("FFF");
     expect(state.slice(18, 24)).toBe("FFFFFF");
   });
@@ -31,7 +28,6 @@ describe("scrambledState", () => {
     const state = scrambledState("R");
     expect(state.slice(9, 18)).toBe("RRRRRRRRR");
     expect(state.slice(36, 45)).toBe("LLLLLLLLL");
-    // Cột trái của mặt F (phía mặt đỏ) đã đổi màu.
     expect([18, 21, 24].map(i => state[i]).join("")).not.toBe("FFF");
   });
 
@@ -66,7 +62,6 @@ describe("ký hiệu theo hướng đang cầm", () => {
     cross => {
       const scramble = "R U2 F' L D B2 R' U F2 D' L2 B";
       const actualSolution = invertAlgorithm(studioScrambleAlg(scramble));
-      // Khối thật đã lật màu cross về D, làm lời giải viết theo hướng đang cầm.
       const held = orientForCross(scrambledState(scramble), cross);
       const done = applyFastMoves(held, heldAlgorithm(actualSolution, cross));
       expect(done).toBe(orientForCross(SOLVED_FAST_STATE, cross));

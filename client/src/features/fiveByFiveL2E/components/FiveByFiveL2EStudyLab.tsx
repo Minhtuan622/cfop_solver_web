@@ -1,8 +1,3 @@
-/**
- * The 5×5 L2E lane of /study: the 15 Last Two Edges algorithms with the
- * same SRS practice loop as the other lanes — time the recall, grade
- * Again/Hard/Good/Easy, and let the queue resurface weak cases.
- */
 import { useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -41,7 +36,6 @@ export function FiveByFiveL2EStudyLab({
   onStatsChange,
 }: {
   language: "vi" | "en";
-  /** Reports live SRS stats so the surrounding toolbar can show them. */
   onStatsChange?: (stats: CaseStudyLaneStats) => void;
 }) {
   const { t } = useLanguage();

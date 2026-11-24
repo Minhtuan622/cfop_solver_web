@@ -1,11 +1,5 @@
 import type { Request } from "express";
 
-/**
- * Tells whether the request reached the app over https.
- *
- * The app runs behind a proxy, so the scheme is read from the forwarded
- * protocol header when the socket itself is not secure.
- */
 export function isSecureRequest(req: Request) {
   if (req.protocol === "https") return true;
 

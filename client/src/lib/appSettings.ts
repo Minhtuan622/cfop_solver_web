@@ -14,10 +14,9 @@ export type SolverSettings = {
 
 const SOLVER_SETTINGS_KEY = "cfop-app-solver-settings-v1";
 
-/** "on": đồng hồ chỉ hiện "Đang giải…" khi đang chạy (Cài đặt → Timer). */
 export const HIDE_RUNNING_TIME_KEY = "cfop-hide-running-time";
 export const DEFAULT_SOLVER_SETTINGS: SolverSettings = {
-  crossColor: "D", // trắng (khung studio: trắng ở D)
+  crossColor: "D",
   opening: "cross",
   openingDepth: 8,
   openingFindResult: false,
@@ -26,7 +25,6 @@ export const DEFAULT_SOLVER_SETTINGS: SolverSettings = {
   excludedSlots: [],
 };
 
-/** A finite number clamped to [min, max]; invalid input falls back. */
 const boundedInt = (min: number, max: number, fallback: number) =>
   z
     .number()

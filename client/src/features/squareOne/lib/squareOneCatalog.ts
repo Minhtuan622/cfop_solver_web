@@ -1,12 +1,3 @@
-/**
- * Square-1 catalog for the /study Square-1 lane.
- *
- * The catalog keeps a deterministic sentinel `state` (`"sq1:<id>"`) that the
- * icon preview ignores — there is no 2D facelet model; the case preview is
- * the library's 2D twisty-player rendering of the inverted algorithm applied
- * to the solved puzzle. The algorithms themselves are verified offline
- * (round-trip through cubing.js KPuzzle).
- */
 import {
   SQUARE_ONE_CATALOG,
   SQ1_FAMILIES,

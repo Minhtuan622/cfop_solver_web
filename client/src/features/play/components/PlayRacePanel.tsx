@@ -4,7 +4,6 @@ import { buttonClass } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { RaceStatus } from "../lib/playTypes";
 
-/** Bảng đua: scramble, nút bắt đầu/đổi đề/huỷ lượt và công tắc inspection. */
 export function PlayRacePanel({
   status,
   scramble,
@@ -19,12 +18,9 @@ export function PlayRacePanel({
   scramble: string;
   inspectionEnabled: boolean;
   onInspectionChange: (enabled: boolean) => void;
-  /** Đang có lượt chạy (khoá công tắc inspection). */
   busy: boolean;
   onNewScramble: () => void;
-  /** Bắt đầu lượt (cũng là phím Space). */
   onStart: () => void;
-  /** Huỷ lượt hoặc dừng và ghi DNF (cũng là phím Escape). */
   onCancel: () => void;
 }) {
   const { t } = useLanguage();
@@ -45,7 +41,6 @@ export function PlayRacePanel({
                 <Dices className="text-base" aria-hidden="true" />
                 {t("play.newScramble")}
               </button>
-              {/* Điện thoại không có phím Space: nút thay thế. */}
               <button
                 type="button"
                 className={buttonClass("primary", "sm")}

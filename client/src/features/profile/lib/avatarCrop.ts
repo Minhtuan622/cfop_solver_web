@@ -1,5 +1,3 @@
-/** Avatar crop helpers built on react-easy-crop's cropped-area output. */
-
 export type CroppedAvatarArea = {
   x: number;
   y: number;
@@ -20,10 +18,6 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-/**
- * Renders the cropped region reported by `react-easy-crop` into a square
- * 512 px `canvas` and exports it as a Blob (avatar uploads stay small).
- */
 export async function renderCroppedAvatar(
   file: Blob,
   area: CroppedAvatarArea,

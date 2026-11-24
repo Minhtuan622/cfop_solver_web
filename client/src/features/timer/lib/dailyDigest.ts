@@ -1,4 +1,3 @@
-/** Local-day key in the user's timezone (timezone-safe for streaks). */
 export function dayKey(ms: number): string {
   const date = new Date(ms);
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -6,9 +5,7 @@ export function dayKey(ms: number): string {
 }
 
 export type DailyDigest = {
-  /** Solves recorded today. */
   todayCount: number;
-  /** Consecutive days with at least one solve, counting back from today (or yesterday when today has none yet). */
   streak: number;
 };
 
@@ -27,7 +24,6 @@ export function dailyDigest(
       cursor.setDate(cursor.getDate() - 1);
     }
   } else {
-    // No solves yet today — count the streak ending yesterday.
     const cursor = new Date();
     cursor.setDate(cursor.getDate() - 1);
     while (days.has(dayKey(cursor.getTime()))) {

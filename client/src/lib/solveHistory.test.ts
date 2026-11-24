@@ -109,12 +109,12 @@ describe("solveHistory: normalization on read", () => {
     const entry = validEntry({
       phaseSplits: [
         { phase: "Cross", markedAtMs: 10_000, elapsedMs: 10_000 },
-        { phase: "F2L", markedAtMs: 5_000, elapsedMs: 5_000 }, // out of order -> dropped
-        { phase: "ZZZ", markedAtMs: 20_000, elapsedMs: 20_000 }, // unknown -> dropped
+        { phase: "F2L", markedAtMs: 5_000, elapsedMs: 5_000 },
+        { phase: "ZZZ", markedAtMs: 20_000, elapsedMs: 20_000 },
         { phase: "F2L", markedAtMs: 20_000, elapsedMs: 20_000 },
         { phase: "OLL", markedAtMs: 20_000, elapsedMs: 22_000 },
         { phase: "PLL", markedAtMs: 30_000, elapsedMs: 32_000 },
-        { phase: "PLL", markedAtMs: 35_000, elapsedMs: 35_000 }, // duplicate phase -> dropped
+        { phase: "PLL", markedAtMs: 35_000, elapsedMs: 35_000 },
       ],
     });
     window.localStorage.setItem(KEY, JSON.stringify([entry]));
@@ -281,7 +281,6 @@ describe("solveHistory: import/export", () => {
     expect(fromCube.source).toBe("smartcube");
     expect(readSolveHistory()[0]?.source).toBe("smartcube");
 
-    // Old exports without the field still import cleanly.
     const imported = importSolveHistory([validEntry()]);
     expect(imported[0]?.source).toBeUndefined();
   });
@@ -307,7 +306,6 @@ describe("solveHistory: import/export", () => {
     expect(saved.moveTimes).toEqual([0, 180, 420]);
     expect(readSolveHistory()[0]?.moveTimes).toEqual([0, 180, 420]);
 
-    // Sửa lời giải (số nước đổi) thì nhịp cũ không còn đúng: bị bỏ.
     const [edited] = updateSolveHistory(saved.id, { solution: "R U" });
     expect(edited.moveTimes).toBeUndefined();
   });

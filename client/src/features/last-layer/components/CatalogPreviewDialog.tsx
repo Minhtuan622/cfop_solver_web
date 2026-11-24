@@ -15,7 +15,6 @@ import type {
   CatalogExplorerPreviewProps,
 } from "../lib/catalogExplorerTypes";
 
-/** Hộp thoại xem trước một case: hình lớn (có thể phát lại 3D), thuật toán và nút học. */
 export function CatalogPreviewDialog({
   previewCase,
   previewHint,
@@ -31,7 +30,6 @@ export function CatalogPreviewDialog({
   previewHint: string;
   DialogPreview: ComponentType<CatalogExplorerPreviewProps>;
   replayToken: number;
-  /** Có hình xem lại riêng (`dialogPreview`) nên hiện nút phát lại. */
   canReplay: boolean;
   replayLabel: string | undefined;
   onClose: () => void;

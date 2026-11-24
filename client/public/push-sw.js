@@ -1,9 +1,3 @@
-/*
- * Nhận thông báo nhắc ôn tập (Web Push). File này được Workbox nạp bằng
- * importScripts vào service worker của PWA (xem `vite.config.ts`).
- * Nội dung push chỉ có loại và số case; câu chữ soạn tại đây theo ngôn ngữ
- * của trình duyệt vì service worker không đọc được cài đặt của app.
- */
 self.addEventListener("push", event => {
   let data = {};
   try {

@@ -4,28 +4,6 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/**
- * Quét tương phản trên trang thật bằng axe-core.
- *
- * Mục tiêu của bài này là **báo cáo**, không tự sửa màu. Mọi vi phạm đã biết
- * được liệt kê trong `e2e/contrast-a11y.baseline.json`; bài kiểm tra bảo vệ
- * baseline theo **hai chiều**:
- *
- * - vi phạm **mới** (không có trong baseline) → FAIL, để không lọt lỗi
- *   tương phản vào sản phẩm;
- * - vi phạm **đã biết nhưng không còn xuất hiện** (tức đã được sửa mà
- *   baseline chưa cập nhật) → FAIL, để danh sách không lỗi thời âm thầm.
- *
- * Cùng tinh thần với cơ chế `KNOWN_FAILURES` của `server/contrast.test.ts`.
- *
- * Chạy riêng:
- *   pnpm exec playwright test e2e/contrast-a11y.spec.ts
- * In toàn bộ kết quả (kể cả mục đã biết), không fail:
- *   AXE_REPORT_ONLY=1 pnpm exec playwright test e2e/contrast-a11y.spec.ts
- * Sinh lại baseline sau khi một vi phạm đã được sửa:
- *   AXE_UPDATE_BASELINE=1 pnpm exec playwright test e2e/contrast-a11y.spec.ts
- */
-
 type Theme = "light" | "dark";
 type Finding = {
   page: string;
@@ -48,14 +26,6 @@ const PAGES = [
 
 const THEMES: Theme[] = ["light", "dark"];
 
-/**
- * Khóa nhận diện một phát hiện đã biết: trang + chế độ + rule + selector.
- *
- * Cố ý **không** gồm `failureSummary`: khi palette đổi, tỉ lệ trong câu thông
- * báo đổi theo, nhưng cùng một phần tử vẫn là cùng một phát hiện đã biết.
- * Ngược lại, nếu một token bị làm hỏng, phần tử mới rơi vào `color-contrast`
- * sẽ tạo khóa mới và test FAIL — đó là bằng chứng bài kiểm tra bắt được lỗi.
- */
 const BASELINE_PATH = join(
   dirname(fileURLToPath(import.meta.url)),
   "contrast-a11y.baseline.json"
@@ -76,8 +46,6 @@ try {
 } catch {
   baselineKeys = [];
 }
-// Đếm số lần xuất hiện của mỗi khóa trong baseline — để không đánh mất vi phạm
-// mới khi một trang có thêm phần tử thứ hai giống hệt phần tử đã biết.
 const KNOWN_COUNTS = new Map<string, number>();
 for (const key of baselineKeys) {
   KNOWN_COUNTS.set(key, (KNOWN_COUNTS.get(key) ?? 0) + 1);
@@ -86,17 +54,10 @@ for (const key of baselineKeys) {
 const COLLECTED: Finding[] = [];
 
 function normalizeHtml(html: string): string {
-  // Bỏ thuộc tính data-loc (đường dẫn file theo OS: Windows dùng '\\' còn Linux
-  // dùng '/') và gộp khoảng trắng — nếu không, khóa baseline sinh trên Windows
-  // sẽ không khớp với CI chạy trên Linux.
   return html.replace(/\s*data-loc="[^"]*"/g, "").replace(/\s+/g, " ").trim();
 }
 
 function findingKey(finding: Finding): string {
-  // Dùng html đã chuẩn hoá + failureSummary thay cho target: selector CSS sinh ra
-  // bởi axe có thể đổi giữa các lần chạy, trong khi html và tỉ lệ đo được là
-  // ổn định. Khi palette bị làm hỏng, tỉ lệ trong failureSummary đổi → khóa
-  // mới → test FAIL.
   return [
     finding.page,
     finding.theme,
@@ -106,7 +67,6 @@ function findingKey(finding: Finding): string {
   ].join("|");
 }
 
-/** Nhãn ngắn của một khoá baseline: trang | chế độ | rule (bỏ phần html). */
 function shortKey(key: string): string {
   return key.split("|").slice(0, 3).join(" | ");
 }
@@ -127,10 +87,6 @@ function trpcBatch(dataFor: (path: string) => unknown) {
   };
 }
 
-/**
- * tRPC giả lập trong bộ nhớ. Không tạo tài khoản, không ghi cloud state, không
- * mở phòng thật. Tài khoản chỉ để các trang hiển thị đúng bố cục đầy đủ.
- */
 async function mockApi(page: Page) {
   const account = {
     id: 901,
@@ -176,13 +132,9 @@ async function openPage(page: Page, path: string, theme: Theme) {
   );
   await mockApi(page);
   await page.goto(path);
-  // Footer chỉ xuất hiện sau khi AppShell và trang lazy đã tải xong.
   await expect(page.locator("footer")).toContainText("CFOP Solver Studio");
   await expect(page.locator("main")).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
-  // Cho các query tRPC giả lập và biểu đồ/layout ổn định trước khi đo màu.
-  // Tránh waitForLoadState("networkidle"): websocket của Vite HMR có thể giữ
-  // kết nối mở và treo bước này trên CI. Chờ cố định đủ để layout/query ổn định.
   await page.waitForTimeout(1500);
 }
 
@@ -235,13 +187,6 @@ for (const theme of THEMES) {
           seenCounts.set(key, seen + 1);
         }
 
-        // Vi phạm đã biết nhưng KHÔNG còn xuất hiện nữa.
-        //
-        // Đây là chiều ngược lại của kiểm tra "vi phạm mới": nếu ai đó sửa
-        // được một lỗi a11y mà không cập nhật baseline, danh sách sẽ giữ
-        // lại một mục chết và âm thầm lỗi thời. Cùng tinh thần với cơ chế
-        // `KNOWN_FAILURES` của `server/contrast.test.ts`: danh sách phải luôn
-        // trung thực với hiện trạng.
         const missing: string[] = [];
         for (const [key, count] of KNOWN_COUNTS) {
           if (!key.startsWith(`${appPage.path}|${theme}|`)) continue;
@@ -288,8 +233,6 @@ for (const theme of THEMES) {
 
 test.afterAll(() => {
   if (process.env.AXE_UPDATE_BASELINE !== "1") return;
-  // Giữ nguyên số lần xuất hiện (không khử trùng) để bài kiểm tra phân biệt
-  // được phần tử thứ hai giống hệt phần tử đã biết.
   const payload = {
     version: 4,
     generated: new Date().toISOString(),

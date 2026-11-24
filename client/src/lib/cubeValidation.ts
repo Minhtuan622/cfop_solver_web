@@ -1,13 +1,3 @@
-/**
- * Validates a 54-sticker facelet state (U R F D L B, row-major per face).
- *
- * Same facelet conventions and checks as the solver's
- * `Cube::from_stickers` (`packages/solver/cube-core`): sticker counts, fixed
- * centers, cubie color signatures, corner/edge orientation sums, permutation
- * parity — in plain TypeScript, so the Home page can validate hand-painted
- * cube states without starting the solver worker.
- */
-
 export type CubeValidation = { valid: boolean; message: string };
 
 const FACE_ORDER = ["U", "R", "F", "D", "L", "B"] as const;
@@ -62,7 +52,6 @@ const EDGE_POSITIONS: readonly Vec[] = [
   [-1, 0, -1],
   [1, 0, -1],
 ];
-/** The three facelets of each corner, indexed by slot, in reference order. */
 const CORNER_FACELETS: readonly [number, number, number][] = [
   [8, 9, 20],
   [6, 18, 38],
@@ -73,7 +62,6 @@ const CORNER_FACELETS: readonly [number, number, number][] = [
   [33, 53, 42],
   [35, 17, 51],
 ];
-/** The two facelets of each edge, indexed by slot, in reference order. */
 const EDGE_FACELETS: readonly [number, number][] = [
   [5, 10],
   [7, 19],
@@ -88,7 +76,6 @@ const EDGE_FACELETS: readonly [number, number][] = [
   [50, 39],
   [48, 14],
 ];
-/** The two sticker colors of each edge piece, indexed by piece signature. */
 const EDGE_COLORS: readonly [string, string][] = [
   ["U", "R"],
   ["U", "F"],
@@ -120,7 +107,6 @@ function stickerKey(face: string, row: number, col: number): [Vec, Vec] {
   );
   return [pos, normal];
 }
-/** For each facelet index (U R F D L B, row-major per face): its cubie position and outward normal. */
 const INDEX_TO_KEY: readonly [Vec, Vec][] = (() => {
   const keys: [Vec, Vec][] = [];
   for (const face of FACE_ORDER)
@@ -143,7 +129,6 @@ const POSITION_INDICES: ReadonlyMap<string, number[]> = (() => {
 function keyOf(colors: Set<string>) {
   return [...colors].sort().join("");
 }
-/** Map from a sorted set of sticker colors to the piece index, per cubie slot order. */
 function solvedSignatures(
   positions: readonly Vec[]
 ): Map<string, number> {
@@ -243,14 +228,6 @@ function permutationParity(values: readonly number[]): 0 | 1 {
   return (inversions % 2) as 0 | 1;
 }
 
-/**
- * Like `assertValidCubeState`, but accepts whole-cube-rotated frames —
- * the kind produced by deriving a case state with `invertAlgorithm()` when
- * the algorithm itself contains `x/y/z` rotations. Same cubie-level checks
- * (unique pieces, orientation sums), no fixed-center or parity requirement:
- * the full move set (rotations, slices) flips edge parity alone, so corner
- * and edge parity need not match in derived states.
- */
 export function assertValidScrambleState(stickers: string): void {
   faceletInventory(stickers);
   const view = viewOf(stickers);
@@ -262,7 +239,6 @@ export function assertValidScrambleState(stickers: string): void {
     throw new Error("Edge orientation sum is not even");
 }
 
-/** Throws `Error` (with the wording the Studio shows) when the state is illegal. */
 export function assertValidCubeState(stickers: string): void {
   validateFacelets(stickers);
   const view = viewOf(stickers);
@@ -276,7 +252,6 @@ export function assertValidCubeState(stickers: string): void {
     throw new Error("Corner and edge permutation parity mismatch");
 }
 
-/** Non-throwing variant used by the UI: `{ valid, message }`. */
 export function validateCubeState(stickers: string): CubeValidation {
   try {
     assertValidCubeState(stickers);

@@ -1,10 +1,3 @@
-/**
- * Flat full-net preview for the 3-Style BLD lane: the same flat-ink language
- * as the generated case diagrams (rounded stickers on the ink stage, no
- * labels), rendered inline. The BLD catalog is enormous (thousands of cases
- * loaded at runtime), so these tiles render inline instead of shipping one
- * static SVG asset per case.
- */
 import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { CatalogExplorerPreviewProps } from "@/features/last-layer/components/CatalogExplorer";
@@ -13,11 +6,8 @@ import { useCallback, type KeyboardEvent } from "react";
 const SOLVED =
   "U".repeat(9) + "R".repeat(9) + "F".repeat(9) + "D".repeat(9) + "L".repeat(9) + "B".repeat(9);
 
-/** Stickers that did not move stay faint; the case pops against the ink stage. */
 const DIM = "#2a3048";
 
-// Unfolded net: U above F; L F R B across the middle row; D below F.
-// Face order in the facelet string: U0-8, R9-17, F18-26, D27-35, L36-44, B45-53.
 const GRID: Array<Array<number | null>> = [
   [null, null, null, 0, 1, 2, null, null, null, null, null, null],
   [null, null, null, 3, 4, 5, null, null, null, null, null, null],

@@ -1,7 +1,3 @@
-/**
- * Con trỏ phát lại lời giải: vị trí lượt hiện tại, tự chạy theo tốc độ và kiểu
- * chuyển động cho khối 3D (một lượt, nhảy, sang phase, về đầu).
- */
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SolverResult } from "@/lib/solverRuntime";
 import { phaseAt } from "./solutionView";
@@ -16,18 +12,12 @@ export type CubeMotion = {
   phaseName?: string;
 };
 
-/** Bộ phát chỉ cần độ dài lời giải; `phases` có thì mới tính phase. */
 export type PlaybackSource = {
   trace: readonly unknown[];
   phases?: SolverResult["phases"];
 };
 
 export type PlaybackOptions = {
-  /**
-   * Chờ bao lâu (ms) trước khi sang nước kế tiếp, tính từ vị trí hiện tại. Có thì
-   * bộ phát đi theo nhịp riêng (vd. nhịp thật của một lượt smart cube) thay vì
-   * một nhịp đều.
-   */
   delayFor?: (cursor: number, speed: number) => number;
 };
 
@@ -80,7 +70,6 @@ export function useSolverPlayback(result: PlaybackSource | null, options: Playba
   useEffect(() => {
     if (!playing || !result) return;
     if (delayForRef.current) {
-      // Nhịp riêng: hẹn từng nước một, mỗi lần chờ theo vị trí hiện tại.
       let timer = 0;
       const step = () => {
         const next = cursorRef.current + 1;
@@ -103,20 +92,16 @@ export function useSolverPlayback(result: PlaybackSource | null, options: Playba
         }
         updateCursor(next, "playback");
       },
-      // Một nước nửa vòng cần ~650ms ở tempo của khối 3D (xem SolutionStage);
-      // cách nhau ít hơn thì các nước đè lên nhau và khối nhảy cóc.
       Math.max(100, Math.round(700 / playbackSpeed))
     );
     return () => window.clearInterval(id);
   }, [playbackSpeed, playing, result, updateCursor]);
 
-  /** Dừng phát rồi nhảy tới `next`. */
   const selectCursor = (next: number, intent: CursorIntent = "seek") => {
     setPlaying(false);
     updateCursor(next, intent);
   };
 
-  /** Về đầu lời giải mới (khối 3D chạy chuyển động "reset"). */
   const resetToStart = () => {
     cursorRef.current = 0;
     setCubeMotion({
@@ -129,7 +114,6 @@ export function useSolverPlayback(result: PlaybackSource | null, options: Playba
 
   return {
     cursor,
-    /** Đặt thẳng vị trí (không đổi chuyển động), dùng khi xoá kết quả cũ. */
     setCursor,
     playing,
     setPlaying,

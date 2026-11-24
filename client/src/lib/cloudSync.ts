@@ -15,51 +15,30 @@ import { readCfopCloudChangeAt } from "./cloudSyncSignal";
 
 export type CfopCloudState = {
   schema: "cfop-account-cloud-state";
-  /**
-   * Định dạng của payload (1 hoặc 2). KHÁC với `revision` — bộ đếm của dòng
-   * cloud state trên máy chủ, tăng sau mỗi lần ghi và dùng để phát hiện
-   * client đang giữ bản cũ.
-   */
   schemaVersion: 1 | 2;
   capturedAt: number;
   timer: SolveHistoryEntry[];
   lastLayer: { study: StudyState; masteredCaseKeys: string[] };
   bldProfile: BldProfile;
   bldLearningPath: BldLearningPathProgress;
-  /** Present for clients that run the 2×2 CLL lane; absent on old payloads. */
   twoByTwo?: { study: TwoByTwoStudyState; masteredCaseKeys: string[] };
-  /** Present for clients that run the Pyraminx lane; absent on old payloads. */
   pyraminx?: { study: PyraminxStudyState; masteredCaseKeys: string[] };
-  /** Present for clients that run the Skewb lane; absent on old payloads. */
   skewb?: { study: SkewbStudyState; masteredCaseKeys: string[] };
-  /** Present for clients that run the Roux lane; absent on old payloads. */
   roux?: { study: RouxStudyState; masteredCaseKeys: string[] };
-  /** Present for clients that run the Square-1 lane; absent on old payloads. */
   sq1?: { study: SquareOneStudyState; masteredCaseKeys: string[] };
-  /** Present for clients that run the 4×4 PLL parity lane; absent on old payloads. */
   parity?: { study: FourByFourParityStudyState; masteredCaseKeys: string[] };
-  /** Present for clients that run the 5×5 L2E lane; absent on old payloads. */
   l2e?: { study: FiveByFiveL2EStudyState; masteredCaseKeys: string[] };
-  /** Present for clients that run the FTO L3T lane; absent on old payloads. */
   l3t?: { study: FtoL3tStudyState; masteredCaseKeys: string[] };
-  /** Present for clients that run the FTO 2-Look L3T lane; absent on old payloads. */
   l3t2?: { study: Fto2LookL3tStudyState; masteredCaseKeys: string[] };
 };
 
-/** Giới hạn số lượng solve lưu trong lịch sử cloud state (dùng chung client/server). */
 export const MAX_CLOUD_TIMER_ENTRIES = 500;
 
 const maxTimerEntries = MAX_CLOUD_TIMER_ENTRIES;
-/** Số tombstone tối đa gửi kèm (ngoài 500 lượt đang hiển thị). */
 export const MAX_CLOUD_TIMER_TOMBSTONES = MAX_SOLVE_TOMBSTONES;
 
-/**
- * Số lượt gần nhất giữ nhịp từng nước (`moveTimes`) khi đồng bộ cloud: mỗi lượt
- * ~0,5 KB, nên giới hạn để payload không vượt trần 1,5 MB của server.
- */
 export const MAX_CLOUD_MOVE_TRACES = 200;
 
-/** Tối đa 500 lượt đang hiển thị (mới trước) và 100 tombstone (mới xoá trước). */
 function capTimerEntries(entries: SolveHistoryEntry[]) {
   let traces = 0;
   const live = entries
@@ -133,8 +112,6 @@ function isRecord(value: unknown): value is Record<string, unknown> { return Boo
 
 export function parseCfopCloudState(value: unknown): CfopCloudState | null {
   if (!isRecord(value) || value.schema !== "cfop-account-cloud-state" || !Array.isArray(value.timer) || !isRecord(value.lastLayer)) return null;
-  // Payload cũ lưu `version`; payload mới lưu `schemaVersion`. Đọc được cả hai
-  // để không mất dữ liệu của tài khoản đã đồng bộ trước đây.
   const rawVersion = value.schemaVersion ?? value.version;
   if (rawVersion !== 1 && rawVersion !== 2) return null;
   const lastLayer = value.lastLayer;
@@ -159,8 +136,6 @@ function mergeTimer(local: SolveHistoryEntry[], remote: SolveHistoryEntry[], pre
       byId.set(entry.id, entry);
       continue;
     }
-    // Tombstone (deletedAt) luôn thắng: nếu bất kỳ bên nào đánh dấu xóa,
-    // entry được coi là đã xóa để không bị khôi phục lại từ bản từ xa cũ.
     const localDeleted = !!entry.deletedAt;
     const remoteDeleted = !!existing.deletedAt;
     if (localDeleted || remoteDeleted) {
@@ -185,7 +160,6 @@ function mergeLastLayer(local: CfopCloudState["lastLayer"], remote: CfopCloudSta
   };
 }
 
-/** Optional merge for a lane's SRS state; absent on old payloads, kept untouched. */
 function mergeLaneProgress<Study extends { records: Record<string, { lastReviewedAt: number }>; dailyGoal: number }>(
   local: { study: Study; masteredCaseKeys: string[] } | undefined,
   remote: { study: Study; masteredCaseKeys: string[] } | undefined,
@@ -198,7 +172,6 @@ function mergeLaneProgress<Study extends { records: Record<string, { lastReviewe
     const existing = records[key];
     records[key] = !existing || record.lastReviewedAt > existing.lastReviewedAt || (record.lastReviewedAt === existing.lastReviewedAt && preferLocal) ? record : existing;
   }
-  // The three lane study states are structurally identical ({ records, dailyGoal }).
   const study = { records, dailyGoal: preferLocal ? local.study.dailyGoal : remote.study.dailyGoal } as Study;
   return {
     study,

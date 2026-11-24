@@ -1,33 +1,3 @@
-/**
- * FTO 2-Look L3T catalog for the FTO 2-Look L3T study lane.
- *
- * This is the second finish in the Bencisco method for the FTO
- * (Face-Turning Octahedron): after solving up to the last three triples,
- * PF forms the three pairs and TCP (Triangle Combination and Permutation)
- * finishes the puzzle — PF once, TCP once: two looks.
- *
- * All algorithms are taken verbatim from HCubist's 2-Look L3T sheet
- * (hcubist.com/learn/algorithms/fto-2-look-l3t, accessed 2026-11-19),
- * 44 cases in practice order (PF first, then TCP A, TCP B, TCP C):
- *   PF     — pair formation, 9 cases (shared with 3-Look L3T)
- *   TCP A  — 12 cases, TCP B — 12 cases, TCP C — 11 cases
- * Numbered "(2)" entries are the inverse-hold algorithms published as
- * separate cases in the sheet's TCP table.
- *
- * The displayed algorithm is the sheet's exact notation, unchanged:
- *   {A,B}  — puzzle rotation: the face named first comes to the top, the
- *            face named second to the front (moves are read in the hold
- *            in effect at that point)
- *   S / S' — sledge R' L R L' / inverse L R' L' R
- *   H / H' — hedge R U' R' U / inverse U' R U R'
- * Never strip the `{…}` turns: the moves after them are defined in the
- * rotated frame, so dropping them would misteach the case (e.g. TCP-C6).
- * The trainer opens in the sheet's hold (yellow on U, edge in front).
- * There is deliberately NO machine-side expansion of these algorithms
- * anywhere in the lane: discarding the rotations would produce a
- * sequence that is not equivalent to the published one, and must never
- * be executed as a move sequence.
- */
 export type Fto2LookL3tFamily = "l3t2";
 export type Fto2LookL3tGroup = "PF" | "TCP A" | "TCP B" | "TCP C";
 
@@ -37,13 +7,10 @@ export type Fto2LookL3tCaseRow = {
   group: Fto2LookL3tGroup;
   name: string;
   algorithm: string;
-  /** The case's facelet string (HCubist's `st`, face order U F R L B BL BR D). */
   caseState?: string;
 };
 
-/** The 44 2-Look L3T cases (practice order: PF, TCP A, TCP B, TCP C). */
 export const FTO_2_LOOK_L3T_CASES: readonly Fto2LookL3tCaseRow[] = [
-  // PF — pair formation (forms the pairs, ends ready for TCP)
   { id: "PF-1",  family: "l3t2", group: "PF", name: "PF 1",  algorithm: "{L,U} S F", caseState: "001005150110111101233222332332344344444243242555550550666666666777777777" },
   { id: "PF-2",  family: "l3t2", group: "PF", name: "PF 2",  algorithm: "{L,U} S' F' R U' R' U F", caseState: "506000650110111111322222222334332333444443444555551550066666066777777777" },
   { id: "PF-3",  family: "l3t2", group: "PF", name: "PF 3",  algorithm: "{L,U} S' F' S' F", caseState: "000000150116111161424222222332332333344443444555551550566666066777777777" },
@@ -54,7 +21,6 @@ export const FTO_2_LOOK_L3T_CASES: readonly Fto2LookL3tCaseRow[] = [
   { id: "PF-9",  family: "l3t2", group: "PF", name: "PF 9",  algorithm: "{L,U} S' F' U' R U R' F'", caseState: "006001615110111101432222332334343344344242242555550550566666066777777777" },
   { id: "PF-10", family: "l3t2", group: "PF", name: "PF 10", algorithm: "{L,U} S' F' S' F' R U' R' U F", caseState: "001005006110111101243222442332324322444343343555550551666666566777777777" },
 
-  // TCP A — triangle combination and permutation, family A
   { id: "TCP-A1",   family: "l3t2", group: "TCP A", name: "TCP A1",   algorithm: "{L,U} R U' R' U", caseState: "500001501116111161324222222332333333444442444555550550066666066777777777" },
   { id: "TCP-A1-2", family: "l3t2", group: "TCP A", name: "TCP A1 (2)", algorithm: "{L,U} U' R U R'", caseState: "005006056110111101324222222333332333244444444555550550166666166777777777" },
   { id: "TCP-A2",   family: "l3t2", group: "TCP A", name: "TCP A2",   algorithm: "{L,U} {U,BL} R' U R' D' R U' R' D R U R U' {U,BR}", caseState: "500001501116111101324222222332333333444442444555550556066666066777777777" },
@@ -68,7 +34,6 @@ export const FTO_2_LOOK_L3T_CASES: readonly Fto2LookL3tCaseRow[] = [
   { id: "TCP-A6",   family: "l3t2", group: "TCP A", name: "TCP A6",   algorithm: "{L,U} {B,D} U' r' R U' R' U R' r U R {B,D}", caseState: "005000010611110610223222222237333333444444444155555555666661661777773777" },
   { id: "TCP-A6-2", family: "l3t2", group: "TCP A", name: "TCP A6 (2)", algorithm: "{L,U} {B,D} R' U' r' R U' R U R' r U {B,D}", caseState: "001000010116115106222223222237333333444444444055555555666661661377777777" },
 
-  // TCP B — triangle combination and permutation, family B
   { id: "TCP-B1",   family: "l3t2", group: "TCP B", name: "TCP B1",   algorithm: "{L,U} {L,F} U' R U R' {R,F}", caseState: "105000150110111101224222222333334333344442444555556556066666066777777777" },
   { id: "TCP-B1-2", family: "l3t2", group: "TCP B", name: "TCP B1 (2)", algorithm: "{L,U} {L,F} R U' R' U {R,F}", caseState: "006001061110111101422222222334333333344442444555550550566666566777777777" },
   { id: "TCP-B2",   family: "l3t2", group: "TCP B", name: "TCP B2",   algorithm: "{L,U} R U' R D R' U R D' R' U' R' U", caseState: "105000150110111161224222222333334333344442444555556550066666066777777777" },
@@ -82,7 +47,6 @@ export const FTO_2_LOOK_L3T_CASES: readonly Fto2LookL3tCaseRow[] = [
   { id: "TCP-B6",   family: "l3t2", group: "TCP B", name: "TCP B6",   algorithm: "{L,U} {L,F} U r R' U R U' r' R U' R' {R,F}", caseState: "105000150110111101224222222333334333344442444555556550066666666777777777" },
   { id: "TCP-B6-2", family: "l3t2", group: "TCP B", name: "TCP B6 (2)", algorithm: "{L,U} {L,F} R U R' r U R' U' R r' U' {R,F}", caseState: "006001015110111101422222222334333333344442444555550550566666666777777777" },
 
-  // TCP C — triangle combination and permutation, family C
   { id: "TCP-C1",   family: "l3t2", group: "TCP C", name: "TCP C1",   algorithm: "{L,U} R' D R' U' R D' R U", caseState: "001005015110111161223222222332334333444443444555550550666666066777777777" },
   { id: "TCP-C1-2", family: "l3t2", group: "TCP C", name: "TCP C1 (2)", algorithm: "{L,U} U' R' D R' U R D' R", caseState: "001005056110111101223222222332334333444443444555550550666666166777777777" },
   { id: "TCP-C2",   family: "l3t2", group: "TCP C", name: "TCP C2",   algorithm: "{L,U} {U,BL} R D' R U R' D R' U' {U,BR}", caseState: "001005015110111101223222222332334333444443444555550556666666066777777777" },

@@ -16,12 +16,6 @@ export async function requireDb() {
   return db;
 }
 
-/**
- * Whether the database answers right now.
- *
- * A missing config or an unreachable server reads as false, never as a throw,
- * so a caller may report readiness instead of crashing.
- */
 export async function databaseReady(): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;

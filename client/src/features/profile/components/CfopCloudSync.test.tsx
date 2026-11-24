@@ -2,19 +2,6 @@
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-/**
- * Regression test cho A1: đồng bộ đám mây không được ghi đè dữ liệu mới.
- *
- * Lỗi thật: máy chủ tự đọc phiên bản hiện tại rồi truyền lại làm phiên bản
- * mong đợi, nên không bao giờ phát hiện client đang giữ bản cũ; thêm nữa cột
- * `version` của dòng lại được tính bằng `payload.version + 1` nên luôn bằng
- * 3. Kết quả: thiết bị D2 (dữ liệu cũ) ghi đè mất lần giải của D1.
- *
- * Test mô phỏng máy chủ đúng theo hành vi đã sửa: so sánh `baseVersion` của
- * client với revision của dòng, tăng revision sau mỗi lần ghi và trả
- * CONFLICT khi lệch.
- */
-
 type CloudRow = { payload: Record<string, unknown>; revision: number };
 
 let serverRow: CloudRow | null = null;
@@ -185,20 +172,15 @@ describe("A1: đồng bộ đám mây theo revision của dòng", () => {
       </LanguageProvider>
     );
 
-    // D1 đã lưu lần giải "s1" (revision hiện tại = 1).
     serverRow = { payload: payloadWith(["s1"]), revision: 1 };
 
-    // D1 lại lưu thêm "s2" ở nơi khác → revision tăng lên 2.
     serverRow = { payload: payloadWith(["s1", "s2"]), revision: 2 };
 
-    // D2 (đang giữ bản cũ, revision 1) thử lưu: server trả CONFLICT, client
-    // phải đọc lại, gộp rồi lưu với revision 2.
     window.dispatchEvent(new Event(CFOP_CLOUD_SYNC_EVENT));
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const last = saves[saves.length - 1];
     expect(last.baseVersion).toBe(2);
-    // Cả s1 của D1 và s2 đều còn trong bản gộp.
     expect(timerIds(last.payload)).toEqual(["s1", "s2"]);
     expect(serverRow?.revision).toBe(3);
   });
@@ -214,9 +196,7 @@ describe("A1: đồng bộ đám mây theo revision của dòng", () => {
     window.dispatchEvent(new Event(CFOP_CLOUD_SYNC_EVENT));
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // 1 lần lưu lúc mount + 1 lần lưu kích hoạt + tối đa 3 lần thử lại.
     expect(saves.length).toBe(5);
-    // Đã dừng thử lại và báo lỗi thân thiện.
     expect(toasts.length).toBeGreaterThan(0);
     expect(toasts[0]).toMatch(/cloud/i);
   });

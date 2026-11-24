@@ -45,7 +45,6 @@ fn edge_cases() {
         let moves = solve_cross(&Cube::SOLVED.apply(m)).unwrap();
         assert!(moves.len() <= 1, "{m}: {moves:?}");
     }
-    // A long scramble (200 moves).
     let mut rng = Rng::new(5);
     let cube = Cube::from_moves(&rng.scramble(200));
     let moves = solve_cross(&cube).unwrap();
@@ -54,7 +53,6 @@ fn edge_cases() {
 
 #[test]
 fn optimality_known_case() {
-    // Undoing a 3-move cross scramble needs exactly 3 moves.
     let cube = Cube::from_moves(&parse_moves("R F D").unwrap());
     assert_eq!(solve_cross(&cube).unwrap().len(), 3);
 }
@@ -100,6 +98,5 @@ fn cross_lengths_match_optimal_solves() {
 fn cross_lengths_of_solved_and_one_move() {
     assert_eq!(cfop::cross_lengths(&Cube::default()).unwrap(), [0; 6]);
     let cube = Cube::from_moves(&parse_moves("R").unwrap());
-    // R cycles the R-cross edges too; only the L cross is untouched.
     assert_eq!(cfop::cross_lengths(&cube).unwrap(), [1, 1, 1, 1, 0, 1]);
 }

@@ -1,6 +1,5 @@
 import type { SquareOneCaseRow } from "../squareOneData";
 
-/** SQ1-CSP — 179 cases. */
 export const CSP_CASES_SOURCE: readonly SquareOneCaseRow[] = [
   { id: "CSP-Left-4-2-Paired-Edges-Odd", family: "csp", group: "4 Slashes", name: "Left 4-2 / Paired Edges (Odd)", algorithm: "(0,-2) / (-2,0) / (-1,-2) / (-3,-3) /" },
   { id: "CSP-Left-4-2-Paired-Edges-Even", family: "csp", group: "4 Slashes", name: "Left 4-2 / Paired Edges (Even)", algorithm: "(-2,-4) / (2,-2) / (0,-1) / (3,3) /" },

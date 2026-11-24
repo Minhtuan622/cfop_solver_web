@@ -2,7 +2,6 @@
 
 use cube_core::{Move, MoveBase};
 
-/// SplitMix64 PRNG (fixed seeds -> reproducible scrambles).
 pub struct Rng(u64);
 
 impl Rng {
@@ -19,8 +18,6 @@ impl Rng {
     pub fn below(&mut self, n: usize) -> usize {
         (self.next_u64() % n as u64) as usize
     }
-    /// WCA-style random-move scramble: face turns, no face repeated twice
-    /// in a row.
     pub fn scramble(&mut self, len: usize) -> Vec<Move> {
         let mut out: Vec<Move> = Vec::with_capacity(len);
         while out.len() < len {

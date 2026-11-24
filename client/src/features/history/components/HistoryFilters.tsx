@@ -9,7 +9,6 @@ import {
 } from "@/lib/timerEvents";
 import type { HistoryFilter } from "../lib/historyView";
 
-/** Ô tìm kiếm, lọc theo loại khối và lọc theo tag của danh sách Lịch sử. */
 export function HistoryFilters({
   filter,
   tags,
@@ -17,7 +16,6 @@ export function HistoryFilters({
 }: {
   filter: HistoryFilter;
   tags: string[];
-  /** Gọi với phần bộ lọc vừa đổi. */
   onChange: (patch: Partial<HistoryFilter>) => void;
 }) {
   const { language, t } = useLanguage();

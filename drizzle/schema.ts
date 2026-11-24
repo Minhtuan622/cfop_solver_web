@@ -1,6 +1,5 @@
 import { bigint, index, int, json, mysqlEnum, mysqlTable, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
-/** Native CFOP account. It is deliberately separate from Manus/OAuth users. */
 export const cfopAccounts = mysqlTable("cfop_accounts", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
@@ -15,7 +14,6 @@ export const cfopAccounts = mysqlTable("cfop_accounts", {
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
-/** Token hashes only; a stolen database never reveals an active browser session token. */
 export const cfopAccountSessions = mysqlTable("cfop_account_sessions", {
   id: int("id").autoincrement().primaryKey(),
   accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
@@ -25,7 +23,6 @@ export const cfopAccountSessions = mysqlTable("cfop_account_sessions", {
   lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
 }, (table) => [index("cfop_account_sessions_account_idx").on(table.accountId), index("cfop_account_sessions_expires_idx").on(table.expiresAt)]);
 
-/** One versioned JSON snapshot per CFOP account; Timer and Study remain mergeable on the client. */
 export const cfopAccountCloudStates = mysqlTable("cfop_account_cloud_states", {
   accountId: int("accountId").primaryKey().references(() => cfopAccounts.id, { onDelete: "cascade" }),
   payload: json("payload").notNull(),
@@ -33,7 +30,6 @@ export const cfopAccountCloudStates = mysqlTable("cfop_account_cloud_states", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-/** Reset hashes only. Raw reset links are never persisted in the database. */
 export const cfopPasswordResetTokens = mysqlTable("cfop_password_reset_tokens", {
   id: int("id").autoincrement().primaryKey(),
   accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
@@ -42,7 +38,6 @@ export const cfopPasswordResetTokens = mysqlTable("cfop_password_reset_tokens", 
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => [index("cfop_password_reset_account_idx").on(table.accountId), index("cfop_password_reset_expires_idx").on(table.expiresAt)]);
 
-/** Short-lived hashes for OAuth CSRF protection. WCA access tokens are used once for identity verification and never persisted. */
 export const cfopWcaOauthStates = mysqlTable("cfop_wca_oauth_states", {
   id: int("id").autoincrement().primaryKey(),
   accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
@@ -51,7 +46,6 @@ export const cfopWcaOauthStates = mysqlTable("cfop_wca_oauth_states", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => [index("cfop_wca_oauth_account_idx").on(table.accountId), index("cfop_wca_oauth_expires_idx").on(table.expiresAt)]);
 
-/** Server-backed battle room. It always belongs to native CFOP accounts, never Manus OAuth identities. */
 export const cfopCompetitionRooms = mysqlTable("cfop_competition_rooms", {
   id: int("id").autoincrement().primaryKey(),
   code: varchar("code", { length: 10 }).notNull(),
@@ -67,7 +61,6 @@ export const cfopCompetitionRooms = mysqlTable("cfop_competition_rooms", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => [uniqueIndex("cfop_competition_rooms_code_unique").on(table.code), index("cfop_competition_rooms_host_idx").on(table.hostAccountId)]);
 
-/** Active membership is one row per account and room; leaving removes the row instead of retaining stale presence. */
 export const cfopCompetitionMembers = mysqlTable("cfop_competition_members", {
   id: int("id").autoincrement().primaryKey(),
   roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
@@ -78,7 +71,6 @@ export const cfopCompetitionMembers = mysqlTable("cfop_competition_members", {
   removedAt: timestamp("removedAt"),
 }, (table) => [uniqueIndex("cfop_competition_members_room_account_unique").on(table.roomId, table.accountId), index("cfop_competition_members_account_idx").on(table.accountId)]);
 
-/** Immutable room-scoped moderation audit records; initially only spectator removals are supported. */
 export const cfopCompetitionModerationLogs = mysqlTable("cfop_competition_moderation_logs", {
   id: int("id").autoincrement().primaryKey(),
   roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
@@ -89,7 +81,6 @@ export const cfopCompetitionModerationLogs = mysqlTable("cfop_competition_modera
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => [index("cfop_competition_moderation_room_created_idx").on(table.roomId, table.createdAt), index("cfop_competition_moderation_target_idx").on(table.targetAccountId)]);
 
-/** A room round freezes one shared scramble so every competitor solves the identical state. */
 export const cfopCompetitionRounds = mysqlTable("cfop_competition_rounds", {
   id: int("id").autoincrement().primaryKey(),
   roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
@@ -101,7 +92,6 @@ export const cfopCompetitionRounds = mysqlTable("cfop_competition_rounds", {
   completedAt: timestamp("completedAt"),
 }, (table) => [uniqueIndex("cfop_competition_rounds_room_sequence_unique").on(table.roomId, table.sequence), index("cfop_competition_rounds_room_idx").on(table.roomId)]);
 
-/** Every competitor can submit one immutable timed result for a room round. */
 export const cfopCompetitionResults = mysqlTable("cfop_competition_results", {
   id: int("id").autoincrement().primaryKey(),
   roundId: int("roundId").notNull().references(() => cfopCompetitionRounds.id, { onDelete: "cascade" }),
@@ -112,12 +102,10 @@ export const cfopCompetitionResults = mysqlTable("cfop_competition_results", {
   multiBlindAttempted: int("multiBlindAttempted"),
   multiBlindSolved: int("multiBlindSolved"),
   multiBlindScore: int("multiBlindScore"),
-  /** Integrity flags (comma separated) raised on submit; informational only, see competitionIntegrity. */
   flags: varchar("flags", { length: 80 }).notNull().default(""),
   submittedAt: timestamp("submittedAt").defaultNow().notNull(),
 }, (table) => [uniqueIndex("cfop_competition_results_round_account_unique").on(table.roundId, table.accountId), index("cfop_competition_results_account_idx").on(table.accountId)]);
 
-/** Short, room-scoped text messages. The sender must be an active room member at API level. */
 export const cfopCompetitionMessages = mysqlTable("cfop_competition_messages", {
   id: int("id").autoincrement().primaryKey(),
   roomId: int("roomId").notNull().references(() => cfopCompetitionRooms.id, { onDelete: "cascade" }),
@@ -126,18 +114,12 @@ export const cfopCompetitionMessages = mysqlTable("cfop_competition_messages", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => [index("cfop_competition_messages_room_created_idx").on(table.roomId, table.createdAt), index("cfop_competition_messages_account_idx").on(table.accountId)]);
 
-/**
- * Web Push subscription of one browser, used for study-review reminders. The
- * client reports when its next case falls due (`nextDueAt`, epoch ms); the
- * server only stores that schedule and never reads the study payload.
- */
 export const cfopPushSubscriptions = mysqlTable("cfop_push_subscriptions", {
   id: int("id").autoincrement().primaryKey(),
   accountId: int("accountId").notNull().references(() => cfopAccounts.id, { onDelete: "cascade" }),
   endpoint: varchar("endpoint", { length: 512 }).notNull(),
   p256dh: varchar("p256dh", { length: 160 }).notNull(),
   auth: varchar("auth", { length: 64 }).notNull(),
-  /** `Date.getTimezoneOffset()` of the browser, to keep reminders out of the night. */
   tzOffsetMinutes: int("tzOffsetMinutes").default(0).notNull(),
   nextDueAt: bigint("nextDueAt", { mode: "number" }),
   dueCount: int("dueCount").default(0).notNull(),

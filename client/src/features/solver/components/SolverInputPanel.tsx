@@ -38,23 +38,14 @@ export type SolverInputPanelProps = {
   onSelectRecentState: (state: RecentCubeState) => void;
   onRemoveRecentState: (id: string) => void;
   onCameraState: (state: string) => void;
-  /** The optional settings that only matter for a wider opening. */
   advancedOptions?: ReactNode;
   onResetDefaults?: () => void;
-  /** Ẩn quét camera (chỉ có nghĩa với 3×3). */
   hideCamera?: boolean;
-  /** Nút phụ cạnh "Quét camera" ở chế độ Trạng thái (vd. đọc từ smart cube). */
   stateExtras?: ReactNode;
-  /** Bộ tô màu thay cho phần chọn màu cũ ở chế độ Trạng thái. */
   statePainter?: ReactNode;
-  /** Gợi ý trong ô scramble khi không phải 3×3. */
   scramblePlaceholder?: string;
 };
 
-/**
- * Everything that goes into the solver: the scramble, or the painted cube.
- * The panel owns the field labels; the page owns the values.
- */
 export function SolverInputPanel({
   solverKind,
   mode,
@@ -263,8 +254,6 @@ export function SolverInputPanel({
 
         {advancedOptions ? <div className="mt-4">{advancedOptions}</div> : null}
 
-        {/* Quét camera là tuỳ chọn: một liên kết nhỏ mở hộp thoại thay vì
-            chiếm một hàng riêng trên trang. */}
         <Dialog open={cameraOpen} onOpenChange={setCameraOpen}>
           <DialogContent>
             <DialogHeader>

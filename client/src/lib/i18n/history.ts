@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** The solve history page: metrics, filters, the log and the edit dialogs. */
 export const historyWords: Dictionary = {
   "history.eyebrow": ["Quản lý & phân tích", "Management & analytics"],
   "history.title": ["Kết quả", "Results"],

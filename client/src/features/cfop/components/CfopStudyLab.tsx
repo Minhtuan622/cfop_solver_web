@@ -1,8 +1,3 @@
-/**
- * The CFOP lane of /study: F2L, OLL and PLL cases with the same SRS practice
- * loop as the Last Layer lane — time yourself on a case, grade Again/Hard/
- * Good/Easy, and let the queue re-surface the ones you keep missing.
- */
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -43,7 +38,6 @@ export function CfopStudyLab({
   onStatsChange,
 }: {
   language: "vi" | "en";
-  /** Reports live SRS stats so the surrounding toolbar can show them. */
   onStatsChange?: (stats: CaseStudyLaneStats) => void;
 }) {
   const { t } = useLanguage();

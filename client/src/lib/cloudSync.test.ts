@@ -243,38 +243,31 @@ describe("B3: cloud sync tombstones and merge", () => {
 
   it("xóa cục bộ rồi gộp với bản từ xa cũ giữ kết quả đã xóa (tombstone)", () => {
     const now = Date.now();
-    // Ghi entry vào local storage trực tiếp (giữ ID cố định)
     writeStoredValue(
       "cfop-solve-history-v1",
       JSON.stringify([makeEntry("solve-to-delete", now - 1000)]),
     );
     expect(readSolveHistory().some((e) => e.id === "solve-to-delete")).toBe(true);
 
-    // Xóa cục bộ → tombstone (deletedAt được ghi, entry bị lọc khỏi readSolveHistory)
     deleteSolveHistory("solve-to-delete");
     expect(readSolveHistory().some((e) => e.id === "solve-to-delete")).toBe(false);
 
-    // Lấy tombstone trực tiếp từ localStorage (bypass bộ lọc readSolveHistory)
     const raw = JSON.parse(localStorage.getItem("cfop-solve-history-v1") || "[]") as SolveHistoryEntry[];
     const tombstoned = raw.find((e) => e.id === "solve-to-delete");
     expect(tombstoned?.deletedAt).toBeDefined();
 
-    // Bản từ xa KHÔNG có entry này (bản cũ, chưa biết về việc xóa)
     const remoteState = createCfopCloudState();
     remoteState.timer = [];
 
-    // Local state kèm tombstone (mô phỏng local storage chưa được apply merge)
     const localWithTombstone = createCfopCloudState();
     localWithTombstone.timer = [tombstoned!];
     const merged = mergeCfopCloudStates(localWithTombstone, remoteState);
 
-    // Sau merge, entry đã xóa vẫn có deletedAt → không hồi sinh
     const deletedEntry = merged.timer.find((e) => e.id === "solve-to-delete");
     expect(deletedEntry?.deletedAt).toBeDefined();
   });
 
   it("hai thiết bị ghi xen kẽ không mất dữ liệu (interleaved writes)", () => {
-    // Thiết bị A thêm solve A1, A2; thiết bị B thêm solve B1, B2
     const base = Date.now() - 100_000;
     const localEntries = [makeEntry("local-1", base + 1000), makeEntry("local-2", base + 2000)];
     const remoteEntries = [makeEntry("remote-1", base + 1500), makeEntry("remote-2", base + 2500)];
@@ -286,7 +279,6 @@ describe("B3: cloud sync tombstones and merge", () => {
 
     const merged = mergeCfopCloudStates(local, remote);
 
-    // Tất cả 4 entry phải tồn tại sau merge
     const ids = new Set(merged.timer.map((e) => e.id));
     expect(ids.has("local-1")).toBe(true);
     expect(ids.has("local-2")).toBe(true);
@@ -322,7 +314,6 @@ describe("B3: cloud sync tombstones and merge", () => {
     expect(local.timer.map(entry => entry.id).sort()).toEqual(["gone", "keep"]);
     expect(local.timer.find(entry => entry.id === "gone")?.deletedAt).toBeGreaterThan(0);
 
-    // Máy khác vẫn còn "gone" (bản cũ): sau khi gộp và áp dụng, "gone" bị xoá ở đó.
     localStorage.removeItem("cfop-solve-history-v1");
     const otherDevice = createCfopCloudState();
     otherDevice.timer = [makeEntry("keep", now - 1000), makeEntry("gone", now - 2000)];
@@ -341,7 +332,6 @@ describe("B3: cloud sync tombstones and merge", () => {
     const merged = mergeCfopCloudStates(local, remote);
     expect(merged.timer.filter(entry => !entry.deletedAt)).toHaveLength(MAX_CLOUD_TIMER_ENTRIES);
     expect(merged.timer.filter(entry => entry.deletedAt)).toHaveLength(MAX_CLOUD_TIMER_TOMBSTONES);
-    // Lượt đang hiển thị mới nhất được giữ, tombstone mới xoá nhất được giữ.
     expect(merged.timer.some(entry => entry.id === "live-0")).toBe(true);
     expect(merged.timer.some(entry => entry.id === "dead-0")).toBe(true);
     expect(merged.timer.some(entry => entry.id === `dead-${MAX_CLOUD_TIMER_TOMBSTONES + 19}`)).toBe(false);
@@ -358,7 +348,6 @@ describe("B3: cloud sync tombstones and merge", () => {
     const state = createCfopCloudState();
     const withTrace = state.timer.filter(entry => entry.moveTimes);
     expect(withTrace).toHaveLength(MAX_CLOUD_MOVE_TRACES);
-    // Giữ nhịp của các solve mới nhất; solve cũ vẫn còn, chỉ mất nhịp.
     expect(withTrace.every(entry => entry.createdAt >= 1_000 + 25)).toBe(true);
     expect(state.timer).toHaveLength(total);
   });

@@ -1,8 +1,3 @@
-/**
- * Tuỳ chọn của trang Bấm giờ (âm thanh/giọng đếm inspection, metronome, ẩn
- * thời gian khi chạy, cỡ chữ scramble). Đặt ở trang Cài đặt; đọc một lần khi
- * mở trang.
- */
 import { useState } from "react";
 import { readStoredValue } from "@/lib/browserStorage";
 import { HIDE_RUNNING_TIME_KEY } from "@/lib/appSettings";
@@ -23,7 +18,6 @@ export function useTimerPreferences() {
       ? Math.round(stored)
       : 60;
   });
-  // Cài đặt → Timer: chỉ hiện "Đang giải…" trong lúc đồng hồ chạy.
   const [hideRunningTime] = useState(
     () => readStoredValue(HIDE_RUNNING_TIME_KEY) === "on"
   );

@@ -1,11 +1,7 @@
-//! IDA* over the 18 face turns on a piece-tracking state.
-
 use crate::error::Error;
 use crate::limits::Budget;
 use crate::tables::{tables, FACE_MOVES};
 
-/// Coordinates (see `tables.rs`) of every edge and corner piece, indexed by
-/// piece. Only the pieces a search needs are kept up to date.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub(crate) struct State {
     pub(crate) e: [u8; 12],
@@ -27,7 +23,6 @@ impl State {
         s
     }
 
-    /// Apply face move `m` to the tracked pieces (edges 4..12, corners 4..8).
     #[inline]
     pub(crate) fn apply(&self, m: usize) -> State {
         let mv = &tables().mv;
@@ -76,8 +71,6 @@ impl<H: Fn(&State) -> u8> Ctx<'_, H> {
     }
 }
 
-/// Shortest (for an admissible `h`) face-turn sequence reaching `h == 0`.
-/// `Ok(None)` when no solution exists within `max_depth`.
 pub(crate) fn ida_star<H: Fn(&State) -> u8>(
     start: &State,
     h: &H,

@@ -14,7 +14,6 @@ import {
   type WcaRecordRow,
 } from "../lib/profilePresentation";
 
-/** Bảng so sánh thời gian Timer (3×3) với thành tích WCA. */
 function WcaTimerComparison({
   entries,
   record,
@@ -73,7 +72,6 @@ function WcaTimerComparison({
   );
 }
 
-/** Hồ sơ WCA đã liên kết: thành tích 3×3, huy chương, kỷ lục, so sánh với Timer. */
 export function WcaProfileDetails({
   profile,
   entries,

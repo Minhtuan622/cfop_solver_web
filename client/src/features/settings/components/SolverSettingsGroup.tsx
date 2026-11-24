@@ -23,7 +23,6 @@ const COLORS: {
 
 const SLOTS: F2LSlot[] = ["FR", "FL", "BL", "BR"];
 
-/** The defaults of the CFOP solver: the Cross color, the opening and the last layer. */
 export function SolverSettingsGroup({
   solver,
   onChange,

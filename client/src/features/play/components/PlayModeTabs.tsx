@@ -2,7 +2,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { PlayMode } from "../lib/playTypes";
 
-/** Tab chọn chế độ Tự do / Đua. */
 export function PlayModeTabs({
   mode,
   onChange,
@@ -30,8 +29,6 @@ export function PlayModeTabs({
           aria-selected={mode === tab.id}
           onClick={event => {
             onChange(tab.id);
-            // Trả Space về cho khối: sau khi chọn chế độ, Space phải
-            // xáo trộn chứ không bấm lại tab.
             event.currentTarget.blur();
           }}
           className={cn(

@@ -1,24 +1,13 @@
-/**
- * Khai báo kiểu cho `scripts/bench-check.mjs`.
- *
- * Script nằm ngoài `tsconfig.json` (được chạy trực tiếp bằng `node`), nhưng
- * `server/benchSolver.test.ts` import hàm thuần ở đây để kiểm thử bằng dữ
- * liệu giả lập — file khai báo này giúp TypeScript biết kiểu của hàm.
- */
-
-/** Ngưỡng của một kịch bản đo. */
 export declare type BenchLimits = {
   perScrambleLimitSec: number;
   totalLimitSec: number;
 };
 
-/** Ngưỡng mặc định của mọi kịch bản đo. */
 export declare const DEFAULT_LIMITS: {
   cross: BenchLimits;
   auto: BenchLimits;
 };
 
-/** Ngưỡng theo kịch bản: `cross` (mặc định của app) và `auto`. */
 export declare type BenchScenarioLimits = {
   cross: BenchLimits;
   auto: BenchLimits;

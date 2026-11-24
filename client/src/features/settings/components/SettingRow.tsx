@@ -1,7 +1,3 @@
-/**
- * Một hàng cài đặt: tên + mô tả bên trái, điều khiển bên phải (xuống dòng
- * trên màn hình hẹp). Các hàng tách nhau bằng khoảng trống — không viền.
- */
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +10,6 @@ export function SettingRow({
 }: {
   label: ReactNode;
   help?: ReactNode;
-  /** id của điều khiển, để bấm vào tên cũng focus được điều khiển. */
   htmlFor?: string;
   children: ReactNode;
   className?: string;

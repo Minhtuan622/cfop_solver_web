@@ -1,5 +1,4 @@
 // @vitest-environment node
-// Chạy cubing.js thật: giải Roux từ scramble và kiểm khối về đúng trạng thái đã giải.
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   applyAlgorithm,
@@ -49,7 +48,6 @@ describe("bộ giải Roux", () => {
     const final = applyAlgorithm(start, context.tables, result.moves.join(" "));
     expect(isSolved(final)).toBe(true);
     expect(result.phases.map(phase => phase.name)).toEqual(["First Block", "Second Block", "CMLL", "LSE"]);
-    // Khối đầu tiên và khối thứ hai nằm gọn trong giới hạn của người giải thật.
     expect(result.phases[0].moves.length).toBeLessThanOrEqual(11);
     expect(Date.now() - started).toBeLessThan(20_000);
   }, 120_000);

@@ -5,7 +5,6 @@ import type { SolverResult } from "@/lib/solverRuntime";
 import { lastLayerCaseLabel, lastLayerModeLabel } from "../lib/solverPresentation";
 import type { OpeningOutcome } from "../lib/solutionView";
 
-/** Dòng tóm tắt bước mở đầu (số lượt, có phải lùi về Cross không). */
 export function OpeningOutcomeBanner({
   outcome,
   telemetry,
@@ -26,7 +25,6 @@ export function OpeningOutcomeBanner({
   );
 }
 
-/** Dòng tóm tắt phần cuối (OLL/PLL, ZBLL, 1LLL) và case đã dùng. */
 export function LastLayerOutcomeBanner({
   telemetry,
 }: {

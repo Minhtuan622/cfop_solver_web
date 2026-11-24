@@ -1,10 +1,3 @@
-/**
- * SRS study state for the Pyraminx lane (Last Layer and L4E).
- *
- * Mirrors the 2×2 / CFOP study engines (same spaced-repetition ladder from
- * `lib/spacedRepetition.ts`) with its own storage keys. Records degrade
- * gracefully via zod.
- */
 import {
   caseStudyKey,
   createCaseStudyStore,

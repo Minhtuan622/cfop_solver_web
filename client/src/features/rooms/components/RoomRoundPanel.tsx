@@ -41,7 +41,6 @@ type Props = {
   submitPending: boolean;
 };
 
-/** The round card: shared scramble, the timer, and the result submission. */
 export function RoomRoundPanel({
   status,
   isHost,

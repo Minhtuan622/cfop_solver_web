@@ -1,4 +1,3 @@
-/** Public surface of the 4×4 PLL parity study lane. */
 export * from "./lib/fourByFourParityAlg";
 export * from "./lib/fourByFourParityCatalog";
 export * from "./lib/fourByFourParityStudy";

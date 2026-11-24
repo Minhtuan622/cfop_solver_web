@@ -9,32 +9,18 @@ import { Check, ChevronDown } from "@/components/ui/Icon";
 import { MENU_ITEM_CLASS } from "@/components/ui/Dropdown";
 import { cn } from "@/lib/utils";
 
-/**
- * Dropdown chọn giá trị dựa trên Radix Select.
- *
- * `<select>` gốc dùng mũi tên và danh sách bật lên của hệ điều hành nên lệch
- * với phần còn lại của trang. Component này giữ đúng API của `<select>` (vẫn
- * nhận `<option value="…">`) nhưng vẽ bằng Radix, nên tự lo cổng gắn vào body,
- * bàn phím, focus, gõ tắt (typeahead), lật mở khi sát đáy và accessibility:
- *
- * - Mũi tên lên/xuống để mở và chuyển lựa chọn, Home/End tới đầu/cuối
- * - Enter hoặc Space để chọn, Escape để đóng
- * - Đóng khi bấm ra ngoài hoặc nhấn Tab
- */
 type OptionSpec = {
   value: string;
   label: ReactNode;
   disabled: boolean;
 };
 
-/** Radix rejects empty item values; keep a sentinel internally instead. */
 const EMPTY_OPTION = "__cfop_empty_option__";
 const toItemValue = (value: string) =>
   value === "" ? EMPTY_OPTION : value;
 const fromItemValue = (value: string) =>
   value === EMPTY_OPTION ? "" : value;
 
-/** Đọc các `<option>` con thành danh sách lựa chọn. */
 function readOptions(children: ReactNode): OptionSpec[] {
   const options: OptionSpec[] = [];
   Children.forEach(children, child => {
@@ -55,20 +41,15 @@ function readOptions(children: ReactNode): OptionSpec[] {
 }
 
 export type SelectProps = {
-  /** Giá trị đang chọn. */
   value: string;
-  /** Nhận thay đổi theo kiểu của `<select>`. */
   onChange: (event: { target: { value: string } }) => void;
-  /** Các `<option>` của danh sách. */
   children: ReactNode;
   id?: string;
-  /** Để giá trị được gửi khi bấm nút "Gửi" trong một form. */
   name?: string;
   disabled?: boolean;
   "aria-label"?: string;
   "aria-labelledby"?: string;
   className?: string;
-  /** Class cho nút bấm mở danh sách. */
   buttonClassName?: string;
 };
 
@@ -98,8 +79,6 @@ export function Select({
         aria-label={rest["aria-label"]}
         aria-labelledby={rest["aria-labelledby"]}
         className={cn(
-          // Đậm hơn thẻ một bậc; hover/mở/focus đậm thêm một bậc. Không viền,
-          // không vòng focus (Radix trả focus về nút sau khi chọn).
           "flex w-full items-center justify-between gap-1.5 rounded-field bg-surface-2 px-3 py-2.5 text-left text-sm text-ink transition-colors hover:bg-surface-3 focus-visible:bg-surface-3 data-[state=open]:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-60",
           buttonClassName
         )}
@@ -138,7 +117,6 @@ export function Select({
                 <SelectPrimitive.ItemText>
                   {option.label}
                 </SelectPrimitive.ItemText>
-                {/* Mục đang chọn: chữ đậm + dấu ✓ màu nhấn (biểu tượng chỉ cần 3:1). */}
                 <SelectPrimitive.ItemIndicator className="shrink-0 text-primary">
                   <Check aria-hidden="true" />
                 </SelectPrimitive.ItemIndicator>

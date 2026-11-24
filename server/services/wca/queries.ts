@@ -13,11 +13,6 @@ import type {
 export const MAX_COMPETITION_DAYS = 366;
 const MAX_COMPETITION_PAGES = 10;
 
-/**
- * The events the WCA currently holds records for, in the order its own records
- * page lists them. Magic, Master Magic, 3×3 with feet and 3×3 multi-blind old
- * format are retired and must not appear on the calendar.
- */
 const WCA_WORLD_RECORD_EVENT_ORDER = [
   "333",
   "222",

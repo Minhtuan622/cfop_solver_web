@@ -8,7 +8,6 @@ import type {
   CatalogExplorerPreviewProps,
 } from "../lib/catalogExplorerTypes";
 
-/** Thẻ một case trong nhóm đang mở: hình, tên, thuật toán và nút học (hoặc ô chọn khi chọn hàng loạt). */
 export function CatalogCaseCard({
   catalogCase,
   mastered,
@@ -23,7 +22,6 @@ export function CatalogCaseCard({
 }: {
   catalogCase: CatalogExplorerCase;
   mastered: boolean;
-  /** Case đang được học trong thẻ luyện tập. */
   active: boolean;
   selected: boolean;
   selectionMode: boolean;

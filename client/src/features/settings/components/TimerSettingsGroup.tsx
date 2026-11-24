@@ -3,7 +3,6 @@ import { SectionCard, Switch } from "@/components/ui/StudioUI";
 import { Select } from "@/components/ui/Select";
 import { SettingRow } from "./SettingRow";
 
-/** The preferences of the timer: inspection cues, the metronome and hiding the running time. */
 export function TimerSettingsGroup({
   sound,
   voice,

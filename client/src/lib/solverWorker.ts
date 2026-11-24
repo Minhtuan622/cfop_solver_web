@@ -1,12 +1,3 @@
-/** Worker của bộ giải CFOP: bộ giải Rust (`packages/solver`) biên dịch ra
- * WebAssembly.
- *
- * Module WASM chỉ được tải khi worker nhận request đầu tiên; bản thân worker
- * cũng chỉ được tạo khi người dùng bấm giải (xem `WasmSolverEngine`).
- * Huỷ mềm: nếu trang gửi `{ type: "init", cancelFlag }` (SharedArrayBuffer),
- * mọi request có id <= giá trị trong cờ sẽ dừng ở lần kiểm tra tiến độ kế
- * tiếp mà không mất các bảng tra đã dựng.
- */
 import init, * as wasm from "@solver-wasm/solver_wasm.js";
 import wasmUrl from "@solver-wasm/solver_wasm_bg.wasm?url";
 import { handleWasmRequest, type WorkerRequest } from "./wasmSolverCore";

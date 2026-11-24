@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { BoxSeam } from "@/components/ui/Icon";
 
-/** Thẻ báo không dựng được mô hình 3D/2D, kèm nút "Thử lại". */
 export function Puzzle3DErrorCard({
   label,
   modelLabel,
@@ -9,7 +8,6 @@ export function Puzzle3DErrorCard({
   onRetry,
 }: {
   label: string;
-  /** "2D" hoặc "3D". */
   modelLabel: string;
   language: "vi" | "en";
   onRetry: () => void;

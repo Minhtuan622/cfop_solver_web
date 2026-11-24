@@ -8,10 +8,6 @@ export type UseAsyncResult<Args extends unknown[], Result> = {
   run: (...args: Args) => Promise<Result | undefined>;
 };
 
-/**
- * Runs an async action and exposes the pending and error state of the last
- * run, so buttons and forms can react to it instead of tracking it by hand.
- */
 export function useAsync<Args extends unknown[], Result>(
   action: AsyncRunner<Args, Result>,
 ): UseAsyncResult<Args, Result> {

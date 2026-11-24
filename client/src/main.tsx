@@ -10,8 +10,6 @@ import "sonner/dist/styles.css";
 import "./index.css";
 import "./styles/cube.css";
 
-// React boundaries cannot see exceptions raised before mounting or by external scripts.
-// Keep the browser's native reporting intact while adding context for actionable logs.
 window.addEventListener("unhandledrejection", event => {
   const reason = event.reason as
     | { message?: string; stack?: string }
@@ -65,15 +63,8 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-// The inline script in index.html already set the theme before the first paint;
-// re-applying it here keeps the document in sync with the stored choice.
 applyTheme(readTheme());
 
-/**
- * React Buddy is an IDE-only overlay. It is imported dynamically behind
- * `import.meta.env.DEV`, so neither the toolbox nor the preview palette can
- * reach a production chunk or block the first paint.
- */
 async function renderApp() {
   let Shell: ComponentType<{ children: ReactElement }> = ({ children }) => (
     <>{children}</>

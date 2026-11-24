@@ -1,12 +1,6 @@
-/** Lõi của worker bộ giải: chuyển một request của worker thành lời gọi vào
- * module `solver-wasm` (Rust) và trả về reply theo giao thức của
- * `WasmSolverEngine`. Tách khỏi `solverWorker.ts` để test chạy được trên Node
- * với chính module WASM thật.
- */
 import { SOLVER_NODE_BUDGET, SOLVER_TIME_BUDGET_SEC } from "./solverBudget";
 import type { WorkerReply } from "./solverEngine";
 
-/** Phần API của `solver-wasm` mà worker dùng. */
 export type SolverWasmModule = {
   solve(
     stickers: string,
@@ -34,10 +28,8 @@ export type WorkerRequest = {
   excludedSlots?: string[];
 };
 
-/** Thứ tự mặt của `crossLengths` trong Rust. */
 const CROSS_FACE_ORDER = ["U", "R", "F", "D", "L", "B"] as const;
 
-/** Báo tiến độ tối đa ~10 lần mỗi giây. */
 const PROGRESS_INTERVAL_MS = 100;
 
 export function handleWasmRequest(
@@ -80,8 +72,6 @@ export function handleWasmRequest(
         directNodeBudget: request.directNodeBudget ?? 5000,
         preferredSlot: request.preferredSlot,
         excludedSlots: request.excludedSlots ?? [],
-        // Ngân sách dùng chung (`solverBudget.ts`): solver tự dừng và báo lỗi
-        // có cấu trúc trước khi client ngắt.
         timeBudgetSec: SOLVER_TIME_BUDGET_SEC,
         nodeBudget: SOLVER_NODE_BUDGET,
       },

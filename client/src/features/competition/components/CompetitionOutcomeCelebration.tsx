@@ -6,11 +6,6 @@ import { toast } from "sonner";
 import { Sparkles, Trophy } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 
-/**
- * The server reports a moderation removal with this exact Vietnamese prefix
- * (`server/routers/competitionShared.ts`), so it stays a protocol constant
- * rather than a translatable string.
- */
 const REMOVAL_PREFIX = "Bạn đã bị quản trị viên loại khỏi phòng. Lý do: ";
 
 function playCelebrationTone() {
@@ -36,7 +31,6 @@ function playCelebrationTone() {
     });
     window.setTimeout(() => void context.close(), 520);
   } catch {
-    /* Visual feedback stays available if browser audio is blocked. */
   }
 }
 
@@ -56,8 +50,6 @@ export function CompetitionOutcomeCelebration() {
     retry: false,
   });
   const [kind, setKind] = useState<"winner" | "record" | null>(null);
-  // The removal notice is announced once per message; the guard keeps a
-  // re-render of the query from repeating the toast.
   const announcedRemoval = useRef("");
   useEffect(() => {
     const message = roomQuery.error?.message ?? "";

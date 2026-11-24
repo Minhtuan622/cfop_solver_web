@@ -1,9 +1,3 @@
-/**
- * Separate, standalone history for the keyboard-driven virtual cube.
- *
- * Deliberately NOT backed by solve-history storage or cloud sync: virtual
- * solves must never mix into a cuber's real 3×3×3 statistics.
- */
 import { readStoredJson, writeStoredValue } from "@/lib/browserStorage";
 import type { SolvePenalty, SolveHistoryEntry } from "@/lib/solveHistory";
 import { rollingAverage } from "@/lib/timerRecords";
@@ -18,7 +12,6 @@ export type PlayHistoryEntry = {
   inspectionMs: number;
   penalty: SolvePenalty;
   scramble: string;
-  /** Every move applied in order, including whole-cube rotations. */
   solution: string;
   moves: number;
 };
@@ -65,7 +58,6 @@ export function clearPlayHistory(): PlayHistoryEntry[] {
   return [];
 }
 
-/** Penalty-adjusted time; DNF yields null. */
 export function playEffectiveTime(entry: PlayHistoryEntry): number | null {
   if (entry.penalty === "DNF") return null;
   return entry.elapsedMs + (entry.penalty === "+2" ? 2_000 : 0);
@@ -75,7 +67,6 @@ export type PlayStats = {
   count: number;
   validCount: number;
   bestMs: number | null;
-  /** WCA trimmed average of the last 5 (best & worst dropped; DNF = worst). */
   ao5Ms: number | null;
 };
 
@@ -85,8 +76,6 @@ export function playStats(entries: readonly PlayHistoryEntry[]): PlayStats {
     .filter((value): value is number => value !== null);
   const bestMs = valid.length ? Math.min(...valid) : null;
   const last5 = entries.slice(0, 5);
-  // rollingAverage only reads penalty + elapsedMs via effectiveTime, so the
-  // cast is safe and keeps the WCA trimming rule identical everywhere.
   const ao5 =
     last5.length === 5
       ? rollingAverage(last5 as unknown as SolveHistoryEntry[])
@@ -99,7 +88,6 @@ export function playStats(entries: readonly PlayHistoryEntry[]): PlayStats {
   };
 }
 
-/** mm:ss.cc — same readout style as the rest of the app's timer. */
 export function formatPlayTime(ms: number) {
   const total = ms / 1000;
   return `${Math.floor(total / 60)

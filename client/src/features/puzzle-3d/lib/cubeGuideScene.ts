@@ -1,8 +1,3 @@
-/**
- * Dựng cảnh Three.js cho `CubeGuide3D`: hình học dùng chung, từng cubie với
- * sticker theo state, vật liệu và việc căn mặt Cross xuống D. Module này import
- * Three.js nên chỉ được nạp cùng chunk tải lười của `CubeGuide3D`.
- */
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { CUBE_COLORS, CUBE_FALLBACK_COLOR } from "./cubeColors";
@@ -24,21 +19,17 @@ export type TrackedScene = {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   root: THREE.Group;
-  /** Xoay whole-cube alignment (Cross → D) một lần cho toàn bộ scene con. */
   alignGroup: THREE.Group;
   host: HTMLDivElement;
   resize: () => void;
 };
 
-/** Góc nhìn dọc (độ) khi khung vuông hoặc rộng hơn cao. */
 export const BASE_FOV = 34;
 
-/** Giải phóng vật liệu của một nhóm đối tượng (hình học dùng chung nên KHÔNG dispose). */
 export function disposeObject(object: THREE.Object3D) {
   object.traverse(node => {
     const mesh = node as THREE.Mesh;
     if (mesh.isMesh) {
-      // Geometry được chia sẻ toàn cục (xem _geoSticker2/_geoBody2 …) — KHÔNG dispose.
       const material = mesh.material;
       if (Array.isArray(material)) material.forEach(m => m.dispose());
       else material?.dispose();
@@ -46,9 +37,6 @@ export function disposeObject(object: THREE.Object3D) {
   });
 }
 
-/**
- * Dựng 26 cubie (hoặc 8 với 2×2) theo `nextState` và gắn vào `root`.
- */
 export function buildCubies(
   root: THREE.Group,
   nextState: string,
@@ -106,7 +94,7 @@ export function buildCubies(
               sticker.position.set(offset, 0, 0);
               sticker.rotation.set(0, Math.PI / 2, 0);
               break;
-            default: // L
+            default:
               sticker.position.set(-offset, 0, 0);
               sticker.rotation.set(0, -Math.PI / 2, 0);
               break;

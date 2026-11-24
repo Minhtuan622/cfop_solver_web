@@ -5,20 +5,6 @@ import os from "node:os";
 import path from "node:path";
 import { evaluateRun, resolveLimits } from "../scripts/bench-check.mjs";
 
-/**
- * Regression test cho B1 (bộ đo bộ giải).
- *
- * Bộ đo là công cụ đo hiệu năng: nếu nó hỏng thì mọi quyết định tối ưu sau
- * này đều dựa trên số liệu sai. Test giữ cho:
- * - bộ đề cố định;
- * - bộ đo dùng đúng tham số giải của worker trong trình duyệt;
- * - chế độ --smoke thực sự giải được và giải đúng.
- *
- * Phần cuối của file kiểm tra chế độ `--check` (ngưỡng thời gian) — đây là
- * bản kiểm tra mà CI chạy, nên logic chấm điểm phải đúng với dữ liệu giả
- * lập trước khi tin vào số đo thật.
- */
-
 const root = path.resolve(import.meta.dirname, "..");
 const benchScript = path.join(root, "scripts", "bench-solver.mjs");
 const scrambleFile = path.join(root, "scripts", "bench-scrambles.json");
@@ -35,7 +21,6 @@ type BenchRow = {
 
 const LIMITS = { perScrambleLimitSec: 20, totalLimitSec: 80 };
 
-/** Một dòng kết quả giả lập; chỉ cần đủ trường để chấm điểm. */
 function row(overrides: Partial<BenchRow> & { scramble: string }): BenchRow {
   return {
     group: "specified",
@@ -61,7 +46,6 @@ describe("B1: bộ đo bộ giải", () => {
     for (const scramble of [...scrambles.specified, ...scrambles.random]) {
       expect(scramble.trim().length).toBeGreaterThan(0);
     }
-    // Bộ đề ngẫu nhiên phải là bộ cố định (không sinh lại mỗi lần chạy).
     expect(scrambles.random[0]).toBe(
       "F' R' B' D' B2 F L2 R2 L' D' R2 B' D' B R' B2 L R F' U F2 U"
     );
@@ -116,9 +100,6 @@ describe("B2/B5: chế độ kiểm tra ngưỡng thời gian", () => {
 
   it("kịch bản auto có ngưỡng riêng, lớn hơn kịch bản cross", () => {
     const limits = resolveLimits({});
-    // Kịch bản auto thử bậc cross cao nhất nên đắt hơn nhiều: đo được
-    // chậm nhất ~21s cho một đề và tổng ~69s cho 11 đề. Dùng chung ngưỡng với
-    // kịch bản cross thì auto sẽ đỏ ngay.
     expect(limits.auto.perScrambleLimitSec).toBeGreaterThan(
       limits.cross.perScrambleLimitSec
     );
@@ -170,7 +151,6 @@ describe("B2/B5: chế độ kiểm tra ngưỡng thời gian", () => {
     });
     expect(report.ok).toBe(true);
     expect(report.totals.totalSeconds).toBe(25);
-    // 25s lần chạy chính + 21s chạy lại = 46s thời gian thực.
     expect(report.totals.wallClockSeconds).toBe(46);
   });
 
@@ -195,8 +175,6 @@ describe("B2/B5: chế độ kiểm tra ngưỡng thời gian", () => {
       results: [
         row({ scramble: "A", seconds: 1, solved: false }),
       ],
-      // Có "lần chạy lại" trong dữ liệu thì vẫn phải là lỗi "wrong", không
-      // phải "slow": vi phạm (a) không được thử lại.
       retries: [row({ scramble: "A", seconds: 99 })],
       limits: { perScrambleLimitSec: 0.5, totalLimitSec: 80 },
     });
@@ -232,7 +210,6 @@ describe("B2/B5: chế độ kiểm tra ngưỡng thời gian", () => {
   });
 
   it("tổng thời gian vượt ngưỡng thì thoát khác 0", () => {
-    // Mỗi đề vẫn nhanh hơn ngưỡng mỗi đề, chỉ tổng là vượt.
     const report = evaluateRun({
       results: [
         row({ scramble: "A", seconds: 17 }),
@@ -261,15 +238,12 @@ describe("B1: chế độ --check chạy thật", () => {
       { cwd: root, encoding: "utf8", timeout: 180_000 }
     );
     expect(run.status).toBe(0);
-    // Cả hai kịch bản đều phải chạy và đều phải xanh.
     expect(run.stdout).toContain("KẾT LUẬN [cross]: PASS");
     expect(run.stdout).toContain("KẾT LUẬN [auto]: PASS");
 
     const report = JSON.parse(readFileSync(jsonFile, "utf8"));
     expect(report.ok).toBe(true);
     expect(report.exitCode).toBe(0);
-    // Artifact tự mô tả runtime đã đo: engine và kích thước file .wasm
-    // thật đang được đo.
     const wasmFile = path.join(
       root, "packages", "solver", "solver-wasm", "pkg", "solver_wasm_bg.wasm"
     );
@@ -284,10 +258,8 @@ describe("B1: chế độ --check chạy thật", () => {
     });
     expect(report.results).toHaveLength(1);
     expect(report.results[0].solved).toBe(true);
-    // Số đo wall-clock phải có trong artifact; smoke không chạy lại nên bằng tổng.
     expect(report.totals.wallClockSeconds).toBe(report.totals.totalSeconds);
 
-    // Artifact phải chứa **cả hai** kịch bản, mỗi kịch bản có ngưỡng riêng.
     expect(report.scenarios.map((s: { name: string }) => s.name)).toEqual([
       "cross",
       "auto",
@@ -316,9 +288,6 @@ describe("B1: chế độ --check chạy thật", () => {
   }, 200_000);
 
   it("ngưỡng riêng của kịch bản auto cũng làm bộ đo đỏ", () => {
-    // Kịch bản auto dùng ngưỡng riêng: siết `AUTO_TOTAL_LIMIT_SEC` thì kịch
-    // bản auto đỏ còn kịch bản cross vẫn xanh — chứng minh hai kịch bản
-    // được chấm điểm độc lập.
     const dir = mkdtempSync(path.join(os.tmpdir(), "cfop-bench-"));
     const jsonFile = path.join(dir, "bench.json");
     const run = spawnSync(
@@ -335,9 +304,6 @@ describe("B1: chế độ --check chạy thật", () => {
     expect(run.stdout).toContain("KẾT LUẬN [auto]: FAIL");
     expect(run.stdout).toContain("KẾT LUẬN [cross]: PASS");
 
-    // Artifact phải phản ánh kết quả tổng hợp: cross xanh nhưng auto đỏ thì
-    // `ok` phải là false và `exitCode` phải là 1 — không được lấy verdict
-    // của kịch bản cross.
     const report = JSON.parse(readFileSync(jsonFile, "utf8"));
     expect(report.ok).toBe(false);
     expect(report.exitCode).toBe(1);
@@ -346,7 +312,6 @@ describe("B1: chế độ --check chạy thật", () => {
     ) as Record<string, { ok: boolean }>;
     expect(scenarios.cross.ok).toBe(true);
     expect(scenarios.auto.ok).toBe(false);
-    // Các failure được ghi kèm tên kịch bản.
     expect(
       report.failures.some(
         (f: { scenario?: string }) => f.scenario === "auto"

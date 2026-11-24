@@ -29,10 +29,6 @@ function algorithmText(
   );
 }
 
-/**
- * Một dòng execution/special: key chính xác, thuật toán từ catalog hoặc thuật
- * toán ưu tiên trong hồ sơ, và ô sửa thuật toán ưu tiên.
- */
 export function BldAlgorithmRow({
   type,
   label,

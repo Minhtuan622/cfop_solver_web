@@ -1,7 +1,3 @@
-/**
- * State của hộp thoại sửa một lượt giải: thời gian gốc, penalty, solution
- * (chỉ 3×3×3 mới kiểm và phát lại được), ghi chú và tag.
- */
 import { useState } from "react";
 import { validateRecordedSolution } from "@/lib/fastCube";
 import {
@@ -16,7 +12,6 @@ export function useSolveEditor({
   onSaved,
   invalidSolutionMessage,
 }: {
-  /** Nhận danh sách lượt giải sau khi lưu. */
   onSaved: (entries: SolveHistoryEntry[]) => void;
   invalidSolutionMessage: string;
 }) {
@@ -72,7 +67,6 @@ export function useSolveEditor({
 
   return {
     editing,
-    /** Chỉ lượt 3×3×3 mới có ô sửa solution (kiểm và phát lại được). */
     supportsReplay: editing
       ? normalizeTimerEventId(editing.eventId) === "333"
       : false,

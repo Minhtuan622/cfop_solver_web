@@ -45,9 +45,6 @@ export const statsProcedures = {
   playerHistory: publicProcedure
     .input(z.object({ accountId: z.number().int().positive() }))
     .query(async ({ input, ctx }) => {
-      // Rate limit: mỗi người dùng được tra lịch sử không quá thường xuyên.
-      // Khóa là địa chỉ client (đã tôn trọng TRUST_PROXY), không phải địa chỉ
-      // socket: sau một reverse proxy, mọi người dùng sẽ dùng chung một hạn mức.
       const address = clientAddress(
         ctx.req as {
           headers: Record<string, string | string[] | undefined>;
@@ -72,22 +69,18 @@ export const statsProcedures = {
     }),
 };
 
-/** Kiểu dữ liệu trả về của playerHistory, dùng để type-cache. */
 export type PlayerHistoryEntry = Awaited<
   ReturnType<typeof playerHistoryQuery>
 >[number];
 
-/** Cache ngắn cho playerHistory (tránh truy vấn lặp lại trong thời gian ngắn). */
 export const playerHistoryCache = new TtlCache<PlayerHistoryEntry[]>({
   ttlMs: 60_000,
   maxEntries: 256,
 });
 
-/** Lấy lịch sử thi đấu của một tài khoản với một truy vấn duy nhất cho kết quả (không N+1). */
 export async function playerHistoryQuery(input: { accountId: number }) {
   const rooms = await listFinishedCompetitionRoomsForAccount(input.accountId);
   const roomIds = rooms.map(({ room }) => room.id);
-  // Một truy vấn duy nhất lấy kết quả của mọi phòng, kèm roomId để nhóm trong bộ nhớ.
   const allResults = await listCompetitionResultsForRooms(roomIds);
   const resultsByRoom = new Map<number, (typeof allResults)[number][]>();
   for (const result of allResults) {

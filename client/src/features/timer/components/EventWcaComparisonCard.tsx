@@ -1,4 +1,3 @@
-/** Thẻ so sánh thành tích Timer với kỷ lục WCA cá nhân của loại khối đang chọn. */
 import { Link } from "wouter";
 import { type TimerEventId } from "@/lib/timerEvents";
 import { type WcaTimerComparisonRow } from "@/features/wca/lib/wcaTimerComparison";

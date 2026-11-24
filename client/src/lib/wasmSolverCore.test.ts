@@ -1,7 +1,3 @@
-/**
- * Lõi worker WASM chạy với module WebAssembly thật (bản build của
- * `packages/solver`, `pnpm build:solver`).
- */
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";

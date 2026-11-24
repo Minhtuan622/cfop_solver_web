@@ -28,9 +28,6 @@ function composeCommand() {
 
 function ensureEnv() {
   const current = existsSync(envFile) ? readFileSync(envFile, "utf8") : "";
-  // Only the database connection belongs here. NODE_ENV and PORT stay with
-  // the command line or the platform, so a `PORT=3200 pnpm start` keeps
-  // running on 3200.
   const additions = [];
   if (!/^DATABASE_URL=/m.test(current)) additions.push(`DATABASE_URL=${databaseUrl}`);
   if (additions.length) writeFileSync(envFile, `${current.trimEnd()}${current.trimEnd() ? "\n" : ""}${additions.join("\n")}\n`);
@@ -63,8 +60,6 @@ const up = run(compose, [...baseArgs, "-f", composeFile, "up", "-d"]);
 if (up.status !== 0) process.exit(up.status ?? 1);
 waitForHealthy(compose);
 console.log("Áp dụng schema Drizzle...");
-// Run drizzle-kit directly so the setup works even when pnpm is only
-// available through corepack. This mirrors the `db:push` script.
 const drizzleKit = resolve(root, "node_modules", "drizzle-kit", "bin.cjs");
 for (const command of ["generate", "migrate"]) {
   const result = run(process.execPath, [drizzleKit, command]);

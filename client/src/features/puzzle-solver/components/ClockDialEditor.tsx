@@ -1,9 +1,3 @@
-/**
- * Bộ nhập trạng thái Clock: 9 mặt số mặt trước và 9 mặt sau. Bấm một mặt số để
- * tăng một giờ (Shift + bấm hoặc chuột phải để giảm); ô số bên dưới cho gõ thẳng.
- * Thứ tự ô theo KPuzzle của cubing.js: 0–8 mặt trước, 9–17 mặt sau, mỗi mặt
- * đọc từ trên xuống, trái sang phải theo hướng nhìn vào mặt đó.
- */
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
 

@@ -1,10 +1,3 @@
-/**
- * 3D replay of a case's algorithm for the catalog preview dialog: builds the
- * case from its inverse (`setupAlg`) and plays the algorithm forward on a
- * shared Cubing.js 3D canvas — the same Setup → Alg flow the practice cards
- * use. `replayToken` bumps retrigger the build so the dialog's "Xem lại"
- * button restarts the animation on demand.
- */
 import { lazy, Suspense } from "react";
 import type { TimerEventId } from "@/lib/timerEvents";
 import type { PuzzleId } from "@/features/puzzle-3d/lib/puzzleIds";
@@ -25,14 +18,10 @@ export function CubeAlgorithmReplay({
 }: {
   eventId: TimerEventId;
   puzzle: PuzzleId;
-  /** The case, ready for cubing.js (e.g. the lane's scrambleOf helper). */
   scramble: string;
-  /** The (M→ slices pre-converted) algorithm to play on top of the case. */
   algorithm: string;
   language: "vi" | "en";
-  /** Bump to restart the animation (dialog "Xem lại" button). */
   replayToken?: number;
-  /** Nhân tốc độ phát nước đi (1 = mặc định của cubing.js). */
   tempoScale?: number;
 }) {
   return (

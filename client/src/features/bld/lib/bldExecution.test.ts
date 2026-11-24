@@ -10,9 +10,7 @@ import {
 
 describe("bldExecution", () => {
   it("đổi chữ Chichu của BLDDB sang Speffz theo loại mảnh", () => {
-    // Giá trị chốt theo bảng gốc của BldReport (không tự tính lại).
     expect(sourceToSpeffz("edge")("AJ")).toBe("CK");
-    // Chữ không có trong bảng giữ nguyên.
     expect(sourceToSpeffz("edge")("?")).toBe("?");
   });
 

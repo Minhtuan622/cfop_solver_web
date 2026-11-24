@@ -12,7 +12,6 @@ vi.mock("@/contexts/LanguageContext", async () => {
     }),
   };
 });
-// Khối 3D cần WebGL nên thay bằng khung rỗng; bộ phát và nhịp vẫn là mã thật.
 vi.mock("@/features/puzzle-solver", () => ({
   SolutionStage: () => <div data-testid="stage" />,
 }));
@@ -24,7 +23,6 @@ vi.mock("../lib/solverComparison", () => ({ compareWithSolver: (...args: unknown
 
 import { SolveAnalysisDialog } from "./SolveAnalysisDialog";
 
-// Lời giải một OLL + PLL ngắn: scramble là nghịch đảo của lời giải.
 const SOLUTION = "R U R' U R U2 R'";
 const entry = (overrides: Partial<SolveHistoryEntry> = {}): SolveHistoryEntry => ({
   id: "a",
@@ -59,15 +57,11 @@ describe("SolveAnalysisDialog", () => {
   it("hiện bảng giai đoạn, quãng dừng và case", async () => {
     render(<SolveAnalysisDialog entry={entry()} onClose={() => undefined} />);
     const table = await screen.findByTestId("analysis-phases");
-    // OLL giữ cả 7 nước (HTM 7 vì R U R' U R U2 R' không gộp được).
     const oll = within(table).getByText("OLL").closest("tr")!;
     expect(within(oll).getAllByRole("cell")[1].textContent).toBe("7");
-    // Quãng dừng 1,55 s trước nước thứ 5 là dài nhất.
     const pauses = await screen.findByTestId("analysis-pauses");
     expect(within(pauses).getByText("1.55s")).toBeTruthy();
-    // Case: sau khi nạp danh mục, OLL không còn "Đang tải…".
     await waitFor(() => expect(screen.queryByText("Đang tải…")).toBeNull(), { timeout: 10_000 });
-    // Sune (R U R' U R U2 R') nên case OLL là Sune/Anti-Sune, kèm liên kết luyện case.
     const link = (await screen.findAllByRole("link", { name: "Luyện case" }))[0];
     expect(link.getAttribute("href")).toMatch(/^\/study\?lane=cfop&case=OLL-(26|27)$/);
   });

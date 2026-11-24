@@ -1,7 +1,3 @@
-/**
- * Cầu nối tới bộ giải Roux: chạy trong Web Worker khi có (trình duyệt), còn
- * không (kiểm thử Node) thì chạy thẳng trong luồng hiện tại.
- */
 import {
   createRouxSolver,
   solveRoux,
@@ -13,7 +9,6 @@ import {
 } from "./rouxSolver";
 import type { RouxWorkerRequest, RouxWorkerResponse } from "./rouxWorker";
 
-/** Các lượt gốc bộ giải cần: sáu mặt, lớp giữa M và lượt rộng r. */
 const MOVE_NAMES = ["U", "D", "L", "R", "F", "B", "M", "r"] as const;
 
 type PatternData = Record<string, { pieces: number[]; orientation: number[] }>;
@@ -55,7 +50,6 @@ function startWorker() {
   };
 }
 
-/** Dựng bộ giải (một lần); lần gọi sau dùng lại. */
 export function prepareRouxSolver(): Promise<void> {
   ready ??= (async () => {
     const quarters = await readQuarterMoves();
@@ -73,7 +67,6 @@ export function prepareRouxSolver(): Promise<void> {
   return ready;
 }
 
-/** Giải Roux từ dữ liệu pattern của cubing.js (`KPattern.patternData`). */
 export async function solveRouxPattern(patternData: PatternData): Promise<RouxSolution> {
   await prepareRouxSolver();
   const state: CubeState = stateFromPatternData(patternData);
@@ -83,7 +76,6 @@ export async function solveRouxPattern(patternData: PatternData): Promise<RouxSo
   return response.solution;
 }
 
-/** Giải Roux từ một scramble (chuỗi lượt WCA). */
 export async function solveRouxScramble(scramble: string): Promise<RouxSolution> {
   const [{ puzzles }, { Alg }] = await Promise.all([import("cubing/puzzles"), import("cubing/alg")]);
   const kpuzzle = await puzzles["3x3x3"].kpuzzle();

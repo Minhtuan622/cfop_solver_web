@@ -5,8 +5,6 @@ import type { CrossLengths } from "@/lib/solverRuntime";
 import { scrambledState } from "@/lib/scrambleOrientation";
 import { CrossLengthStrip } from "./CrossLengthStrip";
 
-// Hàm thường thay vì `vi.fn`: spy của vitest tự gọi `.then` lên giá trị trả
-// về và báo lỗi mọi Promise bị reject, kể cả khi component đã xử lý nó.
 const mocks = vi.hoisted(() => ({
   calls: [] as [string, string][],
   result: (): Promise<CrossLengths> => Promise.reject(new Error("unset")),
@@ -37,7 +35,6 @@ describe("CrossLengthStrip", () => {
     expect(mocks.calls).toEqual([["state", scrambledState("R U F")]]);
     await screen.findByText("7");
     const items = screen.getAllByRole("listitem");
-    // Thứ tự hiển thị: trắng (D), vàng (U), xanh lá, xanh dương, cam, đỏ.
     expect(items.map(item => item.textContent?.replace(/\D/g, ""))).toEqual([
       "7", "6", "4", "6", "5", "4",
     ]);

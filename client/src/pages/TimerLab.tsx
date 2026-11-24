@@ -1,7 +1,3 @@
-/**
- * Xưởng Cơ Khí Tốc Độ — Timer Lab chia hai apparatus rõ ràng: timer competition và study bay Last Layer.
- * Competition giữ scramble/inspection/history; Study bay dùng score-strip, mint progress và case-first repetition.
- */
 import {
   BookOpenCheck,
   ClipboardCheck,
@@ -83,7 +79,6 @@ import { Select } from "@/components/ui/Select";
 import type { TimerWcaRecord } from "@/features/timer/lib/timerLabTypes";
 import { MultiBlindResultCard, MultiBlindScrambleList } from "@/features/timer/components/MultiBlindCards";
 
-// Phân tích sâu kéo theo bộ phát 3D và danh mục case: chỉ nạp khi mở hộp thoại.
 const SolveAnalysisDialog = lazy(async () => ({
   default: (await import("@/features/timer/components/SolveAnalysisDialog"))
     .SolveAnalysisDialog,
@@ -100,7 +95,6 @@ export default function TimerLab() {
     staleTime: 10 * 60 * 1000,
     retry: false,
   });
-  // Mở từ Học thêm (`/timer?event=…&scramble=…`): dùng đúng scramble của case.
   const timerLinkSearch = useSearch();
   const [timerLink] = useState(() =>
     window.location.pathname.startsWith("/timer")
@@ -158,7 +152,6 @@ export default function TimerLab() {
     location.split("?")[0] === "/study" ? "study" : "timer";
   const scrambleRequest = useRef(0);
 
-  // Chế độ tập trung: khi đồng hồ chạy, trang chỉ còn con số.
   const [timerRunning, setTimerRunning] = useState(false);
   useEffect(() => {
     if (timerRunning) document.body.dataset.timerFocus = "true";
@@ -232,8 +225,6 @@ export default function TimerLab() {
     [eventEntries, eventId, eventWcaRecord]
   );
 
-  // Ô số liệu chưa đủ dữ liệu hiện dấu gạch dài: "--:--" trông như lỗi
-  // hiển thị chứ không phải một giá trị.
   const metric = (value: number | null | undefined) =>
     value === undefined ? "—" : value === null ? "DNF" : formatSolveTime(value);
   const recordLabel = (record: PersonalRecord) =>
@@ -314,9 +305,6 @@ export default function TimerLab() {
   const bluetooth = useBluetoothTimer();
   const bleTimer =
     !isMultiBlind && bluetooth.status === "connected" ? bluetooth.timer : null;
-  // Tracks the GAN Timer's own solve recordings so a solve detected by the
-  // cube can be attributed to a matching mat measurement — never to a stale
-  // reading left over from earlier use.
   const bleSolveRef = useRef<{ at: number; ms: number } | null>(null);
   useEffect(() => {
     const timer = bluetooth.timer;
@@ -345,7 +333,6 @@ export default function TimerLab() {
           automaticPenalty: "none",
           phaseSplits: phaseSplits ?? [],
           moves: moves?.length ?? 0,
-          // Chuỗi nước và nhịp từng nước để phân tích sâu và phát lại.
           solution: moves?.join(" ") ?? "",
           moveTimes,
         },
@@ -425,8 +412,6 @@ export default function TimerLab() {
     if (!timerLink) void nextScramble(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  // Chuyển từ trang Học thêm sang Timer giữ nguyên component này (cùng một
-  // route con), nên link đến sau khi đã mount cũng phải được áp dụng.
   const appliedLink = useRef(timerLink ? `${timerLink.eventId}|${timerLink.scramble}` : "");
   useEffect(() => {
     if (labTab !== "timer") return;
@@ -465,8 +450,6 @@ export default function TimerLab() {
           <LastLayerStudyLab language={language} />
         ) : (
           <>
-            {/* Bố cục "tập trung đồng hồ": scramble và đồng hồ ở giữa; khi đồng hồ
-                chạy, mọi phần `data-focus-hide` mờ đi (xem index.css). */}
             <div data-focus-hide>
               <PageHeader
                 eyebrow={t("timer.eyebrow")}

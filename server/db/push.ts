@@ -10,7 +10,6 @@ export type PushSubscriptionInput = {
   tzOffsetMinutes: number;
 };
 
-/** Lưu (hoặc cập nhật) một đăng ký push; endpoint là khoá duy nhất của trình duyệt. */
 export async function upsertPushSubscription(input: PushSubscriptionInput) {
   const db = await requireDb();
   await db
@@ -22,7 +21,6 @@ export async function upsertPushSubscription(input: PushSubscriptionInput) {
         p256dh: input.p256dh,
         auth: input.auth,
         tzOffsetMinutes: input.tzOffsetMinutes,
-        // Đăng ký lại thì lịch cũ không còn đúng: chờ client báo lịch mới.
         nextDueAt: null,
         dueCount: 0,
         lastNotifiedAt: null,
@@ -74,7 +72,6 @@ export async function deletePushSubscriptionById(id: number) {
   await db.delete(cfopPushSubscriptions).where(eq(cfopPushSubscriptions.id, id));
 }
 
-/** Client báo lịch ôn tập mới của trình duyệt này. */
 export async function updatePushSchedule(
   accountId: number,
   endpoint: string,
@@ -92,10 +89,6 @@ export async function updatePushSchedule(
     );
 }
 
-/**
- * Các đăng ký đã đến hạn mà chưa báo cho đợt hạn này (`lastNotifiedAt` trống
- * hoặc cũ hơn `nextDueAt`).
- */
 export async function listDuePushSubscriptions(now: number, limit = 200) {
   const db = await requireDb();
   return db

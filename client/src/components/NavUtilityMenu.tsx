@@ -40,20 +40,11 @@ const LANGUAGES = [
   { value: "en" as const, label: "English" },
 ];
 
-/**
- * Một nút duy nhất ở thanh điều hướng gom tài khoản, ngôn ngữ và giao diện.
- *
- * Trước đây ba nút chiếm chỗ trên thanh; gom vào một menu giữ cho thanh gọn
- * và đặt mọi tuỳ chọn cá nhân ở đúng một chỗ. Menu là tấm nền đặc `surface`
- * với từng mục là chip `surface-2` (hover `surface-3`) — cùng ngôn ngữ với
- * nút "soft" trong hệ thống; mục đang chọn dùng `primary-soft` với chữ tím.
- */
 export function NavUtilityMenu() {
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const session = useCfopAccountSession();
   const showSession = session.show;
-  // Nút "Đăng nhập" ở các trang (Phòng thi, Xếp hạng) mở cùng hộp đăng nhập này.
   useEffect(() => {
     const open = () => showSession("login");
     window.addEventListener(SIGN_IN_EVENT, open);

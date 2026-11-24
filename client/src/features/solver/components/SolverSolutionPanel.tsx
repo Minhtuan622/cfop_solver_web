@@ -19,13 +19,9 @@ import type { ReactNode } from "react";
 export type SolverSolutionPanelProps = {
   view: "2d" | "3d";
   onViewChange: (view: "2d" | "3d") => void;
-  /** The name of the current stage, or the headline of the memo. */
   title: ReactNode;
-  /** One line of context under the title (kept for assistive text). */
   subtitle: ReactNode;
-  /** A quiet line above the title, such as the step counter. */
   eyebrow?: ReactNode;
-  /** The move that is being shown. */
   move: string | null;
   moveLabel: string;
   turnCount: number;
@@ -38,18 +34,11 @@ export type SolverSolutionPanelProps = {
   onReset: () => void;
   onSeek: (cursor: number) => void;
   onPlaybackSpeedChange: (speed: number) => void;
-  /** Status banner under the controls (e.g. "first steps are ready"). */
   footer?: ReactNode;
-  /** Ẩn nút chuyển 2D/3D (khối chỉ có mô hình 3D). */
   hideViewSwitch?: boolean;
-  /** The cube itself. */
   children: ReactNode;
 };
 
-/**
- * The cube stage: a 3D/2D switch, the cube, a pill-shaped player and an
- * optional status banner. The player appears only once there is a solution.
- */
 export function SolverSolutionPanel({
   view,
   onViewChange,

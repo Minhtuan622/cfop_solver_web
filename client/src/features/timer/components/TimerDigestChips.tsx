@@ -1,4 +1,3 @@
-/** Dãy chip tóm tắt hôm nay: chuỗi ngày luyện, số lượt hôm nay và ao5 hiện tại. */
 import { Calendar3, CircleGauge, Sparkles } from "@/components/ui/Icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 

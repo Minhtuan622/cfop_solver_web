@@ -4,7 +4,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { formatSolveTime } from "@/lib/solveHistory";
 import { meetsAo5Goal } from "../lib/profileProgress";
 
-/** Bốn ô số liệu Timer/Study và banner khi ao5 đạt mục tiêu. */
 export function ProfileTimerStats({
   solveCount,
   best,

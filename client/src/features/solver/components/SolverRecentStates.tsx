@@ -9,7 +9,6 @@ export type SolverRecentStatesProps = {
   onRemove: (id: string) => void;
 };
 
-/** The cube states the visitor painted earlier, one click away. */
 export function SolverRecentStates({
   states,
   onSelect,

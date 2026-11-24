@@ -1,15 +1,3 @@
-/**
- * 3×3 OLLCP — Orientation of Last Layer + Corner Permutation, 342 cases
- * (57 OLL orientation shapes × 6 CP variants each).
- * Source: https://cubingapp.com/algorithms/OLLCP (extracted 2026-11-17, one
- * canonical algorithm per case — the first variant published on the page).
- *
- * Case states are NOT embedded: `cfopCaseState()` derives the pre-image from
- * the algorithm (inverse applied to solved), so every case is guaranteed to
- * be solved by its own algorithm. A few published variants use a leading `d`
- * (wide D) which the app's 3×3 model does not implement; the canonical first
- * variant of every case uses only supported moves.
- */
 import type { CfopCaseRow } from "./cfopCatalogData";
 
 export const OLLCP_CASES: readonly CfopCaseRow[] = [

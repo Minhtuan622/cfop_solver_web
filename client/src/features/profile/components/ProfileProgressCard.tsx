@@ -4,7 +4,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ProfileProgressChart } from "./ProfileProgressChart";
 import type { ProfileProgressRange } from "../lib/profileProgress";
 
-/** Thẻ biểu đồ tiến bộ ao5 theo ngày, kèm nút chọn khoảng thời gian. */
 export function ProfileProgressCard({
   progressRange,
   onProgressRangeChange,

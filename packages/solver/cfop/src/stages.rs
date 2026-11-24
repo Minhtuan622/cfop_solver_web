@@ -1,5 +1,3 @@
-//! Cross and F2L stage solvers.
-
 use cube_core::{Cube, Move};
 use serde::{Deserialize, Serialize};
 
@@ -8,7 +6,6 @@ use crate::limits::{Budget, Limits};
 use crate::search::{ida_star, State};
 use crate::tables::{tables, Frame, CROSS_EDGES, SLOTS};
 
-/// A face / center color, in `URFDLB` order.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Face {
     U,
@@ -28,20 +25,14 @@ impl Face {
     }
 }
 
-/// Result of one stage (or sub-step, e.g. one F2L pair).
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StageResult {
-    /// "Cross", "F2L", or a pair name such as "F2L FR".
     pub name: String,
     pub moves: Vec<Move>,
-    /// Cube state after this stage.
     pub state: Cube,
-    /// For F2L: one entry per pair, in solving order.
     pub substeps: Vec<StageResult>,
-    /// Search nodes visited.
     pub nodes: u64,
-    /// Recognized case for OLL/PLL (e.g. "OLL 21", "PLL Ua", "OLL skip").
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub case: Option<String>,
 }
@@ -61,18 +52,10 @@ impl Default for CrossOptions {
     }
 }
 
-/// Order in which F2L slots are solved.
-///
-/// Slots are numbered 0..4 = FR, FL, BL, BR *relative to the cross*: for a
-/// D cross these are the real FR/FL/BL/BR slots; for another cross color the
-/// cube is viewed after the rotation that brings that color to D
-/// (U: x2, F: x', B: x, R: z, L: z'), and slot names follow that view.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SlotOrder {
-    /// At every step solve whichever remaining pair is shortest.
     #[default]
     Best,
-    /// Fixed order, e.g. `[0, 1, 2, 3]`.
     Fixed([usize; 4]),
 }
 
@@ -80,7 +63,6 @@ pub enum SlotOrder {
 pub struct F2lOptions {
     pub cross_color: Face,
     pub slot_order: SlotOrder,
-    /// `max_depth` applies to each pair.
     pub limits: Limits,
 }
 
@@ -94,10 +76,8 @@ impl Default for F2lOptions {
     }
 }
 
-/// Slot names relative to the cross on D (as the Studio shows them).
 pub const SLOT_NAMES: [&str; 4] = ["FR", "FL", "BL", "BR"];
 
-/// The cube seen with `color` on D (`G^-1 * cube * G`) and its frame.
 pub(crate) fn canonical_cube(cube: &Cube, color: Face) -> Result<(Cube, &'static Frame), Error> {
     cube.verify()?;
     if cube.centers() != &[0, 1, 2, 3, 4, 5] {
@@ -115,7 +95,6 @@ pub(crate) fn cross_h(s: &State) -> u8 {
     tables().cross.get(&s.e[4..8], 0)
 }
 
-/// Lower bound for: cross solved and slot `j` solved.
 pub(crate) fn slot_h(s: &State, j: usize) -> u8 {
     let t = tables();
     let conj = &t.slot_conj[j];
@@ -130,23 +109,17 @@ pub(crate) fn slot_h(s: &State, j: usize) -> u8 {
 }
 
 pub(crate) fn to_actual(frame: &Frame, path: &[u8]) -> Vec<Move> {
-    path.iter().map(|&m| frame.to_actual[m as usize]).collect() // face moves: index < 18
+    path.iter().map(|&m| frame.to_actual[m as usize]).collect()
 }
 
-/// True if the cross of `color` is solved.
 pub fn cross_solved(cube: &Cube, color: Face) -> bool {
     canonical(cube, color).is_ok_and(|(s, _)| cross_h(&s) == 0)
 }
 
-/// True if the cross of `color` and slot `slot` (0..4, see [`SlotOrder`]) are solved.
 pub fn slot_solved(cube: &Cube, color: Face, slot: usize) -> bool {
     canonical(cube, color).is_ok_and(|(s, _)| slot_h(&s, slot) == 0)
 }
 
-/// Optimal cross length (face turn metric) for every color, in `URFDLB` order.
-///
-/// The cross pruning table is a complete BFS of the four cross edges, so its
-/// entry is the exact distance: no search is needed.
 pub fn cross_lengths(cube: &Cube) -> Result<[u8; 6], Error> {
     let mut lengths = [0u8; 6];
     for color in Face::ALL {
@@ -156,12 +129,10 @@ pub fn cross_lengths(cube: &Cube) -> Result<[u8; 6], Error> {
     Ok(lengths)
 }
 
-/// Solve the D cross with default limits (at most 8 moves).
 pub fn solve_cross(cube: &Cube) -> Result<Vec<Move>, Error> {
     solve_cross_with(cube, &CrossOptions::default()).map(|r| r.moves)
 }
 
-/// Optimal cross (face turn metric) for the given color.
 pub fn solve_cross_with(cube: &Cube, opts: &CrossOptions) -> Result<StageResult, Error> {
     let (s, frame) = canonical(cube, opts.color)?;
     let mut budget = Budget::new("Cross", &opts.limits);
@@ -182,13 +153,10 @@ pub fn solve_cross_with(cube: &Cube, opts: &CrossOptions) -> Result<StageResult,
     })
 }
 
-/// Solve the four F2L pairs (D cross, best slot first, default limits).
 pub fn solve_f2l(cube: &Cube) -> Result<StageResult, Error> {
     solve_f2l_with(cube, &F2lOptions::default())
 }
 
-/// Solve F2L pair by pair. Requires the cross of `cross_color` to be solved;
-/// every pair search keeps the cross and all already solved pairs intact.
 pub fn solve_f2l_with(cube: &Cube, opts: &F2lOptions) -> Result<StageResult, Error> {
     let (mut s, frame) = canonical(cube, opts.cross_color)?;
     if cross_h(&s) != 0 {
@@ -225,7 +193,6 @@ pub fn solve_f2l_with(cube: &Cube, opts: &F2lOptions) -> Result<StageResult, Err
         };
         let mut best: Option<(usize, Vec<u8>)> = None;
         for &j in &candidates {
-            // Only look for strictly shorter solutions than the best so far.
             let depth = best
                 .as_ref()
                 .map_or(max_depth, |(_, p)| (p.len() as u8).saturating_sub(1));
@@ -249,7 +216,6 @@ pub fn solve_f2l_with(cube: &Cube, opts: &F2lOptions) -> Result<StageResult, Err
         state = state.apply_moves(&moves);
         all_moves.extend_from_slice(&moves);
         solved.push(j);
-        // A pair may get solved for free along the way.
         for k in 0..4 {
             if !solved.contains(&k) && slot_h(&s, k) == 0 {
                 solved.push(k);

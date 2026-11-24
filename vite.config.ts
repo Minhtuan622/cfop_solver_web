@@ -40,27 +40,9 @@ function vitePluginOptionalAnalytics(
   };
 }
 
-/**
- * Writes the public site address into the page so canonical links and
- * structured data are not hard-coded to cfop-solver.studio.
- *
- * `VITE_SITE_URL` comes from the build environment, from `.env`/`.env.production`,
- * or falls back to `https://cfop-solver.studio/`.
- */
-/**
- * Bộ giải Pyraminx/Skewb/Megaminx của cubing.js nạp worker bằng
- * `import.meta.resolve("./search-worker-entry.js")` — tên **không có mã băm** —
- * nên bản build cần đúng file đó. Vite chỉ ghi bản có băm, và request tới tên
- * trơn trả 404 làm các bộ giải này báo "không tìm được lời giải" ở production
- * (chạy dev thì không lỗi vì Vite phục vụ thẳng). Plugin phát thêm một bản
- * sao tên trơn; nó import các chunk anh em bằng đường dẫn tương đối nên chạy
- * y như bản có băm.
- */
 export function cubingWorkerAliasPlugin(): Plugin {
   return {
     name: "cfop-cubing-worker-alias",
-    // `order: "post"`: Vite thay chỗ giữ `__VITE_PRELOAD__` trong code chunk ở
-    // chính bước generateBundle; phải chạy sau nó thì bản sao mới chạy được.
     generateBundle: {
       order: "post",
       handler(_options, bundle) {
@@ -103,9 +85,6 @@ const analyticsEndpoint =
 const analyticsWebsiteId =
   process.env.VITE_ANALYTICS_WEBSITE_ID ??
   environment.VITE_ANALYTICS_WEBSITE_ID;
-// The Manus runtime is an iframe bridge for the Manus preview host. It inlines
-// a ~360 kB script into index.html, so keep it out of standalone production
-// builds. Set MANUS_RUNTIME=1 for a build hosted inside Manus.
 const includeManusRuntime =
   process.env.NODE_ENV !== "production" ||
   process.env.MANUS_RUNTIME === "1" ||
@@ -171,16 +150,13 @@ const plugins = [
       ],
     },
     workbox: {
-      // The app shell stays small; solver + diagrams load on demand below.
       globPatterns: ["**/*.{js,css,html}"],
       navigateFallback: "/index.html",
-      // Nhận Web Push nhắc ôn tập (xử lý trong client/public/push-sw.js).
       importScripts: ["/push-sw.js"],
       navigateFallbackDenylist: [/^\/api\//],
       maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       runtimeCaching: [
         {
-          // Case diagrams never change until a deploy — cache on first view.
           urlPattern: /\/diagrams\/.*\.svg$/,
           handler: "CacheFirst",
           options: {
@@ -190,9 +166,6 @@ const plugins = [
           },
         },
         {
-          // Hashed build files — fonts, lazy chunks and the solver's worker
-          // and .wasm (~300 KB, fetched on the first solve) — so the solver
-          // keeps working offline after it has been used once.
           urlPattern: /\/assets\/.*$/,
           handler: "CacheFirst",
           options: { cacheName: "cfop-assets" },
@@ -204,7 +177,6 @@ const plugins = [
   vitePluginOptionalAnalytics(analyticsEndpoint, analyticsWebsiteId),
 ];
 
-/** Các chunk của cubing.js chạy trong worker sinh scramble (xem `modulePreload`). */
 const CUBING_WORKER_CHUNK =
   /(search-worker-entry|inside-[A-Z0-9]+|search-dynamic-|twips-|chunk-[A-Z0-9]{8}|puzzle-geometry)/;
 
@@ -214,7 +186,6 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
-      // Bộ giải Rust biên dịch ra WebAssembly (`pnpm build:solver`).
       "@solver-wasm": path.resolve(
         import.meta.dirname,
         "packages",
@@ -231,15 +202,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    // Three.js/Twisty are loaded only by Puzzle3DCanvas via dynamic import().
-    // Their raw chunks are intentionally larger than Vite's generic 500 kB
-    // advisory, while their gzip sizes remain suitable for an on-demand view.
     chunkSizeWarningLimit: 750,
-    // Bộ sinh scramble của cubing.js chạy trong Web Worker. Vite bọc mọi
-    // import() động bằng hàm preload, và hàm đó dùng `document` khi có danh
-    // sách phụ thuộc — trong worker không có `document`, nên worker chết ngay
-    // lúc khởi động và Timer luôn rơi về scramble dự phòng (không chuẩn WCA).
-    // Danh sách rỗng thì hàm preload chỉ gọi import(), an toàn trong worker.
     modulePreload: {
       resolveDependencies: (filename, deps, { hostId }) =>
         CUBING_WORKER_CHUNK.test(hostId) || CUBING_WORKER_CHUNK.test(filename)
@@ -248,19 +211,11 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        // Mã băm tên file được tính trước khi Vite ghi danh sách preload vào
-        // chunk, nên sửa `modulePreload` ở trên không làm đổi tên các chunk
-        // worker của cubing.js — trình duyệt sẽ giữ bản hỏng trong cache.
-        // Hậu tố "-w3" buộc tải bản mới; tăng số này nếu phải đổi lại.
         chunkFileNames: chunk =>
           CUBING_WORKER_CHUNK.test(chunk.name)
             ? "assets/[name]-w3-[hash].js"
             : "assets/[name]-[hash].js",
         manualChunks(id) {
-          // Do not force recharts into a manual chunk: Rollup would then pull
-          // its React dependency into that chunk, and the entry would have to
-          // preload the whole charting library just to get React. Let the lazy
-          // route imports create the shared chart chunk instead.
           if (id.includes("solverWorker")) return "solver";
         },
       },

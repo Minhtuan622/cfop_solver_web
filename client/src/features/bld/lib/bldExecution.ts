@@ -1,8 +1,3 @@
-/**
- * Đối chiếu kết quả phân tích BLD với catalog BLDDB: đổi chữ memo nguồn
- * (Chichu) sang Speffz, ghép key flip/twist/parity và nạp catalog runtime.
- * Mọi hằng ở đây theo cách đặt tên của BLDDB, không đổi.
- */
 import { fetchBldCatalogFile, type BldCatalogFile } from "./bldCatalogSource";
 import { firstCatalogAlgorithm } from "./bldFullCatalog";
 
@@ -64,7 +59,6 @@ const TWIST_CODE: Record<string, Record<"cw" | "ccw", string>> = {
   DBL: { cw: "Q", ccw: "P" },
 };
 
-/** Đổi key memo theo chữ Chichu của BLDDB sang Speffz. */
 export function sourceToSpeffz(kind: "edge" | "corner") {
   const map = new Map<string, string>();
   POSITIONS.forEach((position, index) => {
@@ -75,7 +69,6 @@ export function sourceToSpeffz(kind: "edge" | "corner") {
     Array.from(key, letter => map.get(letter) ?? letter).join("");
 }
 
-/** Lấy thuật toán đầu tiên của mỗi case; bỏ case không có thuật toán. */
 export function parseCatalog(
   raw: Record<string, unknown>,
   convert?: (key: string) => string
@@ -92,7 +85,6 @@ export function parseCatalog(
   );
 }
 
-/** Nạp và chuẩn hoá chín file catalog BLDDB cần cho báo cáo. */
 export async function loadBldRuntimeCatalogs(): Promise<BldRuntimeCatalogs> {
   const request = <T,>(file: BldCatalogFile) => fetchBldCatalogFile<T>(file);
   const [
@@ -129,7 +121,6 @@ export async function loadBldRuntimeCatalogs(): Promise<BldRuntimeCatalogs> {
   };
 }
 
-/** Ghép các cạnh bị lật thành từng cặp (theo thứ tự BLDDB) kèm key flip. */
 export function flipPairsOf(edgeFlips: string[]) {
   return [...edgeFlips]
     .sort((left, right) => FLIP_ORDER.indexOf(left) - FLIP_ORDER.indexOf(right))
@@ -146,7 +137,6 @@ export function flipPairsOf(edgeFlips: string[]) {
     );
 }
 
-/** Key twist: chữ của từng góc bị xoắn, theo thứ tự góc của BLDDB. */
 export function twistKeyOf(
   cornerTwists: { position: string; direction: "cw" | "ccw" }[]
 ) {
@@ -156,10 +146,6 @@ export function twistKeyOf(
   }).join("");
 }
 
-/**
- * Key parity từ cặp cạnh và cặp góc đã chọn; rỗng khi chưa có catalog, cặp
- * trùng nhau hoặc không có exact key (không tự suy đoán).
- */
 export function parityKeyOf(
   catalogs: BldRuntimeCatalogs | null,
   parityEdges: [string, string],

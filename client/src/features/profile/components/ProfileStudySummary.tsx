@@ -3,7 +3,6 @@ import { BookOpenCheck } from "@/components/ui/Icon";
 import { Eyebrow } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/** Tóm tắt tiến độ Học thêm (BLD, Last Layer) kèm lối vào trang Học thêm. */
 export function ProfileStudySummary({
   dueMemoCount,
   streakDays,

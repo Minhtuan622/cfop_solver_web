@@ -1,17 +1,6 @@
-//! 3-Style 3BLD memo tracing with Speffz letters.
-//!
-//! The output document and the letter scheme (including its edge
-//! lettering) are kept exactly as the Studio has always used them, verified
-//! against frozen fixtures (`tests/fixtures/bld_reference.json`), so the
-//! BLDDB lookups in the web client keep resolving the same keys.
-//!
-//! The analysis is a plan, never guessed moves: the browser resolves each
-//! buffer-target-target execution key against a verified catalog.
-
 use cube_core::{Cube, CORNER_COLORS, CORNER_FACELETS, EDGE_COLORS, EDGE_FACELETS};
 use serde::Serialize;
 
-/// Speffz letter -> sticker index (URFDLB 54-sticker order).
 const EDGE_LOCATION: [(char, usize); 24] = [
     ('A', 1),
     ('B', 7),
@@ -103,7 +92,6 @@ pub struct BldBuffers {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, tsify::Tsify)]
 pub struct CornerTwist {
     pub position: String,
-    /// "cw" or "ccw".
     pub direction: String,
 }
 
@@ -142,8 +130,6 @@ fn label_of(location: &[(char, usize); 24], sticker: usize) -> char {
         .expect("every non-center sticker has a letter")
 }
 
-/// Letter -> letter of the sticker that currently sits there (where it
-/// belongs), for edges or corners.
 fn sticker_map(cube: &Cube, edges: bool) -> Vec<(char, char)> {
     let stickers = cube.to_sticker_array();
     let location = if edges {
@@ -287,7 +273,6 @@ fn odd(p: &[u8]) -> bool {
     odd
 }
 
-/// Speffz 3-Style memo and execution plan (cube must have centers home).
 pub fn analyze_3style(cube: &Cube) -> BldAnalysis {
     let edges = pieces(trace_cycles(&sticker_map(cube, true), EDGE_BUFFER));
     let corners = pieces(trace_cycles(&sticker_map(cube, false), CORNER_BUFFER));

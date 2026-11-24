@@ -1,12 +1,3 @@
-/**
- * 4×4 PLL parity catalog for the /study 4×4 Parity lane.
- *
- * Keeps a deterministic sentinel `state` (`"parity:<id>"`) that the icon
- * preview ignores — there is no 2D facelet model; the case preview is the
- * 3D twisty-player rendering of the inverted (converted) algorithm applied
- * to the solved puzzle. The algorithms are verified offline (round-trip
- * through cubing.js KPuzzle).
- */
 import {
   FOUR_BY_FOUR_PARITY_CATALOG,
   FOUR_BY_FOUR_PARITY_COUNTS,

@@ -3,7 +3,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useReviewReminders } from "../lib/useReviewReminders";
 import { SettingRow } from "./SettingRow";
 
-/** Hàng cài đặt bật/tắt thông báo nhắc ôn tập (Web Push). */
 export function ReviewReminderSetting() {
   const { t } = useLanguage();
   const reminders = useReviewReminders();

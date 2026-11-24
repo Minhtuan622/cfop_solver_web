@@ -6,21 +6,11 @@ import path from "path";
 import type { InlineConfig, ViteDevServer } from "vite";
 import { cacheControlForFile } from "./staticCache";
 
-/**
- * Đường dẫn của file build (JS, worker, `.wasm` của bộ giải...).
- *
- * Một đường dẫn /assets/ không có file phải trả 404 chứ không rơi vào
- * index.html của SPA: nếu không, trình duyệt nhận HTML (HTTP 200) rồi cố
- * chạy nó như một module JavaScript hoặc WebAssembly và báo lỗi khó hiểu
- * (ví dụ khi một tab cũ xin worker của bản deploy trước).
- */
 export function isAssetPath(requestPath: string): boolean {
   return requestPath === "/assets" || requestPath.startsWith("/assets/");
 }
 
 export async function setupVite(app: Express, server: Server) {
-  // The dev server and its config load inside this function, so the
-  // production bundle never has to resolve the vite package it does not ship.
   const [{ createServer: createViteServer }, devConfig] = await Promise.all([
     import("vite"),
     import("../../vite.config"),
@@ -55,7 +45,6 @@ export async function setupVite(app: Express, server: Server) {
         "index.html"
       );
 
-      // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
@@ -81,8 +70,6 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // Hashed files under /assets/ stay in the browser cache for a year; the
-  // entry page must be revalidated on every visit.
   app.use(
     express.static(distPath, {
       setHeaders(res, filePath) {
@@ -94,10 +81,7 @@ export function serveStatic(app: Express) {
     }),
   );
 
-  // fall through to index.html if the file doesn't exist
   app.use("/{*splat}", (req, res) => {
-    // `req.path` bị cắt theo điểm gắn ("/{*splat}"), nên phải dùng
-    // `originalUrl` để thấy được tiền tố /assets.
     if (isAssetPath(req.originalUrl.split("?")[0])) {
       res.status(404).json({ message: "Không tìm thấy." });
       return;

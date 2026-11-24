@@ -1,12 +1,7 @@
-/* Domain-specific 3D Rubik rendering. These transforms and keyframes cannot be expressed as static utilities. */
-
-/* ---- Cube net (2D) ---- */
 .cube-net {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  /* Hàng cách nhau đủ cho nhãn mặt (đặt -1rem phía trên mỗi mặt), nếu không
-     nhãn F và D bị ô màu của mặt phía trên che. */
   gap: 1.25rem 0.375rem;
   border-radius: 1.125rem;
   background: var(--cube-stage);
@@ -70,8 +65,6 @@
 
 
 
-/* Phong cách phẳng: ô màu bo tròn, tách nhau bằng khoảng trống — không viền,
-   không bóng. */
 .cube-net-stickers {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -88,7 +81,6 @@
   opacity: 0.32;
 }
 
-/* ---- Cube net 2×2×2 (2D) ---- */
 .cube-net-2x2 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -140,7 +132,6 @@
   height: 100%;
 }
 
-/* Tô sáng sticker bằng độ sáng, không dùng viền. */
 .cube-sticker--highlight {
   z-index: 10;
   filter: brightness(1.15) saturate(1.25);
@@ -154,10 +145,7 @@
   opacity: 0.9;
 }
 
-/* Cube editor grid (standalone editor panel) */
 
-
-/* ---- 3D Rubik scene (functional geometry, not page theme) ---- */
 .cube3d-stage {
   display: grid;
   min-height: 230px;
@@ -453,7 +441,6 @@
   }
 }
 
-/* Nền phẳng của khối 3D và trình quét camera (theo theme). */
 .interactive-cube-stage {
   background-color: var(--cube-stage);
   color: var(--cube-stage-ink);
@@ -463,7 +450,6 @@
   color: var(--cube-stage-muted);
 }
 
-/* Fallback 2D grid for devices without WebGL. */
 .cube3d-face-fallback {
   border: 0;
 }

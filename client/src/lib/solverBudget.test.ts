@@ -3,15 +3,6 @@ import { SOLVER_NODE_BUDGET, SOLVER_TIME_BUDGET_SEC } from "@/lib/solverBudget";
 import { SOLVER_TIMEOUT_MS } from "@/lib/solverRuntime";
 import { handleWasmRequest, type SolverWasmModule } from "@/lib/wasmSolverCore";
 
-/**
- * Regression test cho B2: worker phải truyền ngân sách giới hạn xuống solver.
- *
- * Lỗi thật: worker chỉ truyền ngân sách của tìm kiếm opening nên bước ghép
- * cặp F2L không bị giới hạn; khi cặp đó rơi vào trạng thái khó, bộ tìm kiếm
- * chạy hàng triệu node và người dùng chỉ thấy thông báo hết giờ chung chung.
- */
-
-/** Module WASM giả: ghi lại tham số solve() nhận được. */
 function fakeWasm(onSolve: (options: Record<string, unknown>) => unknown): SolverWasmModule {
   return {
     solve: (_stickers, options) => onSolve(options ?? {}),
@@ -37,8 +28,6 @@ describe("B2: worker truyền ngân sách giới hạn cho solver", () => {
   });
 
   it("ngân sách của solver nhỏ hơn giới hạn của client", () => {
-    // Client ngắt worker sau SOLVER_TIMEOUT_MS. Solver phải hết ngân sách
-    // trước đó để báo lỗi có cấu trúc thay vì bị ngắt giữa chừng.
     expect(SOLVER_TIME_BUDGET_SEC).toBeLessThan(SOLVER_TIMEOUT_MS / 1000);
     expect(SOLVER_NODE_BUDGET).toBeGreaterThan(0);
   });

@@ -240,7 +240,6 @@ describe("importCstimerSolveHistory", () => {
   });
 
   it("imports a full 600-solve migration without silently dropping entries", () => {
-    // Pre-fill 498 solves so the merged history is larger than MAX_ENTRIES.
     for (let i = 0; i < 498; i += 1) {
       addSolveHistory({
         elapsedMs: 8_000 + i,
@@ -262,7 +261,6 @@ describe("importCstimerSolveHistory", () => {
       properties: { sessionData: "{}" },
     });
     expect(summary.imported).toBe(20);
-    // 498 existing + 20 imported = 518 — nothing silently sliced away.
     expect(readSolveHistory().length).toBe(518);
   });
 });
@@ -272,7 +270,6 @@ describe("exportCstimerSolveHistory", () => {
     importCstimerSolveHistory(cstimerFile());
     const file = exportCstimerSolveHistory();
 
-    // Shape: sessionN keys + properties.sessionData string
     const sessionKeys = Object.keys(file).filter(key => /^session\d+$/.test(key));
     expect(sessionKeys.length).toBe(2);
     const properties = file.properties as {
@@ -281,13 +278,12 @@ describe("exportCstimerSolveHistory", () => {
       session: number;
     };
     const sessionData = JSON.parse(properties.sessionData);
-    expect(sessionData["1"]?.opt?.scrType).toBeUndefined(); // 3×3 → no scrType
+    expect(sessionData["1"]?.opt?.scrType).toBeUndefined();
     const fourByFourMeta = Object.values(sessionData).find(
       meta => (meta as { opt?: { scrType?: string } }).opt?.scrType === "444wca",
     );
     expect(fourByFourMeta).toBeDefined();
 
-    // Round trip into a fresh store
     window.localStorage.clear();
     const restored = importCstimerSolveHistory(file);
     expect(restored.imported).toBe(4);

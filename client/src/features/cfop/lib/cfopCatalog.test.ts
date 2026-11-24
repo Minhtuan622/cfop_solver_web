@@ -28,16 +28,11 @@ describe("CFOP catalog data", () => {
   });
 
   it("has unique ids", () => {
-    // Intentionally not asserting unique derived states: COLL/OLLCP overlap
-    // OLL/PLL/F2L algorithmically (the same alg appears under several case
-    // names), so derived states collide by design.
     const ids = CFOP_CATALOG.map(row => row.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it("every derived case state is a legal cube state (any frame)", () => {
-    // COLL/OLLCP algorithms may contain x/y/z rotations, so derived states
-    // can sit in a rotated frame — cube-level legality checks still hold.
     for (const row of CFOP_CATALOG) assertValidScrambleState(row.state);
   });
 
@@ -69,7 +64,6 @@ describe("F2L 4-way slot variants", () => {
   it("ships all four slot angles of every F2L case, sourced from cubingapp.com", () => {
     expect(F2L_4WAY_CASES).toHaveLength(164);
     for (const row of F2L_4WAY_CASES) {
-      // FR keeps the published front-right id; FL/BR/BL carry the suffix.
       expect(row.id).toMatch(/^F2L-\d{2}(-FL|-BR|-BL)?$/);
       expect(["FR", "FL", "BR", "BL"]).toContain(row.group);
     }
@@ -87,10 +81,6 @@ describe("F2L 4-way slot variants", () => {
 
   it("no slot alg is just a bare y-conjugation of another slot's alg", () => {
     for (const row of F2L_4WAY_CASES) {
-      // CubingApp's published 4-angle sheet contains no 'y' wrapping for
-      // practice; the generator kept algs verbatim, so none should contain y.
-      // (A handful of published algs do contain y — those are kept as-is and
-      // are counted here to catch accidental unpaired-wrapping bugs.)
       const rotations = (row.algorithm.match(/\by\d?[']?\b/g) ?? []).length;
       expect(rotations % 2).toBe(0);
     }

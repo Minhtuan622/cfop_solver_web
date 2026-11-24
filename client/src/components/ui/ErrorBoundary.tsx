@@ -1,4 +1,3 @@
-/** Tailwind-native application error fallback, backed by react-error-boundary. */
 import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
 import { AlertTriangle, RotateCcw } from "@/components/ui/Icon";
 import { IconButton } from "./StudioUI";
@@ -42,8 +41,6 @@ export default function ErrorBoundary({
     <ReactErrorBoundary
       FallbackComponent={Fallback}
       onError={(error, info) => {
-        // The stack stays in the console of the developer machine; the visitor
-        // only gets a friendly message, never the internals of the app.
         if (import.meta.env.DEV) console.error(error, info);
       }}
     >

@@ -1,11 +1,3 @@
-/**
- * Nhắc ôn tập bằng Web Push.
- *
- * Client tự tính lịch (`nextDueAt`, số case đến hạn) từ dữ liệu học của mình và
- * báo lên qua `push.sync`; server chỉ lưu lịch đó, không đọc payload cloud.
- * Cứ vài phút một lượt quét tìm các đăng ký đã đến hạn và gửi một thông báo
- * cho mỗi đợt hạn. Tính năng tự tắt khi chưa cấu hình khoá VAPID.
- */
 import { sendNotification, setVapidDetails } from "web-push";
 import {
   deletePushSubscriptionById,
@@ -15,14 +7,11 @@ import {
 
 export type VapidConfig = { publicKey: string; privateKey: string; subject: string };
 
-/** Khoảng cách tối thiểu giữa hai thông báo tới cùng một trình duyệt. */
 export const MIN_NOTIFY_GAP_MS = 6 * 3_600_000;
-/** Giờ yên lặng theo múi giờ của trình duyệt: [22:00, 08:00). */
 const QUIET_START_HOUR = 22;
 const QUIET_END_HOUR = 8;
 export const SWEEP_INTERVAL_MS = 5 * 60_000;
 
-/** Đọc khoá VAPID từ môi trường; `null` nghĩa là tính năng chưa bật. */
 export function readVapidConfig(
   env: Record<string, string | undefined> = process.env
 ): VapidConfig | null {
@@ -34,7 +23,6 @@ export function readVapidConfig(
   return { publicKey, privateKey, subject };
 }
 
-/** Các dịch vụ push của trình duyệt phổ biến; endpoint lạ bị từ chối để tránh SSRF. */
 const PUSH_HOST_SUFFIXES = [
   "fcm.googleapis.com",
   "push.services.mozilla.com",
@@ -57,9 +45,7 @@ export function isAllowedPushEndpoint(endpoint: string) {
   );
 }
 
-/** Giờ địa phương của trình duyệt nằm trong khung yên lặng ban đêm? */
 export function isQuietHour(now: number, tzOffsetMinutes: number) {
-  // getTimezoneOffset() dương khi múi giờ nằm phía tây UTC: local = utc - offset.
   const hour = new Date(now - tzOffsetMinutes * 60_000).getUTCHours();
   return hour >= QUIET_START_HOUR || hour < QUIET_END_HOUR;
 }
@@ -78,10 +64,6 @@ export type PushSender = (target: PushTarget) => Promise<void>;
 
 export type SweepResult = { sent: number; skipped: number; removed: number };
 
-/**
- * Một lượt quét: gửi cho các đăng ký đến hạn. Đăng ký bị dịch vụ push báo đã
- * hết hiệu lực (404/410) thì xoá. `send` được truyền vào để kiểm thử.
- */
 export async function runReminderSweep(
   send: PushSender,
   now = Date.now()
@@ -115,7 +97,6 @@ export async function runReminderSweep(
         await deletePushSubscriptionById(target.id);
         result.removed += 1;
       } else {
-        // Lỗi tạm thời: giữ nguyên, lượt quét sau thử lại.
         result.skipped += 1;
       }
     }
@@ -123,7 +104,6 @@ export async function runReminderSweep(
   return result;
 }
 
-/** Bộ gửi thật dựa trên `web-push`. Nội dung chỉ có loại và số case; client tự soạn câu chữ. */
 export function createWebPushSender(config: VapidConfig): PushSender {
   setVapidDetails(config.subject, config.publicKey, config.privateKey);
   return async target => {
@@ -138,7 +118,6 @@ export function createWebPushSender(config: VapidConfig): PushSender {
   };
 }
 
-/** Chạy lượt quét định kỳ; trả về hàm dừng, hoặc `null` khi chưa cấu hình VAPID. */
 export function startReminderScheduler(
   config = readVapidConfig(),
   intervalMs = SWEEP_INTERVAL_MS

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/Button";
 import type { Dispatch, SetStateAction } from "react";
 import type { CatalogGroupEntry } from "../lib/catalogExplorerTypes";
 
-/** Bảng chọn "Bộ tập trung": chỉ hiện các nhóm được tick trong catalog. */
 export function CatalogFocusPanel({
   families,
   focusSet,

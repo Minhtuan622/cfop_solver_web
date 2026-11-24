@@ -1,24 +1,15 @@
-//! Error types.
-
 use std::fmt;
 
-/// Reason a move token could not be parsed.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ParseErrorKind {
-    /// The token does not start with a known move family.
     UnknownMove,
-    /// The family is known but the suffix is not (e.g. `R4`, `U''`).
     InvalidSuffix(String),
 }
 
-/// A move-parsing error, pointing at the offending token.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ParseError {
-    /// The offending token, verbatim.
     pub token: String,
-    /// Zero-based index of the token in the sequence.
     pub token_index: usize,
-    /// Byte offset of the token in the input string.
     pub byte_offset: usize,
     pub kind: ParseErrorKind,
 }
@@ -72,30 +63,18 @@ impl fmt::Display for ParseError {
 
 impl std::error::Error for ParseError {}
 
-/// Why a 54-sticker string (or cubie data) does not describe a reachable cube.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum StateError {
-    /// Input is not exactly 54 characters.
     InvalidLength(usize),
-    /// Character outside `URFDLB`.
     InvalidColor { index: usize, found: char },
-    /// A color does not appear exactly 9 times.
     ColorCount { color: char, count: usize },
-    /// The six centers are not a rotation of the solved centers.
     InvalidCenters,
-    /// A corner position holds a sticker combination that is not a corner.
     InvalidCorner { position: usize },
-    /// An edge position holds a sticker combination that is not an edge.
     InvalidEdge { position: usize },
-    /// The same corner piece appears more than once.
     DuplicateCorner { piece: usize },
-    /// The same edge piece appears more than once.
     DuplicateEdge { piece: usize },
-    /// Sum of corner twists is not divisible by 3.
     CornerTwist { sum: u32 },
-    /// Sum of edge flips is odd.
     EdgeFlip { sum: u32 },
-    /// Permutation parity mismatch (e.g. two edges swapped).
     Parity,
 }
 

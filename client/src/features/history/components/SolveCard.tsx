@@ -9,7 +9,6 @@ import {
 import { normalizeTimerEventId, timerEventLabel } from "@/lib/timerEvents";
 import { cn } from "@/lib/utils";
 
-/** Thẻ một lượt giải trong danh sách Lịch sử: kết quả, scramble, tag và thao tác. */
 export function SolveCard({
   item,
   language,

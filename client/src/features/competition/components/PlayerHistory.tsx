@@ -16,7 +16,6 @@ import {
 } from "../lib/competitionPresentation";
 import { formatDate, playerScoreLabel } from "../lib/leaderboardFormat";
 
-/** Trang lịch sử thi đấu của một người chơi. */
 export function PlayerHistory({ accountId }: { accountId: number }) {
   const { language, t } = useLanguage();
   const historyQuery = trpc.competition.playerHistory.useQuery(

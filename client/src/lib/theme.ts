@@ -1,7 +1,3 @@
-/**
- * The theme the app offers: a fixed light palette, a fixed dark palette, or
- * whatever the operating system asks for.
- */
 import { z } from "zod";
 
 const themeSchema = z.enum(["light", "dark", "system"]);
@@ -15,7 +11,6 @@ export function isTheme(value: unknown): value is Theme {
   return themeSchema.safeParse(value).success;
 }
 
-/** The theme the visitor picked last, or "system" when they never picked one. */
 export function readTheme(): Theme {
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
@@ -29,7 +24,6 @@ export function saveTheme(theme: Theme): void {
   try {
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
   } catch {
-    // A blocked storage quota must never stop the theme from being applied.
   }
 }
 
@@ -39,16 +33,11 @@ export function prefersDarkScheme(): boolean {
   return window.matchMedia(DARK_SCHEME_QUERY).matches;
 }
 
-/** The palette that is actually shown once "system" is resolved. */
 export function resolveTheme(theme: Theme): ResolvedTheme {
   if (theme === "system") return prefersDarkScheme() ? "dark" : "light";
   return theme;
 }
 
-/**
- * Writes the resolved palette to the document. the design tokens read
- * `data-theme` from the root element, so the whole app follows it.
- */
 export function applyTheme(theme: Theme): ResolvedTheme {
   const resolved = resolveTheme(theme);
   document.documentElement.dataset.theme = resolved;

@@ -36,13 +36,11 @@ describe("5×5 L2E catalog data", () => {
       const tokens = toCubingNotation(row.algorithm).split(" ");
       const scramble = fiveByFiveL2EScrambleOf(row.algorithm);
       expect(scramble.split(" ")).toHaveLength(tokens.length);
-      // a ∘ a⁻¹ round trip must restore the solvable state token-wise
       expect([...tokens].reverse().length).toBe(tokens.length);
       expect(scramble).toBe([...tokens].reverse().map(token =>
         token.endsWith("2") ? token : token.endsWith("'") ? token.slice(0, -1) : `${token}'`,
       ).join(" "));
     }
-    // The self-inverse palindrome case stays stable.
     expect(fiveByFiveL2EScrambleOf("Rw2 F2 U2 Rw2 U2 F2 Rw2")).toBe(
       "Rw2 F2 U2 Rw2 U2 F2 Rw2",
     );

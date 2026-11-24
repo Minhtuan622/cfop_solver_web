@@ -1,7 +1,3 @@
-/**
- * Chỉ số của các lượt đang xem trên trang Bấm giờ: chuỗi tiến bộ (ao5…ao100
- * theo từng lượt), PB và các trung bình hiện tại. Multi-Blind chỉ có PB (điểm).
- */
 import { useMemo } from "react";
 import { effectiveTime, type SolveHistoryEntry } from "@/lib/solveHistory";
 import { metricEvidence } from "@/lib/timerRecords";

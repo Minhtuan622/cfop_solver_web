@@ -1,8 +1,3 @@
-/**
- * The Roux lane of /study: all 42 CMLL cases and the LSE steps (EO, UL/UR,
- * L4E), with the same SRS practice loop as the other lanes — time the recall,
- * grade Again/Hard/Good/Easy, and let the queue resurface weak cases.
- */
 import { useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -42,7 +37,6 @@ export function RouxStudyLab({
   onStatsChange,
 }: {
   language: "vi" | "en";
-  /** Reports live SRS stats so the surrounding toolbar can show them. */
   onStatsChange?: (stats: CaseStudyLaneStats) => void;
 }) {
   const { t } = useLanguage();

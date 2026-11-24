@@ -2,18 +2,14 @@ import type { BufferAttribute, Object3D } from "three";
 import type { FtoTeachingFace, PuzzleId } from "./puzzleIds";
 import type { ThreeModule } from "./threeTypes";
 
-/** The cubing FTO default has its white U face above the viewer; positive roll moves it to the viewer's left. */
 export function puzzleBaseRoll(puzzle: PuzzleId) { return puzzle === "fto" ? Math.PI / 2 : 0; }
 
-/** The study preview needs the canonical U face forward; the normal FTO viewer still rolls U to viewer-left. */
 export function puzzlePreviewBaseRoll(puzzle: PuzzleId, focusFtoWhiteFace = false) {
   return puzzle === "fto" && focusFtoWhiteFace ? 0 : puzzleBaseRoll(puzzle);
 }
 
-/** A positive yaw brings the rolled-left white FTO face toward the viewer instead of hiding it behind the model. */
 export function puzzleDefaultYaw(puzzle: PuzzleId) { return puzzle === "fto" ? 0.55 : -0.55; }
 
-/** Only the Bencisco white-center example faces U forward; ordinary FTO previews keep the user-approved left-face framing. */
 export function puzzleInitialOrbit(puzzle: PuzzleId, focusFtoWhiteFace = false) {
   if (puzzle === "fto" && focusFtoWhiteFace) return { yaw: 0, pitch: 0 };
   return { yaw: puzzleDefaultYaw(puzzle), pitch: 0.32 };
@@ -32,7 +28,6 @@ type FtoStickerMesh = Object3D & {
   geometry?: { attributes?: { position?: BufferAttribute; color?: BufferAttribute } };
 };
 
-/** Place the requested completed center on the viewer's left in teaching previews, regardless of Bencisco regrips. */
 export function focusActualFtoFace(THREE: ThreeModule, puzzleObject: Object3D, puzzleBase: Object3D, target: FtoTeachingFace) {
   const normalCounts = new Map<string, { normal: InstanceType<ThreeModule["Vector3"]>; count: number }>();
   puzzleObject.updateWorldMatrix(true, true);

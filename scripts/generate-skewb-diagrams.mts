@@ -1,30 +1,3 @@
-/**
- * Generates the 103 Skewb Sarah (Intermediate + Advanced) case diagrams.
- *
- * The previous SVGs were scraped from cubingapp.com and did not match the
- * app's flat-art "preview case mới" style (nor the 3D preview they sit next
- * to). They are now drawn from the case state itself — the same state the
- * app's 3D panel renders: `solved.apply(invertAlgorithm(alg))` — so the
- * catalog image and the practice card always agree.
- *
- * cubing.js interprets the catalog algorithms verbatim as WCA/cubing.js
- * Skewb grips (F = UFR, R = DRB, U = ULB, L = DLF, B = DLB, D = DFR,
- * UL = ULF, UR = URB, −120° about the grip's corner axis), exactly like the
- * 3D preview. Piece positions produced by this model were verified to match
- * cubing.js's KPuzzle output for every one of the 103 cases.
- *
- * The Skewb renders as a full cube silhouette (grips are deep cuts through
- * the cube core, `c v 0` in cubing.js geometry): each face shows one
- * diamond (the center piece) and four corner triangles. Stickers are flat
- * bold colors on an opaque black silhouette over a transparent background —
- * the same visual language as the self-drawn FTO TCP "(2)" artwork.
- *
- * Camera: U on top, F facing the viewer, R on the right — the same hold as
- * the in-app 3D preview.
- *
- * Output: client/public/diagrams/skewb/<Case-ID>.svg
- * Run:    pnpm exec tsx --tsconfig tsconfig.json scripts/generate-skewb-diagrams.mts
- */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -41,9 +14,6 @@ const TAU_120 = (-2 * Math.PI) / 3;
 
 type Vec = [number, number, number];
 
-// ─── Skewb geometry model ─────────────────────────────────────────────────
-// Cube half-size 1. y = +1 is Up, z = +1 is Front, x = +1 is Right.
-// Corners are indexed like the catalog (UFR, UFL, UBR, UBL, DFR, DFL, DBR, DBL).
 const CORNER_POS: readonly Vec[] = [
   [1, 1, 1], [-1, 1, 1], [1, 1, -1], [-1, 1, -1],
   [1, -1, 1], [-1, -1, 1], [1, -1, -1], [-1, -1, -1],
@@ -61,7 +31,6 @@ const HOME_FACES = [
   ["U", "F", "R"], ["U", "F", "L"], ["U", "B", "R"], ["U", "B", "L"],
   ["D", "F", "R"], ["D", "F", "L"], ["D", "B", "R"], ["D", "B", "L"],
 ] as const;
-/** Corner indices adjacent to each face. */
 const FACE_CORNERS: Record<FaceName, number[]> = {
   U: [0, 1, 2, 3], D: [4, 5, 6, 7], F: [0, 4, 1, 5], B: [2, 6, 3, 7], R: [0, 2, 4, 6], L: [1, 3, 5, 7],
 };
@@ -101,7 +70,6 @@ const applyMat = (M: number[][], v: Vec): Vec => [
   M[2][0] * v[0] + M[2][1] * v[1] + M[2][2] * v[2],
 ];
 
-// WCA/cubing.js grips, verified against the KPuzzle move list.
 const GRIP_AXES: Record<string, number> = { F: 0, U: 3, L: 5, R: 6, B: 7, D: 4, UL: 1, UR: 2 };
 const WHOLE_CUBE: Record<string, { axis: Vec; angle: number }> = {
   x: { axis: [1, 0, 0], angle: rad(90) },
@@ -159,7 +127,6 @@ const applyRotation = (state: State, axis: Vec, angle: number) => {
   }
 };
 
-/** Tokenize with parentheses expansion. */
 const invertToken = (t: string) => (t.endsWith("'") ? t.slice(0, -1) : t + "'");
 const tokenize = (alg: string): string[] => {
   let i = 0;
@@ -216,7 +183,6 @@ const applyAlg = (state: State, alg: string) => {
   }
 };
 
-// ─── Camera / projection ──────────────────────────────────────────────────
 const EL = rad(26);
 const AZ = rad(34);
 const eye = normVec([Math.sin(AZ) * Math.cos(EL), Math.sin(EL), Math.cos(AZ) * Math.cos(EL)]);
@@ -224,7 +190,6 @@ const xCam = normVec(cross([0, 1, 0], eye));
 const yCam = cross(eye, xCam);
 const project = (p: Vec): readonly [number, number] => [dot(p, xCam), dot(p, yCam)];
 
-// ─── Face geometry ────────────────────────────────────────────────────────
 const faceFrame = (f: FaceName): { c: Vec; a: Vec; b: Vec } => {
   switch (f) {
     case "U": return { c: [0, 1, 0], a: [1, 0, 0], b: [0, 0, 1] };
@@ -235,7 +200,6 @@ const faceFrame = (f: FaceName): { c: Vec; a: Vec; b: Vec } => {
     case "L": return { c: [-1, 0, 0], a: [0, 0, 1], b: [0, 1, 0] };
   }
 };
-/** Ordered silhouette quad of a face. */
 const faceQuad = (f: FaceName): Vec[] => {
   const { c, a, b } = faceFrame(f);
   return [
@@ -245,12 +209,10 @@ const faceQuad = (f: FaceName): Vec[] => {
     addVec(addVec(c, scaleVec(a, -1)), scaleVec(b, -1)),
   ];
 };
-/** Diamond (center-piece) vertices of a face. */
 const diamondQuad = (f: FaceName): Vec[] => {
   const { c, a, b } = faceFrame(f);
   return [addVec(c, a), addVec(c, b), addVec(c, scaleVec(a, -1)), addVec(c, scaleVec(b, -1))];
 };
-/** Corner-triangle vertices of a face at one of its corners. */
 const triangleAt = (f: FaceName, cornerIdx: number): Vec[] => {
   const c = CORNER_POS[cornerIdx];
   const mids: Vec[] = [];
@@ -272,7 +234,6 @@ const makeSticker = (pts: Vec[], color: string): Sticker => {
 const collectStickers = (state: State, f: FaceName): Sticker[] => {
   const n = FACE_NORMAL[f];
   const stickers: Sticker[] = [];
-  // center diamond: the center piece whose normal is closest to this face
   let bestCenter: CenterPiece | null = null;
   let bestD = -Infinity;
   for (const c of state.centers) {
@@ -282,7 +243,6 @@ const collectStickers = (state: State, f: FaceName): Sticker[] => {
   if (bestCenter) {
     stickers.push(makeSticker(diamondQuad(f), CUBE_COLORS[CENTER_NAMES[bestCenter.home]]));
   }
-  // corner triangles
   for (const cornerIdx of FACE_CORNERS[f]) {
     const piece = state.corners.find(p => nearestIdx(CORNER_POS, p.pos) === cornerIdx)!;
     let bestIdx = -1, bd = -Infinity;
@@ -295,7 +255,6 @@ const collectStickers = (state: State, f: FaceName): Sticker[] => {
   return stickers;
 };
 
-// ─── Render ───────────────────────────────────────────────────────────────
 const VIEW_W = 300;
 const VIEW_H = 300;
 const MARGIN = 10;

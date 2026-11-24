@@ -73,7 +73,6 @@ describe("AppNav", () => {
 
     expect(bar).not.toBeNull();
     expect(bar?.classList.contains("bg-surface")).toBe(true);
-    // Phong cách tối giản: không viền, không bóng, không kính mờ hay gradient.
     expect(bar?.className).not.toMatch(/backdrop-|shadow|border|gradient|from-/);
   });
 
@@ -92,7 +91,6 @@ describe("AppNav", () => {
     const user = userEvent.setup();
     renderNav();
 
-    // Một nút duy nhất thay cho ba nút cũ.
     expect(
       screen.getByRole("button", { name: "Tài khoản và tuỳ chọn" })
     ).toBeTruthy();

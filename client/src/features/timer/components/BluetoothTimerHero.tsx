@@ -1,12 +1,3 @@
-/**
- * BluetoothTimerHero — the live display while a GAN Timer is connected.
- *
- * Replaces the manual SolveTimer in the timer slot. Mirrors the SolveTimer
- * visual language (ink section, huge tabular readout), but the time comes
- * from the timer itself: `start` / `update` / `stop` / `reset` events, no
- * inspection step, no phase splits. A completed solve is handed to the host
- * once via `onSolveComplete`.
- */
 import { useEffect, useRef, useState } from "react";
 import { Bluetooth, CheckCircleFill, TimerReset } from "@/components/ui/Icon";
 import { formatTimerReadout } from "@/lib/solveHistory";
@@ -26,9 +17,7 @@ export function BluetoothTimerHero({
 }: {
   timer: GanTimerHandle;
   deviceName: string;
-  /** Called when the user asks to disconnect. */
   onDisconnect: () => void;
-  /** Called once per completed solve with the elapsed milliseconds. */
   onSolveComplete: (finalMs: number) => void;
 }) {
   const { language, t } = useLanguage();

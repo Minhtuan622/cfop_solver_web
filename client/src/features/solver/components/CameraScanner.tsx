@@ -1,6 +1,4 @@
-/** Xưởng Cơ Khí Tốc Độ — local-only six-face camera scanner with center-color calibration. */
 import { useEffect, useRef, useState } from "react";
-/** Tailwind-native camera card; only the live-video sampling frame remains functional layout. */
 import { Camera, Check, RotateCcw, ScanLine, X } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";

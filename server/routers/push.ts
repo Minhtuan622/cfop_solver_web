@@ -10,7 +10,6 @@ import {
 } from "../db";
 import { isAllowedPushEndpoint, readVapidConfig } from "../services/pushReminders";
 
-/** Số trình duyệt tối đa một tài khoản bật nhắc ôn tập. */
 export const MAX_PUSH_SUBSCRIPTIONS_PER_ACCOUNT = 5;
 
 const endpointInput = z.string().url().max(512);
@@ -25,14 +24,12 @@ const subscribeInput = z.object({
 
 const syncInput = z.object({
   endpoint: endpointInput,
-  /** Mốc đến hạn gần nhất (epoch ms); `null` khi chưa có case nào để ôn. */
   nextDueAt: z.number().int().nonnegative().nullable(),
   dueCount: z.number().int().min(0).max(100_000),
   tzOffsetMinutes: timezoneInput,
 });
 
 export const pushRouter = router({
-  /** Khoá công khai để trình duyệt đăng ký; `null` khi máy chủ chưa bật tính năng. */
   config: publicProcedure.query(() => {
     const config = readVapidConfig();
     return { enabled: Boolean(config), publicKey: config?.publicKey ?? null };
@@ -63,7 +60,6 @@ export const pushRouter = router({
       await upsertPushSubscription({ accountId: ctx.cfopAccount.id, ...input });
       return { success: true } as const;
     }),
-  /** Client báo lịch ôn tập mới. `subscribed: false` nghĩa là đăng ký đã mất (đăng ký lại). */
   sync: cfopAccountProcedure.input(syncInput).mutation(async ({ ctx, input }) => {
     const known = await findPushSubscription(ctx.cfopAccount.id, input.endpoint);
     if (!known) return { subscribed: false } as const;

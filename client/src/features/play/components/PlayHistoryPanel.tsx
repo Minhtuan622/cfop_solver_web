@@ -9,7 +9,6 @@ import {
   type PlayHistoryEntry,
 } from "../lib/playHistory";
 
-/** Lịch sử riêng của trang Chơi: số liệu, 12 lượt gần nhất, xoá từng lượt hoặc tất cả. */
 export function PlayHistoryPanel({
   entries,
   onDelete,
@@ -17,7 +16,6 @@ export function PlayHistoryPanel({
 }: {
   entries: PlayHistoryEntry[];
   onDelete: (id: string) => void;
-  /** Mở hộp thoại xác nhận xoá tất cả. */
   onClear: () => void;
 }) {
   const { t } = useLanguage();

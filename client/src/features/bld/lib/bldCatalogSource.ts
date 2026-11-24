@@ -1,17 +1,3 @@
-/**
- * Single source of truth for the BLDDB algorithm catalog.
- *
- * Upstream publishes the algorithms on moving branches (`main`, `v2`), so a
- * plain branch reference can change or drop an algorithm without notice and
- * the app would silently resolve a different commutator. The URLs below are
- * pinned to a commit SHA: the catalog stays byte-identical until someone
- * bumps the SHA deliberately.
- *
- * The files are also cached in the browser (Cache API) so a drill keeps
- * working offline and the ~13 MB catalog is not re-downloaded on every visit.
- */
-
-/** Pinned upstream commits. Bump deliberately, never to a branch name. */
 export const BLDDB_COMMITS = {
   v2: "60a82342bffed07ce83e9d99026075752ec6c78a",
   main: "53f693299cc3ba9030d83c78bf55598e4c298792",
@@ -22,7 +8,6 @@ export const BLDDB_BASE = {
   main: `https://raw.githubusercontent.com/nbwzx/blddb/${BLDDB_COMMITS.main}/assets/json/`,
 } as const;
 
-/** Every catalog file the app needs, keyed by the role it plays. */
 export const BLDDB_FILES = {
   edge: `${BLDDB_BASE.v2}edgeManmade.json`,
   corner: `${BLDDB_BASE.v2}cornerManmade.json`,
@@ -39,10 +24,8 @@ export type BldCatalogFile = keyof typeof BLDDB_FILES;
 
 const CACHE_NAME = "cfop-bld-catalog-v1";
 
-/** In-flight and already resolved requests, keyed by catalog file. */
 const resolved = new Map<BldCatalogFile, Promise<unknown>>();
 
-/** Raised when a catalog file is neither downloadable nor cached. */
 export class BldCatalogUnavailableError extends Error {
   constructor(readonly file: BldCatalogFile) {
     super(`Không tải được dữ liệu thuật toán BLD (${file}).`);
@@ -50,7 +33,6 @@ export class BldCatalogUnavailableError extends Error {
   }
 }
 
-/** Opens the browser cache, or returns null when caching is unavailable. */
 async function openCache(): Promise<Cache | null> {
   if (typeof caches === "undefined") return null;
   try {
@@ -60,13 +42,6 @@ async function openCache(): Promise<Cache | null> {
   }
 }
 
-/**
- * Reads the response body and stores a copy in the cache.
- *
- * The body is cloned before it is consumed; a response that cannot be cloned
- * (already read, or a stubbed response) is still read normally, just not
- * cached.
- */
 async function readAndCache(
   cache: Cache | null,
   url: string,
@@ -83,13 +58,11 @@ async function readAndCache(
     try {
       await cache.put(url, copy);
     } catch {
-      // A full quota or an uncacheable response must not break the drill.
     }
   }
   return data;
 }
 
-/** Reads a previously cached copy, or null when there is none. */
 async function readCache(
   cache: Cache | null,
   url: string
@@ -112,19 +85,12 @@ async function loadFile<T>(file: BldCatalogFile): Promise<T> {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return (await readAndCache(cache, url, response)) as T;
   } catch {
-    // Offline, blocked or rate limited: fall back to the cached copy.
     const cached = await readCache(cache, url);
     if (cached !== null) return cached as T;
     throw new BldCatalogUnavailableError(file);
   }
 }
 
-/**
- * Loads one catalog file.
- *
- * Concurrent callers share a single request, and a file that is already in
- * memory is never downloaded again.
- */
 export function fetchBldCatalogFile<T = unknown>(
   file: BldCatalogFile
 ): Promise<T> {
@@ -138,7 +104,6 @@ export function fetchBldCatalogFile<T = unknown>(
   return promise as Promise<T>;
 }
 
-/** Drops the in-memory copies so the next load hits the cache again. */
 export function clearBldCatalogMemory(): void {
   resolved.clear();
 }

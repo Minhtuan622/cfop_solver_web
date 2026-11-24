@@ -1,8 +1,3 @@
-/**
- * Tuỳ chọn bộ giải của trang Giải Rubik, khởi tạo từ trang Cài đặt
- * (`readSolverSettings`). Đổi ở đây chỉ áp dụng cho phiên hiện tại;
- * `resetDefaults` đọc lại giá trị đã lưu.
- */
 import { useState } from "react";
 import { readSolverSettings } from "@/lib/appSettings";
 import type {

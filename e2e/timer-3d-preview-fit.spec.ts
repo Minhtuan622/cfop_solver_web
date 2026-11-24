@@ -1,15 +1,5 @@
 import { expect, test, type Locator } from "@playwright/test";
 
-/**
- * Kịch bản e2e: mô hình 3D trên trang Bấm giờ phải lấp đầy khung xem và cuộn
- * chuột phải cuộn trang, không thu phóng mô hình.
- *
- * Lỗi thật: khung xem chỉ cao 220px trong khi thẻ cao hơn, còn camera giữ
- * khoảng cách cố định nên khối chỉ chiếm ~37% chiều rộng; con lăn chuột lại
- * bị chặn để zoom nên người dùng desktop không cuộn trang được khi trỏ vào
- * mô hình.
- */
-
 async function previewFill(host: Locator) {
   return host.evaluate(node => {
     const canvas = node.querySelector("canvas");
@@ -50,7 +40,6 @@ test("mô hình 3D trên Timer lấp đầy khung và cuộn chuột không thu 
   await expect(host).toBeVisible({ timeout: 45_000 });
   await expect(host.locator("canvas")).toBeVisible({ timeout: 45_000 });
 
-  // Canvas phải phủ gần kín phần nội dung của thẻ, không còn cao 220px cố định.
   const boxes = await host.evaluate(node => {
     const card = node.closest(".rounded-card");
     if (!card) return null;
@@ -67,7 +56,6 @@ test("mô hình 3D trên Timer lấp đầy khung và cuộn chuột không thu 
   expect(boxes!.hostWidth).toBeGreaterThan(boxes!.cardWidth - 24);
   expect(boxes!.hostHeight).toBeGreaterThan(boxes!.cardHeight - 24);
 
-  // Đo pixel thật: khối phải chiếm phần lớn khung, không còn ~37% như trước.
   await expect
     .poll(async () => (await previewFill(host))?.width ?? 0, {
       timeout: 45_000,
@@ -76,7 +64,6 @@ test("mô hình 3D trên Timer lấp đầy khung và cuộn chuột không thu 
   const beforeWheel = await previewFill(host);
   expect(beforeWheel!.height).toBeGreaterThan(0.6);
 
-  // Con lăn trên mô hình phải cuộn trang và giữ nguyên tỉ lệ khối (không zoom).
   await page.evaluate(() => window.scrollTo(0, 0));
   const box = await host.boundingBox();
   expect(box).not.toBeNull();

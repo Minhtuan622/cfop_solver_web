@@ -1,4 +1,3 @@
-/** Hộp thoại phóng to sơ đồ khối sau khi tráo của một lượt giải. */
 import { CubeNet } from "@/components/common/CubeNet";
 import { type SolveHistoryEntry } from "@/lib/solveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";

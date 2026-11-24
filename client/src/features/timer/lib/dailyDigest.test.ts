@@ -28,7 +28,6 @@ describe("dailyDigest", () => {
       { createdAt: at(y, m, d) },
       { createdAt: at(y, m, d - 1) },
       { createdAt: at(y, m, d - 2) },
-      // gap at d-3 — streak stops at 3
       { createdAt: at(y, m, d - 4) },
     ];
     expect(dailyDigest(entries).streak).toBe(3);

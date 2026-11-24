@@ -1,8 +1,3 @@
-/**
- * BluetoothTimerBar — a slim strip above the timer: connect/disconnect a
- * GAN Timer, show pairing state, and surface why connecting is unavailable
- * (no Web Bluetooth / insecure context) instead of hiding it.
- */
 import { Bluetooth, Info } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";

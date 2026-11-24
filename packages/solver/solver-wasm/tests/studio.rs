@@ -1,5 +1,3 @@
-//! The Studio document produced natively (same code as in WASM).
-
 use solver_wasm::studio::{scramble_to_stickers, solve_stickers, SolveOptions};
 
 fn opts(cross: &str, opening: &str, ll: &str) -> SolveOptions {
@@ -24,7 +22,6 @@ fn result_document_is_consistent() {
             let r = solve_stickers(&s, &opts(cross, opening, ll), None, None).unwrap();
             assert_eq!(r.initial_state, s);
             assert_eq!(r.final_state, cube_core::SOLVED_STICKERS);
-            // Phases tile the trace exactly.
             let mut end = 0;
             for p in &r.phases {
                 assert_eq!(p.start, end);
@@ -82,7 +79,6 @@ fn json_field_names_match_the_client_contract() {
     }
     assert!(v["trace"][0].get("move").is_some());
     assert!(v["opening"]["direct_search"].get("node_budget").is_some());
-    // Default request = Studio defaults.
     assert_eq!(v["opening"]["requested"], "cross");
     assert_eq!(v["last_layer"]["requested"], "auto");
 }

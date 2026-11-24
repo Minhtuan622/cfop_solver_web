@@ -1,9 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-/**
- * E2E: lane Roux trong "Học thêm" (CMLL 42 case + LSE) và bộ giải Roux trong
- * trang Giải (giải từng giai đoạn trong Web Worker).
- */
 test("lane Roux: mở, thấy 42 case CMLL, chọn bộ LSE", async ({ page }) => {
   await page.goto("/study?lane=roux");
   await expect(page.getByRole("button", { name: /^Roux(\s|$)/ })).toHaveAttribute("aria-pressed", "true");
@@ -11,7 +7,6 @@ test("lane Roux: mở, thấy 42 case CMLL, chọn bộ LSE", async ({ page }) =
   await page.getByRole("button", { name: /^LSE/ }).click();
   await expect(page.getByText(/công thức LSE/).first()).toBeVisible();
 
-  // Danh mục: mở nhóm Pi, mỗi case có hình 2D nhìn từ trên xuống (id CMLL-Pi-…).
   await page.getByRole("button", { name: /^CMLL/ }).click();
   await page.getByText("Danh mục Roux").click();
   await page.getByText("Pi", { exact: true }).first().click();

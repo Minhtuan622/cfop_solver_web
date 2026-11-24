@@ -1,14 +1,3 @@
-/**
- * Danh mục công thức Roux cho lane Roux của /study.
- *
- * CMLL: 42 case (Kian Mansour / Waffle), lấy từ https://scheopner.com/cube/cmll.php
- * (một công thức chính mỗi case, 2026-11). LSE: các bước theo hướng dẫn LSE của
- * https://www.scheopner.com/cube/lse.php (EO, đặt UL/UR, L4E).
- *
- * Mọi công thức được kiểm chứng bằng mô phỏng trên khối thật (cubing.js
- * KPuzzle) trong `rouxData.test.ts`; trạng thái từng case dựng bằng cách áp
- * ĐẢO của công thức lên khối đã giải, nên công thức luôn giải đúng case của nó.
- */
 export type RouxFamily = "cmll" | "lse";
 
 export type RouxCaseRow = {
@@ -27,7 +16,6 @@ const cmll = (group: string, name: string, algorithm: string): RouxCaseRow => ({
   algorithm,
 });
 
-/** 42 case CMLL, theo nhóm O, H, Pi, U, T, S (Sune), As (Antisune), L. */
 export const CMLL_CASES_SOURCE: readonly RouxCaseRow[] = [
   cmll("O", "Adjacent swap", "R U R' F' R U R' U' R' F R2 U' R'"),
   cmll("O", "Diagonal swap", "F R U' R' U' R U R' F' (R U R' U') (R' F R F')"),
@@ -81,10 +69,6 @@ const lse = (group: string, name: string, algorithm: string): RouxCaseRow => ({
   algorithm,
 });
 
-/**
- * LSE (Last Six Edges): chỉ dùng M và U. Chia theo bước: EO (định hướng cạnh),
- * UL/UR (đưa hai cạnh UL, UR về chỗ), L4E (bốn cạnh cuối).
- */
 export const LSE_CASES_SOURCE: readonly RouxCaseRow[] = [
   lse("EO", "D-Line", "M' U M' U' M U M"),
   lse("EO", "1+1 B", "M' U' M' U2 M U M'"),

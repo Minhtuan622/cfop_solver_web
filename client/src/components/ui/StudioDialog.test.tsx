@@ -12,7 +12,6 @@ import {
   DialogTitle,
 } from "./StudioDialog";
 
-// jsdom lacks the pointer-capture and scrollIntoView APIs that Radix uses.
 beforeAll(() => {
   Element.prototype.scrollIntoView = () => {};
   Element.prototype.hasPointerCapture = () => false;
@@ -105,7 +104,6 @@ describe("StudioDialog", () => {
 
     await user.keyboard("{Escape}");
 
-    // Radix restores focus to the trigger after the dialog unmounts.
     await waitFor(() => expect(document.activeElement).toBe(trigger));
   });
 

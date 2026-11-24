@@ -22,7 +22,6 @@ type Props = {
   pending: boolean;
 };
 
-/** Asks the moderator for a reason before a spectator is removed from the room. */
 export function RemoveSpectatorDialog({
   open,
   targetName,

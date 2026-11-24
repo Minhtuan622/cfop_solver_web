@@ -1,11 +1,3 @@
-/**
- * Phân tích sâu một lượt giải bằng smart cube: tách từng giai đoạn thành thời
- * gian nhận diện (nghĩ trước khi xoay) và thời gian thực hiện, TPS, những
- * quãng dừng dài nhất và nhận diện case OLL / PLL đã gặp.
- *
- * Hoàn toàn là hàm thuần trên dữ liệu đã lưu (scramble, chuỗi nước, thời điểm
- * từng nước và mốc giai đoạn), không đụng tới cubing.js hay bộ giải.
- */
 import {
   SOLVED_FAST_STATE,
   applyFastMoves,
@@ -13,22 +5,15 @@ import {
 } from "@/lib/fastCube";
 import type { SolvePhaseSplit, SplitPhase } from "@/lib/solveHistory";
 
-/** Một lượt đã gộp các nước liền nhau trên cùng mặt (R R → R2, R R' → bỏ). */
 export type TurnMove = {
   move: string;
-  /** Thời điểm (ms) của nước cuối trong cụm. */
   at: number;
-  /** Chỉ số nước thô đầu tiên và sau cùng + 1 trong cụm. */
   from: number;
   to: number;
 };
 
 const FACE_SUFFIX = ["", "", "2", "'"] as const;
 
-/**
- * Gộp các nước liền nhau trên cùng một mặt (số lượt tính theo HTM): smart cube
- * chỉ báo các nước 90°, nên R2 đến dưới dạng hai nước R.
- */
 export function mergeTurns(moves: readonly string[], times: readonly number[]): TurnMove[] {
   const merged: Array<TurnMove & { face: string; quarter: number }> = [];
   moves.forEach((raw, index) => {
@@ -63,21 +48,15 @@ export function mergeTurns(moves: readonly string[], times: readonly number[]): 
 
 export type PhaseAnalysis = {
   phase: SplitPhase;
-  /** Số lượt (HTM) trong giai đoạn. */
   turns: number;
-  /** Chỉ số nước thô [start, end) của giai đoạn. */
   start: number;
   end: number;
-  /** Thời gian từ khi xong giai đoạn trước tới nước đầu của giai đoạn này; `null` với giai đoạn đầu. */
   recognitionMs: number | null;
-  /** Thời gian từ nước đầu của giai đoạn tới khi xong. */
   executionMs: number;
-  /** Lượt mỗi giây trong lúc thực hiện (không tính nhận diện). */
   tps: number | null;
 };
 
 export type SolvePause = {
-  /** Chỉ số nước thô đứng ngay sau quãng dừng. */
   moveIndex: number;
   gapMs: number;
   phase: SplitPhase;
@@ -85,11 +64,9 @@ export type SolvePause = {
 
 export type SolveAnalysis = {
   totalTurns: number;
-  /** Tổng thời gian theo nước (ms). */
   totalMs: number;
   tps: number | null;
   phases: PhaseAnalysis[];
-  /** Tổng thời gian nhận diện giữa các giai đoạn. */
   recognitionMs: number;
   pauses: SolvePause[];
 };
@@ -101,11 +78,9 @@ export type AnalysisInput = {
 };
 
 const PHASE_ORDER: SplitPhase[] = ["Cross", "F2L", "OLL", "PLL"];
-/** Quãng dừng ngắn hơn mức này không đáng kể là "dừng". */
 export const MIN_PAUSE_MS = 400;
 export const MAX_PAUSES = 5;
 
-/** Chỉ số nước thô cuối (không gồm) mà mốc `markedAtMs` bao phủ. */
 function boundaryIndex(times: readonly number[], markedAtMs: number) {
   if (markedAtMs <= 0) return 0;
   let count = 0;
@@ -196,25 +171,19 @@ function merge(moves: readonly string[], times: readonly number[], start: number
   return mergeTurns(moves.slice(start, end), times.slice(start, end));
 }
 
-// ─── Nhận diện case OLL / PLL ──────────────────────────────────────────────
-
-/** Case trong catalog (cùng hình dạng với `CfopCatalogCase`, chỉ giữ phần cần). */
 export type LastLayerCase = { id: string; name: string; state: string; algorithm?: string };
 
 export type IdentifiedCase = {
   id: string;
   name: string;
-  /** Số AUF (U) để khớp với case chuẩn; chỉ có nghĩa với PLL. */
   auf: number;
 };
 
-/** Trạng thái sau khi đi `count` nước đầu của lời giải. */
 export function stateAfter(scramble: string, moves: readonly string[], count: number) {
   return applyFastMoves(stateFromScramble(scramble), moves.slice(0, count).join(" "));
 }
 
 const U_FACE = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-/** Hàng trên của R, F, L, B (theo thứ tự URFDLB): các sticker bên của lớp trên. */
 const SIDE_TOPS = [9, 10, 11, 18, 19, 20, 36, 37, 38, 45, 46, 47];
 const ORIENTATION_STICKERS = [...U_FACE, ...SIDE_TOPS];
 
@@ -228,12 +197,6 @@ export function isOrientedLastLayer(state: string) {
   return U_FACE.every(index => state[index] === "U");
 }
 
-/**
- * OLL từ trạng thái lúc vừa xong F2L: so hình dạng định hướng của lớp cuối
- * (21 sticker) với từng case, cho phép xoay AUF. Hai case có thể trùng hình
- * dạng nên khi có thuật toán thì kiểm lại: thuật toán của case đúng sẽ định
- * hướng xong lớp cuối. `null` = chưa nhận ra; `skip` khi lớp cuối đã định hướng.
- */
 export function identifyOll(
   state: string,
   cases: readonly LastLayerCase[]
@@ -255,10 +218,6 @@ export function identifyOll(
   return fallback;
 }
 
-/**
- * PLL từ trạng thái lúc lớp cuối đã định hướng: khớp toàn bộ khối với case
- * (kể cả khác nhau một vòng U ở trước/sau). `skip` khi chỉ cần AUF để xong.
- */
 export function identifyPll(
   state: string,
   cases: readonly LastLayerCase[]
@@ -284,7 +243,6 @@ export type SolveCases = {
   pll: IdentifiedCase | "skip" | null;
 };
 
-/** Nhận diện OLL và PLL của lượt giải dựa trên ranh giới giai đoạn đã phân tích. */
 export function identifySolveCases(
   scramble: string,
   moves: readonly string[],

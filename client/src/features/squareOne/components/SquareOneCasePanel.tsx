@@ -1,8 +1,3 @@
-/**
- * Square-1 practice card: the case preview (the library's 2D twisty-player
- * rendering — the only Square-1 visualization Cubing.js ships), the recall
- * drill and the Again/Hard/Good/Easy self-grade. Mirrors the other lanes.
- */
 import { invertSquareOneAlgorithm } from "../lib/squareOneAlg";
 import {
   CasePracticeEmpty,
@@ -35,8 +30,6 @@ export function SquareOneCasePanel({ language, ...practice }: SquareOneCasePanel
           scramble={invertSquareOneAlgorithm(activeCase.algorithm)}
           language={language}
           loadingLabel={t("sq1.loading2d")}
-          // The 2D twisty player sizes itself against the host, so the
-          // host needs an explicit height (as on the Timer page).
           frameClassName="relative h-80 w-full overflow-hidden rounded-xl bg-surface-2"
         />
       }

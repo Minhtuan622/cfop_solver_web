@@ -1,7 +1,3 @@
-/**
- * Lấy các điểm đỉnh đang hiện của mô hình Three.js (đã nhân ma trận thế giới)
- * để căn khoảng cách camera. Chỉ dùng kiểu của Three.js (không import runtime).
- */
 import type { BufferAttribute, Object3D, Vector3 } from "three";
 import type { ProjectedPoint } from "./puzzleCamera";
 
@@ -21,10 +17,6 @@ type FitMesh = Object3D & {
   material?: MaterialLike | MaterialLike[];
 };
 
-/**
- * cubing.js hides hint facelets behind invisible materials and meshes.
- * Both extend past the puzzle, so only sample groups the renderer shows.
- */
 function isShownMaterial(material: MaterialLike | undefined) {
   if (!material) return false;
   return material.visible !== false && (material.opacity ?? 1) > 0.02;
@@ -39,10 +31,6 @@ function isShown(object: Object3D) {
   return true;
 }
 
-/**
- * Các điểm đỉnh đang hiện của `puzzleObject`. `vertex` là một `Vector3` dùng
- * làm bộ đệm (do nơi gọi tạo từ module `three` đã nạp động).
- */
 export function collectShownPoints(
   puzzleObject: Object3D,
   vertex: Vector3

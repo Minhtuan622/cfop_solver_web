@@ -35,7 +35,6 @@ const row = (over: Record<string, unknown> = {}) => ({
   ...over,
 });
 
-// 12:00 UTC: giữa ngày với múi giờ UTC.
 const NOON = Date.UTC(2026, 10, 23, 12, 0, 0);
 
 beforeEach(() => {
@@ -89,9 +88,7 @@ describe("isAllowedPushEndpoint", () => {
 describe("isQuietHour", () => {
   it("applies the night window in the browser's own time zone", () => {
     expect(isQuietHour(NOON, 0)).toBe(false);
-    // Hà Nội UTC+7 → getTimezoneOffset() = -420: 12:00 UTC là 19:00 địa phương.
     expect(isQuietHour(NOON, -420)).toBe(false);
-    // 16:00 UTC là 23:00 ở Hà Nội.
     expect(isQuietHour(NOON + 4 * 3_600_000, -420)).toBe(true);
     expect(isQuietHour(Date.UTC(2026, 10, 23, 3, 0), 0)).toBe(true);
     expect(isQuietHour(Date.UTC(2026, 10, 23, 8, 0), 0)).toBe(false);

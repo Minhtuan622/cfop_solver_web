@@ -1,13 +1,3 @@
-/**
- * CFOP 3×3 algorithm catalog for the /study CFOP lane.
- *
- * Contents: full F2L 4 slot angles (164 cases from cubingapp.com's published
- * set — see `f2l4AnglesData.ts`), plus 57 OLL and 21 PLL cases — the standard
- * speedsolving set. Case states are NOT embedded: `cfopCaseState` derives
- * them from the algorithms via `applyFastMoves(SOLVED_FAST_STATE, invertAlgorithm(alg))`,
- * so every shown case is guaranteed to be solved by its own algorithm (pinned
- * by tests: cubeValidation for every derived state + alg round-trip).
- */
 import { F2L_4ANGLES_ROWS } from "./f2l4AnglesData";
 import { COLL_CASES } from "./cfopCollData";
 import { OLLCP_CASES } from "./cfopOLLCPData";
@@ -17,7 +7,6 @@ export type CfopFamily = "f2l" | "oll" | "pll" | "coll" | "ollcp";
 export type CfopCaseRow = {
   id: string;
   family: CfopFamily;
-  /** FR/FL/BR/BL for F2L, "oll"/"pll" for the rest. */
   group: string;
   name: string;
   algorithm: string;
@@ -109,7 +98,6 @@ export const PLL_CASES: readonly CfopCaseRow[] = [
   { id: "PLL-Z", family: "pll", group: "pll", name: "Z perm", algorithm: "M' U M2 U M2 U M' U2 M2" },
 ];
 
-/** The full CFOP catalog in practice order: F2L (4 directions) → OLL → PLL → COLL → OLLCP. */
 export const CFOP_CASES: readonly CfopCaseRow[] = [
   ...F2L_4WAY_CASES,
   ...OLL_CASES,

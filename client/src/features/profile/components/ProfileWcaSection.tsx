@@ -15,7 +15,6 @@ import type { SolveHistoryEntry } from "@/lib/solveHistory";
 import type { WcaProfileData } from "../lib/profilePresentation";
 import { WcaProfileDetails } from "./WcaProfileDetails";
 
-/** Phần WCA của trang Hồ sơ: hồ sơ đã liên kết và nút liên kết qua OAuth. */
 export function ProfileWcaSection({
   wcaId,
   wcaProfile,
@@ -30,7 +29,6 @@ export function ProfileWcaSection({
 }: {
   wcaId: string | null | undefined;
   wcaProfile: WcaProfileData | undefined;
-  /** Đang tải lại khi đã có dữ liệu cũ. */
   refreshing: boolean;
   loading: boolean;
   entries: SolveHistoryEntry[];
@@ -38,7 +36,6 @@ export function ProfileWcaSection({
   oauthPending: boolean;
   onStartOAuth: () => void;
   unlinkPending: boolean;
-  /** Gỡ WCA ID khỏi tài khoản (sau khi người dùng xác nhận). */
   onUnlink: () => void;
 }) {
   const { t } = useLanguage();

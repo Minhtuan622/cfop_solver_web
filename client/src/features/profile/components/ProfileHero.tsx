@@ -5,7 +5,6 @@ import { Eyebrow } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { initials } from "../lib/profilePresentation";
 
-/** Đầu trang Hồ sơ: ảnh đại diện, tên, giới thiệu, lối tắt và mục tiêu ao5. */
 export function ProfileHero({
   account,
   goalLabel,

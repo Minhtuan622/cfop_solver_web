@@ -11,7 +11,6 @@ import {
 import { IconButton } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/** Hộp thoại xác nhận xoá (một lượt hoặc các lượt đã chọn). */
 export function ConfirmDeleteDialog({
   open,
   onOpenChange,

@@ -1,19 +1,3 @@
-/**
- * Trích danh sách class được dùng trong mã nguồn JSX/TSX.
- *
- * Một `className` trong React có nhiều hình dạng:
- *
- *   className="flex gap-2"
- *   className={"flex gap-2"}
- *   className={`flex gap-2 ${active ? "bg-primary" : ""}`}
- *   className={cn("flex gap-2", active && "bg-primary")}
- *
- * Quét bằng regex thô sẽ bỏ sót hai hình dạng cuối, nên ở đây dùng bộ
- * quét ký tự: tự cân bằng ngoặc, bỏ qua `>` trong biểu thức JSX
- * (`onChange={e => ...}`) và trong chuỗi.
- */
-
-/** Tìm vị trí `}` khớp với `{` tại `start`, bỏ qua chuỗi và template literal. */
 export function matchBrace(source, start) {
   let i = start + 1;
   let depth = 1;
@@ -54,13 +38,6 @@ export function matchBrace(source, start) {
   return -1;
 }
 
-/**
- * Tên hàm bao quanh chuỗi đang xét, nếu có.
- *
- * `cn("flex gap-2")` -> "cn"; `laneButtonClass("bld")` -> "laneButtonClass".
- * Chuỗi chỉ là class khi nằm trong hàm gộp class; chuỗi truyền cho hàm
- * khác là dữ liệu, không phải class.
- */
 function enclosingCall(expression, index) {
   let i = index - 1;
   while (i >= 0 && /\s/.test(expression[i])) i -= 1;
@@ -72,22 +49,13 @@ function enclosingCall(expression, index) {
   return expression.slice(i + 1, end + 1);
 }
 
-/** Các hàm gộp class được công nhận. */
 const CLASS_HELPERS = new Set(["cn", "clsx", "cx", "classNames"]);
 
-/**
- * Trích các chuỗi con khả dụng trong một biểu thức JSX.
- *
- * - Chuỗi `"..."` / `'...'` được giữ, trừ khi nó là vế so sánh
- *   (`tone === "warning"`) hoặc đối số của hàm không phải hàm gộp class.
- * - Template literal giữ phần chữ và bỏ các đoạn `${...}`.
- */
 export function extractLiterals(expression) {
   const literals = [];
   let i = 0;
   while (i < expression.length) {
     const char = expression[i];
-    // Bỏ qua comment: `// ...` và `/* ... */`.
     if (char === "/" && expression[i + 1] === "/") {
       const end = expression.indexOf("\n", i);
       i = end < 0 ? expression.length : end;
@@ -144,7 +112,6 @@ export function extractLiterals(expression) {
   return literals;
 }
 
-/** Mọi chuỗi chứa class được dùng trong các thuộc tính `className` của file. */
 export function classNamesOf(source) {
   const literals = [];
   for (const match of source.matchAll(/className\s*=\s*/g)) {
@@ -171,10 +138,6 @@ export function classNamesOf(source) {
   return literals;
 }
 
-/**
- * Bỏ variant để so sánh tên class gốc (md:flex-row -> flex-row).
- * Dấu `:` trong `[]` hoặc `()` không phải dấu phân cách variant.
- */
 export function baseName(name) {
   const parts = [];
   let current = "";

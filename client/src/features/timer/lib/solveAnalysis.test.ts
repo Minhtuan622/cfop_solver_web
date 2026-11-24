@@ -29,7 +29,6 @@ const catalog = {
   pll: CFOP_CATALOG.filter(item => item.family === "pll") as LastLayerCase[],
 };
 
-/** SplitMix32: scramble ngẫu nhiên nhưng cố định giữa các lần chạy. */
 function rng(seed: number) {
   let state = seed >>> 0;
   return () => {
@@ -54,7 +53,6 @@ function scrambleOf(seed: number) {
   return out.join(" ");
 }
 
-/** Chạy bộ giải thật (cross ở D) và dựng lại như một lượt smart cube có nhịp. */
 function recordedSolve(scramble: string) {
   const reply = handleWasmRequest(
     wasm,
@@ -74,7 +72,6 @@ function recordedSolve(scramble: string) {
   for (const phase of result.phases) {
     const group = phaseOf(phase.name);
     for (const [index, move] of phase.moves.entries()) {
-      // Nghĩ 700 ms trước nước đầu của mỗi giai đoạn (trừ Cross), 150 ms giữa các nước.
       clock += index === 0 && !seen.has(group) && pauseBefore.has(group) ? 700 : 150;
       moves.push(move);
       times.push(clock);
@@ -117,8 +114,6 @@ describe("analyzeSolve với lời giải của bộ giải", () => {
       expect(analysis, scramble).not.toBeNull();
       const byPhase = (name: SplitPhase) => analysis!.phases.find(item => item.phase === name)!;
 
-      // Số lượt mỗi giai đoạn khớp số nước của bộ giải.
-      // (Các nước liền nhau trên một mặt giữa hai cặp F2L cũng được gộp như smart cube.)
       const solverCount = (match: (name: string) => boolean) => {
         const group = result.phases.filter(phase => match(phase.name)).flatMap(phase => phase.moves);
         return mergeTurns(group, group.map((_, index) => index)).length;
@@ -128,19 +123,16 @@ describe("analyzeSolve với lời giải của bộ giải", () => {
       expect(byPhase("OLL").turns, scramble).toBe(solverCount(name => name === "oll"));
       expect(byPhase("PLL").turns, scramble).toBe(solverCount(name => name === "pll"));
 
-      // Quãng nghĩ 700 ms trước mỗi giai đoạn có nước đi (trừ Cross).
       for (const name of ["F2L", "OLL", "PLL"] as const) {
         const phase = byPhase(name);
         if (phase.turns) expect(phase.recognitionMs, `${scramble} ${name}`).toBe(700);
       }
 
-      // Case OLL/PLL trùng với case bộ giải ghi lại.
       const cases = identifySolveCases(scramble, moves, analysis!, catalog);
       const solverOll = result.phases.find(phase => phase.name === "oll");
       const solverPll = result.phases.find(phase => phase.name === "pll");
       if (solverOll?.moves.length && typeof cases.oll === "object" && cases.oll) {
         comparedCases += 1;
-        // Thuật toán của case nhận ra (sau AUF) phải định hướng xong lớp cuối.
         const found = catalog.oll.find(item => item.id === cases.oll.id)!;
         const state = stateAfter(scramble, moves, byPhase("F2L").end);
         const aligned = applyFastMoves(state, ["", "U", "U2", "U'"][cases.oll.auf]);

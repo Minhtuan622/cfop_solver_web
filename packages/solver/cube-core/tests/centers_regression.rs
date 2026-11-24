@@ -1,10 +1,5 @@
-//! Regression: slice moves must move centers exactly like the slice they
-//! name, and never touch the two centers on their own axis (an earlier
-//! version of the project rotated face centers incorrectly on M/E).
-
 use cube_core::{parse_moves, Cube};
 
-/// Center colors at positions U R F D L B, as a string.
 fn centers(s: &str) -> String {
     let c = Cube::from_moves(&parse_moves(s).unwrap());
     c.centers()
@@ -15,7 +10,6 @@ fn centers(s: &str) -> String {
 
 #[test]
 fn m_moves_centers_like_l() {
-    // M follows L: U -> F -> D -> B -> U. R and L centers stay.
     assert_eq!(centers("M"), "BRUFLD");
     assert_eq!(centers("M'"), "FRDBLU");
     assert_eq!(centers("M2"), "DRBULF");
@@ -23,7 +17,6 @@ fn m_moves_centers_like_l() {
 
 #[test]
 fn e_moves_centers_like_d() {
-    // E follows D: F -> R -> B -> L -> F. U and D centers stay.
     assert_eq!(centers("E"), "UFLDBR");
     assert_eq!(centers("E'"), "UBRDFL");
     assert_eq!(centers("E2"), "ULBDRF");
@@ -31,15 +24,12 @@ fn e_moves_centers_like_d() {
 
 #[test]
 fn s_moves_centers_like_f() {
-    // S follows F: U -> R -> D -> L -> U. F and B centers stay.
     assert_eq!(centers("S"), "LUFRDB");
     assert_eq!(centers("S'"), "RDFLUB");
 }
 
 #[test]
 fn slice_moves_do_not_disturb_outer_layers() {
-    // Turning M must not change any R or L sticker; E keeps U and D faces;
-    // S keeps F and B faces.
     for (mv, faces) in [("M", [1usize, 4]), ("E", [0, 3]), ("S", [2, 5])] {
         for turns in ["", "'", "2"] {
             let s = Cube::from_moves(&parse_moves(&format!("{mv}{turns}")).unwrap()).to_stickers();
@@ -61,7 +51,6 @@ fn face_moves_never_move_centers() {
 
 #[test]
 fn slice_sequences_restore_centers() {
-    // Sequences whose slice turns cancel must leave every center at home.
     assert_eq!(centers("M U M' U'"), "URFDLB");
     assert_eq!(centers("E R E' R'"), "URFDLB");
     assert_eq!(centers("M2 E2 M2 E2"), "URFDLB");

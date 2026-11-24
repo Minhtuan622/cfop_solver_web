@@ -5,14 +5,6 @@ import { router as buildRouter, publicProcedure, UNEXPECTED_ERROR_MESSAGE, VALID
 import { credentialsInput } from "./routers/inputs";
 import { serverMessageKeys } from "../shared/serverMessages";
 
-/**
- * What the HTTP layer of tRPC hands out for a failed call.
- *
- * A resolver that throws becomes `getTRPCErrorFromUnknown(cause)`, and that
- * error is shaped by the router's own config — the exact pair of hooks tRPC
- * runs on every request. Feeding them here exercises the formatter configured
- * in `server/_core/trpc.ts`.
- */
 function shapeOf(path: string, cause: unknown) {
   return getErrorShape({
     path,
@@ -21,7 +13,6 @@ function shapeOf(path: string, cause: unknown) {
   });
 }
 
-/** A database failure exactly as drizzle reports it, SQL and values included. */
 const SQL_LEAK = "Failed query: select `id`, `email` from `cfop_accounts` where `email` = ?; params: victim@example.com,1";
 
 afterEach(() => {
@@ -52,8 +43,6 @@ describe("the tRPC error formatter", () => {
   it("writes a short line for a failed schema check instead of a raw array", () => {
     const schema = credentialsInput.safeParse({ email: "not-an-email", password: "x".repeat(12) });
     expect(schema.success).toBe(false);
-    // The parser middleware of tRPC wraps the failed check in a BAD_REQUEST
-    // whose cause is the zod error — this is how it travels to the formatter.
     const shape = shapeOf("cfopAccount.login", new TRPCError({ code: "BAD_REQUEST", cause: schema.success ? undefined : schema.error }));
 
     expect(shape.message.startsWith(VALIDATION_ERROR_PREFIX)).toBe(true);

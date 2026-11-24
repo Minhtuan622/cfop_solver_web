@@ -1,8 +1,3 @@
-/**
- * Đọc trạng thái khối đang cầm trên tay từ smart cube (Bluetooth) rồi trả về
- * chuỗi 54 sticker để trang Giải giải ngay. Chỉ đọc một lần: kết nối, lấy
- * trạng thái, ngắt; không giữ kết nối với Timer.
- */
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -49,7 +44,6 @@ export function SmartCubeStateButton({
           cube.stopTrackingMoves?.();
           cube.disconnect();
         } catch {
-          /* đã ngắt */
         }
       }
     } catch (reason) {

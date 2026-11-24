@@ -1,17 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-/**
- * Regression test cho A1 ở tầng database: hai thiết bị cùng dùng một tài
- * khoản không được ghi đè dữ liệu của nhau.
- *
- * Kịch bản nghiệm thu:
- *   D1 lưu [s1] → D2 đọc → D1 lưu [s1,s2] → D2 lưu [s1] với baseVersion cũ
- *   → CONFLICT → D2 gộp và lưu lại → cloud có cả s1 và s2.
- *
- * Test cần database nên bỏ qua khi không có DATABASE_URL, đúng như các test
- * database khác trong repo.
- */
-
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
 describe.skipIf(!hasDatabase)("A1: cloud state theo revision của dòng", () => {
@@ -67,15 +55,12 @@ describe.skipIf(!hasDatabase)("A1: cloud state theo revision của dòng", () =>
   });
 
   it("hai thiết bị không ghi đè dữ liệu của nhau", async () => {
-    // D1 lưu [s1]: chưa có dữ liệu cloud nên baseVersion null.
     const first = await save(accountId, payloadWith(["s1"]), null);
     expect(first?.version).toBe(1);
 
-    // D2 đọc → biết revision hiện tại là 1.
     const seen = await read(accountId);
     expect(seen?.version).toBe(1);
 
-    // D1 lưu tiếp [s1, s2] với revision nó đã đọc.
     const second = await save(
       accountId,
       payloadWith(["s1", "s2"]),
@@ -83,16 +68,12 @@ describe.skipIf(!hasDatabase)("A1: cloud state theo revision của dòng", () =>
     );
     expect(second?.version).toBe(2);
 
-    // D2 (vẫn giữ revision 1) lưu [s1] → phải bị từ chối.
     await expect(
       save(accountId, payloadWith(["s1"]), seen?.version)
     ).rejects.toMatchObject({
       code: "CONFLICT",
     });
 
-    // D2 đọc bản mới, gộp rồi lưu lại với revision mới.
-    // Gộp theo id (giống mergeCfopCloudStates của client): s1 của D1 và s2
-    // của D1 đều được giữ, không mất entry nào.
     const fresh = await read(accountId);
     expect(fresh?.version).toBe(2);
     const merged = payloadWith(

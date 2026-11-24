@@ -1,11 +1,3 @@
-/**
- * SRS study state for the 3-Style BLD lane.
- *
- * Mirrors the CFOP study engine (same spaced-repetition ladder from
- * `lib/spacedRepetition.ts`) with its own storage keys, so BLD progress never
- * mixes with the 3×3 CFOP or 2×2 lanes. Records degrade gracefully via zod.
- * Covers the full BLDDB catalog: edge, corner, parity, flip and twist cases.
- */
 import {
   caseStudyKey,
   createCaseStudyStore,

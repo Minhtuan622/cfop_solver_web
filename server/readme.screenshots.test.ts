@@ -2,15 +2,6 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
-/**
- * Regression test cho D5 (ảnh chụp màn hình thật trong README).
- *
- * README trước đây chỉ có khối ảnh comment, nên mọi ảnh trong repo có thể
- * bị xoá mà không ai hay biết. Test này chặn ảnh hỏng: mọi ảnh README
- * tham chiếu tới phải tồn tại, và mọi ảnh có trong docs/screenshots/ phải
- * được tham chiếu.
- */
-
 const root = path.resolve(import.meta.dirname, "..");
 const screenshotDir = path.join(root, "docs", "screenshots");
 

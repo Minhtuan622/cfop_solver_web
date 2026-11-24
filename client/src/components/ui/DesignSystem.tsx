@@ -1,7 +1,3 @@
-/**
- * Shared building blocks of the dashboard look. Each one composes Tailwind
- * utilities, so pages assemble surfaces instead of repeating class strings.
- */
 import {
   forwardRef,
   type ButtonHTMLAttributes,
@@ -12,7 +8,6 @@ import {
 import { cn } from "@/lib/utils";
 import { IconButton } from "./StudioUI";
 
-/** A white, rounded, softly shadowed panel. */
 export function Surface({
   as: Tag = "section",
   className,
@@ -37,7 +32,6 @@ export function Surface({
   );
 }
 
-/** The small tinted square that holds an icon next to a panel title. */
 export function IconBox({
   children,
   className,
@@ -58,7 +52,6 @@ export function IconBox({
   );
 }
 
-/** The title row of a panel: IconBox + heading, with optional actions on the right. */
 export function PanelHeader({
   icon,
   title,
@@ -85,9 +78,6 @@ export function PanelHeader({
   );
 }
 
-/* ---- Pill tabs ---------------------------------------------------------- */
-
-/** The rounded track that holds pill buttons (and dividers). */
 export function PillBar({
   variant = "solid",
   className,
@@ -121,7 +111,6 @@ export type PillOption<T extends string> = {
   ariaLabel?: string;
 };
 
-/** A group of mutually exclusive pill buttons (aria-pressed, like a segmented control). */
 export function PillGroup<T extends string>({
   value,
   onChange,
@@ -138,8 +127,6 @@ export function PillGroup<T extends string>({
   label?: string;
   size?: "sm" | "md";
   fill?: boolean;
-  /** primary: mục chọn nền màu nhấn. soft: mục chọn nền sáng, dùng cho nhóm
-   *  phụ đứng cạnh một nhóm primary để hai nút đặc không tranh nhau. */
   tone?: "primary" | "soft";
   className?: string;
 }) {
@@ -177,7 +164,6 @@ export function PillGroup<T extends string>({
   );
 }
 
-/** A PillBar with one PillGroup — the common case. */
 export function PillTabs<T extends string>({
   variant,
   className,
@@ -193,9 +179,6 @@ export function PillTabs<T extends string>({
   );
 }
 
-/* ---- Buttons and inputs -------------------------------------------------- */
-
-/** A round icon button. `primary` is the big blue play-style button. */
 export function RoundButton({
   label,
   icon,
@@ -230,7 +213,6 @@ export function RoundButton({
   );
 }
 
-/** A pill-shaped text field. Pass a visible or visually-hidden <label> yourself. */
 export const PillInput = forwardRef<
   HTMLInputElement,
   InputHTMLAttributes<HTMLInputElement>
@@ -247,7 +229,6 @@ export const PillInput = forwardRef<
   );
 });
 
-/** A small rounded chip button, e.g. one move of a solution. */
 export function Chip({
   active,
   className,
@@ -269,7 +250,6 @@ export function Chip({
   );
 }
 
-/** A full-width status strip with an icon: green for good news, amber for a warning. */
 export function Banner({
   tone = "success",
   icon,

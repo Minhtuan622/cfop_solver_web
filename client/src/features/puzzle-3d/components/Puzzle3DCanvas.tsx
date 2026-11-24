@@ -49,12 +49,7 @@ export function Puzzle3DCanvas({
   animationRunId?: number;
   focusFtoWhiteFace?: boolean;
   focusFtoFace?: FtoTeachingFace;
-  /**
-   * Giữ màu WCA gốc của Cubing.js (trắng U, xanh lá F) thay vì đổi sang bảng
-   * màu studio (vàng U): dùng khi xem scramble đúng hướng cầm lúc tráo.
-   */
   nativeColors?: boolean;
-  /** Nhân tốc độ phát nước đi (1 = mặc định của cubing.js). */
   tempoScale?: number;
 }) {
   const isTwoD = isSideEvent2DPuzzle(puzzle);
@@ -77,16 +72,9 @@ export function Puzzle3DCanvas({
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading"
   );
-  // Lần thử lại cho cùng một preview; đổi puzzle/scramble thì đếm lại từ 0.
   const [retryTick, setRetryTick] = useState(0);
   const attemptRef = useRef({ key: "", attempt: 0 });
-  // Lần dựng gần nhất có lỗi tải module (import động) hay không — lỗi này để
-  // lại cache hỏng trong module map của document, thử lại trong cùng document
-  // vô ích; chỉ nạp lại trang mới xoá được.
   const moduleFailureRef = useRef(false);
-  // Player đang chạy và giá trị mới nhất của scramble/lời giải. Đổi scramble
-  // hay lời giải (bước kế tiếp của một lời giải) chỉ cập nhật player này,
-  // không dựng lại cả renderer: dựng lại làm khối nháy và tải lại sau mỗi nước.
   const playerRef = useRef<PuzzlePlayer | null>(null);
   const scrambleRef = useRef(scramble);
   const animationAlgRef = useRef(animationAlg);
@@ -111,8 +99,6 @@ export function Puzzle3DCanvas({
       attemptRef.current = { key: buildKey, attempt: 0 };
     moduleFailureRef.current = false;
     setStatus("loading");
-    // Lỗi tải module phát sinh bên trong cubing.js không lan tới catch ở dưới
-    // (chỉ thành unhandled rejection), nên nghe ở window để nhận diện.
     const onUnhandledRejection = (event: PromiseRejectionEvent) => {
       if (isModuleLoadFailure(event.reason)) moduleFailureRef.current = true;
     };
@@ -121,8 +107,6 @@ export function Puzzle3DCanvas({
     void (async () => {
       if (disposed) return;
       if (isTwoD) {
-        // Cubing.js chỉ có KPuzzle + SVG cho Square-1/Clock, không có model
-        // 3D. Dùng đúng trình xem 2D của thư viện thay vì tự dựng hình học.
         await import("cubing/twisty");
         if (disposed) return;
         player = document.createElement("twisty-player") as PuzzlePlayer;
@@ -136,13 +120,9 @@ export function Puzzle3DCanvas({
         player.controlPanel = "none";
         player.backView = "none";
         player.background = "none";
-        // Cubing.js lays the 2D view out with `display: grid` + `contain: size`;
-        // overriding display collapses the chain to 0 px, so only set the size.
         player.style.width = "100%";
         player.style.height = "100%";
         host.replaceChildren(player);
-        // The player waits for an IntersectionObserver before rendering; start
-        // it explicitly so the 2D SVG appears even inside a short preview card.
         startMountedTwistyPlayer(player);
         clearPreviewReloadFlag();
         setStatus("ready");
@@ -200,8 +180,6 @@ export function Puzzle3DCanvas({
         recolorCubeStickerColors(
           puzzleObject as unknown as ColoredObject,
         );
-      // Module đã tải xong và player đã trả về đối tượng 3D: xoá cờ "đã nạp
-      // lại trang" để lần hỏng sau (nếu có) vẫn được phép nạp lại trang.
       clearPreviewReloadFlag();
       const activeRenderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -243,7 +221,6 @@ export function Puzzle3DCanvas({
         focusActualFtoFace(THREE, puzzleObject, puzzleBase, teachingFace);
       root.add(puzzleBase);
       scene.add(root);
-      // Flat lighting only: no direction, every face gets the same light.
       scene.add(new THREE.AmbientLight(0xffffff, 2.2));
 
       const fitEnabled = !(puzzle === "fto" && isFtoTeachingPreview);
@@ -324,10 +301,6 @@ export function Puzzle3DCanvas({
       if (disposed) return;
       moduleFailureRef.current =
         moduleFailureRef.current || isModuleLoadFailure(error);
-      // Thất bại thường chỉ là tạm thời (chunk/wasm tải chậm hoặc chập chờn
-      // đúng một lần), nên thử lại tự động trước khi báo lỗi cho người dùng.
-      // Riêng lỗi tải module thì thử lại trong document vô ích (module map
-      // cache luôn cả thất bại) — báo lỗi ngay để nút "Thử lại" nạp lại trang.
       if (!moduleFailureRef.current && attemptRef.current.attempt < 2) {
         attemptRef.current = {
           key: buildKey,
@@ -362,7 +335,6 @@ export function Puzzle3DCanvas({
     retryTick,
   ]);
 
-  // Cập nhật tại chỗ khi chỉ scramble hoặc lời giải đổi (bước kế tiếp, xem lại).
   useEffect(() => {
     const player = playerRef.current;
     if (!player) return;
@@ -371,8 +343,6 @@ export function Puzzle3DCanvas({
       : puzzlePreviewSetupAlgorithm(puzzle, scramble, focusFtoWhiteFace);
     player.alg = animationAlg;
     player.tempoScale = tempoScale;
-    // Về đầu lời giải mới trước khi phát: nếu không, player đang đứng ở cuối nước
-    // trước nên hiện trạng thái đích rồi mới nhảy về đầu và chạy lại.
     player.jumpToStart?.({ flash: false });
     renderRef.current?.();
     if (animationAlg.trim()) player.play?.();
@@ -393,10 +363,6 @@ export function Puzzle3DCanvas({
         modelLabel={modelLabel}
         language={language}
         onRetry={() => {
-          // Lỗi thường để lại cache hỏng trong module map của document hiện
-          // tại, nên nạp lại trang một lần là cách phục hồi đáng tin nhất.
-          // Các lần bấm sau (và trường hợp sessionStorage bị chặn) dựng lại
-          // trong trang.
           if (reloadPreviewPageOnce()) return;
           attemptRef.current = { key: attemptRef.current.key, attempt: 0 };
           moduleFailureRef.current = false;

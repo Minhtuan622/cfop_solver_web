@@ -6,10 +6,6 @@ import { initials } from "../lib/profilePresentation";
 
 export type ProfileDetailsValues = { displayName: string; bio: string; goalSeconds: string };
 
-/**
- * Thông tin cá nhân: ảnh đại diện, tên hiển thị, giới thiệu và mục tiêu ao5.
- * Ô nhập lấy lại giá trị từ tài khoản mỗi khi tài khoản được tải lại.
- */
 export function ProfileDetailsForm({
   account,
   avatarUploadEnabled,

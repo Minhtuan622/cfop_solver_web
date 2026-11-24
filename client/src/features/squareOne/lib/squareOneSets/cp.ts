@@ -1,6 +1,5 @@
 import type { SquareOneCaseRow } from "../squareOneData";
 
-/** SQ1-CP — 8 cases. */
 export const CP_CASES_SOURCE: readonly SquareOneCaseRow[] = [
   { id: "CP-Adj-Adj", family: "cp", group: "Top Adj", name: "Adj / Adj", algorithm: "/ (-3,0) / (3,3) / (0,-3) /" },
   { id: "CP-Adj-Opp", family: "cp", group: "Top Adj", name: "Adj / Opp", algorithm: "/ (0,-3) / (0,3) / (0,-3) / (0,3) /" },

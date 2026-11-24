@@ -1,11 +1,3 @@
-/**
- * Rubik ảo bằng bàn phím — virtual keyboard-driven 3×3 cube.
- *
- * Free-play mode: manipulate the cube freely. Race mode: csTimer's virtual
- * cube flow — Space applies the scramble and starts inspection, the first
- * turn starts the clock, solving the cube stops it and records the solve
- * into a standalone history (never mixed with real solve statistics).
- */
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -69,12 +61,10 @@ export default function PlayPage() {
   const [inspectionEnabled, setInspectionEnabled] = useState(true);
   const [entries, setEntries] = useState<PlayHistoryEntry[]>(() => readPlayHistory());
   const [clearOpen, setClearOpen] = useState(false);
-  // Màn hình nhỏ thường không có bàn phím: thu gọn bảng phím mặc định.
   const [keysOpen, setKeysOpen] = useState(
     () => typeof window === "undefined" || !window.matchMedia?.("(max-width: 1023px)").matches
   );
   const [padOpen, setPadOpen] = useState(false);
-  // Màn hình hẹp: khung khối thấp hơn để khối không bị phóng quá to và cắt.
   const narrowScreen = useMediaQuery("(max-width: 639px)");
 
   const commitCube = (prev: string, next: string, token?: string) => {
@@ -148,9 +138,6 @@ export default function PlayPage() {
     if (mode === "race") {
       const cur = statusRef.current;
       if (cur === "armed") {
-        // No inspection phase at all: the clock starts on the first move of
-        // any kind, including whole-cube rotations. (Inspection mode keeps
-        // rotations free for looking around, like csTimer.)
         const now = performance.now();
         inspectionMsRef.current = 0;
         penaltyRef.current = "none";
@@ -164,8 +151,6 @@ export default function PlayPage() {
       }
       if (cur === "inspection") {
         if (!rotation) {
-          // csTimer: rotations stay free during inspection (looking around);
-          // the clock starts at the first face move.
           const now = performance.now();
           const ins = now - inspectionStartRef.current;
           inspectionMsRef.current = ins;
@@ -223,7 +208,6 @@ export default function PlayPage() {
     resetCube(false);
   };
 
-  // Clock for inspection countdown and the running solve timer.
   useEffect(() => {
     statusRef.current = status;
     if (status !== "inspection" && status !== "solving") return undefined;
@@ -242,7 +226,6 @@ export default function PlayPage() {
     return () => window.cancelAnimationFrame(raf);
   }, [status]);
 
-  // Keyboard control — the whole point of the page.
   const handlerRef = useRef<(event: KeyboardEvent) => void>(() => undefined);
   handlerRef.current = event => {
     if (clearOpen) return;
@@ -259,8 +242,6 @@ export default function PlayPage() {
     if (!key) return;
     const action = playActionForKey(key, selectionRef.current);
     if (!action) return;
-    // A focused control handles Space itself (button, tab, switch…) — let
-    // it activate instead of starting a scramble behind the user's back.
     if (
       key === " " &&
       target?.closest(
@@ -271,7 +252,7 @@ export default function PlayPage() {
     }
     switch (action.kind) {
       case "camera":
-        return; // handled by CubeGuide3D's own arrow-key orbit
+        return;
       case "space":
         event.preventDefault();
         if (!event.repeat) onSpace();
@@ -326,7 +307,6 @@ export default function PlayPage() {
       />
 
       <div className="grid grid-cols-12 gap-6">
-        {/* ===== Khối: lớn, ở giữa; điều khiển gọn quanh khối ===== */}
         <section className="col-span-12 xl:col-span-8">
           <div className="rounded-card bg-surface p-4 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -379,8 +359,6 @@ export default function PlayPage() {
               <p className="mb-0 mt-2 text-center text-xs text-muted">{t("play.freeHint")}</p>
             )}
 
-            {/* Bàn nút xoay: luôn hiện trên màn hình nhỏ/cảm ứng; trên máy tính
-                bật bằng nút bên dưới. */}
             <div className={cn("mt-4", padOpen ? "" : "lg:hidden")}>
               <PlayMovePad
                 onMove={dispatchMove}
@@ -389,7 +367,6 @@ export default function PlayPage() {
             </div>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-              {/* Chỉ trên màn hình lớn; màn hình nhỏ luôn hiện bàn nút. */}
               <div className="hidden lg:block">
                 <button
                   type="button"
@@ -419,7 +396,6 @@ export default function PlayPage() {
           </div>
         </section>
 
-        {/* ===== Lịch sử riêng + bộ phím ===== */}
         <aside className="col-span-12 flex flex-col gap-6 xl:col-span-4">
           <PlayHistoryPanel
             entries={entries}

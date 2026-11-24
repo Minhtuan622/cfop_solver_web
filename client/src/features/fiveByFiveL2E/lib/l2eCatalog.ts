@@ -1,11 +1,3 @@
-/**
- * 5×5 L2E catalog for the /study 5×5 L2E lane.
- *
- * Mirrors the 4×4 parity catalog: rows carry a sentinel `state`
- * (`"l2e:<id>"`) that the catalog preview resolves to the generated
- * `diagrams/fiveByFiveL2E/<id>.svg` last-layer cross. The practice card still
- * renders the 3D twisty-player state of the inverted algorithm.
- */
 import {
   FIVE_BY_FIVE_L2E_CASES,
   FIVE_BY_FIVE_L2E_COUNTS,
@@ -18,11 +10,8 @@ export type { FiveByFiveL2EFamily } from "./l2eData";
 export type FiveByFiveL2ECatalogCase = FiveByFiveL2ECaseRow & { state: string };
 
 export type ListFiveByFiveL2ECasesFilter = {
-  /** "all" (default) or "l2e". */
   family?: "all" | FiveByFiveL2EFamily;
-  /** Substring match (case-insensitive) against id, name, group and algorithm. */
   query?: string;
-  /** Maximum rows; clamped to [1, 1000]. */
   limit?: number;
 };
 

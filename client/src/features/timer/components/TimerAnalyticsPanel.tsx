@@ -1,4 +1,3 @@
-/** Mục gập "Phân tích" của trang Bấm giờ: tiến bộ theo loại khối, so sánh WCA, số liệu, biểu đồ và hiệu suất lời giải gần nhất. */
 import { ChevronDown } from "@/components/ui/Icon";
 import {
   Line,
@@ -97,7 +96,6 @@ export function TimerAnalyticsPanel({
           className="col-span-12"
           aria-labelledby="timer-analytics-heading"
         >
-          {/* Tiêu đề đã nằm ở <summary>; giữ cho trình đọc màn hình. */}
           <h2 id="timer-analytics-heading" className="sr-only">
             {t("timer.analyticsTitle")}
           </h2>
@@ -118,8 +116,6 @@ export function TimerAnalyticsPanel({
                       [t("timer.total"), String(totalCount)],
                     ] as const
                   ).map(([label, value]) => (
-                    // Hai ô mỗi hàng: ô hẹp (1/3 card) không đủ chỗ cho
-                    // thời gian dài như "83:20.00", chữ sẽ tràn ra ngoài.
                     <div key={label} className="col-span-6">
                       <StatTile label={label} value={value} />
                     </div>

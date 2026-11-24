@@ -1,8 +1,3 @@
-/**
- * Hình 2D của một case Roux: nhìn từ trên xuống lớp cuối. Trạng thái dựng bằng
- * cách áp ĐẢO công thức lên khối đã giải (cubing.js, nạp lười); trong lúc chờ
- * hiện biểu tượng chung.
- */
 import { useEffect, useState } from "react";
 import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
 import { kpatternToFacelets } from "@/features/timer/lib/kpatternFacelets";
@@ -10,7 +5,6 @@ import { topViewCells } from "../lib/topView";
 
 const cache = new Map<string, Promise<string>>();
 
-/** Chuỗi 54 ký tự của case: khối đã giải sau khi áp đảo của công thức. */
 function caseFacelets(algorithm: string) {
   let found = cache.get(algorithm);
   if (!found) {
@@ -55,7 +49,6 @@ export function RouxTopView({
   if (!facelets) return <>{fallback}</>;
   const cell = 20;
   const thin = 7;
-  // Ô mặt bên mỏng (thin) nằm ngoài, ô mặt U vuông (cell): đổi toạ độ lưới sang pixel.
   const offset = (index: number) => (index === 0 ? 0 : thin + (index - 1) * cell);
   const size = thin * 2 + cell * 3;
   return (

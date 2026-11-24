@@ -4,7 +4,6 @@ import { SettingRow } from "./SettingRow";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SectionCard } from "@/components/ui/StudioUI";
 
-/** The look of the app: the language it is written in and the palette it uses. */
 export function AppearanceSettingsGroup() {
   const { t } = useLanguage();
 

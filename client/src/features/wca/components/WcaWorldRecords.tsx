@@ -25,11 +25,6 @@ export type WcaWorldRecordsProps = {
   error: unknown;
 };
 
-/**
- * The current world records, collapsed by default so they stay out of the way
- * of the calendar. The header still announces the 3×3 record, so a visitor
- * knows what is behind the toggle without opening it.
- */
 export function WcaWorldRecords({
   records,
   isLoading,

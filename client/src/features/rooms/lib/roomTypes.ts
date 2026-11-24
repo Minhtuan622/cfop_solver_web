@@ -1,7 +1,6 @@
 import type { TimerCompletion } from "@/components/common/SolveTimer";
 import type { CompetitionPenalty } from "@/features/competition";
 
-/** A finished solve that is waiting for the room to accept it. */
 export type PendingSolve = Pick<
   TimerCompletion,
   "elapsedMs" | "inspectionMs" | "automaticPenalty"
@@ -9,7 +8,6 @@ export type PendingSolve = Pick<
 
 export type RoomRole = "player" | "spectator" | "moderator";
 
-/** The part of a room member the presentation layer needs. */
 export type RoomMember = {
   accountId: number;
   displayName: string;
@@ -18,7 +16,6 @@ export type RoomMember = {
 
 export type RemovalTarget = Pick<RoomMember, "accountId" | "displayName">;
 
-/** A room the signed-in account still belongs to. */
 export type RoomSummary = {
   id: number;
   code: string;
@@ -26,14 +23,12 @@ export type RoomSummary = {
   eventId: string;
 };
 
-/** A scored result, shaped the way the competition feature labels it. */
 export type RoomResult = {
   elapsedMs: number;
   penalty: CompetitionPenalty;
   multiBlindScore?: number | null;
 };
 
-/** Cờ kiểm tra tính toàn vẹn của một kết quả; chỉ chủ phòng/moderator nhận được. */
 export type RoomIntegrityFlagId = "impossible_time" | "too_fast" | "repeated_time";
 
 export type RoomIntegrityEntry = {
@@ -65,7 +60,6 @@ export type RoomModerationEntry = {
   createdAt: string | Date;
 };
 
-/** The round a room is currently running. */
 export type RoomActiveRound = {
   id: number;
   sequence: number;

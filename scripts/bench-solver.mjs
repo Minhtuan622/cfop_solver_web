@@ -1,26 +1,3 @@
-/**
- * Bộ đo bộ giải CFOP — chạy chính bản WebAssembly mà trình duyệt dùng
- * (`packages/solver`, build bằng `pnpm build:solver`), trong Node, không cần
- * trình duyệt.
- *
- * Bộ đo giải bộ đề cố định (`scripts/bench-scrambles.json`) và in ra bảng:
- * đề, đúng/sai, số nước, thời gian. Lần giải đầu tiên gồm cả thời gian dựng
- * bảng tra (một lần mỗi worker), giống lần bấm giải đầu tiên trong trình
- * duyệt.
- *
- * Có **hai kịch bản**, mỗi kịch bản một bộ ngưỡng riêng:
- * - `cross` — `opening: "cross"`, tức kịch bản mặc định của app;
- * - `auto`  — `opening: "auto"`, bộ giải thử bậc cross cao nhất trước.
- *
- *   node scripts/bench-solver.mjs
- *   node scripts/bench-solver.mjs --json      # xuất JSON để so sánh tự động
- *   node scripts/bench-solver.mjs --check     # chế độ kiểm tra ngưỡng thời gian
- *
- * Chế độ `--check` thoát với mã khác 0 khi: có đề giải sai, có đề chậm hơn
- * ngưỡng của kịch bản đó (đề vượt ngưỡng được chạy lại một lần để loại
- * nhiễu), hoặc tổng thời gian vượt ngưỡng tổng. Ngưỡng mặc định xem ở
- * `scripts/bench-check.mjs`.
- */
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { evaluateRun, resolveLimits } from "./bench-check.mjs";
@@ -33,7 +10,6 @@ const scrambles = JSON.parse(
 
 const SOLVED = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
 
-/** Metadata của runtime đo được. */
 function runtimeMetadata() {
   return {
     engine: "wasm",
@@ -44,50 +20,36 @@ function runtimeMetadata() {
   };
 }
 
-/** Tham số giải giống hệt đường gọi của worker trong trình duyệt. */
 const SOLVE_OPTIONS = {
   lastLayer: "auto",
   crossColor: "U",
   opening: "cross",
   openingDepth: 8,
   directNodeBudget: 5000,
-  // Cùng ngân sách với đường gọi của worker trong trình duyệt.
   timeBudgetSec: 40,
   nodeBudget: 400000,
 };
 
-/**
- * Kịch bản được đo.
- *
- * - `cross`: kịch bản mặc định của app (`opening: "cross"`).
- * - `auto`: `opening: "auto"` — bộ giải thử bậc cross cao nhất trước nên
- *   đắt hơn. Đây là lựa chọn có sẵn trong phần cài đặt của app, nên phải có
- *   ngân sách thời gian riêng.
- */
 const SCENARIOS = [
   { name: "cross", opening: "cross" },
   { name: "auto", opening: "auto" },
 ];
 
-/** Nạp module WebAssembly của bộ giải. */
 async function createRuntime() {
   const wasm = await import(path.join(pkgDir, "solver_wasm.js"));
   wasm.initSync({ module: readFileSync(path.join(pkgDir, "solver_wasm_bg.wasm")) });
   return wasm;
 }
 
-/** Giải một đề và trả về { moves, seconds, solved }. */
 async function solveScramble(wasm, scramble, options) {
   const started = performance.now();
   const result = wasm.solve(wasm.scrambleToStickers(scramble), options);
   const seconds = (performance.now() - started) / 1000;
   const moves = result.phases.flatMap(phase => phase.moves);
-  // Kiểm tra lại: scramble rồi lời giải phải về trạng thái đã giải.
   const check = wasm.scrambleToStickers(`${scramble} ${moves.join(" ")}`);
   return { moves, seconds, solved: check === SOLVED };
 }
 
-/** In một dòng kết quả của bảng bộ đo. */
 function printRow(row) {
   const status = row.solved ? "OK  " : "SAI ";
   console.log(
@@ -95,7 +57,6 @@ function printRow(row) {
   );
 }
 
-/** In bảng kết luận của chế độ kiểm tra. */
 function printReport(report, scenarioName) {
   const { totals, limits } = report;
   const slowest = totals.slowest;
@@ -139,9 +100,6 @@ function printReport(report, scenarioName) {
   }
 }
 
-/**
- * Chạy một kịch bản: giải các đề, chạy lại đề quá ngưỡng rồi chấm điểm.
- */
 async function runScenario(runtime, scenario, limits, groups, check) {
   const options = { ...SOLVE_OPTIONS, opening: scenario.opening };
   const results = [];
@@ -166,8 +124,6 @@ async function runScenario(runtime, scenario, limits, groups, check) {
     return { name: scenario.name, report: null, results, retries: [] };
   }
 
-  // Chế độ kiểm tra: đề vượt ngưỡng thời gian được chạy lại đúng một lần để
-  // loại nhiễu đo. Đề giải sai không bao giờ được chạy lại.
   const retries = [];
   const slowResults = results.filter(
     row => row.solved && row.seconds > limits.perScrambleLimitSec
@@ -188,9 +144,7 @@ async function runScenario(runtime, scenario, limits, groups, check) {
 
 async function main() {
   const args = process.argv.slice(2);
-  // `--smoke`: chỉ giải một đề nhanh để kiểm thử nhanh (không đo hiệu năng).
   const smoke = args.includes("--smoke");
-  // `--check`: chế độ kiểm tra ngưỡng thời gian (dùng trong CI).
   const check = args.includes("--check");
   const jsonFileIndex = args.indexOf("--json-file");
   const jsonFile =
@@ -207,8 +161,6 @@ async function main() {
   const groups = smoke
     ? { random: [scrambles.random[0]] }
     : { specified: scrambles.specified, random: scrambles.random };
-  // `--smoke` vẫn chạy **cả hai** kịch bản nhưng mỗi kịch bản chỉ một đề,
-  // để bài kiểm tra tích hợp thấy được cả hai đường đi mà vẫn nhanh.
   const scenarios = SCENARIOS;
 
   const runs = [];
@@ -223,23 +175,16 @@ async function main() {
     if (args.includes("--json")) {
       console.log(JSON.stringify(runs[0].results, null, 2));
     }
-    // `--smoke` dùng cho kiểm thử: phải giải đúng thì mới exit 0.
     const solved = runs[0].results.filter(row => row.solved).length;
     if (smoke && solved !== runs[0].results.length) process.exitCode = 1;
     return;
   }
 
-  // Bất kỳ kịch bản nào vi phạm thì cả lần chạy đều fail.
   const failures = runs.flatMap(run =>
     run.report.failures.map(failure => ({ scenario: run.name, ...failure }))
   );
   const exitCode = failures.length === 0 ? 0 : 1;
 
-  // Artifact giữ nguyên các trường cấp cao nhất của kịch bản `cross` (như
-  // trước) để số liệu cũ vẫn đọc được, rồi thêm `scenarios` cho đủ hai.
-  // `ok`/`exitCode` ở cấp cao nhất là **kết quả tổng hợp**: bất kỳ kịch bản
-  // nào vi phạm thì nó là false/1 — các trường đó phải đặt **sau** spread của
-  // kịch bản cross để không bị ghi đè.
   const [cross, ...others] = runs;
   const artifact = {
     ...runtimeInfo,

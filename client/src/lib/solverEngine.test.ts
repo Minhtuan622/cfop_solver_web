@@ -7,7 +7,6 @@ import {
   type SolveRequest,
 } from "@/lib/solverEngine";
 
-/** Worker giả: ghi lại message, cho test tự trả lời. */
 class FakeWorker {
   messages: any[] = [];
   terminated = false;
@@ -92,8 +91,6 @@ describe("WasmSolverEngine", () => {
     const promise = e.solve(REQUEST);
     e.cancel();
     await expect(promise).rejects.toBeInstanceOf(SolverCancelledError);
-    // Không có SharedArrayBuffer cách ly (jsdom): huỷ bằng terminate, lần
-    // giải sau tạo worker mới.
     expect(workers[0].terminated).toBe(true);
     void e.solve(REQUEST);
     expect(workers).toHaveLength(2);

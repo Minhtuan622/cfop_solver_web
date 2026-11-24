@@ -1,8 +1,3 @@
-/**
- * Điều khiển xoay/zoom bằng chuột và cảm ứng cho preview 3D: kéo để xoay (có
- * quán tính), chụm hai ngón để zoom mượt, và đặt lại góc nhìn. Các ref được
- * trả ra để vòng dựng cảnh của canvas ghi vào (quỹ đạo, hàm vẽ lại, hàm đặt lại).
- */
 import { useRef, type PointerEvent } from "react";
 import type { PuzzleId } from "./puzzleIds";
 import {
@@ -178,7 +173,6 @@ export function usePuzzleOrbitControls(puzzle: PuzzleId) {
     if (!remaining && wasDragged) startInertia();
   };
 
-  /** Đặt lại góc nhìn về mặc định (dừng quán tính, bỏ zoom của người dùng). */
   const resetView = () => {
     cancelInertia();
     userZoomedRef.current = false;

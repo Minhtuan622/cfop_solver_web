@@ -22,19 +22,10 @@ import { clientAddress } from "../infrastructure/rateLimit";
 import { proxyTrustEnabled } from "../_core/proxy";
 import { wcaCalendarInput, wcaIdInput } from "./inputs";
 
-/**
- * Đổi lỗi của tầng WCA thành lỗi tRPC.
- *
- * Lỗi `TRPCError` do chính route hoặc service ném ra (ví dụ khoảng ngày vượt
- * quá 366 ngày) phải được giữ nguyên; nếu không, người dùng chỉ thấy lỗi
- * chung chung "Không thể xử lý dữ liệu WCA." thay vì biết mình sai ở đâu.
- */
 export function wcaError(error: unknown): never {
   if (error instanceof TRPCError) throw error;
   if (error instanceof WcaApiError)
     throw new TRPCError({
-      // Hết hạn mức là lỗi phía người gọi (429), khác với WCA không phản
-      // hồi dịch vụ (503).
       code:
         error.kind === "NOT_FOUND"
           ? "NOT_FOUND"
@@ -55,7 +46,6 @@ export function wcaError(error: unknown): never {
   });
 }
 
-/** Khóa hạn mức của người gọi: địa chỉ client đã được chuẩn hoá. */
 function callerKey(req: {
   headers: Record<string, string | string[] | undefined>;
   socket?: { remoteAddress?: string };
@@ -88,7 +78,6 @@ export const accountWcaRouter = router({
         try {
           await updateCfopAccountWcaId(ctx.cfopAccount.id, profile.wcaId);
         } catch (error) {
-          // Cột wcaId unique: nếu mã đã được liên kết với tài khoản khác → CONFLICT.
           if (error instanceof Error && /duplicate/i.test(error.message)) {
             throw new TRPCError({
               code: "CONFLICT",

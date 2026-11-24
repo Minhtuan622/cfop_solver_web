@@ -1,9 +1,3 @@
-/**
- * 3-Style BLD catalog drawer: the shared CatalogExplorer wired to the full
- * BLDDB (edge, corner, special) and the flat ink net preview — same learning
- * tools as the other study lanes: group progress, unmastered filter, random
- * practice, bulk mark-as-learned, preview dialog.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 import { CatalogExplorer } from "@/features/last-layer/components/CatalogExplorer";

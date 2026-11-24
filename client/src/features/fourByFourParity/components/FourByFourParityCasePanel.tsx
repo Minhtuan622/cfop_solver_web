@@ -1,8 +1,3 @@
-/**
- * 4×4 Parity practice card: the case preview (3D — the parity algorithms are
- * long but the puzzle is a normal 4×4×4 for the player), the recall drill and
- * the Again/Hard/Good/Easy self-grade. Mirrors the other lanes.
- */
 import { fourByFourParityScrambleOf } from "../lib/fourByFourParityAlg";
 import {
   CasePracticeEmpty,

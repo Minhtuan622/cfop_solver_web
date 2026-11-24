@@ -16,7 +16,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { SolvePenalty } from "@/lib/solveHistory";
 import type { SolveEditor } from "../lib/useSolveEditor";
 
-/** Hộp thoại sửa một lượt giải; state nằm trong `useSolveEditor`. */
 export function SolveEditDialog({ editor }: { editor: SolveEditor }) {
   const { t } = useLanguage();
   const { editing } = editor;

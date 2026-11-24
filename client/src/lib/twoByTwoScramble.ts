@@ -1,13 +1,3 @@
-/**
- * Scramble 2×2×2 random-state theo kiểu TNoodle (WCA): chọn ngẫu nhiên đều
- * một trạng thái, giải tối ưu bằng các lượt R, U, F rồi đảo ngược lời giải.
- * Trạng thái giải được dưới 4 lượt bị loại (như TNoodle).
- *
- * Mô hình 8 góc theo Kociemba: 0 URF, 1 UFL, 2 ULB, 3 UBR, 4 DFR, 5 DLF,
- * 6 DBL, 7 DRB. R/U/F không đụng góc DBL nên chỉ còn 7! hoán vị × 3^6 hướng
- * = 3 674 160 trạng thái; bảng khoảng cách BFS dựng một lần (~vài trăm ms).
- */
-
 type CubeMove = { cp: number[]; co: number[] };
 const QUARTER: Record<"U" | "R" | "F", CubeMove> = {
   U: { cp: [3, 0, 1, 2, 4, 5, 6, 7], co: [0, 0, 0, 0, 0, 0, 0, 0] },
@@ -16,10 +6,8 @@ const QUARTER: Record<"U" | "R" | "F", CubeMove> = {
 };
 const FACES = ["U", "R", "F"] as const;
 const SUFFIXES = ["", "2", "'"] as const;
-/** Lượt thứ `m` (0..8): mặt FACES[m / 3], số lần quay m % 3 + 1. */
 const MOVE_NAMES = FACES.flatMap(face => SUFFIXES.map(suffix => face + suffix));
 
-/** Áp lượt `b` lên trạng thái `a` (quy ước Kociemba). */
 function multiply(a: CubeMove, b: CubeMove): CubeMove {
   return {
     cp: b.cp.map(index => a.cp[index]),
@@ -27,7 +15,6 @@ function multiply(a: CubeMove, b: CubeMove): CubeMove {
   };
 }
 
-/** 7 góc trừ DBL (vị trí 6). */
 const FREE = [0, 1, 2, 3, 4, 5, 7];
 const FACT = [1, 1, 2, 6, 24, 120, 720, 5040];
 const N_PERM = 5040;
@@ -53,7 +40,6 @@ function decodePerm(rank: number): number[] {
   }
   return cp;
 }
-/** Hướng của 6 góc đầu (vị trí 0..5); góc 7 suy ra từ tổng chia hết cho 3. */
 function encodeOri(co: number[]): number {
   let value = 0;
   for (let i = 0; i < 6; i += 1) value = value * 3 + co[i];
@@ -74,7 +60,6 @@ function decodeOri(value: number): number[] {
 type Tables = { perm: Uint16Array; ori: Uint16Array; dist: Uint8Array };
 let tables: Tables | null = null;
 
-/** Bảng lượt (hoán vị/hướng tách riêng) và bảng khoảng cách BFS. */
 export function twoByTwoTables(): Tables {
   if (tables) return tables;
   const moves = FACES.flatMap(face => {
@@ -116,7 +101,6 @@ export function twoByTwoTables(): Tables {
   return tables;
 }
 
-/** Lời giải tối ưu (HTM, chỉ R/U/F) cho trạng thái mã `index`. */
 function optimalSolution(index: number, t: Tables): number[] {
   const path: number[] = [];
   let p = Math.floor(index / N_ORI);
@@ -144,7 +128,6 @@ function optimalSolution(index: number, t: Tables): number[] {
 
 const inverseName = (m: number) => MOVE_NAMES[Math.floor(m / 3) * 3 + (2 - (m % 3))];
 
-/** Số lượt tối thiểu cần để giải trạng thái mà `scramble` tạo ra từ khối đã giải. */
 export function twoByTwoDistance(scramble: string): number {
   const t = twoByTwoTables();
   let p = 0;
@@ -158,13 +141,11 @@ export function twoByTwoDistance(scramble: string): number {
   return t.dist[p * N_ORI + o];
 }
 
-/** Scramble 2×2 random-state, tối thiểu 4 lượt, chỉ dùng R, U, F. */
 export function randomTwoByTwoScramble(random: () => number = Math.random): string {
   const t = twoByTwoTables();
   for (;;) {
     const index = Math.floor(random() * N_PERM) * N_ORI + Math.floor(random() * N_ORI);
     if (t.dist[index] < 4) continue;
-    // Lời giải đưa trạng thái về khối giải; scramble là chuỗi đảo ngược.
     return optimalSolution(index, t).reverse().map(inverseName).join(" ");
   }
 }

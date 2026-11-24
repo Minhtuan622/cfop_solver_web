@@ -14,13 +14,6 @@ import { cfopAccountSessions, cfopAccounts } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { hashPassword, hashSessionToken } from "../services/cfopAccountAuth";
 
-/**
- * B1: nhiều phiên đăng nhập cùng tài khoản.
- *
- * Trước sửa: `createCfopAccountSession` xoá tất cả session cũ, nên đăng nhập
- * thiết bị B làm thiết bị A mất phiên. Sau sửa: giữ nhiều phiên, tối đa
- * MAX_SESSIONS_PER_ACCOUNT, đổi mật khẩu thu hồi session khác (giữ hiện tại).
- */
 describe.skipIf(!process.env.DATABASE_URL)("multiple sessions per CFOP account", () => {
   let accountId: number;
   const expiresIn30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -64,11 +57,9 @@ describe.skipIf(!process.env.DATABASE_URL)("multiple sessions per CFOP account",
       await createCfopAccountSession(accountId, h, expiresIn30Days);
     }
 
-    // Hai phiên đầu tiên đã bị xoá vì quá cũ (vượt mức cho phép).
     expect(await findCfopAccountBySessionHash(hashes[0]!)).toBeNull();
     expect(await findCfopAccountBySessionHash(hashes[1]!)).toBeNull();
 
-    // Các phiên sau vẫn còn.
     for (let i = 2; i < hashes.length; i += 1) {
       expect(await findCfopAccountBySessionHash(hashes[i]!)).not.toBeNull();
     }
@@ -107,7 +98,6 @@ describe.skipIf(!process.env.DATABASE_URL)("multiple sessions per CFOP account",
     );
     expect(account?.id).toBe(accountId);
 
-    // Cả hai phiên cũ đều bị thu hồi.
     expect(await findCfopAccountBySessionHash(hashA)).toBeNull();
     expect(await findCfopAccountBySessionHash(hashB)).toBeNull();
   });

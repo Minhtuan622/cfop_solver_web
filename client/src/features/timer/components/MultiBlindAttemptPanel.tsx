@@ -1,4 +1,3 @@
-/** Chọn số khối Multi-Blind (2–99), xem giới hạn thời gian và sinh bộ scramble. */
 import { formatMultiBlindTime, multiBlindTimeLimitMs } from "@/lib/multiBlind";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
@@ -10,7 +9,6 @@ export function MultiBlindAttemptPanel({
   onGenerate,
 }: {
   attempted: number;
-  /** Nhận số khối mới (đã kẹp trong 2–99). */
   onAttemptedChange: (attempted: number) => void;
   loading: boolean;
   onGenerate: () => void;

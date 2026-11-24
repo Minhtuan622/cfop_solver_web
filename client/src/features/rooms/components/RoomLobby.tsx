@@ -45,7 +45,6 @@ type Props = {
   error: string;
 };
 
-/** Landing view of the rooms section: create a room, join by code, or reopen one of yours. */
 export function RoomLobby({
   name,
   onNameChange,

@@ -13,7 +13,6 @@ import {
   type CompetitionEvent,
 } from "./competitionEventBus";
 
-/** Nhịp tim: giữ kết nối qua proxy và cập nhật hiện diện của thành viên. */
 export const COMPETITION_HEARTBEAT_MS = 15_000;
 
 function firstQueryValue(value: unknown) {
@@ -24,13 +23,6 @@ function writeEvent(res: Response, name: string, data: unknown) {
   res.write(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
-/**
- * `GET /api/competition/events?code=ABC123`: luồng Server-Sent Events báo
- * phòng thi vừa thay đổi. Cần đăng nhập và phải là thành viên chưa bị loại.
- *
- * Kết nối cũng thay cho polling để cập nhật hiện diện: mỗi nhịp tim server
- * ghi `lastSeen` của thành viên, nên client chỉ cần hỏi lại thưa.
- */
 export function registerCompetitionEventRoutes(app: Express) {
   app.get("/api/competition/events", async (req: Request, res: Response) => {
     const account = await getCfopAccountFromRequest(req).catch(() => null);
@@ -56,8 +48,6 @@ export function registerCompetitionEventRoutes(app: Express) {
 
     res.writeHead(200, {
       "Content-Type": "text/event-stream; charset=utf-8",
-      // `no-transform` để `compression()` không đệm luồng; `X-Accel-Buffering`
-      // để nginx (nếu có) không đệm.
       "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",
       "X-Accel-Buffering": "no",
@@ -79,7 +69,6 @@ export function registerCompetitionEventRoutes(app: Express) {
     const onEvent = (event: CompetitionEvent) => {
       if (closed) return;
       writeEvent(res, "change", event);
-      // Bị loại khỏi phòng thì đóng luồng: không nhận thêm thay đổi nào nữa.
       if (event.type === "member" || event.type === "room") {
         void findCompetitionMember(room.id, account.id)
           .then(current => {

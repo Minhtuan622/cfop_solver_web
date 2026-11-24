@@ -1,14 +1,3 @@
-/**
- * Build bộ giải Rust (packages/solver) ra WebAssembly cho trình duyệt.
- *
- *   node scripts/build-solver.mjs
- *
- * Kết quả nằm ở `packages/solver/solver-wasm/pkg` (không commit vào git):
- * `solver_wasm.js` (glue), `solver_wasm_bg.wasm` và `solver_wasm.d.ts`
- * (kiểu TypeScript sinh bởi tsify). Cần Rust, target
- * `wasm32-unknown-unknown` và `wasm-pack`; `wasm-opt` (Binaryen) được chạy
- * thêm nếu có trong PATH.
- */
 import { spawnSync } from "node:child_process";
 import { existsSync, statSync } from "node:fs";
 import path from "node:path";

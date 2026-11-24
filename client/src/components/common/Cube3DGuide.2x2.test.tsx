@@ -30,7 +30,6 @@ describe("Cube3DGuide 2×2", () => {
       faces.forEach((face: Element) =>
         expect(face.querySelectorAll(".cube3d-sticker-fallback")).toHaveLength(4)
       );
-      // Mô hình 3D được tải lười: cho thêm thời gian khi máy test đang bận.
     }, { timeout: 5000 });
   });
 });

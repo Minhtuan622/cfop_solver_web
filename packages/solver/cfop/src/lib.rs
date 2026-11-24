@@ -1,9 +1,3 @@
-//! CFOP solver on top of `cube-core`: Cross, F2L, OLL (57), PLL (21).
-//!
-//! Cross and F2L use IDA* over the 18 outer face turns with exact pruning
-//! tables built lazily on first use (see [`table_stats`]). OLL/PLL are
-//! one-look, recognized from the cube state, with AUF.
-
 #![forbid(unsafe_code)]
 
 mod error;
@@ -34,7 +28,6 @@ pub use stages::{
 };
 pub use tables::{table_stats, TableStats};
 
-/// Build every lookup table now instead of on the first solve.
 pub fn warm_up() {
     last_layer::warm_up();
 }

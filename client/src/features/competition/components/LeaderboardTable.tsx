@@ -28,10 +28,6 @@ function PlayerAvatar({ player, size }: { player: LeaderboardPlayer; size: numbe
   );
 }
 
-/**
- * Bảng xếp hạng: ba người dẫn đầu là ba ô lớn (phẳng, không huy chương),
- * những người còn lại là danh sách gọn mỗi người một dòng.
- */
 export function LeaderboardTable({ players }: { players: LeaderboardPlayer[] }) {
   const { t } = useLanguage();
   const podium = players.slice(0, 3);

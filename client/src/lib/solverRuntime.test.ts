@@ -7,10 +7,6 @@ import {
 } from "@/lib/solverRuntime";
 import { SOLVED_FAST_STATE } from "@/lib/fastCube";
 
-/* ------------------------------------------------------------------ */
-/* Mock the heavy Web Worker so the real solverRuntime logic runs, but  */
-/* the worker instance is controllable from the test.                    */
-/* ------------------------------------------------------------------ */
 type MockWorker = {
   postMessage: ReturnType<typeof vi.fn>;
   terminate: ReturnType<typeof vi.fn>;
@@ -36,8 +32,6 @@ function makeMockWorker(): MockWorker {
 const heavyWorker = makeMockWorker();
 let workerInstance: MockWorker | null = null;
 
-// Replace the global Worker with a mock that returns the controllable
-// instance based on the script URL.
 const MockWorkerClass = class {
   constructor(url: string | URL) {
     const u = String(url);
@@ -74,7 +68,6 @@ describe("solverRuntime: heavy worker", () => {
     await expect(solvePromise).rejects.toBeInstanceOf(SolverCancelledError);
     expect(heavyWorker.terminate).toHaveBeenCalledTimes(1);
 
-    // Validate runs in-page and does not go through any worker.
     await expect(validateStateInBrowser(SOLVED_FAST_STATE)).resolves.toEqual({
       valid: true,
       message: "Trạng thái hợp lệ · 54 sticker · 9 mỗi màu",

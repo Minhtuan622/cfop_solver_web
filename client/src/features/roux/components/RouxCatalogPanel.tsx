@@ -1,8 +1,3 @@
-/**
- * Roux catalog drawer: the shared CatalogExplorer wired to the CMLL/LSE data.
- * The icon preview is a top-down 2D view of the case (U face + top row of the
- * sides) drawn from the case state; the practice card shows the live 3D case.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   CatalogExplorer,
@@ -11,7 +6,6 @@ import {
 import type { RouxCatalogCase } from "../lib/rouxCatalog";
 import { RouxTopView } from "./RouxTopView";
 
-/** Flat Roux mark: the two 1×2×3 blocks with the M slice between them. */
 export function RouxMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 96 96" className={className} role="img" aria-hidden="true">

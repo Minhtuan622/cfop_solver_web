@@ -1,10 +1,3 @@
-//! OLL (57) and PLL (21) algorithm tables.
-//!
-//! The project's curated algorithm set (carried over unchanged from the
-//! earlier solver). Every row is checked by tests: the inverse of each
-//! algorithm must produce its case.
-
-/// (case number, group, algorithm)
 pub const OLL_ALGORITHMS: [(u8, &str, &str); 57] = [
     (1, "Dot", "R U2 R' R' F R F' U2 R' F R F'"),
     (2, "Dot", "r U r' U2 r U2 R' U2 R U' r'"),
@@ -65,7 +58,6 @@ pub const OLL_ALGORITHMS: [(u8, &str, &str); 57] = [
     (57, "Corners Oriented", "R U R' U' M' U R U' r'"),
 ];
 
-/// (case name, group, algorithm)
 pub const PLL_ALGORITHMS: [(&str, &str, &str); 21] = [
     ("H", "Edges Only", "M2 U M2 U2 M2 U M2"),
     ("Z", "Edges Only", "M' U M2 U M2 U M' U2 M2"),

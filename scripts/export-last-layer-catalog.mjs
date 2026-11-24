@@ -1,16 +1,3 @@
-/**
- * Generates `client/src/features/last-layer/lib/directCaseCatalogData.ts`
- * from the solver's one-look tables in
- * `packages/solver/cfop/src/one_look_data.rs`.
- *
- * Each row is (case_id, Singmaster algorithm, inverse fixture facelets). The
- * fixture is computed by the solver itself (WebAssembly build, see
- * `pnpm build:solver`): the inverse of the algorithm applied to a solved
- * cube. The generated module is checked in, so the app can browse the
- * 1LLL/ZBLL catalog in pure JavaScript. Re-run this after editing the tables:
- *
- *   pnpm build:solver && node scripts/export-last-layer-catalog.mjs
- */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -28,7 +15,6 @@ const pkg = join(root, "packages/solver/solver-wasm/pkg");
 const wasm = await import(join(pkg, "solver_wasm.js"));
 wasm.initSync({ module: readFileSync(join(pkg, "solver_wasm_bg.wasm")) });
 
-/** Inverse of a move sequence, in the solver's notation. */
 function invert(algorithm) {
   return algorithm
     .replace(/[(),]/g, " ")
@@ -44,7 +30,6 @@ function invert(algorithm) {
     .join(" ");
 }
 
-/** Extract the (id, algorithm) rows of a `static NAME: [...] = [...]` table. */
 function tableOf(name) {
   const start = source.indexOf(`static ${name}:`);
   if (start < 0) throw new Error(`Table ${name} not found in one_look_data.rs`);

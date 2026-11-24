@@ -2,44 +2,11 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-/**
- * Kiểm tra tự động tương phản màu cho giao diện phẳng.
- *
- * Giao diện đã bỏ mọi đường viền và đổ bóng (`server/flatUi.test.ts`), nên
- * màu là tín hiệu duy nhất còn lại để phân biệt chữ với nền, nút với nền và
- * trạng thái với nhau. Bài này tính tỉ lệ tương phản WCAG 2.x giữa các cặp
- * màu chính ở **cả hai** chế độ sáng và tối, đọc token trực tiếp từ
- * `client/src/index.css`.
- *
- * Ngưỡng theo WCAG 2.x:
- * - 4.5:1 cho chữ (WCAG 1.4.3 Contrast (Minimum));
- * - 3:1 cho vòng focus và biểu tượng trạng thái (WCAG 1.4.11
- *   Non-text Contrast).
- *
- * Bài này **không đổi màu**. Cặp đang không đạt nằm trong `KNOWN_FAILURES`
- * kèm lý do và số đo hiện tại; CI vẫn xanh. Ngược lại, nếu một cặp trong
- * `KNOWN_FAILURES` đã đạt mà chưa được gỡ khỏi danh sách thì bài này FAIL —
- * danh sách phải luôn trung thực với palette hiện tại.
- *
- * Báo cáo đầy đủ (bảng số đo): `docs/validation/contrast-report.md`.
- */
-
 const root = path.resolve(import.meta.dirname, "..");
 const css = readFileSync(path.join(root, "client", "src", "index.css"), "utf8");
 
-/* ------------------------------------------------------------------ *
- * 1. Đọc token màu từ CSS
- * ------------------------------------------------------------------ */
-
-/** Màu ở dạng sRGB với alpha 0..1. */
 type Rgb = { r: number; g: number; b: number; a: number };
 
-/**
- * Quy đổi một giá trị màu trong CSS sang sRGB.
- *
- * Hỗ trợ `#rgb`, `#rrggbb`, `rgb(r, g, b)` và `rgba(r, g, b, a)` — đó là
- * đúng những định dạng đang dùng trong `client/src/index.css`.
- */
 function parseColor(raw: string): Rgb {
   const text = raw.trim().toLowerCase();
   if (text.startsWith("#")) {
@@ -78,7 +45,6 @@ function parseColor(raw: string): Rgb {
   throw new Error(`Định dạng màu không hỗ trợ: "${raw}".`);
 }
 
-/** Phủ màu có alpha lên một nền đục (theo alpha compositing của trình duyệt). */
 function composite(foreground: Rgb, background: Rgb): Rgb {
   const alpha = foreground.a;
   return {
@@ -89,7 +55,6 @@ function composite(foreground: Rgb, background: Rgb): Rgb {
   };
 }
 
-/** Độ chói tương đối theo WCAG 2.x. */
 function relativeLuminance(color: Rgb): number {
   const channel = (value: number): number => {
     const srgb = value / 255;
@@ -104,7 +69,6 @@ function relativeLuminance(color: Rgb): number {
   );
 }
 
-/** Tỉ lệ tương phản WCAG 2.x giữa hai màu đục. */
 function contrastRatio(a: Rgb, b: Rgb): number {
   const first = relativeLuminance(a);
   const second = relativeLuminance(b);
@@ -113,12 +77,6 @@ function contrastRatio(a: Rgb, b: Rgb): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-/**
- * Lấy các biến `--token: giá trị;` của một khối selector trong CSS.
- *
- * Chỉ đọc file, không cần trình duyệt: token nằm ngay trong
- * `client/src/index.css`.
- */
 function extractTokens(
   source: string,
   selector: RegExp,
@@ -145,35 +103,23 @@ const LIGHT = extractTokens(
 );
 const DARK = extractTokens(css, /\[data-theme="dark"\]\s*\{/, "tối");
 
-/* ------------------------------------------------------------------ *
- * 2. Danh sách cặp màu
- * ------------------------------------------------------------------ */
-
-/** Tham chiếu một màu: token trong `index.css` hoặc một màu viết tay. */
 type ColorRef = { token: string; alpha?: number } | { literal: string };
 
 type Mode = "light" | "dark";
 
 type Pair = {
-  /** Định danh duy nhất, dùng trong KNOWN_FAILURES. */
   id: string;
-  /** Mô tả tiếng Việt để báo cáo lỗi cho người đọc. */
   label: string;
   fg: ColorRef;
   bg: ColorRef;
-  /** Ngưỡng tối thiểu theo WCAG 2.x. */
   min: number;
-  /** Nơi cặp màu này xuất hiện trong mã nguồn. */
   source: string;
 };
 
-/** Ngưỡng cho chữ (WCAG 1.4.3). */
 const TEXT_MIN = 4.5;
-/** Ngưỡng cho vòng focus và biểu tượng trạng thái (WCAG 1.4.11). */
 const NON_TEXT_MIN = 3;
 
 const PAIRS: Pair[] = [
-  /* Chữ chính và chữ phụ trên các nền. */
   {
     id: "ink/canvas",
     label: "chữ chính trên nền trang",
@@ -223,7 +169,6 @@ const PAIRS: Pair[] = [
     source: "DesignSystem.tsx PillGroup (text-muted trên bg-surface-2)",
   },
 
-  /* Nhãn chữ trên nút — mọi biến thể trong Button.tsx. */
   {
     id: "button/primary",
     label: "nút chính — chữ trên nền tím",
@@ -361,7 +306,6 @@ const PAIRS: Pair[] = [
     source: "Button.tsx variant link trên nền trang",
   },
 
-  /* Menu thả xuống (Dropdown, Select): nền --menu, mục đang rê --menu-hover. */
   {
     id: "menu/item",
     label: "mục menu — chữ chính trên nền menu",
@@ -387,7 +331,6 @@ const PAIRS: Pair[] = [
     source: "Select.tsx ItemIndicator (text-primary)",
   },
 
-  /* Nhãn trên nền tô màu. */
   {
     id: "chip/primary",
     label: "nhãn tím trên nền primary-soft",
@@ -405,7 +348,6 @@ const PAIRS: Pair[] = [
     source: "token --accent / --accent-soft (chưa dùng cho chữ nào trong UI)",
   },
 
-  /* Ô nhập. */
   {
     id: "input/text",
     label: "chữ trong ô nhập trên nền surface-3",
@@ -439,7 +381,6 @@ const PAIRS: Pair[] = [
     source: "DesignSystem.tsx PillInput (placeholder:text-placeholder)",
   },
 
-  /* Vòng focus: `:focus-visible { outline: 2px solid var(--primary) }`. */
   {
     id: "focus/canvas",
     label: "vòng focus trên nền trang",
@@ -473,7 +414,6 @@ const PAIRS: Pair[] = [
     source: "client/src/index.css — :focus-visible dùng var(--primary)",
   },
 
-  /* Biểu tượng trạng thái trên nền tô màu. */
   {
     id: "icon/success",
     label: "biểu tượng xanh trên nền success-soft",
@@ -492,32 +432,13 @@ const PAIRS: Pair[] = [
   },
 ];
 
-/**
- * Cặp đang KHÔNG đạt ngưỡng.
- *
- * Danh sách này **rỗng**: bảng màu đã được căn lại để mọi cặp đạt WCAG AA.
- * Bài kiểm tra giờ chỉ cần bảo đảm các cặp ở trên không bao giờ tụt dưới
- * ngưỡng — nếu một bản sửa đổi màu làm hỏng một cặp, bài này FAIL.
- *
- * Vì sao vẫn giữ cơ chế này: khi ai đó đổi palette, mọi cặp đã đạt phải được
- * kiểm lại bằng số đo thật, và mọi cặp chưa đạt phải được ghi lại kèm lý do
- * thay vì im lặng bỏ qua.
- */
 const KNOWN_FAILURES: Array<{
   id: string;
   mode: Mode;
   reason: string;
-  /** Số đo hiện tại, làm tròn 2 chữ số — cập nhật khi palette đổi. */
   ratio: number;
 }> = [];
 
-/**
- * Cặp chỉ để **in ra**, không làm test fail.
- *
- * Giao diện đã bỏ đường viền nên ranh giới giữa các khối chỉ còn nhờ nền;
- * tỉ lệ rất thấp ở đây là hệ quả của thiết kế phẳng, không phải lỗi.
- * Chủ sản phẩm cần số liệu này để quyết định.
- */
 const ADVISORY: Pair[] = [
   {
     id: "surface/input-vs-card",
@@ -569,10 +490,6 @@ const ADVISORY: Pair[] = [
   },
 ];
 
-/* ------------------------------------------------------------------ *
- * 3. Đo
- * ------------------------------------------------------------------ */
-
 function resolveColor(tokens: Record<string, string>, ref: ColorRef): Rgb {
   const base =
     "token" in ref
@@ -588,14 +505,6 @@ function resolveColor(tokens: Record<string, string>, ref: ColorRef): Rgb {
   return { ...base, a: ref.alpha };
 }
 
-/**
- * Đo chuẩn theo yêu cầu C5: **bỏ qua alpha**, coi `muted/60` như `muted`.
- *
- * Hệ quả đã biết: phép đo này không phát hiện được lỗi chữ gợi ý trong ô
- * nhập (xem test "phép đo chuẩn bỏ qua alpha…"). Lỗi đó đã được xử lý ở
- * nguồn: chữ gợi ý dùng token `--placeholder` đủ đậm, không phủ alpha nên
- * phép đo chuẩn bắt được và cả hai chế độ đều đạt.
- */
 function measure(mode: Mode, pair: Pair): number {
   const tokens = mode === "light" ? LIGHT : DARK;
   const background = resolveColor(tokens, pair.bg);
@@ -603,12 +512,6 @@ function measure(mode: Mode, pair: Pair): number {
   return contrastRatio(foreground, background);
 }
 
-/**
- * Đo **có** tính alpha (alpha compositing của trình duyệt).
- *
- * Chỉ dùng cho các mục `KNOWN_FAILURES` có alpha tường minh — chủ yếu là chữ
- * gợi ý `muted/60` — để không mất 4 lỗi thật khi phép đo chuẩn bỏ qua alpha.
- */
 function measureWithAlpha(mode: Mode, pair: Pair): number {
   const tokens = mode === "light" ? LIGHT : DARK;
   const background = resolveColor(tokens, pair.bg);
@@ -617,7 +520,6 @@ function measureWithAlpha(mode: Mode, pair: Pair): number {
   return contrastRatio(foreground, background);
 }
 
-/** Chọn phép đo cho một mục `KNOWN_FAILURES`: có alpha thì đo có alpha. */
 function measureKnown(mode: Mode, pair: Pair): number {
   return pair.fg.alpha === undefined
     ? measure(mode, pair)
@@ -633,14 +535,9 @@ function knownFailure(id: string, mode: Mode) {
   return KNOWN_FAILURES.find(item => item.id === id && item.mode === mode);
 }
 
-/** Số đo dùng để in bảng: mục KNOWN_FAILURES dùng đúng phép đo của trạng thái. */
 function measureForStatus(mode: Mode, pair: Pair): number {
   return knownFailure(pair.id, mode) ? measureKnown(mode, pair) : measure(mode, pair);
 }
-
-/* ------------------------------------------------------------------ *
- * 4. Test
- * ------------------------------------------------------------------ */
 
 describe("tương phản màu của giao diện phẳng", () => {
   it("đọc được token của cả hai chế độ", () => {
@@ -648,7 +545,6 @@ describe("tương phản màu của giao diện phẳng", () => {
     expect(LIGHT.canvas).toBeTruthy();
     expect(DARK.ink).toBeTruthy();
     expect(DARK.canvas).toBeTruthy();
-    // Không được trộn hai chế độ: giá trị phải khác nhau.
     expect(LIGHT.ink).not.toBe(DARK.ink);
   });
 
@@ -691,7 +587,6 @@ describe("tương phản màu của giao diện phẳng", () => {
       const pair = PAIRS.find(item => item.id === entry.id);
       if (!pair) continue;
       const ratio = measureKnown(entry.mode, pair);
-      // Sai số 0.05 để không vỡ khi palette chỉ nhích vài đơn vị màu.
       if (Math.abs(ratio - entry.ratio) > 0.05) {
         drift.push(
           `${entry.id} (${MODE_LABEL[entry.mode]}): ghi ${entry.ratio.toFixed(2)}:1 ` +
@@ -721,8 +616,6 @@ describe("tương phản màu của giao diện phẳng", () => {
     expect(pillPlaceholder).toBeTruthy();
     if (!placeholder || !pillPlaceholder) return;
 
-    // Chữ gợi ý đã dùng token `--placeholder` đủ đậm (không còn phủ alpha),
-    // nên phép đo chuẩn bắt được và cả hai chế độ đều đạt.
     for (const mode of ["light", "dark"] as Mode[]) {
       expect(measure(mode, placeholder)).toBeGreaterThanOrEqual(
         placeholder.min
@@ -734,8 +627,6 @@ describe("tương phản màu của giao diện phẳng", () => {
   });
 
   it("phép đo chuẩn bỏ qua alpha, phép đo có alpha thì không (C5)", () => {
-    // Cặp minh hoạ: một màu phủ 60% alpha trên nền surface-3 — kiểu màu mà
-    // trình duyệt thực sự dựng.
     const veiled: Pair = {
       id: "demo/veiled",
       label: "màu phủ alpha trên nền ô nhập",
@@ -745,10 +636,8 @@ describe("tương phản màu của giao diện phẳng", () => {
       source: "ví dụ minh hoạ cho phép đo alpha",
     };
 
-    // Phép đo chuẩn coi màu phủ alpha như màu đặc: báo "đạt".
     expect(measure("light", veiled)).toBeGreaterThanOrEqual(veiled.min);
 
-    // Phép đo có alpha mới thấy màu thật trên màn hình.
     expect(measureWithAlpha("light", veiled)).toBeLessThan(veiled.min);
   });
 
@@ -756,9 +645,6 @@ describe("tương phản màu của giao diện phẳng", () => {
     const lines: string[] = [];
     const mismatches: string[] = [];
     for (const pair of PAIRS) {
-      // Mục KNOWN_FAILURES phải in bằng phép đo khớp với trạng thái: nếu in
-      // phép đo chuẩn (bỏ qua alpha) thì một mục có alpha sẽ hiện số đo khác
-      // với số đo thật của nó — bảng tự mâu thuẫn.
       const light = measureForStatus("light", pair);
       const dark = measureForStatus("dark", pair);
       const mark = (ratio: number) => (ratio >= pair.min ? "dat" : "KHONG-DAT");

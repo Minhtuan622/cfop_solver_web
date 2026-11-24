@@ -5,14 +5,14 @@ import {
 } from "./recolorCubeStickerColors";
 
 const CHANNELS = [
-  [255, 255, 255], // white
-  [255, 255, 0], // yellow
-  [255, 128, 0], // orange
-  [255, 0, 0], // red
-  [0, 255, 0], // green
-  [34, 102, 255], // blue
-  [20, 20, 20], // near black
-  [221, 221, 221], // dim
+  [255, 255, 255],
+  [255, 255, 0],
+  [255, 128, 0],
+  [255, 0, 0],
+  [0, 255, 0],
+  [34, 102, 255],
+  [20, 20, 20],
+  [221, 221, 221],
 ] as const;
 
 function makeScene() {
@@ -48,11 +48,11 @@ describe("recolorCubeStickerColors", () => {
     expect(attribute.getX(3)).toBeCloseTo(1);
     expect(attribute.getY(3)).toBeCloseTo(128 / 255, 3);
     expect(attribute.getZ(3)).toBe(0);
-    expect(attribute.getX(4)).toBe(0); // green unchanged
-    expect(attribute.getY(4)).toBe(1); // green unchanged (g channel)
-    expect(attribute.getZ(5)).toBeCloseTo(1); // blue unchanged
-    expect(attribute.getX(6)).toBeLessThan(0.1); // near black unchanged
-    expect(attribute.getZ(7)).toBeCloseTo(221 / 255, 2); // dim unchanged
+    expect(attribute.getX(4)).toBe(0);
+    expect(attribute.getY(4)).toBe(1);
+    expect(attribute.getZ(5)).toBeCloseTo(1);
+    expect(attribute.getX(6)).toBeLessThan(0.1);
+    expect(attribute.getZ(7)).toBeCloseTo(221 / 255, 2);
     expect(attribute.needsUpdate).toBe(true);
   });
 
@@ -66,16 +66,15 @@ describe("recolorCubeStickerColors", () => {
   });
 
   it("lật cả bản backup trong cùng buffer (chống nhảy màu khi animation)", () => {
-    // PG3D keeps [live | backup] in one Uint8Array; flashes restore from backup.
     const live = new Uint8Array([
-      255, 255, 255, // white
-      255, 255, 0, // yellow
-      255, 128, 0, // orange
-      255, 0, 0, // red
+      255, 255, 255,
+      255, 255, 0,
+      255, 128, 0,
+      255, 0, 0,
     ]);
     const buffer = new Uint8Array(live.length * 2);
     buffer.set(live, 0);
-    buffer.set(live, live.length); // backup copy
+    buffer.set(live, live.length);
     const attribute = {
       normalized: false,
       count: 4,
@@ -97,9 +96,9 @@ describe("recolorCubeStickerColors", () => {
     const swapped = recolorCubeStickerColors(root);
     expect(swapped).toBe(4);
     const backup = buffer.subarray(live.length);
-    expect([...backup.subarray(0, 3)]).toEqual([255, 255, 0]); // white → yellow
-    expect([...backup.subarray(3, 6)]).toEqual([255, 255, 255]); // yellow → white
-    expect([...backup.subarray(6, 9)]).toEqual([255, 0, 0]); // orange → red
-    expect([...backup.subarray(9, 12)]).toEqual([255, 128, 0]); // red → orange
+    expect([...backup.subarray(0, 3)]).toEqual([255, 255, 0]);
+    expect([...backup.subarray(3, 6)]).toEqual([255, 255, 255]);
+    expect([...backup.subarray(6, 9)]).toEqual([255, 0, 0]);
+    expect([...backup.subarray(9, 12)]).toEqual([255, 128, 0]);
   });
 });

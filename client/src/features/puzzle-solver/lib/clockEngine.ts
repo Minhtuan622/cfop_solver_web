@@ -1,8 +1,3 @@
-/**
- * Clock: nối bộ giải số học (`clockSolver`) với KPuzzle của cubing.js. Véc-tơ
- * của từng lượt và hoán vị của `y2` đọc thẳng từ KPuzzle nên khớp bộ vẽ và
- * bộ phát lời giải; lời giải luôn được áp lại để kiểm.
- */
 import {
   CLOCK_MOVE_NAMES,
   solveClock,
@@ -34,7 +29,6 @@ export function loadClock(): Promise<LoadedClock> {
     const back = {} as Record<ClockMoveName, number[]>;
     for (const name of CLOCK_MOVE_NAMES) {
       front[name] = dialsOf(solved.applyAlg(new Alg(`${name}1+`))).orientation;
-      // Sau `y2` các lượt vẫn tác động lên cùng các ô (theo vị trí), nên là cùng véc-tơ.
       back[name] = dialsOf(solved.applyAlg(new Alg(`y2 ${name}1+`))).orientation;
     }
     const flipped = dialsOf(solved.applyAlg(new Alg("y2")));
@@ -48,7 +42,6 @@ export function loadClock(): Promise<LoadedClock> {
   return loading;
 }
 
-/** 18 mặt số (đơn vị giờ, 0–11) của một lời tráo, theo thứ tự ô của KPuzzle. */
 export async function dialsFromScramble(scramble: string): Promise<number[]> {
   const { kpuzzle, Alg } = await loadClock();
   return dialsOf(kpuzzle.defaultPattern().applyAlg(new Alg(scramble))).orientation.slice();
@@ -56,13 +49,11 @@ export async function dialsFromScramble(scramble: string): Promise<number[]> {
 
 export type ClockSolveOutcome = { solution: string; setup: string };
 
-/** Tìm lời giải cho 18 mặt số; kiểm lại bằng KPuzzle; `null` nếu vô nghiệm. */
 export async function solveClockDials(dials: number[]): Promise<string | null> {
   const { kpuzzle, Alg, model } = await loadClock();
   const result = solveClock(model, dials);
   if (!result) return null;
   const solution = result.moves.join(" ");
-  // Dựng lại trạng thái từ dials rồi áp lời giải để chắc chắn về 12 giờ.
   const pattern = kpuzzle.defaultPattern();
   const data = structuredClone(pattern.patternData) as { DIALS: DialData };
   data.DIALS.orientation = dials.slice();

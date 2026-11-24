@@ -1,10 +1,7 @@
-//! Move notation, parsing and formatting.
-
 use std::fmt;
 
 use crate::error::ParseError;
 
-/// The 18 move families. Index order is stable and used by move tables.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MoveBase {
     U,
@@ -13,29 +10,17 @@ pub enum MoveBase {
     D,
     L,
     B,
-    /// Middle slice, turns like L.
     M,
-    /// Equatorial slice, turns like D.
     E,
-    /// Standing slice, turns like F.
     S,
-    /// Whole-cube rotation like R.
     X,
-    /// Whole-cube rotation like U.
     Y,
-    /// Whole-cube rotation like F.
     Z,
-    /// Wide U (u / Uw).
     Uw,
-    /// Wide R (r / Rw).
     Rw,
-    /// Wide F (f / Fw).
     Fw,
-    /// Wide D (d / Dw).
     Dw,
-    /// Wide L (l / Lw).
     Lw,
-    /// Wide B (b / Bw).
     Bw,
 }
 
@@ -61,7 +46,6 @@ impl MoveBase {
         MoveBase::Bw,
     ];
 
-    /// The six outer face turns.
     pub const FACES: [MoveBase; 6] = [
         MoveBase::U,
         MoveBase::R,
@@ -91,7 +75,6 @@ impl MoveBase {
         (self as usize) >= 12
     }
 
-    /// Canonical spelling (wide moves use lowercase: `r`, not `Rw`).
     pub const fn symbol(self) -> &'static str {
         match self {
             MoveBase::U => "U",
@@ -140,7 +123,6 @@ impl MoveBase {
     }
 }
 
-/// A move: a family plus a number of clockwise quarter turns (1, 2 or 3).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Move {
     base: MoveBase,
@@ -148,10 +130,8 @@ pub struct Move {
 }
 
 impl Move {
-    /// Number of distinct moves (18 families x 3 powers).
     pub const COUNT: usize = 54;
 
-    /// `turns` is taken modulo 4; returns `None` for a zero turn.
     pub const fn new(base: MoveBase, turns: u8) -> Option<Move> {
         match turns % 4 {
             0 => None,
@@ -163,12 +143,10 @@ impl Move {
         self.base
     }
 
-    /// Clockwise quarter turns: 1, 2 or 3 (3 = prime).
     pub const fn turns(self) -> u8 {
         self.turns
     }
 
-    /// Dense index in `0..Move::COUNT`.
     pub const fn index(self) -> usize {
         self.base.index() * 3 + self.turns as usize - 1
     }
@@ -183,7 +161,6 @@ impl Move {
         })
     }
 
-    /// All 54 moves in index order.
     pub fn all() -> impl Iterator<Item = Move> {
         (0..Self::COUNT).filter_map(Move::from_index)
     }
@@ -216,7 +193,6 @@ impl std::str::FromStr for Move {
 }
 
 fn parse_token(token: &str, index: usize, offset: usize) -> Result<Move, ParseError> {
-    // Longest family prefix: two chars for "Rw" style, else one char.
     let (base, rest) = [2usize, 1]
         .iter()
         .filter(|&&n| token.is_char_boundary(n.min(token.len())) && token.len() >= n)
@@ -231,12 +207,6 @@ fn parse_token(token: &str, index: usize, offset: usize) -> Result<Move, ParseEr
     Ok(Move { base, turns })
 }
 
-/// Parse a sequence such as `"R U R' U'"`.
-///
-/// Tokens are separated by whitespace or commas; parentheses are ignored
-/// (they only group visually, e.g. `"(R U R' U') x2"` is *not* repetition).
-/// Accepted suffixes: none, `'`, `2`, `2'`, `3` (= `'`), and the typographic
-/// apostrophe `’`. Wide moves may be written `r` or `Rw`.
 pub fn parse_moves(text: &str) -> Result<Vec<Move>, ParseError> {
     let mut moves = Vec::new();
     let mut index = 0;
@@ -253,7 +223,6 @@ pub fn parse_moves(text: &str) -> Result<Vec<Move>, ParseError> {
     Ok(moves)
 }
 
-/// Format moves separated by single spaces. No simplification is applied.
 pub fn format_moves(moves: &[Move]) -> String {
     let mut out = String::new();
     for (i, m) in moves.iter().enumerate() {
@@ -265,13 +234,10 @@ pub fn format_moves(moves: &[Move]) -> String {
     out
 }
 
-/// Inverse of a move sequence.
 pub fn invert_moves(moves: &[Move]) -> Vec<Move> {
     moves.iter().rev().map(|m| m.inverse()).collect()
 }
 
-/// Merge adjacent moves of the same family (`R R` -> `R2`, `U U'` -> nothing),
-/// repeatedly, so `R U U' R'` becomes empty.
 pub fn simplify_moves(moves: &[Move]) -> Vec<Move> {
     let mut out: Vec<Move> = Vec::with_capacity(moves.len());
     for &m in moves {
@@ -293,7 +259,6 @@ mod serde_impl {
     use super::Move;
     use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-    /// Serialized as its notation string, e.g. `"R'"`.
     impl Serialize for Move {
         fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
             s.collect_str(self)

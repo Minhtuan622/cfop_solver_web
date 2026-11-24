@@ -9,13 +9,6 @@ import path from "node:path";
 import { securityHeaders } from "./_core/securityHeaders";
 import { cacheControlForFile } from "./_core/staticCache";
 
-/**
- * The production header stack lives in server/_core/securityHeaders.ts
- * (helmet, CSP report-only, compression, cache headers on hashed assets, JSON
- * 404 for unknown /api/* paths). This test runs the real stack against a
- * temporary public directory so a regression shows up as failing assertions
- * instead of a curl check on a live deploy.
- */
 describe("the production header stack", () => {
   let server: Server;
   let port: number;
@@ -66,16 +59,11 @@ describe("the production header stack", () => {
     ]) {
       expect(csp).toContain(origin);
     }
-    // The solver ships with the app (WebAssembly in /assets): no script CDN.
     expect(csp).not.toContain("cdn.jsdelivr.net");
   });
 
   it("sends no enforced CSP, so nothing is blocked while the policy is report-only", async () => {
     const response = await fetch(`http://127.0.0.1:${port}/assets/x/main.a1b2.js`);
-    // Helmet's default policy would add an enforced header with
-    // `script-src 'self'` and no connect-src/worker-src. It blocked the React
-    // preamble in development and would block the WebAssembly solver worker in
-    // production, so only the report-only policy may be sent.
     expect(response.headers.get("content-security-policy")).toBeNull();
     expect(response.headers.get("content-security-policy-report-only")).not.toBeNull();
   });

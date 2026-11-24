@@ -2,7 +2,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { CUBE_COLORS, CUBE_FALLBACK_COLOR } from "../lib/cubeColors";
 import { FACE_OFFSET, FACE_ORDER } from "../lib/cubeGuideFacelets";
 
-/** Hiển thị 2D các sticker khi thiết bị không hỗ trợ WebGL. */
 export function CubeGuide3DFallback({
   state,
   dimension,

@@ -1,9 +1,3 @@
-//! Benchmark for openings and one-look last layer:
-//! `cargo run --release -p cfop --example bench_extensions [N]`.
-//!
-//! Uses the browser limits of the Studio: depth 8 (UI range 4..=10) and a
-//! node budget per slot-set attempt of 5 000 (UI range 500..=50 000).
-
 use std::time::{Duration, Instant};
 
 use cfop::{

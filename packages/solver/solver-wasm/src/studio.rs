@@ -1,11 +1,3 @@
-//! The Studio contract: request options and the result document consumed by
-//! the web client (`SolverResult` in `client/src/lib/solverRuntime.ts`).
-//!
-//! Field names, phase names (`cross`, `xcross_FR`, `f2l_BL`, `oll`, `pll`,
-//! `zbll`, `1lll`) and case ids (`"21"`, `"Ua"`, `"solved"`,
-//! `"ZBLLAS-001"`) are the contract the Studio UI renders; changing them is a
-//! breaking change for the web client.
-
 use cfop::{
     now_ms, Cfop, CfopOptions, CfopSolution, ClockFn, Face, LastLayerMode, Limits, OpeningMode,
     ProgressFn, SlotOrder, SLOT_NAMES,
@@ -14,28 +6,18 @@ use cube_core::{format_moves, parse_moves, simplify_moves, Cube, Move};
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
 
-/// Options of one solve request. Every field is optional; defaults match the
-/// Studio worker (cross color U, opening cross, last layer auto).
 #[derive(Clone, Debug, Default, Serialize, Deserialize, Tsify)]
 #[serde(rename_all = "camelCase", default)]
 pub struct SolveOptions {
-    /// "U" | "R" | "F" | "D" | "L" | "B".
     pub cross_color: Option<String>,
-    /// "cross" | "auto" | "xcross" | "xxcross" | "xxxcross" | "xxxxcross".
     pub opening: Option<String>,
-    /// "oll_pll" | "zbll" | "1lll" | "auto".
     pub last_layer: Option<String>,
-    /// Direct opening search depth (clamped to 4..=12, default 8).
     pub opening_depth: Option<u32>,
     pub opening_find_result: Option<bool>,
-    /// Node budget per direct opening attempt (clamped to 500..=2000000).
     pub direct_node_budget: Option<u32>,
-    /// "FR" | "FL" | "BL" | "BR".
     pub preferred_slot: Option<String>,
     pub excluded_slots: Option<Vec<String>>,
-    /// Whole-solve time budget in seconds (default 40).
     pub time_budget_sec: Option<f64>,
-    /// Node budget per F2L pair (default 400000).
     pub node_budget: Option<u32>,
 }
 
@@ -98,7 +80,6 @@ pub struct LastLayerTelemetry {
     pub did_fallback: bool,
 }
 
-/// The solve result document.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Tsify)]
 pub struct SolverResult {
     pub initial_state: String,
@@ -110,10 +91,8 @@ pub struct SolverResult {
     pub last_layer: LastLayerTelemetry,
 }
 
-/// Structured error: a stable machine code plus a human-readable message.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Tsify)]
 pub struct SolverError {
-    /// "invalid_input" | "invalid_option" | "search_limit" | "cancelled" | "internal".
     pub code: String,
     pub message: String,
 }
@@ -164,14 +143,12 @@ fn slot(s: &str) -> Result<usize, SolverError> {
         .ok_or_else(|| SolverError::new("invalid_option", format!("unknown F2L slot: {s}")))
 }
 
-/// Parse a scramble and return the 54-sticker state it produces.
 pub fn scramble_to_stickers(scramble: &str) -> Result<String, SolverError> {
     let moves =
         parse_moves(scramble).map_err(|e| SolverError::new("invalid_input", e.to_string()))?;
     Ok(Cube::from_moves(&moves).to_stickers())
 }
 
-/// Parse and validate a 54-sticker state (centers must be home).
 pub fn parse_state(stickers: &str) -> Result<Cube, SolverError> {
     let cube = Cube::from_stickers(stickers)
         .map_err(|e| SolverError::new("invalid_input", e.to_string()))?;
@@ -184,7 +161,6 @@ pub fn parse_state(stickers: &str) -> Result<Cube, SolverError> {
     Ok(cube)
 }
 
-/// Translate request options into solver options.
 pub fn cfop_options(
     o: &SolveOptions,
     clock: Option<ClockFn>,
@@ -217,7 +193,6 @@ pub fn cfop_options(
         }
     };
     let preferred_slot = o.preferred_slot.as_deref().map(slot).transpose()?;
-    // Unknown excluded slots are ignored, as before.
     let excluded_slots = o
         .excluded_slots
         .iter()
@@ -239,7 +214,6 @@ pub fn cfop_options(
         cross_color: face(o.cross_color.as_deref().unwrap_or("U"))?,
         slot_order: SlotOrder::Best,
         cross_limits: shared(8),
-        // One budget for the four pairs together.
         f2l_limits: Limits {
             max_nodes: Some(pair_nodes * 4),
             ..shared(14)
@@ -282,12 +256,10 @@ fn case_id(name: &str, case: Option<&str>) -> Option<String> {
     })
 }
 
-/// Convert a `CfopSolution` into the Studio document.
 pub fn to_result(solution: &CfopSolution) -> SolverResult {
     let mut phases = Vec::new();
     let mut trace = Vec::new();
     let mut current = solution.scrambled;
-    // F2L is reported pair by pair, like every other phase.
     let flat = solution.stages.iter().flat_map(|s| {
         if s.substeps.is_empty() {
             vec![s]
@@ -371,7 +343,6 @@ pub fn to_result(solution: &CfopSolution) -> SolverResult {
     }
 }
 
-/// Validate, solve and convert in one step.
 pub fn solve_stickers(
     stickers: &str,
     options: &SolveOptions,

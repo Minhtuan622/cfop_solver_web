@@ -1,5 +1,4 @@
 // @vitest-environment node
-// Chạy cubing.js thật (không mock): quy ước hướng sticker phải khớp các lượt quay.
 import { describe, expect, it } from "vitest";
 import {
   colorCountsMatch,
@@ -44,7 +43,6 @@ describe.each(CASES)("trạng thái tô màu của %s", (id, kpuzzleId, scramble
     const original = pattern.patternData as unknown as PatternData;
     for (const orbit of model.orbits) {
       expect(back.data[orbit.name].pieces).toEqual(original[orbit.name].pieces);
-      // Mảnh mà mọi sticker cùng màu (tâm) không có hướng nhìn thấy được.
       const visible = model.stickers
         .filter(item => item.orbit === orbit.name && item.slot === 0)
         .some(item => item.face !== model.stickers.find(other => other.orbit === orbit.name && other.slot === 0)!.face);
@@ -58,7 +56,6 @@ describe.each(CASES)("trạng thái tô màu của %s", (id, kpuzzleId, scramble
     const painting = patternToPainting(model, pattern.patternData as unknown as PatternData);
     const result = await solveFromPainting(id, painting);
     expect(result.solution.length).toBeGreaterThan(0);
-    // setup là nghịch đảo của lời giải: áp lên khối đã giải ra lại đúng trạng thái.
     const rebuilt = await scrambled(kpuzzleId, result.setup);
     expect(
       patternToPainting(model, rebuilt.patternData as unknown as PatternData)
@@ -77,7 +74,7 @@ describe.each(CASES)("trạng thái tô màu của %s", (id, kpuzzleId, scramble
     const [first, second] = model.stickers.filter(item => item.face !== model.stickers[0].face);
     painting[model.stickers[0].id] = first.face;
     painting[second.id] = model.stickers[0].face;
-    painting[first.id] = first.face; // giữ đủ số màu nhưng ghép sai mảnh
+    painting[first.id] = first.face;
     await expect(solveFromPainting(id, painting)).rejects.toMatchObject({ code: "invalid-state" });
   }, 120_000);
 });

@@ -25,37 +25,20 @@ export type SolveHistoryEntry = {
   moves: number;
   penalty: SolvePenalty;
   solution: string;
-  /**
-   * Thời điểm (ms, tính từ nước đầu tiên) của từng nước trong `solution`, ghi bởi
-   * smart cube. Có thì mới phân tích sâu và phát lại đúng nhịp được; cùng độ dài
-   * với số nước của `solution`, nếu lệch (vd. đã sửa lời giải) thì bị bỏ.
-   */
   moveTimes?: number[];
   note: string;
   tags: string[];
   phaseSplits: SolvePhaseSplit[];
-  /** Older entries omit this field and are normalized as 3×3 when read. */
   eventId?: TimerEventId;
-  /** Where the solve came from. Older entries omit this field (treated as manual). */
   source?: SolveSource;
-  /** Present only for 3×3 Multi-Blind results. */
   multiBlind?: MultiBlindAttempt;
-  /** One independent 3×3 scramble for each Multi-Blind cube. */
   multiBlindScrambles?: string[];
-  /** Đánh dấu xóa mềm (tombstone): lần xóa của entry này. Entry có deletedAt
-   *  được giữ lại để đồng bộ biết đã xóa, không bị khôi phục bởi bản từ xa cũ. */
   deletedAt?: number;
 };
 
 const KEY = "cfop-solve-history-v1";
 const MAX_ENTRIES = 500;
-/**
- * Số tombstone (lượt đã xoá) giữ lại tối đa, mới xoá trước. Tombstone được
- * gửi kèm khi đồng bộ cloud để máy khác cũng xoá theo; chúng không chiếm chỗ
- * của 500 lượt đang hiển thị.
- */
 export const MAX_SOLVE_TOMBSTONES = 100;
-/** Imports may exceed MAX_ENTRIES but never exceed this (localStorage safety). */
 const IMPORT_LIMIT = 10_000;
 type Imported = Partial<SolveHistoryEntry> & Record<string, unknown>;
 
@@ -107,7 +90,6 @@ const phaseSplitsSchema = z
   })
   .catch(() => [] as SolvePhaseSplit[]);
 
-/** Tối đa số nước một lượt giải có thể có; lớn hơn thì coi là dữ liệu hỏng. */
 export const MAX_RECORDED_MOVES = 400;
 const moveTimesSchema = z
   .array(z.unknown())
@@ -189,22 +171,15 @@ function normalize(item: Imported): SolveHistoryEntry {
   };
   try {
     const parsed = solveHistoryEntrySchema.parse(item);
-    // Thời điểm nước đi chỉ có nghĩa khi khớp từng nước của lời giải.
     if (parsed.moveTimes) {
       const count = parsed.solution.trim().split(/\s+/).filter(Boolean).length;
       if (count !== parsed.moveTimes.length) delete parsed.moveTimes;
     }
     return parsed;
   } catch {
-    // A malformed entry degrades to a blank placeholder instead of taking
-    // down the whole history read.
     return fallback;
   }
 }
-/**
- * Ghi lịch sử: tối đa `limit` lượt đang hiển thị (giữ nguyên thứ tự), sau đó
- * là các tombstone mới xoá nhất (tối đa `MAX_SOLVE_TOMBSTONES`).
- */
 function write(entries: SolveHistoryEntry[], limit = MAX_ENTRIES) {
   const live = entries.filter((entry) => !entry.deletedAt).slice(0, limit);
   const tombstones = entries
@@ -215,7 +190,6 @@ function write(entries: SolveHistoryEntry[], limit = MAX_ENTRIES) {
   notifyCfopCloudStateChanged();
 }
 
-/** Mọi lượt đã lưu, kể cả tombstone (dùng cho đồng bộ và các lần ghi). */
 export function readStoredSolveHistory(): SolveHistoryEntry[] {
   return readStoredJson<Imported[]>(KEY, [])
     .filter((item): item is Imported =>
@@ -224,7 +198,6 @@ export function readStoredSolveHistory(): SolveHistoryEntry[] {
     .map(normalize);
 }
 
-/** Các lượt đang hiển thị (bỏ tombstone). */
 export function readSolveHistory(): SolveHistoryEntry[] {
   return readStoredSolveHistory().filter((entry) => !entry.deletedAt);
 }
@@ -234,10 +207,6 @@ export function addSolveHistory(entry: Omit<SolveHistoryEntry, "id" | "createdAt
   const item = normalize({ ...entry, id: crypto.randomUUID(), createdAt: Date.now() }); write([item, ...readStoredSolveHistory()]); return item;
 }
 export function updateSolveHistory(id: string, patch: Partial<Pick<SolveHistoryEntry, "elapsedMs" | "inspectionMs" | "input" | "moves" | "penalty" | "solution" | "moveTimes" | "note" | "tags" | "phaseSplits" | "multiBlind" | "multiBlindScrambles">>): SolveHistoryEntry[] { const next = readStoredSolveHistory().map((entry) => entry.id === id && !entry.deletedAt ? normalize({ ...entry, ...patch }) : entry); write(next); return liveEntries(next); }
-/**
- * Xoá mềm: ghi tombstone (`deletedAt`) vào bộ nhớ nhưng chỉ trả về các lượt
- * còn hiển thị, giống `readSolveHistory`, để màn hình bỏ ngay lượt vừa xoá.
- */
 export function deleteSolveHistory(id: string): SolveHistoryEntry[] {
   return deleteSolveHistoryMany([id]);
 }
@@ -258,17 +227,11 @@ export function importSolveHistory(payload: unknown): SolveHistoryEntry[] {
 }
 
 export type CstimerImportSummary = {
-  /** Sessions whose solves were imported. */
   sessions: number;
-  /** Solves added to the history. */
   imported: number;
-  /** Solves skipped because an identical one already exists. */
   duplicates: number;
-  /** Sessions skipped because their scramble type is unknown. */
   skippedSessions: number;
-  /** Malformed solves skipped. */
   invalidSolves: number;
-  /** Solves dropped because the import hit the 10,000-entry safety bound. */
   truncated: number;
 };
 
@@ -282,11 +245,6 @@ function cstimerEntryKey(entry: {
   return `${entry.createdAt}|${entry.elapsedMs}|${entry.penalty}|${entry.input}|${normalizeTimerEventId(entry.eventId)}`;
 }
 
-/**
- * Merge a parsed csTimer export into the history. Solves identical to one
- * already stored (same time, penalty, scramble, date and event) are skipped,
- * so importing the same file twice never duplicates anything.
- */
 export function importCstimerSolveHistory(
   payload: unknown,
 ): CstimerImportSummary {
@@ -319,9 +277,6 @@ export function importCstimerSolveHistory(
     merged.push(entry);
   }
 
-  // Newest first, same convention as the rest of the history. csTimer
-  // imports are exempt from the 500-solve cap (users migrate whole
-  // histories); a much higher safety bound keeps localStorage healthy.
   const all = [...merged, ...existing].sort(
     (a, b) => b.createdAt - a.createdAt,
   );
@@ -337,30 +292,17 @@ export function importCstimerSolveHistory(
   };
 }
 
-/** Rebuild a csTimer export file from the stored history. */
 export function exportCstimerSolveHistory(): Record<string, unknown> {
   return buildCstimerExport(readSolveHistory());
 }
 export function exportSolveHistory() { return { schema: "cfop-solver-timer-history", version: 2, exportedAt: new Date().toISOString(), entries: readSolveHistory() }; }
 export function effectiveTime(entry: SolveHistoryEntry): number | null { return entry.penalty === "DNF" ? null : entry.elapsedMs + (entry.penalty === "+2" ? 2000 : 0); }
-/**
- * `mm:ss.cc`, cắt (không làm tròn lên) tới phần trăm giây như WCA. Tính trên
- * số phần trăm giây nguyên để 9870 ms ra "00:09.87" chứ không phải "00:09.86"
- * do sai số dấu phẩy động.
- */
 export function formatSolveTime(ms: number) {
   const centis = Math.floor(Math.floor(ms + 1e-6) / 10);
   const minutes = Math.floor(centis / 6000);
   const seconds = Math.floor(centis / 100) % 60;
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${(centis % 100).toString().padStart(2, "0")}`;
 }
-/**
- * Formats a running timer readout.
- *
- * Unlike `formatSolveTime`, a negative duration is clamped to zero: the live
- * readout never shows a negative time, not even for the frame between a clock
- * adjustment and the next animation tick.
- */
 export function formatTimerReadout(ms: number) { return formatSolveTime(Math.max(0, ms)); }
 export function formatSolveResult(entry: SolveHistoryEntry) {
   const time = effectiveTime(entry);
@@ -372,16 +314,6 @@ export function formatSolveResult(entry: SolveHistoryEntry) {
   return time === null ? "DNF" : `${formatSolveTime(time)}${entry.penalty === "+2" ? "+" : ""}`;
 }
 
-/**
- * Resolves the cube state a solve started from.
- *
- * A solve is stored either as a scramble or as a full state, so the state is
- * only replayed when the entry already carries one.
- */
-/**
- * Khối lúc bắt đầu giải: tráo cầm trắng U, xanh lá F rồi lật màu cross trong
- * Cài đặt về D — lời giải người dùng nhập được viết theo hướng đang cầm này.
- */
 export function initialStateFor(entry: SolveHistoryEntry) {
   return entry.inputKind === "state" && entry.input.length === 54
     ? entry.input

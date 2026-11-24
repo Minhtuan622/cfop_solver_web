@@ -4,7 +4,6 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Dropdown, DropdownItem } from "./Dropdown";
 
-// jsdom lacks the pointer-capture and scrollIntoView APIs that Radix uses.
 beforeAll(() => {
   Element.prototype.scrollIntoView = () => {};
   Element.prototype.hasPointerCapture = () => false;

@@ -33,7 +33,6 @@ describe("timeDistribution", () => {
     const bins = timeDistribution(entries, 6);
     expect(bins.reduce((sum, bin) => sum + bin.count, 0)).toBe(4);
     for (const bin of bins) expect(bin.toMs).toBeGreaterThan(bin.fromMs);
-    // +2 được cộng vào thời gian: 10.000 → 12.000.
     const bin12 = bins.find(bin => 12_000 >= bin.fromMs && 12_000 < bin.toMs);
     expect(bin12?.count).toBeGreaterThanOrEqual(1);
   });
@@ -68,7 +67,6 @@ describe("dailyHeatmap", () => {
     expect(cells[6].level).toBe(4);
     expect(cells[5].count).toBe(1);
     expect(cells[5].level).toBe(1);
-    // Ngày ngoài khoảng không được tính.
     expect(cells.reduce((sum, cell) => sum + cell.count, 0)).toBe(9);
   });
 });
@@ -117,7 +115,6 @@ describe("suggestSubXThresholds", () => {
 });
 
 describe("period comparison", () => {
-  // 2026-11-23 là thứ hai; "now" là thứ tư 25/11.
   const now = new Date(2026, 10, 25, 12).getTime();
   const at = (month: number, dayOfMonth: number) =>
     new Date(2026, month, dayOfMonth, 9).getTime();

@@ -1,8 +1,3 @@
-/**
- * Pyraminx practice card: the case preview (3D-only — the Pyraminx has no
- * 2D net in this app), the recall drill and the Again/Hard/Good/Easy
- * self-grade. Mirrors TwoByTwoCasePanel.
- */
 import { invertPyraminxAlgorithm } from "../lib/pyraminxAlg";
 import {
   CasePracticeEmpty,

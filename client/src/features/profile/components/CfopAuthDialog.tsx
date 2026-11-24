@@ -30,7 +30,6 @@ type Props = {
   onClose: () => void;
 };
 
-/** The sign-in / sign-up dialog of the native CFOP account. */
 export function CfopAuthDialog({
   open,
   mode,

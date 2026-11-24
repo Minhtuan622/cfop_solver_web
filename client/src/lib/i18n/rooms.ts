@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** The rooms section: the lobby, the round panel, the sidebar and moderation. */
 export const roomsWords: Dictionary = {
   "rooms.title": ["Phòng thi đấu", "Competition rooms"],
   "rooms.subtitle": [

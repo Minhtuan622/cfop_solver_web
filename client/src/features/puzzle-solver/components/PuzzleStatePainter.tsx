@@ -1,7 +1,3 @@
-/**
- * Bộ tô màu trạng thái dùng chung cho mọi khối: vẽ lưới sticker (sinh từ hình
- * học của cubing.js), chọn màu ở bảng màu rồi bấm vào sticker để tô.
- */
 import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -13,7 +9,6 @@ import {
   type StateModel,
 } from "../lib/puzzleState";
 
-/** 2×2 và 3×3 vẽ 3D bằng bảng màu của studio (vàng ở trên); các khối khác giữ màu gốc. */
 export function stateColor(kpuzzleId: KPuzzleId, face: string, fill: string) {
   return kpuzzleId === "2x2x2" || kpuzzleId === "3x3x3"
     ? (CUBE_COLORS[face] ?? fill)
@@ -35,11 +30,9 @@ export function PuzzleStatePainter({
   model: StateModel;
   painting: Painting;
   onChange: (next: Painting) => void;
-  /** Tên mặt đang cầm cọ. */
   brush: string;
   onBrushChange: (face: string) => void;
   onReset: () => void;
-  /** Nhóm mảnh không cho tô (vd. tâm 3×3 luôn cố định). */
   lockedOrbits?: string[];
   disabled?: boolean;
 }) {

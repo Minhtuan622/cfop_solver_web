@@ -1,5 +1,3 @@
-//! Stage G: direct openings (XCross..XXXXCross) and ZBLL / 1LLL.
-
 mod common;
 
 use cfop::{
@@ -21,8 +19,6 @@ fn options(tier: Opening, depth: u8, budget: u64) -> OpeningOptions {
     }
 }
 
-/// 1000 scrambles per tier: every reported opening is ONE direct sequence
-/// from the scramble that reaches the cross and all its slots, within depth.
 #[test]
 fn openings_1000_scrambles_per_tier() {
     let tiers = [
@@ -66,9 +62,6 @@ fn openings_1000_scrambles_per_tier() {
     }
 }
 
-/// Depth 12 with the browser's upper node budget (2 000 000 per attempt):
-/// XXXCross exists for most scrambles. At depth 10 most scrambles have no
-/// direct XXXCross at all (see docs/validation/rust-wasm-solver.md).
 #[test]
 fn xxxcross_at_depth_12_is_usually_found() {
     let mut rng = Rng::new(0x0E0 + 3);
@@ -99,7 +92,6 @@ fn opening_slot_preferences() {
         let mut o = options(Opening::XCross, 9, 200_000);
         o.preferred_slot = Some(2);
         if let Some((slots, _)) = solve_opening(&cube, &o).unwrap().solution {
-            // Preferred slot wins whenever it has a solution.
             let mut only = options(Opening::XCross, 9, 200_000);
             only.excluded_slots = vec![0, 1, 3];
             let has_bl = solve_opening(&cube, &only).unwrap().solution.is_some();
@@ -130,7 +122,6 @@ fn every_zbll_and_1lll_case_replays() {
             .unwrap()
             .unwrap_or_else(|| panic!("{} not recognized", case.name));
             assert!(r.state.is_solved(), "{}", case.name);
-            // The chosen case may be an equivalent (shorter) one, but never longer.
             assert!(r.moves.len() <= case.algorithm.len() + 1, "{}", case.name);
         }
     }

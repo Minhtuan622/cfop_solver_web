@@ -1,5 +1,3 @@
-/** Xưởng Cơ Khí Tốc Độ — timer runs a deliberate pre-solve inspection before solve timing. */
-/* Xưởng Cơ Khí Tốc Độ — timer là apparatus thao tác: mint chỉ báo arm, Space thả mới khởi động. */
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatTimerReadout, type SolvePhaseSplit } from "@/lib/solveHistory";
@@ -29,9 +27,7 @@ export function SolveTimer({
   metronomeEnabled?: boolean;
   metronomeBpm?: number;
   inspectionEnabled?: boolean;
-  /** Trong lúc giải chỉ hiện "Đang giải…"; dừng lại thì hiện thời gian thật. */
   hideRunningTime?: boolean;
-  /** Báo trạng thái đồng hồ (vd. để trang ẩn mọi thứ khi đang chạy). */
   onModeChange?: (
     mode: "ready" | "inspection" | "running" | "completed"
   ) => void;
@@ -113,7 +109,6 @@ export function SolveTimer({
       oscillator.stop(context.currentTime + 0.14);
       window.setTimeout(() => void context.close(), 220);
     } catch {
-      /* Browser audio may be blocked; timing remains accurate. */
     }
   };
   const speak = (text: string) => {
@@ -128,7 +123,6 @@ export function SolveTimer({
       utterance.volume = 0.9;
       synth.speak(utterance);
     } catch {
-      /* Speech synthesis may be unavailable; the beeps still fire. */
     }
   };
   const startInspection = () => {
@@ -180,7 +174,6 @@ export function SolveTimer({
         inspectionMs: inspectionDuration.current,
         automaticPenalty:
           forcedPenalty ?? penaltyForInspection(inspectionDuration.current),
-        // Mốc Cross/F2L/OLL/PLL chỉ còn đến từ smart cube.
         phaseSplits: [] as SolvePhaseSplit[],
       });
   };
@@ -346,8 +339,6 @@ export function SolveTimer({
       }}
       className={cn(
         "rounded-card px-4 py-10 text-center transition-colors duration-150 @container",
-        // Khi đang giải, đồng hồ chiếm cả màn hình và nằm chính giữa (không
-        // phải giữa khối cha); chạm vào đâu cũng dừng được.
         isRunning
           ? "fixed inset-0 z-50 flex flex-col items-center justify-center rounded-none bg-surface"
           : cn(
@@ -364,8 +355,6 @@ export function SolveTimer({
       <div className="flex flex-col items-center justify-center gap-4">
         <p
           className={cn(
-            // Cỡ chữ theo bề rộng của khối đồng hồ (container query), không
-            // theo bề rộng cửa sổ: đặt trong một cột hẹp thì chữ vẫn vừa.
             "mb-0 max-w-full font-mono font-bold leading-none tracking-tight tabular-nums",
             isRunning
               ? "text-[clamp(2.5rem,14cqw,10rem)]"

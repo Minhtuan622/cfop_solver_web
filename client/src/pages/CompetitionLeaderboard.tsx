@@ -1,6 +1,4 @@
 import { useRoute } from "wouter";
-// Import module cụ thể (không qua barrel) để chunk của trang Phòng thi, cũng
-// import barrel này, không kéo theo bảng xếp hạng.
 import { LeaderboardHome } from "@/features/competition/components/LeaderboardHome";
 import { PlayerHistory } from "@/features/competition/components/PlayerHistory";
 

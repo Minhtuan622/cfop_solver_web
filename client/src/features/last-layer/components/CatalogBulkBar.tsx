@@ -1,6 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/** Thanh nổi của chế độ chọn hàng loạt: số đã chọn, chọn tất cả/bỏ chọn, đánh dấu đã thuộc. */
 export function CatalogBulkBar({
   selectedCount,
   total,
@@ -9,11 +8,9 @@ export function CatalogBulkBar({
   onMark,
 }: {
   selectedCount: number;
-  /** Tổng số case đang hiện trong nhóm. */
   total: number;
   onSelectAll: () => void;
   onClear: () => void;
-  /** Đánh dấu các case đã chọn là đã thuộc (`true`) hoặc chưa thuộc (`false`). */
   onMark: (mastered: boolean) => void;
 }) {
   const { t } = useLanguage();

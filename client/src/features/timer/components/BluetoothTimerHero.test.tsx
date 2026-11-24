@@ -46,14 +46,12 @@ describe("BluetoothTimerHero", () => {
       />,
     );
 
-    // idle: ready text and zero readout
     expect(screen.getByRole("status")).toHaveTextContent("00:00.00");
 
     act(() => emit(timer, "start"));
     expect(screen.getByRole("status")).toHaveTextContent(/đang tính giờ/i);
 
     act(() => emit(timer, "update", { currentTime: 12_340 }));
-    // The app's readout truncates to hundredths (12340ms → 00:12.34).
     expect(screen.getByRole("status")).toHaveTextContent("00:12.34");
 
     act(() => emit(timer, "update", { currentTime: 20_000 }));
@@ -65,7 +63,6 @@ describe("BluetoothTimerHero", () => {
     expect(screen.getByRole("status")).toHaveTextContent("00:20.00");
     expect(screen.getByRole("status")).toHaveTextContent(/đã xong/i);
 
-    // A reset returns to the idle readout.
     act(() => emit(timer, "reset"));
     expect(screen.getByRole("status")).toHaveTextContent("00:00.00");
     expect(onSolveComplete).toHaveBeenCalledTimes(1);

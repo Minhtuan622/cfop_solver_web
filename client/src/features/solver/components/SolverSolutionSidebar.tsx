@@ -3,10 +3,6 @@ import { ChevronUp, ListUl } from "@/components/ui/Icon";
 import { PanelHeader, RoundButton, Surface } from "@/components/ui/DesignSystem";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/**
- * Cột phải của trang Giải Rubik: tiêu đề "Lời giải" có nút thu gọn, bên trong
- * là báo cáo CFOP/BLD (truyền vào `children`) hoặc trạng thái chưa có lời giải.
- */
 export function SolverSolutionSidebar({ children }: { children?: ReactNode }) {
   const { t } = useLanguage();
   const [solutionOpen, setSolutionOpen] = useState(true);

@@ -1,8 +1,3 @@
-/**
- * Web Worker của bộ giải Roux: dựng ba bảng tìm kiếm (vài giây) và giải mà
- * không chặn giao diện. Không import cubing.js (preload trong worker dùng
- * `document`); dữ liệu lượt do luồng chính gửi sang.
- */
 import {
   createRouxSolver,
   solveRoux,

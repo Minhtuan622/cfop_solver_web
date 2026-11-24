@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** The competition pages: leaderboards, player history and the room outcome. */
 export const competitionWords: Dictionary = {
   "competition.leaderboard.title": ["Xếp hạng", "Rankings"],
   "competition.leaderboard.description": [

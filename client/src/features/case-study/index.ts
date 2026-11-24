@@ -1,4 +1,3 @@
-/** Public surface of the shared study-lane building blocks (hook, layout, case card). */
 export { useCaseStudyLane } from "./useCaseStudyLane";
 export type { CaseStudyLane, CaseStudyLaneStats, CaseStudyLaneStore } from "./useCaseStudyLane";
 export { CaseStudyLaneShell } from "./components/CaseStudyLaneShell";

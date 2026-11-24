@@ -1,4 +1,3 @@
-/** Public surface of the History page building blocks. */
 export { ConfirmDeleteDialog } from "./components/ConfirmDeleteDialog";
 export { HistoryEmptyState } from "./components/HistoryEmptyState";
 export { HistoryFilters } from "./components/HistoryFilters";

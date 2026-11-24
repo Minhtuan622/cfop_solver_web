@@ -1,7 +1,3 @@
-//! Cross-check against frozen vectors recorded from the project's earlier,
-//! independent facelet-model engine (before this crate replaced it). Covers
-//! faces, slices, rotations, wide moves and random mixed sequences.
-
 include!("reference_vectors.in");
 
 use cube_core::{parse_moves, Cube};

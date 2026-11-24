@@ -1,14 +1,3 @@
-/** Bộ giải CFOP chạy trong Web Worker (WebAssembly).
- *
- * `WasmSolverEngine` điều khiển worker `solverWorker.ts`, nơi bộ giải Rust
- * trong `packages/solver` (biên dịch ra WebAssembly) chạy. Worker được tạo
- * lười khi người dùng giải lần đầu, nên file `.wasm` không được tải khi mở
- * trang; `warmup()` vì thế không làm gì.
- *
- * Giao thức với worker: request `{ id, command, ... }`, kết quả
- * `{ id, ok, output | error, code }`; trong lúc tìm kiếm worker gửi thêm
- * `{ id, type: "progress", stage, nodes }`.
- */
 import type { BldResult, SolverResult } from "./solverRuntime";
 
 export type SolveRequest = {
@@ -34,11 +23,8 @@ export interface SolverEngine {
     onProgress?: (progress: SolverProgress) => void
   ): Promise<SolverResult>;
   analyzeBld(kind: "scramble" | "state", value: string): Promise<BldResult>;
-  /** Số move cross tối ưu (HTM) cho từng màu tâm, theo chữ cái mặt URFDLB. */
   crossLengths(kind: "scramble" | "state", value: string): Promise<CrossLengths>;
-  /** Giữ cho tương thích API: worker và file `.wasm` được tải lười. */
   warmup(): Promise<void>;
-  /** Huỷ mọi request đang chờ (reject bằng `SolverCancelledError`). */
   cancel(): void;
 }
 
@@ -58,13 +44,6 @@ export class SolverTimeoutError extends Error {
   }
 }
 
-/**
- * Solver đã dừng vì hết ngân sách tìm kiếm (thời gian hoặc số node).
- *
- * Đây là lỗi có cấu trúc từ solver (`search_limit`), khác với việc client
- * ngắt worker: giao diện có thể báo cho người dùng biết cần thử lại với
- * đề khác thay vì hiện một thông báo chung chung.
- */
 export class SolverLimitError extends Error {
   constructor(message?: string) {
     super(message ?? "The solver reached its search budget.");
@@ -116,14 +95,11 @@ export class WasmSolverEngine implements SolverEngine {
   }
 
   async warmup(): Promise<void> {
-    // Không tạo worker ở đây: trang đầu không được tải file .wasm.
   }
 
   cancel(): void {
     const reason = new SolverCancelledError();
     if (this.cancelFlag && this.worker) {
-      // Huỷ mềm: mọi request có id <= giá trị này dừng ở lần kiểm tra tiến
-      // độ kế tiếp; worker và các bảng tra đã dựng được giữ lại.
       Atomics.store(this.cancelFlag, 0, this.nextId - 1);
       this.rejectAll(reason);
       return;
@@ -157,8 +133,6 @@ export class WasmSolverEngine implements SolverEngine {
     };
     this.worker = worker;
     this.cancelFlag = null;
-    // Huỷ mềm cần SharedArrayBuffer, chỉ có khi trang được cách ly
-    // cross-origin; nếu không, `cancel()` terminate worker như trước.
     if (
       typeof SharedArrayBuffer !== "undefined" &&
       (globalThis as { crossOriginIsolated?: boolean }).crossOriginIsolated

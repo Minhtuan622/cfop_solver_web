@@ -12,8 +12,6 @@ test("chỉ tải Cubing khi mở Timer và Three.js khi event cần canvas 3D",
 
   await page.goto("/");
   await page.waitForTimeout(500);
-  // Trang chủ hiển thị mô hình 3D bằng bộ vẽ chung với Timer (Three.js +
-  // cubing.js), cả hai nạp lười sau khi trang mở.
   await expect.poll(() => threeRequests.length, { timeout: 45_000 }).toBeGreaterThan(0);
 
   await page.goto("/timer");
@@ -21,7 +19,6 @@ test("chỉ tải Cubing khi mở Timer và Three.js khi event cần canvas 3D",
   await expect(eventPicker).toHaveText(/3×3×3/);
   await expect.poll(() => cubingRequests.length, { timeout: 45_000 }).toBeGreaterThan(0);
 
-  // Dropdown tự vẽ: bấm để mở danh sách rồi chọn mục 4×4×4.
   await eventPicker.click();
   await page.getByRole("option", { name: "4×4×4" }).click();
   await expect(page.getByLabel("Mô hình 4×4×4 3D")).toBeVisible({ timeout: 45_000 });

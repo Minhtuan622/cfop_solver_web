@@ -1,4 +1,3 @@
-/** Hàng nút chỉ số (PB, ao5…ao100, tổng); bấm để mở chi tiết. */
 import { BarChart3 } from "@/components/ui/Icon";
 import { Link } from "wouter";
 import { type TimerMetricKey } from "@/lib/timerRecords";

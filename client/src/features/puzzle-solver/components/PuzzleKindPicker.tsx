@@ -6,9 +6,7 @@ import {
   type OtherPuzzleId,
 } from "../lib/puzzleSolve";
 
-/** Chế độ giải 3×3 (cùng một khối, ba cách giải). */
 export type CubeSolveMode = "cfop" | "bld" | "fm";
-/** Một lựa chọn trong dropdown: chế độ 3×3 hoặc một khối khác. */
 export type SolveChoice = CubeSolveMode | Exclude<OtherPuzzleId, "333fm">;
 
 const CUBE_MODES: Array<{ value: CubeSolveMode; labelKey: string }> = [
@@ -21,10 +19,6 @@ export function isCubeSolveMode(value: SolveChoice): value is CubeSolveMode {
   return CUBE_MODES.some(mode => mode.value === value);
 }
 
-/**
- * Một dropdown chọn việc cần giải ở đầu trang Giải: ba chế độ 3×3 (CFOP, BLD,
- * FM) rồi các khối khác. Thêm khối mới chỉ cần thêm một dòng vào `OTHER_PUZZLES`.
- */
 export function PuzzleKindPicker({
   value,
   onChange,

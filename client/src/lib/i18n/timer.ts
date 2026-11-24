@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** The timer lab: scramble, inspection, the solve log and the analytics block. */
 export const timerWords: Dictionary = {
   "timer.eyebrow": ["Luyện tốc độ", "Speed practice"],
   "timer.title": ["Bấm giờ", "Timer"],

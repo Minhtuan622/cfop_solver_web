@@ -1,9 +1,3 @@
-/**
- * FTO 2-Look L3T catalog drawer: the shared CatalogExplorer wired to the
- * 2-Look L3T algorithms, grouped by family (PF / TCP A / TCP B / TCP C).
- * The case preview is the static diagram; the grid falls back to the
- * lane's octahedron emblem if a diagram is missing.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   CatalogExplorer,
@@ -12,7 +6,6 @@ import {
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import type { Fto2LookL3tCatalogCase } from "../lib/l2tCatalog";
 
-/** Flat octahedron mark (used when a case has no diagram). */
 export function Fto2LookL3tMark({ className }: { className?: string }) {
   return (
     <svg
@@ -21,7 +14,6 @@ export function Fto2LookL3tMark({ className }: { className?: string }) {
       role="img"
       aria-hidden="true"
     >
-      {/* octahedron silhouette: two pyramids base-to-base */}
       <polygon
         points="48,6 82,40 48,50 14,40"
         fill="#f5f5f0"

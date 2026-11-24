@@ -31,7 +31,7 @@ describe("bộ giải Clock", () => {
     const { kpuzzle } = await loadClock();
     const dials = [3, 0, 7, 11, 5, 5, 2, 9, 1, 4, 6, 8, 10, 0, 3, 2, 7, 1];
     const solution = await solveClockDials(dials);
-    if (solution === null) return; // trạng thái tay không nhất thiết hợp lệ
+    if (solution === null) return;
     const rebuilt = kpuzzle
       .defaultPattern()
       .applyAlg(new Alg(invertClockAlgorithm(solution)));

@@ -1,17 +1,3 @@
-/**
- * Bảo đảm bản build WebAssembly của bộ giải đã có trước khi chạy dev/build.
- *
- *   node scripts/ensure-solver.mjs
- *
- * - Có `packages/solver/solver-wasm/pkg` → không làm gì (đây là trường hợp
- *   của Docker: tầng Rust đã build sẵn package).
- * - Chưa có và máy có `wasm-pack` → build bằng `scripts/build-solver.mjs`.
- * - Chưa có và không có `wasm-pack` → dừng với hướng dẫn cài đặt, thay vì để
- *   tsc/Vite báo "cannot resolve @solver-wasm/..." khó hiểu.
- *
- * Nếu code Rust mới hơn bản build, script chỉ cảnh báo: chạy lại
- * `pnpm build:solver` để cập nhật.
- */
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
@@ -25,7 +11,6 @@ function hasWasmPack() {
   return spawnSync("wasm-pack", ["--version"], { stdio: "ignore" }).status === 0;
 }
 
-/** Thời điểm sửa mới nhất của source Rust (src/, tests/ và Cargo.toml). */
 function newestSource(dir) {
   let newest = 0;
   for (const entry of readdirSync(dir, { withFileTypes: true })) {

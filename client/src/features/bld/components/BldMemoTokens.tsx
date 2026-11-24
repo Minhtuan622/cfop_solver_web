@@ -1,4 +1,3 @@
-/** Thẻ dãy cặp memo của cạnh hoặc góc, kèm buffer. */
 export function BldMemoTokens({
   title,
   memo,

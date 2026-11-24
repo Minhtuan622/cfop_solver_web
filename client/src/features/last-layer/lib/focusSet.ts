@@ -1,8 +1,3 @@
-/**
- * "Bộ tập trung" per study lane: the user picks which case groups the
- * catalog should narrow down to (e.g. "COLL T" or "F2L 01"). Stored
- * locally per lane; empty array means "all groups".
- */
 import { readStoredJson, writeStoredValue } from "@/lib/browserStorage";
 
 const KEY_PREFIX = "cfop-focus-set:";

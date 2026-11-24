@@ -32,7 +32,6 @@ describe("RateLimiter", () => {
     limiter.consume("key", rule, 0);
     expect(limiter.consume("key", rule, 500).allowed).toBe(false);
     expect(limiter.consume("key", rule, 900).allowed).toBe(false);
-    // The window still ends at 1000, not later.
     expect(limiter.consume("key", rule, 1_000).allowed).toBe(true);
   });
 
@@ -114,7 +113,6 @@ describe("clientAddress", () => {
   });
 
   it("bỏ qua header giả kể cả khi peer ở mạng nội bộ", () => {
-    // Header do client tự viết: chỉ cần đổi giá trị là thoát hạn mức.
     expect(
       clientAddress({
         ...proxied,

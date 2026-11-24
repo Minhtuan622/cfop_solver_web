@@ -27,7 +27,6 @@ export function createSharedScramble(length = 20) {
   return moves.join(" ");
 }
 
-/** Every room round follows the exact same event scramble semantics as Timer. */
 export async function createCompetitionScramble(eventId: TimerEventId) {
   const { randomScrambleForEvent } = await import("cubing/scramble");
   return (await randomScrambleForEvent(eventId)).toString();
@@ -40,7 +39,6 @@ export async function createCompetitionScrambleBundle(eventId: TimerEventId, cub
 
 export function effectiveCompetitionTime(result: CompetitionResultValue) { return result.penalty === "DNF" ? null : result.elapsedMs + (result.penalty === "+2" ? 2_000 : 0); }
 
-/** WCA-style average: drop the fastest and slowest; two DNFs make the average DNF. */
 export function competitionAverage(results: CompetitionResultValue[], count: number) {
   if (results.length < count) return undefined;
   const values = results.slice(-count).map(effectiveCompetitionTime);
@@ -79,7 +77,6 @@ export function compareCompetitionResults(eventId: string, left: CompetitionResu
   return (effectiveCompetitionTime(left) ?? Number.POSITIVE_INFINITY) - (effectiveCompetitionTime(right) ?? Number.POSITIVE_INFINITY);
 }
 
-/** Aggregates only completed rooms with at least two scored players. Points reward final room placement. */
 export function buildCompetitionLeaderboard(results: CompetitionLeaderboardResult[]) {
   const roomResults = new Map<number, CompetitionLeaderboardResult[]>();
   for (const result of results) roomResults.set(result.roomId, [...(roomResults.get(result.roomId) ?? []), result]);

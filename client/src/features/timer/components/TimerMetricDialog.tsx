@@ -1,4 +1,3 @@
-/** Hộp thoại chi tiết một chỉ số: các lượt tạo nên chỉ số, sơ đồ khối, sao chép scramble, export ảnh ao5. */
 import { Eye, EyeOff, ImageDown } from "@/components/ui/Icon";
 import { useEffect, useState } from "react";
 import { metricEvidence, type TimerMetricKey } from "@/lib/timerRecords";
@@ -45,7 +44,6 @@ export function TimerMetricDialog({
   const [showMetricCubeNets, setShowMetricCubeNets] = useState(
     () => readStoredValue("cfop-metric-cubenets") !== "off"
   );
-  // Timer quick controls are session-only overrides; long-lived defaults are owned by Settings.
   useEffect(() => {
     writeStoredValue("cfop-metric-cubenets", showMetricCubeNets ? "on" : "off");
   }, [showMetricCubeNets]);

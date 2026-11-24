@@ -1,10 +1,3 @@
-/**
- * The shared study-catalog drawer, used by the Last Layer and 2×2 lanes.
- * Generic over the case shape, the family options and the cube preview so
- * both lanes get the same learning tools: group progress bars, an
- * unmastered filter, a random-practice dice, bulk mark-as-learned and a
- * preview dialog. Stays folded away until you ask for it.
- */
 import {
   ChevronLeftIcon,
   ChevronRight,
@@ -51,21 +44,13 @@ type Props = {
   masteredKeys: Set<string>;
   onFamily: (family: Family) => void;
   onSelect: (catalogCase: CatalogExplorerCase) => void;
-  /** Nhận tập hợp case đã thuộc mới sau một thao tác hàng loạt. */
   onMasteredChange?: (keys: Set<string>) => void;
-  /** Options for the family select; pass null to hide it (parent already filters). */
   familyOptions?: readonly { value: string; label: string }[] | null;
   catalogTitle: string;
   previewHint: string;
   renderPreview: ComponentType<CatalogExplorerPreviewProps>;
-  /**
-   * When provided, the preview dialog renders this instead of `renderPreview`
-   * (used to show the 3D replay of the case algorithm on the cube lanes).
-   */
   dialogPreview?: ComponentType<CatalogExplorerPreviewProps>;
-  /** When set (and `dialogPreview` is provided), the dialog footer shows a replay button. */
   dialogReplayLabel?: string;
-  /** When set, the catalog narrows to the user's stored focus groups for this lane key. */
   focusStorageKey?: string;
 };
 

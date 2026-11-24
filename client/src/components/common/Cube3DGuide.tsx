@@ -1,10 +1,3 @@
-/**
- * Soft Focus Workspace — physical layer-turns accelerate, lock into place, then settle;
- * drag orbit remains direct with no transition lag and Cube 3D is the only rich motion.
- *
- * The 3D renderer is shared with the side-event puzzles (`CubeGuide3D`): rounded
- * cubies on a Three.js stage with the same camera/light feel as THREE-based events.
- */
 import { Suspense, lazy } from "react";
 
 const CubeGuide3D = lazy(() =>
@@ -13,10 +6,6 @@ const CubeGuide3D = lazy(() =>
   }))
 );
 
-/**
- * Animations always run in the same frame as the state, so moves rotate the
- * layers the user actually sees.
- */
 export function Cube3DGuide({
   state,
   previousState,

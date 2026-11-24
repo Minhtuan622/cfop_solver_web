@@ -1,10 +1,3 @@
-/**
- * 5×5 L2E catalog drawer: the shared CatalogExplorer wired to the L2E
- * algorithms. The practice card shows the live 3D case; the grid previews
- * the generated `diagrams/fiveByFiveL2E/<id>.svg` flat last-layer cross,
- * with the lane's 5×5 emblem as fallback; the dialog replays the solution
- * in 3D under the same setup → algorithm flow as the practice card.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   CatalogExplorer,
@@ -18,7 +11,6 @@ import {
 } from "../lib/l2eAlg";
 import type { FiveByFiveL2ECatalogCase } from "../lib/l2eCatalog";
 
-/** Flat 5×5 grid mark (used when a case has no diagram). */
 export function FiveByFiveL2EMark({ className }: { className?: string }) {
   const cells: Array<{ x: number; y: number; fill: string }> = [];
   for (let row = 0; row < 5; row += 1) {

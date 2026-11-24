@@ -1,10 +1,3 @@
-/**
- * Tiến độ gần nhất của từng chủ đề học (đã thuộc / tổng số case), để lưới
- * chủ đề trên trang Học thêm hiện được mà không phải mở mọi phòng học.
- *
- * Mỗi phòng học tự đọc kho riêng và báo số liệu khi đang mở; ta lưu lại con
- * số đó. Chủ đề chưa từng mở thì không có mục nào (giao diện hiện "Chưa học").
- */
 import { readStoredJson, writeStoredValue } from "@/lib/browserStorage";
 
 export type LaneProgress = { mastered: number; total: number };
@@ -28,7 +21,6 @@ export function readLaneProgress(): LaneProgressMap {
   ) as LaneProgressMap;
 }
 
-/** Ghi tiến độ của một chủ đề; bỏ qua khi danh mục chưa tải xong (tổng = 0). */
 export function writeLaneProgress(
   lane: string,
   progress: LaneProgress

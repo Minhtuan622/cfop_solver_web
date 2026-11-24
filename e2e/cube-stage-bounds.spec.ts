@@ -1,14 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
 
-/**
- * Kịch bản e2e: khối Rubik 3D phải nằm gọn trong stage, kể cả sau khi người
- * dùng xoay và phóng to.
- *
- * Lỗi thật: class `.cube3d-stage` (min-height + căn giữa) bị mất khi migrate
- * Bootstrap → Tailwind, stage chỉ còn 118px trong khi cube vẽ 148px ở góc
- * mặc định và hơn 300px khi xoay + zoom.
- */
-
 async function cubeOverflow(page: Page) {
   return page.evaluate(() => {
     const stage = document.querySelector<HTMLElement>(".interactive-cube-stage");
@@ -32,7 +23,6 @@ function expectContained(
   label: string
 ) {
   expect(overflow, `${label}: không tìm thấy stage`).not.toBeNull();
-  // Sai số 1px cho làm tròn subpixel giữa các máy.
   expect(overflow!.top, `${label}: tràn trên`).toBeLessThanOrEqual(1);
   expect(overflow!.bottom, `${label}: tràn dưới`).toBeLessThanOrEqual(1);
   expect(overflow!.left, `${label}: tràn trái`).toBeLessThanOrEqual(1);
@@ -40,8 +30,6 @@ function expectContained(
 }
 
 test("cube 3D nằm gọn trong stage khi xoay và zoom", async ({ page }) => {
-  // Trang Giải dùng bộ vẽ 3D của Timer; khối `.interactive-cube-stage` (xoay, zoom
-  // bằng chuột) còn ở trang Rubik ảo.
   await page.goto("/play");
 
   const stage = page.locator(".interactive-cube-stage").first();
@@ -57,7 +45,6 @@ test("cube 3D nằm gọn trong stage khi xoay và zoom", async ({ page }) => {
   const centerX = box!.x + box!.width / 2;
   const centerY = box!.y + box!.height / 2;
 
-  // Xoay theo nhiều hướng để chạm các góc nhìn có hình chiếu lớn nhất.
   for (const [dx, dy] of [
     [160, 0],
     [0, 80],
@@ -73,7 +60,6 @@ test("cube 3D nằm gọn trong stage khi xoay và zoom", async ({ page }) => {
     await page.waitForTimeout(350);
   }
 
-  // Phóng to hết cỡ rồi đo lại.
   await page.mouse.move(centerX, centerY);
   for (let step = 0; step < 10; step += 1) {
     await page.mouse.wheel(0, -120);

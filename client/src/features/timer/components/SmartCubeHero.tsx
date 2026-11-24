@@ -1,11 +1,3 @@
-/**
- * SmartCubeHero — the live display while a Bluetooth smart cube is paired.
- *
- * Shows the cube's current state (2D net), the live solve time, the move
- * counter and TPS, and the detection phase. The cube drives *solve
- * boundaries* (arm → first move → solved → stop); the time readout comes
- * from the GAN Timer when one is connected, otherwise from a local clock.
- */
 import { useEffect, useRef, useState } from "react";
 import { Bluetooth, CheckCircleFill } from "@/components/ui/Icon";
 import { CubeNet } from "@/components/common/CubeNet";
@@ -24,13 +16,11 @@ export function SmartCubeHero({
 }: {
   smartCube: SmartCube;
   onDisconnect: () => void;
-  /** The connected GAN Timer, if any: its live time is the readout. */
   externalTimer?: { deviceName: string; timer: GanTimerHandle };
 }) {
   const { language, t } = useLanguage();
   const { phase, movesCount, tps, state, batteryPercent, cubeName } = smartCube;
 
-  // Readout source: the GAN Timer's own event stream when connected…
   const [timerMs, setTimerMs] = useState<number | null>(null);
   useEffect(() => {
     const timer = externalTimer?.timer;
@@ -57,7 +47,6 @@ export function SmartCubeHero({
     };
   }, [externalTimer?.timer]);
 
-  // …otherwise a local clock anchored on phase transitions.
   const [localMs, setLocalMs] = useState(0);
   const anchorRef = useRef<number | null>(null);
   useEffect(() => {

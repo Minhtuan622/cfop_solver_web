@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** The solver workspace: cube input, the move guide and the camera scanner. */
 export const solverWords: Dictionary = {
   "home.stagePlaceholder": [
     "Khối 3D hiện ra khi có scramble hợp lệ hoặc sau khi giải xong.",

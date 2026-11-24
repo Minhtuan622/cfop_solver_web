@@ -1,26 +1,10 @@
-/**
- * The form controls of the app: text field and textarea.
- *
- * Cả hai dùng chung một kiểu ô nhập (nền nhạt, bo góc ô, vòng focus, trạng
- * thái tắt) nên nhìn luôn giống nhau và một đổi trong file này áp dụng cho
- * cả giao diện.
- *
- * Ô nhập không dùng viền: ranh giới được tạo bằng nền khác nền của khối chứa
- * nó, và vòng focus (viền focus) khi điều hướng bằng bàn phím vẫn giữ nguyên.
- * Ô chọn giá trị nằm ở `Select.tsx`.
- *
- * Nhãn, gợi ý và thông báo lỗi do `Field` của `StudioUI` đảm nhiệm: mọi ô
- * nhập phải có tên nhìn thấy được.
- */
 import { forwardRef, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-/** Kiểu chung của ô nhập: nền, bo góc, focus và trạng thái tắt. */
 const controlBase =
   "w-full rounded-field bg-surface-2 text-sm text-ink transition-colors placeholder:text-placeholder hover:bg-surface-3 focus:bg-surface-3 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60";
 
 export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  /** Icon nằm trong ô, bên trái nội dung. */
   icon?: ReactNode;
 };
 

@@ -1,15 +1,5 @@
-//! 3D sticker geometry used once, at table-build time, to derive the
-//! primitive move permutations (six face turns and the three whole-cube
-//! rotations). Everything else (slices, wide moves, powers) is composed from
-//! these primitives in `moves.rs`.
-//!
-//! Coordinates: x points to R, y points to U, z points to F. Each sticker is
-//! identified by the cubie coordinate it lies on (components in {-1, 0, 1})
-//! plus its outward normal.
-
 pub(crate) type Vec3 = [i8; 3];
 
-/// Face order U, R, F, D, L, B (the 54-sticker string order).
 pub(crate) const FACE_NORMAL: [Vec3; 6] = [
     [0, 1, 0],
     [1, 0, 0],
@@ -19,7 +9,6 @@ pub(crate) const FACE_NORMAL: [Vec3; 6] = [
     [0, 0, -1],
 ];
 
-/// Direction of increasing column, as seen looking straight at the face.
 const FACE_RIGHT: [Vec3; 6] = [
     [1, 0, 0],
     [0, 0, -1],
@@ -29,7 +18,6 @@ const FACE_RIGHT: [Vec3; 6] = [
     [-1, 0, 0],
 ];
 
-/// Direction of decreasing row, as seen looking straight at the face.
 const FACE_UP: [Vec3; 6] = [
     [0, 0, -1],
     [0, 1, 0],
@@ -59,8 +47,6 @@ fn cross(a: Vec3, b: Vec3) -> Vec3 {
     ]
 }
 
-/// Quarter turn clockwise when viewed from the tip of `axis`
-/// (i.e. -90 degrees by the right-hand rule).
 fn rotate_clockwise(v: Vec3, axis: Vec3) -> Vec3 {
     add(scale(axis, dot(axis, v)), scale(cross(axis, v), -1))
 }
@@ -86,9 +72,6 @@ fn index_of(key: (Vec3, Vec3)) -> usize {
         .expect("rotated sticker must exist")
 }
 
-/// Sticker permutation `perm[source] = target` for a clockwise quarter turn
-/// around `axis`. `layer = Some(k)` turns only cubies with `pos . axis == k`;
-/// `None` turns the whole cube.
 pub(crate) fn layer_permutation(axis: Vec3, layer: Option<i8>) -> [u8; 54] {
     let mut perm = [0u8; 54];
     for (source, slot) in perm.iter_mut().enumerate() {
@@ -102,7 +85,6 @@ pub(crate) fn layer_permutation(axis: Vec3, layer: Option<i8>) -> [u8; 54] {
     perm
 }
 
-/// Apply a sticker permutation to a sticker array.
 pub(crate) fn apply_permutation(stickers: &[u8; 54], perm: &[u8; 54]) -> [u8; 54] {
     let mut out = [0u8; 54];
     for (source, &target) in perm.iter().enumerate() {

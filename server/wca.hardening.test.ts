@@ -8,7 +8,6 @@ import {
 } from "./services/wcaApi";
 import { TRPCError } from "@trpc/server";
 
-/** Khóa người gọi giả định cho test. */
 const CALLER = "test-caller";
 
 function mockJson(value: unknown, status = 200) {
@@ -53,7 +52,6 @@ describe("B4: WCA hardening", () => {
       { start: "2024-01-01", end: "2024-12-31" },
       CALLER
     );
-    // fetch called once for competitions + once for getWcaCountries
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
@@ -75,14 +73,12 @@ describe("B4: WCA hardening", () => {
       { start: "2026-01-01", end: "2026-01-31" },
       CALLER
     );
-    // First page + up to MAX_COMPETITION_PAGES (10) additional pages = 11 calls max
     expect(fetchMock).toHaveBeenCalledTimes(11);
   });
 
   it("memoryCache is bounded: clearWcaMemoryCache works and cache stays bounded", async () => {
     const fetchMock = vi.fn().mockResolvedValue(mockJson([]));
     vi.stubGlobal("fetch", fetchMock);
-    // Hạn mức WCA là 30 lần/phút cho mỗi người gọi: 25 yêu cầu vẫn dưới ngưỡng.
     for (let i = 0; i < 25; i += 1) {
       const y = 2020 + Math.floor(i / 366);
       const m = String(Math.floor((i % 366) / 31) + 1).padStart(2, "0");
@@ -94,7 +90,6 @@ describe("B4: WCA hardening", () => {
     }
     const callsBeforeClear = fetchMock.mock.calls.length;
     clearWcaMemoryCache();
-    // After clearing, a fresh request re-fetches from the network.
     await getWcaCompetitions(
       { start: "2020-01-01", end: "2020-01-01" },
       CALLER
@@ -106,8 +101,6 @@ describe("B4: WCA hardening", () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = "development";
     try {
-      // In development, getConfig accepts http://localhost redirect URIs.
-      // The function is internal to wcaOAuth.ts; we verify the env var contract here.
       expect(process.env.NODE_ENV).toBe("development");
     } finally {
       process.env.NODE_ENV = originalEnv;

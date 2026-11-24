@@ -5,7 +5,6 @@ import type {
   CatalogGroupEntry,
 } from "../lib/catalogExplorerTypes";
 
-/** Lưới các ô nhóm của catalog: hình, tiến độ đã thuộc và thanh tiến độ. */
 export function CatalogGroupGrid({
   groups,
   Preview,

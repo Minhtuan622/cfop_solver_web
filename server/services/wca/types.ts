@@ -1,4 +1,3 @@
-/** Kiểu dữ liệu của WCA API sau khi chuẩn hoá, và payload thô nhận được. */
 export type WcaCountry = { id: string; name: string; iso2: string };
 
 export type WcaCompetition = {
@@ -13,7 +12,6 @@ export type WcaCompetition = {
   status: string;
   website: string | null;
   wcaUrl: string;
-  /** The event IDs the WCA lists for this competition, in WCA order. */
   eventIds: string[];
 };
 
@@ -33,12 +31,6 @@ export type WcaPersonalRecord = {
   };
 };
 
-/**
- * A world record as the WCA stores it: the raw attempt result. Timed events
- * use centiseconds, 3×3 fewest moves uses moves (and centi-moves for the
- * average), and Multi-Blind packs several numbers into one value. The client
- * formats them because that is where the language of the page lives.
- */
 export type WcaWorldRecord = {
   eventId: string;
   single: number | null;

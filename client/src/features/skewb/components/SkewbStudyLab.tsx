@@ -1,9 +1,3 @@
-/**
- * The Skewb lane of /study: Sarah Intermediate (10 triggers: 1T · 2T · 3T)
- * and Sarah Advanced (93 cases, 16 subsets), with the same SRS practice loop
- * as the other lanes — time the recall, grade Again/Hard/Good/Easy, and let
- * the queue resurface weak cases.
- */
 import { useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -43,7 +37,6 @@ export function SkewbStudyLab({
   onStatsChange,
 }: {
   language: "vi" | "en";
-  /** Reports live SRS stats so the surrounding toolbar can show them. */
   onStatsChange?: (stats: CaseStudyLaneStats) => void;
 }) {
   const { t } = useLanguage();

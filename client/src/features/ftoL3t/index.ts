@@ -1,4 +1,3 @@
-/** Public surface of the FTO L3T study lane. */
 export * from "./lib/l3tCatalog";
 export * from "./lib/l3tStudy";
 export { FtoL3tStudyLab } from "./components/FtoL3tStudyLab";

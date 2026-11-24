@@ -5,16 +5,8 @@ import { previewSetupAlg } from "@/lib/scrambleOrientation";
 import type { CrossColor } from "@/lib/solverRuntime";
 import { timerPreviewPuzzleId, type TimerEventId } from "@/lib/timerEvents";
 
-/** 3×3 giải bằng CFOP: sau khi tráo, người dùng lật màu cross về D. */
 const CFOP_FLIP_EVENTS = new Set<TimerEventId>(["333", "333oh", "333fm"]);
 
-/**
- * Scramble và cách tô màu để khối xem trước giống khối thật trên tay:
- * - 3×3 (CFOP): tráo cầm trắng U, xanh lá F rồi lật màu cross về D, vẽ bằng
- *   bảng màu studio;
- * - các event khác (2×2, 4×4–7×7, BLD…): giữ nguyên hướng tráo trắng U, xanh
- *   lá F, dùng màu WCA gốc của Cubing.js.
- */
 export function scramblePreviewSetup(
   eventId: TimerEventId,
   scramble: string,
@@ -51,7 +43,6 @@ export function puzzleScramblePreviewConfig(
     : null;
 }
 
-/** Every preview opens the external Cubing/Three canvas chunk. */
 export function previewNeedsExternal3DModule(eventId: TimerEventId) {
   return Boolean(timerPreviewPuzzleId(eventId));
 }
@@ -77,8 +68,6 @@ export function PuzzleScramblePreview({
     () => puzzleScramblePreviewConfig(eventId, scramble),
     [eventId, scramble]
   );
-  // Đọc màu cross khi dựng khối: trang Cài đặt là route riêng, nên mỗi lần
-  // quay lại Timer giá trị mới được dùng.
   const preview = useMemo(
     () =>
       scramblePreviewSetup(eventId, scramble, readSolverSettings().crossColor),

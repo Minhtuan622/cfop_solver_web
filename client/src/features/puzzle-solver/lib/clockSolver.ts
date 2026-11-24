@@ -1,21 +1,10 @@
-/**
- * Bộ giải Clock (WCA). Mỗi lượt có tên (UR, DR, DL, UL, U, R, D, L, ALL) cộng
- * một số giờ vào một nhóm mặt số cố định, và các lượt giao hoán nên trạng thái
- * là một hệ phương trình tuyến tính modulo 12: tổng (số giờ × véc-tơ lượt) bằng
- * phần cần bù. Giải bằng khử Gauss modulo 3 và modulo 4 rồi ghép lại (CRT).
- *
- * Phần này thuần số học; véc-tơ lượt đọc từ KPuzzle của cubing.js ở `clockEngine`.
- */
 export const CLOCK_MOVE_NAMES = ["UR", "DR", "DL", "UL", "U", "R", "D", "L", "ALL"] as const;
 export type ClockMoveName = (typeof CLOCK_MOVE_NAMES)[number];
 
-/** Tác động của lật mặt (`y2`): `new[i] = old[permutation[i]] + delta[i]`. */
 export type ClockFlip = { permutation: number[]; delta: number[] };
 
 export type ClockModel = {
-  /** Véc-tơ 18 chiều của lượt `X1+` trên mặt trước. */
   front: Record<ClockMoveName, number[]>;
-  /** Véc-tơ của lượt `X1+` thực hiện SAU `y2` (tính theo vị trí vật lý). */
   back: Record<ClockMoveName, number[]>;
   flip: ClockFlip;
 };
@@ -30,10 +19,6 @@ function permuteOnly(flip: ClockFlip, vector: number[]) {
   return vector.map((_, index) => vector[flip.permutation[index]]);
 }
 
-/**
- * Giải A·x = b trên vành Z/p^e bằng dạng Smith (thao tác hàng và cột; cột ghi
- * lại trong Q để đổi biến). Trả `null` nếu vô nghiệm.
- */
 function solveLocal(columns: number[][], rhs: number[], prime: number, exponent: number): number[] | null {
   const modulus = prime ** exponent;
   const rows = rhs.length;
@@ -105,7 +90,6 @@ function solveLocal(columns: number[][], rhs: number[], prime: number, exponent:
   return q.map(row => mod(row.reduce((sum, value, index) => sum + value * y[index], 0), modulus));
 }
 
-/** Nghiệm modulo 12 từ nghiệm modulo 3 và modulo 4 (CRT). */
 function solveMod12(columns: number[][], rhs: number[]): number[] | null {
   const mod3 = solveLocal(columns, rhs, 3, 1);
   const mod4 = solveLocal(columns, rhs, 2, 2);
@@ -117,7 +101,6 @@ function solveMod12(columns: number[][], rhs: number[]): number[] | null {
   });
 }
 
-/** Một lượt WCA: `UR3+`, `U5-`... (0 giờ thì bỏ). */
 export function clockMoveToken(name: string, hours: number) {
   const amount = mod(hours, 12);
   if (amount === 0) return null;
@@ -126,13 +109,8 @@ export function clockMoveToken(name: string, hours: number) {
 
 export type ClockSolution = { moves: string[] };
 
-/**
- * Lời giải cho trạng thái 18 mặt số (đã tính theo `KPuzzle`). Ưu tiên lời giải
- * chỉ dùng mặt trước; nếu không được thì lật (`y2`) rồi dùng cả mặt sau.
- */
 export function solveClock(model: ClockModel, dials: number[]): ClockSolution | null {
   const names = [...CLOCK_MOVE_NAMES];
-  // 1. Chỉ mặt trước: Σ k·a = −dials.
   const frontOnly = solveMod12(
     names.map(name => model.front[name]),
     dials.map(value => -value)
@@ -140,7 +118,6 @@ export function solveClock(model: ClockModel, dials: number[]): ClockSolution | 
   if (frontOnly)
     return { moves: names.flatMap((name, index) => clockMoveToken(name, frontOnly[index]) ?? []) };
 
-  // 2. Lật rồi dùng mặt sau: Flip(dials + Σ k_front·a) + Σ k_back·b = 0.
   const flipped = applyFlip(model.flip, dials);
   const columns = [
     ...names.map(name => permuteOnly(model.flip, model.front[name])),
@@ -153,7 +130,6 @@ export function solveClock(model: ClockModel, dials: number[]): ClockSolution | 
   return { moves: [...front, "y2", ...back] };
 }
 
-/** Đảo một chuỗi lượt Clock: đảo thứ tự và đổi dấu từng lượt; `y2` giữ nguyên. */
 export function invertClockAlgorithm(algorithm: string) {
   return algorithm
     .split(/\s+/)

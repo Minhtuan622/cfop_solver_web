@@ -14,7 +14,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { SolvePenalty } from "@/lib/solveHistory";
 import type { TimerSolveEditor } from "../lib/useTimerSolveEditor";
 
-/** Hộp thoại sửa một lượt giải trên trang Bấm giờ; state nằm trong `useTimerSolveEditor`. */
 export function TimerSolveEditDialog({ editor }: { editor: TimerSolveEditor }) {
   const { t } = useLanguage();
   return (

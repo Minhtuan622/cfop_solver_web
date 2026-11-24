@@ -2,20 +2,9 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
-/**
- * Regression test cho tài liệu: mọi liên kết tương đối trong Markdown phải
- * trỏ tới một file thật, và tài liệu không được nhắc tới tính năng đã bị
- * gỡ.
- *
- * Lỗi thật: khi checklist cũ được chuyển vào docs/archive, các liên kết tới
- * nó trong README và tài liệu phát triển trở thành liên kết chết, và tài liệu
- * vẫn mô tả những tính năng đã không còn.
- */
-
 const root = path.resolve(import.meta.dirname, "..");
 const SKIP_DIRS = new Set(["node_modules", "dist", ".git", "coverage", "test-results"]);
 
-/** Tên tính năng đã bị gỡ khỏi sản phẩm. */
 const REMOVED_FEATURES = ["Practice Lab", "PDF Evidence"];
 
 function markdownFiles(dir: string, acc: string[] = []): string[] {
@@ -28,12 +17,10 @@ function markdownFiles(dir: string, acc: string[] = []): string[] {
   return acc;
 }
 
-/** Bỏ khối code bọc để không quét nhầm link trong ví dụ. */
 function stripCodeBlocks(source: string): string {
   return source.replace(/```[\s\S]*?```/g, "").replace(/`[^`\n]*`/g, "");
 }
 
-/** Mọi liên kết tương đối trong một file Markdown. */
 function relativeLinks(source: string): string[] {
   const links: string[] = [];
   const pattern = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
@@ -70,7 +57,6 @@ describe("liên kết trong tài liệu", () => {
   it("tài liệu không nhắc tới tính năng đã bị gỡ", () => {
     const offenders: string[] = [];
     for (const file of files) {
-      // docs/archive/ giữ lại lịch sử nên được miễn.
       if (path.relative(root, file).startsWith(path.join("docs", "archive"))) continue;
       const source = readFileSync(file, "utf8");
       for (const feature of REMOVED_FEATURES) {

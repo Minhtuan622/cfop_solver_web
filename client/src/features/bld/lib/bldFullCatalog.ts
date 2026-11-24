@@ -1,4 +1,3 @@
-/* BLDDB catalog adapter: retains every algorithm variant while the UI paginates cases. */
 import { fetchBldCatalogFile } from "./bldCatalogSource";
 
 export type BldCatalogGroup = "edge" | "corner" | "special";
@@ -12,12 +11,6 @@ function nestedAlgorithms(value: unknown) {
 }
 function directAlgorithms(value: unknown) { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string" && Boolean(item.trim())) : []; }
 
-/**
- * Picks the first usable algorithm out of a BLDDB entry.
- *
- * A catalog entry holds either one algorithm or a list of variants, so the
- * first non-empty string is the one the drill and the report both display.
- */
 export function firstCatalogAlgorithm(value: unknown): string | undefined {
   if (typeof value === "string") return value.trim() ? value.trim() : undefined;
   if (!Array.isArray(value)) return undefined;

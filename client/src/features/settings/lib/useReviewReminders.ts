@@ -3,11 +3,6 @@ import { createCfopCloudState } from "@/lib/cloudSync";
 import { reviewSchedule } from "@/lib/reviewSchedule";
 import { trpc } from "@/lib/trpc";
 
-/**
- * `unsupported`: trình duyệt không có Web Push · `signedOut`: chưa đăng nhập ·
- * `unavailable`: máy chủ chưa cấu hình VAPID · `denied`: người dùng chặn quyền
- * thông báo · `off`/`on`: tắt/bật · `checking`: đang kiểm tra.
- */
 export type ReminderStatus =
   | "checking"
   | "unsupported"
@@ -26,14 +21,12 @@ export function pushSupported() {
   );
 }
 
-/** VAPID public key (base64url) → Uint8Array cho `pushManager.subscribe`. */
 export function urlBase64ToBytes(value: string) {
   const padded = value + "=".repeat((4 - (value.length % 4)) % 4);
   const raw = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
   return Uint8Array.from(raw, char => char.charCodeAt(0));
 }
 
-/** Lịch ôn tập hiện tại từ mọi lane học trên máy này. */
 export function readCurrentReviewSchedule(now = Date.now()) {
   const state = createCfopCloudState(now);
   const lanes = [
@@ -56,7 +49,6 @@ async function currentSubscription() {
   return registration.pushManager.getSubscription();
 }
 
-/** Bật/tắt nhắc ôn tập và đồng bộ lịch lên server. */
 export function useReviewReminders() {
   const account = trpc.cfopAccount.me.useQuery(undefined, {
     staleTime: 60_000,
@@ -102,7 +94,6 @@ export function useReviewReminders() {
       dueCount: schedule.dueCount,
       tzOffsetMinutes: new Date().getTimezoneOffset(),
     });
-    // Server không còn biết đăng ký này: coi như tắt để người dùng bật lại.
     if (!result.subscribed) setSubscribed(false);
   }, [sync]);
 

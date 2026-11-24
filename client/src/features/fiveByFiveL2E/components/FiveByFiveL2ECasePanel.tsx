@@ -1,8 +1,3 @@
-/**
- * 5×5 L2E practice card: the case preview (3D — the algorithms are aimed at
- * the "two unpaired edges" position on a normal 5×5), the recall drill and
- * the Again/Hard/Good/Easy self-grade. Mirrors the other lanes.
- */
 import { fiveByFiveL2EScrambleOf } from "../lib/l2eAlg";
 import {
   CasePracticeEmpty,

@@ -27,18 +27,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export type CubeGuide3DProps = {
   state: string;
   previousState?: string;
-  /** Lệnh vừa chạy, dùng để phát hoạt hình xoay tầng. */
   move?: string;
   transition?: "idle" | "move" | "seek" | "phase" | "reset";
-  /** Thời lượng một nước, mặc định 340ms. */
   turnDurationMs?: number;
   dimension?: 2 | 3;
   surface?: "dark" | "light";
   initialYaw?: number;
   initialPitch?: number;
-  /** Mũi tên trái/phải/lên/xuống xoay góc nhìn (dùng cho chế độ chơi bằng bàn phím). */
   orbitKeys?: boolean;
-  /** Chiều cao tối thiểu của khung khối (px), mặc định 288. */
   stageHeight?: number;
 };
 
@@ -59,7 +55,6 @@ export function CubeGuide3D({
   const hostRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef<TrackedScene | null>(null);
   const cubiesRef = useRef<Cubie[]>([]);
-  /** State string the scene is currently built from — used to skip redundant rebuilds. */
   const builtStateRef = useRef<string>(state);
   const animFrameRef = useRef<number | null>(null);
   const pivotRef = useRef<THREE.Group | null>(null);
@@ -71,9 +66,6 @@ export function CubeGuide3D({
       window.cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
     }
-    // Trả các cubie đang bị xoay về root ở vị trí tuyệt đối — KHÔNG dispose
-    // vật liệu/geometry (chúng vẫn được cubiesRef giữ lại, sẽ bị dispose riêng
-    // khi buildFromState() rebuild lại từ state mới).
     const pivot = pivotRef.current;
     if (pivot && sceneRef.current) {
       const cell = dimension === 2 ? CELL_2 : CELL_3;
@@ -112,7 +104,6 @@ export function CubeGuide3D({
     bundle.resize();
   };
 
-  // Mount-time: create renderer + scene once.
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
@@ -136,7 +127,6 @@ export function CubeGuide3D({
     scene.add(alignGroup);
     const root = new THREE.Group();
     alignGroup.add(root);
-    // Flat lighting only: no direction, every face gets the same light.
     scene.add(new THREE.AmbientLight(0xffffff, 2.2));
     host.replaceChildren(activeRenderer.domElement);
     activeRenderer.domElement.className = "block h-full w-full";
@@ -146,8 +136,6 @@ export function CubeGuide3D({
       const height = Math.max(220, host.clientHeight || (dimension === 2 ? 260 : 320));
       activeRenderer.setSize(width, height, false);
       camera.aspect = width / height;
-      // Khung hẹp hơn cao (điện thoại): mở rộng góc nhìn dọc để góc nhìn
-      // ngang giữ như khung vuông — khối luôn vừa chiều ngang, không bị cắt.
       camera.fov =
         camera.aspect < 1
           ? (2 * Math.atan(Math.tan((BASE_FOV * Math.PI) / 360) / camera.aspect) * 180) / Math.PI
@@ -178,8 +166,6 @@ export function CubeGuide3D({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dimension, surface]);
 
-  // Camera nudges from the arrow keys (play mode). Ignores events from form
-  // fields so typing never orbits the cube behind the user's back.
   useEffect(() => {
     if (!orbitKeys) return undefined;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -217,7 +203,6 @@ export function CubeGuide3D({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orbitKeys]);
 
-  // State-dependent: rebuild or animate on change.
   useEffect(() => {
     const bundle = sceneRef.current;
     if (!bundle) return;
@@ -237,8 +222,6 @@ export function CubeGuide3D({
       return;
     }
     cancelAnimation();
-    // Guarantee the scene starts exactly at previousState; an interrupted
-    // animation may have left it behind. Cheap when already up to date.
     if (builtStateRef.current !== previousState) {
       buildFromState(bundle, previousState);
     }
@@ -255,10 +238,6 @@ export function CubeGuide3D({
       layers.includes(Math.round(cubie.unit[axis]))
     );
     for (const cubie of moved) {
-      // Ô sáng (XCross, case Last Layer…) được đặt theo VỊ TRÍ, không đi theo
-      // mảnh: nếu để nguyên, lớp đang xoay mang màu sáng sang ô khác và sticker
-      // bị nhuộm xanh/vàng giữa chừng. Tắt phát sáng trong lúc xoay; bước dựng
-      // lại ở cuối nước đi đặt lại đúng ô.
       for (const material of cubie.stickerMaterials) material.emissiveIntensity = 0;
       bundle.root.remove(cubie.group);
       cubie.group.position.set(
@@ -280,7 +259,6 @@ export function CubeGuide3D({
       if (t < 1) {
         animFrameRef.current = window.requestAnimationFrame(tick);
       } else {
-        // Snap back everything with the canonical rebuild; identical geometry, no visible jump.
         animFrameRef.current = null;
         rebuild();
       }
@@ -325,8 +303,6 @@ export function CubeGuide3D({
     renderNow();
   };
 
-  // Nền phẳng, theo theme (không gradient): "light" dùng màu bề mặt nhạt
-  // của trang nên tự đổi theo chế độ sáng/tối.
   const stageBackground =
     surface === "light" ? "var(--surface-2)" : "var(--cube-stage)";
 
@@ -357,10 +333,6 @@ export function CubeGuide3D({
           minHeight: stageHeight,
           touchAction: "none",
           cursor: "grab",
-          // `.interactive-cube-stage` trong cube.css đặt nền đặc
-          // `var(--cube-stage)` (gần-đen) — che mất nền trắng/light do wrapper
-          // bên ngoài vẽ. Khi dùng surface="light" thì xóa nền để wrapper
-          // hiện ra.
           background: surface === "light" ? "transparent" : undefined,
         }}
         aria-label={language === "vi" ? "Mô hình Rubik 3D của bạn" : "3D Rubik model"}

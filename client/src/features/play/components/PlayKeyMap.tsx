@@ -1,7 +1,3 @@
-/**
- * Bảng bộ phím (giống csTimer) trình bày theo nhóm. Danh sách lượt được dựng
- * bằng chính `playActionForKey`, nên luôn khớp với cách trang xử lý phím.
- */
 import { useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { DEFAULT_LAYER_SELECTION, playActionForKey } from "../lib/playCube";
@@ -19,7 +15,6 @@ function groupOf(move: string, rotation: boolean): GroupId {
   return "faces";
 }
 
-/** Thứ tự đọc: theo mặt (R U F L D B / M E S / x y z), lượt thuận trước lượt ngược. */
 function moveRank(move: string) {
   const base = move.replace(/['2]/g, "");
   const order = `${FACE_ORDER}${FACE_ORDER.toLowerCase()}MESxyz`;
@@ -27,7 +22,6 @@ function moveRank(move: string) {
   return (index < 0 ? 99 : index) * 2 + (move.includes("'") ? 1 : 0);
 }
 
-/** Các nhóm lượt xoay → phím, tính một lần từ bảng phím thật. */
 export function buildPlayKeyGroups(): Record<GroupId, Row[]> {
   const groups: Record<GroupId, Map<string, string[]>> = {
     faces: new Map(),

@@ -1,7 +1,3 @@
-/**
- * Thống kê sâu của trang Bấm giờ: phân bố thời gian, bản đồ nhiệt theo ngày,
- * chuỗi sub-X và so sánh tuần/tháng. Số liệu tính ở `lib/timerInsights`.
- */
 import { useMemo, useState } from "react";
 import {
   Bar,
@@ -109,7 +105,6 @@ export function TimerInsightsPanel({
   const week = useMemo(() => weekComparison(entries), [entries]);
   const month = useMemo(() => monthComparison(entries), [entries]);
   const locale = language === "vi" ? "vi-VN" : "en-US";
-  // Cột đầu bắt đầu từ thứ hai: đệm các ô trống trước ngày đầu tiên.
   const leadingBlanks = heatmap.length
     ? (new Date(heatmap[0].date).getDay() + 6) % 7
     : 0;

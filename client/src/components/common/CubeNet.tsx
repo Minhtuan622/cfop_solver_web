@@ -1,11 +1,6 @@
-/**
- * Xưởng Cơ Khí Tốc Độ — cube net uses six calibrated sticker fields; Rubik
- * colors are reserved for state signaling and never for decorative surfaces.
- */
 import { cn } from "@/lib/utils";
 import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
 
-/** Kept under the old name so existing call sites keep working. */
 export const CUBE_COLOR = CUBE_COLORS;
 
 export const FACE_ORDER = ["U", "R", "F", "D", "L", "B"] as const;
@@ -28,11 +23,6 @@ export const FACE_OFFSET: Record<(typeof FACE_ORDER)[number], number> = {
 
 type Face = (typeof FACE_ORDER)[number];
 
-/**
- * The last-layer stickers of each face, in per-face sticker order.
- * `lastLayerOnly` dims everything outside the last layer, like a classic
- * OLL/PLL diagram — useful for case displays derived from arbitrary algs.
- */
 const LAST_LAYER_STICKERS: Record<Face, number[]> = {
   U: [0, 1, 2, 3, 4, 5, 6, 7, 8],
   R: [0, 1, 2],

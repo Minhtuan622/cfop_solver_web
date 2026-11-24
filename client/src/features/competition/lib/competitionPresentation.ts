@@ -9,7 +9,6 @@ export type CompetitionPenalty = "none" | "+2" | "DNF";
 
 export const formatLabels: Record<RoomFormat, string> = { best_of_3: "Best of 3", ao5: "Ao5", ao12: "Ao12" };
 
-/** Dictionary key of the scoring rule behind each format. */
 export const formatDescriptionKey: Record<RoomFormat, string> = {
   best_of_3: "competition.format.bestOf3Description",
   ao5: "competition.format.ao5Description",

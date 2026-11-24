@@ -1,6 +1,5 @@
 import type { Dictionary } from "./index";
 
-/** The WCA competition calendar page. */
 export const wcaWords: Dictionary = {
   "wca.eyebrow": ["World Cube Association", "World Cube Association"],
   "wca.title": ["Lịch giải WCA", "WCA competition calendar"],

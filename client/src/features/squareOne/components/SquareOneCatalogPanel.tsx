@@ -1,11 +1,3 @@
-/**
- * Square-1 catalog drawer: the shared CatalogExplorer wired to the six
- * Square-1 sets and the extracted cubingapp.com case diagrams (two views of
- * the case per diagram — top and bottom layer). The practice card shows the
- * real 2D case. The parent already filters by the active set
- * (familyOptions=null); groups render one set at a time because the subset
- * names ("4 Slashes") repeat across sets.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   CatalogExplorer,
@@ -14,7 +6,6 @@ import {
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import type { SquareOneCatalogCase, SquareOneFamily } from "../lib/squareOneCatalog";
 
-/** Flat Square-1 mark (used when a case has no diagram). */
 export function SquareOneMark({ className }: { className?: string }) {
   return (
     <svg

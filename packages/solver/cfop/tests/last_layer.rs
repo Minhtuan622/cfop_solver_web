@@ -96,7 +96,6 @@ fn all_216_orientation_states() {
         }
     }
     assert_eq!(count, 216);
-    // 57 cases + skip.
     assert_eq!(seen_cases.len(), 58, "{seen_cases:?}");
 }
 
@@ -125,7 +124,6 @@ fn all_288_permutation_states() {
 fn every_algorithm_produces_its_case() {
     for (cases, is_oll) in [(oll_cases(), true), (pll_cases(), false)] {
         for case in cases {
-            // The algorithm keeps F2L and the cube orientation.
             let after = Cube::SOLVED.apply_moves(&case.algorithm);
             assert_eq!(
                 after.centers(),
@@ -137,7 +135,6 @@ fn every_algorithm_produces_its_case() {
             if !is_oll {
                 assert!(oriented(&after), "{} changes orientation", case.name);
             }
-            // Its inverse sets up exactly this case, which it then solves.
             let setup = Cube::from_moves(&invert_moves(&case.algorithm));
             let r = if is_oll {
                 solve_oll(&setup, Face::D)

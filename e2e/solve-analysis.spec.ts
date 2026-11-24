@@ -1,17 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 
-/**
- * Phân tích solve smart cube: một lượt đã lưu có chuỗi nước và nhịp từng nước
- * (`moveTimes`) mở được hộp thoại phân tích với bảng giai đoạn, quãng dừng, case
- * OLL/PLL, nút phát lại và so với bộ giải thật (WebAssembly).
- */
 const SOLUTION = "R U R' U R U2 R'";
 const ENTRY = {
   id: "analysis-fixture",
   createdAt: Date.now(),
   elapsedMs: 3_000,
   inspectionMs: 0,
-  // Scramble = nghịch đảo của lời giải (Sune).
   input: "R U2 R' U' R U' R'",
   inputKind: "scramble",
   moves: 7,
@@ -58,9 +52,7 @@ test("mở phân tích: bảng giai đoạn, quãng dừng và case OLL", async 
   const phases = page.getByTestId("analysis-phases");
   await expect(phases).toBeVisible({ timeout: 30_000 });
   await expect(phases.getByRole("row")).toHaveCount(5);
-  // Quãng dừng 1,55 s trước nước thứ 5 (U-turn đầu của PLL/OLL cuối).
   await expect(page.getByTestId("analysis-pauses")).toContainText("1.55s");
-  // Case OLL nối sang Học thêm: liên kết luyện đúng case.
   await expect(page.getByRole("link", { name: "Luyện case" }).first()).toHaveAttribute(
     "href",
     /\/study\?lane=cfop&case=OLL-(26|27)$/,
@@ -83,7 +75,6 @@ test("phát lại đúng nhịp chạy hết lời giải", async ({ page }) => 
   await openAnalysis(page);
   await expect(page.getByTestId("analysis-phases")).toBeVisible({ timeout: 30_000 });
   await page.getByRole("button", { name: /^(Phát|Play)/ }).first().click();
-  // Nước cuối cùng của lời giải xuất hiện khi phát xong (7 nước, ~3 s thật).
   await expect(page.getByText(/07 \/ 07/)).toBeVisible({ timeout: 30_000 });
 });
 

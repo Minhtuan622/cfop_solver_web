@@ -1,29 +1,13 @@
-//! Piece-tracking move tables, reference frames and pruning tables.
-//!
-//! All searches run in a *canonical frame*: cross on D, first slot FR. A
-//! cube with another cross color is conjugated into this frame once
-//! (`G^-1 * cube * G`), searched, and the moves mapped back (`G m G^-1`).
-//! The other three slots reuse the FR tables by conjugating the tracked
-//! coordinates with `y^k`, so only one set of tables exists.
-//!
-//! Coordinates: an edge is `pos * 2 + flip` (0..24), a corner is
-//! `pos * 3 + twist` (0..24). Edge pieces 4..=7 are the D-cross edges
-//! (DR DF DL DB), 8..=11 the slot edges (FR FL BL BR), corner pieces 4..=7
-//! the slot corners (DFR DLF DBL DRB).
-
 use std::sync::OnceLock;
 use std::time::Duration;
 
 use cube_core::{move_cube, Cube, Move, MoveBase};
 
-/// The 18 outer face turns, indexed like `Move::index()` (faces come first).
 pub(crate) const FACE_MOVES: usize = 18;
 
 pub(crate) const CROSS_EDGES: [usize; 4] = [4, 5, 6, 7];
-/// (corner piece, edge piece) of canonical slots FR, FL, BL, BR.
 pub(crate) const SLOTS: [(usize, usize); 4] = [(4, 8), (5, 9), (6, 10), (7, 11)];
 
-/// Half-byte table; 0xF = not yet reached.
 pub(crate) struct Nibbles {
     data: Vec<u8>,
 }
@@ -49,8 +33,6 @@ impl Nibbles {
     }
 }
 
-/// Which pieces a pruning table tracks: `n_edges` edges (in a fixed piece
-/// order) and optionally one corner.
 #[derive(Clone, Copy)]
 struct Coord {
     n_edges: usize,
@@ -63,7 +45,6 @@ impl Coord {
         (perms << self.n_edges) * if self.corner { 24 } else { 1 }
     }
 
-    /// `edges[k]` = coordinate of the k-th tracked edge.
     #[inline]
     fn rank(self, edges: &[u8], corner: u8) -> usize {
         let mut used: u16 = 0;
@@ -101,7 +82,6 @@ impl Coord {
         let mut used: u16 = 0;
         let mut edges = [0u8; 5];
         for k in 0..self.n_edges {
-            // digits[k]-th unused position
             let mut count = digits[k];
             let mut p = 0;
             loop {
@@ -121,7 +101,6 @@ impl Coord {
     }
 }
 
-/// Distance-to-goal table built by breadth-first search from the goal.
 pub(crate) struct Pruning {
     coord: Coord,
     table: Nibbles,
@@ -132,8 +111,8 @@ impl Pruning {
     fn build(coord: Coord, mv: &MoveTables) -> Pruning {
         let size = coord.size();
         let mut table = Nibbles::new(size);
-        let goal_edges: [u8; 5] = [8, 10, 12, 14, 16]; // pieces 4..=8 at home, unflipped
-        table.set(coord.rank(&goal_edges, 12), 0); // corner piece 4 at pos 4
+        let goal_edges: [u8; 5] = [8, 10, 12, 14, 16];
+        table.set(coord.rank(&goal_edges, 12), 0);
         let mut filled = 1usize;
         let mut depth = 0u8;
         while filled < size && depth < 14 {
@@ -187,7 +166,6 @@ impl Pruning {
     }
 }
 
-/// Per-move coordinate transitions for single pieces.
 pub(crate) struct MoveTables {
     pub(crate) edge: [[u8; 24]; FACE_MOVES],
     pub(crate) corner: [[u8; 24]; FACE_MOVES],
@@ -224,8 +202,6 @@ impl MoveTables {
     }
 }
 
-/// Conjugation of tracked coordinates by a rotation `Y` (t = Y^-1 s Y):
-/// `edge[piece][coord] = (new piece, new coord)`.
 pub(crate) struct Conj {
     pub(crate) edge: [[(u8, u8); 24]; 12],
     pub(crate) corner: [[(u8, u8); 24]; 8],
@@ -255,25 +231,18 @@ impl Conj {
     }
 }
 
-/// A reference frame for one cross color.
 pub(crate) struct Frame {
-    /// Rotation `G` taking the cross face to D.
     pub(crate) g: Cube,
     pub(crate) g_inv: Cube,
-    /// Canonical move -> actual move (`G m G^-1`), for all 54 moves.
     pub(crate) to_actual: [Move; Move::COUNT],
 }
 
 pub(crate) struct Tables {
     pub(crate) mv: MoveTables,
     pub(crate) cross: Pruning,
-    /// Cross edges + FR edge.
     pub(crate) pair_edge: Pruning,
-    /// Cross edges + DFR corner.
     pub(crate) pair_corner: Pruning,
-    /// `slot_conj[j]` maps slot j's pieces onto the FR pieces.
     pub(crate) slot_conj: [Conj; 4],
-    /// Indexed by cross color (face index U R F D L B).
     pub(crate) frames: [Frame; 6],
     pub(crate) build_time: Option<Duration>,
 }
@@ -302,10 +271,6 @@ fn rotations() -> Vec<Cube> {
     all
 }
 
-/// Rotation bringing each cross color to D. The Studio names F2L slots in this
-/// view, so the convention is fixed: U z2, R z, F x', D -, L z', B x.
-/// U uses z2 (not x2) so a yellow cross keeps green in front: exactly how the
-/// cube is held after a WCA scramble (white U, green F) — no rotation needed.
 const CROSS_ROTATIONS: [&str; 6] = ["z2", "z", "x'", "", "z'", "x"];
 
 fn build_frame(color: usize) -> Frame {
@@ -384,7 +349,6 @@ impl Tables {
     }
 }
 
-/// Size and build cost of the lazily built tables.
 #[derive(Clone, Debug)]
 pub struct TableStats {
     pub cross_entries: usize,
@@ -396,13 +360,10 @@ pub struct TableStats {
     pub pair_corner_entries: usize,
     pub pair_corner_bytes: usize,
     pub pair_corner_max_distance: u8,
-    /// All pruning tables together.
     pub total_bytes: usize,
-    /// Time to build every table (native only).
     pub build_time: Option<Duration>,
 }
 
-/// Build the tables now (if not yet built) and report their size.
 pub fn table_stats() -> TableStats {
     let t = tables();
     TableStats {

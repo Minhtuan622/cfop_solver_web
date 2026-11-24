@@ -14,7 +14,6 @@ export type StudySchedulePanelProps = {
   onDismissCelebration: () => void;
 };
 
-/** The right column: what is due over the next seven days, and the weakest case. */
 export function StudySchedulePanel({
   schedule,
   totalDue,
@@ -64,13 +63,6 @@ export function StudySchedulePanel({
                       : "rounded-xl bg-surface px-1.5 py-2 text-center text-sm text-ink"
                   }
                 >
-                  {/* Cột chỉ rộng ~45px: nhãn ngày phải nhỏ lại, nếu không
-                      "Thứ 5" sẽ xuống dòng (đo được: 33px cần ở 12px, chỉ còn
-                      33px trong ô). Không dùng `whitespace-nowrap` để khi thiếu
-                      chỗ nó xuống dòng chứ không tràn ra ngoài ô.
-
-                      Ô hôm nay có nền màu nhấn nên chữ dùng màu on-primary:
-                      màu phụ và màu nhấn trên nền nhấn không đọc được. */}
                   <span
                     className={cn(
                       "block text-[11px]",
@@ -83,8 +75,6 @@ export function StudySchedulePanel({
                   <strong
                     className={cn(
                       "block text-sm tabular-nums",
-                      // Chỉ ngày có case cần ôn mới tô màu nhấn; ngày trống để
-                      // màu phụ. Ô hôm nay dùng màu chữ trên nền nhấn.
                       day.isToday
                         ? "text-on-primary"
                         : day.dueCount > 0

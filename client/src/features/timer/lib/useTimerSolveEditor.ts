@@ -1,7 +1,3 @@
-/**
- * State của hộp thoại sửa lượt giải trên trang Bấm giờ: thời gian gốc,
- * penalty, solution (luôn được kiểm), ghi chú và tag.
- */
 import { useState } from "react";
 import { validateRecordedSolution } from "@/lib/fastCube";
 import {
@@ -16,11 +12,8 @@ export function useTimerSolveEditor({
   unfinishedMessage,
   unsupportedMessage,
 }: {
-  /** Nhận danh sách lượt giải sau khi lưu. */
   onSaved: (entries: SolveHistoryEntry[]) => void;
-  /** Lỗi khi solution chưa giải xong khối. */
   unfinishedMessage: string;
-  /** Lỗi khi solution có ký hiệu không hỗ trợ. */
   unsupportedMessage: string;
 }) {
   const [editing, setEditing] = useState<SolveHistoryEntry | null>(null);

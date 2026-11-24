@@ -1,8 +1,3 @@
-/**
- * FTO L3T catalog drawer: the shared CatalogExplorer wired to the L3T
- * algorithms, grouped by phase (PF / TL / LT). The practice card shows the
- * live 3D case; the grid uses the lane's octahedron emblem as fallback.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   CatalogExplorer,
@@ -11,7 +6,6 @@ import {
 import { CaseDiagramImage } from "@/features/last-layer/components/CaseDiagramImage";
 import type { FtoL3tCatalogCase } from "../lib/l3tCatalog";
 
-/** Flat octahedron mark (used when a case has no diagram). */
 export function FtoL3tMark({ className }: { className?: string }) {
   return (
     <svg
@@ -20,7 +14,6 @@ export function FtoL3tMark({ className }: { className?: string }) {
       role="img"
       aria-hidden="true"
     >
-      {/* octahedron silhouette: two pyramids base-to-base */}
       <polygon
         points="48,6 82,40 48,50 14,40"
         fill="#f5f5f0"

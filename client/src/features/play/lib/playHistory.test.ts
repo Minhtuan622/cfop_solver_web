@@ -46,17 +46,15 @@ describe("playHistory", () => {
   });
 
   it("computes best and a WCA-trimmed ao5 from the last 5 solves", () => {
-    // Asymmetric on purpose: naive mean is 13_200, trimmed mean is 12_000.
     for (const ms of [10_000, 11_000, 12_000, 13_000, 20_000]) {
       sample({ elapsedMs: ms });
     }
     const stats = playStats(readPlayHistory());
     expect(stats.bestMs).toBe(10_000);
     expect(stats.ao5Ms).toBe(12_000);
-    // One DNF counts as the discarded worst result, not as a missing average.
     sample({ penalty: "DNF" });
     const withDnf = playStats(readPlayHistory());
-    expect(withDnf.ao5Ms).toBe(15_000); // window [DNF, 20, 13, 12, 11]: best (11) and DNF dropped → (12+13+20)/3
+    expect(withDnf.ao5Ms).toBe(15_000);
   });
 
   it("returns null ao5 when two or more of the last 5 are DNF", () => {

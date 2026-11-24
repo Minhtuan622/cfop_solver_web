@@ -135,7 +135,6 @@ describe("useSmartCube", () => {
     expect(solve.moveTimes[0]).toBe(0);
     for (let index = 1; index < 4; index += 1)
       expect(solve.moveTimes[index]).toBeGreaterThan(solve.moveTimes[index - 1]);
-    // Thời gian giải = từ nước đầu tới nước cuối.
     expect(Math.round(solve.elapsedMs)).toBe(solve.moveTimes[3]);
   });
 
@@ -227,7 +226,6 @@ describe("useSmartCube", () => {
     for (const move of ["U", "R", "U'", "R'"]) {
       act(() => cube.emit(move));
     }
-    // Wait a beat; no completion must be recorded.
     await waitFor(() => expect(result.current.phase).not.toBe("completed"));
     expect(onSolveComplete).not.toHaveBeenCalled();
   });

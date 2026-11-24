@@ -1,15 +1,3 @@
-/**
- * 4×4 PLL parity catalog for the 4×4 Parity study lane.
- *
- * Source: https://cubingapp.com/algorithms/4x4-PLL-Parity (extracted
- * 2026-11-17, one canonical algorithm per case — the first variant
- * published on the page). 22 algorithms, one family:
- * "pll-parity" (a single group — PLL).
- *
- * The published algorithms use M-slice notation ("M2", "M'"), which cubing.js
- * does not accept on even cubes; the display keeps the published form and the
- * playback path converts M → "l r'" (see fourByFourParityAlg.ts).
- */
 export type FourByFourParityFamily = "pll-parity";
 
 export type FourByFourParityCaseRow = {
@@ -20,7 +8,6 @@ export type FourByFourParityCaseRow = {
   algorithm: string;
 };
 
-/** The 22 4×4 PLL parity algorithms. */
 export const PLL_PARITY_CASES_SOURCE: readonly FourByFourParityCaseRow[] = [
   { id: "OPP-Parity", family: "pll-parity", group: "PLL", name: "OPP Parity", algorithm: "2R2 U2 2R2 Uw2 2R2 Uw2" },
   { id: "Adj-Parity", family: "pll-parity", group: "PLL", name: "Adj Parity", algorithm: "R' U R U' 2R2 U2' 2R2 Uw2' 2R2 Uw2' U' R' U' R" },

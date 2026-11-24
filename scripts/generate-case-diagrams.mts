@@ -1,20 +1,3 @@
-/**
- * Generates the flat case-diagram SVGs shown in the study catalog tiles for
- * the CFOP 3×3, 2×2 and Last Layer lanes — the same flat-ink language as the
- * 4×4 Parity / Pyraminx / Skewb / Square-1 diagrams.
- *
- * The diagrams are derived from the *verified* catalog data (the same
- * case-state strings the app derives for every case), so no external markup
- * is scraped and no diagram can drift from the case it documents. Coverage:
- *
- *   cfop       f2l → full 3×3 net · oll/pll/coll/ollcp → LL-only cross
- *   twoByTwo   cll/pbl/eg1/eg2 → full 2×2 net
- *   lastLayer  zbll/1lll → LL-only cross
- *
- * Output: client/public/diagrams/<lane>/<case-id>.svg
- * Run:    pnpm exec tsx --tsconfig tsconfig.json scripts/generate-case-diagrams.mts
- * The script is idempotent and fails loudly on duplicate ids or bad states.
- */
 import { mkdirSync, writeFileSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -26,9 +9,9 @@ import { listCfopCases } from "../client/src/features/cfop/lib/cfopCatalog";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "client", "public", "diagrams");
 
-const S = 30; // cell edge, px
-const G = 5; // gap between cells, px
-const RX = Math.round(S * 0.18); // corner radius, px
+const S = 30;
+const G = 5;
+const RX = Math.round(S * 0.18);
 
 const UNKNOWN = "#6b7280";
 
@@ -37,7 +20,6 @@ type Cell = { col: number; row: number; fill: string };
 const SOLVED =
   "U".repeat(9) + "R".repeat(9) + "F".repeat(9) + "D".repeat(9) + "L".repeat(9) + "B".repeat(9);
 
-/** Stickers that did not move stay faint; the case pops against the ink stage. */
 const DIM = "#2a3048";
 
 function colorAt(solved: string) {
@@ -52,7 +34,6 @@ function colorAll(state: string, index: number): string {
 }
 
 function net3Cells(state: string): Cell[] {
-  // Unfolded net: U above F; L F R B in the middle row; D below F.
   const color = colorAt(SOLVED);
   const cells: Cell[] = [];
   const faceBlock = (offset: number, blockCol: number, blockRow: number) => {
@@ -62,33 +43,30 @@ function net3Cells(state: string): Cell[] {
       cells.push({ col, row, fill: color(state, offset + i) });
     }
   };
-  faceBlock(0, 1, 0); // U
-  faceBlock(36, 0, 1); // L
-  faceBlock(18, 1, 1); // F
-  faceBlock(9, 2, 1); // R
-  faceBlock(45, 3, 1); // B
-  faceBlock(27, 1, 2); // D
+  faceBlock(0, 1, 0);
+  faceBlock(36, 0, 1);
+  faceBlock(18, 1, 1);
+  faceBlock(9, 2, 1);
+  faceBlock(45, 3, 1);
+  faceBlock(27, 1, 2);
   return cells;
 }
 
 function llCells(state: string): Cell[] {
-  // Classic last-layer cross: B top row / L U R rows / F bottom row.
   const cells: Cell[] = [];
   const at = (col: number, row: number, index: number) =>
     cells.push({ col, row, fill: colorAll(state, index) });
-  for (let c = 0; c < 3; c += 1) at(1 + c, 0, 45 + c); // B top row
+  for (let c = 0; c < 3; c += 1) at(1 + c, 0, 45 + c);
   for (let r = 0; r < 3; r += 1) {
-    at(0, 1 + r, 36 + r * 3); // L left column
-    for (let c = 0; c < 3; c += 1) at(1 + c, 1 + r, r * 3 + c); // U face
-    at(4, 1 + r, 9 + r * 3); // R top row
+    at(0, 1 + r, 36 + r * 3);
+    for (let c = 0; c < 3; c += 1) at(1 + c, 1 + r, r * 3 + c);
+    at(4, 1 + r, 9 + r * 3);
   }
-  for (let c = 0; c < 3; c += 1) at(1 + c, 4, 18 + c); // F top row
+  for (let c = 0; c < 3; c += 1) at(1 + c, 4, 18 + c);
   return cells;
 }
 
 function net2Cells(state: string): Cell[] {
-  // 2×2 unfolded net: U above F; L F R B middle; D below F.
-  // Small enough that full colour stays readable.
   const cells: Cell[] = [];
   const faceBlock = (offset: number, blockCol: number, blockRow: number) => {
     for (let i = 0; i < 4; i += 1) {
@@ -97,12 +75,12 @@ function net2Cells(state: string): Cell[] {
       cells.push({ col, row, fill: colorAll(state, offset + i) });
     }
   };
-  faceBlock(0, 1, 0); // U
-  faceBlock(16, 0, 1); // L
-  faceBlock(8, 1, 1); // F
-  faceBlock(4, 2, 1); // R
-  faceBlock(20, 3, 1); // B
-  faceBlock(12, 1, 2); // D
+  faceBlock(0, 1, 0);
+  faceBlock(16, 0, 1);
+  faceBlock(8, 1, 1);
+  faceBlock(4, 2, 1);
+  faceBlock(20, 3, 1);
+  faceBlock(12, 1, 2);
   return cells;
 }
 
@@ -189,7 +167,6 @@ function main() {
       cfopCount + twoByTwoCount + lastLayerCount
     }`,
   );
-  // Spot check: a few known ids exist and are non-trivial.
   for (const [lane, id] of [
     ["cfop", "F2L-01"],
     ["cfop", "OLL-01"],

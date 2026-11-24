@@ -11,16 +11,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Language } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-/** The two languages of the interface, each written the way its own speakers write it. */
 const OPTIONS: { value: Language; labelKey: string }[] = [
   { value: "vi", labelKey: "language.vietnamese" },
   { value: "en", labelKey: "language.english" },
 ];
 
-/**
- * Lets the visitor pick the language the interface is written in. The compact
- * form shows the icon only, so a navbar can keep the bar short.
- */
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { language, setLanguage, t } = useLanguage();
   const current =

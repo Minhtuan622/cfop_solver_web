@@ -1,4 +1,3 @@
-/** Vẽ ảnh PNG để chia sẻ: thẻ ao5 (kèm khối sau khi tráo) và thẻ một lượt giải. */
 import { CUBE_COLORS, CUBE_FALLBACK_COLOR } from "@/features/puzzle-3d/lib/cubeColors";
 import { exportPalette, type ExportPalette } from "./exportPalette";
 import { SOLVED_FAST_STATE } from "@/lib/fastCube";
@@ -59,7 +58,6 @@ function drawMetricCube(
     }
   }
 }
-/** Dựng ảnh Ao5 để chia sẻ: mỗi lượt một hàng, kèm scramble và CubeNet. */
 export function exportAo5Image(
   entries: SolveHistoryEntry[],
   exclusions: Record<string, "best" | "worst">,
@@ -200,7 +198,6 @@ export function exportAo5Image(
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
-/** Dựng ảnh thẻ lượt giải để chia sẻ: thời gian lớn, scramble, net và pha. */
 export function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en") {
   const width = 1080;
   const height = 1080;
@@ -227,7 +224,6 @@ export function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en"
   context.fillStyle = palette.ink;
   context.fillRect(0, 0, width, 20);
 
-  // Eyebrow row: studio mark on the left, the event on the right.
   context.fillStyle = palette.accent;
   context.font = "800 30px monospace";
   context.fillText("CFOP SOLVER STUDIO", margin, 92);
@@ -241,7 +237,6 @@ export function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en"
   context.fillText(eventLabel, width - margin, 92);
   context.textAlign = "left";
 
-  // Ink panel with the time itself.
   context.fillStyle = palette.ink;
   context.fillRect(margin, 128, innerWidth, 250);
   context.fillStyle = palette.accent;
@@ -262,7 +257,6 @@ export function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en"
     372
   );
 
-  // Cube net + scramble block.
   drawMetricCube(
     context,
     safeScrambleState(entry.input, entry.eventId),
@@ -289,7 +283,6 @@ export function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en"
     context.fillText(entry.penalty, rightX, 740);
   }
 
-  // Phase splits (auto-detected on smart-cube solves when present).
   if (entry.phaseSplits.length) {
     context.fillStyle = palette.muted;
     context.font = "700 20px monospace";
@@ -299,7 +292,6 @@ export function exportSolveImage(entry: SolveHistoryEntry, language: "vi" | "en"
     context.fillText(splitSummary(entry).slice(0, 80), margin, 868);
   }
 
-  // Footer.
   context.textAlign = "center";
   context.fillStyle = palette.muted;
   context.font = "600 21px monospace";

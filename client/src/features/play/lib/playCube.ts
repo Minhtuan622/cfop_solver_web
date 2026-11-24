@@ -1,25 +1,9 @@
-/**
- * Virtual keyboard-driven 3×3 cube — pure helpers for the play mode.
- *
- * The key layout mirrors csTimer's virtual cube (configurable on their side,
- * stable for years): the right hand turns R/U/F, the left hand turns
- * L/D/B, with wide moves, slice turns, rotations, layer selection and the
- * camera on the arrow keys. Divergence is intentional in one corner:
- * csTimer turns the *far* face layer when a layer selection is active and a
- * slice key is pressed; we keep the slice key turning the middle slice.
- */
 import { SOLVED_FAST_STATE } from "@/lib/fastCube";
 
 export type LayerSelection = { oSl: number; oSr: number };
 export const DEFAULT_LAYER_SELECTION: LayerSelection = { oSl: 1, oSr: 1 };
-/** On 3×3 each side layer can grow to the middle layer (wide moves). */
 export const MAX_LAYER = 2;
 
-/**
- * Layer-selection keys, straight from csTimer's virtual cube:
- * 3/4 shrink/extend the left selection, 7/8 shrink/extend the right
- * selection, Space resets both to the outer layers.
- */
 export function layerSelectionForKey(
   selection: LayerSelection,
   key: string,
@@ -47,7 +31,6 @@ export type PlayKeyAction =
   | { kind: "space" }
   | { kind: "escape" };
 
-/** Normalize a DOM keyboard event to a play key, or null when irrelevant. */
 export function normalizePlayKey(event: {
   key: string;
   altKey?: boolean;
@@ -63,11 +46,6 @@ export function normalizePlayKey(event: {
   return null;
 }
 
-/**
- * Resolve a normalized key to a cube action. `selection` is the current
- * layer selection; callers apply `layerSelectionForKey` first for the
- * selection keys and pass the result back in on the next keypress.
- */
 export function playActionForKey(
   key: string,
   selection: LayerSelection,
@@ -101,7 +79,6 @@ function faceMove(base: string, wide: string, selection: 1 | 2, prime: boolean) 
   return selection === 2 ? (prime ? `${wide}'` : wide) : prime ? `${base}'` : base;
 }
 
-/** The cstimer key table itself. WCA 3×3×3 only. */
 function moveForKey(
   key: string,
   selection: LayerSelection,
@@ -113,7 +90,6 @@ function moveForKey(
     rotation,
   });
   switch (key) {
-    // Right hand: R / U / F
     case "i":
       return move(faceMove("R", "r", oSr as 1 | 2, false));
     case "k":
@@ -126,7 +102,6 @@ function moveForKey(
       return move("F");
     case "g":
       return move("F'");
-    // Left hand: L / D / B
     case "d":
       return move(faceMove("L", "l", oSl as 1 | 2, false));
     case "e":
@@ -139,7 +114,6 @@ function moveForKey(
       return move("B");
     case "o":
       return move("B'");
-    // Wide moves (extend to the whole cube when the selection is maxed)
     case "u":
       return move(oSr === 1 ? "r" : "x", oSr !== 1);
     case "r":
@@ -156,7 +130,6 @@ function moveForKey(
       return move("d");
     case "/":
       return move("d'");
-    // Slice turns (middle layer, selection-independent by design)
     case ".":
     case "x":
       return move("M'");
@@ -171,7 +144,6 @@ function moveForKey(
       return move("E");
     case "9":
       return move("E'");
-    // Whole-cube rotations
     case ";":
       return move("y", true);
     case "a":
@@ -191,7 +163,6 @@ function moveForKey(
   }
 }
 
-/** Solved iff every face is uniform — holds even after whole-cube rotations. */
 export function facesUniform(state: string): boolean {
   if (state.length !== 54) return false;
   for (let face = 0; face < 6; face += 1) {
@@ -206,7 +177,6 @@ export function facesUniform(state: string): boolean {
 
 export { SOLVED_FAST_STATE };
 
-/** WCA-style inspection penalty from the inspection duration. */
 export function inspectionPenalty(inspectionMs: number): "none" | "+2" | "DNF" {
   if (inspectionMs > 17_000) return "DNF";
   if (inspectionMs > 15_000) return "+2";

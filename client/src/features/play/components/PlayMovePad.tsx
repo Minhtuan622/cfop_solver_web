@@ -1,7 +1,3 @@
-/**
- * Bàn nút xoay cho màn hình cảm ứng (không có bàn phím): 6 mặt thuận/ngược
- * và 3 phép xoay cả khối. Phẳng: nền nhạt, chỉ đổi nền khi hover/nhấn.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +20,6 @@ export function PlayMovePad({
       key={move}
       type="button"
       disabled={disabled}
-      // Không giữ focus sau khi chạm, để Space vẫn điều khiển khối.
       onPointerDown={event => event.preventDefault()}
       onClick={() => onMove(move, rotation)}
       aria-label={t("play.padMove", { move })}

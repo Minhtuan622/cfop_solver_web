@@ -1,21 +1,15 @@
 @import "tailwindcss";
 
-/* The palette is driven by data-theme so the pre-paint script in index.html can
-   apply it without waiting for React. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root,
 [data-theme="light"] {
   color-scheme: light;
 
-  /* Nền trung tính ấm (không ám xanh); màu nhấn xanh ngọc chỉ dành cho chỗ
-     quan trọng: nút chính, mục đang chọn, liên kết, số liệu nổi bật.
-     Không viền, không bóng: các lớp tách nhau bằng sắc độ nền. */
   --canvas: #f8f7f3;
   --surface: #fdfcfa;
   --surface-2: #f0eee8;
   --surface-3: #e7e4dc;
-  /* Nền menu thả xuống: trắng; mục đang rê nền xám ấm nhạt. */
   --menu: #ffffff;
   --menu-hover: #f0eee8;
   --ink: #1f2422;
@@ -37,18 +31,13 @@
   --info: #2563eb;
   --info-soft: #eaf1ff;
 
-  /* Màu chữ đặt trên nền màu đậm (nút, nhãn). Mỗi chế độ có một giá trị
-     riêng vì nền màu ở chế độ tối lại sáng hơn: chữ trắng trên nền tím
-     sáng chỉ đạt 3.14:1 nên phải đổi sang chữ tối. */
   --on-primary: #ffffff;
   --on-success: #ffffff;
   --on-danger: #ffffff;
   --on-warning: #10142a;
 
-  /* Chữ gợi ý trong ô nhập: đủ đậm để đạt 4.5:1 trên mọi nền ô nhập. */
   --placeholder: #5a605d;
 
-  /* Nền sơ đồ khối: nhạt, phẳng, theo theme; đủ đậm để ô trắng vẫn nổi. */
   --cube-stage: #ebe8e1;
   --cube-stage-ink: #1f2422;
   --cube-stage-muted: #5a605d;
@@ -82,7 +71,6 @@
   --surface: #1f1f1e;
   --surface-2: #2a2a28;
   --surface-3: #353532;
-  /* Tối: menu sáng hơn thẻ; mục đang rê sáng hơn menu. */
   --menu: #383835;
   --menu-hover: #474743;
   --ink: #ececea;
@@ -104,8 +92,6 @@
   --info: #7aa2ff;
   --info-soft: #17264b;
 
-  /* Nền màu ở chế độ tối là màu sáng, nên chữ trên nền đó phải là chữ tối
-     để vẫn đạt WCAG AA (xanh ngọc sáng #55dcc4 với chữ trắng không đủ tương phản). */
   --on-primary: #05211d;
   --on-success: #0b1020;
   --on-danger: #0b1020;
@@ -211,9 +197,6 @@
     outline-offset: 2px;
   }
 
-  /* Mục trong menu/ô chọn: Radix chuyển focus vào mục ngay khi rê chuột, nên
-     :focus-visible khớp và hiện viền khi hover. Các mục này đã đổi nền khi
-     đang trỏ (data-highlighted), nên không bao giờ vẽ viền focus. */
   [role="menuitem"]:focus-visible,
   [role="menuitemradio"]:focus-visible,
   [role="menuitemcheckbox"]:focus-visible,
@@ -242,14 +225,12 @@
   }
 }
 
-/* Sonner ships its own palette; these variables tie it to the Tailwind tokens. */
 [data-sonner-toaster] {
   --normal-bg: var(--surface);
   --normal-text: var(--ink);
   --normal-bg-hover: var(--surface-2);
 
 
-  /* Giao diện phẳng: toast không có đường viền, tách bằng nền và khoảng cách. */
   --normal-border: transparent;
   --normal-border-hover: transparent;
   --success-bg: var(--surface);
@@ -268,12 +249,10 @@
   font-family: var(--font-sans);
 }
 
-/* Hàng cuộn ngang: mờ dần ở mép phải để người dùng biết còn mục phía sau. */
 .scroll-fade-x {
   mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
 }
 
-/* Custom scrollbar — minimalist, soft, matches flat palette. */
 * {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--primary) 28%, var(--muted)) transparent;
@@ -310,8 +289,6 @@
   background: transparent;
 }
 
-/* Hàng cuộn ngang không hiện thanh cuộn (vd. lưới chủ đề Học thêm trên điện
-   thoại). Không nằm trong layer, giống quy tắc thanh cuộn chung ở trên. */
 .scrollbar-none {
   scrollbar-width: none;
 }
@@ -319,9 +296,6 @@
   display: none;
 }
 
-/* Chế độ tập trung của trang bấm giờ: khi đồng hồ chạy, mọi phần có
-   `data-focus-hide` mờ đi, chỉ còn con số. Giữ chỗ trong bố cục để trang
-   không nhảy khi đồng hồ dừng. */
 [data-focus-hide] {
   transition: opacity 180ms ease;
 }

@@ -4,7 +4,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { SectionCard } from "@/components/ui/StudioUI";
 import { Input } from "@/components/ui/FormControls";
 
-/** The study preferences: how many cases a cuber wants to practise every day. */
 export function StudySettingsGroup({
   dailyGoal,
   onDailyGoalChange,

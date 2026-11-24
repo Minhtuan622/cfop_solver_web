@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { siteUrlPlugin } from "../vite.config";
 
-/** A slice of client/index.html carrying every hard-coded studio address. */
 const PAGE = `<!doctype html><html lang="vi">
   <head>
     <link rel="canonical" href="https://cfop-solver.studio/" />
@@ -17,7 +16,6 @@ const PAGE = `<!doctype html><html lang="vi">
   <body></body>
 </html>`;
 
-/** Vite calls transformIndexHtml for dev and for the production build. */
 function transformed(): string {
   const out = siteUrlPlugin().transformIndexHtml(PAGE);
   return typeof out === "string" ? out : out.html;

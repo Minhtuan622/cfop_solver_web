@@ -1,8 +1,3 @@
-/**
- * Thống kê sâu cho trang Bấm giờ: phân bố thời gian, bản đồ nhiệt theo ngày,
- * chuỗi sub-X và so sánh tuần/tháng. Hàm thuần, chỉ đọc nhật ký solve; không
- * ghi gì vào localStorage hay cloud payload.
- */
 import { effectiveTime, type SolveHistoryEntry } from "@/lib/solveHistory";
 import { dayKey } from "./dailyDigest";
 
@@ -14,7 +9,6 @@ function timeOf(entry: TimedEntry) {
   return effectiveTime(entry as SolveHistoryEntry);
 }
 
-/** Thời gian hợp lệ (đã cộng +2), bỏ DNF. */
 function validTimes(entries: ReadonlyArray<TimedEntry>) {
   const times: number[] = [];
   for (const entry of entries) {
@@ -24,7 +18,6 @@ function validTimes(entries: ReadonlyArray<TimedEntry>) {
   return times;
 }
 
-/** Chọn độ rộng ô "đẹp" (1, 2, 5 × 10^n ms) cho khoảng `rangeMs` chia `target` ô. */
 function niceBinWidth(rangeMs: number, target: number) {
   const raw = Math.max(rangeMs / target, 1);
   const magnitude = 10 ** Math.floor(Math.log10(raw));
@@ -34,7 +27,6 @@ function niceBinWidth(rangeMs: number, target: number) {
   return 10 * magnitude;
 }
 
-/** Biểu đồ cột phân bố thời gian giải (DNF không tính). */
 export function timeDistribution(
   entries: ReadonlyArray<TimedEntry>,
   targetBins = 12
@@ -62,10 +54,6 @@ export type HeatmapDay = {
   level: 0 | 1 | 2 | 3 | 4;
 };
 
-/**
- * Số solve mỗi ngày cho `days` ngày gần nhất (cũ → mới, ngày cuối là hôm nay).
- * `level` 0–4 chia theo ngày đông nhất trong khoảng để ô màu có độ tương phản.
- */
 export function dailyHeatmap(
   entries: ReadonlyArray<{ createdAt: number }>,
   days = 84,
@@ -105,13 +93,10 @@ export function dailyHeatmap(
 
 export type SubXStreak = {
   thresholdMs: number;
-  /** Chuỗi đang chạy tính đến solve mới nhất. */
   current: number;
-  /** Chuỗi dài nhất từng đạt. */
   best: number;
 };
 
-/** DNF hoặc thời gian >= ngưỡng làm đứt chuỗi. */
 export function subXStreak(
   entries: ReadonlyArray<TimedEntry>,
   thresholdMs: number
@@ -129,7 +114,6 @@ export function subXStreak(
   return { thresholdMs, current, best };
 }
 
-/** Vài ngưỡng tròn giây nằm trên PB và quanh trung vị, tối đa `count`. */
 export function suggestSubXThresholds(
   entries: ReadonlyArray<TimedEntry>,
   count = 3
@@ -154,7 +138,6 @@ export type PeriodStats = {
 export type PeriodComparison = {
   current: PeriodStats;
   previous: PeriodStats;
-  /** Chênh lệch trung bình (ms): âm = đang nhanh hơn kỳ trước. */
   meanDeltaMs: number | null;
 };
 
@@ -198,7 +181,6 @@ function compare(
   };
 }
 
-/** Tuần này (từ thứ hai, giờ địa phương) so với tuần trước. */
 export function weekComparison(
   entries: ReadonlyArray<TimedEntry>,
   now = Date.now()
@@ -211,7 +193,6 @@ export function weekComparison(
   return compare(entries, currentFrom, previousFrom, now);
 }
 
-/** Tháng này so với tháng trước. */
 export function monthComparison(
   entries: ReadonlyArray<TimedEntry>,
   now = Date.now()

@@ -1,6 +1,5 @@
 import type { SquareOneCaseRow } from "../squareOneData";
 
-/** SQ1-EP — 40 cases. */
 export const EP_CASES_SOURCE: readonly SquareOneCaseRow[] = [
   { id: "EP-Opp-Solved", family: "ep", group: "Bottom Solved", name: "Opp & Solved", algorithm: "/ (3,3) / (-1,0) / (2,-4) / (4,-2) / (0,-2) / (-4,2) / (1,-5) / (3,0) / (3,3) / (3,0)" },
   { id: "EP-O-Solved", family: "ep", group: "Bottom Solved", name: "O+ & Solved", algorithm: "(0,-1) / (-2,-2) / (2,0) / (-3,-3) / (0,1) / (-2,-2) / (0,-2) / (2,2) / (0,-1) / (3,3) / (3,3)" },

@@ -1,6 +1,3 @@
-//! Full CFOP pipeline: opening (Cross or XCross..XXXXCross) -> F2L ->
-//! last layer (OLL+PLL, ZBLL or 1LLL), with fallback telemetry.
-
 use cube_core::{format_moves, simplify_moves, Cube, Move};
 use serde::{Deserialize, Serialize};
 
@@ -12,7 +9,6 @@ use crate::stages::{
     solve_cross_with, solve_f2l_with, CrossOptions, F2lOptions, Face, SlotOrder, StageResult,
 };
 
-/// Requested opening. `Auto` tries XXXXCross, XXXCross, XXCross, XCross, then Cross.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum OpeningMode {
@@ -37,7 +33,6 @@ impl OpeningMode {
         }
     }
 
-    /// Highest tier to try (0 = plain Cross).
     const fn top(self) -> usize {
         match self {
             OpeningMode::Cross => 0,
@@ -49,7 +44,6 @@ impl OpeningMode {
     }
 }
 
-/// Requested last-layer method. `Auto` tries ZBLL, then 1LLL, then OLL+PLL.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LastLayerMode {
     #[default]
@@ -79,19 +73,13 @@ pub struct CfopOptions {
     pub cross_color: Face,
     pub slot_order: SlotOrder,
     pub cross_limits: Limits,
-    /// `max_depth` applies to each F2L pair.
     pub f2l_limits: Limits,
     pub opening: OpeningMode,
-    /// Depth of each direct opening search.
     pub opening_depth: u8,
-    /// Node budget of each direct opening attempt (one slot set).
     pub opening_node_budget: u64,
-    /// Timeout / progress for the opening searches.
     pub opening_limits: Limits,
     pub preferred_slot: Option<usize>,
     pub excluded_slots: Vec<usize>,
-    /// When a requested XCross-tier opening is not found, report it as
-    /// "none"/"unavailable" instead of silently falling back.
     pub opening_find_result: bool,
     pub last_layer: LastLayerMode,
 }
@@ -115,16 +103,12 @@ impl Default for CfopOptions {
     }
 }
 
-/// What the opening search tried and achieved.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OpeningTelemetry {
     pub requested: String,
     pub target: String,
-    /// "cross" .. "xxxxcross", or "none" (find-result mode, nothing found).
     pub achieved: String,
-    /// Tiers tried, highest first, e.g. ["xxcross", "xcross", "cross"].
     pub attempts: Vec<String>,
-    /// "direct" or "unavailable".
     pub method: String,
     pub fallback_count: usize,
     pub did_fallback: bool,
@@ -132,7 +116,6 @@ pub struct OpeningTelemetry {
     pub direct_attempts: Vec<OpeningAttempt>,
 }
 
-/// What the last-layer step tried and achieved.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct LastLayerTelemetry {
     pub requested: String,
@@ -142,18 +125,12 @@ pub struct LastLayerTelemetry {
     pub did_fallback: bool,
 }
 
-/// A complete solution, serializable for the WASM boundary.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CfopSolution {
-    /// The input state.
     pub scrambled: Cube,
-    /// Stages in order: opening (Cross or XCross...), F2L (if any pair is
-    /// left), then OLL+PLL, or a single ZBLL / 1LLL stage.
     pub stages: Vec<StageResult>,
-    /// All stage moves concatenated, with adjacent same-face turns merged.
     pub moves: Vec<Move>,
-    /// `moves` as notation text.
     pub text: String,
     pub opening: OpeningTelemetry,
     pub last_layer: LastLayerTelemetry,
@@ -169,7 +146,6 @@ impl CfopSolution {
     }
 }
 
-/// CFOP solver with configurable options.
 #[derive(Clone, Debug, Default)]
 pub struct Cfop {
     pub options: CfopOptions,
@@ -180,12 +156,10 @@ impl Cfop {
         Cfop { options }
     }
 
-    /// Solve with default options (D cross, best slot order, OLL+PLL).
     pub fn solve(cube: &Cube) -> Result<CfopSolution, Error> {
         Cfop::default().run(cube)
     }
 
-    /// Solve with this solver's options.
     pub fn run(&self, cube: &Cube) -> Result<CfopSolution, Error> {
         let o = &self.options;
         let mut stages = Vec::new();
@@ -247,7 +221,7 @@ impl Cfop {
             let tier = Opening::from_slots(k);
             tiers_tried.push(tier.id().to_string());
             if k == 4 && !o.excluded_slots.is_empty() {
-                continue; // XXXXCross needs every slot.
+                continue;
             }
             let r = solve_opening(
                 cube,

@@ -19,7 +19,6 @@ function centisecondsToMilliseconds(value: number | null | undefined) {
   return typeof value === "number" && value >= 0 ? value * 10 : null;
 }
 
-/** Compares local Timer PBs with official WCA personal records for one event without altering either data source. */
 export function wcaTimerComparison(entries: SolveHistoryEntry[], record: WcaEventRecord, eventId: TimerEventId = DEFAULT_TIMER_EVENT): WcaTimerComparisonRow[] {
   const eventEntries = entries.filter((entry) => normalizeTimerEventId(entry.eventId) === eventId);
   const singles = eventEntries.map(effectiveTime).filter((value): value is number => value !== null);

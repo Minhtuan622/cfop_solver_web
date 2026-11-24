@@ -1,11 +1,3 @@
-/**
- * Last Layer catalog drawer: the shared CatalogExplorer wired to the
- * last-layer data (ZBLL / 1LLL) and the generated flat LL case diagrams
- * from /diagrams/lastLayer — the same style as the other redesigned
- * lanes. The old inline PracticeGroupPreview is kept as the fallback for
- * a missing or broken diagram. Kept as a thin wrapper so existing call
- * sites and tests stay unchanged.
- */
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CatalogExplorer } from "./CatalogExplorer";
 import { PracticeGroupPreview } from "./PracticeGroupPreview";
@@ -24,7 +16,6 @@ type Props = {
   masteredKeys: Set<string>;
   onFamily: (family: Family) => void;
   onSelect: (catalogCase: LastLayerCatalogCase) => void;
-  /** Nhận tập hợp case đã thuộc mới sau một thao tác hàng loạt. */
   onMasteredChange?: (keys: Set<string>) => void;
 };
 

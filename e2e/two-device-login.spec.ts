@@ -13,7 +13,6 @@ const account = {
 };
 
 function mockAccount(page: Page) {
-  // `**` ở cuối là bắt buộc: tRPC gửi kèm query string (batch/input).
   page.route("**/api/trpc/cfopAccount.me**", (route) =>
     route.fulfill({
       contentType: "application/json",
@@ -22,22 +21,13 @@ function mockAccount(page: Page) {
   );
 }
 
-/**
- * Kịch bản e2e: đăng nhập hai thiết bị cùng tài khoản.
- *
- * Kiểm tra hai thiết bị (hai ngữ cảnh trình duyệt độc lập) cùng đăng nhập
- * vào một tài khoản đều có thể xem hồ sơ (cfopAccount.me) mà không bị xung
- * đột.
- */
 test("hai thiết bị đăng nhập cùng tài khoản", async ({ browser }) => {
-  // Thiết bị A.
   const contextA = await browser.newContext();
   const pageA = await contextA.newPage();
   mockAccount(pageA);
   await pageA.goto("/profile");
   await expect(pageA.getByText("E2E Cuber")).toBeVisible();
 
-  // Thiết bị B (cùng tài khoản).
   const contextB = await browser.newContext();
   const pageB = await contextB.newPage();
   mockAccount(pageB);

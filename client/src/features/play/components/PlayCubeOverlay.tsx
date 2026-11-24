@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { formatPlayTime } from "../lib/playHistory";
 import type { PlayMode, RaceStatus } from "../lib/playTypes";
 
-/** Chữ nổi trên khối: đồng hồ đang chạy, đếm ngược inspection hoặc gợi ý bắt đầu. */
 export function PlayCubeOverlay({
   mode,
   status,

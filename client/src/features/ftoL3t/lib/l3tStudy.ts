@@ -1,10 +1,3 @@
-/**
- * SRS study state for the FTO L3T lane (3-Look Last Three Triples).
- *
- * Mirrors the other lanes (same spaced-repetition ladder from
- * `lib/spacedRepetition.ts`) with its own storage keys. Records degrade
- * gracefully via zod.
- */
 import {
   caseStudyKey,
   createCaseStudyStore,

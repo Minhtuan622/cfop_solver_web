@@ -49,7 +49,6 @@ function averageExclusions(sample: SolveHistoryEntry[]): Record<string, AverageE
   return { [best.entry.id]: "best", [worst.entry.id]: "worst" };
 }
 
-/** Returns the concrete history rows that explain the currently displayed Timer metric. */
 export function metricEvidence(entries: SolveHistoryEntry[], key: TimerMetricKey): MetricEvidence {
   if (key === "total") return { entries, value: entries.length, exclusions: {} };
   if (key === "pb") {
@@ -65,7 +64,6 @@ export function metricEvidence(entries: SolveHistoryEntry[], key: TimerMetricKey
   return { entries: hasWindow ? window : [], value: hasWindow ? rollingAverage(window) : undefined, exclusions: hasWindow ? averageExclusions(window) : {} };
 }
 
-/** Compares a newly saved solve only with the history that existed before it. */
 export function detectPersonalRecords(previousEntries: SolveHistoryEntry[], newEntry: SolveHistoryEntry[]): PersonalRecord[];
 export function detectPersonalRecords(previousEntries: SolveHistoryEntry[], newEntry: SolveHistoryEntry): PersonalRecord[];
 export function detectPersonalRecords(previousEntries: SolveHistoryEntry[], newEntry: SolveHistoryEntry | SolveHistoryEntry[]) {

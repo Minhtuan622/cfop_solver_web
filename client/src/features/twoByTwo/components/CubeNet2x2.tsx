@@ -1,6 +1,3 @@
-/**
- * 2×2×2 cube net for case displays (24 stickers).
- */
 import { cn } from "@/lib/utils";
 import { CUBE_COLORS } from "@/features/puzzle-3d/lib/cubeColors";
 

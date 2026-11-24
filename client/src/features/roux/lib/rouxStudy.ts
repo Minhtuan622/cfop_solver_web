@@ -1,9 +1,3 @@
-/**
- * SRS study state for the Roux lane (CMLL and LSE).
- *
- * Same spaced-repetition engine as the other lanes (`lib/caseStudy.ts`) with
- * its own storage keys.
- */
 import {
   caseStudyKey,
   createCaseStudyStore,

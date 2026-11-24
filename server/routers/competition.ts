@@ -4,7 +4,6 @@ import { roomProcedures } from "./competitionRooms";
 import { roundProcedures } from "./competitionRounds";
 import { statsProcedures } from "./competitionStats";
 
-// Các export dưới đây giữ nguyên tên cũ của module này (test và nơi khác import).
 export {
   chatLimiter,
   leaderboardCache,
@@ -19,11 +18,6 @@ export {
   type PlayerHistoryEntry,
 } from "./competitionStats";
 
-/**
- * Router thi đấu: 18 procedure chia theo nhóm — thống kê (bảng xếp hạng, lịch
- * sử), phòng (tạo, vào, rời, xoá, đấu lại), quản trị (moderator, loại khán
- * giả) và lượt thi (bắt đầu, nộp kết quả, chat).
- */
 export const competitionRouter = router({
   ...statsProcedures,
   ...roomProcedures,

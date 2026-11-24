@@ -4,13 +4,6 @@ import { RateLimiter } from "../infrastructure/rateLimit";
 import { playerHistoryQuery } from "../routers/competition";
 import { getDb } from "./core";
 
-/**
- * B2: toàn vẹn phòng thi đấu.
- *
- * - resultInput từ chối elapsedMs quá nhỏ (0 ms) và elapsedMs < inspectionMs.
- * - Rate limiter chat (10 tin/10s) và tạo phòng (5 phòng/giờ) trả 429 khi vượt.
- * - playerHistoryQuery lấy tất cả kết quả trong một truy vấn (không N+1).
- */
 describe("competition result validation", () => {
   it("từ chối elapsedMs = 0 (dưới ngưỡng tối thiểu)", () => {
     const result = resultInput.safeParse({
@@ -70,9 +63,8 @@ describe.skipIf(!process.env.DATABASE_URL)("competition rate limits and playerHi
 
   it("playerHistoryQuery trả về kết quả đúng cho mỗi phòng", async () => {
     const db = await getDb();
-    if (!db) return; // bỏ qua nếu không có database
+    if (!db) return;
 
-    // Nếu không có dữ liệu, trả về mảng rỗng là hợp lệ.
     const history = await playerHistoryQuery({ accountId: 999999 });
     expect(Array.isArray(history)).toBe(true);
   });

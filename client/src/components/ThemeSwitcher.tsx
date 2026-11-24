@@ -18,10 +18,6 @@ const OPTIONS: { value: Theme; icon: typeof SunFill }[] = [
   { value: "system", icon: CircleHalf },
 ];
 
-/**
- * Lets the visitor pick the light palette, the dark palette or the system one.
- * The compact form shows the icon only, so a navbar can keep the bar short.
- */
 export function ThemeSwitcher({ compact = false }: { compact?: boolean }) {
   const { theme, resolved, setTheme } = useTheme();
   const { t } = useLanguage();

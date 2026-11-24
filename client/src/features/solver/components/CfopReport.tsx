@@ -43,7 +43,6 @@ export function CfopReport({
   onSelectMove,
 }: {
   result: SolverResult;
-  /** Phép xoay trước khi giải để màu cross nằm ở D ("" = không cần xoay). */
   setupRotation?: string;
   crossColor?: string;
   language: "vi" | "en";
@@ -56,7 +55,6 @@ export function CfopReport({
   const [expanded, setExpanded] = useState(false);
   const stages = result.phases.filter(phase => phase.moves.length > 0).length;
   const hidden = Math.max(0, result.phases.length - COLLAPSED_PHASES);
-  // Never hide the phase that is being played.
   const activeIndex = result.phases.findIndex(
     phase => phase.name === activePhase
   );

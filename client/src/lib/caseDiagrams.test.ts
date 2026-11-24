@@ -6,11 +6,6 @@ import { listTwoByTwoCases } from "@/features/twoByTwo/lib/twoByTwoCatalog";
 import { listLastLayerDirectCases } from "@/features/last-layer/lib/directCaseCatalog";
 import { listFiveByFiveL2ECases } from "@/features/fiveByFiveL2E/lib/l2eCatalog";
 
-/**
- * The redesigned catalog tiles render static SVGs from /diagrams. These
- * must never drift from the catalogs: a missing or broken diagram silently
- * falls back to the inline preview, so a green test is the only signal.
- */
 const root = path.resolve(import.meta.dirname, "../../..");
 
 const LANES: Array<{ lane: string; cases: Array<{ id: string }> }> = [

@@ -1,10 +1,3 @@
-/**
- * 2×2 CLL catalog for the /study 2×2 lane.
- *
- * Case states are derived at call time via
- * `applyTwoByTwoMoves(TWO_BY_TWO_SOLVED, invertAlgorithm(algorithm))` and
- * memoized, so every shown case is guaranteed to be solved by its own alg.
- */
 import { applyTwoByTwoMoves, TWO_BY_TWO_SOLVED } from "./twoByTwoCube";
 import { invertAlgorithm } from "@/lib/fastCube";
 import { CLL_CASES, PBL_CASES, type TwoByTwoCaseRow } from "./twoByTwoCatalogData";
@@ -14,17 +7,13 @@ export type TwoByTwoFamily = "cll" | "pbl" | "eg1" | "eg2";
 export type TwoByTwoCatalogCase = TwoByTwoCaseRow & { state: string };
 
 export type ListTwoByTwoCasesFilter = {
-  /** "all" (default), "cll" or "pbl". */
   family?: "all" | TwoByTwoFamily;
-  /** Substring match (case-insensitive) against id, name, group and algorithm. */
   query?: string;
-  /** Maximum rows; clamped to [1, 1000]. */
   limit?: number;
 };
 
 const stateCache = new Map<string, string>();
 
-/** The 24-facelet pre-image the shown case starts from (memoized per case). */
 export function twoByTwoCaseStateOf(row: { algorithm: string }): string {
   const cached = stateCache.get(row.algorithm);
   if (cached) return cached;
@@ -56,7 +45,6 @@ export const TWO_BY_TWO_CATALOGS: Record<TwoByTwoFamily, readonly TwoByTwoCatalo
   eg1: EG1_CATALOG,
   eg2: EG2_CATALOG,
 };
-/** The union of every set: CLL, then PBL, then EG-1, then EG-2. */
 export const TWO_BY_TWO_CATALOG: readonly TwoByTwoCatalogCase[] = [
   ...CLL_CATALOG,
   ...PBL_CATALOG,
@@ -113,7 +101,6 @@ export const CLL_GROUPS = [
   "U",
 ] as const;
 export const PBL_GROUPS = ["Adj", "Diag"] as const;
-/** Groups browse-able per set; "all" browses the union. EG sets reuse the CLL subset codes. */
 export const TWO_BY_TWO_GROUPS_BY_SET: Record<TwoByTwoFamily | "all", readonly string[]> = {
   cll: CLL_GROUPS,
   pbl: PBL_GROUPS,

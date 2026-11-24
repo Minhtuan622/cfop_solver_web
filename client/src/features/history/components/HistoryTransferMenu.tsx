@@ -2,7 +2,6 @@ import { Download, FileDown, FileUp } from "@/components/ui/Icon";
 import { Dropdown, DropdownItem, MENU_ITEM_CLASS } from "@/components/ui/Dropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/** Menu nhập/xuất của trang Lịch sử (ít dùng nên gom vào một menu có chữ rõ). */
 export function HistoryTransferMenu({
   onImportJson,
   onImportCstimer,

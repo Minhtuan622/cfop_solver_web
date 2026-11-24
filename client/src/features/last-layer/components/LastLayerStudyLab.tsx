@@ -1,4 +1,3 @@
-﻿/** Study is the only home for the Last Layer SRS and for the 3-Style BLD path. */
 import { Download, FileUp } from "@/components/ui/Icon";
 import { PageHeader, StatusFeedback } from "@/components/ui/StudioUI";
 import type { TimerCompletion } from "@/components/common/SolveTimer";
@@ -291,7 +290,6 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const activeMastered = activeCase
     ? masteredKeys.has(caseKey(activeCase))
     : false;
-  // Non-LL lanes keep their own SRS stats; the toolbar shows whichever lane is active.
   const laneStats = {
     cfop: cfopStats,
     twoByTwo: twoByTwoStats,
@@ -308,7 +306,6 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
   const activeLaneStats =
     studyLane === "lastLayer" ? null : laneStats[studyLane];
 
-  // Lưu tiến độ của chủ đề đang mở cho lưới chủ đề (xem studyLaneProgress).
   const [laneProgress, setLaneProgress] = useState<LaneProgressMap>(readLaneProgress);
   const currentMastered = activeLaneStats?.masteredCount ?? masteredKeys.size;
   const currentTotal = activeLaneStats?.catalogCount ?? catalog.length;
@@ -422,7 +419,6 @@ export function LastLayerStudyLab({ language }: { language: "vi" | "en" }) {
                 type="file"
                 className="hidden"
               />
-              {/* Nhập/xuất tiến độ ít dùng: gom vào một menu nhỏ. */}
               <Dropdown
                 id="study-backup-menu"
                 label={t("study.backupMenu")}

@@ -1,9 +1,7 @@
-//! Shared helpers for integration tests (no external RNG dependency).
 #![allow(dead_code)]
 
 use cube_core::Move;
 
-/// SplitMix64: small deterministic PRNG for reproducible scrambles.
 pub struct Rng(u64);
 
 impl Rng {
@@ -23,7 +21,6 @@ impl Rng {
         (self.next_u64() % n as u64) as usize
     }
 
-    /// Random sequence over all 54 moves (faces, slices, rotations, wide).
     pub fn any_moves(&mut self, len: usize) -> Vec<Move> {
         (0..len)
             .map(|_| Move::from_index(self.below(Move::COUNT)).unwrap())

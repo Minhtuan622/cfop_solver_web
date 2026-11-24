@@ -4,13 +4,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { formatSolveTime, type SolveHistoryEntry } from "@/lib/solveHistory";
 import { average } from "../lib/historyView";
 
-/** Bốn ô số liệu của các lượt đang lọc: tốt nhất, trung bình, hợp lệ, penalty. */
 export function HistoryStatTiles({
   filtered,
   valid,
 }: {
   filtered: SolveHistoryEntry[];
-  /** Thời gian hợp lệ của `filtered` (xem `validTimes`). */
   valid: number[];
 }) {
   const { t } = useLanguage();

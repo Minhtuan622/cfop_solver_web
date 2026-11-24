@@ -2,18 +2,6 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
-/**
- * Regression test cho D1 (hygiene dependency / package manager).
- *
- * Lỗi thật: một lần merge PR của Dependabot (nhánh được tạo từ `main` cũ,
- * trước khi D1 được commit) đã khôi phục lại toàn bộ dependency không dùng,
- * devDependency `pnpm` trùng với trường `packageManager`, và đường dẫn
- * Chromium hệ thống cứng trong script `test:e2e`.
- *
- * Test này chặn việc các dependency chết quay lại và bảo đảm dự án chỉ dùng
- * một package manager (pnpm) với một lockfile duy nhất.
- */
-
 const root = path.resolve(import.meta.dirname, "..");
 
 type PackageJson = {
@@ -30,7 +18,6 @@ function readPackageJson(): PackageJson {
   ) as PackageJson;
 }
 
-/** Dependency đã bị gỡ ở D1 — không được quay lại. */
 const REMOVED_DEPENDENCIES = [
   "jspdf",
   "@aws-sdk/client-s3",
@@ -80,9 +67,6 @@ describe("package manager", () => {
   });
 
   it("ép esbuild lên bản đã vá (>= 0.25.0)", () => {
-    // drizzle-kit kéo @esbuild-kit/core-utils, vốn pin esbuild ~0.18.20 — bản
-    // dính GHSA-67mh-4wv8-2f99. Không có bản core-utils nào mới hơn, nên
-    // phải override.
     const overrides = pkg.pnpm?.overrides ?? {};
     expect(Object.keys(overrides)).toContain("@esbuild-kit/core-utils>esbuild");
   });
@@ -100,7 +84,6 @@ describe("package manager", () => {
   });
 });
 
-/** Thu thập mọi file mã nguồn để kiểm tra dependency có thực sự được dùng. */
 function collectSourceFiles(dir: string, acc: string[] = []): string[] {
   const skipDirs = new Set([
     "node_modules",
@@ -164,8 +147,6 @@ describe("mã nguồn còn tồn tại sau khi gỡ dependency", () => {
   });
 
   it("không có file trùng kiểu ' 2' (bản sao do Finder/iCloud tạo)", () => {
-    // Ví dụ: "bldCatalogSource 2.ts" là bản sao của "bldCatalogSource.ts".
-    // Nếu nó lọt vào git, repo mang file thừa và có thể sinh module trùng.
     const duplicates: string[] = [];
     for (const file of collectSourceFiles(root)) {
       if (/ \d+\.[^.]+$/.test(path.basename(file))) {

@@ -22,7 +22,6 @@ export function multiBlindResult(attempt: MultiBlindAttempt, elapsedMs: number):
   return { attempted, solved, unsolved, score, timeLimitMs, scoreValid, valid: scoreValid && elapsedMs <= timeLimitMs };
 }
 
-/** Sort valid Multi-Blind results according to score, then time, then unsolved count. */
 export function compareMultiBlindResults(left: MultiBlindResult, right: MultiBlindResult, leftElapsedMs: number, rightElapsedMs: number) {
   if (left.score !== right.score) return right.score - left.score;
   if (leftElapsedMs !== rightElapsedMs) return leftElapsedMs - rightElapsedMs;

@@ -1,28 +1,3 @@
-/**
- * Generates the flat last-layer cross diagrams for the 5×5 L2E lane.
- *
- * The lane's 15 cases are edge-tredge cases: the only stickers that matter
- * are the U-face edges and the four side strips that touch them. The app's
- * practice card renders the inverse of each algorithm on the real 5×5
- * puzzle, so the diagrams are sampled from that exact same state instead of
- * being hand-drawn (the old catalog fell back to the grey L2E emblem).
- *
- * We use cubing.js's 5×5 KPuzzle for the state and the puzzle geometry's
- * solved SVG for the sticker layout + colours. The SVG gives every sticker
- * an `ORBIT-l<location>-o<orientation>` id and groups the stickers by face,
- * which is enough to recover the 5×5 face grids without hard-coding them.
- * The inverse algorithm is applied to the solved pattern, then each face's
- * top row is folded out into the classic 7×7-minus-corners last-layer cross.
- *
- * Corners are dimmed: L2E only concerns edge tredges, and the geometry's
- * sticker-orientation order for corners is not the KPuzzle's orientation
- * order (edge flips and centre colours are exact). The dim matches the
- * `DIM` used by the other flat diagrams, so it also blends into the dark
- * diagram stage used by `CaseDiagramImage`.
- *
- * Output: client/public/diagrams/fiveByFiveL2E/<case-id>.svg
- * Run:    pnpm exec tsx --tsconfig tsconfig.json scripts/generate-five-by-five-l2e-diagrams.mts
- */
 import { mkdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,9 +10,9 @@ import { fiveByFiveL2EScrambleOf } from "../client/src/features/fiveByFiveL2E/li
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "client", "public", "diagrams", "fiveByFiveL2E");
 
-const S = 30; // cell edge, px
-const G = 5; // gap between cells, px
-const RX = 5; // corner radius, px
+const S = 30;
+const G = 5;
+const RX = 5;
 const DIM = "#2a3048";
 
 type FaceName = "U" | "B" | "F" | "L" | "R";
@@ -86,8 +61,6 @@ function parseSolvedSvg(svg: string) {
       );
       fillToFace.set(match[4]!, face);
     }
-    // The D face never appears in the cross, but its stickers still define
-    // the solved colour of every tredge whose second sticker is on D.
     if (FACES.includes(face as FaceName)) {
       faces.set(face as FaceName, stickers);
     }
@@ -123,7 +96,7 @@ function faceGrid(
   const seen = new Set<string>();
   for (const sticker of stickers) {
     const key = `${sticker.x},${sticker.y}`;
-    if (seen.has(key)) continue; // fixed centres draw all four orientations
+    if (seen.has(key)) continue;
     seen.add(key);
 
     const orbit = pattern.patternData[sticker.orbit];
@@ -172,7 +145,6 @@ function lastLayerCross(
     });
   };
 
-  // U face in the centre; the four U corners are irrelevant to L2E.
   for (let row = 0; row < 5; row += 1) {
     for (let col = 0; col < 5; col += 1) {
       const corner =
@@ -181,9 +153,6 @@ function lastLayerCross(
     }
   }
 
-  // Top strip = B's top row, reversed when folded above U.
-  // Bottom strip = F's top row, left-to-right.
-  // Left/right strips = L/R top rows, with the right one reversed.
   for (let index = 0; index < 5; index += 1) {
     const topCorner = index === 0 || index === 4;
     push(1 + index, 0, B[0]![4 - index]!, topCorner);

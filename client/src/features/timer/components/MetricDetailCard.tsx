@@ -1,4 +1,3 @@
-/** Thẻ chi tiết của một chỉ số (single/ao5/ao12…): các lượt tạo nên chỉ số và khối sau khi tráo. */
 import { ClipboardCheck, ImageDown, Play } from "@/components/ui/Icon";
 import { useMemo } from "react";
 import { CubeNet } from "@/components/common/CubeNet";
@@ -32,7 +31,6 @@ export function MetricDetailCard({
   onCopy: (entry: SolveHistoryEntry) => void;
   onExpand: (entry: SolveHistoryEntry) => void;
   onReplay: (entry: SolveHistoryEntry) => void;
-  /** Mở phân tích sâu; chỉ hiện với solve smart cube có nhịp từng nước. */
   onAnalyze?: (entry: SolveHistoryEntry) => void;
 }) {
   const { language, t } = useLanguage();

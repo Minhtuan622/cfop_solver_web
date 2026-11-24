@@ -9,7 +9,6 @@ import {
   normalizeWcaId,
 } from "./services/wcaApi";
 
-/** Khóa người gọi giả định cho test. */
 const CALLER = "test-caller";
 
 function mockJson(value: unknown, status = 200) {

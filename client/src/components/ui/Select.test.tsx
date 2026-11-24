@@ -4,7 +4,6 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Select } from "@/components/ui/Select";
 
-// jsdom lacks the pointer-capture and scrollIntoView APIs that Radix uses.
 beforeAll(() => {
   Element.prototype.scrollIntoView = () => {};
   Element.prototype.hasPointerCapture = () => false;
@@ -14,12 +13,6 @@ beforeAll(() => {
 
 afterEach(cleanup);
 
-/**
- * Regression test cho dropdown dựa trên Radix Select.
- *
- * Component giữ đúng API của `<select>` (vẫn nhận `<option value="…">`),
- * nhưng hành vi mở/đóng, bàn phím và accessibility do Radix đảm nhiệm.
- */
 function renderSelect(onChange = vi.fn()) {
   render(
     <Select aria-label="Thể thức" value="333" onChange={onChange}>

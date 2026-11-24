@@ -9,13 +9,6 @@ import { storagePut, isStorageEnabled } from "../services/storage";
 import { accountWcaRouter } from "./wca";
 import { avatarInput, cloudStateInput, credentialsInput, passwordInput, profileInput } from "./inputs";
 
-/**
- * Rate limit bucket subject for the email based auth endpoints.
- *
- * The address is normalized so `A@x.com` and `a@x.com` share one bucket.
- * Anything that is not a usable email falls back to the address alone, which
- * the limiter already mixes into the key.
- */
 function emailSubject(input: unknown) {
   const email = (input as { email?: unknown } | null)?.email;
   if (typeof email !== "string" || !email.trim()) return "";
@@ -28,13 +21,6 @@ function validateCloudPayload(payload: unknown) {
   return payload;
 }
 
-/**
- * Đưa payload về dạng lưu trữ: chỉ giữ `schemaVersion`.
- *
- * Một tab cũ gửi `version`; payload lưu xuống luôn dùng tên mới để hai khái
- * niệm không bị trộn lẫn. `baseVersion` là tham số điều khiển, không thuộc
- * payload.
- */
 function normalizeCloudPayload(input: { schemaVersion?: 1 | 2; version?: 1 | 2; baseVersion?: number | null } & Record<string, unknown>) {
   const { schemaVersion, version, baseVersion: _baseVersion, ...rest } = input;
   return { ...rest, schema: "cfop-account-cloud-state", schemaVersion: schemaVersion ?? version };
@@ -88,9 +74,6 @@ export const accountRouter = router({
   cloudState: router({
     get: cfopAccountProcedure.query(async ({ ctx }) => { const state = await getCfopAccountCloudState(ctx.cfopAccount.id); return state ? { payload: state.payload, updatedAt: state.updatedAt, revision: state.version } : null; }),
     save: cfopAccountProcedure.input(cloudStateInput).mutation(async ({ ctx, input }) => {
-      // Một tab đã mở từ trước khi triển khai gửi payload không có
-      // `baseVersion`. Không được coi như revision 0: sẽ ghi đè mất dữ liệu
-      // của thiết bị khác. Thay vào đó yêu cầu người dùng tải lại trang.
       if (input.baseVersion === undefined) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
@@ -98,9 +81,6 @@ export const accountRouter = router({
         });
       }
       try {
-        // `baseVersion` là revision của dòng mà client đã đọc, do client gửi
-        // lên. Máy chủ so với revision hiện tại: lệch thì báo CONFLICT chứ
-        // không ghi, để client đọc bản mới, gộp rồi lưu lại.
         const state = await saveCfopAccountCloudState(ctx.cfopAccount.id, validateCloudPayload(normalizeCloudPayload(input)), input.baseVersion);
         return { updatedAt: state?.updatedAt ?? new Date(), revision: state?.version ?? 0 };
       } catch (error) {

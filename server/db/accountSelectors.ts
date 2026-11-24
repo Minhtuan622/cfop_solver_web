@@ -1,6 +1,5 @@
 import { cfopAccounts } from "../../drizzle/schema";
 
-/** Public account fields safe for profile and identity responses. */
 export const cfopAccountPublicSelect = {
   id: cfopAccounts.id,
   email: cfopAccounts.email,
@@ -13,7 +12,6 @@ export const cfopAccountPublicSelect = {
   lastSignedIn: cfopAccounts.lastSignedIn,
 };
 
-/** Minimal account identity needed by WCA linking and profile lookups. */
 export const cfopAccountWcaSelect = {
   id: cfopAccounts.id,
   wcaId: cfopAccounts.wcaId,

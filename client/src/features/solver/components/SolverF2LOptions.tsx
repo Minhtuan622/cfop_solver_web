@@ -11,10 +11,6 @@ export type SolverF2LOptionsProps = {
   onExcludedSlotsChange: (slots: F2LSlot[]) => void;
 };
 
-/**
- * The F2L slot preferences. They only matter once the opening is wider than
- * a plain cross, so they stay folded away until they are needed.
- */
 export function SolverF2LOptions({
   preferredSlot,
   excludedSlots,

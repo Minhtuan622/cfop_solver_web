@@ -1,32 +1,15 @@
-//! Cubie-level cube state and precomputed move tables.
-//!
-//! Representation ("replaced-by", as in Kociemba's two-phase solver):
-//! `cp[i]` is the corner piece sitting at corner position `i`, `co[i]` its
-//! twist (0..=2); `ep`/`eo` likewise for edges (flip 0..=1) and `centers[i]`
-//! is the center piece at center position `i`. Applying move `m` to state
-//! `s` is the product `s * m`.
-//!
-//! Corner order: URF UFL ULB UBR DFR DLF DBL DRB.
-//! Edge order:   UR UF UL UB DR DF DL DB FR FL BL BR.
-//! Center order: U R F D L B.
-
 use std::sync::OnceLock;
 
 use crate::error::StateError;
 use crate::geometry::{apply_permutation, layer_permutation, FACE_NORMAL};
 use crate::moves::{Move, MoveBase};
 
-/// Face letters in sticker-string order.
 pub const FACE_CHARS: [char; 6] = ['U', 'R', 'F', 'D', 'L', 'B'];
 
-/// Solved 54-sticker string.
 pub const SOLVED_STICKERS: &str = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
 
-/// Sticker index of each center, in center order.
 pub const CENTER_FACELETS: [usize; 6] = [4, 13, 22, 31, 40, 49];
 
-/// Sticker indices of each corner position, reference (U/D) sticker first,
-/// then clockwise.
 pub const CORNER_FACELETS: [[usize; 3]; 8] = [
     [8, 9, 20],
     [6, 18, 38],
@@ -38,7 +21,6 @@ pub const CORNER_FACELETS: [[usize; 3]; 8] = [
     [35, 17, 51],
 ];
 
-/// Sticker indices of each edge position, reference sticker first.
 pub const EDGE_FACELETS: [[usize; 2]; 12] = [
     [5, 10],
     [7, 19],
@@ -54,7 +36,6 @@ pub const EDGE_FACELETS: [[usize; 2]; 12] = [
     [48, 14],
 ];
 
-/// Colors (face indices) of each corner piece, in facelet order.
 pub const CORNER_COLORS: [[u8; 3]; 8] = [
     [0, 1, 2],
     [0, 2, 4],
@@ -66,7 +47,6 @@ pub const CORNER_COLORS: [[u8; 3]; 8] = [
     [3, 1, 5],
 ];
 
-/// Colors (face indices) of each edge piece, in facelet order.
 pub const EDGE_COLORS: [[u8; 2]; 12] = [
     [0, 1],
     [0, 2],
@@ -82,7 +62,6 @@ pub const EDGE_COLORS: [[u8; 2]; 12] = [
     [5, 1],
 ];
 
-/// A 3x3x3 cube state at cubie level, including the six centers.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Cube {
     cp: [u8; 8],
@@ -107,7 +86,6 @@ impl Cube {
         centers: [0, 1, 2, 3, 4, 5],
     };
 
-    /// Build a state from raw cubie arrays, validating it.
     pub fn from_parts(
         cp: [u8; 8],
         co: [u8; 8],
@@ -142,7 +120,6 @@ impl Cube {
         &self.centers
     }
 
-    /// `self * other`: the state after applying `other` to `self`.
     pub fn multiply(&self, other: &Cube) -> Cube {
         let mut r = Cube::SOLVED;
         for i in 0..8 {
@@ -161,7 +138,6 @@ impl Cube {
         r
     }
 
-    /// Group inverse: `c.multiply(&c.inverse()) == Cube::SOLVED`.
     pub fn inverse(&self) -> Cube {
         let mut r = Cube::SOLVED;
         for i in 0..8 {
@@ -180,33 +156,27 @@ impl Cube {
         r
     }
 
-    /// Apply a single move.
     pub fn apply(&self, m: Move) -> Cube {
         self.multiply(move_cube(m))
     }
 
-    /// Apply moves in order.
     pub fn apply_moves(&self, moves: &[Move]) -> Cube {
         moves.iter().fold(*self, |c, &m| c.apply(m))
     }
 
-    /// The state reached from solved by `moves`.
     pub fn from_moves(moves: &[Move]) -> Cube {
         Cube::SOLVED.apply_moves(moves)
     }
 
-    /// Exactly solved, in the reference orientation (U center on top, F in front).
     pub fn is_solved(&self) -> bool {
         *self == Cube::SOLVED
     }
 
-    /// Every face shows a single color (solved in any whole-cube orientation).
     pub fn is_solved_any_orientation(&self) -> bool {
         let s = self.to_sticker_array();
         (0..6).all(|f| s[f * 9..f * 9 + 9].iter().all(|&c| c == s[f * 9 + 4]))
     }
 
-    /// Check that this state is reachable by legal moves and rotations.
     pub fn verify(&self) -> Result<(), StateError> {
         let mut seen = [false; 12];
         for &p in &self.cp {
@@ -253,15 +223,12 @@ impl Cube {
         if !flip.is_multiple_of(2) {
             return Err(StateError::EdgeFlip { sum: flip });
         }
-        // Whole-cube rotations are odd on edges and centers together, so the
-        // invariant includes the center permutation parity.
         if parity(&self.cp) ^ parity(&self.ep) ^ parity(&self.centers) {
             return Err(StateError::Parity);
         }
         Ok(())
     }
 
-    /// Parse a 54-character URFDLB sticker string and validate it.
     pub fn from_stickers(s: &str) -> Result<Cube, StateError> {
         let chars: Vec<char> = s.chars().collect();
         if chars.len() != 54 {
@@ -293,7 +260,6 @@ impl Cube {
         Ok(cube)
     }
 
-    /// 54-character URFDLB sticker string.
     pub fn to_stickers(&self) -> String {
         self.to_sticker_array()
             .iter()
@@ -301,7 +267,6 @@ impl Cube {
             .collect()
     }
 
-    /// Stickers as face indices (0..6) in URFDLB order.
     pub fn to_sticker_array(&self) -> [u8; 54] {
         let mut f = [0u8; 54];
         for i in 0..6 {
@@ -325,7 +290,6 @@ impl Cube {
     }
 }
 
-/// `true` if the permutation is odd.
 fn parity(p: &[u8]) -> bool {
     let mut odd = false;
     for i in 0..p.len() {
@@ -338,7 +302,6 @@ fn parity(p: &[u8]) -> bool {
     odd
 }
 
-/// Facelets (face indices) to cubies, without the reachability checks.
 fn cube_from_facelets(f: &[u8; 54]) -> Result<Cube, StateError> {
     let mut cube = Cube::SOLVED;
     for i in 0..6 {
@@ -398,7 +361,6 @@ fn tables() -> &'static Tables {
     TABLES.get_or_init(build_tables)
 }
 
-/// The precomputed cube for a move (built once, on first use).
 pub fn move_cube(m: Move) -> &'static Cube {
     &tables().moves[m.index()]
 }
@@ -428,15 +390,12 @@ fn compose(parts: &[(&Cube, u8)]) -> Cube {
 
 fn build_tables() -> Tables {
     use MoveBase::*;
-    // Primitives from 3D geometry: six outer layers and three rotations.
     let face = |f: usize| cube_from_perm(&layer_permutation(FACE_NORMAL[f], Some(1)));
     let (u, r, fr, d, l, b) = (face(0), face(1), face(2), face(3), face(4), face(5));
     let x = cube_from_perm(&layer_permutation(FACE_NORMAL[1], None));
     let y = cube_from_perm(&layer_permutation(FACE_NORMAL[0], None));
     let z = cube_from_perm(&layer_permutation(FACE_NORMAL[2], None));
 
-    // Slices and wide turns are *defined* as face turns plus a rotation;
-    // centers therefore only ever move through x/y/z.
     let quarter = |base: MoveBase| -> Cube {
         match base {
             U => u,
@@ -448,15 +407,15 @@ fn build_tables() -> Tables {
             X => x,
             Y => y,
             Z => z,
-            M => compose(&[(&r, 1), (&l, 3), (&x, 3)]), // M = R L' x'
-            E => compose(&[(&u, 1), (&d, 3), (&y, 3)]), // E = U D' y'
-            S => compose(&[(&fr, 3), (&b, 1), (&z, 1)]), // S = F' B z
-            Rw => compose(&[(&l, 1), (&x, 1)]),         // r = L x
-            Lw => compose(&[(&r, 1), (&x, 3)]),         // l = R x'
-            Uw => compose(&[(&d, 1), (&y, 1)]),         // u = D y
-            Dw => compose(&[(&u, 1), (&y, 3)]),         // d = U y'
-            Fw => compose(&[(&b, 1), (&z, 1)]),         // f = B z
-            Bw => compose(&[(&fr, 1), (&z, 3)]),        // b = F z'
+            M => compose(&[(&r, 1), (&l, 3), (&x, 3)]),
+            E => compose(&[(&u, 1), (&d, 3), (&y, 3)]),
+            S => compose(&[(&fr, 3), (&b, 1), (&z, 1)]),
+            Rw => compose(&[(&l, 1), (&x, 1)]),
+            Lw => compose(&[(&r, 1), (&x, 3)]),
+            Uw => compose(&[(&d, 1), (&y, 1)]),
+            Dw => compose(&[(&u, 1), (&y, 3)]),
+            Fw => compose(&[(&b, 1), (&z, 1)]),
+            Bw => compose(&[(&fr, 1), (&z, 3)]),
         }
     };
 
@@ -469,7 +428,6 @@ fn build_tables() -> Tables {
         }
     }
 
-    // The 24 whole-cube orientations, as center arrangements.
     let mut center_orientations = vec![Cube::SOLVED.centers];
     let mut i = 0;
     while i < center_orientations.len() {
@@ -501,8 +459,6 @@ mod tests {
         s.parse().unwrap()
     }
 
-    /// Well-known cubie tables from Kociemba's two-phase solver, written out
-    /// by hand: an independent check of the geometry-derived tables.
     #[test]
     fn face_moves_match_kociemba_reference_tables() {
         type Row = (&'static str, [u8; 8], [u8; 8], [u8; 12], [u8; 12]);
@@ -560,8 +516,6 @@ mod tests {
         }
     }
 
-    /// Slices and wide moves are composed from faces + rotations; check that
-    /// the composition equals the direct geometric layer turn.
     #[test]
     fn composed_moves_match_direct_geometry() {
         let solved = solved_facelets();
@@ -572,7 +526,6 @@ mod tests {
         for (name, f) in cases {
             assert_eq!(Cube::SOLVED.apply(mv(name)).to_sticker_array(), f, "{name}");
         }
-        // Wide = outer layer + slice, both geometric.
         let wide = [
             ("r", 1, 4, true),
             ("l", 4, 4, false),
@@ -608,7 +561,6 @@ mod serde_impl {
     use super::Cube;
     use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-    /// Serialized as its 54-sticker `URFDLB` string.
     impl Serialize for Cube {
         fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
             s.serialize_str(&self.to_stickers())

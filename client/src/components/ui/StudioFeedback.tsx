@@ -1,4 +1,3 @@
-/** Phản hồi trạng thái: thông báo, trạng thái rỗng và chỉ báo đang cập nhật. */
 import {
   type ReactNode,
 } from "react";
@@ -38,7 +37,6 @@ export function StatusFeedback({
   );
 }
 
-/** Placeholder shown when a list, a table or a panel has nothing to display yet. */
 export function EmptyState({
   icon,
   title,

@@ -1,10 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
 
-/**
- * Bộ giải 2×2/Pyraminx/Skewb và tab 3×3 FM của trang Giải chạy
- * trên bộ tìm kiếm thật của cubing.js (worker + bảng tra), nên chỉ trình duyệt
- * thật mới bắt được lỗi đóng gói. Hai bài đều cần thời gian khởi tạo bảng tra.
- */
 async function signedOut(page: Page) {
   await page.route("**/api/trpc/cfopAccount.me**", route =>
     route.fulfill({
@@ -31,7 +26,6 @@ for (const { name, scramble } of CASES) {
 
     await page.getByLabel("Loại khối").click();
     await page.getByRole("option", { name }).click();
-    // Mở khối nào là có sẵn scramble của khối đó.
     await expect(page.locator("#home-scramble")).not.toHaveValue("", { timeout: 30_000 });
     await page.locator("#home-scramble").fill(scramble);
     await page.getByRole("button", { name: "Tìm cách giải" }).click();
@@ -75,13 +69,11 @@ for (const [id, name] of [["222", "2×2×2"], ["pyram", "Pyraminx"], ["skewb", "
     await expect(page.getByRole("button", { name: "Xáo trộn" })).toBeVisible();
     await page.getByRole("button", { name: "Trạng thái cube" }).click();
 
-    // Khối vừa mở là khối đã giải: lời giải rỗng.
     await expect(page.locator("[data-sticker]").first()).toBeVisible({ timeout: 60_000 });
     await page.getByRole("button", { name: "Tìm cách giải" }).click();
     await expect(page.getByTestId("other-puzzle-solution")).toBeVisible({ timeout: 120_000 });
     await expect(page.getByRole("alert")).toHaveCount(0);
 
-    // Tô sai một sticker (đổi màu một ô) thì báo trạng thái không hợp lệ.
     const colors = page.getByRole("group", { name: "Bảng màu" }).getByRole("button");
     await colors.nth(1).click();
     await page.locator("[data-sticker^=\"CORNERS-l0\"]").first().click({ force: true });
@@ -97,7 +89,6 @@ test("Clock: nhập trạng thái bằng mặt số rồi giải", async ({ page
   await page.getByLabel("Loại khối").click();
   await page.getByRole("option", { name: "Clock" }).click();
   await page.getByRole("button", { name: "Trạng thái" }).click();
-  // Một lượt UR1+ thật: mặt trước 1,2,4,5 +1 giờ, mặt sau 1 ô −1 giờ.
   for (const dial of [2, 3, 5, 6]) await page.locator(`[data-dial="${dial - 1}"]`).click();
   await page.locator('[data-dial="9"]').click({ button: "right" });
   await page.getByRole("button", { name: "Tìm cách giải" }).click();

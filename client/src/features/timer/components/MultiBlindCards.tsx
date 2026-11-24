@@ -1,4 +1,3 @@
-/** Danh sách scramble và thẻ nhập kết quả cho Multi-Blind. */
 import type { TimerCompletion } from "@/components/common/SolveTimer";
 import { formatMultiBlindTime, multiBlindResult } from "@/lib/multiBlind";
 import { useLanguage } from "@/contexts/LanguageContext";

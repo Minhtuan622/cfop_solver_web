@@ -1,12 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-/**
- * Kịch bản e2e: các khối trong panel nhập scramble phải có khoảng cách thật,
- * không dính vào nhau.
- *
- * Lỗi thật: panel BUFFER sát ô scramble (0px), hàng link phụ chỉ cách 8px, và
- * nội dung mục gập dính ngay dưới dòng tiêu đề (0px).
- */
 test("panel nhập scramble không dính các khối", async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("Loại khối").click();
@@ -31,9 +24,6 @@ test("panel nhập scramble không dính các khối", async ({ page }) => {
     12
   );
 
-  // Mục gập trong panel (dùng chung `SolverDetails`): nội dung phải cách
-  // dòng tiêu đề ít nhất 8px. Quét camera nay là hộp thoại riêng, nên kiểm
-  // mục "Dán chuỗi 54 sticker" của chế độ nhập trạng thái.
   await page.getByRole("button", { name: "Trạng thái cube" }).click();
   await page.getByText("Dán chuỗi 54 sticker").click();
   const gap = await page

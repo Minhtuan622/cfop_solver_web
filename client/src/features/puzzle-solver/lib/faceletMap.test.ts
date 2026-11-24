@@ -1,5 +1,4 @@
 // @vitest-environment node
-// Dùng cubing.js thật: chuỗi 54 ký tự phải khớp đúng `kpatternToFacelets`.
 import { describe, expect, it } from "vitest";
 import { kpatternToFacelets } from "@/features/timer/lib/kpatternFacelets";
 import { faceletsToPainting, paintingToFacelets } from "./faceletMap";

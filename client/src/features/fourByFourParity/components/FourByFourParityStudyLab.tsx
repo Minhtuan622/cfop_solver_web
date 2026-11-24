@@ -1,8 +1,3 @@
-/**
- * The 4×4 Parity lane of /study: the PLL parity algorithms (22 cases) with
- * the same SRS practice loop as the other lanes — time the recall, grade
- * Again/Hard/Good/Easy, and let the queue resurface weak cases.
- */
 import { useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -41,7 +36,6 @@ export function FourByFourParityStudyLab({
   onStatsChange,
 }: {
   language: "vi" | "en";
-  /** Reports live SRS stats so the surrounding toolbar can show them. */
   onStatsChange?: (stats: CaseStudyLaneStats) => void;
 }) {
   const { t } = useLanguage();

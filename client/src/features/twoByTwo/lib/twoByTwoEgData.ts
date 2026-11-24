@@ -1,15 +1,3 @@
-/**
- * 2×2 EG (Barbara's EG method) — EG-1 and EG-2, 40 algorithms each.
- * Source: https://cubingapp.com/algorithms/2x2-EG1 and
- * https://cubingapp.com/algorithms/2x2-EG2 (extracted from the embedded
- * algSet bundle on 2026-11-17; 7 subsets each: AS 6 · H 4 · L 6 · Pi 6 ·
- * Sune 6 · T 6 · U 6). One canonical algorithm per case — the first variant
- * published on the source page.
- *
- * Case states are NOT embedded: `twoByTwoCaseStateOf()` derives the
- * pre-image from the algorithm (inverse applied to solved), so every case
- * is guaranteed to be solved by its own algorithm.
- */
 import type { TwoByTwoCaseRow } from "./twoByTwoCatalogData";
 
 export const EG1_CASES: readonly TwoByTwoCaseRow[] = [

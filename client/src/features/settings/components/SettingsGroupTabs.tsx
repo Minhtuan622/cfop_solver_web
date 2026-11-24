@@ -3,10 +3,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { SettingsGroup, SettingsGroupId } from "../lib/settingsGroups";
 
-/**
- * The list of settings groups. The visitor picks one and only that group
- * opens, so the page never shows every option at once.
- */
 export function SettingsGroupTabs({
   groups,
   activeId,

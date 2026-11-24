@@ -91,7 +91,6 @@ describe("LastLayerExplorer bulk selection", () => {
     );
     openGroup("AS");
     fireEvent.click(screen.getByRole("button", { name: "Chọn nhiều" }));
-    // check one card through its checkbox
     fireEvent.click(screen.getByRole("checkbox", { name: "Chọn nhiều AS-002" }));
     expect(screen.getByText("Đã chọn 1/3")).toBeTruthy();
     fireEvent.click(

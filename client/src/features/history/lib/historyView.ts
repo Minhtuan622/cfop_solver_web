@@ -1,7 +1,3 @@
-/**
- * Các phép tính thuần của trang Lịch sử: lọc lượt giải, danh sách tag, số liệu
- * tổng hợp, dữ liệu biểu đồ xu hướng và nội dung file CSV.
- */
 import Papa from "papaparse";
 import {
   effectiveTime,
@@ -11,9 +7,7 @@ import {
 import { rollingAverage } from "@/lib/timerRecords";
 import { normalizeTimerEventId, type TimerEventId } from "@/lib/timerEvents";
 
-/** Số lượt trên biểu đồ xu hướng. */
 export const CHART_SOLVES = 30;
-/** Số lượt hiện thêm mỗi lần bấm "Xem thêm". */
 export const HISTORY_PAGE_SIZE = 50;
 
 export type HistoryFilter = {
@@ -28,7 +22,6 @@ export function average(values: number[]) {
     : 0;
 }
 
-/** Mọi tag đang có, sắp theo bảng chữ cái. */
 export function historyTags(entries: SolveHistoryEntry[]) {
   return Array.from(new Set(entries.flatMap(item => item.tags))).sort((a, b) =>
     a.localeCompare(b)
@@ -51,7 +44,6 @@ export function filterHistory(
   });
 }
 
-/** Thời gian hợp lệ (đã tính penalty, bỏ DNF) của các lượt. */
 export function validTimes(entries: SolveHistoryEntry[]) {
   return entries.flatMap(item => {
     const time = effectiveTime(item);
@@ -65,11 +57,6 @@ export type HistoryTrendPoint = {
   ao5: number | null;
 };
 
-/**
- * 30 lượt gần nhất theo thứ tự thời gian, kèm ao5 (luật WCA) kết thúc tại mỗi
- * lượt. Lấy thêm 4 lượt trước đó để điểm đầu cũng có ao5. Lượt DNF không có
- * điểm (đứt đường) thay vì vẽ bằng thời gian thô. `entries` mới nhất trước.
- */
 export function historyTrend(entries: SolveHistoryEntry[]): HistoryTrendPoint[] {
   const chronological = entries.slice(0, CHART_SOLVES + 4).reverse();
   const toSeconds = (ms: number | null) =>
@@ -86,7 +73,6 @@ export function historyTrend(entries: SolveHistoryEntry[]): HistoryTrendPoint[] 
     .map((point, index) => ({ solve: index + 1, ...point }));
 }
 
-/** Nội dung file `cfop-solve-history.csv` (định dạng export, không đổi cột). */
 export function historyCsv(entries: SolveHistoryEntry[]) {
   const rows: (string | number | null | undefined)[][] = [
     [

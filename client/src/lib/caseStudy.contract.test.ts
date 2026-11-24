@@ -1,8 +1,3 @@
-/**
- * Chốt hợp đồng của 11 bộ lưu tiến độ học (SRS) theo lane: key localStorage,
- * định dạng ghi, giới hạn, export/import và thuật toán xếp hàng ôn. Mọi lane
- * phải cư xử giống hệt nhau, chỉ khác các tham số trong bảng `LANES`.
- */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { LastLayerCatalogCase } from "@/lib/solverRuntime";
 import { CFOP_CLOUD_SYNC_EVENT } from "@/lib/cloudSyncSignal";
@@ -64,7 +59,6 @@ const LANES: Lane[] = [
   { name: "twoByTwo", store: "cfop-twobytwo-study-v1", masteredStore: "cfop-studio-mastered-twobytwo-v1", schema: "cfop-twobytwo-study", family: "eg1", defaultGoal: 10, maxRecords: 2000, maxMastered: 1800, read: twoByTwo.readTwoByTwoStudy, write: twoByTwo.writeTwoByTwoStudy, readMastered: twoByTwo.readMasteredTwoByTwoCaseKeys, writeMastered: twoByTwo.writeMasteredTwoByTwoCaseKeys, grade: twoByTwo.gradeTwoByTwoCase, exportStudy: twoByTwo.exportTwoByTwoStudy, importStudy: twoByTwo.importTwoByTwoStudy, mod: twoByTwo },
 ];
 
-// `prioritizeStudyQueue` luôn dùng giờ thật, nên mốc thời gian của test cũng là giờ thật.
 const NOW = Date.now();
 const caseOf = (lane: Lane, id: string, group = "G1") =>
   ({ id, family: lane.family, group, name: id, algorithm: "R U R'", state: "" }) as unknown as LastLayerCatalogCase;
