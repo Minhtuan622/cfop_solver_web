@@ -31,7 +31,7 @@ describe("AppNav", () => {
     cleanup();
   });
 
-  it("giữ bốn trang dùng hằng ngày trên thanh điều hướng", () => {
+  it("giữ các trang chức năng trên thanh điều hướng", () => {
     renderNav();
 
     const routes = [
@@ -39,6 +39,11 @@ describe("AppNav", () => {
       { name: "Bấm giờ", href: "/timer" },
       { name: "Kết quả", href: "/history" },
       { name: "Học thêm", href: "/study" },
+      { name: "Rubik ảo", href: "/play" },
+      { name: "Thi đấu", href: "/rooms" },
+      { name: "Xếp hạng", href: "/competition" },
+      { name: "Giải WCA", href: "/wca" },
+      { name: "Cài đặt", href: "/settings" },
     ];
 
     for (const route of routes) {
@@ -47,18 +52,17 @@ describe("AppNav", () => {
     }
   });
 
-  it("gói các trang còn lại vào một menu Thêm, nhưng vẫn tới được", async () => {
+  it("gói 3 trang giới thiệu vào menu Thêm", async () => {
     const user = userEvent.setup();
     renderNav();
 
-    expect(screen.queryByRole("menuitem", { name: "Cài đặt" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "Giới thiệu" })).toBeNull();
     await user.click(screen.getByRole("button", { name: "Thêm" }));
 
     const routes = [
-      { name: "Thi đấu", href: "/rooms" },
-      { name: "Xếp hạng", href: "/competition" },
-      { name: "Giải WCA", href: "/wca" },
-      { name: "Cài đặt", href: "/settings" },
+      { name: "Giới thiệu", href: "/about" },
+      { name: "Về chúng tôi", href: "/about-us" },
+      { name: "Ủng hộ", href: "/support" },
     ];
 
     for (const route of routes) {

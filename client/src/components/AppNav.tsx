@@ -27,9 +27,6 @@ const primaryNavItems: AccountNavItem[] = [
     labelKey: "nav.study",
     active: (path: string) => path === "/study",
   },
-];
-
-const overflowNavItems: AccountNavItem[] = [
   {
     href: "/play",
     labelKey: "nav.play",
@@ -52,6 +49,14 @@ const overflowNavItems: AccountNavItem[] = [
     active: (path: string) => path === "/wca",
   },
   {
+    href: "/settings",
+    labelKey: "nav.settings",
+    active: (path: string) => path === "/settings",
+  },
+];
+
+const overflowNavItems: AccountNavItem[] = [
+  {
     href: "/about",
     labelKey: "nav.about",
     active: (path: string) => path === "/about",
@@ -65,11 +70,6 @@ const overflowNavItems: AccountNavItem[] = [
     href: "/support",
     labelKey: "nav.support",
     active: (path: string) => path === "/support",
-  },
-  {
-    href: "/settings",
-    labelKey: "nav.settings",
-    active: (path: string) => path === "/settings",
   },
 ];
 
