@@ -9,7 +9,7 @@ RUN rustup target add wasm32-unknown-unknown
 
 # Tool versions are pinned; wasm-bindgen-cli must match the wasm-bindgen
 # crate in packages/solver/Cargo.lock.
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
+RUN --mount=type=cache,id=s/eb7ab89b-d1f4-4cd1-a08c-40976b5b2ae9-/usr/local/cargo/registry,target=/usr/local/cargo/registry \
   cargo install --locked wasm-pack --version 0.15.1 \
   && cargo install --locked wasm-bindgen-cli --version 0.2.130
 
@@ -27,8 +27,8 @@ RUN mkdir -p cube-core/src cfop/src solver-wasm/src \
 COPY packages/solver ./
 # The cache mounts keep the cargo registry and build directory between
 # builds; the artifact is copied out of the cache into the image layer.
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-  --mount=type=cache,target=/app/packages/solver/target \
+RUN --mount=type=cache,id=s/eb7ab89b-d1f4-4cd1-a08c-40976b5b2ae9-/usr/local/cargo/registry,target=/usr/local/cargo/registry \
+  --mount=type=cache,id=s/eb7ab89b-d1f4-4cd1-a08c-40976b5b2ae9-/app/packages/solver/target,target=/app/packages/solver/target \
   wasm-pack build solver-wasm --target web --release --out-dir pkg --no-pack
 
 # wasm-opt comes from a pinned Binaryen release (checksum verified by ADD), not
@@ -58,7 +58,7 @@ RUN corepack enable && corepack prepare pnpm@10.34.5 --activate
 # Dependencies first, so a source change does not reinstall them.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches ./patches
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+RUN --mount=type=cache,id=s/eb7ab89b-d1f4-4cd1-a08c-40976b5b2ae9-/root/.local/share/pnpm/store,target=/root/.local/share/pnpm/store \
   pnpm install --frozen-lockfile
 
 COPY . .
