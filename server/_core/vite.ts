@@ -83,18 +83,23 @@ export function serveStatic(app: Express) {
     }),
   );
 
+  let cachedIndexHtml: string | undefined;
   app.use("/{*splat}", (req, res) => {
     if (isAssetPath(req.originalUrl.split("?")[0])) {
       res.status(404).json({ message: "Không tìm thấy." });
       return;
     }
-    const indexHtmlPath = path.resolve(distPath, "index.html");
-    if (!fs.existsSync(indexHtmlPath)) {
-      res.status(404).send("Chưa xây dựng ứng dụng, chạy pnpm build.");
-      return;
+    if (cachedIndexHtml === undefined) {
+      const indexHtmlPath = path.resolve(distPath, "index.html");
+      if (!fs.existsSync(indexHtmlPath)) {
+        res.status(404).send("Chưa xây dựng ứng dụng, chạy pnpm build.");
+        return;
+      }
+      cachedIndexHtml = injectSharePreview(
+        fs.readFileSync(indexHtmlPath, "utf8"),
+        readSharePreview(indexHtmlPath)
+      );
     }
-    res.status(200).type("text/html").send(
-      injectSharePreview(fs.readFileSync(indexHtmlPath, "utf8"), readSharePreview(indexHtmlPath))
-    );
+    res.status(200).type("text/html").send(cachedIndexHtml);
   });
 }
