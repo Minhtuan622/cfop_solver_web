@@ -103,7 +103,37 @@ export async function solveFromPainting(
   let phases: SolutionPhase[] | undefined;
   const run =
     solver ??
-    (puzzle === "333roux"
+    (puzzle === "minx"
+      ? async (value: unknown) => {
+          const { solveMegaminxLayers } = await import("./megaminxEngine");
+          const { MinxUnavailableError } = await import("./megaminxSolver");
+          try {
+            const found = await solveMegaminxLayers(
+              (value as { patternData: never }).patternData,
+              null
+            );
+            phases = found.phases;
+            return found.solution;
+          } catch (error) {
+            if (!(error instanceof MinxUnavailableError)) throw error;
+            return (await pickSolver(search, puzzle)(value as never)).toString();
+          }
+        }
+      : puzzle === "222" || puzzle === "pyram" || puzzle === "skewb"
+      ? async (value: unknown) => {
+          const { solveWithMethod } = await import("./methods");
+          const { MethodUnavailableError } = await import("./methodSolver");
+          const patternData = (value as { patternData: never }).patternData;
+          try {
+            const found = await solveWithMethod(puzzle, null, patternData);
+            phases = found;
+            return found.flatMap(phase => phase.moves).join(" ");
+          } catch (error) {
+            if (!(error instanceof MethodUnavailableError)) throw error;
+            return (await pickSolver(search, puzzle)(value as never)).toString();
+          }
+        }
+      : puzzle === "333roux"
       ? async (value: unknown) => {
           const { solveRouxPattern } = await import("@/features/roux/lib/rouxEngine");
           const roux = await solveRouxPattern(

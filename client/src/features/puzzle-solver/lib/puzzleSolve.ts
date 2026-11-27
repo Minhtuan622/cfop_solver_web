@@ -26,6 +26,13 @@ export const OTHER_PUZZLE_IDS = PICKER_ORDER.filter(id => OTHER_PUZZLES[id].inPi
 
 export const MAX_SCRAMBLE_LENGTH = 400;
 
+// Puzzles that are solved by a named method, stage by stage, instead of by one
+// shortest-solution search.
+const METHOD_PUZZLES: readonly OtherPuzzleId[] = ["333roux", "222", "pyram", "skewb", "clock", "minx"];
+export function hasMethodPhases(puzzle: OtherPuzzleId) {
+  return METHOD_PUZZLES.includes(puzzle);
+}
+
 export type PuzzleSolveErrorCode =
   | "empty"
   | "too-long"
@@ -56,7 +63,7 @@ export type SolveEngine = {
   solveWithPhases?(
     puzzle: OtherPuzzleId,
     scramble: string
-  ): Promise<{ solution: string; phases: SolutionPhase[] }>;
+  ): Promise<{ solution: string; phases?: SolutionPhase[] }>;
   solve(puzzle: OtherPuzzleId, scramble: string): Promise<string>;
 };
 
@@ -102,7 +109,48 @@ export function invertAlgorithm(algorithm: string, options: { fifthTurns?: boole
 
 export const cubingEngine: SolveEngine = {
   async solveWithPhases(puzzle, scramble) {
-    if (puzzle !== "333roux") throw new PuzzleSolveError("solver-failed");
+    if (puzzle === "clock") {
+      const { dialsFromScramble, solveClockDialsWithPhases } = await import("./clockEngine");
+      let dials: number[];
+      try {
+        dials = await dialsFromScramble(scramble);
+      } catch (error) {
+        throw new PuzzleSolveError("invalid-scramble", String(error));
+      }
+      const found = await solveClockDialsWithPhases(dials);
+      if (!found) throw new PuzzleSolveError("solver-failed");
+      return found;
+    }
+    if (puzzle === "minx") {
+      const { solveMegaminxLayers } = await import("./megaminxEngine");
+      const { MinxUnavailableError } = await import("./megaminxSolver");
+      try {
+        return await solveMegaminxLayers(null, scramble);
+      } catch (error) {
+        if (error instanceof MinxUnavailableError) return { solution: await cubingEngine.solve(puzzle, scramble) };
+        if (/parse|syntax|unknown|invalid|move/i.test(String(error)))
+          throw new PuzzleSolveError("invalid-scramble", String(error));
+        throw error;
+      }
+    }
+    if (puzzle !== "333roux") {
+      if (!hasMethodPhases(puzzle)) throw new PuzzleSolveError("solver-failed");
+      const { solveWithMethod } = await import("./methods");
+      const { MethodUnavailableError } = await import("./methodSolver");
+      try {
+        const phases = await solveWithMethod(puzzle as "222" | "pyram" | "skewb", scramble, null);
+        return { solution: phases.flatMap(phase => phase.moves).join(" "), phases };
+      } catch (error) {
+        // A scramble the method cannot handle (for example a 2x2 that turns the
+        // fixed corner) still gets the shortest solution.
+        if (!(error instanceof MethodUnavailableError)) {
+          if (/parse|syntax|unknown|invalid|move/i.test(String(error)))
+            throw new PuzzleSolveError("invalid-scramble", String(error));
+          throw error;
+        }
+        return { solution: await cubingEngine.solve(puzzle, scramble) };
+      }
+    }
     const { solveRouxScramble } = await import("@/features/roux/lib/rouxEngine");
     try {
       const result = await solveRouxScramble(scramble);
@@ -155,7 +203,7 @@ export async function solveOtherPuzzle(
   let solution: string;
   let phases: SolutionPhase[] | undefined;
   try {
-    if (puzzle === "333roux" && engine.solveWithPhases) {
+    if (hasMethodPhases(puzzle) && engine.solveWithPhases) {
       const detailed = await engine.solveWithPhases(puzzle, scramble);
       solution = normalizeScramble(detailed.solution);
       phases = detailed.phases;

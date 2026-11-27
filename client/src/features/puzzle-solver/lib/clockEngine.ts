@@ -1,6 +1,8 @@
 import {
   CLOCK_MOVE_NAMES,
   solveClock,
+  solveClockPhases,
+  type ClockPhase,
   type ClockModel,
   type ClockMoveName,
 } from "./clockSolver";
@@ -49,11 +51,26 @@ export async function dialsFromScramble(scramble: string): Promise<number[]> {
 
 export type ClockSolveOutcome = { solution: string; setup: string };
 
+export async function solveClockDialsWithPhases(
+  dials: number[]
+): Promise<{ solution: string; phases: ClockPhase[] } | null> {
+  const { model } = await loadClock();
+  const phases = solveClockPhases(model, dials);
+  if (!phases) return null;
+  const solution = phases.flatMap(phase => phase.moves).join(" ");
+  return (await clockSolves(dials, solution)) ? { solution, phases } : null;
+}
+
 export async function solveClockDials(dials: number[]): Promise<string | null> {
-  const { kpuzzle, Alg, model } = await loadClock();
+  const { model } = await loadClock();
   const result = solveClock(model, dials);
   if (!result) return null;
   const solution = result.moves.join(" ");
+  return (await clockSolves(dials, solution)) ? solution : null;
+}
+
+async function clockSolves(dials: number[], solution: string): Promise<boolean> {
+  const { kpuzzle, Alg } = await loadClock();
   const pattern = kpuzzle.defaultPattern();
   const data = structuredClone(pattern.patternData) as { DIALS: DialData };
   data.DIALS.orientation = dials.slice();
@@ -62,5 +79,5 @@ export async function solveClockDials(dials: number[]): Promise<string | null> {
     data
   );
   const after = dialsOf(start.applyAlg(new Alg(solution))).orientation;
-  return after.every(value => value === 0) ? solution : null;
+  return after.every(value => value === 0);
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dialsFromScramble, loadClock, solveClockDials } from "./clockEngine";
+import { dialsFromScramble, loadClock, solveClockDials, solveClockDialsWithPhases } from "./clockEngine";
 import { invertClockAlgorithm } from "./clockSolver";
 
 describe("bộ giải Clock", () => {
@@ -23,6 +23,24 @@ describe("bộ giải Clock", () => {
         .applyAlg(new Alg(scramble))
         .applyAlg(new Alg(solution!));
       expect(after.patternData.DIALS.orientation.every(v => v === 0)).toBe(true);
+    }
+  }, 60_000);
+
+  it("chia lời giải thành mặt trước (tâm + cạnh, góc) rồi mặt sau, vẫn giải đúng", async () => {
+    const { randomScrambleForEvent } = await import("cubing/scramble");
+    const { Alg } = await import("cubing/alg");
+    const { kpuzzle } = await loadClock();
+    for (let index = 0; index < 10; index += 1) {
+      const scramble = (await randomScrambleForEvent("clock")).toString();
+      const found = await solveClockDialsWithPhases(await dialsFromScramble(scramble));
+      expect(found, scramble).not.toBeNull();
+      expect(found!.phases.map(phase => phase.name)).toEqual(["Front Cross", "Front Corners", "Back Side"]);
+      expect(found!.phases[2].moves[0]).toBe("y2");
+      const after = kpuzzle.defaultPattern().applyAlg(new Alg(scramble)).applyAlg(new Alg(found!.solution));
+      expect(after.patternData.DIALS.orientation.every(v => v === 0)).toBe(true);
+      // The cross phase alone fixes the front centre and edges.
+      const crossOnly = kpuzzle.defaultPattern().applyAlg(new Alg(scramble)).applyAlg(new Alg(found!.phases[0].moves.join(" ")));
+      for (const dial of [1, 3, 4, 5, 7]) expect(crossOnly.patternData.DIALS.orientation[dial]).toBe(0);
     }
   }, 60_000);
 
