@@ -13,8 +13,8 @@ describe("Railway deployment configuration", () => {
     expect(config.build).toMatchObject({ builder: "DOCKERFILE", dockerfilePath: "Dockerfile" });
     expect(config.build.buildCommand).toBeUndefined();
     expect(config.build.watchPatterns).toContain("packages/solver/**");
-    expect(config.deploy).toMatchObject({ startCommand: "node dist/index.js", restartPolicyType: "ON_FAILURE", restartPolicyMaxRetries: 3 });
-    expect(config.deploy.preDeployCommand).toBe("node scripts/migrate.mjs");
+    expect(config.deploy).toMatchObject({ startCommand: "node scripts/migrate.mjs && node dist/index.js", restartPolicyType: "ON_FAILURE", restartPolicyMaxRetries: 3 });
+    expect(config.deploy.preDeployCommand).toBeUndefined();
     const dockerfile = readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
     expect(dockerfile).toContain('CMD ["node", "dist/index.js"]');
     expect(dockerfile).toContain("COPY drizzle ./drizzle");
