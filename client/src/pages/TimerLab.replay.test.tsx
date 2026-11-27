@@ -15,7 +15,7 @@ vi.mock("@/components/common/SolveTimer", async () => {
 vi.mock("@/features/last-layerStudyLab", () => ({ LastLayerStudyLab: () => <div data-testid="last-layer-study" /> }));
 vi.mock("recharts", () => ({ Bar: () => null, BarChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Line: () => null, LineChart: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, ResponsiveContainer: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>, Tooltip: () => null, XAxis: () => null, YAxis: () => null }));
 vi.mock("@/lib/timerEvents", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/timerEvents")>()), generateTimerScramble: async (eventId: string) => `${eventId} scramble` }));
-vi.mock("@/lib/trpc", () => ({ trpc: { cfopAccount: { me: { useQuery: () => ({ data: null, isLoading: false, isError: false }) }, wca: { profile: { useQuery: () => ({ data: null, isLoading: false, isError: false }) } } } } }));
+vi.mock("@/lib/trpc", () => ({ trpc: { wca: { records: { useQuery: () => ({ data: undefined, isLoading: false, isError: false }) } }, cfopAccount: { me: { useQuery: () => ({ data: null, isLoading: false, isError: false }) }, wca: { profile: { useQuery: () => ({ data: null, isLoading: false, isError: false }) } } } } }));
 
 import TimerLab from "./TimerLab";
 

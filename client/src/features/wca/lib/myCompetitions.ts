@@ -66,7 +66,7 @@ export function formatClock(iso: string, timezone: string, language: Language): 
   }
 }
 
-function localDate(iso: string, timezone: string): string {
+export function localDate(iso: string, timezone: string): string {
   const parts = (zone: string) =>
     new Intl.DateTimeFormat("en-CA", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" }).format(Date.parse(iso));
   try {

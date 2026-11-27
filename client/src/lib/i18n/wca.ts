@@ -155,6 +155,10 @@ export const wcaWords: Dictionary = {
   ],
   "wca.errorLinkFirst": ["Hãy liên kết WCA ID trước.", "Link your WCA ID first."],
   "wca.errorCompetitionId": ["Mã giải không hợp lệ.", "Invalid competition ID."],
+  "wca.errorQueryShort": ["Từ khoá cần ít nhất 2 ký tự.", "Search needs at least 2 characters."],
+  "wca.errorQueryLong": ["Từ khoá tối đa 60 ký tự.", "Search is limited to 60 characters."],
+  "wca.errorEventId": ["Mã môn không hợp lệ.", "Invalid event ID."],
+  "wca.errorCountry": ["Mã quốc gia không hợp lệ.", "Invalid country code."],
   "wca.errorProfileMissing": [
     "Không tìm thấy hồ sơ WCA này.",
     "This WCA profile was not found.",

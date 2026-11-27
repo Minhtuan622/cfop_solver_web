@@ -362,3 +362,145 @@ export type WcaCompetitionDetail = {
   registeredEventIds: string[] | null;
   results: WcaResultRow[];
 };
+
+// ---- Explore: results, psych sheet, schedule, search, nearby, community ----
+
+export type WcaCompetitionResultRow = {
+  pos: number | null;
+  name: string;
+  wcaId: string | null;
+  countryIso2: string;
+  best: number | null;
+  average: number | null;
+  attempts: number[];
+  singleRecord: string | null;
+  averageRecord: string | null;
+};
+
+export type WcaCompetitionResultRound = {
+  roundTypeId: string;
+  formatId: string;
+  rows: WcaCompetitionResultRow[];
+};
+
+export type WcaCompetitionResults = {
+  events: Array<{ eventId: string; rounds: WcaCompetitionResultRound[] }>;
+  resultCount: number;
+};
+
+export type WcaPsychRow = {
+  pos: number;
+  name: string;
+  wcaId: string | null;
+  countryIso2: string;
+  single: { best: number | null; rank: number | null };
+  average: { best: number | null; rank: number | null };
+};
+
+export type WcaPsychSheet = {
+  eventId: string;
+  sortBy: "single" | "average";
+  rows: WcaPsychRow[];
+};
+
+export type WcaScheduleActivity = {
+  id: number;
+  parentId: number | null;
+  name: string;
+  code: string;
+  startTime: string;
+  endTime: string;
+  roomName: string;
+  roomColor: string | null;
+  venueName: string;
+  timezone: string;
+};
+
+export type WcaPersonAssignment = {
+  activityId: number;
+  assignmentCode: string;
+  stationNumber: number | null;
+};
+
+export type WcaWcifPerson = {
+  registrantId: number | null;
+  wcaId: string | null;
+  name: string;
+  status: string | null;
+  eventIds: string[];
+  assignments: WcaPersonAssignment[];
+};
+
+export type WcaCompetitionSchedule = {
+  timezone: string | null;
+  activities: WcaScheduleActivity[];
+  competitorCount: number;
+  me: (WcaWcifPerson & {
+    agenda: Array<WcaPersonAssignment & { activity: WcaScheduleActivity }>;
+  }) | null;
+};
+
+export type WcaSearchPerson = {
+  wcaId: string | null;
+  name: string;
+  countryIso2: string;
+  countryName: string;
+  avatarUrl: string | null;
+  profileUrl: string;
+};
+
+export type WcaSearchCompetition = {
+  id: string;
+  name: string;
+  city: string;
+  countryIso2: string;
+  startDate: string;
+  endDate: string;
+};
+
+export type WcaSearchResult = {
+  people: WcaSearchPerson[];
+  competitions: WcaSearchCompetition[];
+};
+
+export type WcaNearbyCompetition = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  city: string;
+  countryIso2: string;
+  venue: string | null;
+  venueAddress: string | null;
+  registrationOpen: string | null;
+  registrationClose: string | null;
+  competitorLimit: number | null;
+  entryFee: { lowestDenomination: number; currency: string } | null;
+  mainEventId: string | null;
+  eventIds: string[];
+  latitude: number | null;
+  longitude: number | null;
+  distanceKm: number | null;
+  wcaUrl: string;
+};
+
+export type WcaDelegate = {
+  wcaId: string | null;
+  name: string;
+  status: string;
+  location: string | null;
+  countryIso2: string;
+  countryName: string;
+  avatarUrl: string | null;
+  profileUrl: string;
+};
+
+export type WcaTeamMember = { name: string; wcaId: string | null; status: string };
+export type WcaTeam = { name: string; members: WcaTeamMember[] };
+
+export type WcaCommunity = { delegates: WcaDelegate[]; teams: WcaTeam[] };
+
+export type WcaScrambleProgram = {
+  current: { name: string; information: string | null; download: string | null };
+  allowed: string[];
+};
