@@ -1,6 +1,7 @@
 import { competitionWords } from "./competition";
 import { commonWords } from "./common";
 import { historyWords } from "./history";
+import { infoWords } from "./info";
 import { playWords } from "./play";
 import { profileWords } from "./profile";
 import { roomsWords } from "./rooms";
@@ -30,6 +31,7 @@ export const words: Dictionary = {
   ...competitionWords,
   ...wcaWords,
   ...playWords,
+  ...infoWords,
 };
 
 export function translate(language: Language, key: string, params?: WordParams): string {
