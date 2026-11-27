@@ -28,7 +28,7 @@ export const MAX_SCRAMBLE_LENGTH = 400;
 
 // Puzzles that are solved by a named method, stage by stage, instead of by one
 // shortest-solution search.
-const METHOD_PUZZLES: readonly OtherPuzzleId[] = ["333roux", "222", "pyram", "skewb", "clock"];
+const METHOD_PUZZLES: readonly OtherPuzzleId[] = ["333roux", "222", "pyram", "skewb", "clock", "minx"];
 export function hasMethodPhases(puzzle: OtherPuzzleId) {
   return METHOD_PUZZLES.includes(puzzle);
 }
@@ -120,6 +120,18 @@ export const cubingEngine: SolveEngine = {
       const found = await solveClockDialsWithPhases(dials);
       if (!found) throw new PuzzleSolveError("solver-failed");
       return found;
+    }
+    if (puzzle === "minx") {
+      const { solveMegaminxLayers } = await import("./megaminxEngine");
+      const { MinxUnavailableError } = await import("./megaminxSolver");
+      try {
+        return await solveMegaminxLayers(null, scramble);
+      } catch (error) {
+        if (error instanceof MinxUnavailableError) return { solution: await cubingEngine.solve(puzzle, scramble) };
+        if (/parse|syntax|unknown|invalid|move/i.test(String(error)))
+          throw new PuzzleSolveError("invalid-scramble", String(error));
+        throw error;
+      }
     }
     if (puzzle !== "333roux") {
       if (!hasMethodPhases(puzzle)) throw new PuzzleSolveError("solver-failed");
