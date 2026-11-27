@@ -123,8 +123,8 @@ export const infoWords: Dictionary = {
   ],
   "guide.wca.title": ["Giải WCA", "WCA"],
   "guide.wca.body": [
-    "Theo dõi lịch các giải WCA và kỷ lục thế giới.",
-    "Follow the WCA competition calendar and world records.",
+    "Theo dõi lịch các giải WCA và kỷ lục thế giới. Tab \"Giải của tôi\" liệt kê giải bạn đã, đang và sẽ tham gia (cần liên kết WCA ID trong hồ sơ), kèm lịch thi, môn đăng ký và kết quả.",
+    "Follow the WCA competition calendar and world records. The \"My competitions\" tab lists the competitions you attended, are attending and will attend (link your WCA ID in your profile), with the schedule, registered events and results.",
   ],
   "guide.settings.title": ["Cài đặt", "Settings"],
   "guide.settings.body": [

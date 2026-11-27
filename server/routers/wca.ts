@@ -1,7 +1,10 @@
 import { TRPCError } from "@trpc/server";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
 import {
+  getWcaCompetitionDetail,
   getWcaCompetitions,
+  getWcaMyCompetitions,
+  getWcaPastCompetitions,
   getWcaCountries,
   getWcaProfile,
   getWcaWorldRecords,
@@ -20,7 +23,7 @@ import {
 } from "../db";
 import { clientAddress } from "../infrastructure/rateLimit";
 import { proxyTrustEnabled } from "../_core/proxy";
-import { wcaCalendarInput, wcaIdInput } from "./inputs";
+import { wcaCalendarInput, wcaCompetitionIdInput, wcaIdInput, wcaPastInput } from "./inputs";
 
 export function wcaError(error: unknown): never {
   if (error instanceof TRPCError) throw error;
@@ -63,6 +66,41 @@ export const accountWcaRouter = router({
       return wcaError(error);
     }
   }),
+  myCompetitions: cfopAccountProcedure.query(async ({ ctx }) => {
+    const account = await findCfopAccountWcaById(ctx.cfopAccount.id);
+    if (!account?.wcaId) return null;
+    try {
+      return await getWcaMyCompetitions(account.wcaId, callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  pastCompetitions: cfopAccountProcedure
+    .input(wcaPastInput)
+    .query(async ({ ctx, input }) => {
+      const account = await findCfopAccountWcaById(ctx.cfopAccount.id);
+      if (!account?.wcaId) return { total: 0, items: [] };
+      try {
+        return await getWcaPastCompetitions(account.wcaId, input.offset, callerKey(ctx.req));
+      } catch (error) {
+        return wcaError(error);
+      }
+    }),
+  competitionDetail: cfopAccountProcedure
+    .input(wcaCompetitionIdInput)
+    .query(async ({ ctx, input }) => {
+      const account = await findCfopAccountWcaById(ctx.cfopAccount.id);
+      if (!account?.wcaId)
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Hãy liên kết WCA ID trước.",
+        });
+      try {
+        return await getWcaCompetitionDetail(account.wcaId, input.id, callerKey(ctx.req));
+      } catch (error) {
+        return wcaError(error);
+      }
+    }),
   setId: cfopAccountProcedure
     .input(wcaIdInput)
     .mutation(async ({ ctx, input }) => {
