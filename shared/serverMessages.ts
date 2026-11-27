@@ -77,6 +77,8 @@ export const serverMessageKeys: Record<string, string> = {
   "Không thể kết nối WCA lúc này. Hãy thử lại sau.": "wca.errorUnreachable",
   "WCA ID cần theo dạng 2016ABCD01.": "wca.errorIdFormat",
   "Không tìm thấy hồ sơ WCA này.": "wca.errorProfileMissing",
+  "Hãy liên kết WCA ID trước.": "wca.errorLinkFirst",
+  "Mã giải không hợp lệ.": "wca.errorCompetitionId",
   "WCA không trả về WCA ID hợp lệ.": "wca.errorOAuthInvalidId",
   "WCA OAuth chưa được cấu hình trên máy chủ.": "wca.errorOAuthNotConfigured",
   "Liên kết WCA đã hết hạn hoặc không hợp lệ.": "wca.errorOAuthInvalidState",

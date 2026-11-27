@@ -124,6 +124,8 @@ export const wcaWords: Dictionary = {
     "WCA ID cần theo dạng 2016ABCD01.",
     "A WCA ID has to look like 2016ABCD01.",
   ],
+  "wca.errorLinkFirst": ["Hãy liên kết WCA ID trước.", "Link your WCA ID first."],
+  "wca.errorCompetitionId": ["Mã giải không hợp lệ.", "Invalid competition ID."],
   "wca.errorProfileMissing": [
     "Không tìm thấy hồ sơ WCA này.",
     "This WCA profile was not found.",
