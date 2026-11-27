@@ -29,6 +29,7 @@ const CompetitionLeaderboard = lazy(
 const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
 const WcaCompetitions = lazy(() => import("./pages/WcaCompetitions"));
+const Records = lazy(() => import("./pages/Records"));
 const Play = lazy(() => import("./pages/Play"));
 const About = lazy(() => import("./pages/About"));
 const Donate = lazy(() => import("./pages/Donate"));
@@ -73,6 +74,7 @@ function Router() {
         <Route path="/leaderboard" component={CompetitionLeaderboard} />
         <Route path="/competition" component={CompetitionLeaderboard} />
         <Route path="/wca" component={WcaCompetitions} />
+        <Route path="/records" component={Records} />
         <Route path="/about" component={About} />
         <Route path="/donate" component={Donate} />
         <Route path="/guide" component={Guide} />

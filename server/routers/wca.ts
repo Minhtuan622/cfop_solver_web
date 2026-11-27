@@ -1,10 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
 import {
+  getWcaCompetitionDetail,
   getWcaCompetitions,
+  getWcaMyCompetitions,
   getWcaCountries,
   getWcaProfile,
-  getWcaWorldRecords,
+  getWcaRecentRecords,
+  getWcaRecords,
   normalizeWcaId,
   WcaApiError,
 } from "../services/wcaApi";
@@ -20,7 +23,7 @@ import {
 } from "../db";
 import { clientAddress } from "../infrastructure/rateLimit";
 import { proxyTrustEnabled } from "../_core/proxy";
-import { wcaCalendarInput, wcaIdInput } from "./inputs";
+import { wcaCalendarInput, wcaCompetitionIdInput, wcaIdInput } from "./inputs";
 
 export function wcaError(error: unknown): never {
   if (error instanceof TRPCError) throw error;
@@ -63,6 +66,30 @@ export const accountWcaRouter = router({
       return wcaError(error);
     }
   }),
+  myCompetitions: cfopAccountProcedure.query(async ({ ctx }) => {
+    const account = await findCfopAccountWcaById(ctx.cfopAccount.id);
+    if (!account?.wcaId) return null;
+    try {
+      return await getWcaMyCompetitions(account.wcaId, callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  competitionDetail: cfopAccountProcedure
+    .input(wcaCompetitionIdInput)
+    .query(async ({ ctx, input }) => {
+      const account = await findCfopAccountWcaById(ctx.cfopAccount.id);
+      if (!account?.wcaId)
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Hãy liên kết WCA ID trước.",
+        });
+      try {
+        return await getWcaCompetitionDetail(account.wcaId, input.id, callerKey(ctx.req));
+      } catch (error) {
+        return wcaError(error);
+      }
+    }),
   setId: cfopAccountProcedure
     .input(wcaIdInput)
     .mutation(async ({ ctx, input }) => {
@@ -129,9 +156,16 @@ export const wcaRouter = router({
         return wcaError(error);
       }
     }),
-  worldRecords: publicProcedure.query(async ({ ctx }) => {
+  records: publicProcedure.query(async ({ ctx }) => {
     try {
-      return await getWcaWorldRecords(callerKey(ctx.req));
+      return await getWcaRecords(callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  recentRecords: publicProcedure.query(async ({ ctx }) => {
+    try {
+      return await getWcaRecentRecords(callerKey(ctx.req));
     } catch (error) {
       return wcaError(error);
     }

@@ -1,7 +1,7 @@
 export { WcaCalendarFilters, type WcaCalendarFiltersProps } from "./components/WcaCalendarFilters";
 export { WcaCompetitionList } from "./components/WcaCompetitionList";
+export { MyCompetitionsPanel } from "./components/MyCompetitionsPanel";
 export { WcaCompetitionRow } from "./components/WcaCompetitionRow";
-export { WcaWorldRecords, type WcaWorldRecordsProps } from "./components/WcaWorldRecords";
 export {
   formatWcaCentiseconds,
   formatWcaMultiBlind,
@@ -29,5 +29,4 @@ export {
   type VenueInfo,
   type WcaCompetition,
   type WcaCountry,
-  type WcaWorldRecord,
 } from "./lib/wcaCalendar";

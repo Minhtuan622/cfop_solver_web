@@ -55,6 +55,11 @@ const mainNavItems: AccountNavItem[] = [
 
 const infoNavItems: AccountNavItem[] = [
   {
+    href: "/records",
+    labelKey: "nav.records",
+    active: (path: string) => path === "/records",
+  },
+  {
     href: "/about",
     labelKey: "nav.about",
     active: (path: string) => path === "/about",
