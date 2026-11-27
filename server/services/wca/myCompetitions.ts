@@ -4,6 +4,8 @@ import type {
   WcaCompetitionDetail,
   WcaCompetitionDetailPayload,
   WcaCompetitionInfo,
+  WcaEventsPayload,
+  WcaRoundInfo,
   WcaMyCompetition,
   WcaMyCompetitions,
   WcaPastSummary,
@@ -15,7 +17,6 @@ import type {
 } from "./types";
 
 const WCA_SITE = "https://www.worldcubeassociation.org";
-export const PAST_PAGE_SIZE = 8;
 const FINAL_ROUNDS = new Set(["c", "f"]);
 
 const text = (value: unknown) =>
@@ -64,6 +65,29 @@ export function toCompetitionInfo(payload: WcaCompetitionDetailPayload): WcaComp
     competitorLimit: number(payload.competitor_limit),
     entryFee: fee !== null && currency ? { lowestDenomination: fee, currency } : null,
     guestsEnabled: typeof payload.guests_enabled === "boolean" ? payload.guests_enabled : null,
+    guestsPerRegistrationLimit: number(payload.guests_per_registration_limit),
+    guestsEntryFee: number(payload.guests_entry_fee_lowest_denomination),
+    eventsPerRegistrationLimit: number(payload.events_per_registration_limit),
+    onTheSpotRegistration:
+      typeof payload.on_the_spot_registration === "boolean" ? payload.on_the_spot_registration : null,
+    onTheSpotEntryFee: number(payload.on_the_spot_entry_fee_lowest_denomination),
+    refundPolicyPercent: number(payload.refund_policy_percent),
+    refundPolicyLimitDate: text(payload.refund_policy_limit_date),
+    eventChangeDeadlineDate: text(payload.event_change_deadline_date),
+    waitingListDeadlineDate: text(payload.waiting_list_deadline_date),
+    qualificationResults:
+      typeof payload.qualification_results === "boolean" ? payload.qualification_results : null,
+    spotsLeft: number(payload.spots_left),
+    waitingListCount: number(payload.waiting_list_count),
+    registrationFull:
+      typeof payload["registration_full?"] === "boolean" ? payload["registration_full?"] : null,
+    numberOfBookmarks: number(payload.number_of_bookmarks),
+    scoretakingSoftware: text(payload.scoretaking_software),
+    seriesIds: Array.isArray(payload.competition_series_ids)
+      ? payload.competition_series_ids.filter((id): id is string => typeof id === "string")
+      : [],
+    information: text(payload.information),
+    extraRegistrationRequirements: text(payload.extra_registration_requirements),
     externalRegistrationPage: text(payload.external_registration_page),
     website: website && website !== wcaUrl ? website : null,
     wcaUrl,
@@ -174,56 +198,74 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export async function getWcaPastCompetitions(
-  rawWcaId: string,
-  offset: number,
-  caller: WcaCallerKey
-): Promise<{ total: number; items: WcaMyCompetition[] }> {
-  const wcaId = normalizeWcaId(rawWcaId);
-  const summaries = summarizeResults(await fetchResults(wcaId, caller));
-  const slice = summaries.slice(offset, offset + PAST_PAGE_SIZE);
-  const details = await Promise.all(
-    slice.map(async summary => {
-      try {
-        const payload = await fetchWcaJson<WcaCompetitionDetailPayload>(
-          `/competitions/${encodeURIComponent(summary.competitionId)}`,
-          60 * 60 * 1000,
-          caller
-        );
-        return { summary, info: toCompetitionInfo(payload) };
-      } catch (error) {
-        if (error instanceof WcaApiError && error.kind === "NOT_FOUND") return null;
-        throw error;
-      }
+const ROUND_FORMATS = new Set(["1", "2", "3", "a", "m"]);
+
+export function roundInfos(payload: WcaEventsPayload): WcaRoundInfo[] {
+  return payload.flatMap(event =>
+    (event.rounds ?? []).flatMap(round => {
+      const match = /-r(\d+)$/.exec(round.id);
+      if (!match) return [];
+      const cutoff = round.cutoff;
+      const advancement = round.advancementCondition;
+      return [
+        {
+          id: round.id,
+          eventId: event.id,
+          round: Number(match[1]),
+          format: round.format && ROUND_FORMATS.has(round.format) ? round.format : (round.format ?? ""),
+          timeLimitCentiseconds: number(round.timeLimit?.centiseconds),
+          timeLimitCumulative: (round.timeLimit?.cumulativeRoundIds ?? []).length > 0,
+          cutoff:
+            cutoff && number(cutoff.numberOfAttempts) !== null && number(cutoff.attemptResult) !== null
+              ? { attempts: cutoff.numberOfAttempts as number, centiseconds: cutoff.attemptResult as number }
+              : null,
+          advancement:
+            advancement && text(advancement.type) && number(advancement.level) !== null
+              ? { type: advancement.type as string, level: advancement.level as number }
+              : null,
+          scrambleSetCount: number(round.scrambleSetCount),
+        },
+      ];
     })
   );
-  const items = details
-    .flatMap(entry => (entry ? [entry] : []))
-    .sort((left, right) => right.info.startDate.localeCompare(left.info.startDate))
-    .map(({ summary, info }) => ({ status: "past" as const, competition: info, summary }));
-  return { total: summaries.length, items };
 }
 
+// Every competition the person has a WCA record of, in one list: the finished
+// ones come from the person's competition history, the upcoming and ongoing
+// ones from their public registrations.
 export async function getWcaMyCompetitions(
   rawWcaId: string,
   caller: WcaCallerKey
 ): Promise<WcaMyCompetitions> {
   const wcaId = normalizeWcaId(rawWcaId);
-  const [upcomingPayload, past] = await Promise.all([
+  const [upcomingPayload, historyPayload, results] = await Promise.all([
     fetchUpcoming(wcaId, caller),
-    getWcaPastCompetitions(wcaId, 0, caller),
+    fetchWcaJson<WcaCompetitionDetailPayload[]>(`${personPath(wcaId)}/competitions`, 10 * 60 * 1000, caller),
+    fetchResults(wcaId, caller),
   ]);
   const now = today();
-  const upcoming = (upcomingPayload.upcoming_competitions ?? [])
-    .map(toCompetitionInfo)
-    .map((info): WcaMyCompetition => ({ status: competitionStatus(info, now), competition: info, summary: null }))
-    .filter(entry => entry.status !== "past")
-    .sort((left, right) => left.competition.startDate.localeCompare(right.competition.startDate));
-  const upcomingIds = new Set(upcoming.map(entry => entry.competition.id));
+  const summaries = new Map(summarizeResults(results).map(summary => [summary.competitionId, summary]));
+  const byId = new Map<string, WcaMyCompetition>();
+  for (const payload of [...historyPayload, ...(upcomingPayload.upcoming_competitions ?? [])]) {
+    const info = toCompetitionInfo(payload);
+    byId.set(info.id, {
+      status: competitionStatus(info, now),
+      competition: info,
+      summary: summaries.get(info.id) ?? null,
+    });
+  }
+  const all = [...byId.values()];
   return {
     wcaId,
-    upcoming,
-    past: { total: past.total, items: past.items.filter(entry => !upcomingIds.has(entry.competition.id)) },
+    upcoming: all
+      .filter(entry => entry.status !== "past")
+      .sort((left, right) => left.competition.startDate.localeCompare(right.competition.startDate)),
+    past: {
+      total: all.filter(entry => entry.status === "past").length,
+      items: all
+        .filter(entry => entry.status === "past")
+        .sort((left, right) => right.competition.startDate.localeCompare(left.competition.startDate)),
+    },
   };
 }
 
@@ -234,7 +276,7 @@ export async function getWcaCompetitionDetail(
 ): Promise<WcaCompetitionDetail> {
   const wcaId = normalizeWcaId(rawWcaId);
   const id = encodeURIComponent(competitionId);
-  const [payload, schedulePayload, results, user] = await Promise.all([
+  const [payload, schedulePayload, results, user, eventsPayload] = await Promise.all([
     fetchWcaJson<WcaCompetitionDetailPayload>(`/competitions/${id}`, 10 * 60 * 1000, caller),
     fetchWcaJson<WcaSchedulePayload>(`/competitions/${id}/schedule`, 10 * 60 * 1000, caller).catch(
       error => {
@@ -244,23 +286,34 @@ export async function getWcaCompetitionDetail(
     ),
     fetchResults(wcaId, caller),
     fetchUpcoming(wcaId, caller),
+    fetchWcaJson<WcaEventsPayload>(`/competitions/${id}/events`, 10 * 60 * 1000, caller).catch(error => {
+      if (error instanceof WcaApiError && error.kind === "NOT_FOUND") return [] as WcaEventsPayload;
+      throw error;
+    }),
   ]);
   const userId = user.user?.id ?? null;
   let registeredEventIds: string[] | null = null;
-  if (userId !== null) {
-    try {
-      const registrations = await fetchWcaJson<
-        Array<{ user_id?: number; event_ids?: string[] }>
-      >(`/competitions/${id}/registrations`, 5 * 60 * 1000, caller);
-      const mine = registrations.find(entry => entry.user_id === userId);
-      registeredEventIds = mine ? (mine.event_ids ?? []).filter(item => typeof item === "string") : null;
-    } catch (error) {
-      if (!(error instanceof WcaApiError)) throw error;
-    }
+  let registrations: WcaCompetitionDetail["registrations"] = null;
+  try {
+    const list = await fetchWcaJson<Array<{ user_id?: number; event_ids?: string[] }>>(
+      `/competitions/${id}/registrations`,
+      5 * 60 * 1000,
+      caller
+    );
+    const byEvent: Record<string, number> = {};
+    for (const entry of list)
+      for (const eventId of entry.event_ids ?? []) byEvent[eventId] = (byEvent[eventId] ?? 0) + 1;
+    registrations = { total: list.length, byEvent };
+    const mine = userId === null ? undefined : list.find(entry => entry.user_id === userId);
+    registeredEventIds = mine ? (mine.event_ids ?? []).filter(item => typeof item === "string") : null;
+  } catch (error) {
+    if (!(error instanceof WcaApiError)) throw error;
   }
   return {
     competition: toCompetitionInfo(payload),
     schedule: scheduleItems(schedulePayload),
+    rounds: roundInfos(eventsPayload),
+    registrations,
     registeredEventIds,
     results: resultRowsFor(results, competitionId),
   };

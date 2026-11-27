@@ -6,6 +6,7 @@ import {
   getWcaCompetitionDetail,
   getWcaMyCompetitions,
   resultRowsFor,
+  roundInfos,
   scheduleItems,
   summarizeResults,
   toCompetitionInfo,
@@ -127,6 +128,25 @@ describe("WCA my competitions", () => {
     expect(items[1]).toMatchObject({ eventId: null, round: null, code: "other-lunch" });
   });
 
+  it("flattens round formats, cutoffs and advancement", () => {
+    const rounds = roundInfos([
+      {
+        id: "333",
+        rounds: [
+          { id: "333-r1", format: "a", timeLimit: { centiseconds: 12000, cumulativeRoundIds: [] }, cutoff: { numberOfAttempts: 2, attemptResult: 3000 }, advancementCondition: { type: "ranking", level: 16 }, scrambleSetCount: 4 },
+          { id: "333-r2", format: "a", timeLimit: null, cutoff: null, advancementCondition: null, scrambleSetCount: 1 },
+        ],
+      },
+      { id: "333fm", rounds: [{ id: "333fm-r1", format: "m", timeLimit: { centiseconds: 6000, cumulativeRoundIds: ["333fm-r1"] } }] },
+    ]);
+    expect(rounds).toHaveLength(3);
+    expect(rounds[0]).toMatchObject({ eventId: "333", round: 1, format: "a", timeLimitCentiseconds: 12000, timeLimitCumulative: false });
+    expect(rounds[0].cutoff).toEqual({ attempts: 2, centiseconds: 3000 });
+    expect(rounds[0].advancement).toEqual({ type: "ranking", level: 16 });
+    expect(rounds[1].advancement).toBeNull();
+    expect(rounds[2].timeLimitCumulative).toBe(true);
+  });
+
   it("lists upcoming and past competitions for a WCA ID", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-12-12T08:00:00Z"));
@@ -142,17 +162,23 @@ describe("WCA my competitions", () => {
         result(10, "Old2020", "333", "f", 1),
         result(50, "New2025", "333", "1", 5),
       ],
-      "/competitions/Old2020": competition("Old2020", "2020-05-01"),
-      "/competitions/New2025": competition("New2025", "2025-05-01"),
+      "/persons/2020NGUY01/competitions": [
+        competition("Old2020", "2020-05-01"),
+        competition("New2025", "2025-05-01"),
+        competition("Spectator2024", "2024-05-01"),
+        competition("Today2026", "2026-12-12", "2026-12-13"),
+      ],
     });
     const mine = await getWcaMyCompetitions("2020nguy01", CALLER);
     expect(mine.upcoming.map(item => `${item.competition.id}:${item.status}`)).toEqual([
       "Today2026:ongoing",
       "Later2027:upcoming",
     ]);
-    expect(mine.past.total).toBe(2);
-    expect(mine.past.items.map(item => item.competition.id)).toEqual(["New2025", "Old2020"]);
-    expect(mine.past.items[1].summary?.podiums).toBe(1);
+    expect(mine.past.total).toBe(3);
+    expect(mine.past.items.map(item => item.competition.id)).toEqual(["New2025", "Spectator2024", "Old2020"]);
+    expect(mine.past.items[0].summary?.podiums).toBe(0);
+    expect(mine.past.items[1].summary).toBeNull();
+    expect(mine.past.items[2].summary?.podiums).toBe(1);
   });
 
   it("returns the schedule, registered events and results for one competition", async () => {
@@ -161,6 +187,9 @@ describe("WCA my competitions", () => {
       "/competitions/Hanoi2026/schedule": {
         venues: [{ timezone: "Asia/Ho_Chi_Minh", rooms: [{ name: "A", activities: [{ name: "3x3x3", activityCode: "333-r1", startTime: "2026-12-12T03:00:00Z", endTime: "2026-12-12T04:00:00Z" }] }] }],
       },
+      "/competitions/Hanoi2026/events": [
+        { id: "333", rounds: [{ id: "333-r1", format: "a", timeLimit: { centiseconds: 12000 }, advancementCondition: { type: "percent", level: 75 } }] },
+      ],
       "/competitions/Hanoi2026/registrations": [
         { user_id: 1, event_ids: ["444"] },
         { user_id: 777, event_ids: ["333", "skewb"] },
@@ -170,6 +199,9 @@ describe("WCA my competitions", () => {
     });
     const detail = await getWcaCompetitionDetail("2020NGUY01", "Hanoi2026", CALLER);
     expect(detail.registeredEventIds).toEqual(["333", "skewb"]);
+    expect(detail.registrations).toEqual({ total: 2, byEvent: { "444": 1, "333": 1, skewb: 1 } });
+    expect(detail.rounds).toHaveLength(1);
+    expect(detail.rounds[0].advancement).toEqual({ type: "percent", level: 75 });
     expect(detail.schedule).toHaveLength(1);
     expect(detail.results).toHaveLength(1);
     expect(detail.competition.venueAddress).toBe("1 Phố Cổ");

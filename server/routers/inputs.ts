@@ -42,4 +42,3 @@ export const leaderboardInput = z.object({ period: z.enum(["week", "month"]), ev
 export const wcaCalendarInput = z.object({ start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải theo YYYY-MM-DD."), end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải theo YYYY-MM-DD."), countryIso2: z.string().trim().length(2).transform((value) => value.toUpperCase()).nullable().optional() });
 export const wcaIdInput = z.object({ wcaId: z.string().trim().min(1).max(10).nullable() });
 export const wcaCompetitionIdInput = z.object({ id: z.string().trim().regex(/^[A-Za-z0-9]{3,40}$/, "Mã giải không hợp lệ.") });
-export const wcaPastInput = z.object({ offset: z.number().int().min(0).max(5000) });

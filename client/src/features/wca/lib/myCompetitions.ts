@@ -131,3 +131,24 @@ export function sortSections(items: readonly MyCompetition[]) {
     upcoming: items.filter(item => item.status === "upcoming"),
   };
 }
+
+export type RoundInfo = MyCompetitionDetail["rounds"][number];
+
+// Time limits and cutoffs arrive in centiseconds, except multi-blind cutoffs,
+// which use the WCA multi-blind encoding.
+export function formatRoundTime(eventId: string, centiseconds: number): string {
+  return formatWcaRecordValue(eventId, "single", centiseconds);
+}
+
+export function groupRoundsByEvent(rounds: readonly RoundInfo[]): Array<{ eventId: string; rounds: RoundInfo[] }> {
+  const groups = new Map<string, RoundInfo[]>();
+  for (const round of rounds) {
+    const list = groups.get(round.eventId);
+    if (list) list.push(round);
+    else groups.set(round.eventId, [round]);
+  }
+  return [...groups.entries()].map(([eventId, list]) => ({
+    eventId,
+    rounds: list.sort((left, right) => left.round - right.round),
+  }));
+}

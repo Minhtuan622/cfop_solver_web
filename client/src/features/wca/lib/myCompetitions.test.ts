@@ -4,6 +4,7 @@ import {
   formatAttempt,
   formatClock,
   formatEntryFee,
+  groupRoundsByEvent,
   groupScheduleByDay,
   mapsUrl,
   registrationState,
@@ -77,5 +78,13 @@ describe("my competitions helpers", () => {
     expect(formatAttempt("333", -1)).toBe("DNF");
     expect(formatAttempt("333", 0)).toBe("—");
     expect(formatAttempt("333fm", 31)).toBe("31");
+  });
+
+  it("groups rounds under their event in round order", () => {
+    const round = (eventId: string, n: number) =>
+      ({ id: `${eventId}-r${n}`, eventId, round: n, format: "a", timeLimitCentiseconds: null, timeLimitCumulative: false, cutoff: null, advancement: null, scrambleSetCount: 1 }) as never;
+    const groups = groupRoundsByEvent([round("333", 2), round("222", 1), round("333", 1)]);
+    expect(groups.map(group => group.eventId)).toEqual(["333", "222"]);
+    expect(groups[0].rounds.map(item => item.round)).toEqual([1, 2]);
   });
 });

@@ -27,7 +27,6 @@ describe("domain router composition", () => {
       "wca.competitionDetail",
       "wca.myCompetitions",
       "wca.oauthStatus",
-      "wca.pastCompetitions",
       "wca.profile",
       "wca.setId",
       "wca.startOAuth",

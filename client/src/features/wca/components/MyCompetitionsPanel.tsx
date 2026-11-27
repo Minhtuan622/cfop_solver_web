@@ -6,8 +6,25 @@ import { EmptyState, RefreshIndicator, SkeletonList, StatusFeedback } from "@/co
 import { useLanguage } from "@/contexts/LanguageContext";
 import { errorMessage } from "@/lib/apiError";
 import { trpc } from "@/lib/trpc";
+import { formatWcaRecordValue } from "../lib/wcaRecords";
+import { wcaEventShortName } from "@/lib/wcaEvents";
 import { sortSections, type MyCompetition } from "../lib/myCompetitions";
 import { MyCompetitionCard } from "./MyCompetitionCard";
+
+const PAST_STEP = 24;
+
+function ranks(value: { world: number | null; continental: number | null; country: number | null }) {
+  return (
+    [
+      ["TG", value.world],
+      ["CL", value.continental],
+      ["QG", value.country],
+    ] as const
+  )
+    .filter(([, rank]) => typeof rank === "number")
+    .map(([label, rank]) => `${label} #${rank}`)
+    .join(" · ");
+}
 
 function Section({
   id,
@@ -41,8 +58,7 @@ function List({ items }: { items: readonly MyCompetition[] }) {
 }
 
 export function MyCompetitionsPanel() {
-  const { t } = useLanguage();
-  const utils = trpc.useUtils();
+  const { language, t } = useLanguage();
   const accountQuery = trpc.cfopAccount.me.useQuery(undefined, { staleTime: 30_000, retry: false });
   const account = accountQuery.data;
   const linked = Boolean(account?.wcaId);
@@ -56,9 +72,7 @@ export function MyCompetitionsPanel() {
     staleTime: 10 * 60 * 1000,
     retry: false,
   });
-  const [more, setMore] = useState<MyCompetition[]>([]);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [moreError, setMoreError] = useState<unknown>(null);
+  const [visiblePast, setVisiblePast] = useState(PAST_STEP);
 
   if (accountQuery.isLoading) return <SkeletonList rows={3} label={t("wca.mine.loading")} />;
   if (!account)
@@ -98,22 +112,8 @@ export function MyCompetitionsPanel() {
   if (!mine) return null;
 
   const { ongoing, upcoming } = sortSections(mine.upcoming);
-  const past = [...mine.past.items, ...more];
+  const past = mine.past.items.slice(0, visiblePast);
   const medals = profileQuery.data?.medals;
-
-  const loadMore = async () => {
-    setLoadingMore(true);
-    setMoreError(null);
-    try {
-      const page = await utils.cfopAccount.wca.pastCompetitions.fetch({ offset: past.length });
-      const seen = new Set(past.map(entry => entry.competition.id));
-      setMore(current => [...current, ...page.items.filter(entry => !seen.has(entry.competition.id))]);
-    } catch (error) {
-      setMoreError(error);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
 
   return (
     <div>
@@ -152,6 +152,37 @@ export function MyCompetitionsPanel() {
         )}
       </Section>
 
+      {profileQuery.data?.personalRecords.length ? (
+        <Section id="my-records" title={t("wca.mine.personalRecords")} count={profileQuery.data.personalRecords.length}>
+          <div className="overflow-x-auto rounded-2xl bg-surface p-3 sm:p-4">
+            <table className="w-full min-w-[30rem] text-left text-sm">
+              <thead>
+                <tr className="text-xs uppercase tracking-wide text-muted">
+                  <th scope="col" className="py-1 pr-3 font-semibold">{t("wca.mine.pr.event")}</th>
+                  <th scope="col" className="py-1 pr-3 font-semibold">{t("wca.mine.pr.single")}</th>
+                  <th scope="col" className="py-1 font-semibold">{t("wca.mine.pr.average")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {profileQuery.data.personalRecords.map(record => (
+                  <tr key={record.eventId} className="align-top odd:bg-surface-2/60">
+                    <td className="py-1.5 pr-3 font-semibold">{wcaEventShortName(record.eventId, language)}</td>
+                    <td className="py-1.5 pr-3 tabular-nums">
+                      {formatWcaRecordValue(record.eventId, "single", record.singleCentiseconds)}
+                      <span className="block text-xs text-muted">{ranks(record.singleRanks)}</span>
+                    </td>
+                    <td className="py-1.5 tabular-nums">
+                      {formatWcaRecordValue(record.eventId, "average", record.averageCentiseconds)}
+                      <span className="block text-xs text-muted">{ranks(record.averageRanks)}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Section>
+      ) : null}
+
       <Section id="my-past" title={t("wca.mine.past")} count={mine.past.total}>
         {past.length ? (
           <>
@@ -161,14 +192,14 @@ export function MyCompetitionsPanel() {
                 <p className="m-0 text-xs text-muted">
                   {t("wca.mine.showing", { shown: past.length, total: mine.past.total })}
                 </p>
-                <Button type="button" variant="secondary" size="sm" disabled={loadingMore} onClick={loadMore}>
-                  {loadingMore ? t("wca.mine.loadingMore") : t("wca.mine.loadMore")}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setVisiblePast(value => value + PAST_STEP)}
+                >
+                  {t("wca.mine.loadMore")}
                 </Button>
-                {moreError ? (
-                  <StatusFeedback tone="danger" title={t("wca.mine.loadFailed")}>
-                    {errorMessage(moreError, t)}
-                  </StatusFeedback>
-                ) : null}
               </div>
             ) : null}
           </>

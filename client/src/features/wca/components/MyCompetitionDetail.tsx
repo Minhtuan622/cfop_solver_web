@@ -13,6 +13,8 @@ import {
   formatDayHeading,
   formatEntryFee,
   formatResultCell,
+  formatRoundTime,
+  groupRoundsByEvent,
   groupScheduleByDay,
   mapsUrl,
   registrationState,
@@ -92,6 +94,156 @@ function Overview({ info }: { info: CompetitionInfo }) {
           <Fact label={t("wca.mine.resultsPosted")}>{formatDateTime(info.resultsPostedAt, language)}</Fact>
         ) : null}
       </dl>
+    </section>
+  );
+}
+
+function advancementLabel(
+  round: MyCompetitionDetail["rounds"][number],
+  isLast: boolean,
+  t: (key: string, values?: Record<string, string | number>) => string
+) {
+  const rule = round.advancement;
+  if (!rule) return isLast ? t("wca.mine.advance.final") : "—";
+  if (rule.type === "attemptResult")
+    return t("wca.mine.advance.attemptResult", { time: formatRoundTime(round.eventId, rule.level) });
+  return t(`wca.mine.advance.${rule.type === "percent" ? "percent" : "ranking"}`, { level: rule.level });
+}
+
+function Rounds({ detail }: { detail: MyCompetitionDetail }) {
+  const { language, t } = useLanguage();
+  const groups = groupRoundsByEvent(detail.rounds);
+  if (groups.length === 0) return null;
+  return (
+    <section>
+      <Heading>{t("wca.mine.rounds")}</Heading>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[34rem] text-left text-sm">
+          <thead>
+            <tr className="text-xs uppercase tracking-wide text-muted">
+              <th scope="col" className="py-1 pr-3 font-semibold">{t("wca.mine.round.col.round")}</th>
+              <th scope="col" className="py-1 pr-3 font-semibold">{t("wca.mine.round.col.format")}</th>
+              <th scope="col" className="py-1 pr-3 font-semibold">{t("wca.mine.round.col.limit")}</th>
+              <th scope="col" className="py-1 pr-3 font-semibold">{t("wca.mine.round.col.cutoff")}</th>
+              <th scope="col" className="py-1 font-semibold">{t("wca.mine.round.col.advance")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {groups.flatMap(group =>
+              group.rounds.map((round, index) => {
+                const limit =
+                  round.timeLimitCentiseconds === null
+                    ? "—"
+                    : round.timeLimitCumulative
+                      ? t("wca.mine.cumulative", { time: formatRoundTime(round.eventId, round.timeLimitCentiseconds) })
+                      : formatRoundTime(round.eventId, round.timeLimitCentiseconds);
+                return (
+                  <tr key={round.id} className="align-top odd:bg-surface-2/60">
+                    <td className="py-1.5 pr-3">
+                      <span className="font-semibold">{wcaEventShortName(group.eventId, language)}</span>{" "}
+                      <span className="text-muted">#{round.round}</span>
+                    </td>
+                    <td className="py-1.5 pr-3">{round.format ? t(`wca.mine.format.${round.format}`) : "—"}</td>
+                    <td className="py-1.5 pr-3 tabular-nums">{limit}</td>
+                    <td className="py-1.5 pr-3 tabular-nums">
+                      {round.cutoff
+                        ? t("wca.mine.cutoffValue", {
+                            time: formatRoundTime(round.eventId, round.cutoff.centiseconds),
+                            count: round.cutoff.attempts,
+                          })
+                        : "—"}
+                    </td>
+                    <td className="py-1.5">{advancementLabel(round, index === group.rounds.length - 1, t)}</td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function Counts({ detail }: { detail: MyCompetitionDetail }) {
+  const { language, t } = useLanguage();
+  const { competition: info, registrations } = detail;
+  if (!registrations && info.spotsLeft === null && info.numberOfBookmarks === null) return null;
+  const byEvent = Object.entries(registrations?.byEvent ?? {}).sort((left, right) => right[1] - left[1]);
+  return (
+    <section>
+      <Heading>{t("wca.mine.counts")}</Heading>
+      <p className="m-0 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink">
+        {registrations ? <span>{t("wca.mine.countsTotal", { count: registrations.total })}</span> : null}
+        {info.registrationFull ? <span className="text-danger">{t("wca.mine.full")}</span> : null}
+        {info.spotsLeft !== null && info.spotsLeft > 0 ? <span>{t("wca.mine.spotsLeft", { count: info.spotsLeft })}</span> : null}
+        {info.waitingListCount ? <span>{t("wca.mine.waitingList", { count: info.waitingListCount })}</span> : null}
+        {info.numberOfBookmarks !== null ? <span>{t("wca.mine.bookmarks", { count: info.numberOfBookmarks })}</span> : null}
+      </p>
+      {byEvent.length ? (
+        <ul className="m-0 mt-2 flex list-none flex-wrap gap-1.5 p-0 text-xs text-muted">
+          {byEvent.map(([eventId, count]) => (
+            <li key={eventId} className="rounded-full bg-surface-2 px-2.5 py-1 tabular-nums">
+              {t("wca.mine.eventCount", { event: wcaEventShortName(eventId, language), count })}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </section>
+  );
+}
+
+function Policies({ info }: { info: CompetitionInfo }) {
+  const { language, t } = useLanguage();
+  const yesNo = (value: boolean | null) => (value === null ? null : value ? t("wca.mine.yes") : t("wca.mine.no"));
+  const date = (iso: string | null) => formatDateTime(iso, language);
+  const guestFee =
+    info.guestsEntryFee !== null && info.entryFee
+      ? formatEntryFee({ lowestDenomination: info.guestsEntryFee, currency: info.entryFee.currency }, language)
+      : null;
+  const facts: Array<[string, React.ReactNode]> = [
+    [t("wca.mine.eventsLimit"), info.eventsPerRegistrationLimit],
+    [t("wca.mine.guestsLimit"), info.guestsPerRegistrationLimit],
+    [t("wca.mine.guestFee"), guestFee],
+    [t("wca.mine.onTheSpot"), yesNo(info.onTheSpotRegistration)],
+    [
+      t("wca.mine.refund"),
+      info.refundPolicyPercent !== null && info.refundPolicyLimitDate
+        ? t("wca.mine.refundValue", { percent: info.refundPolicyPercent, date: date(info.refundPolicyLimitDate) ?? "" })
+        : null,
+    ],
+    [t("wca.mine.eventChangeDeadline"), date(info.eventChangeDeadlineDate)],
+    [t("wca.mine.waitingDeadline"), date(info.waitingListDeadlineDate)],
+    [t("wca.mine.qualification"), yesNo(info.qualificationResults)],
+    [t("wca.mine.software"), info.scoretakingSoftware],
+    [t("wca.mine.series"), info.seriesIds.length ? info.seriesIds.join(", ") : null],
+  ];
+  const shown = facts.filter(([, value]) => value !== null && value !== undefined && value !== "");
+  if (!shown.length && !info.information && !info.extraRegistrationRequirements) return null;
+  return (
+    <section>
+      <Heading>{t("wca.mine.policy")}</Heading>
+      {shown.length ? (
+        <dl className="m-0 grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+          {shown.map(([label, value]) => (
+            <Fact key={label} label={label}>
+              {value}
+            </Fact>
+          ))}
+        </dl>
+      ) : null}
+      {info.extraRegistrationRequirements ? (
+        <div className="mt-3">
+          <h5 className="mb-1 mt-0 text-xs font-semibold uppercase tracking-wide text-muted">{t("wca.mine.requirements")}</h5>
+          <p className="m-0 whitespace-pre-line break-words text-sm text-ink">{info.extraRegistrationRequirements}</p>
+        </div>
+      ) : null}
+      {info.information ? (
+        <div className="mt-3">
+          <h5 className="mb-1 mt-0 text-xs font-semibold uppercase tracking-wide text-muted">{t("wca.mine.information")}</h5>
+          <p className="m-0 whitespace-pre-line break-words text-sm text-ink">{info.information}</p>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -287,8 +439,11 @@ export function MyCompetitionDetailView({ competitionId }: { competitionId: stri
     <div className="flex flex-col gap-5">
       <Overview info={detail.competition} />
       <Events detail={detail} />
+      <Counts detail={detail} />
+      <Rounds detail={detail} />
       <Schedule detail={detail} />
       <Results detail={detail} />
+      <Policies info={detail.competition} />
       <Team info={detail.competition} />
       <Links info={detail.competition} />
     </div>

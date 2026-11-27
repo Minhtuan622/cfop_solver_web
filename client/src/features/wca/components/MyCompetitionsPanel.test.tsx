@@ -51,6 +51,24 @@ function info(id: string, overrides: Record<string, unknown> = {}) {
     competitorLimit: 100,
     entryFee: { lowestDenomination: 15000000, currency: "VND" },
     guestsEnabled: true,
+    guestsPerRegistrationLimit: null,
+    guestsEntryFee: null,
+    eventsPerRegistrationLimit: null,
+    onTheSpotRegistration: null,
+    onTheSpotEntryFee: null,
+    refundPolicyPercent: 50,
+    refundPolicyLimitDate: "2099-11-01T00:00:00.000Z",
+    eventChangeDeadlineDate: null,
+    waitingListDeadlineDate: null,
+    qualificationResults: null,
+    spotsLeft: 12,
+    waitingListCount: 0,
+    registrationFull: false,
+    numberOfBookmarks: 7,
+    scoretakingSoftware: "wca_live",
+    seriesIds: [],
+    information: "Mang theo cube của bạn.",
+    extraRegistrationRequirements: null,
     externalRegistrationPage: null,
     website: null,
     wcaUrl: `https://www.worldcubeassociation.org/competitions/${id}`,
@@ -85,7 +103,19 @@ describe("my WCA competitions", () => {
 
   it("lists ongoing, upcoming and past competitions", () => {
     mocks.account.data = { id: 1, wcaId: "2020NGUY01" };
-    mocks.profile.data = { competitionCount: 12, medals: { gold: 1, silver: 2, bronze: 3, total: 6 } };
+    mocks.profile.data = {
+      competitionCount: 12,
+      medals: { gold: 1, silver: 2, bronze: 3, total: 6 },
+      personalRecords: [
+        {
+          eventId: "333",
+          singleCentiseconds: 812,
+          averageCentiseconds: 954,
+          singleRanks: { world: 120, continental: 30, country: 2 },
+          averageRanks: { world: null, continental: null, country: 3 },
+        },
+      ],
+    };
     mocks.mine.data = {
       wcaId: "2020NGUY01",
       upcoming: [
@@ -113,7 +143,10 @@ describe("my WCA competitions", () => {
     expect(screen.getByText(/2 bục/)).toBeInTheDocument();
     expect(screen.getByText(/12 giải đã thi/)).toBeInTheDocument();
     expect(screen.getByText(/1 vàng · 2 bạc · 3 đồng/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Tải thêm giải/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Kỷ lục cá nhân/ })).toBeInTheDocument();
+    expect(screen.getByText("8.12")).toBeInTheDocument();
+    expect(screen.getByText(/TG #120 · CL #30 · QG #2/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Hiện thêm giải/ })).toBeInTheDocument();
   });
 
   it("explains an empty upcoming list and shows details on demand", () => {
@@ -126,6 +159,20 @@ describe("my WCA competitions", () => {
     mocks.detail.data = {
       competition: info("SapToi"),
       registeredEventIds: ["333"],
+      registrations: { total: 40, byEvent: { "333": 30, skewb: 10 } },
+      rounds: [
+        {
+          id: "333-r1",
+          eventId: "333",
+          round: 1,
+          format: "a",
+          timeLimitCentiseconds: 12000,
+          timeLimitCumulative: false,
+          cutoff: { attempts: 2, centiseconds: 3000 },
+          advancement: { type: "ranking", level: 16 },
+          scrambleSetCount: 2,
+        },
+      ],
       results: [],
       schedule: [
         {
@@ -147,6 +194,13 @@ describe("my WCA competitions", () => {
     expect(screen.getByText(/10:00–11:00/)).toBeInTheDocument();
     expect(screen.getByText(/Bạn đã đăng ký 1 môn/)).toBeInTheDocument();
     expect(screen.getByText("Delegate A")).toBeInTheDocument();
+    expect(screen.getByText(/40 người đăng ký công khai/)).toBeInTheDocument();
+    expect(screen.getByText(/Còn 12 chỗ/)).toBeInTheDocument();
+    expect(screen.getByText("Mang theo cube của bạn.")).toBeInTheDocument();
+    expect(screen.getByText(/50% đến/)).toBeInTheDocument();
+    expect(screen.getByText("Trung bình của 5")).toBeInTheDocument();
+    expect(screen.getByText("Top 16")).toBeInTheDocument();
+    expect(screen.getByText("30.00 sau 2 lần")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /WCA Live/ })).toHaveAttribute(
       "href",
       "https://live.worldcubeassociation.org/link/competitions/SapToi"
