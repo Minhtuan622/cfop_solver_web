@@ -17,6 +17,7 @@
     ]
   },
   "deploy": {
+    "preDeployCommand": "node scripts/migrate.mjs",
     "startCommand": "node dist/index.js",
     "healthcheckPath": "/_app/ready",
     "restartPolicyType": "ON_FAILURE",
