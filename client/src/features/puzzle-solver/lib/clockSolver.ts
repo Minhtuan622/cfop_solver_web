@@ -108,6 +108,52 @@ export function clockMoveToken(name: string, hours: number) {
 }
 
 export type ClockSolution = { moves: string[] };
+export type ClockPhase = { name: string; moves: string[] };
+
+// Front centre and edge dials. Back-side turns never touch them, so the front
+// turns alone decide whether this cross is solved.
+const FRONT_CROSS_DIALS = [1, 3, 4, 5, 7];
+
+// Same answer as solveClock, cut into the order a person solves a clock:
+// front cross, then front corners (turns that keep that cross), then the flip
+// and the back side.
+export function solveClockPhases(model: ClockModel, dials: number[]): ClockPhase[] | null {
+  const names = [...CLOCK_MOVE_NAMES];
+  const tokens = (amounts: number[]) =>
+    names.flatMap((name, index) => clockMoveToken(name, amounts[index]) ?? []);
+
+  const frontOnly = solveMod12(
+    names.map(name => model.front[name]),
+    dials.map(value => -value)
+  );
+  let front: number[];
+  let back: number[] | null = null;
+  if (frontOnly) front = frontOnly;
+  else {
+    const flipped = applyFlip(model.flip, dials);
+    const columns = [
+      ...names.map(name => permuteOnly(model.flip, model.front[name])),
+      ...names.map(name => model.back[name]),
+    ];
+    const solution = solveMod12(columns, flipped.map(value => -value));
+    if (!solution) return null;
+    front = solution.slice(0, names.length);
+    back = solution.slice(names.length);
+  }
+
+  const cross = solveMod12(
+    names.map(name => FRONT_CROSS_DIALS.map(dial => model.front[name][dial])),
+    FRONT_CROSS_DIALS.map(dial => -dials[dial])
+  );
+  const crossAmounts = cross ?? new Array<number>(names.length).fill(0);
+  const rest = front.map((amount, index) => mod(amount - crossAmounts[index], 12));
+  const phases: ClockPhase[] = [
+    { name: "Front Cross", moves: tokens(crossAmounts) },
+    { name: "Front Corners", moves: tokens(rest) },
+  ];
+  if (back) phases.push({ name: "Back Side", moves: ["y2", ...tokens(back)] });
+  return phases;
+}
 
 export function solveClock(model: ClockModel, dials: number[]): ClockSolution | null {
   const names = [...CLOCK_MOVE_NAMES];

@@ -116,13 +116,14 @@ export function OtherPuzzleSolver({
     playback.setCursor(0);
     try {
       if (isClock) {
-        const { solveClockDials } = await import("../lib/clockEngine");
-        const solution = await solveClockDials(dials);
-        if (solution === null) throw new PuzzleSolveError("invalid-state");
+        const { solveClockDialsWithPhases } = await import("../lib/clockEngine");
+        const found = await solveClockDialsWithPhases(dials);
+        if (found === null) throw new PuzzleSolveError("invalid-state");
         setResult({
-          scramble: invertClockAlgorithm(solution),
-          solution,
-          moves: solution ? solution.split(" ").length : 0,
+          scramble: invertClockAlgorithm(found.solution),
+          solution: found.solution,
+          moves: found.solution ? found.solution.split(" ").length : 0,
+          phases: found.phases,
         });
         return;
       }
@@ -334,7 +335,7 @@ export function OtherPuzzleSolver({
                     <section key={phaseIndex}>
                       {phase.name ? (
                         <h3 className="mb-2 text-sm font-semibold tracking-tight">
-                          {t(`roux.phase.${phase.name}`)}{" "}
+                          {t(`phase.${phase.name}`)}{" "}
                           <span className="font-normal text-muted">
                             · {phase.moves.length}
                           </span>
