@@ -6,7 +6,6 @@ type WcaRouterOutput = inferRouterOutputs<AppRouter>["wca"];
 
 export type WcaCompetition = WcaRouterOutput["competitions"][number];
 export type WcaCountry = WcaRouterOutput["countries"][number];
-export type WcaWorldRecord = WcaRouterOutput["worldRecords"][number];
 
 export type VenueInfo = { text: string; href: string | null };
 

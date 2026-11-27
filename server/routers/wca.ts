@@ -6,7 +6,8 @@ import {
   getWcaMyCompetitions,
   getWcaCountries,
   getWcaProfile,
-  getWcaWorldRecords,
+  getWcaRecentRecords,
+  getWcaRecords,
   normalizeWcaId,
   WcaApiError,
 } from "../services/wcaApi";
@@ -155,9 +156,16 @@ export const wcaRouter = router({
         return wcaError(error);
       }
     }),
-  worldRecords: publicProcedure.query(async ({ ctx }) => {
+  records: publicProcedure.query(async ({ ctx }) => {
     try {
-      return await getWcaWorldRecords(callerKey(ctx.req));
+      return await getWcaRecords(callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  recentRecords: publicProcedure.query(async ({ ctx }) => {
+    try {
+      return await getWcaRecentRecords(callerKey(ctx.req));
     } catch (error) {
       return wcaError(error);
     }

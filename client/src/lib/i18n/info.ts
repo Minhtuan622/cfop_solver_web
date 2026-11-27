@@ -2,7 +2,8 @@ import type { Dictionary } from "./index";
 
 export const infoWords: Dictionary = {
   "nav.info": ["Thông tin", "Info"],
-  "nav.infoLabel": ["Giới thiệu và hỗ trợ", "About and support"],
+  "nav.infoLabel": ["Tra cứu, giới thiệu và hỗ trợ", "Lookup, about and support"],
+  "nav.records": ["Kỷ lục WCA", "WCA records"],
   "nav.about": ["Về chúng tôi", "About us"],
   "nav.donate": ["Ủng hộ", "Donate"],
   "nav.guide": ["Hướng dẫn sử dụng", "User guide"],
@@ -123,8 +124,8 @@ export const infoWords: Dictionary = {
   ],
   "guide.wca.title": ["Giải WCA", "WCA"],
   "guide.wca.body": [
-    "Theo dõi lịch các giải WCA và kỷ lục thế giới. Tab \"Giải của tôi\" liệt kê giải bạn đã, đang và sẽ tham gia (cần liên kết WCA ID trong hồ sơ), kèm lịch thi, môn đăng ký và kết quả.",
-    "Follow the WCA competition calendar and world records. The \"My competitions\" tab lists the competitions you attended, are attending and will attend (link your WCA ID in your profile), with the schedule, registered events and results.",
+    "Theo dõi lịch các giải WCA và kỷ lục thế giới. Trang Kỷ lục WCA có kỷ lục thế giới, châu lục, quốc gia và các kỷ lục vừa bị phá. Tab \"Giải của tôi\" liệt kê giải bạn đã, đang và sẽ tham gia (cần liên kết WCA ID trong hồ sơ), kèm lịch thi, môn đăng ký và kết quả.",
+    "Follow the WCA competition calendar and world records. The WCA records page has world, continental and national records plus the ones broken most recently. The \"My competitions\" tab lists the competitions you attended, are attending and will attend (link your WCA ID in your profile), with the schedule, registered events and results.",
   ],
   "guide.settings.title": ["Cài đặt", "Settings"],
   "guide.settings.body": [

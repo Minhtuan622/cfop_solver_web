@@ -10,12 +10,12 @@ import { Calendar3, ExternalLink, Trophy } from "@/components/ui/Icon";
 import { trpc } from "@/lib/trpc";
 import { errorMessage } from "@/lib/apiError";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Button } from "@/components/ui/Button";
+import { Link } from "wouter";
+import { Button, buttonClass } from "@/components/ui/Button";
 import {
   MyCompetitionsPanel,
   WcaCalendarFilters,
   WcaCompetitionList,
-  WcaWorldRecords,
   groupByMonth,
   matchesQuery,
 } from "@/features/wca";
@@ -40,10 +40,6 @@ export default function WcaCompetitions() {
 
   const countriesQuery = trpc.wca.countries.useQuery(undefined, {
     staleTime: 24 * 60 * 60 * 1000,
-    retry: 1,
-  });
-  const recordsQuery = trpc.wca.worldRecords.useQuery(undefined, {
-    staleTime: 60 * 60 * 1000,
     retry: 1,
   });
   const calendarInput = useMemo(() => {
@@ -98,15 +94,21 @@ export default function WcaCompetitions() {
         title={t("wca.title")}
         description={t("wca.description")}
         actions={
-          <a
-            href={WCA_CALENDAR_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover"
-          >
-            {t("wca.openCalendar")}
-            <ExternalLink className="text-sm" aria-hidden="true" />
-          </a>
+          <>
+            <Link href="/records" className={buttonClass("secondary", "md")}>
+              <Trophy className="text-sm" aria-hidden="true" />
+              {t("wca.openRecords")}
+            </Link>
+            <a
+              href={WCA_CALENDAR_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover"
+            >
+              {t("wca.openCalendar")}
+              <ExternalLink className="text-sm" aria-hidden="true" />
+            </a>
+          </>
         }
       />
       <div
@@ -147,20 +149,7 @@ export default function WcaCompetitions() {
                 ? t("wca.resultsCount", { count: competitions.length })
                 : t("wca.loading")}
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-ink">
-              <Trophy className="text-muted" aria-hidden="true" />
-              {t("wca.records.count", {
-                count: recordsQuery.data?.length ?? 17,
-              })}
-            </span>
           </div>
-
-          <WcaWorldRecords
-            records={recordsQuery.data}
-            isLoading={recordsQuery.isLoading}
-            isError={recordsQuery.isError}
-            error={recordsQuery.error}
-          />
 
           <WcaCalendarFilters
             year={year}

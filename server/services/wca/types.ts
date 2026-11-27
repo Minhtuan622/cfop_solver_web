@@ -37,6 +37,46 @@ export type WcaWorldRecord = {
   average: number | null;
 };
 
+export type WcaRecordTable = WcaWorldRecord[];
+
+export type WcaRegionRecords = {
+  world: WcaRecordTable;
+  continents: Array<{ id: string; name: string; records: WcaRecordTable }>;
+  countries: Array<{ name: string; iso2: string | null; records: WcaRecordTable }>;
+};
+
+export type WcaRecentRecord = {
+  id: string;
+  tag: string;
+  type: "single" | "average";
+  eventId: string;
+  attemptResult: number;
+  personName: string;
+  wcaId: string | null;
+  countryIso2: string | null;
+  competitionId: string | null;
+  competitionName: string;
+  enteredAt: string | null;
+};
+
+export type WcaLiveRecentPayload = {
+  recentRecords?: Array<{
+    tag?: string | null;
+    type?: string | null;
+    attemptResult?: number | null;
+    result?: {
+      enteredAt?: string | null;
+      person?: { name?: string | null; wcaId?: string | null; country?: { iso2?: string | null } | null } | null;
+      round?: {
+        competitionEvent?: {
+          event?: { id?: string | null } | null;
+          competition?: { name?: string | null; wcaId?: string | null } | null;
+        } | null;
+      } | null;
+    } | null;
+  }> | null;
+};
+
 export type WcaProfile = {
   wcaId: string;
   name: string;
@@ -114,14 +154,12 @@ export type WcaProfilePayload = {
   > | null;
 };
 
+type RawRecordTable = Record<string, { single?: number | null; average?: number | null } | null>;
+
 export type WcaRecordsPayload = {
-  world_records?: Record<
-    string,
-    {
-      single?: number | null;
-      average?: number | null;
-    } | null
-  > | null;
+  world_records?: RawRecordTable | null;
+  continental_records?: Record<string, RawRecordTable | null> | null;
+  national_records?: Record<string, RawRecordTable | null> | null;
 };
 
 // --- My competitions -------------------------------------------------------

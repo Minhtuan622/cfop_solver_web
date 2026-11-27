@@ -52,7 +52,7 @@ describe("AppNav", () => {
     expect(screen.queryByRole("button", { name: "Thêm" })).toBeNull();
   });
 
-  it("gói Về chúng tôi, Ủng hộ và Hướng dẫn vào menu Thông tin", async () => {
+  it("gói Kỷ lục WCA, Về chúng tôi, Ủng hộ và Hướng dẫn vào menu Thông tin", async () => {
     const user = userEvent.setup();
     renderNav();
 
@@ -61,6 +61,7 @@ describe("AppNav", () => {
     await user.click(screen.getByRole("button", { name: "Thông tin" }));
 
     const routes = [
+      { name: "Kỷ lục WCA", href: "/records" },
       { name: "Về chúng tôi", href: "/about" },
       { name: "Ủng hộ", href: "/donate" },
       { name: "Hướng dẫn sử dụng", href: "/guide" },
