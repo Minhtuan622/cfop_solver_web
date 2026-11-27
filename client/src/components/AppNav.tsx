@@ -8,7 +8,7 @@ import { NavUtilityMenu } from "@/components/NavUtilityMenu";
 import { NavOverflowMenu } from "@/components/NavOverflowMenu";
 import { cn } from "@/lib/utils";
 
-const primaryNavItems: AccountNavItem[] = [
+const mainNavItems: AccountNavItem[] = [
   { href: "/", labelKey: "nav.solve", active: (path: string) => path === "/" },
   {
     href: "/timer",
@@ -25,9 +25,6 @@ const primaryNavItems: AccountNavItem[] = [
     labelKey: "nav.study",
     active: (path: string) => path === "/study",
   },
-];
-
-const overflowNavItems: AccountNavItem[] = [
   {
     href: "/play",
     labelKey: "nav.play",
@@ -53,6 +50,24 @@ const overflowNavItems: AccountNavItem[] = [
     href: "/settings",
     labelKey: "nav.settings",
     active: (path: string) => path === "/settings",
+  },
+];
+
+const infoNavItems: AccountNavItem[] = [
+  {
+    href: "/about",
+    labelKey: "nav.about",
+    active: (path: string) => path === "/about",
+  },
+  {
+    href: "/donate",
+    labelKey: "nav.donate",
+    active: (path: string) => path === "/donate",
+  },
+  {
+    href: "/guide",
+    labelKey: "nav.guide",
+    active: (path: string) => path === "/guide",
   },
 ];
 
@@ -124,7 +139,7 @@ export function AppNav() {
             className="flex flex-col gap-1 xl:flex-row xl:items-center"
             aria-label={t("nav.main")}
           >
-            {primaryNavItems.map(item => {
+            {mainNavItems.map(item => {
               const active = item.active(path);
               return (
                 <Link
@@ -132,7 +147,7 @@ export function AppNav() {
                   href={item.href}
                   onClick={closeMenus}
                   className={cn(
-                    "flex items-center rounded-full px-4 py-2.5 text-sm font-medium transition xl:py-2",
+                    "flex items-center whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-medium transition xl:px-3 xl:py-2",
                     active
                       ? "bg-primary text-on-primary"
                       : "text-muted hover:bg-surface-2 hover:text-ink"
@@ -144,7 +159,10 @@ export function AppNav() {
               );
             })}
             <NavOverflowMenu
-              items={overflowNavItems}
+              id="cfop-info-menu"
+              labelKey="nav.info"
+              menuLabelKey="nav.infoLabel"
+              items={infoNavItems}
               path={path}
               onNavigate={closeMenus}
             />

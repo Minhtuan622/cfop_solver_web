@@ -31,7 +31,7 @@ describe("AppNav", () => {
     cleanup();
   });
 
-  it("giữ bốn trang dùng hằng ngày trên thanh điều hướng", () => {
+  it("hiện tất cả trang chính ngay trên thanh điều hướng", () => {
     renderNav();
 
     const routes = [
@@ -39,26 +39,31 @@ describe("AppNav", () => {
       { name: "Bấm giờ", href: "/timer" },
       { name: "Kết quả", href: "/history" },
       { name: "Học thêm", href: "/study" },
+      { name: "Thi đấu", href: "/rooms" },
+      { name: "Xếp hạng", href: "/competition" },
+      { name: "Giải WCA", href: "/wca" },
+      { name: "Cài đặt", href: "/settings" },
     ];
 
     for (const route of routes) {
       const link = screen.getByRole("link", { name: route.name });
       expect(link.getAttribute("href")).toBe(route.href);
     }
+    expect(screen.queryByRole("button", { name: "Thêm" })).toBeNull();
   });
 
-  it("gói các trang còn lại vào một menu Thêm, nhưng vẫn tới được", async () => {
+  it("gói Về chúng tôi, Ủng hộ và Hướng dẫn vào menu Thông tin", async () => {
     const user = userEvent.setup();
     renderNav();
 
-    expect(screen.queryByRole("menuitem", { name: "Cài đặt" })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Thêm" }));
+    expect(screen.queryByRole("menuitem", { name: "Về chúng tôi" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Ủng hộ" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Thông tin" }));
 
     const routes = [
-      { name: "Thi đấu", href: "/rooms" },
-      { name: "Xếp hạng", href: "/competition" },
-      { name: "Giải WCA", href: "/wca" },
-      { name: "Cài đặt", href: "/settings" },
+      { name: "Về chúng tôi", href: "/about" },
+      { name: "Ủng hộ", href: "/donate" },
+      { name: "Hướng dẫn sử dụng", href: "/guide" },
     ];
 
     for (const route of routes) {

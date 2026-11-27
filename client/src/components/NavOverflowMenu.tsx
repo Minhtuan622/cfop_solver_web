@@ -9,18 +9,24 @@ export function NavOverflowMenu({
   items,
   path,
   onNavigate,
+  id = "cfop-overflow-menu",
+  labelKey = "nav.more",
+  menuLabelKey = "nav.moreLabel",
 }: {
   items: readonly AccountNavItem[];
   path: string;
   onNavigate?: () => void;
+  id?: string;
+  labelKey?: string;
+  menuLabelKey?: string;
 }) {
   const { t } = useLanguage();
   const anyActive = items.some(item => item.active(path));
 
   return (
     <Dropdown
-      id="cfop-overflow-menu"
-      menuLabel={t("nav.moreLabel")}
+      id={id}
+      menuLabel={t(menuLabelKey)}
       variant="nav"
       className="w-full xl:w-auto"
       buttonClassName={cn(
@@ -28,7 +34,7 @@ export function NavOverflowMenu({
         anyActive &&
           "bg-primary text-on-primary hover:bg-primary-hover hover:text-on-primary data-[state=open]:bg-primary-hover"
       )}
-      button={<span>{t("nav.more")}</span>}
+      button={<span>{t(labelKey)}</span>}
     >
       {items.map(item => {
         const active = item.active(path);

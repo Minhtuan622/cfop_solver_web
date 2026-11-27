@@ -15,6 +15,19 @@
             ? stored
             : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
           document.documentElement.dataset.theme = theme;
+          // Custom colors picked in Settings: paint the cached tokens now so
+          // the stock palette never flashes. The app recomputes them on load.
+          try {
+            var saved = JSON.parse(window.localStorage.getItem("cfop-theme-colors") || "null");
+            var tokens = saved && saved.tokens && saved.tokens[theme];
+            if (tokens && typeof tokens === "object") {
+              for (var name in tokens) {
+                if (/^[a-z0-9-]+$/.test(name) && /^#[0-9a-f]{6}$/i.test(tokens[name])) {
+                  document.documentElement.style.setProperty("--" + name, tokens[name]);
+                }
+              }
+            }
+          } catch (colorError) {}
           var language = window.localStorage.getItem("cfop-language");
           document.documentElement.lang = language === "en" ? "en" : "vi";
         } catch (error) {
