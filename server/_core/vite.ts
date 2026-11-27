@@ -94,7 +94,7 @@ export function serveStatic(app: Express) {
       return;
     }
     res.status(200).type("text/html").send(
-      injectSharePreview(fs.readFileSync(indexHtmlPath, "utf8"), readSharePreview())
+      injectSharePreview(fs.readFileSync(indexHtmlPath, "utf8"), readSharePreview(indexHtmlPath))
     );
   });
 }

@@ -7,7 +7,16 @@ const serverRoot = path.resolve(import.meta.dirname);
 
 const VIETNAMESE = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừừửữựỳýỷỹịđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ]/;
 
-const NOT_INTERFACE_TEXT = ["Đặt lại mật khẩu CFOP Solver Studio", "Chào ${", "${source.name}"];
+const NOT_INTERFACE_TEXT = [
+  "Đặt lại mật khẩu CFOP Solver Studio",
+  "Chào ${",
+  "${source.name}",
+  // Meta chia sẻ mặc định (og:title/og:description) cho crawler, không phải lỗi gửi cho client.
+  "CFOP Solver Studio — Giải Rubik CFOP",
+  "Giải khối Rubik 3x3 trực tuyến miễn phí",
+  // Trang 404 khi chưa build, chỉ người phát triển thấy.
+  "Chưa xây dựng ứng dụng",
+];
 
 function serverFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
