@@ -7,16 +7,18 @@ type RailwayConfig = {
 };
 
 describe("Railway deployment configuration", () => {
-  it("builds with the multi-stage Dockerfile and starts the bundled server, without automatic database migration", () => {
+  it("builds with the multi-stage Dockerfile and applies database migrations before starting the bundled server", () => {
     const config = JSON.parse(readFileSync(new URL("../railway.json", import.meta.url), "utf8")) as RailwayConfig;
 
     expect(config.build).toMatchObject({ builder: "DOCKERFILE", dockerfilePath: "Dockerfile" });
     expect(config.build.buildCommand).toBeUndefined();
     expect(config.build.watchPatterns).toContain("packages/solver/**");
     expect(config.deploy).toMatchObject({ startCommand: "node dist/index.js", restartPolicyType: "ON_FAILURE", restartPolicyMaxRetries: 3 });
-    expect(config.deploy.preDeployCommand).toBeUndefined();
+    expect(config.deploy.preDeployCommand).toBe("node scripts/migrate.mjs");
     const dockerfile = readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
     expect(dockerfile).toContain('CMD ["node", "dist/index.js"]');
+    expect(dockerfile).toContain("COPY drizzle ./drizzle");
+    expect(dockerfile).toContain("COPY scripts/migrate.mjs ./scripts/migrate.mjs");
   });
 
   it("restarts the deploy on the readiness probe that checks the database", () => {
