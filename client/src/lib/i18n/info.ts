@@ -13,6 +13,16 @@ export const infoWords: Dictionary = {
     "CFOP Solver Studio là ứng dụng web mã nguồn mở để giải, luyện tập, bấm giờ và thi đấu Rubik.",
     "CFOP Solver Studio is an open-source web app for solving, practising, timing and competing at the Rubik's Cube.",
   ],
+  "about.eyebrow": ["Mã nguồn mở · MIT", "Open source · MIT"],
+  "about.hero.title": [
+    "Giải, luyện và thi đấu Rubik trong một nơi, miễn phí.",
+    "Solve, practice and compete at Rubik in one place, for free.",
+  ],
+  "about.hero.cta": ["Thử giải khối", "Try the solver"],
+  "about.featureTitle.solve": ["Giải khối", "Solve"],
+  "about.featureTitle.timer": ["Bấm giờ", "Timer"],
+  "about.featureTitle.study": ["Học thuật toán", "Learn algorithms"],
+  "about.featureTitle.compete": ["Thi đấu", "Compete"],
   "about.mission.title": ["Mục tiêu", "Our goal"],
   "about.mission.body": [
     "Giúp người mới hiểu lời giải CFOP từng bước, và giúp người đã thạo có chỗ luyện tập, theo dõi tiến bộ và thi đấu với nhau, tất cả trong một nơi, miễn phí.",
@@ -63,22 +73,40 @@ export const infoWords: Dictionary = {
   ],
   "donate.free.title": ["Cách ủng hộ khác (miễn phí)", "Other ways to help (free)"],
   "donate.free.star": [
-    "Tặng một sao cho kho mã nguồn trên GitHub.",
-    "Give the repository a star on GitHub.",
+    "Cho kho mã nguồn trên GitHub.",
+    "On the GitHub repository.",
   ],
   "donate.free.share": [
-    "Chia sẻ ứng dụng cho bạn bè cùng chơi Rubik.",
-    "Share the app with friends who cube.",
+    "Cho bạn bè cùng chơi Rubik.",
+    "With friends who cube.",
   ],
   "donate.free.report": [
-    "Báo lỗi hoặc góp ý tính năng qua GitHub Issues.",
-    "Report bugs or suggest features through GitHub Issues.",
+    "Qua GitHub Issues.",
+    "Through GitHub Issues.",
   ],
   "donate.free.contribute": [
-    "Đóng góp mã nguồn, bản dịch hoặc tài liệu.",
-    "Contribute code, translations or documentation.",
+    "Mã nguồn, bản dịch hoặc tài liệu.",
+    "Code, translations or documentation.",
   ],
   "donate.github": ["Mở GitHub", "Open GitHub"],
+  "donate.qr.empty": ["Chưa có ảnh QR", "No QR image yet"],
+  "donate.qr.emptyHint": [
+    "Khi có kênh ủng hộ, mã QR sẽ hiện ở đây.",
+    "The QR code will appear here once a donation channel is added.",
+  ],
+  "donate.qr.alt": ["Mã QR ủng hộ: {label}", "Donation QR code: {label}"],
+  "donate.qr.scan": [
+    "Quét bằng ứng dụng ngân hàng hoặc ví điện tử",
+    "Scan with your banking or wallet app",
+  ],
+  "donate.qr.copy": ["Sao chép số tài khoản", "Copy account number"],
+  "donate.qr.copied": ["Đã sao chép", "Copied"],
+  "donate.qr.download": ["Tải ảnh QR", "Download QR"],
+  "donate.qr.channels": ["Kênh ủng hộ", "Donation channels"],
+  "donate.free.starTitle": ["Tặng một sao", "Star the repo"],
+  "donate.free.shareTitle": ["Chia sẻ", "Share"],
+  "donate.free.reportTitle": ["Báo lỗi, góp ý", "Report or suggest"],
+  "donate.free.contributeTitle": ["Đóng góp", "Contribute"],
   "donate.thanks": ["Cảm ơn bạn đã đồng hành!", "Thank you for being with us!"],
 
   "guide.title": ["Hướng dẫn sử dụng", "User guide"],
@@ -87,6 +115,51 @@ export const infoWords: Dictionary = {
     "A short tour of every page. Press “Open page” to jump straight to it.",
   ],
   "guide.open": ["Mở trang", "Open page"],
+  "guide.group.learn": ["Giải và học", "Solve and learn"],
+  "guide.group.practice": ["Luyện tập", "Practice"],
+  "guide.group.compete": ["Thi đấu", "Compete"],
+  "guide.group.wca": ["WCA và tài khoản", "WCA and account"],
+  "guide.toc": ["Mục lục", "Contents"],
+  "guide.solve.summary": [
+    "Nhập scramble hoặc tô trạng thái sáu mặt, chọn opening rồi bấm giải; xem lời giải từng phase.",
+    "Enter a scramble or paint the six faces, pick an opening and solve; read the solution phase by phase.",
+  ],
+  "guide.study.summary": [
+    "Học các bộ thuật toán OLL, PLL, ZBLL, BLD với lịch ôn 7 ngày.",
+    "Learn OLL, PLL, ZBLL and BLD sets with a 7-day review schedule.",
+  ],
+  "guide.play.summary": [
+    "Xoay khối 3×3 bằng bàn phím hoặc nút trên màn hình.",
+    "Turn the 3×3 with the keyboard or on-screen buttons.",
+  ],
+  "guide.timer.summary": [
+    "Chọn event, làm theo scramble rồi bấm giờ; có inspection và +2/DNF.",
+    "Pick an event, follow the scramble and time yourself; inspection and +2/DNF included.",
+  ],
+  "guide.history.summary": [
+    "Lịch sử lượt giải, PB, Ao5, Ao12 và biểu đồ xu hướng.",
+    "Solve history, PB, Ao5, Ao12 and trend charts.",
+  ],
+  "guide.rooms.summary": [
+    "Tạo hoặc vào phòng bằng mã phòng để giải cùng bạn bè. Cần đăng nhập.",
+    "Create or join a room by code to solve with friends. Requires an account.",
+  ],
+  "guide.rankings.summary": [
+    "Bảng xếp hạng tuần và tháng, hồ sơ từng người chơi.",
+    "Weekly and monthly rankings, and each player's profile.",
+  ],
+  "guide.wca.summary": [
+    "Lịch giải, giải của tôi, giải gần bạn, kết quả và kỷ lục các cấp.",
+    "Calendar, my competitions, competitions near you, results and records.",
+  ],
+  "guide.settings.summary": [
+    "Ngôn ngữ, giao diện, màu sắc và tuỳ chọn bấm giờ.",
+    "Language, theme, colours and timer options.",
+  ],
+  "guide.account.summary": [
+    "Dùng được không cần tài khoản; đăng nhập để đồng bộ giữa các thiết bị.",
+    "Works without an account; sign in to sync across devices.",
+  ],
   "guide.solve.title": ["Giải khối", "Solve"],
   "guide.solve.body": [
     "Nhập scramble hoặc tô trạng thái sáu mặt (gõ tay hoặc quét bằng camera), chọn opening (Cross, XCross… hoặc Tự động) rồi bấm giải. Xem lời giải theo từng phase, trên khối 2D/3D và phát lại từng nước.",
