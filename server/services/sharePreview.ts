@@ -13,7 +13,12 @@ const DEFAULT_DESCRIPTION =
 
 /** Đọc title/description mặc định từ client/index.html (đang dùng điểm khởi đầu cho crawler). */
 export function readSharePreview(indexHtml = path.resolve(import.meta.dirname, "../../client/index.html")): SharePreview {
-  const html = fs.readFileSync(indexHtml, "utf8");
+  let html = "";
+  try {
+    html = fs.readFileSync(indexHtml, "utf8");
+  } catch {
+    // Bản build không có client/index.html: dùng meta mặc định.
+  }
   const get = (attr: "property" | "name", name: string) => {
     const match = new RegExp(`<meta[^>]+${attr}="${name}"[^>]*content="([^"]*)"[^>]*/>`).exec(html);
     return match?.[1] ?? "";

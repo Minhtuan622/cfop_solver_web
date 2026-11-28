@@ -35,43 +35,32 @@ describe("AppNav", () => {
     cleanup();
   });
 
-  it("giữ các trang chức năng trên thanh điều hướng", () => {
+  it("chỉ hiện Giải, Cài đặt và các nhóm trên thanh điều hướng", () => {
     renderNav();
 
-    const routes = [
-      { name: "Giải", href: "/" },
-      { name: "Bấm giờ", href: "/timer" },
-      { name: "Kết quả", href: "/history" },
-      { name: "Học thêm", href: "/study" },
-      { name: "Rubik ảo", href: "/play" },
-      { name: "Thi đấu", href: "/rooms" },
-      { name: "Xếp hạng", href: "/competition" },
-      { name: "Giải WCA", href: "/wca" },
-      { name: "Cài đặt", href: "/settings" },
-    ];
-
-    for (const route of routes) {
-      const link = screen.getByRole("link", { name: route.name });
-      expect(link.getAttribute("href")).toBe(route.href);
+    expect(screen.getByRole("link", { name: "Giải" }).getAttribute("href")).toBe("/");
+    expect(screen.getByRole("link", { name: "Cài đặt" }).getAttribute("href")).toBe("/settings");
+    for (const group of ["Luyện tập", "Cạnh tranh", "WCA", "Thông tin"]) {
+      expect(screen.getByRole("button", { name: group })).toBeTruthy();
+    }
+    for (const hidden of ["Bấm giờ", "Kết quả", "Học thêm", "Rubik ảo", "Thi đấu", "Xếp hạng", "Giải WCA", "Ủng hộ"]) {
+      expect(screen.queryByRole("link", { name: hidden })).toBeNull();
     }
   });
 
-  it("gói 3 trang giới thiệu vào menu Thêm", async () => {
+  it.each([
+    ["Luyện tập", [["Bấm giờ", "/timer"], ["Kết quả", "/history"], ["Học thêm", "/study"], ["Rubik ảo", "/play"]]],
+    ["Cạnh tranh", [["Thi đấu", "/rooms"], ["Xếp hạng", "/competition"]]],
+    ["WCA", [["Giải WCA", "/wca"], ["Kỷ lục WCA", "/records"]]],
+    ["Thông tin", [["Về chúng tôi", "/about"], ["Ủng hộ", "/donate"], ["Hướng dẫn sử dụng", "/guide"]]],
+  ] as const)("nhóm %s mở ra đúng các trang", async (group, routes) => {
     const user = userEvent.setup();
     renderNav();
 
-    expect(screen.queryByRole("menuitem", { name: "Giới thiệu" })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Thêm" }));
+    await user.click(screen.getByRole("button", { name: group }));
 
-    const routes = [
-      { name: "Giới thiệu", href: "/about" },
-      { name: "Về chúng tôi", href: "/about-us" },
-      { name: "Ủng hộ", href: "/support" },
-    ];
-
-    for (const route of routes) {
-      const link = screen.getByRole("menuitem", { name: route.name });
-      expect(link.getAttribute("href")).toBe(route.href);
+    for (const [name, href] of routes) {
+      expect(screen.getByRole("menuitem", { name }).getAttribute("href")).toBe(href);
     }
   });
 
@@ -91,44 +80,34 @@ describe("AppNav", () => {
       screen.getByRole("link", { name: "Giải" }).getAttribute("aria-current")
     ).toBe("page");
     expect(
-      screen.getByRole("link", { name: "Bấm giờ" }).getAttribute("aria-current")
+      screen.getByRole("link", { name: "Cài đặt" }).getAttribute("aria-current")
     ).toBeNull();
   });
 
-  it("tách thẻ dropdown Tài khoản, Ngôn ngữ và Giao diện", async () => {
+  it("gộp ngôn ngữ, giao diện và tài khoản vào một menu", async () => {
     const user = userEvent.setup();
     renderNav();
 
-    // Thẻ Tài khoản nằm trên thanh nav với nút "Tài khoản và tuỳ chọn" (mặc định).
-    const accountTrigger = screen.getByRole("button", {
-      name: "Tài khoản và tuỳ chọn",
-    });
-    expect(accountTrigger).toBeTruthy();
-    // Thẻ dropdown Ngôn ngữ và Giao diện cũng có tồn tại riêng.
     expect(
-      screen.getByRole("button", { name: /Ngôn ngữ/ })
+      screen.getByRole("button", { name: "Tài khoản và tuỳ chọn" })
     ).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Giao diện/ })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Đổi ngôn ngữ" })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /Đổi giao diện/ })
+    ).toBeNull();
 
-    await user.click(accountTrigger);
+    await user.click(
+      screen.getByRole("button", { name: "Tài khoản và tuỳ chọn" })
+    );
+
+    expect(screen.getByText("Bạn chưa đăng nhập")).toBeTruthy();
+    expect(screen.getByText("Đăng nhập để đồng bộ và thi đấu")).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: "Đăng nhập" })).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: "Đăng ký" })).toBeTruthy();
-
-    await user.click(screen.getByRole("button", { name: /Ngôn ngữ/ }));
     expect(screen.getByRole("menuitemradio", { name: "Tiếng Việt" })).toBeTruthy();
     expect(screen.getByRole("menuitemradio", { name: "English" })).toBeTruthy();
-
-    await user.click(screen.getByRole("button", { name: /Giao diện/ }));
     expect(screen.getByRole("menuitemradio", { name: "Sáng" })).toBeTruthy();
     expect(screen.getByRole("menuitemradio", { name: "Tối" })).toBeTruthy();
     expect(screen.getByRole("menuitemradio", { name: "Hệ thống" })).toBeTruthy();
-  });
-
-  it("thẻ dropdown Tài khoản hiển thị Hồ sơ/Đăng xuất khi đã đăng nhập", async () => {
-    const user = userEvent.setup();
-    renderNav();
-    // Mặc định chưa đăng nhập → không hiện mục Hồ sơ/Đăng xuất.
-    expect(screen.queryByRole("menuitem", { name: "Hồ sơ" })).toBeNull();
-    expect(screen.queryByRole("menuitem", { name: "Đăng xuất" })).toBeNull();
   });
 });

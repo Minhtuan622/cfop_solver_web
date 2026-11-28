@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { isSquareOneAlgorithm } from "@/lib/squareOneModel";
 import { CubeAlgorithmReplay } from "@/components/common/CubeAlgorithmReplay";
 import type { PuzzleId } from "@/features/puzzle-3d/lib/puzzleIds";
 import type { TimerEventId } from "@/lib/timerEvents";
@@ -33,7 +34,8 @@ export function SolutionStage({
   placeholder?: ReactNode;
   speed?: number;
 }) {
-  const ready = setup.trim() !== "" && isPlayableAlgorithm(setup);
+  const playable = puzzle === "square1" ? isSquareOneAlgorithm(setup) : isPlayableAlgorithm(setup);
+  const ready = setup.trim() !== "" && playable;
   if (!ready)
     return (
       <div className="mx-auto grid h-80 w-full max-w-xl place-items-center px-6 text-center text-sm text-muted">
@@ -53,6 +55,7 @@ export function SolutionStage({
         language={language}
         replayToken={motionId}
         tempoScale={3.4 * speed}
+        model3d={puzzle === "square1"}
       />
     </div>
   );

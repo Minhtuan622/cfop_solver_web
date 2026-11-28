@@ -172,6 +172,8 @@ export const timerWords: Dictionary = {
     "Hoàn thành solve {event} đầu tiên để bắt đầu biểu đồ.",
     "Complete a {event} solve to start the chart.",
   ],
+  "timer.wcaWorldRecord": ["Kỷ lục thế giới", "World record"],
+  "timer.wcaNationalRecord": ["Kỷ lục quốc gia", "National record"],
   "timer.wcaTitle": ["PB {event} · Timer và WCA", "{event} PB · Timer vs WCA"],
   "timer.wcaHint": [
     "So sánh PB Timer với personal record WCA của đúng event này.",

@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Redirect, Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -19,6 +19,8 @@ const ReviewReminderSync = lazy(() =>
     default: module.ReviewReminderSync,
   }))
 );
+const WcaCompetitionPage = lazy(() => import("./pages/WcaCompetitionPage"));
+const WcaPersonPage = lazy(() => import("./pages/WcaPersonPage"));
 const Home = lazy(() => import("./pages/Home"));
 const History = lazy(() => import("./pages/History"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -29,10 +31,11 @@ const CompetitionLeaderboard = lazy(
 const Settings = lazy(() => import("./pages/Settings"));
 const TimerLab = lazy(() => import("./pages/TimerLab"));
 const WcaCompetitions = lazy(() => import("./pages/WcaCompetitions"));
+const Records = lazy(() => import("./pages/Records"));
 const Play = lazy(() => import("./pages/Play"));
 const About = lazy(() => import("./pages/About"));
-const AboutUs = lazy(() => import("./pages/AboutUs"));
-const Support = lazy(() => import("./pages/Support"));
+const Donate = lazy(() => import("./pages/Donate"));
+const Guide = lazy(() => import("./pages/Guide"));
 
 function RouteLoading() {
   const { t } = useLanguage();
@@ -61,9 +64,12 @@ function Router() {
         <Route path="/timer" component={TimerLab} />
         <Route path="/study" component={TimerLab} />
         <Route path="/play" component={Play} />
-        <Route path="/about" component={About} />
-        <Route path="/about-us" component={AboutUs} />
-        <Route path="/support" component={Support} />
+        <Route path="/about-us">
+          <Redirect to="/about" replace />
+        </Route>
+        <Route path="/support">
+          <Redirect to="/donate" replace />
+        </Route>
         <Route path="/settings" component={Settings} />
         <Route path="/history" component={History} />
         <Route path="/profile" component={Profile} />
@@ -75,7 +81,13 @@ function Router() {
         />
         <Route path="/leaderboard" component={CompetitionLeaderboard} />
         <Route path="/competition" component={CompetitionLeaderboard} />
+        <Route path="/wca/competitions/:id" component={WcaCompetitionPage} />
+        <Route path="/wca/persons/:wcaId" component={WcaPersonPage} />
         <Route path="/wca" component={WcaCompetitions} />
+        <Route path="/records" component={Records} />
+        <Route path="/about" component={About} />
+        <Route path="/donate" component={Donate} />
+        <Route path="/guide" component={Guide} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

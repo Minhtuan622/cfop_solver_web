@@ -1,3 +1,5 @@
 export * from "./wca/http";
 export * from "./wca/queries";
 export * from "./wca/types";
+export * from "./wca/myCompetitions";
+export * from "./wca/explore";

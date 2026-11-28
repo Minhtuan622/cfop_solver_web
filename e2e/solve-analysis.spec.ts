@@ -51,7 +51,8 @@ test("mở phân tích: bảng giai đoạn, quãng dừng và case OLL", async 
 
   const phases = page.getByTestId("analysis-phases");
   await expect(phases).toBeVisible({ timeout: 30_000 });
-  await expect(phases.getByRole("row")).toHaveCount(5);
+  // 1 hàng tiêu đề + 4 giai đoạn (Cross, F2L, OLL, PLL) + 4 hàng cặp F2L.
+  await expect(phases.getByRole("row")).toHaveCount(9);
   await expect(page.getByTestId("analysis-pauses")).toContainText("1.55s");
   await expect(page.getByRole("link", { name: "Luyện case" }).first()).toHaveAttribute(
     "href",

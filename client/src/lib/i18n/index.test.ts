@@ -4,6 +4,7 @@ import { words, translate } from "@/lib/i18n";
 import { commonWords } from "./common";
 import { competitionWords } from "./competition";
 import { historyWords } from "./history";
+import { infoWords } from "./info";
 import { profileWords } from "./profile";
 import { roomsWords } from "./rooms";
 import { settingsWords } from "./settings";
@@ -16,6 +17,7 @@ const namespaces: Record<string, Record<string, [string, string]>> = {
   common: commonWords,
   competition: competitionWords,
   history: historyWords,
+  info: infoWords,
   profile: profileWords,
   rooms: roomsWords,
   settings: settingsWords,

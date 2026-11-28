@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   MAX_SCRAMBLE_LENGTH,
+  OTHER_PUZZLE_IDS,
+  cubingEngine,
   PuzzleSolveError,
   countMoves,
   normalizeScramble,
@@ -70,5 +72,22 @@ describe("solveOtherPuzzle", () => {
         },
       })
     ).rejects.toBeInstanceOf(PuzzleSolveError);
+  });
+});
+
+describe("Square-1", () => {
+  it("is offered in the picker and solved in three phases", async () => {
+    expect(OTHER_PUZZLE_IDS).toContain("sq1");
+    const scramble = "(1,0)/ (2,5)/ (-3,-3)/ (3,0)/ (-5,4)/ (-1,0)/ (-3,0)/ (4,0)/ (5,0)/ (2,0)/";
+    const result = await solveOtherPuzzle("sq1", scramble, cubingEngine);
+    expect(result.phases?.map(phase => phase.name)).toEqual(["Cube Shape", "Separate Layers", "Permute"]);
+    expect(result.solution.split(" ")).toHaveLength(result.moves);
+    expect(result.moves).toBeGreaterThan(0);
+  });
+
+  it("reports a scramble that cuts through a corner as invalid", async () => {
+    await expect(solveOtherPuzzle("sq1", "(2,0)/ (1,0)/", cubingEngine)).rejects.toMatchObject({
+      code: "invalid-scramble",
+    });
   });
 });

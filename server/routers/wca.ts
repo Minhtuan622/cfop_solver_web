@@ -1,10 +1,21 @@
 import { TRPCError } from "@trpc/server";
 import { cfopAccountProcedure, publicProcedure, router } from "../_core/trpc";
 import {
+  getWcaCommunity,
+  getWcaCompetitionDetail,
+  getWcaCompetitionInfo,
+  getWcaCompetitionResults,
+  getWcaCompetitionSchedule,
+  getWcaNearbyCompetitions,
+  getWcaPsychSheet,
+  getWcaScrambleProgram,
+  searchWca,
   getWcaCompetitions,
+  getWcaMyCompetitions,
   getWcaCountries,
   getWcaProfile,
-  getWcaWorldRecords,
+  getWcaRecentRecords,
+  getWcaRecords,
   normalizeWcaId,
   WcaApiError,
 } from "../services/wcaApi";
@@ -20,7 +31,15 @@ import {
 } from "../db";
 import { clientAddress } from "../infrastructure/rateLimit";
 import { proxyTrustEnabled } from "../_core/proxy";
-import { wcaCalendarInput, wcaIdInput } from "./inputs";
+import {
+  wcaCalendarInput,
+  wcaCompetitionIdInput,
+  wcaIdInput,
+  wcaNearbyInput,
+  wcaPersonInput,
+  wcaPsychSheetInput,
+  wcaSearchInput,
+} from "./inputs";
 
 export function wcaError(error: unknown): never {
   if (error instanceof TRPCError) throw error;
@@ -63,6 +82,45 @@ export const accountWcaRouter = router({
       return wcaError(error);
     }
   }),
+  myCompetitions: cfopAccountProcedure.query(async ({ ctx }) => {
+    const account = await findCfopAccountWcaById(ctx.cfopAccount.id);
+    if (!account?.wcaId) return null;
+    try {
+      return await getWcaMyCompetitions(account.wcaId, callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  competitionDetail: cfopAccountProcedure
+    .input(wcaCompetitionIdInput)
+    .query(async ({ ctx, input }) => {
+      const account = await findCfopAccountWcaById(ctx.cfopAccount.id);
+      if (!account?.wcaId)
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Hãy liên kết WCA ID trước.",
+        });
+      try {
+        return await getWcaCompetitionDetail(account.wcaId, input.id, callerKey(ctx.req));
+      } catch (error) {
+        return wcaError(error);
+      }
+    }),
+  competitionAgenda: cfopAccountProcedure
+    .input(wcaCompetitionIdInput)
+    .query(async ({ ctx, input }) => {
+      const account = await findCfopAccountWcaById(ctx.cfopAccount.id);
+      if (!account?.wcaId)
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Hãy liên kết WCA ID trước.",
+        });
+      try {
+        return await getWcaCompetitionSchedule(input.id, account.wcaId, callerKey(ctx.req));
+      } catch (error) {
+        return wcaError(error);
+      }
+    }),
   setId: cfopAccountProcedure
     .input(wcaIdInput)
     .mutation(async ({ ctx, input }) => {
@@ -129,9 +187,94 @@ export const wcaRouter = router({
         return wcaError(error);
       }
     }),
-  worldRecords: publicProcedure.query(async ({ ctx }) => {
+  records: publicProcedure.query(async ({ ctx }) => {
     try {
-      return await getWcaWorldRecords(callerKey(ctx.req));
+      return await getWcaRecords(callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  recentRecords: publicProcedure.query(async ({ ctx }) => {
+    try {
+      return await getWcaRecentRecords(callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  competitionInfo: publicProcedure
+    .input(wcaCompetitionIdInput)
+    .query(async ({ ctx, input }) => {
+      try {
+        return await getWcaCompetitionInfo(input.id, callerKey(ctx.req));
+      } catch (error) {
+        return wcaError(error);
+      }
+    }),
+  competitionResults: publicProcedure
+    .input(wcaCompetitionIdInput)
+    .query(async ({ ctx, input }) => {
+      try {
+        return await getWcaCompetitionResults(input.id, callerKey(ctx.req));
+      } catch (error) {
+        return wcaError(error);
+      }
+    }),
+  psychSheet: publicProcedure
+    .input(wcaPsychSheetInput)
+    .query(async ({ ctx, input }) => {
+      try {
+        return await getWcaPsychSheet(input.id, input.eventId, callerKey(ctx.req));
+      } catch (error) {
+        return wcaError(error);
+      }
+    }),
+  competitionSchedule: publicProcedure
+    .input(wcaCompetitionIdInput)
+    .query(async ({ ctx, input }) => {
+      try {
+        return await getWcaCompetitionSchedule(input.id, null, callerKey(ctx.req));
+      } catch (error) {
+        return wcaError(error);
+      }
+    }),
+  search: publicProcedure.input(wcaSearchInput).query(async ({ ctx, input }) => {
+    try {
+      return await searchWca(input.q, callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  person: publicProcedure.input(wcaPersonInput).query(async ({ ctx, input }) => {
+    try {
+      return await getWcaProfile(input.wcaId, callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  nearby: publicProcedure.input(wcaNearbyInput).query(async ({ ctx, input }) => {
+    const origin =
+      typeof input.latitude === "number" && typeof input.longitude === "number"
+        ? { lat: input.latitude, lng: input.longitude }
+        : null;
+    try {
+      return await getWcaNearbyCompetitions(
+        { countryIso2: input.countryIso2, today: new Date().toISOString().slice(0, 10), origin },
+        callerKey(ctx.req)
+      );
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  community: publicProcedure.query(async ({ ctx }) => {
+    try {
+      return await getWcaCommunity(callerKey(ctx.req));
+    } catch (error) {
+      return wcaError(error);
+    }
+  }),
+  scrambleProgram: publicProcedure.query(async ({ ctx }) => {
+    try {
+      return await getWcaScrambleProgram(callerKey(ctx.req));
     } catch (error) {
       return wcaError(error);
     }

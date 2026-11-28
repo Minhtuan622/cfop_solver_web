@@ -7,7 +7,7 @@ export type ShareInput =
   | { kind: ShareKind; scramble: string; facelets?: undefined }
   | { kind: "cfop" | "bld"; facelets: string; scramble?: undefined };
 
-const SCRAMBLE_CHARS = /^[A-Za-z0-9'+\- ]+$/;
+const SCRAMBLE_CHARS = /^[A-Za-z0-9'+\-(),/ ]+$/;
 const FACELETS = /^[URFDLB]{54}$/;
 
 export function isShareKind(value: string | null): value is ShareKind {

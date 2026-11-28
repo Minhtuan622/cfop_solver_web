@@ -41,3 +41,12 @@ export const removeSpectatorInput = memberTargetInput.extend({ reason: z.string(
 export const leaderboardInput = z.object({ period: z.enum(["week", "month"]), eventId: z.enum(TIMER_EVENT_IDS).nullable().optional() });
 export const wcaCalendarInput = z.object({ start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải theo YYYY-MM-DD."), end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày phải theo YYYY-MM-DD."), countryIso2: z.string().trim().length(2).transform((value) => value.toUpperCase()).nullable().optional() });
 export const wcaIdInput = z.object({ wcaId: z.string().trim().min(1).max(10).nullable() });
+export const wcaCompetitionIdInput = z.object({ id: z.string().trim().regex(/^[A-Za-z0-9]{3,40}$/, "Mã giải không hợp lệ.") });
+export const wcaSearchInput = z.object({ q: z.string().trim().min(2, "Từ khoá cần ít nhất 2 ký tự.").max(60, "Từ khoá tối đa 60 ký tự.") });
+export const wcaPsychSheetInput = wcaCompetitionIdInput.extend({ eventId: z.string().trim().regex(/^[a-z0-9]{3,8}$/, "Mã môn không hợp lệ.") });
+export const wcaPersonInput = z.object({ wcaId: z.string().trim().min(1).max(10) });
+export const wcaNearbyInput = z.object({
+  countryIso2: z.string().trim().regex(/^[A-Za-z]{2}$/, "Mã quốc gia không hợp lệ.").transform((value) => value.toUpperCase()),
+  latitude: z.number().min(-90).max(90).nullable().optional(),
+  longitude: z.number().min(-180).max(180).nullable().optional(),
+});

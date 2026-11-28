@@ -27,3 +27,12 @@ describe("sharePreview", () => {
     expect(injectSharePreview(html, preview)).toContain('<meta property="og:image" content="/og.png" />');
   });
 });
+
+describe("sharePreview khi chạy từ bản build", () => {
+  it("không ném lỗi khi không có client/index.html (image Docker chỉ có dist)", () => {
+    const preview = readSharePreview(path.resolve("does-not-exist/index.html"));
+    expect(preview.title.length).toBeGreaterThan(0);
+    expect(preview.description.length).toBeGreaterThan(0);
+    expect(preview.image).toBe("/og.png");
+  });
+});

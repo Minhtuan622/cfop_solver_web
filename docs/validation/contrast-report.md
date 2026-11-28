@@ -148,3 +148,23 @@ thuộc nhóm không liên quan màu (`label-content-name-mismatch` × 12,
 `aria-prohibited-attr` × 4) — **không còn vi phạm tương phản nào**; mọi vi
 phạm tương phản trước đây (nút chính, nhãn, placeholder, ô nhập…) đã được sửa
 tận gốc bằng palette.
+
+## Màu do người dùng chọn (Cài đặt → Giao diện)
+
+Người dùng chọn preset hoặc hai màu gốc (chủ đạo, nhấn). Chỉ các token
+`primary`, `primary-hover`, `primary-soft`, `on-primary`, `accent`,
+`accent-soft`, `chart-1`, `chart-2` bị ghi đè (inline style trên `<html>`);
+nền, chữ và màu trạng thái giữ nguyên.
+
+- Lõi tính màu: `client/src/lib/colorScale.ts` (OKLCH). Với mỗi chế độ, màu chủ
+  đạo/nhấn được dời độ sáng từ màu gốc cho đến khi đạt **4.5:1** trên mọi nền
+  (`canvas`, `surface`, `surface-2`, `surface-3`, `menu-hover`) và trên nền
+  `-soft` của chính nó; chữ trên nút chính là trắng (sáng) hoặc tối (tối).
+- Lưu trữ: key `cfop-theme-colors` (không đổi `cfop-theme`). Preset mặc định
+  không lưu gì. Script trong `client/index.html` dùng bản token đã tính để
+  tránh nháy; ứng dụng luôn tính lại từ màu gốc khi tải.
+- Kiểm thử: `client/src/lib/colorScale.test.ts` (quét hue × độ sáng, cả hai chế
+  độ), `client/src/lib/themeColors.test.ts`, `server/themeColors.test.ts`
+  (bề mặt dùng để tính phải khớp `index.css`).
+- Ngoài phạm vi: nền, tông nền, từng token riêng lẻ, màu trạng thái, `--export-*`
+  và màu mặt khối (pha 2).

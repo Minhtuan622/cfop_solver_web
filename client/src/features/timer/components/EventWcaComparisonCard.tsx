@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { type TimerEventId } from "@/lib/timerEvents";
-import { type WcaTimerComparisonRow } from "@/features/wca/lib/wcaTimerComparison";
+import { wcaRecordTargets, type WcaTimerComparisonRow } from "@/features/wca/lib/wcaTimerComparison";
+import { trpc } from "@/lib/trpc";
 import { formatSolveTime } from "@/lib/solveHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -15,6 +16,21 @@ function wcaDeltaMessage(deltaMs: number | null, t: Translate) {
   return deltaMs < 0
     ? t("timer.wcaTimerFaster", { value: difference })
     : t("timer.wcaOfficialFaster", { value: difference });
+}
+
+function RecordGap({ valueMs, gapMs }: { valueMs: number | null; gapMs: number | null }) {
+  if (valueMs === null) return <span className="text-muted">—</span>;
+  return (
+    <span>
+      {formatSolveTime(valueMs)}
+      {gapMs !== null ? (
+        <span className="ml-1 text-xs text-muted">
+          ({gapMs > 0 ? "+" : "−"}
+          {formatSolveTime(Math.abs(gapMs))})
+        </span>
+      ) : null}
+    </span>
+  );
 }
 
 export function EventWcaComparisonCard({
@@ -35,6 +51,15 @@ export function EventWcaComparisonCard({
   hasRecord: boolean;
 }) {
   const { t } = useLanguage();
+  const records = trpc.wca.records.useQuery(undefined, { staleTime: 60 * 60 * 1000, retry: 1 });
+  const profile = trpc.cfopAccount.wca.profile.useQuery(undefined, {
+    enabled: hasWcaId,
+    staleTime: 10 * 60 * 1000,
+    retry: false,
+  });
+  const national = records.data?.countries.find(entry => entry.name === profile.data?.countryName)?.records ?? null;
+  const targets = records.data ? wcaRecordTargets(rows, eventId, records.data.world, national) : [];
+  const hasTargets = targets.some(target => target.worldMs !== null);
   return (
     <div className="rounded-card bg-surface">
       <div className="p-5 sm:p-6">
@@ -84,6 +109,8 @@ export function EventWcaComparisonCard({
                     <th scope="col">Timer</th>
                     <th scope="col">WCA</th>
                     <th scope="col">{t("timer.wcaDeltaColumn")}</th>
+                    {hasTargets ? <th scope="col">{t("timer.wcaWorldRecord")}</th> : null}
+                    {hasTargets && national ? <th scope="col">{t("timer.wcaNationalRecord")}</th> : null}
                   </tr>
                 </thead>
                 <tbody>
@@ -111,6 +138,16 @@ export function EventWcaComparisonCard({
                       >
                         {wcaDeltaMessage(row.deltaMs, t)}
                       </td>
+                      {hasTargets ? (
+                        <td>
+                          <RecordGap valueMs={targets.find(item => item.key === row.key)?.worldMs ?? null} gapMs={targets.find(item => item.key === row.key)?.worldGapMs ?? null} />
+                        </td>
+                      ) : null}
+                      {hasTargets && national ? (
+                        <td>
+                          <RecordGap valueMs={targets.find(item => item.key === row.key)?.nationalMs ?? null} gapMs={targets.find(item => item.key === row.key)?.nationalGapMs ?? null} />
+                        </td>
+                      ) : null}
                     </tr>
                   ))}
                 </tbody>

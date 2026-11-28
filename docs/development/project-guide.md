@@ -673,12 +673,18 @@ dist/
 
 ```text
 builder:     Dockerfile (Railpack không có Rust nên không build được bộ giải)
-start:       node dist/index.js
+start:       node scripts/start.mjs
 healthcheck: /_app/ready
 restart:     ON_FAILURE, tối đa 3 lần
 ```
 
-Nếu service trên Railway có đặt đè build command hoặc start command trong dashboard, hãy xoá để Railway dùng cấu hình trong `railway.json`.
+`scripts/start.mjs` chạy `scripts/migrate.mjs` (áp migration Drizzle) rồi nạp `dist/index.js`, và ghi log từng bước (`[start] ...`, `[migrate] ...`, `Server running on ...`). Không nối hai lệnh bằng `&&` trong start command: Railway chạy start command không qua shell, nên `node a.mjs && node b.js` chỉ chạy `a.mjs` với `&&` là tham số, server không bao giờ khởi động và deploy hỏng healthcheck.
+
+**Start command có thể đến từ hai nơi** (`railway.json` và cài đặt service trong dashboard: Settings → Deploy → Custom Start Command). Tài liệu Railway nói file cấu hình đè dashboard, nhưng với service này đã quan sát được điều ngược lại: bản deploy build từ commit có `railway.json` ghi `node scripts/start.mjs` vẫn chạy lệnh cũ đặt trong cài đặt service. Đừng giả định nơi nào thắng; xác nhận bằng deploy logs (có dòng `[start]` hay không). Khi đổi start command trong dashboard, "Redeploy" một bản cũ vẫn dùng cấu hình cũ; phải tạo deployment mới (push commit) để cấu hình mới có hiệu lực. Báo cáo lỗi của Railway hiện start command lấy từ cấu hình hiện tại, không chắc là lệnh bản deploy đó đã chạy.
+
+**Migration chạy tự động mỗi lần khởi động** (`scripts/start.mjs` gọi `scripts/migrate.mjs`). Đây là ngoại lệ so với quy tắc ở mục 7 ("không đặt migration tự động trong bước deploy nếu chưa có quy trình backup/rollback"). Vì vậy: chỉ merge PR có migration khi migration đó chỉ **thêm** (bảng/cột mới, giữ tương thích với code cũ); migration có thể phá dữ liệu phải backup MySQL trước khi merge, vì Railway sẽ áp nó ngay khi deploy.
+
+Khi deploy lỗi healthcheck, đọc deploy logs: phải thấy `[start] node ... PORT=...` rồi `Server running`. Thiếu dòng `[start]` nghĩa là container không chạy `scripts/start.mjs`.
 
 Khi deploy, cần khai báo secret/database trong dashboard của nhà cung cấp, không commit vào repository. Phải chạy production Node server; static host thuần như GitHub Pages hoặc Cloudflare Pages chỉ phù hợp cho `dist/public` nếu tách backend riêng, không đủ cho account, sync và Rooms.
 

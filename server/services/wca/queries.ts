@@ -1,12 +1,15 @@
 import { TRPCError } from "@trpc/server";
-import { fetchWcaJson, WcaApiError, type WcaCallerKey } from "./http";
+import { fetchWcaJson, fetchWcaLive, WcaApiError, type WcaCallerKey } from "./http";
 import type {
   WcaCompetition,
   WcaCompetitionPayload,
   WcaCountry,
   WcaProfile,
   WcaProfilePayload,
+  WcaLiveRecentPayload,
+  WcaRecentRecord,
   WcaRecordsPayload,
+  WcaRegionRecords,
   WcaWorldRecord,
 } from "./types";
 
@@ -209,16 +212,8 @@ export async function getWcaProfile(
   };
 }
 
-export async function getWcaWorldRecords(
-  caller: WcaCallerKey
-): Promise<WcaWorldRecord[]> {
-  const payload = await fetchWcaJson<WcaRecordsPayload>(
-    "/records?region=world",
-    60 * 60 * 1000,
-    caller
-  );
-  const worldRecords = payload.world_records ?? {};
-  return Object.entries(worldRecords)
+function recordTable(raw: Record<string, { single?: number | null; average?: number | null } | null> | null | undefined): WcaWorldRecord[] {
+  return Object.entries(raw ?? {})
     .flatMap(([eventId, record]) => {
       const rank = WCA_WORLD_RECORD_EVENT_RANK.get(eventId);
       if (rank === undefined || !record) return [];
@@ -235,4 +230,65 @@ export async function getWcaWorldRecords(
     })
     .sort((left, right) => left.rank - right.rank)
     .map(({ record }) => record);
+}
+
+// World, continental and national records in one payload, so the page can
+// switch region without another request.
+export async function getWcaRecords(caller: WcaCallerKey): Promise<WcaRegionRecords> {
+  const [payload, countries] = await Promise.all([
+    fetchWcaJson<WcaRecordsPayload>("/records", 60 * 60 * 1000, caller),
+    getWcaCountries(caller),
+  ]);
+  const iso2ByName = new Map(countries.map(country => [country.name, country.iso2]));
+  return {
+    world: recordTable(payload.world_records),
+    continents: Object.entries(payload.continental_records ?? {})
+      .map(([id, records]) => ({ id, name: id.replace(/^_/, ""), records: recordTable(records) }))
+      .filter(entry => entry.records.length > 0)
+      .sort((left, right) => left.name.localeCompare(right.name)),
+    countries: Object.entries(payload.national_records ?? {})
+      .map(([name, records]) => ({ name, iso2: iso2ByName.get(name) ?? null, records: recordTable(records) }))
+      .filter(entry => entry.records.length > 0)
+      .sort((left, right) => left.name.localeCompare(right.name)),
+  };
+}
+
+const RECENT_RECORDS_QUERY =
+  "{ recentRecords { tag type attemptResult result { enteredAt person { name wcaId country { iso2 } } round { competitionEvent { event { id } competition { name wcaId } } } } } }";
+
+const RECENT_TAGS = new Set(["WR", "CR", "NR"]);
+
+export function normalizeRecentRecords(payload: WcaLiveRecentPayload): WcaRecentRecord[] {
+  return (payload.recentRecords ?? [])
+    .flatMap((record, index) => {
+      const eventId = record.result?.round?.competitionEvent?.event?.id;
+      const tag = record.tag;
+      const type = record.type;
+      const value = record.attemptResult;
+      const name = record.result?.person?.name;
+      if (!eventId || !tag || !RECENT_TAGS.has(tag) || (type !== "single" && type !== "average")) return [];
+      if (typeof value !== "number" || value <= 0 || !name) return [];
+      const competition = record.result?.round?.competitionEvent?.competition;
+      return [
+        {
+          id: `${record.result?.person?.wcaId ?? name}-${eventId}-${type}-${index}`,
+          tag,
+          type,
+          eventId,
+          attemptResult: value,
+          personName: name,
+          wcaId: record.result?.person?.wcaId ?? null,
+          countryIso2: record.result?.person?.country?.iso2 ?? null,
+          competitionId: competition?.wcaId ?? null,
+          competitionName: competition?.name ?? "",
+          enteredAt: record.result?.enteredAt ?? null,
+        } satisfies WcaRecentRecord,
+      ];
+    })
+    .sort((left, right) => (right.enteredAt ?? "").localeCompare(left.enteredAt ?? ""));
+}
+
+export async function getWcaRecentRecords(caller: WcaCallerKey): Promise<WcaRecentRecord[]> {
+  const payload = await fetchWcaLive<WcaLiveRecentPayload>(RECENT_RECORDS_QUERY, 5 * 60 * 1000, caller);
+  return normalizeRecentRecords(payload);
 }

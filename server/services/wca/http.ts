@@ -42,14 +42,16 @@ export function wcaRateLimitBuckets() {
   return { caller: wcaCallerLimiter.size(), global: wcaGlobalLimiter.size() };
 }
 
-export async function fetchWcaJson<T>(
-  path: string,
+type Loader<T> = (signal: AbortSignal) => Promise<T>;
+
+async function cachedWcaFetch<T>(
+  cacheKey: string,
   cacheTtlMs: number,
-  caller: WcaCallerKey
+  caller: WcaCallerKey,
+  load: Loader<T>
 ): Promise<T> {
-  const url = `${WCA_API_BASE}${path}`;
   pruneCache();
-  const cached = memoryCache.get(url) as CacheEntry<T> | undefined;
+  const cached = memoryCache.get(cacheKey) as CacheEntry<T> | undefined;
   if (cached && cached.expiresAt > Date.now()) {
     if (cached.pending) return cached.pending;
     if (cached.value !== undefined) return cached.value;
@@ -73,22 +75,8 @@ export async function fetchWcaJson<T>(
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12_000);
     try {
-      const response = await fetch(url, {
-        headers: { Accept: "application/json" },
-        signal: controller.signal,
-      });
-      if (response.status === 404)
-        throw new WcaApiError(
-          "NOT_FOUND",
-          "Không tìm thấy WCA ID hoặc dữ liệu WCA."
-        );
-      if (!response.ok)
-        throw new WcaApiError(
-          "UNAVAILABLE",
-          "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau."
-        );
-      const value = (await response.json()) as T;
-      memoryCache.set(url, { value, expiresAt: Date.now() + cacheTtlMs });
+      const value = await load(controller.signal);
+      memoryCache.set(cacheKey, { value, expiresAt: Date.now() + cacheTtlMs });
       pruneCache();
       return value;
     } catch (error) {
@@ -101,13 +89,92 @@ export async function fetchWcaJson<T>(
       clearTimeout(timeout);
     }
   })();
-  memoryCache.set(url, { pending, expiresAt: Number.POSITIVE_INFINITY });
+  memoryCache.set(cacheKey, { pending, expiresAt: Number.POSITIVE_INFINITY });
   try {
     return await pending;
   } catch (error) {
-    memoryCache.delete(url);
+    memoryCache.delete(cacheKey);
     throw error;
   }
+}
+
+export async function fetchWcaJson<T>(
+  path: string,
+  cacheTtlMs: number,
+  caller: WcaCallerKey
+): Promise<T> {
+  const url = `${WCA_API_BASE}${path}`;
+  return cachedWcaFetch(url, cacheTtlMs, caller, async signal => {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (response.status === 404)
+      throw new WcaApiError(
+        "NOT_FOUND",
+        "Không tìm thấy WCA ID hoặc dữ liệu WCA."
+      );
+    if (!response.ok)
+      throw new WcaApiError(
+        "UNAVAILABLE",
+        "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau."
+      );
+    return (await response.json()) as T;
+  });
+}
+
+// Same as fetchWcaJson, but only the reduced result is kept in the cache. Used
+// for big payloads (a competition's WCIF can reach several megabytes).
+export async function fetchWcaJsonMapped<T, R>(
+  path: string,
+  cacheTtlMs: number,
+  caller: WcaCallerKey,
+  tag: string,
+  map: (payload: T) => R
+): Promise<R> {
+  const url = `${WCA_API_BASE}${path}`;
+  return cachedWcaFetch(`${url}#${tag}`, cacheTtlMs, caller, async signal => {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (response.status === 404)
+      throw new WcaApiError("NOT_FOUND", "Không tìm thấy WCA ID hoặc dữ liệu WCA.");
+    if (!response.ok)
+      throw new WcaApiError("UNAVAILABLE", "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau.");
+    return map((await response.json()) as T);
+  });
+}
+
+const WCA_LIVE_URL = "https://live.worldcubeassociation.org/api";
+
+// WCA Live speaks GraphQL. Its schema is not versioned, so callers must treat
+// a failure as "no live data" rather than as a broken page.
+export async function fetchWcaLive<T>(
+  query: string,
+  cacheTtlMs: number,
+  caller: WcaCallerKey
+): Promise<T> {
+  return cachedWcaFetch(`live:${query}`, cacheTtlMs, caller, async signal => {
+    const response = await fetch(WCA_LIVE_URL, {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+      signal,
+    });
+    if (!response.ok)
+      throw new WcaApiError(
+        "UNAVAILABLE",
+        "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau."
+      );
+    const body = (await response.json()) as { data?: T; errors?: unknown[] };
+    if (!body.data || (body.errors && body.errors.length > 0))
+      throw new WcaApiError(
+        "UNAVAILABLE",
+        "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau."
+      );
+    return body.data;
+  });
 }
 
 export class WcaApiError extends Error {

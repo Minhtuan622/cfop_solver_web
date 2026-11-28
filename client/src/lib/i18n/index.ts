@@ -1,7 +1,7 @@
-import { aboutWords } from "./about";
 import { competitionWords } from "./competition";
 import { commonWords } from "./common";
 import { historyWords } from "./history";
+import { infoWords } from "./info";
 import { playWords } from "./play";
 import { profileWords } from "./profile";
 import { roomsWords } from "./rooms";
@@ -11,6 +11,7 @@ import { solverWords } from "./solver";
 import { studyWords } from "./study";
 import { timerWords } from "./timer";
 import { wcaWords } from "./wca";
+import { wcaExploreWords } from "./wcaExplore";
 
 export type Language = "vi" | "en";
 export type WordPair = [string, string];
@@ -21,7 +22,6 @@ export type Translate = (key: string, params?: WordParams) => string;
 export const words: Dictionary = {
   ...commonWords,
   ...shellWords,
-  ...aboutWords,
   ...solverWords,
   ...studyWords,
   ...timerWords,
@@ -31,7 +31,9 @@ export const words: Dictionary = {
   ...profileWords,
   ...competitionWords,
   ...wcaWords,
+  ...wcaExploreWords,
   ...playWords,
+  ...infoWords,
 };
 
 export function translate(language: Language, key: string, params?: WordParams): string {
