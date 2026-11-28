@@ -129,10 +129,7 @@ export const roomsWords: Dictionary = {
   "rooms.integrity.flag.too_fast": ["Nhanh bất thường so với kỷ lục thế giới", "Unusually fast compared with the world record"],
   "rooms.integrity.flag.repeated_time": ["Trùng đúng từng mili-giây với một kết quả trước", "Matches an earlier result to the millisecond"],
   "rooms.sidebar.noModeration": ["Chưa có thao tác kiểm duyệt.", "No moderation actions yet."],
-  "rooms.sidebar.spectatorNote": [
-    "Khán giả và moderator không tham gia chat để kênh trao đổi của người thi luôn gọn.",
-    "Spectators and moderators stay out of the chat so the competitors keep a clear channel.",
-  ],
+  "rooms.sidebar.spectatorNote": ["Khán giả và moderator không tham gia chat.", "Spectators and moderators do not join the chat."],
   "rooms.sidebar.chat": ["Chat phòng", "Room chat"],
   "rooms.sidebar.chatPlaceholder": ["Nhắn với người chơi", "Message the players"],
   "rooms.sidebar.send": ["Gửi", "Send"],

@@ -3,10 +3,7 @@ import type { Dictionary } from "./index";
 export const historyWords: Dictionary = {
   "history.eyebrow": ["Quản lý & phân tích", "Management & analytics"],
   "history.title": ["Kết quả", "Results"],
-  "history.subtitle": [
-    "Mọi lượt giải đã lưu trên thiết bị này: chỉ số, xu hướng và danh sách lượt giải.",
-    "Every solve saved on this device: metrics, trends and data management.",
-  ],
+  "history.subtitle": ["Các lượt giải đã lưu trên thiết bị này.", "Solves saved on this device."],
   "history.backToTimer": ["Về Timer", "Back to Timer"],
   "history.metricsLabel": ["Chỉ số lịch sử", "History metrics"],
   "history.bestSingle": ["Best single", "Best single"],

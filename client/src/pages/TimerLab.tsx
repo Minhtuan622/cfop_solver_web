@@ -452,7 +452,6 @@ export default function TimerLab() {
           <>
             <div data-focus-hide>
               <PageHeader
-                eyebrow={t("timer.eyebrow")}
                 title={t("timer.title")}
                 actions={
                   <Link

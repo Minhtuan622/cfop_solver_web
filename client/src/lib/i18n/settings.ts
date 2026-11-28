@@ -2,10 +2,7 @@ import type { Dictionary } from "./index";
 
 export const settingsWords: Dictionary = {
   "settings.title": ["Cài đặt", "Settings"],
-  "settings.subtitle": [
-    "Thiết lập mặc định cho Solver, Timer và Study. Mọi thay đổi được tự động lưu.",
-    "Set defaults for Solver, Timer, and Study. All changes save automatically.",
-  ],
+  "settings.subtitle": ["Mọi thay đổi được lưu tự động.", "Changes save automatically."],
   "settings.groups": ["Nhóm cài đặt", "Settings groups"],
   "settings.group.solver": ["Lời giải", "Solver"],
   "settings.group.solverHelp": [

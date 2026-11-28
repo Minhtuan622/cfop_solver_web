@@ -3,42 +3,24 @@
 export const studyWords: Dictionary = {
   "study.eyebrow": ["Học tập", "Study"],
   "study.title": ["Học thêm", "Study"],
-  "study.description.lastLayer": [
-    "Ôn Last Layer theo case, giữ nhịp SRS và luyện đúng phần còn yếu.",
-    "Review Last Layer case by case, keep an SRS rhythm, and practise what is weakest.",
-  ],
+  "study.description.lastLayer": ["Ôn Last Layer theo từng case.", "Review Last Layer case by case."],
   "study.description.bld": [
-    "Luyện toàn bộ công thức 3-Style (cạnh, góc, đặc biệt) theo SRS.",
-    "Drill every 3-Style algorithm — edge, corner and special cases — with SRS.",
+    "Công thức 3-Style: cạnh, góc và các case đặc biệt.",
+    "3-Style algorithms: edges, corners and special cases.",
   ],
-  "study.description.twoByTwo": [
-    "Luyện 2×2 CLL, PBL, EG-1 và EG-2 theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
-    "Practise 2×2 CLL, PBL, EG-1 and EG-2 with SRS: time each case and let the queue pick what is weakest.",
-  ],
-  "study.description.cfop": [
-    "Luyện F2L, OLL, PLL, COLL và OLLCP theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
-    "Practise F2L, OLL, PLL, COLL and OLLCP with SRS: time each case and let the queue pick what is weakest.",
-  ],
-  "study.description.pyraminx": [
-    "Luyện Pyraminx Last Layer và L4E theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
-    "Practise Pyraminx Last Layer and L4E with SRS: time each case and let the queue pick what is weakest.",
-  ],
+  "study.description.twoByTwo": ["2×2 CLL, PBL, EG-1 và EG-2.", "2×2 CLL, PBL, EG-1 and EG-2."],
+  "study.description.cfop": ["F2L, OLL, PLL, COLL và OLLCP.", "F2L, OLL, PLL, COLL and OLLCP."],
+  "study.description.pyraminx": ["Pyraminx Last Layer và L4E.", "Pyraminx Last Layer and L4E."],
   "study.description.skewb": [
-    "Luyện Skewb bằng phương pháp Sarah (Intermediate và Advanced) theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
-    "Practise Skewb with the Sarah method (Intermediate and Advanced) with SRS: time each case and let the queue pick what is weakest.",
+    "Skewb theo phương pháp Sarah (Intermediate và Advanced).",
+    "Skewb with the Sarah method (Intermediate and Advanced).",
   ],
-  "study.description.sq1": [
-    "Luyện Square-1 (CP, CS, CSP, EO, EP, OBL) theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
-    "Practise Square-1 (CP, CS, CSP, EO, EP, OBL) with SRS: time each case and let the queue pick what is weakest.",
-  ],
-  "study.description.parity": [
-    "Luyện 4×4 PLL Parity theo SRS: tính giờ từng case và để hàng đợi tự chọn phần yếu nhất.",
-    "Practise 4×4 PLL parity with SRS: time each case and let the queue pick what is weakest.",
-  ],
+  "study.description.sq1": ["Square-1: CP, CS, CSP, EO, EP và OBL.", "Square-1: CP, CS, CSP, EO, EP and OBL."],
+  "study.description.parity": ["4×4 PLL Parity.", "4×4 PLL parity."],
 
   "study.description.l2e": [
-    "Luyện 5×5 Last Two Edges (15 case, cả parity và không parity) theo SRS.",
-    "Practise 5×5 Last Two Edges (15 cases, parity and no-parity) with SRS.",
+    "5×5 Last Two Edges: 15 case, có và không có parity.",
+    "5×5 Last Two Edges: 15 cases, with and without parity.",
   ],
   "study.description.l3t": [
     "Luyện FTO 3-Look L3T (17 case theo bộ PF → TL → LT) theo SRS.",
@@ -66,8 +48,8 @@ export const studyWords: Dictionary = {
   "study.laneL3T2": ["FTO 2-Look", "FTO 2-Look"],
   "study.laneRoux": ["Roux", "Roux"],
   "study.description.roux": [
-    "Roux: 42 case CMLL và các bước LSE (EO, UL/UR, L4E), mỗi case có công thức đã kiểm chứng trên khối thật.",
-    "Roux: all 42 CMLL cases and the LSE steps (EO, UL/UR, L4E), each algorithm verified on a real cube.",
+    "42 case CMLL và các bước LSE (EO, UL/UR, L4E).",
+    "42 CMLL cases and the LSE steps (EO, UL/UR, L4E).",
   ],
   "roux.caseLabel": ["Case Roux đang học", "Active Roux case"],
   "roux.loading3d": ["Đang tải 3D…", "Loading 3D…"],
@@ -353,8 +335,8 @@ export const studyWords: Dictionary = {
   "study.openCases": ["Mở để xem từng case", "Open to view each case"],
   "study.studyThisCase": ["Học case này", "Study this case"],
   "study.previewHintReplay": [
-    "Mô phỏng 3D cách giải case theo công thức bên dưới (bấm Xem lại để chạy lại).",
-    "3D replay of the case solution following the algorithm below (press Replay to run it again).",
+    "Mô phỏng 3D theo công thức bên dưới; bấm Xem lại để chạy lại.",
+    "3D replay of the algorithm below; press Replay to run it again.",
   ],
   "study.replayAlgorithm": ["Xem lại", "Replay"],
   "study.noCasesMatch": [
@@ -381,8 +363,8 @@ export const studyWords: Dictionary = {
     "This is the 2D diagram of the case (as on CubeRoot).",
   ],
   "study.previewHintSkewb": [
-    "Đây là sơ đồ 3D flat-art của case (tự vẽ theo trạng thái case, cùng trạng thái với preview 3D).",
-    "This is the self-drawn flat-art diagram of the case (same case state as the 3D preview).",
+    "Sơ đồ phẳng của case, cùng trạng thái với preview 3D.",
+    "Flat diagram of the case, same state as the 3D preview.",
   ],
   "study.previewHintSq1": [
     "Đây là sơ đồ 2D của case (như cubingapp.com).",
@@ -435,8 +417,8 @@ export const studyWords: Dictionary = {
   "study.bulkDone": ["Xong", "Done"],
   "caseScramble.title": ["Scramble để cầm khối luyện", "Scramble to practise by hand"],
   "caseScramble.hint": [
-    "Bắt đầu từ khối đã giải, cầm trắng U và xanh lá F (hoặc hướng chuẩn của khối), thực hiện chuỗi này rồi giải case.",
-    "Start from a solved puzzle in the standard orientation (white on top, green in front for 3×3), apply this sequence, then solve the case.",
+    "Bắt đầu từ khối đã giải (trắng U, xanh lá F), làm chuỗi này rồi giải case.",
+    "Start from a solved puzzle (white on top, green in front), apply this sequence, then solve the case.",
   ],
   "caseScramble.copy": ["Sao chép scramble", "Copy scramble"],
   "caseScramble.copied": ["Đã sao chép", "Copied"],

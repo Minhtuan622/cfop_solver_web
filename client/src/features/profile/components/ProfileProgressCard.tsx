@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/Button";
-import { Eyebrow } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ProfileProgressChart } from "./ProfileProgressChart";
 import type { ProfileProgressRange } from "../lib/profileProgress";
@@ -20,7 +19,6 @@ export function ProfileProgressCard({
         <div className="p-5 sm:p-6">
           <div className="flex flex-wrap justify-between items-end gap-2 mb-6">
             <div>
-              <Eyebrow>{t("profile.progressEyebrow")}</Eyebrow>
               <h2 className="text-lg font-semibold tracking-tight mb-1">
                 {t("profile.progressTitle")}
               </h2>

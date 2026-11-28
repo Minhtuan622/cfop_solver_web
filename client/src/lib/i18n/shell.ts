@@ -127,10 +127,7 @@ export const shellWords: Dictionary = {
   "language.english": ["Tiếng Anh", "English"],
 
   "notFound.title": ["Không tìm thấy trang", "Page Not Found"],
-  "notFound.detail": [
-    "Rất tiếc, trang bạn tìm không tồn tại. Có thể nó đã được chuyển hoặc xóa.",
-    "Sorry, the page you are looking for does not exist. It may have been moved or deleted.",
-  ],
+  "notFound.detail": ["Trang không tồn tại hoặc đã được chuyển.", "This page does not exist or has been moved."],
   "notFound.home": ["Về trang chủ", "Go home"],
 
   "error.title": ["Đã xảy ra lỗi không mong muốn.", "An unexpected error occurred."],

@@ -4,8 +4,8 @@ export const playWords: Dictionary = {
   "play.eyebrow": ["Rubik ảo", "Virtual cube"],
   "play.title": ["Rubik ảo", "Virtual cube"],
   "play.subtitle": [
-    "Xoay khối 3×3 bằng bàn phím (bộ phím csTimer) hoặc bàn nút trên màn hình — chơi tự do, hoặc giải có giờ như một lượt thật.",
-    "Turn a 3×3 with your keyboard (csTimer layout) or the on-screen pad — free play, or a timed solve like the real thing.",
+    "Xoay khối 3×3 bằng bàn phím hoặc bàn nút trên màn hình; chơi tự do hoặc giải có giờ.",
+    "Turn a 3×3 with the keyboard or the on-screen pad; play freely or time a solve.",
   ],
   "nav.play": ["Rubik ảo", "Virtual cube"],
   "play.modeLabel": ["Chế độ", "Mode"],

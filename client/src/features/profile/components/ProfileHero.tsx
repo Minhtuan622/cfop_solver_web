@@ -1,7 +1,6 @@
 import { Link } from "wouter";
-import { BadgeCheck, KeyRound, Link2Off, Pencil, Target, Timer } from "@/components/ui/Icon";
+import { KeyRound, Pencil, Target, Timer } from "@/components/ui/Icon";
 import { Button, buttonClass } from "@/components/ui/Button";
-import { Eyebrow } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { initials } from "../lib/profilePresentation";
 
@@ -9,13 +8,11 @@ const chipClass = "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 tex
 
 export function ProfileHero({
   account,
-  wcaId,
   goalLabel,
   onEdit,
   onChangePassword,
 }: {
   account: { displayName: string; bio?: string | null; avatarUrl?: string | null };
-  wcaId: string | null | undefined;
   goalLabel: string;
   onEdit: () => void;
   onChangePassword: () => void;
@@ -36,23 +33,11 @@ export function ProfileHero({
             )}
           </div>
           <div className="min-w-0">
-            <Eyebrow>{t("profile.eyebrow")}</Eyebrow>
-            <h1 className="m-0 mt-1 break-words text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+            <h1 className="m-0 break-words text-2xl font-bold tracking-tight text-ink sm:text-3xl">
               {account.displayName}
             </h1>
-            <p className="m-0 mt-1 text-sm text-muted">{account.bio || t("profile.bioFallback")}</p>
+            {account.bio ? <p className="m-0 mt-1 text-sm text-muted">{account.bio}</p> : null}
             <div className="mt-3 flex flex-wrap gap-2">
-              {wcaId ? (
-                <span className={`${chipClass} bg-success-soft text-success`}>
-                  <BadgeCheck className="text-sm" aria-hidden="true" />
-                  {t("profile.wcaChipLinked", { id: wcaId })}
-                </span>
-              ) : (
-                <span className={`${chipClass} bg-warning-soft text-ink`}>
-                  <Link2Off className="text-sm text-warning" aria-hidden="true" />
-                  {t("profile.wcaChipUnlinked")}
-                </span>
-              )}
               <span className={`${chipClass} bg-surface-2 text-muted`}>
                 <Target className="text-sm" aria-hidden="true" />
                 {t("profile.goalChip", { goal: goalLabel })}

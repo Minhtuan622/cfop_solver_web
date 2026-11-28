@@ -70,8 +70,8 @@ export const wcaWords: Dictionary = {
   "wca.openRecords": ["Kỷ lục WCA", "WCA records"],
   "records.title": ["Kỷ lục WCA", "WCA records"],
   "records.description": [
-    "Kỷ lục thế giới, châu lục và quốc gia của mọi nội dung WCA, cùng các kỷ lục vừa bị phá. So sánh với thành tích bấm giờ của bạn.",
-    "World, continental and national records for every WCA event, plus the records broken most recently. Compare them with your own timer bests.",
+    "Kỷ lục WCA theo nội dung, kèm các kỷ lục vừa bị phá.",
+    "WCA records for every event, plus the ones broken most recently.",
   ],
   "records.openCalendar": ["Lịch giải WCA", "WCA calendar"],
   "records.current": ["Kỷ lục hiện tại", "Current records"],

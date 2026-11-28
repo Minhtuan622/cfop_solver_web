@@ -1,7 +1,6 @@
 import type { Dictionary } from "./index";
 
 export const timerWords: Dictionary = {
-  "timer.eyebrow": ["Luyện tốc độ", "Speed practice"],
   "timer.title": ["Bấm giờ", "Timer"],
   "timer.subtitle": [
     "Ghi lại solve, theo dõi PB và nhìn rõ tiến bộ của từng event.",
@@ -24,8 +23,8 @@ export const timerWords: Dictionary = {
   "timer.tags": ["TAG (phân cách bằng dấu phẩy)", "TAGS (comma separated)"],
   "timer.solution": ["SOLUTION THỰC TẾ", "ACTUAL SOLUTION"],
   "timer.solutionHint": [
-    "Ghi đúng chuỗi nước bạn đã thực hiện. Hệ thống chỉ lưu khi chuỗi nước đưa trạng thái sau scramble về khối đã giải.",
-    "Enter the move sequence you actually performed. It is saved only when the sequence returns the scrambled cube to solved.",
+    "Nhập đúng chuỗi nước bạn đã làm; chỉ lưu khi chuỗi đưa khối sau scramble về trạng thái đã giải.",
+    "Enter the moves you performed; saved only if they take the scrambled cube back to solved.",
   ],
   "timer.save": ["Lưu solution", "Save changes"],
   "timer.cancel": ["Hủy", "Cancel"],
@@ -132,8 +131,8 @@ export const timerWords: Dictionary = {
   ],
   "timer.eventHint": ["Timer và scramble được tách riêng theo event.", "Timer and scrambles are separated by event."],
   "timer.addSolutionHint": [
-    "Bộ đếm không thể biết các nước bạn đã thực hiện; hãy nhập chuỗi nước để phát lại chính xác.",
-    "The timer cannot observe physical turns; add the moves for an exact replay.",
+    "Timer không biết bạn xoay thế nào; nhập chuỗi nước để phát lại chính xác.",
+    "The timer can't see your turns; add the moves for an exact replay.",
   ],
   "timer.addSolution": ["Nhập solution", "Add solution"],
   "timer.recentTitle": ["Solve {event} gần nhất", "Recent {event} solves"],
