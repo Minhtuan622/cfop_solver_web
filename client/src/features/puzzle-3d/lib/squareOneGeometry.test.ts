@@ -10,7 +10,7 @@ import {
   pieceSpecs,
   placementsOf,
   planPoint,
-  prismArrays,
+  middleWalls,
   slotAngle,
 } from "./squareOneGeometry";
 
@@ -73,30 +73,11 @@ describe("square-one plan geometry", () => {
     }
   });
 
-  it("builds a prism with one cap, one floor and a wall per outline edge", () => {
-    const outline = cornerOutline();
-    const arrays = prismArrays(outline.points, 0, 1, "#ffffff", [null, "#ff0000", "#00ff00", null]);
-    // cap + floor: 2 triangles each for a 4-gon; walls: 2 triangles per edge.
-    expect(arrays.positions.length / 9).toBe(4 + 8);
-    expect(arrays.colors.length).toBe(arrays.positions.length);
-  });
-
-  it("winds every face outwards", () => {
-    for (const outline of [edgeOutline(), cornerOutline(), middleHalfOutline(SQ1_SLICE_ANGLE)].map(item =>
-      "points" in item ? item.points : item
-    )) {
-      const { positions } = prismArrays(outline, 0, 1, "#ffffff", []);
-      const centre = outline.reduce((sum, point) => ({ x: sum.x + point.x / outline.length, z: sum.z + point.z / outline.length }), { x: 0, z: 0 });
-      for (let at = 0; at < positions.length; at += 9) {
-        const [a, b, c] = [0, 3, 6].map(offset => positions.slice(at + offset, at + offset + 3));
-        const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
-        const v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
-        const normal = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
-        const middle = [(a[0] + b[0] + c[0]) / 3 - centre.x, (a[1] + b[1] + c[1]) / 3 - 0.5, (a[2] + b[2] + c[2]) / 3 - centre.z];
-        const outward = normal[0] * middle[0] + normal[1] * middle[1] + normal[2] * middle[2];
-        // Radial walls may pass through the centre line, so only demand "not inwards".
-        expect(outward).toBeGreaterThanOrEqual(-1e-9);
-      }
+  it("puts a coloured wall on every outside side of the middle halves", () => {
+    for (const angle of [SQ1_SLICE_ANGLE, SQ1_SLICE_ANGLE + 180]) {
+      const walls = middleWalls(middleHalfOutline(angle));
+      expect(walls.length).toBeGreaterThanOrEqual(3);
+      expect(new Set(walls.map(wall => wall.color)).size).toBe(walls.length);
     }
   });
 

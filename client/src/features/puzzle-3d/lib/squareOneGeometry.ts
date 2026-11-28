@@ -1,5 +1,4 @@
 import { SQ1_SOLVED, SQ1_LAYER, wedgeKind } from "@/lib/squareOneModel";
-import { CUBE_COLORS } from "./cubeColors";
 
 // Plan view of a Square-1. Angles are in degrees and grow clockwise seen from
 // above; 0 points to the back (-z), 90 to the right (+x). Layers are slabs of
@@ -11,6 +10,18 @@ export const SQ1_MIDDLE_HEIGHT = 0.42;
 export const SQ1_SLOT_DEGREES = 30;
 // The slice flips the half of the puzzle that holds the top slots 6-11.
 export const SQ1_SLICE_ANGLE = 195;
+
+// The usual Square-1 scheme: black on top, white underneath and one colour on
+// each of the four sides.
+export const SQ1_PALETTE = {
+  U: "#161616",
+  D: "#f0f0f0",
+  L: "#1f4dff",
+  B: "#ff8000",
+  R: "#00b53d",
+  F: "#d0021b",
+  BODY: "#2a2a30",
+} as const;
 
 export type PlanPoint = { x: number; z: number };
 
@@ -83,9 +94,9 @@ export function pieceSpecs(): PieceSpec[] {
       if (kind === 1) continue;
       const width = kind === 2 ? 1 : 2;
       const angle = pieceAngle(layer, slot, width);
-      const cap = CUBE_COLORS[layer === 0 ? "U" : "D"];
-      const lowSide = CUBE_COLORS[faceLetterAt(width === 1 ? angle : angle - 45)];
-      const highSide = CUBE_COLORS[faceLetterAt(width === 1 ? angle : angle + 45)];
+      const cap = SQ1_PALETTE[layer === 0 ? "U" : "D"];
+      const lowSide = SQ1_PALETTE[faceLetterAt(width === 1 ? angle : angle - 45)];
+      const highSide = SQ1_PALETTE[faceLetterAt(width === 1 ? angle : angle + 45)];
       // The bottom layer is built flipped over, which swaps the two sides.
       specs.push({
         id,
@@ -155,56 +166,19 @@ export function middleHalfOutline(angle: number): PlanPoint[] {
   return clipped;
 }
 
-export type MeshArrays = { positions: number[]; colors: number[] };
-
-const hexToRgb = (hex: string): [number, number, number] => {
-  const value = Number.parseInt(hex.replace("#", ""), 16);
-  return [((value >> 16) & 255) / 255, ((value >> 8) & 255) / 255, (value & 255) / 255];
-};
-
-export const SQ1_BODY_COLOR = "#1b1b1f";
-
-// A prism over a convex outline from y0 up to y1, triangle by triangle with a
-// colour per face: cap on top, `faceColors[i]` on the side that starts at point
-// i, and the body colour everywhere else.
-export function prismArrays(
-  points: readonly PlanPoint[],
-  y0: number,
-  y1: number,
-  capColor: string,
-  faceColors: readonly (string | null)[]
-): MeshArrays {
-  const positions: number[] = [];
-  const colors: number[] = [];
-  const body = hexToRgb(SQ1_BODY_COLOR);
-  const push = (color: [number, number, number], ...vertices: [number, number, number][]) => {
-    for (const [x, y, z] of vertices) {
-      positions.push(x, y, z);
-      colors.push(...color);
-    }
-  };
-  const cap = hexToRgb(capColor);
-  for (let index = 1; index < points.length - 1; index += 1) {
-    const a = points[0];
-    const b = points[index];
-    const c = points[index + 1];
-    // Seen from above the outline runs clockwise, so this winding faces up.
-    push(cap, [a.x, y1, a.z], [c.x, y1, c.z], [b.x, y1, b.z]);
-    push(body, [a.x, y0, a.z], [b.x, y0, b.z], [c.x, y0, c.z]);
-  }
-  points.forEach((point, index) => {
-    const next = points[(index + 1) % points.length];
-    const color = faceColors[index] ? hexToRgb(faceColors[index] as string) : body;
-    // The outline runs clockwise from above, so this winding faces outwards.
-    push(
-      color,
-      [point.x, y0, point.z],
-      [next.x, y1, next.z],
-      [next.x, y0, next.z],
-      [point.x, y0, point.z],
-      [point.x, y1, point.z],
-      [next.x, y1, next.z]
-    );
+// The sides of a middle-layer half that lie on the outside of the cube, each
+// with the face colour it carries.
+export function middleWalls(outline: readonly PlanPoint[]) {
+  const walls: { from: PlanPoint; to: PlanPoint; color: string }[] = [];
+  outline.forEach((from, index) => {
+    const to = outline[(index + 1) % outline.length];
+    const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+    let color: string | null = null;
+    if (near(from.x, 1) && near(to.x, 1)) color = SQ1_PALETTE.R;
+    else if (near(from.x, -1) && near(to.x, -1)) color = SQ1_PALETTE.L;
+    else if (near(from.z, 1) && near(to.z, 1)) color = SQ1_PALETTE.F;
+    else if (near(from.z, -1) && near(to.z, -1)) color = SQ1_PALETTE.B;
+    if (color) walls.push({ from, to, color });
   });
-  return { positions, colors };
+  return walls;
 }

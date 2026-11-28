@@ -102,10 +102,16 @@ export function SquareOneCanvas({
       host.replaceChildren(renderer.domElement);
 
       const scene = new THREE.Scene();
-      scene.add(new THREE.AmbientLight(0xffffff, 1.9));
-      const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+      scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+      const sun = new THREE.DirectionalLight(0xffffff, 1.1);
       sun.position.set(2.5, 5, 4);
       scene.add(sun);
+      // Soft lights from the other corners so the slanted faces read well.
+      for (const [x, y, z] of [[-4, 3, 4], [4, 3, -4], [-4, 3, -4], [0, -5, 3], [4, -3, 3], [-4, -3, -3]]) {
+        const fill = new THREE.DirectionalLight(0xffffff, 0.35);
+        fill.position.set(x, y, z);
+        scene.add(fill);
+      }
       const camera = new THREE.PerspectiveCamera(defaultPuzzleCamera("square1").fov, 1, 0.1, 100);
       const model = createSquareOneModel(THREE);
       modelRef.current = model;
