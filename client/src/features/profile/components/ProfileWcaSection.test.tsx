@@ -53,3 +53,34 @@ describe("ProfileWcaSection: gỡ liên kết WCA", () => {
     expect(screen.getByRole("button", { name: "Đang gỡ…" })).toBeDisabled();
   });
 });
+
+describe("ProfileWcaSection: liên kết WCA", () => {
+  it("chưa liên kết và máy chủ sẵn sàng: nút Liên kết bấm được", () => {
+    const onStartOAuth = vi.fn();
+    render(<ProfileWcaSection {...baseProps} wcaId={null} onStartOAuth={onStartOAuth} onUnlink={() => undefined} />);
+    const button = screen.getByRole("button", { name: "Liên kết bằng WCA" });
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+    expect(onStartOAuth).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Chưa bật đăng nhập WCA trên máy chủ")).toBeNull();
+  });
+
+  it("máy chủ chưa cấu hình: nút khoá và nói rõ cần làm gì", () => {
+    render(<ProfileWcaSection {...baseProps} wcaId={null} oauthConfigured={false} onUnlink={() => undefined} />);
+    expect(screen.getByRole("button", { name: "Liên kết bằng WCA" })).toBeDisabled();
+    expect(screen.getByText("Chưa bật đăng nhập WCA trên máy chủ")).toBeInTheDocument();
+    expect(screen.getByText(/WCA_CLIENT_ID/)).toBeInTheDocument();
+  });
+
+  it("đang kiểm tra cấu hình thì nút khoá nhưng chưa kêu lỗi", () => {
+    render(<ProfileWcaSection {...baseProps} wcaId={null} oauthConfigured={undefined} onUnlink={() => undefined} />);
+    expect(screen.getByRole("button", { name: "Liên kết bằng WCA" })).toBeDisabled();
+    expect(screen.queryByText("Chưa bật đăng nhập WCA trên máy chủ")).toBeNull();
+  });
+
+  it("đã liên kết thì không còn nút Liên kết", () => {
+    render(<ProfileWcaSection {...baseProps} wcaId="2016ABCD01" onUnlink={() => undefined} />);
+    expect(screen.queryByRole("button", { name: "Liên kết bằng WCA" })).toBeNull();
+    expect(screen.getByText("2016ABCD01")).toBeInTheDocument();
+  });
+});

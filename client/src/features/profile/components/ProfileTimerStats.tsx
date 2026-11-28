@@ -23,7 +23,7 @@ export function ProfileTimerStats({
   return (
     <>
       <section
-        className="grid grid-cols-12 gap-4 mb-6"
+        className="grid grid-cols-12 gap-3"
         aria-label={t("profile.statsLabel")}
       >
         <div className="col-span-6 lg:col-span-3">
@@ -58,7 +58,7 @@ export function ProfileTimerStats({
 
       {meetsAo5Goal(ao5, goalMs) ? (
         <section
-          className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink flex flex-wrap items-center justify-between gap-4 mb-6"
+          className="rounded-panel px-4 py-3 text-sm bg-success-soft text-ink flex flex-wrap items-center justify-between gap-4"
           role="status"
         >
           <div>

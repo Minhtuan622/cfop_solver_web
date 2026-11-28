@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BoxArrowRight } from "@/components/ui/Icon";
+import { AlertTriangle, ExternalLink, Globe, LogIn, Unlink } from "@/components/ui/Icon";
 import { Button, buttonClass } from "@/components/ui/Button";
 import {
   Dialog,
@@ -40,80 +40,85 @@ export function ProfileWcaSection({
 }) {
   const { t } = useLanguage();
   const [confirmUnlink, setConfirmUnlink] = useState(false);
+  const linkButton = (
+    <Button
+      variant="primary"
+      type="button"
+      disabled={oauthConfigured !== true || oauthPending}
+      onClick={onStartOAuth}
+    >
+      <LogIn aria-hidden="true" />
+      {oauthPending ? t("profile.wcaOauthLinkPending") : t("profile.wcaOauthLink")}
+    </Button>
+  );
   return (
-    <section className="rounded-card bg-surface mb-6">
+    <section className="rounded-card bg-surface">
       <div className="p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-2 mb-4">
-          <div>
-            <p className="text-sm uppercase tracking-wide font-semibold text-primary mb-1">
-              {t("profile.wcaEyebrow")}
-            </p>
-            <h2 className="text-lg font-semibold tracking-tight mb-1">
-              {t("profile.wcaTitle")}
-            </h2>
-            <p className="text-sm text-muted mb-0">{t("profile.wcaHint")}</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-4">
+            <span
+              className={`grid size-10 shrink-0 place-items-center rounded-2xl ${wcaId ? "bg-success-soft text-success" : "bg-primary-soft text-primary"}`}
+            >
+              <Globe aria-hidden="true" className="text-xl" />
+            </span>
+            <div className="min-w-0">
+              <p className="m-0 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                {t("profile.wcaEyebrow")}
+              </p>
+              <h2 className="m-0 mt-1 text-lg font-semibold tracking-tight text-ink">
+                {wcaId ? t("profile.wcaTitle") : t("profile.wcaLinkTitle")}
+              </h2>
+              <p className="m-0 mt-1 text-sm text-muted">
+                {wcaId ? wcaId : t("profile.wcaLinkHint")}
+              </p>
+            </div>
           </div>
           {wcaId ? (
             <div className="flex flex-wrap items-center gap-2">
               <a
-                className={`${buttonClass("secondary", "sm")}`}
-                href={
-                  wcaProfile?.profileUrl ??
-                  `https://www.worldcubeassociation.org/persons/${wcaId}`
-                }
+                className={buttonClass("outline", "md")}
+                href={wcaProfile?.profileUrl ?? `https://www.worldcubeassociation.org/persons/${wcaId}`}
                 target="_blank"
                 rel="noreferrer"
               >
-                {t("profile.wcaOpen")} <BoxArrowRight className="ml-1" />
+                {t("profile.wcaOpen")} <ExternalLink aria-hidden="true" />
               </a>
-              <Button
-                variant="danger"
-                size="sm"
-                type="button"
-                disabled={unlinkPending}
-                onClick={() => setConfirmUnlink(true)}
-              >
-                {unlinkPending
-                  ? t("profile.wcaUnlinkPending")
-                  : t("profile.wcaUnlink")}
+              <Button variant="danger" type="button" disabled={unlinkPending} onClick={() => setConfirmUnlink(true)}>
+                <Unlink aria-hidden="true" />
+                {unlinkPending ? t("profile.wcaUnlinkPending") : t("profile.wcaUnlink")}
               </Button>
             </div>
           ) : null}
         </div>
-        {refreshing ? (
-          <div className="mt-4">
-            <RefreshIndicator label={t("profile.wcaRefreshing")} />
+        {wcaId ? (
+          <>
+            {refreshing ? (
+              <div className="mt-4">
+                <RefreshIndicator label={t("profile.wcaRefreshing")} />
+              </div>
+            ) : null}
+            {loading ? <SkeletonCard lines={4} className="mt-4" label={t("profile.wcaLoading")} /> : null}
+            {wcaProfile ? <WcaProfileDetails profile={wcaProfile} entries={entries} /> : null}
+          </>
+        ) : (
+          <div className="mt-4 flex flex-col gap-4">
+            {oauthConfigured === false ? (
+              <div role="status" className="flex items-start gap-3 rounded-panel bg-warning-soft p-4">
+                <AlertTriangle className="mt-0.5 shrink-0 text-lg text-warning" aria-hidden="true" />
+                <div className="min-w-0">
+                  <p className="m-0 text-sm font-semibold text-ink">{t("profile.wcaOauthOffTitle")}</p>
+                  <p className="m-0 mt-1 text-sm text-ink">{t("profile.wcaOauthOffDetail")}</p>
+                </div>
+              </div>
+            ) : null}
+            <div className="flex flex-wrap items-center gap-3">
+              {linkButton}
+              {oauthConfigured === false ? null : (
+                <span className="text-xs text-muted">{t("profile.wcaLinkPrivacy")}</span>
+              )}
+            </div>
           </div>
-        ) : null}
-        {loading ? (
-          <SkeletonCard
-            lines={4}
-            className="mt-4"
-            label={t("profile.wcaLoading")}
-          />
-        ) : null}
-        {wcaProfile ? (
-          <WcaProfileDetails profile={wcaProfile} entries={entries} />
-        ) : null}
-        <div className="mt-6">
-          <p className="text-sm mb-2">
-            {oauthConfigured
-              ? t("profile.wcaOauthReady")
-              : t("profile.wcaOauthPending")}
-          </p>
-          <Button
-            variant="secondary"
-            size="sm"
-            type="button"
-
-            disabled={!oauthConfigured || oauthPending}
-            onClick={onStartOAuth}
-            >
-            {oauthPending
-              ? t("profile.wcaOauthLinkPending")
-              : t("profile.wcaOauthLink")}
-          </Button>
-        </div>
+        )}
       </div>
       <Dialog open={confirmUnlink} onOpenChange={setConfirmUnlink}>
         <DialogContent>

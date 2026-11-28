@@ -15,7 +15,7 @@ export function ProfileProgressCard({
 }) {
   const { t } = useLanguage();
   return (
-    <section className="col-span-12 xl:col-span-8">
+    <section className="col-span-12 lg:col-span-8">
       <div className="rounded-card bg-surface h-full">
         <div className="p-5 sm:p-6">
           <div className="flex flex-wrap justify-between items-end gap-2 mb-6">

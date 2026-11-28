@@ -2,6 +2,12 @@ import type { ComponentType } from "react";
 import {
   AlertCircle as AlertCircleGlyph,
   AlertTriangle as AlertTriangleGlyph,
+  BadgeCheck as BadgeCheckGlyph,
+  KeyRound as KeyRoundGlyph,
+  Link2Off as Link2OffGlyph,
+  LogIn as LogInGlyph,
+  Target as TargetGlyph,
+  Unlink as UnlinkGlyph,
   ArrowLeft as ArrowLeftGlyph,
   ArrowRight as ArrowRightGlyph,
   Bluetooth as BluetoothGlyph,
@@ -176,3 +182,9 @@ export const Settings = icon(SettingsGlyph);
 export const Share2 = icon(Share2Glyph);
 export const Star = icon(StarGlyph);
 export const Swords = icon(SwordsGlyph);
+export const BadgeCheck = icon(BadgeCheckGlyph);
+export const KeyRound = icon(KeyRoundGlyph);
+export const Link2Off = icon(Link2OffGlyph);
+export const LogIn = icon(LogInGlyph);
+export const Target = icon(TargetGlyph);
+export const Unlink = icon(UnlinkGlyph);

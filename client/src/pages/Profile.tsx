@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { AvatarCropDialog } from "@/features/profile/components/AvatarCropDialog";
-import { ProfileDetailsForm, type ProfileDetailsValues } from "@/features/profile/components/ProfileDetailsForm";
+import { ProfileEditDialog, type ProfileDetailsValues } from "@/features/profile/components/ProfileEditDialog";
 import { ProfileHero } from "@/features/profile/components/ProfileHero";
-import { ProfilePasswordForm } from "@/features/profile/components/ProfilePasswordForm";
+import { ProfilePasswordDialog } from "@/features/profile/components/ProfilePasswordDialog";
 import { ProfileProgressCard } from "@/features/profile/components/ProfileProgressCard";
 import { ProfileStudySummary } from "@/features/profile/components/ProfileStudySummary";
 import { ProfileSyncCard } from "@/features/profile/components/ProfileSyncCard";
@@ -55,6 +55,8 @@ export default function Profile() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
   const [progressRange, setProgressRange] =
     useState<ProfileProgressRange>("30d");
   const [location] = useLocation();
@@ -74,6 +76,7 @@ export default function Profile() {
   const updateProfile = trpc.cfopAccount.updateProfile.useMutation({
     onSuccess: async () => {
       await utils.cfopAccount.me.invalidate();
+      setEditOpen(false);
       setMessage(t("profile.profileSaved"));
     },
     onError: next => setError(errorMessage(next, t)),
@@ -262,9 +265,27 @@ export default function Profile() {
     : t("profile.goalUnset");
   const wcaProfile = wcaProfileQuery.data as WcaProfileData | undefined;
 
+  const openEdit = () => {
+    setError("");
+    setMessage("");
+    setEditOpen(true);
+  };
+  const openPassword = () => {
+    setError("");
+    setMessage("");
+    setPasswordOpen(true);
+  };
+  const dialogOpen = editOpen || passwordOpen;
+
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-      <ProfileHero account={account} goalLabel={goalLabel} />
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
+      <ProfileHero
+        account={account}
+        wcaId={account.wcaId}
+        goalLabel={goalLabel}
+        onEdit={openEdit}
+        onChangePassword={openPassword}
+      />
 
       {message ? (
         <div
@@ -275,7 +296,7 @@ export default function Profile() {
           <span>{message}</span>
         </div>
       ) : null}
-      {error ? (
+      {error && !dialogOpen ? (
         <div
           className="rounded-panel px-4 py-3 text-sm bg-danger-soft text-ink flex items-start gap-2"
           role="alert"
@@ -284,44 +305,6 @@ export default function Profile() {
           <span>{error}</span>
         </div>
       ) : null}
-
-      <ProfileTimerStats
-        solveCount={timerEntries.length}
-        best={best}
-        ao5={ao5}
-        reviewedLastLayer={reviewedLastLayer}
-        goalMs={account.goalMs}
-        goalLabel={goalLabel}
-      />
-
-      <div className="grid grid-cols-12 gap-6 mb-6">
-        <ProfileProgressCard
-          progressRange={progressRange}
-          onProgressRangeChange={setProgressRange}
-          data={filteredChart}
-        />
-        <aside className="col-span-12 xl:col-span-4">
-          <ProfileStudySummary
-            dueMemoCount={due}
-            streakDays={streak.current}
-            bldReviewedCount={Object.keys(bld.memoRecords).length}
-            lastLayerCount={Object.keys(lastLayer.records).length}
-          />
-          <ProfileSyncCard
-            connected={syncQuery.isSuccess}
-            updatedAt={syncQuery.data?.updatedAt}
-            pending={manualSync.isPending}
-            onSync={() => {
-              setError("");
-              setMessage("");
-              manualSync.mutate({
-                ...createCfopCloudState(),
-                baseVersion: syncQuery.data?.revision ?? null,
-              });
-            }}
-          />
-        </aside>
-      </div>
 
       <ProfileWcaSection
         wcaId={account.wcaId}
@@ -344,20 +327,62 @@ export default function Profile() {
         }}
       />
 
-      <div className="grid grid-cols-12 gap-6">
-        <ProfileDetailsForm
-          account={account}
-          avatarUploadEnabled={storageStatusQuery.data?.enabled ?? true}
-          avatarPending={uploadAvatar.isPending}
-          onChooseAvatar={chooseAvatar}
-          savePending={updateProfile.isPending}
-          onSubmit={submitProfile}
+      <ProfileTimerStats
+        solveCount={timerEntries.length}
+        best={best}
+        ao5={ao5}
+        reviewedLastLayer={reviewedLastLayer}
+        goalMs={account.goalMs}
+        goalLabel={goalLabel}
+      />
+
+      <div className="grid grid-cols-12 gap-5">
+        <ProfileProgressCard
+          progressRange={progressRange}
+          onProgressRangeChange={setProgressRange}
+          data={filteredChart}
         />
-        <ProfilePasswordForm
-          pending={changePassword.isPending}
-          onSubmit={submitPassword}
-        />
+        <aside className="col-span-12 flex flex-col gap-5 lg:col-span-4">
+          <ProfileStudySummary
+            dueMemoCount={due}
+            streakDays={streak.current}
+            bldReviewedCount={Object.keys(bld.memoRecords).length}
+            lastLayerCount={Object.keys(lastLayer.records).length}
+          />
+          <ProfileSyncCard
+            connected={syncQuery.isSuccess}
+            updatedAt={syncQuery.data?.updatedAt}
+            pending={manualSync.isPending}
+            onSync={() => {
+              setError("");
+              setMessage("");
+              manualSync.mutate({
+                ...createCfopCloudState(),
+                baseVersion: syncQuery.data?.revision ?? null,
+              });
+            }}
+          />
+        </aside>
       </div>
+
+      <ProfileEditDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        account={account}
+        avatarUploadEnabled={storageStatusQuery.data?.enabled ?? true}
+        avatarPending={uploadAvatar.isPending}
+        onChooseAvatar={chooseAvatar}
+        savePending={updateProfile.isPending}
+        error={error}
+        onSubmit={submitProfile}
+      />
+      <ProfilePasswordDialog
+        open={passwordOpen}
+        onOpenChange={setPasswordOpen}
+        pending={changePassword.isPending}
+        error={error}
+        onSubmit={submitPassword}
+      />
       <AvatarCropDialog
         file={avatarFile}
         onClose={() => setAvatarFile(null)}
