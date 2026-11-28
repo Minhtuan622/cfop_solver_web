@@ -14,6 +14,7 @@ const CASES = [
   { name: "Pyraminx", scramble: "R U L' B' u" },
   { name: "Skewb", scramble: "R L' B R' L" },
   { name: "Megaminx", scramble: "R++ D-- R-- D++ U" },
+  { name: "Square-1", scramble: "(1,0)/ (2,5)/ (-3,-3)/ (3,0)/ (-5,4)/ (-1,0)/ (-3,0)/ (4,0)/ (5,0)/ (2,0)/" },
   { name: "Clock", scramble: "UR3+ DR2- DL5+ UL1- U4+ R3- D2+ L1+ ALL3+ y2 U2- R1+ D3- ALL1-" },
 ] as const;
 

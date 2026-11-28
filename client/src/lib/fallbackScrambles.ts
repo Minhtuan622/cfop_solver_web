@@ -91,23 +91,27 @@ function clock() {
   return [...front, "y2", ...back].join(" ");
 }
 
+// Slots 0-11 are the top layer and 12-23 the bottom layer. A turn (a,b) moves the layers
+// by a and b slots and the slice swaps slots 6-11 with slots 12-17, the same
+// convention cubing's square1 puzzle uses.
 export function squareOne(twists = 12) {
-  let top = [0, 1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7];
-  let bottom = [8, 9, 9, 10, 11, 11, 12, 13, 13, 14, 15, 15];
-  const rotate = (layer: number[], amount: number) =>
-    layer.map((_, index) => layer[(((index - amount) % 12) + 12) % 12]);
-  const canSlice = (layer: number[]) =>
-    layer[11] !== layer[0] && layer[5] !== layer[6];
+  const wrap = (slot: number) => ((slot % 12) + 12) % 12;
+  // 0 and 1 are the two halves of a corner, 2 is an edge; the bottom layer
+  // reads edge, corner, corner while the top reads corner, corner, edge.
+  let kinds = Array.from({ length: 24 }, (_, slot) => (slot + (slot < 12 ? 0 : 2)) % 3);
   const steps: string[] = [];
   while (steps.length < twists) {
     const a = Math.floor(Math.random() * 12) - 5;
     const b = Math.floor(Math.random() * 12) - 5;
     if (a === 0 && b === 0) continue;
-    const nextTop = rotate(top, a);
-    const nextBottom = rotate(bottom, b);
-    if (!canSlice(nextTop) || !canSlice(nextBottom)) continue;
-    top = [...nextBottom.slice(0, 6).reverse(), ...nextTop.slice(6)];
-    bottom = [...nextTop.slice(0, 6).reverse(), ...nextBottom.slice(6)];
+    const turned = kinds.map((kind, slot) =>
+      slot < 12 ? kinds[wrap(slot - a)] : kinds[12 + wrap(slot - 12 - b)] ?? kind
+    );
+    // The slice may not cut through a corner in either layer.
+    if ([0, 12].some(layer => turned[layer] === 1 || turned[layer + 6] === 1)) continue;
+    kinds = turned.map((kind, slot) =>
+      slot >= 6 && slot < 12 ? turned[slot + 6] : slot >= 12 && slot < 18 ? turned[slot - 6] : kind
+    );
     steps.push(`(${a},${b})/`);
   }
   return steps.join(" ");

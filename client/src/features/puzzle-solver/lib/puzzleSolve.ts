@@ -1,7 +1,7 @@
 import type { TimerEventId } from "@/lib/timerEvents";
 import type { PuzzleId } from "@/features/puzzle-3d/lib/puzzleIds";
 
-export type OtherPuzzleId = "222" | "pyram" | "skewb" | "minx" | "clock" | "333fm" | "333roux";
+export type OtherPuzzleId = "222" | "pyram" | "skewb" | "minx" | "clock" | "sq1" | "333fm" | "333roux";
 
 export type OtherPuzzleInfo = {
   eventId: TimerEventId;
@@ -17,18 +17,19 @@ export const OTHER_PUZZLES: Record<OtherPuzzleId, OtherPuzzleInfo> = {
   skewb: { eventId: "skewb", scrambleEventId: "skewb", inPicker: true, puzzle: "skewb", labelKey: "otherPuzzles.puzzle.skewb" },
   minx: { eventId: "minx", scrambleEventId: "minx", inPicker: true, puzzle: "megaminx", labelKey: "otherPuzzles.puzzle.minx" },
   clock: { eventId: "clock", scrambleEventId: "clock", inPicker: true, puzzle: "clock", labelKey: "otherPuzzles.puzzle.clock" },
+  sq1: { eventId: "sq1", scrambleEventId: "sq1", inPicker: true, puzzle: "square1", labelKey: "otherPuzzles.puzzle.sq1" },
   "333roux": { eventId: "333", scrambleEventId: "333", inPicker: true, puzzle: "3x3x3", labelKey: "otherPuzzles.puzzle.333roux" },
   "333fm": { eventId: "333fm", scrambleEventId: "333", inPicker: false, puzzle: "3x3x3", labelKey: "otherPuzzles.puzzle.333fm" },
 };
 
-const PICKER_ORDER: OtherPuzzleId[] = ["333roux", "222", "pyram", "skewb", "minx", "clock", "333fm"];
+const PICKER_ORDER: OtherPuzzleId[] = ["333roux", "222", "pyram", "skewb", "minx", "clock", "sq1", "333fm"];
 export const OTHER_PUZZLE_IDS = PICKER_ORDER.filter(id => OTHER_PUZZLES[id].inPicker);
 
 export const MAX_SCRAMBLE_LENGTH = 400;
 
 // Puzzles that are solved by a named method, stage by stage, instead of by one
 // shortest-solution search.
-const METHOD_PUZZLES: readonly OtherPuzzleId[] = ["333roux", "222", "pyram", "skewb", "clock", "minx"];
+const METHOD_PUZZLES: readonly OtherPuzzleId[] = ["333roux", "222", "pyram", "skewb", "clock", "minx", "sq1"];
 export function hasMethodPhases(puzzle: OtherPuzzleId) {
   return METHOD_PUZZLES.includes(puzzle);
 }
@@ -121,6 +122,21 @@ export const cubingEngine: SolveEngine = {
       if (!found) throw new PuzzleSolveError("solver-failed");
       return found;
     }
+    if (puzzle === "sq1") {
+      const { solveSquareOneScramble, SquareOneStateError, SquareOneUnavailableError } = await import(
+        "./squareOneEngine"
+      );
+      try {
+        return await solveSquareOneScramble(scramble);
+      } catch (error) {
+        if (error instanceof SquareOneStateError)
+          throw new PuzzleSolveError("invalid-scramble", String(error));
+        if (error instanceof SquareOneUnavailableError) throw new PuzzleSolveError("solver-failed", String(error));
+        if (/parse|syntax|unknown|invalid|move/i.test(String(error)))
+          throw new PuzzleSolveError("invalid-scramble", String(error));
+        throw error;
+      }
+    }
     if (puzzle === "minx") {
       const { solveMegaminxLayers } = await import("./megaminxEngine");
       const { MinxUnavailableError } = await import("./megaminxSolver");
@@ -163,6 +179,7 @@ export const cubingEngine: SolveEngine = {
     }
   },
   async solve(puzzle, scramble) {
+    if (puzzle === "sq1") return (await cubingEngine.solveWithPhases!(puzzle, scramble)).solution;
     if (puzzle === "clock") {
       const { dialsFromScramble, solveClockDials } = await import("./clockEngine");
       let dials: number[];

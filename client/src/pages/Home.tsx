@@ -467,6 +467,7 @@ export default function Home() {
             />
             <SolverToolbar
               hideKind
+              hideMode={puzzleKind === "sq1"}
               solverKind={solverKind}
               onSolverKindChange={switchSolverKind}
               mode={usesOtherSolver ? otherMode : mode}
@@ -483,7 +484,7 @@ export default function Home() {
         <OtherPuzzleSolver
           key={puzzleKind === "333" ? "333fm" : puzzleKind}
           puzzle={puzzleKind === "333" ? "333fm" : puzzleKind}
-          mode={otherMode}
+          mode={puzzleKind === "sq1" ? "scramble" : otherMode}
           initialScramble={shared?.scramble ?? ""}
           autoSolve={Boolean(shared?.scramble)}
           onShareScramble={setOtherShare}

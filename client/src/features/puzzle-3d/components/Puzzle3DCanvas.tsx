@@ -19,6 +19,7 @@ import { recolorCubeStickerColors, type ColoredObject } from "../lib/recolorCube
 import { IconButton } from "@/components/ui/StudioUI";
 import { RotateCcw } from "@/components/ui/Icon";
 import { Puzzle3DErrorCard } from "./Puzzle3DErrorCard";
+import { SquareOneCanvas } from "./SquareOneCanvas";
 import { collectShownPoints } from "../lib/puzzleFitPoints";
 import { usePuzzleOrbitControls } from "../lib/usePuzzleOrbitControls";
 import {
@@ -29,18 +30,7 @@ import {
   type PuzzlePlayer,
 } from "../lib/previewPlayer";
 
-export function Puzzle3DCanvas({
-  eventId,
-  puzzle,
-  scramble,
-  language,
-  animationAlg = "",
-  animationRunId = 0,
-  focusFtoWhiteFace = false,
-  focusFtoFace,
-  nativeColors = false,
-  tempoScale = 1,
-}: {
+type Puzzle3DCanvasProps = {
   eventId: TimerEventId;
   puzzle: PuzzleId;
   scramble: string;
@@ -51,7 +41,35 @@ export function Puzzle3DCanvas({
   focusFtoFace?: FtoTeachingFace;
   nativeColors?: boolean;
   tempoScale?: number;
-}) {
+};
+
+export function Puzzle3DCanvas(props: Puzzle3DCanvasProps) {
+  if (props.puzzle === "square1")
+    return (
+      <SquareOneCanvas
+        eventId={props.eventId}
+        scramble={props.scramble}
+        language={props.language}
+        animationAlg={props.animationAlg}
+        animationRunId={props.animationRunId}
+        tempoScale={props.tempoScale}
+      />
+    );
+  return <TwistyPuzzleCanvas {...props} />;
+}
+
+function TwistyPuzzleCanvas({
+  eventId,
+  puzzle,
+  scramble,
+  language,
+  animationAlg = "",
+  animationRunId = 0,
+  focusFtoWhiteFace = false,
+  focusFtoFace,
+  nativeColors = false,
+  tempoScale = 1,
+}: Puzzle3DCanvasProps) {
   const isTwoD = isSideEvent2DPuzzle(puzzle);
   const hostRef = useRef<HTMLDivElement>(null);
   const {
