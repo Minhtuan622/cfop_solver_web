@@ -48,8 +48,8 @@ export function ProfileHero({
                   {t("profile.wcaChipLinked", { id: wcaId })}
                 </span>
               ) : (
-                <span className={`${chipClass} bg-warning-soft text-warning`}>
-                  <Link2Off className="text-sm" aria-hidden="true" />
+                <span className={`${chipClass} bg-warning-soft text-ink`}>
+                  <Link2Off className="text-sm text-warning" aria-hidden="true" />
                   {t("profile.wcaChipUnlinked")}
                 </span>
               )}
