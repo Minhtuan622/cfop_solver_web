@@ -19,6 +19,8 @@ const ReviewReminderSync = lazy(() =>
     default: module.ReviewReminderSync,
   }))
 );
+const WcaCompetitionPage = lazy(() => import("./pages/WcaCompetitionPage"));
+const WcaPersonPage = lazy(() => import("./pages/WcaPersonPage"));
 const Home = lazy(() => import("./pages/Home"));
 const History = lazy(() => import("./pages/History"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -73,6 +75,8 @@ function Router() {
         />
         <Route path="/leaderboard" component={CompetitionLeaderboard} />
         <Route path="/competition" component={CompetitionLeaderboard} />
+        <Route path="/wca/competitions/:id" component={WcaCompetitionPage} />
+        <Route path="/wca/persons/:wcaId" component={WcaPersonPage} />
         <Route path="/wca" component={WcaCompetitions} />
         <Route path="/records" component={Records} />
         <Route path="/about" component={About} />

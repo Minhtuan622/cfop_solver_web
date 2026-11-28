@@ -124,8 +124,8 @@ export const infoWords: Dictionary = {
   ],
   "guide.wca.title": ["Giải WCA", "WCA"],
   "guide.wca.body": [
-    "Theo dõi lịch các giải WCA và kỷ lục thế giới. Trang Kỷ lục WCA có kỷ lục thế giới, châu lục, quốc gia và các kỷ lục vừa bị phá. Tab \"Giải của tôi\" liệt kê giải bạn đã, đang và sẽ tham gia (cần liên kết WCA ID trong hồ sơ), kèm lịch thi, môn đăng ký và kết quả.",
-    "Follow the WCA competition calendar and world records. The WCA records page has world, continental and national records plus the ones broken most recently. The \"My competitions\" tab lists the competitions you attended, are attending and will attend (link your WCA ID in your profile), with the schedule, registered events and results.",
+    "Theo dõi lịch các giải WCA và kỷ lục thế giới. Trang Kỷ lục WCA có kỷ lục thế giới, châu lục, quốc gia và các kỷ lục vừa bị phá. Tab \"Giải của tôi\" liệt kê giải bạn đã, đang và sẽ tham gia (cần liên kết WCA ID trong hồ sơ), kèm lịch thi, môn đăng ký và kết quả. Tab \"Giải gần bạn\" liệt kê giải sắp tới theo quốc gia (có thể xếp theo khoảng cách). Tab \"Tìm kiếm\" mở hồ sơ người thi và trang giải, nơi có kết quả từng vòng, psych sheet và lịch thi. Tab \"Delegate & đội ngũ\" liệt kê delegate WCA và phiên bản TNoodle hiện hành.",
+    "Follow the WCA competition calendar and world records. The WCA records page has world, continental and national records plus the ones broken most recently. The \"My competitions\" tab lists the competitions you attended, are attending and will attend (link your WCA ID in your profile), with the schedule, registered events and results. \"Near you\" lists upcoming competitions by country (sortable by distance). \"Search\" opens competitor profiles and competition pages with round-by-round results, psych sheets and schedules. \"Delegates & teams\" lists WCA delegates and the current TNoodle version.",
   ],
   "guide.settings.title": ["Cài đặt", "Settings"],
   "guide.settings.body": [

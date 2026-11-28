@@ -5,6 +5,7 @@ import { errorMessage } from "@/lib/apiError";
 import { trpc } from "@/lib/trpc";
 import { wcaEventName, wcaEventShortName } from "@/lib/wcaEvents";
 import { cn } from "@/lib/utils";
+import { CompetitionExplorer } from "./CompetitionExplorer";
 import { formatDayRange } from "../lib/wcaCalendar";
 import {
   formatAttempt,
@@ -420,6 +421,19 @@ function Links({ info }: { info: CompetitionInfo }) {
   );
 }
 
+// The sections that only need public competition info, shared with the public
+// competition page.
+export function CompetitionInfoSections({ info }: { info: CompetitionInfo }) {
+  return (
+    <>
+      <Overview info={info} />
+      <Policies info={info} />
+      <Team info={info} />
+      <Links info={info} />
+    </>
+  );
+}
+
 export function MyCompetitionDetailView({ competitionId }: { competitionId: string }) {
   const { t } = useLanguage();
   const query = trpc.cfopAccount.wca.competitionDetail.useQuery(
@@ -446,6 +460,11 @@ export function MyCompetitionDetailView({ competitionId }: { competitionId: stri
       <Policies info={detail.competition} />
       <Team info={detail.competition} />
       <Links info={detail.competition} />
+      <CompetitionExplorer
+        competitionId={detail.competition.id}
+        eventIds={detail.competition.eventIds}
+        personal
+      />
     </div>
   );
 }

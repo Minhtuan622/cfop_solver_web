@@ -13,13 +13,17 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "wouter";
 import { Button, buttonClass } from "@/components/ui/Button";
 import {
+  CommunityPanel,
   MyCompetitionsPanel,
+  NearbyPanel,
+  PeoplePanel,
   WcaCalendarFilters,
   WcaCompetitionList,
   groupByMonth,
   matchesQuery,
 } from "@/features/wca";
 
+const TABS = ["calendar", "mine", "nearby", "people", "community"] as const;
 const WCA_CALENDAR_URL = "https://www.worldcubeassociation.org/competitions";
 
 export default function WcaCompetitions() {
@@ -29,11 +33,10 @@ export default function WcaCompetitions() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [countryIso2, setCountryIso2] = useState("");
   const [query, setQuery] = useState("");
-  const [tab, setTab] = useState<"calendar" | "mine">(() =>
-    new URLSearchParams(window.location.search).get("tab") === "mine"
-      ? "mine"
-      : "calendar"
-  );
+  const [tab, setTab] = useState<(typeof TABS)[number]>(() => {
+    const requested = new URLSearchParams(window.location.search).get("tab");
+    return TABS.find(id => id === requested) ?? "calendar";
+  });
 
   const PAGE_SIZE = 24;
   const [page, setPage] = useState(1);
@@ -114,9 +117,9 @@ export default function WcaCompetitions() {
       <div
         role="tablist"
         aria-label={t("wca.tabs")}
-        className="mb-6 flex gap-2"
+        className="mb-6 flex flex-wrap gap-2"
       >
-        {(["calendar", "mine"] as const).map(id => (
+        {TABS.map(id => (
           <Button
             key={id}
             type="button"
@@ -135,6 +138,18 @@ export default function WcaCompetitions() {
       {tab === "mine" ? (
         <div role="tabpanel" id="wca-panel-mine" aria-labelledby="wca-tab-mine">
           <MyCompetitionsPanel />
+        </div>
+      ) : tab === "nearby" ? (
+        <div role="tabpanel" id="wca-panel-nearby" aria-labelledby="wca-tab-nearby">
+          <NearbyPanel />
+        </div>
+      ) : tab === "people" ? (
+        <div role="tabpanel" id="wca-panel-people" aria-labelledby="wca-tab-people">
+          <PeoplePanel />
+        </div>
+      ) : tab === "community" ? (
+        <div role="tabpanel" id="wca-panel-community" aria-labelledby="wca-tab-community">
+          <CommunityPanel />
         </div>
       ) : (
         <div

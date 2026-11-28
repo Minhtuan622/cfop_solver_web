@@ -15,6 +15,11 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/trpc", () => ({
   trpc: {
+    wca: {
+      competitionResults: { useQuery: () => ({ data: undefined, isLoading: true, isError: false }) },
+      psychSheet: { useQuery: () => ({ data: undefined, isLoading: true, isError: false }) },
+      competitionSchedule: { useQuery: () => ({ data: undefined, isLoading: true, isError: false }) },
+    },
     useUtils: () => ({ cfopAccount: { wca: { pastCompetitions: { fetch: mocks.fetchPast } } } }),
     cfopAccount: {
       me: { useQuery: () => mocks.account },
@@ -22,6 +27,7 @@ vi.mock("@/lib/trpc", () => ({
         myCompetitions: { useQuery: () => mocks.mine },
         profile: { useQuery: () => mocks.profile },
         competitionDetail: { useQuery: () => mocks.detail },
+        competitionAgenda: { useQuery: () => ({ data: undefined, isLoading: true, isError: false }) },
       },
     },
   },

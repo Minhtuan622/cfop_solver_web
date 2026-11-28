@@ -123,6 +123,29 @@ export async function fetchWcaJson<T>(
   });
 }
 
+// Same as fetchWcaJson, but only the reduced result is kept in the cache. Used
+// for big payloads (a competition's WCIF can reach several megabytes).
+export async function fetchWcaJsonMapped<T, R>(
+  path: string,
+  cacheTtlMs: number,
+  caller: WcaCallerKey,
+  tag: string,
+  map: (payload: T) => R
+): Promise<R> {
+  const url = `${WCA_API_BASE}${path}`;
+  return cachedWcaFetch(`${url}#${tag}`, cacheTtlMs, caller, async signal => {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (response.status === 404)
+      throw new WcaApiError("NOT_FOUND", "Không tìm thấy WCA ID hoặc dữ liệu WCA.");
+    if (!response.ok)
+      throw new WcaApiError("UNAVAILABLE", "WCA hiện chưa phản hồi dữ liệu. Hãy thử lại sau.");
+    return map((await response.json()) as T);
+  });
+}
+
 const WCA_LIVE_URL = "https://live.worldcubeassociation.org/api";
 
 // WCA Live speaks GraphQL. Its schema is not versioned, so callers must treat
