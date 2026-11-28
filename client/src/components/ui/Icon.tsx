@@ -66,6 +66,18 @@ import {
   Trophy as TrophyGlyph,
   Undo2 as Undo2Glyph,
   X as XGlyph,
+  ArrowUpRight as ArrowUpRightGlyph,
+  Bug as BugGlyph,
+  Copy as CopyGlyph,
+  Code2 as Code2Glyph,
+  Globe as GlobeGlyph,
+  GitPullRequest as GitPullRequestGlyph,
+  GraduationCap as GraduationCapGlyph,
+  QrCode as QrCodeGlyph,
+  Settings as SettingsGlyph,
+  Share2 as Share2Glyph,
+  Star as StarGlyph,
+  Swords as SwordsGlyph,
   type LucideProps,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -152,3 +164,15 @@ export const Trash2 = icon(Trash2Glyph);
 export const Trophy = icon(TrophyGlyph);
 export const Undo2 = icon(Undo2Glyph);
 export const X = icon(XGlyph);
+export const ArrowUpRight = icon(ArrowUpRightGlyph);
+export const Bug = icon(BugGlyph);
+export const Copy = icon(CopyGlyph);
+export const Code2 = icon(Code2Glyph);
+export const Globe = icon(GlobeGlyph);
+export const GitPullRequest = icon(GitPullRequestGlyph);
+export const GraduationCap = icon(GraduationCapGlyph);
+export const QrCode = icon(QrCodeGlyph);
+export const Settings = icon(SettingsGlyph);
+export const Share2 = icon(Share2Glyph);
+export const Star = icon(StarGlyph);
+export const Swords = icon(SwordsGlyph);

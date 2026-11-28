@@ -96,6 +96,8 @@ describe("AppNav", () => {
       screen.getByRole("button", { name: "Tài khoản và tuỳ chọn" })
     );
 
+    expect(screen.getByText("Bạn chưa đăng nhập")).toBeTruthy();
+    expect(screen.getByText("Đăng nhập để đồng bộ và thi đấu")).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: "Đăng nhập" })).toBeTruthy();
     expect(screen.getByRole("menuitem", { name: "Đăng ký" })).toBeTruthy();
     expect(screen.getByRole("menuitemradio", { name: "Tiếng Việt" })).toBeTruthy();
