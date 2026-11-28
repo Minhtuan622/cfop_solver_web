@@ -8,6 +8,7 @@ import { pathToFileURL } from "node:url";
 const root = resolve(import.meta.dirname, "..");
 
 console.log(`[start] node ${process.version} PORT=${process.env.PORT ?? "(unset)"} NODE_ENV=${process.env.NODE_ENV ?? "(unset)"}`);
+console.log(`[start] pid=${process.pid} ppid=${process.ppid} cwd=${process.cwd()} argv=${JSON.stringify(process.argv.slice(1))}`);
 
 process.on("exit", code => console.log(`[start] process exit code=${code}`));
 process.on("uncaughtException", error => {
