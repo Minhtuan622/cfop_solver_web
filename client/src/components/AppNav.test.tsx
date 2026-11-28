@@ -31,45 +31,32 @@ describe("AppNav", () => {
     cleanup();
   });
 
-  it("hiện tất cả trang chính ngay trên thanh điều hướng", () => {
+  it("chỉ hiện Giải, Cài đặt và các nhóm trên thanh điều hướng", () => {
     renderNav();
 
-    const routes = [
-      { name: "Giải", href: "/" },
-      { name: "Bấm giờ", href: "/timer" },
-      { name: "Kết quả", href: "/history" },
-      { name: "Học thêm", href: "/study" },
-      { name: "Thi đấu", href: "/rooms" },
-      { name: "Xếp hạng", href: "/competition" },
-      { name: "Giải WCA", href: "/wca" },
-      { name: "Cài đặt", href: "/settings" },
-    ];
-
-    for (const route of routes) {
-      const link = screen.getByRole("link", { name: route.name });
-      expect(link.getAttribute("href")).toBe(route.href);
+    expect(screen.getByRole("link", { name: "Giải" }).getAttribute("href")).toBe("/");
+    expect(screen.getByRole("link", { name: "Cài đặt" }).getAttribute("href")).toBe("/settings");
+    for (const group of ["Luyện tập", "Cạnh tranh", "WCA", "Thông tin"]) {
+      expect(screen.getByRole("button", { name: group })).toBeTruthy();
     }
-    expect(screen.queryByRole("button", { name: "Thêm" })).toBeNull();
+    for (const hidden of ["Bấm giờ", "Kết quả", "Học thêm", "Rubik ảo", "Thi đấu", "Xếp hạng", "Giải WCA", "Ủng hộ"]) {
+      expect(screen.queryByRole("link", { name: hidden })).toBeNull();
+    }
   });
 
-  it("gói Kỷ lục WCA, Về chúng tôi, Ủng hộ và Hướng dẫn vào menu Thông tin", async () => {
+  it.each([
+    ["Luyện tập", [["Bấm giờ", "/timer"], ["Kết quả", "/history"], ["Học thêm", "/study"], ["Rubik ảo", "/play"]]],
+    ["Cạnh tranh", [["Thi đấu", "/rooms"], ["Xếp hạng", "/competition"]]],
+    ["WCA", [["Giải WCA", "/wca"], ["Kỷ lục WCA", "/records"]]],
+    ["Thông tin", [["Về chúng tôi", "/about"], ["Ủng hộ", "/donate"], ["Hướng dẫn sử dụng", "/guide"]]],
+  ] as const)("nhóm %s mở ra đúng các trang", async (group, routes) => {
     const user = userEvent.setup();
     renderNav();
 
-    expect(screen.queryByRole("menuitem", { name: "Về chúng tôi" })).toBeNull();
-    expect(screen.queryByRole("link", { name: "Ủng hộ" })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Thông tin" }));
+    await user.click(screen.getByRole("button", { name: group }));
 
-    const routes = [
-      { name: "Kỷ lục WCA", href: "/records" },
-      { name: "Về chúng tôi", href: "/about" },
-      { name: "Ủng hộ", href: "/donate" },
-      { name: "Hướng dẫn sử dụng", href: "/guide" },
-    ];
-
-    for (const route of routes) {
-      const link = screen.getByRole("menuitem", { name: route.name });
-      expect(link.getAttribute("href")).toBe(route.href);
+    for (const [name, href] of routes) {
+      expect(screen.getByRole("menuitem", { name }).getAttribute("href")).toBe(href);
     }
   });
 
@@ -89,7 +76,7 @@ describe("AppNav", () => {
       screen.getByRole("link", { name: "Giải" }).getAttribute("aria-current")
     ).toBe("page");
     expect(
-      screen.getByRole("link", { name: "Bấm giờ" }).getAttribute("aria-current")
+      screen.getByRole("link", { name: "Cài đặt" }).getAttribute("aria-current")
     ).toBeNull();
   });
 
