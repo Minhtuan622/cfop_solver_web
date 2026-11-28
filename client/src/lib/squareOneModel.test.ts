@@ -9,6 +9,7 @@ import {
   canSlice,
   formatToken,
   isSquareOneAlgorithm,
+  isSquareOneSetupLegal,
   normalizeTurn,
   parseSquareOneAlg,
   piecesOf,
@@ -66,6 +67,12 @@ describe("square-one model", () => {
     expect(tokens.map(formatToken).join(" ")).toBe("(1,-2)/ (3,0)/ (0,0)/ (0,-3)");
     expect(isSquareOneAlgorithm("R U R'")).toBe(false);
     expect(isSquareOneAlgorithm("")).toBe(true);
+  });
+
+  it("tells whether a setup can be played from the solved puzzle", () => {
+    expect(isSquareOneSetupLegal("(1,0)/ (2,5)/")).toBe(true);
+    expect(isSquareOneSetupLegal("(2,0)/")).toBe(false);
+    expect(isSquareOneSetupLegal("R U")).toBe(false);
   });
 
   it("normalizes turns to -5..6", () => {

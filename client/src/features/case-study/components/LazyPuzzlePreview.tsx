@@ -8,7 +8,7 @@ const Puzzle3DCanvas = lazy(async () => ({
 
 export type LazyPuzzlePreviewProps = Pick<
   ComponentProps<typeof Puzzle3DCanvasComponent>,
-  "eventId" | "puzzle" | "scramble" | "language"
+  "eventId" | "puzzle" | "scramble" | "language" | "model3d"
 > & {
   loadingLabel: string;
   frameClassName?: string;
@@ -19,6 +19,7 @@ export function LazyPuzzlePreview({
   puzzle,
   scramble,
   language,
+  model3d,
   loadingLabel,
   frameClassName = "relative overflow-hidden rounded-xl bg-surface-2",
 }: LazyPuzzlePreviewProps) {
@@ -36,6 +37,7 @@ export function LazyPuzzlePreview({
           puzzle={puzzle}
           scramble={scramble}
           language={language}
+          model3d={model3d}
         />
       </Suspense>
     </div>

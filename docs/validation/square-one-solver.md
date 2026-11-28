@@ -48,7 +48,7 @@ Mọi test giải đều phát lại lời giải trong kpuzzle của `cubing` v
 ## Mô hình 3D
 
 `SquareOneCanvas` dựng bằng Three.js (không dùng `twisty-player`, vì `cubing` chỉ có SVG 2D
-cho Square-1). Mỗi mảnh là một khối vát cạnh màu tối: cạnh là tam giác 30°, góc là hình diều 60°, với sticker bo góc nổi nhẹ và thụt vào so với mép; bảng màu chuẩn của Square-1 (đen trên, trắng dưới, bốn màu bên) nằm ở `SQ1_PALETTE`. Hai nửa tầng giữa cũng có sticker màu ở các mặt ngoài nên khi bị lật sẽ thấy rõ. Góc nhìn của mỗi ô (độ, quay theo chiều kim đồng hồ từ trên xuống):
+cho Square-1). Mỗi mảnh là một khối vát cạnh màu tối: cạnh là tam giác 30°, góc là hình diều 60°, với sticker bo góc nổi nhẹ và thụt vào so với mép; bảng màu chuẩn của Square-1 (trắng trên, đen dưới, xanh lá ở mặt trước, như hướng dẫn ở trang Học thêm) nằm ở `SQ1_PALETTE`. Hai nửa tầng giữa cũng có sticker màu ở các mặt ngoài nên khi bị lật sẽ thấy rõ. Góc nhìn của mỗi ô (độ, quay theo chiều kim đồng hồ từ trên xuống):
 tầng trên `-60 + 30·ô`, tầng dưới `-90 - 30·ô`. Lát cắt lật nửa có các ô 6-11 của tầng trên
 quanh trục nằm ở 195°; phép phản chiếu qua trục đó là thứ đưa tầng dưới về đúng chỗ
 (`squareOneGeometry.test.ts` kiểm).
@@ -63,4 +63,4 @@ khi một nước xoay và một lát cắt kết thúc hoạt ảnh với việ
 
 - Chỉ nhập bằng scramble `(a,b)/ …`; chưa có trình vẽ trạng thái cho Square-1.
 - Lời giải chưa tối ưu; để rút ngắn có thể nâng độ sâu macro hoặc thêm một pha kết hợp cạnh/góc.
-- Chỉ trang Giải dùng mô hình 3D (`model3d` của `Puzzle3DCanvas`); Timer và các ảnh xem trước vẫn là sơ đồ 2D của `cubing`, có e2e khoá (`side-events-2d-preview.spec.ts`).
+- Mô hình 3D dùng ở trang Giải, Học thêm, Bấm giờ và Phòng thi; chỉ vài case Học thêm bắt đầu từ tầng lệch phải về sơ đồ 2D (`model3d={false}`). `e2e/side-events-preview.spec.ts` khoá việc Square-1 dùng canvas 3D còn Clock giữ 2D.

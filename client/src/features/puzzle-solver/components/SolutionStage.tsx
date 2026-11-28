@@ -55,7 +55,6 @@ export function SolutionStage({
         language={language}
         replayToken={motionId}
         tempoScale={3.4 * speed}
-        model3d={puzzle === "square1"}
       />
     </div>
   );

@@ -173,7 +173,7 @@ export const studyWords: Dictionary = {
   "skewb.catalogTitle": ["Danh mục Skewb", "Skewb catalog"],
 
   "sq1.caseLabel": ["Case Square-1 đang học", "Active Square-1 case"],
-  "sq1.loading2d": ["Đang tải 2D…", "Loading 2D…"],
+  "sq1.loading2d": ["Đang tải mô hình…", "Loading model…"],
   "sq1.setLabel": ["Bộ thuật toán Square-1", "Square-1 algorithm set"],
   "sq1.setCp": ["CP · {count}", "CP · {count}"],
   "sq1.setCs": ["CS · {count}", "CS · {count}"],

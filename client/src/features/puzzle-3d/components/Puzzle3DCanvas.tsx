@@ -19,7 +19,9 @@ import { recolorCubeStickerColors, type ColoredObject } from "../lib/recolorCube
 import { IconButton } from "@/components/ui/StudioUI";
 import { RotateCcw } from "@/components/ui/Icon";
 import { Puzzle3DErrorCard } from "./Puzzle3DErrorCard";
+import { PreviewViewToggle } from "./PreviewViewToggle";
 import { SquareOneCanvas } from "./SquareOneCanvas";
+import { usePreviewView } from "../lib/previewView";
 import { collectShownPoints } from "../lib/puzzleFitPoints";
 import { usePuzzleOrbitControls } from "../lib/usePuzzleOrbitControls";
 import {
@@ -41,13 +43,18 @@ type Puzzle3DCanvasProps = {
   focusFtoFace?: FtoTeachingFace;
   nativeColors?: boolean;
   tempoScale?: number;
-  // Square-1 is drawn as a flat diagram unless the caller asks for the 3D model.
+  // Square-1 is drawn as the 3D model; pass false to get the flat diagram.
   model3d?: boolean;
 };
 
 export function Puzzle3DCanvas(props: Puzzle3DCanvasProps) {
-  if (props.puzzle === "square1" && props.model3d)
-    return (
+  const [view, setView] = usePreviewView();
+  // Clock only has a flat diagram, and a Square-1 case that cannot be drawn on
+  // the 3D model asks for the diagram; neither has a choice to offer.
+  const fixedFlat = props.puzzle === "clock" || (props.puzzle === "square1" && props.model3d === false);
+  const flat = fixedFlat || view === "2d";
+  const canvas =
+    !flat && props.puzzle === "square1" ? (
       <SquareOneCanvas
         eventId={props.eventId}
         scramble={props.scramble}
@@ -56,8 +63,16 @@ export function Puzzle3DCanvas(props: Puzzle3DCanvasProps) {
         animationRunId={props.animationRunId}
         tempoScale={props.tempoScale}
       />
+    ) : (
+      <TwistyPuzzleCanvas {...props} force2d={flat} />
     );
-  return <TwistyPuzzleCanvas {...props} />;
+  if (fixedFlat) return canvas;
+  return (
+    <div className="relative h-full">
+      {canvas}
+      <PreviewViewToggle value={view} onChange={setView} language={props.language} />
+    </div>
+  );
 }
 
 function TwistyPuzzleCanvas({
@@ -71,8 +86,9 @@ function TwistyPuzzleCanvas({
   focusFtoFace,
   nativeColors = false,
   tempoScale = 1,
-}: Puzzle3DCanvasProps) {
-  const isTwoD = isSideEvent2DPuzzle(puzzle);
+  force2d = false,
+}: Puzzle3DCanvasProps & { force2d?: boolean }) {
+  const isTwoD = force2d || isSideEvent2DPuzzle(puzzle);
   const hostRef = useRef<HTMLDivElement>(null);
   const {
     orbitRef,
@@ -352,6 +368,7 @@ function TwistyPuzzleCanvas({
     focusFtoWhiteFace,
     focusFtoFace,
     nativeColors,
+    isTwoD,
     retryTick,
   ]);
 

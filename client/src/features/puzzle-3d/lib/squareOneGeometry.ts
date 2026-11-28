@@ -11,15 +11,15 @@ export const SQ1_SLOT_DEGREES = 30;
 // The slice flips the half of the puzzle that holds the top slots 6-11.
 export const SQ1_SLICE_ANGLE = 195;
 
-// The usual Square-1 scheme: black on top, white underneath and one colour on
-// each of the four sides.
+// The Square-1 scheme the study notes describe: white on top with green in
+// front, black underneath and one colour on each of the four sides.
 export const SQ1_PALETTE = {
-  U: "#161616",
-  D: "#f0f0f0",
-  L: "#1f4dff",
-  B: "#ff8000",
-  R: "#00b53d",
-  F: "#d0021b",
+  U: "#f0f0f0",
+  D: "#161616",
+  F: "#00b53d",
+  R: "#d0021b",
+  B: "#1f4dff",
+  L: "#ff8000",
   BODY: "#2a2a30",
 } as const;
 
