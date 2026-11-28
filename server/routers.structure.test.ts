@@ -24,6 +24,7 @@ describe("domain router composition", () => {
       "storageStatus",
       "updateProfile",
       "uploadAvatar",
+      "wca.competitionAgenda",
       "wca.competitionDetail",
       "wca.myCompetitions",
       "wca.oauthStatus",
@@ -33,7 +34,7 @@ describe("domain router composition", () => {
       "wca.unlink",
     ]);
     expect(Object.keys(competitionRouter._def.procedures).sort()).toHaveLength(18);
-    expect(Object.keys(wcaRouter._def.procedures).sort()).toEqual(["competitions", "countries", "recentRecords", "records"]);
+    expect(Object.keys(wcaRouter._def.procedures).sort()).toEqual(["community", "competitionInfo", "competitionResults", "competitionSchedule", "competitions", "countries", "nearby", "person", "psychSheet", "recentRecords", "records", "scrambleProgram", "search"]);
   });
 
   it("preserves the public tRPC namespace consumed by the frontend", () => {

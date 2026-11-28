@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SolveHistoryEntry } from "@/lib/solveHistory";
-import { wcaTimerComparison } from "./wcaTimerComparison";
+import { wcaRecordTargets, wcaTimerComparison } from "./wcaTimerComparison";
 
 function solve(id: string, elapsedMs: number, penalty: SolveHistoryEntry["penalty"] = "none"): SolveHistoryEntry {
   return { id, createdAt: Number(id.replaceAll(/\D/g, "")) || 1, elapsedMs, inspectionMs: 0, input: "R U R' U'", inputKind: "scramble", moves: 0, penalty, solution: "", note: "", tags: [], phaseSplits: [] };
@@ -29,5 +29,25 @@ describe("wcaTimerComparison", () => {
       { key: "single", label: "PB single", timerMs: 4_000, wcaMs: 4_500, deltaMs: -500 },
       { key: "ao5", label: "PB Ao5 / average", timerMs: 5_500, wcaMs: 5_500, deltaMs: 0 },
     ]);
+  });
+});
+
+describe("wcaRecordTargets", () => {
+  const rows = [
+    { key: "single" as const, label: "PB single", timerMs: 9_000, wcaMs: null, deltaMs: null },
+    { key: "ao5" as const, label: "PB Ao5", timerMs: null, wcaMs: null, deltaMs: null },
+  ];
+  const world = [{ eventId: "333", single: 305, average: 413 }];
+  const national = [{ eventId: "333", single: 480, average: 650 }];
+
+  it("measures the gap to world and national records", () => {
+    const [single, average] = wcaRecordTargets(rows, "333", world, national);
+    expect(single).toMatchObject({ worldMs: 3050, nationalMs: 4800, worldGapMs: 5950, nationalGapMs: 4200 });
+    expect(average).toMatchObject({ worldMs: 4130, worldGapMs: null });
+  });
+
+  it("copes with missing events and regions", () => {
+    const [single] = wcaRecordTargets(rows, "444", world, null);
+    expect(single).toMatchObject({ worldMs: null, nationalMs: null, worldGapMs: null, nationalGapMs: null });
   });
 });
