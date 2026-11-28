@@ -84,9 +84,10 @@ RUN pnpm install --frozen-lockfile --prod
 # keeps every .env file and the git history out, so secrets stay with the
 # deployment platform and reach the server as environment variables.
 COPY --from=build /app/dist ./dist
-# Migrations run before each deploy (railway.json startCommand).
+# start.mjs runs the migrations, then the server (railway.json startCommand).
 COPY drizzle ./drizzle
 COPY scripts/migrate.mjs ./scripts/migrate.mjs
+COPY scripts/start.mjs ./scripts/start.mjs
 
 ENV NODE_ENV=production
 ENV PORT=3000
