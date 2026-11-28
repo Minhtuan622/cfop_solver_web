@@ -13,6 +13,7 @@ export type SolverToolbarProps = {
   loading: boolean;
   status: string;
   hideKind?: boolean;
+  hideMode?: boolean;
 };
 
 export function SolverToolbar({
@@ -23,6 +24,7 @@ export function SolverToolbar({
   loading,
   status,
   hideKind = false,
+  hideMode = false,
 }: SolverToolbarProps) {
   const { t } = useLanguage();
   return (
@@ -53,6 +55,7 @@ export function SolverToolbar({
         />
       </PillBar>
       )}
+      {hideMode ? null : (
       <PillBar>
         <PillGroup<SolverInputMode>
           tone="soft"
@@ -73,6 +76,7 @@ export function SolverToolbar({
           ]}
         />
       </PillBar>
+      )}
       <span className="sr-only" role="status" aria-live="polite">
         {loading ? status : t("home.ready")}
       </span>

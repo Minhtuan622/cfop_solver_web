@@ -10,10 +10,11 @@ describe("link chia sẻ trang Giải", () => {
     expect(parseShareParams(new URL(url).search)).toEqual({ kind: "cfop", scramble });
   });
 
-  it("đi vòng ký hiệu của Megaminx và Clock", () => {
+  it("đi vòng ký hiệu của Megaminx, Clock và Square-1", () => {
     for (const [kind, scramble] of [
       ["minx", "R++ D-- U'"],
       ["clock", "UR3+ DR2- y2 ALL1+"],
+      ["sq1", "(1,0)/ (-3,4)/ (0,-3)/ (6,0)"],
     ] as const) {
       const url = buildShareUrl("https://x.test", { kind, scramble });
       expect(parseShareParams(new URL(url).search)).toEqual({ kind, scramble });
