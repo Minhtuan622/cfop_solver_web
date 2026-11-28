@@ -16,7 +16,7 @@ export function ProfileStudySummary({
 }) {
   const { t } = useLanguage();
   return (
-    <div className="rounded-card bg-surface mb-6">
+    <div className="rounded-card bg-surface">
       <div className="p-5 sm:p-6">
         <Eyebrow>Study</Eyebrow>
         <h2 className="text-lg font-semibold tracking-tight mb-1">
