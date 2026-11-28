@@ -63,4 +63,4 @@ khi một nước xoay và một lát cắt kết thúc hoạt ảnh với việ
 
 - Chỉ nhập bằng scramble `(a,b)/ …`; chưa có trình vẽ trạng thái cho Square-1.
 - Lời giải chưa tối ưu; để rút ngắn có thể nâng độ sâu macro hoặc thêm một pha kết hợp cạnh/góc.
-- Chỉ trang Giải dùng mô hình 3D (`model3d` của `Puzzle3DCanvas`); Timer và các ảnh xem trước vẫn là sơ đồ 2D của `cubing`, có e2e khoá (`side-events-2d-preview.spec.ts`).
+- Mô hình 3D dùng ở trang Giải, Học thêm, Bấm giờ và Phòng thi; chỉ vài case Học thêm bắt đầu từ tầng lệch phải về sơ đồ 2D (`model3d={false}`). `e2e/side-events-preview.spec.ts` khoá việc Square-1 dùng canvas 3D còn Clock giữ 2D.

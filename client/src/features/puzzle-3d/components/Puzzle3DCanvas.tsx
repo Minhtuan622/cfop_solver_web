@@ -41,12 +41,12 @@ type Puzzle3DCanvasProps = {
   focusFtoFace?: FtoTeachingFace;
   nativeColors?: boolean;
   tempoScale?: number;
-  // Square-1 is drawn as a flat diagram unless the caller asks for the 3D model.
+  // Square-1 is drawn as the 3D model; pass false to get the flat diagram.
   model3d?: boolean;
 };
 
 export function Puzzle3DCanvas(props: Puzzle3DCanvasProps) {
-  if (props.puzzle === "square1" && props.model3d)
+  if (props.puzzle === "square1" && props.model3d !== false)
     return (
       <SquareOneCanvas
         eventId={props.eventId}

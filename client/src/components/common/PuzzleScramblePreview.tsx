@@ -1,5 +1,4 @@
 import { lazy, Suspense, useMemo } from "react";
-import { isSideEvent2DPuzzle } from "@/features/puzzle-3d/lib/puzzleIds";
 import { readSolverSettings } from "@/lib/appSettings";
 import { previewSetupAlg } from "@/lib/scrambleOrientation";
 import type { CrossColor } from "@/lib/solverRuntime";
@@ -32,9 +31,7 @@ export function puzzleScramblePreviewConfig(
         puzzle,
         experimentalSetupAlg: scramble,
         alg: "",
-        visualization: isSideEvent2DPuzzle(puzzle)
-          ? ("2D" as const)
-          : ("3D" as const),
+        visualization: puzzle === "clock" ? ("2D" as const) : ("3D" as const),
         hintFacelets: "none" as const,
         controlPanel: "none" as const,
         backView: "none" as const,
@@ -75,7 +72,7 @@ export function PuzzleScramblePreview({
   );
 
   if (!config) return null;
-  const modelLabel = isSideEvent2DPuzzle(config.puzzle) ? "2D" : "3D";
+  const modelLabel = config.puzzle === "clock" ? "2D" : "3D";
   return (
     <Suspense
       fallback={
