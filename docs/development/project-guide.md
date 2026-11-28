@@ -673,12 +673,16 @@ dist/
 
 ```text
 builder:     Dockerfile (Railpack không có Rust nên không build được bộ giải)
-start:       node dist/index.js
+start:       node scripts/start.mjs
 healthcheck: /_app/ready
 restart:     ON_FAILURE, tối đa 3 lần
 ```
 
-Nếu service trên Railway có đặt đè build command hoặc start command trong dashboard, hãy xoá để Railway dùng cấu hình trong `railway.json`.
+`scripts/start.mjs` chạy `scripts/migrate.mjs` (áp migration Drizzle) rồi nạp `dist/index.js`, và ghi log từng bước (`[start] ...`, `[migrate] ...`, `Server running on ...`). Không nối hai lệnh bằng `&&` trong start command: Railway chạy start command không qua shell, nên `node a.mjs && node b.js` chỉ chạy `a.mjs` với `&&` là tham số, server không bao giờ khởi động và deploy hỏng healthcheck.
+
+**Start command thật nằm ở cài đặt service**, không chỉ ở `railway.json`. Nếu service đặt riêng start command trong dashboard (Settings → Deploy → Custom Start Command), giá trị đó là cái container chạy. Khi đổi nó, một lần "Redeploy" bản cũ vẫn dùng cấu hình cũ; phải tạo deployment mới (push commit) để cấu hình mới có hiệu lực. Báo cáo lỗi của Railway hiện start command lấy từ cấu hình hiện tại, không chắc là lệnh bản deploy đó đã chạy.
+
+Khi deploy lỗi healthcheck, đọc deploy logs: phải thấy `[start] node ... PORT=...` rồi `Server running`. Thiếu dòng `[start]` nghĩa là container không chạy `scripts/start.mjs`.
 
 Khi deploy, cần khai báo secret/database trong dashboard của nhà cung cấp, không commit vào repository. Phải chạy production Node server; static host thuần như GitHub Pages hoặc Cloudflare Pages chỉ phù hợp cho `dist/public` nếu tách backend riêng, không đủ cho account, sync và Rooms.
 
