@@ -1,6 +1,5 @@
 import { Link } from "wouter";
 import { BookOpenCheck } from "@/components/ui/Icon";
-import { Eyebrow } from "@/components/ui/StudioUI";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export function ProfileStudySummary({
@@ -18,13 +17,9 @@ export function ProfileStudySummary({
   return (
     <div className="rounded-card bg-surface">
       <div className="p-5 sm:p-6">
-        <Eyebrow>Study</Eyebrow>
-        <h2 className="text-lg font-semibold tracking-tight mb-1">
+        <h2 className="text-lg font-semibold tracking-tight mb-4">
           {t("profile.studyTitle")}
         </h2>
-        <p className="text-sm text-muted mb-4">
-          {t("profile.studyHint")}
-        </p>
         <div className="bg-transparent">
           <div className="block px-4 py-3 text-sm px-0 flex justify-between">
             <span>{t("profile.studyBldDue")}</span>

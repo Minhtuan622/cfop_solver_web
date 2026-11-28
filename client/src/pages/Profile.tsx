@@ -281,7 +281,6 @@ export default function Profile() {
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
       <ProfileHero
         account={account}
-        wcaId={account.wcaId}
         goalLabel={goalLabel}
         onEdit={openEdit}
         onChangePassword={openPassword}

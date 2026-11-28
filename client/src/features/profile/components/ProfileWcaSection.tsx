@@ -62,15 +62,10 @@ export function ProfileWcaSection({
               <Globe aria-hidden="true" className="text-xl" />
             </span>
             <div className="min-w-0">
-              <p className="m-0 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-                {t("profile.wcaEyebrow")}
-              </p>
-              <h2 className="m-0 mt-1 text-lg font-semibold tracking-tight text-ink">
+              <h2 className="m-0 text-lg font-semibold tracking-tight text-ink">
                 {wcaId ? t("profile.wcaTitle") : t("profile.wcaLinkTitle")}
               </h2>
-              <p className="m-0 mt-1 text-sm text-muted">
-                {wcaId ? wcaId : t("profile.wcaLinkHint")}
-              </p>
+              {wcaId ? null : <p className="m-0 mt-1 text-sm text-muted">{t("profile.wcaLinkHint")}</p>}
             </div>
           </div>
           {wcaId ? (

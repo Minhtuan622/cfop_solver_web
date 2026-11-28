@@ -11,9 +11,6 @@ export default function NotFound() {
       <div className="rounded-card bg-surface text-center">
         <div className="p-6 sm:p-8 md:p-12">
           <AlertCircle className="text-4xl text-danger mb-4" />
-          <p className="uppercase tracking-wide text-sm font-semibold text-muted mb-1">
-            CFOP Solver Studio
-          </p>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">404</h1>
           <h2 className="text-lg font-semibold tracking-tight mt-4">
             {t("notFound.title")}

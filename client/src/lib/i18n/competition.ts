@@ -2,10 +2,7 @@ import type { Dictionary } from "./index";
 
 export const competitionWords: Dictionary = {
   "competition.leaderboard.title": ["Xếp hạng", "Rankings"],
-  "competition.leaderboard.description": [
-    "Theo dõi phong độ thi đấu, điểm số và lịch sử của cộng đồng CFOP Solver.",
-    "Follow the competitive form, points and history of the CFOP Solver community.",
-  ],
+  "competition.leaderboard.description": ["Điểm số và lịch sử thi đấu của cộng đồng.", "Points and match history of the community."],
   "competition.leaderboard.cta": ["Vào phòng thi", "Enter a room"],
   "competition.leaderboard.viewRooms": ["Xem phòng thi", "See the rooms"],
 
@@ -49,8 +46,8 @@ export const competitionWords: Dictionary = {
   "competition.myHistory.loading": ["Đang tải lịch sử cá nhân", "Loading your history"],
   "competition.myHistory.signInTitle": ["Đăng nhập để xem lịch sử", "Sign in to see your history"],
   "competition.myHistory.signInDetail": [
-    "Bảng xếp hạng công khai không yêu cầu đăng nhập. Đăng nhập tài khoản CFOP để mở lịch sử cá nhân.",
-    "The public leaderboard needs no sign-in. Sign in with a CFOP account to open your own history.",
+    "Đăng nhập tài khoản CFOP để mở lịch sử cá nhân.",
+    "Sign in with a CFOP account to open your own history.",
   ],
   "competition.myHistory.failedTitle": ["Không thể tải lịch sử", "Could not load your history"],
   "competition.myHistory.failedDetail": ["Hãy thử lại sau ít phút.", "Try again in a few minutes."],
@@ -76,10 +73,7 @@ export const competitionWords: Dictionary = {
   ],
 
   "competition.player.title": ["Lịch sử thi đấu của {name}", "Competition history of {name}"],
-  "competition.player.description": [
-    "Theo dõi thành tích qua từng phòng, vòng thi và thứ hạng cuối.",
-    "Track results through every room, round and final placement.",
-  ],
+  "competition.player.description": ["Thành tích qua từng phòng và vòng thi.", "Results across rooms and rounds."],
   "competition.player.back": ["Quay lại xếp hạng", "Back to the leaderboard"],
   "competition.player.loading": ["Đang tải lịch sử thi đấu người chơi", "Loading the player history"],
   "competition.player.failedTitle": ["Không thể tải lịch sử", "Could not load the history"],

@@ -26,10 +26,6 @@ export const solverWords: Dictionary = {
   ],
   "otherPuzzles.eyebrow": ["Khối khác", "Other puzzles"],
   "otherPuzzles.title": ["Giải 2×2, Pyraminx và Skewb", "Solve 2×2, Pyraminx and Skewb"],
-  "otherPuzzles.subtitle": [
-    "Nhập scramble, nhận lời giải ngắn và xem lại từng lượt trên mô hình 3D.",
-    "Enter a scramble, get a short solution and watch it on the 3D model.",
-  ],
   "otherPuzzles.puzzle": ["Loại khối", "Puzzle"],
   "otherPuzzles.puzzle.222": ["2×2×2", "2×2×2"],
   "otherPuzzles.puzzle.pyram": ["Pyraminx", "Pyraminx"],
@@ -81,8 +77,8 @@ export const solverWords: Dictionary = {
   "otherPuzzles.random": ["Scramble ngẫu nhiên", "Random scramble"],
   "otherPuzzles.generating": ["Đang tạo…", "Generating…"],
   "otherPuzzles.note": [
-    "Bộ giải tìm lời giải ngắn, không theo phương pháp học cụ thể. Dùng ký hiệu WCA của từng khối.",
-    "The solver finds a short solution, not one for a specific method. Use the WCA notation of each puzzle.",
+    "Lời giải ngắn, dùng ký hiệu WCA của từng khối.",
+    "A short solution, in the WCA notation of each puzzle.",
   ],
   "otherPuzzles.moves": ["SỐ LƯỢT", "MOVES"],
   "otherPuzzles.solution": ["Lời giải", "Solution"],
@@ -123,18 +119,9 @@ export const solverWords: Dictionary = {
 
   "home.title.solve": ["Giải Rubik", "Rubik Solver"],
   "home.title.bld": ["Luyện ghi nhớ", "Memory practice"],
-  "home.description.solve": [
-    "Nhập scramble, xem từng bước CFOP và luyện theo cách giải được kiểm chứng.",
-    "Enter a scramble, inspect each CFOP step and practise the verified solution.",
-  ],
-  "home.description.state": [
-    "Tô màu trạng thái khối hoặc dán 54 sticker để tìm cách giải.",
-    "Paint the cube state or paste 54 stickers to find a solution.",
-  ],
-  "home.description.bld": [
-    "Tạo memo 3-Style từ trạng thái cube và tiếp tục luyện tập theo lộ trình.",
-    "Build a 3-Style memo from the cube state and continue with guided practice.",
-  ],
+  "home.description.solve": ["Nhập scramble để xem lời giải từng bước.", "Enter a scramble to see the solution step by step."],
+  "home.description.state": ["Tô màu trạng thái khối hoặc dán 54 sticker.", "Paint the cube state or paste 54 stickers."],
+  "home.description.bld": ["Tạo memo 3-Style từ trạng thái cube.", "Build a 3-Style memo from the cube state."],
   "home.eyebrow": ["Không gian làm việc", "Workspace"],
   "home.ready": ["Sẵn sàng", "Ready"],
   "home.modeLabel": ["Chế độ solver", "Solver mode"],
@@ -142,10 +129,6 @@ export const solverWords: Dictionary = {
   "home.tab.solve": ["3×3 CFOP", "3×3 CFOP"],
   "home.tab.bld": ["3×3 BLD", "3×3 BLD"],
   "home.tab.fm": ["3×3 FM", "3×3 FM"],
-  "home.hint": [
-    "Nhập khối rồi bấm Tìm cách giải; các tùy chọn nâng cao là không bắt buộc.",
-    "Enter the cube and choose Find a solution; advanced options are optional.",
-  ],
   "home.resetDefaults": ["Đặt lại", "Reset"],
   "home.inputTitle": ["Khối của bạn", "Your cube"],
   "home.inputTitle.scramble": ["Nhập xáo trộn", "Enter scramble"],
@@ -245,14 +228,7 @@ export const solverWords: Dictionary = {
     "Đưa từng mặt của khối vào khung để tự điền trạng thái.",
     "Hold each face of the cube to the frame to fill in the state.",
   ],
-  "home.scrambleHint": [
-    "Bạn đã nhập chuỗi xáo trộn của khối. Bấm nút Tìm cách giải khi sẵn sàng.",
-    "You entered how the cube was mixed. Choose Find a solution when ready.",
-  ],
-  "home.stateHint": [
-    "Bạn đang tô màu trực tiếp trên các mặt của khối. Hoàn tất cả sáu mặt rồi bấm Tìm cách giải.",
-    "You are coloring the cube directly. Complete all six faces, then choose Find a solution.",
-  ],
+  "home.stateHint": ["Tô đủ sáu mặt rồi bấm Tìm cách giải.", "Fill all six faces, then choose Find a solution."],
   "home.memoReady": ["Đường ghi nhớ đã sẵn sàng", "Memory path is ready"],
   "home.memoBuild": [
     "Tạo memo từ trạng thái khối",

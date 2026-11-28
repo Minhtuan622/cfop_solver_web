@@ -81,6 +81,6 @@ describe("ProfileWcaSection: liên kết WCA", () => {
   it("đã liên kết thì không còn nút Liên kết", () => {
     render(<ProfileWcaSection {...baseProps} wcaId="2016ABCD01" onUnlink={() => undefined} />);
     expect(screen.queryByRole("button", { name: "Liên kết bằng WCA" })).toBeNull();
-    expect(screen.getByText("2016ABCD01")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Mở WCA/ })).toHaveAttribute("href", expect.stringContaining("2016ABCD01"));
   });
 });
