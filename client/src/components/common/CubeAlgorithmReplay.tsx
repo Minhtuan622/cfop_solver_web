@@ -15,6 +15,7 @@ export function CubeAlgorithmReplay({
   language,
   replayToken,
   tempoScale,
+  model3d,
 }: {
   eventId: TimerEventId;
   puzzle: PuzzleId;
@@ -23,6 +24,7 @@ export function CubeAlgorithmReplay({
   language: "vi" | "en";
   replayToken?: number;
   tempoScale?: number;
+  model3d?: boolean;
 }) {
   return (
     <Suspense
@@ -40,6 +42,7 @@ export function CubeAlgorithmReplay({
         animationAlg={algorithm}
         animationRunId={replayToken}
         tempoScale={tempoScale}
+        model3d={model3d}
       />
     </Suspense>
   );

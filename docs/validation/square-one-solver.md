@@ -63,4 +63,4 @@ khi một nước xoay và một lát cắt kết thúc hoạt ảnh với việ
 
 - Chỉ nhập bằng scramble `(a,b)/ …`; chưa có trình vẽ trạng thái cho Square-1.
 - Lời giải chưa tối ưu; để rút ngắn có thể nâng độ sâu macro hoặc thêm một pha kết hợp cạnh/góc.
-- Ảnh xem trước nhỏ (timer, thẻ scramble) vẫn là SVG 2D của `cubing`.
+- Chỉ trang Giải dùng mô hình 3D (`model3d` của `Puzzle3DCanvas`); Timer và các ảnh xem trước vẫn là sơ đồ 2D của `cubing`, có e2e khoá (`side-events-2d-preview.spec.ts`).
