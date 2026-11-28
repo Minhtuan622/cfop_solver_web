@@ -133,6 +133,17 @@ export function isSquareOneAlgorithm(text: string) {
   }
 }
 
+// True when the moves can be played from the solved puzzle without a slice
+// cutting through a corner, which is what the 3D model needs for a setup.
+export function isSquareOneSetupLegal(text: string) {
+  try {
+    applyTokens(SQ1_SOLVED, parseSquareOneAlg(text));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function isSquareOneSolved(state: readonly number[], equatorFlipped = false) {
   return !equatorFlipped && state.every((wedge, index) => wedge === index);
 }
