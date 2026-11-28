@@ -2,7 +2,7 @@ import type { Dictionary } from "./index";
 
 export const infoWords: Dictionary = {
   "nav.info": ["Thông tin", "Info"],
-  "nav.infoLabel": ["Tra cứu, giới thiệu và hỗ trợ", "Lookup, about and support"],
+  "nav.infoLabel": ["Giới thiệu và hỗ trợ", "About and support"],
   "nav.records": ["Kỷ lục WCA", "WCA records"],
   "nav.about": ["Về chúng tôi", "About us"],
   "nav.donate": ["Ủng hộ", "Donate"],

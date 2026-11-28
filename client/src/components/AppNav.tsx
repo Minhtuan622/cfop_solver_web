@@ -8,71 +8,75 @@ import { NavUtilityMenu } from "@/components/NavUtilityMenu";
 import { NavOverflowMenu } from "@/components/NavOverflowMenu";
 import { cn } from "@/lib/utils";
 
-const mainNavItems: AccountNavItem[] = [
-  { href: "/", labelKey: "nav.solve", active: (path: string) => path === "/" },
-  {
-    href: "/timer",
-    labelKey: "nav.timer",
-    active: (path: string) => path === "/timer",
-  },
-  {
-    href: "/history",
-    labelKey: "nav.history",
-    active: (path: string) => path === "/history",
-  },
-  {
-    href: "/study",
-    labelKey: "nav.study",
-    active: (path: string) => path === "/study",
-  },
-  {
-    href: "/play",
-    labelKey: "nav.play",
-    active: (path: string) => path === "/play",
-  },
-  {
-    href: "/rooms",
-    labelKey: "nav.rooms",
-    active: (path: string) => path === "/rooms" || path.startsWith("/rooms/"),
-  },
-  {
-    href: "/competition",
-    labelKey: "nav.rankings",
-    active: (path: string) =>
-      path === "/competition" || path.startsWith("/competition/"),
-  },
-  {
-    href: "/wca",
-    labelKey: "nav.wca",
-    active: (path: string) => path === "/wca",
-  },
-  {
-    href: "/settings",
-    labelKey: "nav.settings",
-    active: (path: string) => path === "/settings",
-  },
-];
+const exact = (href: string) => (path: string) => path === href;
+const section = (href: string) => (path: string) =>
+  path === href || path.startsWith(`${href}/`);
 
-const infoNavItems: AccountNavItem[] = [
+type NavLinkEntry = { kind: "link"; item: AccountNavItem };
+type NavGroupEntry = {
+  kind: "group";
+  id: string;
+  labelKey: string;
+  menuLabelKey: string;
+  items: AccountNavItem[];
+};
+
+// Tabs that belong together share one dropdown so the bar stays short.
+const navEntries: Array<NavLinkEntry | NavGroupEntry> = [
   {
-    href: "/records",
-    labelKey: "nav.records",
-    active: (path: string) => path === "/records",
+    kind: "link",
+    item: { href: "/", labelKey: "nav.solve", active: exact("/") },
   },
   {
-    href: "/about",
-    labelKey: "nav.about",
-    active: (path: string) => path === "/about",
+    kind: "group",
+    id: "cfop-practice-menu",
+    labelKey: "nav.group.practice",
+    menuLabelKey: "nav.group.practiceLabel",
+    items: [
+      { href: "/timer", labelKey: "nav.timer", active: exact("/timer") },
+      { href: "/history", labelKey: "nav.history", active: exact("/history") },
+      { href: "/study", labelKey: "nav.study", active: exact("/study") },
+      { href: "/play", labelKey: "nav.play", active: exact("/play") },
+    ],
   },
   {
-    href: "/donate",
-    labelKey: "nav.donate",
-    active: (path: string) => path === "/donate",
+    kind: "group",
+    id: "cfop-compete-menu",
+    labelKey: "nav.group.compete",
+    menuLabelKey: "nav.group.competeLabel",
+    items: [
+      { href: "/rooms", labelKey: "nav.rooms", active: section("/rooms") },
+      {
+        href: "/competition",
+        labelKey: "nav.rankings",
+        active: section("/competition"),
+      },
+    ],
   },
   {
-    href: "/guide",
-    labelKey: "nav.guide",
-    active: (path: string) => path === "/guide",
+    kind: "group",
+    id: "cfop-wca-menu",
+    labelKey: "nav.group.wca",
+    menuLabelKey: "nav.group.wcaLabel",
+    items: [
+      { href: "/wca", labelKey: "nav.wca", active: section("/wca") },
+      { href: "/records", labelKey: "nav.records", active: exact("/records") },
+    ],
+  },
+  {
+    kind: "link",
+    item: { href: "/settings", labelKey: "nav.settings", active: exact("/settings") },
+  },
+  {
+    kind: "group",
+    id: "cfop-info-menu",
+    labelKey: "nav.info",
+    menuLabelKey: "nav.infoLabel",
+    items: [
+      { href: "/about", labelKey: "nav.about", active: exact("/about") },
+      { href: "/donate", labelKey: "nav.donate", active: exact("/donate") },
+      { href: "/guide", labelKey: "nav.guide", active: exact("/guide") },
+    ],
   },
 ];
 
@@ -144,7 +148,20 @@ export function AppNav() {
             className="flex flex-col gap-1 xl:flex-row xl:items-center"
             aria-label={t("nav.main")}
           >
-            {mainNavItems.map(item => {
+            {navEntries.map(entry => {
+              if (entry.kind === "group")
+                return (
+                  <NavOverflowMenu
+                    key={entry.id}
+                    id={entry.id}
+                    labelKey={entry.labelKey}
+                    menuLabelKey={entry.menuLabelKey}
+                    items={entry.items}
+                    path={path}
+                    onNavigate={closeMenus}
+                  />
+                );
+              const { item } = entry;
               const active = item.active(path);
               return (
                 <Link
@@ -163,14 +180,6 @@ export function AppNav() {
                 </Link>
               );
             })}
-            <NavOverflowMenu
-              id="cfop-info-menu"
-              labelKey="nav.info"
-              menuLabelKey="nav.infoLabel"
-              items={infoNavItems}
-              path={path}
-              onNavigate={closeMenus}
-            />
           </nav>
           <div className="mt-4 flex items-center gap-1 xl:mt-0 xl:ml-2">
             <NavUtilityMenu />
